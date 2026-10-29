@@ -83,7 +83,7 @@ public static class DiagramNodeHumanCaptionFactory
         string resourceName = node.Label switch
         {
             null => ResourceNameNotStoredCaption,
-            { Length: 0 } => ResourceNameNotStoredCaption,
+            { Length: 0 } => ResourceNameStoredEmptyCaption,
             _ when string.IsNullOrWhiteSpace(node.Label) => ResourceNameStoredEmptyCaption,
             _ => MermaidDiagramRenderer.EscapeLabel(node.Label),
         };

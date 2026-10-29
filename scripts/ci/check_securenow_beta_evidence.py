@@ -43,7 +43,7 @@ def validate(matrix: object, *, strict: bool = False) -> list[str]:
             continue
         ids.append(rid)
         status = item.get("status")
-        if status not in VALID:
+        if not isinstance(status, str) or status not in VALID:
             errors.append(f"{rid}: invalid status {status!r}")
         evidence = item.get("evidence")
         if not isinstance(evidence, str) or not evidence.strip():
@@ -54,7 +54,7 @@ def validate(matrix: object, *, strict: bool = False) -> list[str]:
                     errors.append(f"{rid}: PASS requires {field}")
         if status == "PASS":
             sha = item.get("commit_sha")
-            if isinstance(sha, str) and re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None:
+            if isinstance(sha, str) and (re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None or sha == "0" * 40):
                 errors.append(f"{rid}: commit_sha must be a full 40-character Git commit")
             command = item.get("test_command")
             if isinstance(command, str) and command.strip().lower() in {"passed", "pass", "yes", "true"}:
@@ -70,7 +70,8 @@ def validate(matrix: object, *, strict: bool = False) -> list[str]:
         errors.append(f"missing requirement ids: {', '.join(missing)}")
     if unexpected:
         errors.append(f"unexpected requirement ids: {', '.join(unexpected)}")
-    duplicates = sorted({rid for rid in ids if ids.count(rid) > 1})
+    from collections import Counter
+    duplicates = sorted(rid for rid, count in Counter(ids).items() if count > 1)
     if duplicates:
         errors.append(f"duplicate requirement ids: {', '.join(duplicates)}")
     return errors
@@ -88,8 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     errors = validate(matrix, strict=args.strict)
     counts = {value: 0 for value in sorted(VALID)}
-    for item in matrix.get("requirements", []):
-        if isinstance(item, dict) and item.get("status") in counts:
+    for item in matrix.get("requirements", []) if isinstance(matrix, dict) and isinstance(matrix.get("requirements"), list) else []:
+        if isinstance(item, dict) and isinstance(item.get("status"), str) and item["status"] in counts:
             counts[item["status"]] += 1
     print("SecureNow beta evidence: " + ", ".join(f"{k}={v}" for k, v in counts.items()))
     if errors:

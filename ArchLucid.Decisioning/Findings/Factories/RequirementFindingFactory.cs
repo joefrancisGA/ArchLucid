@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 
 using ExplainabilityMarkers = ArchLucid.Decisioning.Findings.ExplainabilityTraceMarkers;
@@ -11,7 +12,7 @@ public static class RequirementFindingFactory
         string title,
         string rationale,
         string requirementName,
-        string requirementText,
+        string? requirementText,
         bool isMandatory,
         IEnumerable<string>? relatedNodeIds = null)
     {
@@ -26,7 +27,12 @@ public static class RequirementFindingFactory
             Rationale = rationale,
             RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
             PayloadType = nameof(RequirementFindingPayload),
-            Payload = new RequirementFindingPayload { RequirementName = requirementName, RequirementText = requirementText, IsMandatory = isMandatory }
+            Payload = new RequirementFindingPayload
+            {
+                RequirementName = DecisioningFindingHonestyCopy.FormatRequirementName(requirementName),
+                RequirementText = DecisioningFindingHonestyCopy.FormatRequirementText(requirementText),
+                IsMandatory = isMandatory,
+            }
         };
     }
 

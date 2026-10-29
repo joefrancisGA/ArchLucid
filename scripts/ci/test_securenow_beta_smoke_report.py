@@ -12,11 +12,11 @@ SCRIPT = Path(__file__).with_name("securenow_beta_smoke_report.py")
 SHA = "a" * 40
 
 class OfflineGateTests(unittest.TestCase):
-    def check(self, payload):
+    def check(self, payload, *extra_args):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "evidence.json"
             path.write_text(json.dumps(payload), encoding="utf-8")
-            return subprocess.run([sys.executable, str(SCRIPT), "--check", str(path)],
+            return subprocess.run([sys.executable, str(SCRIPT), "--check", str(path), *extra_args],
                                   capture_output=True, text=True, check=False).returncode
 
     def build(self, sha=SHA, run_id="1234"):
@@ -60,6 +60,59 @@ class OfflineGateTests(unittest.TestCase):
 
     def test_valid_offline_gate_does_not_assert_beta_approval(self):
         self.assertEqual(self.check(self.valid_payload()), 0)
+
+    def test_forty_invalid_release_attestation_variations_are_rejected(self):
+        invalid_values = {
+            "schema_version": (0, 2, None, "1"),
+            "product": ("ArchLucid", "", None, False),
+            "tested_commit_sha": ("", "UNKNOWN", "f" * 39, None),
+            "github_run_id": ("", "0", "UNKNOWN", None),
+            "offline_gate": ("FAIL", "UNKNOWN", None, False),
+            "beta_release_decision": ("GO", "UNKNOWN", None, False),
+            "staging_deployment": ("PASS", "UNKNOWN", None, False),
+            "live_auth_and_tenant_isolation": ("PASS", "UNKNOWN", None, False),
+            "real_azure_collection": ("PASS", "UNKNOWN", None, False),
+            "staging_rollback_and_evidence_preservation": ("PASS", "UNKNOWN", None, False),
+        }
+        self.assertEqual(sum(map(len, invalid_values.values())), 40)
+        for field, values in invalid_values.items():
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    payload = self.valid_payload()
+                    payload[field] = value
+                    self.assertNotEqual(self.check(payload), 0)
+
+    def test_expected_sha_and_run_id_bound_to_workflow(self):
+        payload = self.valid_payload()
+        args = ("--expected-sha", SHA, "--expected-run-id", "1234")
+        self.assertEqual(self.check(payload, *args), 0)
+        self.assertNotEqual(self.check(payload, "--expected-sha", "b" * 40), 0)
+        self.assertNotEqual(self.check(payload, "--expected-run-id", "4321"), 0)
+
+    def test_nonzero_sha_and_valid_expected_provenance_required(self):
+        payload = self.valid_payload()
+        payload["tested_commit_sha"] = "0" * 40
+        self.assertNotEqual(self.check(payload), 0)
+        self.assertNotEqual(self.build(sha="0" * 40)["offline_gate"], "PASS")
+        payload["tested_commit_sha"] = SHA
+        for args in (("--expected-sha", "0" * 40),
+                     ("--expected-sha", "bad"),
+                     ("--expected-run-id", "0"),
+                     ("--expected-run-id", "bad")):
+            with self.subTest(args=args):
+                self.assertNotEqual(self.check(payload, *args), 0)
+
+    def test_forty_valid_format_but_wrong_run_or_commit_provenances_fail(self):
+        payload = self.valid_payload()
+        cases = [
+            ("--expected-sha", f"{i:040x}") for i in range(1, 21)
+        ] + [
+            ("--expected-run-id", str(2000 + i)) for i in range(20)
+        ]
+        self.assertEqual(len(cases), 40)
+        for switch, value in cases:
+            with self.subTest(switch=switch, value=value):
+                self.assertNotEqual(self.check(payload, switch, value), 0)
 
     def test_missing_schema_version_is_rejected(self):
         payload = self.valid_payload()

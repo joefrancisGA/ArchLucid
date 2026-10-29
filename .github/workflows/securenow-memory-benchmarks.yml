@@ -1,0 +1,56 @@
+name: SecureNow isolated memory cohorts
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'tools/SecureNow.MemoryBench/**'
+      - 'scripts/ci/report_securenow_memory_headroom.py'
+      - 'scripts/ci/test_report_securenow_memory_headroom.py'
+      - 'scripts/ci/report_securenow_memory_forecast_error.py'
+      - 'scripts/ci/test_report_securenow_memory_forecast_error.py'
+      - 'ArchLucid.Application/SecureNow/SecureNowPeakMemoryForecast.cs'
+      - 'ArchLucid.Application/SecureNow/SecureNowGraphWorkloadProfiler.cs'
+      - '.github/workflows/securenow-memory-benchmarks.yml'
+permissions:
+  contents: read
+jobs:
+  memory-cohorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build isolated memory host
+        run: dotnet build tools/SecureNow.MemoryBench/SecureNow.MemoryBench.csproj -c Release
+      - name: Measure multi-size graphs in independent processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/securenow/memory
+          for cohort in chain cyclic branching dense; do
+            for nodes in 50 200 500; do
+              for repetition in 1 2 3; do
+                docker run --rm --memory=512m --memory-swap=512m --cpus=1 \
+                  -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/runtime:10.0 \
+                  dotnet tools/SecureNow.MemoryBench/bin/Release/net10.0/SecureNow.MemoryBench.dll \
+                  "$cohort" "$nodes" 4 "artifacts/securenow/memory/${cohort}-${nodes}-run${repetition}.json"
+              done
+            done
+          done
+      - name: Validate headroom reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_memory_headroom
+      - name: Emit advisory 512MiB worker budget report
+        run: python3 scripts/ci/report_securenow_memory_headroom.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/headroom.json
+      - name: Validate cohort forecast-error reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_memory_forecast_error
+      - name: Report retrospective cohort errors and advisory headroom
+        run: python3 scripts/ci/report_securenow_memory_forecast_error.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/forecast-error.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: securenow-dedicated-memory-evidence
+          path: artifacts/securenow/memory/*.json
+          if-no-files-found: warn

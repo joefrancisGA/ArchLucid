@@ -31,4 +31,10 @@ public class RequirementCoverageResult
         get;
         set;
     } = [];
+
+    public List<string> UncoveredRequirementNodeIds
+    {
+        get;
+        set;
+    } = [];
 }

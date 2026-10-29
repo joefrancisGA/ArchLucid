@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER,
   GRAPH_VIEW_MODEL_EXPORT_NODE_LABEL_NOT_STORED,
   GRAPH_VIEW_MODEL_EXPORT_RELATIONSHIP_TYPE_NOT_STORED,
+  GRAPH_VIEW_MODEL_EXPORT_REVIEW_ID_FILENAME_SEGMENT,
   graphViewModelToJsonSnapshot,
   graphViewModelToMermaidFlowchart,
   safeGraphExportFilenameSegment,
@@ -22,6 +24,7 @@ describe("graphViewModelToMermaidFlowchart", () => {
     const mmd = graphViewModelToMermaidFlowchart(tinyGraph);
 
     expect(mmd).toContain('flowchart LR');
+    expect(mmd).toContain(GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER);
     expect(mmd).toContain('a_1["Alpha"]');
     expect(mmd).toContain(`-->|"relates.to"|`);
     expect(mmd).toContain("b_2");
@@ -63,6 +66,7 @@ describe("graphViewModelToJsonSnapshot", () => {
     });
 
     expect(json).toContain('"exportKind": "ArchLucid.GraphViewModel.v1"');
+    expect(json).toContain(GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER);
     expect(json).toContain('"runId": "run-1"');
     expect(json).toContain('"Alpha"');
   });
@@ -86,6 +90,11 @@ describe("graphViewModelToJsonSnapshot", () => {
 });
 
 describe("safeGraphExportFilenameSegment", () => {
+  it("uses review-id omission segment when run id was not stored", () => {
+    expect(safeGraphExportFilenameSegment("")).toBe(GRAPH_VIEW_MODEL_EXPORT_REVIEW_ID_FILENAME_SEGMENT);
+    expect(safeGraphExportFilenameSegment("   ")).toBe(GRAPH_VIEW_MODEL_EXPORT_REVIEW_ID_FILENAME_SEGMENT);
+  });
+
   it("normalizes unsafe characters", () => {
     expect(safeGraphExportFilenameSegment("claims/intake:v2")).toBe("claims_intake_v2");
   });

@@ -36,7 +36,9 @@ public static class DeclarationIdentityEdgeMaterializer
                 ? sourceNode.NodeId
                 : trimmedSourceId;
 
-            string label = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+            string label = string.IsNullOrWhiteSpace(node.Label)
+                ? "Actor label was not stored."
+                : node.Label.Trim();
 
             edges.Add(
                 GraphEdgeInferenceHelpers.CreateEdge(

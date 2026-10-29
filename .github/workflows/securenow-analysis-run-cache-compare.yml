@@ -1,0 +1,63 @@
+name: SecureNow analysis-run cache before-after
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/SecureNowAnalysisRun.cs'
+      - 'tools/SecureNow.AnalysisRunCacheBench/**'
+      - 'scripts/ci/compare_securenow_analysis_run_cache.py'
+      - 'scripts/ci/test_compare_securenow_analysis_run_cache.py'
+      - '.github/workflows/securenow-analysis-run-cache-compare.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: securenow-cache-benchmark-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analysis-run-cache-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build isolated cache benchmark host (Release)
+        run: dotnet build tools/SecureNow.AnalysisRunCacheBench/SecureNow.AnalysisRunCacheBench.csproj -c Release
+      - name: Validate offline comparison artifact contract
+        run: python3 -m unittest scripts.ci.test_compare_securenow_analysis_run_cache
+      - name: Benchmark old/new caches in isolated processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/securenow/cache-compare
+          for scenario in fanout retention-pressure; do
+            for repetition in 1 2 3; do
+              for engine in serialized-baseline bounded-singleflight; do
+                docker run --rm --memory=512m --memory-swap=512m --cpus=1 \
+                  -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/runtime:10.0 \
+                  dotnet tools/SecureNow.AnalysisRunCacheBench/bin/Release/net10.0/SecureNow.AnalysisRunCacheBench.dll \
+                  "$engine" "$scenario" 300 "$repetition" \
+                  "artifacts/securenow/cache-compare/cache-${scenario}-${engine}-run${repetition}.json"
+              done
+            done
+          done
+      - name: Validate paired evidence and calculate medians
+        run: >-
+          python3 scripts/ci/compare_securenow_analysis_run_cache.py
+          --directory artifacts/securenow/cache-compare
+          --expected-scenarios 2
+          --output artifacts/securenow/cache-compare-summary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: securenow-analysis-run-cache-comparison
+          path: |
+            artifacts/securenow/cache-compare/*.json
+            artifacts/securenow/cache-compare-summary.json
+          if-no-files-found: warn

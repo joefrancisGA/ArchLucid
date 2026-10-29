@@ -601,13 +601,8 @@ internal static class InventoryDiagramExternalTargetApplier
 
     private static string ReadBackendResourceName(string armId)
     {
-        int lastSlash = armId.LastIndexOf('/');
+        _ = armId;
 
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return "Backend name was not stored.";
-        }
-
-        return armId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.BackendNameNotStored;
     }
 }

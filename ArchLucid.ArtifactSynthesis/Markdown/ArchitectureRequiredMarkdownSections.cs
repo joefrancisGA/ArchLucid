@@ -127,7 +127,12 @@ public static class ArchitectureRequiredMarkdownSections
             written++;
         }
 
-        written += AppendNonEmptyBullets(sb, topology.Resources, "Resource");
+        written += AppendStoredTopologyStringList(
+            sb,
+            topology.Resources,
+            "Resources were not stored.",
+            "Resources were stored as an empty list.",
+            "Resource");
 
         if (written == 0)
             sb.AppendLine("No components were recorded.");
@@ -204,7 +209,12 @@ public static class ArchitectureRequiredMarkdownSections
             written++;
         }
 
-        written += AppendNonEmptyBullets(sb, security.Gaps, "Security gap");
+        written += AppendStoredTopologyStringList(
+            sb,
+            security.Gaps,
+            "Security gaps were not stored.",
+            "Security gaps were stored as an empty list.",
+            "Security gap");
 
         if (written == 0)
             sb.AppendLine("No security model was recorded.");
@@ -285,8 +295,20 @@ public static class ArchitectureRequiredMarkdownSections
     {
         int written = 0;
 
-        foreach (string value in (values ?? []).Where(static v => !string.IsNullOrWhiteSpace(v)))
+        foreach (string value in values ?? [])
         {
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                sb.AppendLine($"- {label} was stored empty.");
+                written++;
+                continue;
+            }
+
             sb.AppendLine($"- {label}: {value.Trim()}");
             written++;
         }

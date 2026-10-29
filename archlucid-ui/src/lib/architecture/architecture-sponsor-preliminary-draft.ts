@@ -39,14 +39,19 @@ export function buildArchitectureSponsorDraftWatermark(
 }
 
 function formatDateLabel(iso: string): string {
-  const parsed = new Date(iso);
+  const trimmed = iso.trim();
 
-  // Unparseable input keeps the raw value: the watermark must show what was recorded, not an em dash.
-  if (Number.isNaN(parsed.getTime())) {
-    return iso;
+  if (trimmed.length === 0) {
+    return "Date generated was not stored.";
   }
 
-  return formatConversationListDate(iso);
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Date generated was not stored.";
+  }
+
+  return formatConversationListDate(trimmed);
 }
 
 /** Sponsor-facing markdown with required preliminary draft watermark fields. */
@@ -61,7 +66,7 @@ export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSp
   return [
     "> **Preliminary draft**",
     `> **Date generated:** ${formatDateLabel(watermark.dateGenerated)}`,
-    "> **Governance approval:** Not recorded — this preliminary draft is not approved for external circulation.",
+    "> **Governance approval:** Governance approval was not stored — this preliminary draft is not approved for external circulation.",
     `> **Confidentiality:** ${watermark.confidentialityLabel}`,
     "> **Readiness check:**",
     ...readinessCheckLines.map((line) => `> ${line.replace(/^- /, "")}`),

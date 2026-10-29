@@ -347,7 +347,28 @@ public static class AzureInventoryVnetPeeringParser
 
     private static string? NormalizeArmId(string? azureResourceId)
     {
-        string normalized = ArmResourceIdNormalizer.Normalize(azureResourceId);
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return null;
+        }
+
+        string working = azureResourceId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        string normalized = ArmResourceIdNormalizer.Normalize(working);
 
         return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }

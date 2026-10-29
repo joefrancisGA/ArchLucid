@@ -8,27 +8,34 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 EXPECTED_TEST = "Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries"
-PATTERN = re.compile(r"SECURENOW_SQL_READ_BENCHMARK paths=(\d+) hops=(\d+) repository_calls=(\d+) elapsed_ms=([0-9.]+)")
+PATTERN = re.compile(r"SECURENOW_SQL_READ_BENCHMARK paths=(\d+) hops=(\d+) repository_calls=(\d+) elapsed_ms=([0-9.]+)(?: scope=sql-backed-batch-read \(not inspector end-to-end, not SQL statement count\))?")
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--trx", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--measurement-file", type=Path, help="Dedicated test-produced measurement artifact; not TRX stdout")
     a = p.parse_args()
     try:
         root = ET.parse(a.trx).getroot()
         hits = []
+        passed_tests = []
         for node in root.iter():
-            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and EXPECTED_TEST in node.attrib.get("testName", ""):
-                match = PATTERN.search(" ".join(node.itertext()))
+            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and node.attrib.get("testName", "").rsplit(".", 1)[-1] == EXPECTED_TEST:
+                outcome = node.attrib.get("outcome", "Unknown")
+                passed_tests.append(outcome)
+                output = a.measurement_file.read_text(encoding="utf-8") if a.measurement_file else " ".join(node.itertext())
+                matches = PATTERN.findall(output) if not a.measurement_file else ([match.groups()] if (len(output.splitlines()) == 1 and (match := PATTERN.fullmatch(output.strip()))) else [])
+                match = matches[0] if len(matches) == 1 else None
                 if match:
-                    paths, hops, calls, ms = match.groups()
+                    paths, hops, calls, ms = match
                     hits.append({"path_count": int(paths), "hop_count": int(hops),
                                  "repository_calls": int(calls), "elapsed_ms": float(ms),
-                                 "test_outcome": node.attrib.get("outcome", "Unknown")})
+                                 "test_outcome": outcome})
         # Do not accept a spoofed line from another test or an invalid/partial workload.
         valid = (
-            len(hits) == 1
+            len(passed_tests) == 1 and passed_tests[0] == "Passed"
+            and len(hits) == 1
             and hits[0]["test_outcome"] == "Passed"
             and hits[0]["path_count"] == 1001
             and hits[0]["hop_count"] == 1001

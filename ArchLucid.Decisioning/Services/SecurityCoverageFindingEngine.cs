@@ -25,7 +25,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         {
             List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
                 graphSnapshot,
-                result.UnprotectedResources);
+                result.UnprotectedResourceNodeIds);
 
             findings.Add(new Finding
             {
@@ -44,7 +44,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     UnprotectedResourceCount = result.UnprotectedResourceCount,
                     UnprotectedResources = result.UnprotectedResources
                 },
-                RelatedNodeIds = [.. result.UnprotectedResources],
+                RelatedNodeIds = [.. result.UnprotectedResourceNodeIds],
                 EvidenceRefs = evidenceRefs,
                 RecommendedActions =
                 [
@@ -52,7 +52,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 ],
                 Trace = new ExplainabilityTrace
                 {
-                    GraphNodeIdsExamined = [.. result.UnprotectedResources],
+                    GraphNodeIdsExamined = [.. result.UnprotectedResourceNodeIds],
                     RulesApplied = ["security-coverage-protection"],
                     DecisionsTaken =
                     [

@@ -59,6 +59,15 @@ public sealed class CommittedEffectiveGovernanceSnapshotExportFormatterTests
     }
 
     [Fact]
+    public void FormatReadmeHeadline_states_no_policy_when_snapshot_has_no_effective_policy()
+    {
+        CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeHeadline(
+                new CommittedEffectiveGovernanceSnapshotDescriptor { HasEffectivePolicy = false })
+            .Should()
+            .Be("No effective policy assignments were stored at commit.");
+    }
+
+    [Fact]
     public void FormatProvenanceAppendixRows_includes_pack_and_coverage_sections()
     {
         Guid packId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

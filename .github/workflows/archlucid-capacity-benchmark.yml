@@ -1,0 +1,42 @@
+name: ArchLucid capacity benchmark (synthetic)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'tools/ArchLucid.CapacityBench/**'
+      - '.github/workflows/archlucid-capacity-benchmark.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  capacity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build dedicated executable
+        run: dotnet build tools/ArchLucid.CapacityBench/ArchLucid.CapacityBench.csproj -c Release
+      - name: Run repeated isolated benchmark processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/capacity
+          for workload in document-ingestion retrieval graph-analysis graph-dense graph-branching graph-expansion; do
+            for repetition in 1 2 3; do
+              dotnet tools/ArchLucid.CapacityBench/bin/Release/net10.0/ArchLucid.CapacityBench.dll \
+                "$workload" 5000 "$GITHUB_SHA" \
+                "artifacts/capacity/${workload}-run${repetition}.json"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: archlucid-capacity-synthetic-profiles
+          path: artifacts/capacity/*.json
+          if-no-files-found: warn

@@ -35,6 +35,62 @@ class BenchmarkReportTests(unittest.TestCase):
         self.assertEqual(report["samples"][0]["path_count"], 1001)
         self.assertEqual(report["samples"][0]["elapsed_ms"], 12.5)
 
+    def test_dedicated_measurement_file_is_accepted_with_passing_trx(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "test.trx"
+            marker = Path(folder) / "metric.txt"
+            dest = Path(folder) / "out.json"
+            src.write_text(trx("Passed", ""), encoding="utf-8")
+            marker.write_text(line, encoding="utf-8")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--trx", str(src),
+                                     "--measurement-file", str(marker), "--output", str(dest)],
+                                    capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(dest.read_text(encoding="utf-8"))["status"], "MEASURED")
+
+    def test_dedicated_measurement_rejects_suffix_spoofing(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500tampered"
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "test.trx"
+            marker = Path(folder) / "metric.txt"
+            dest = Path(folder) / "out.json"
+            src.write_text(trx("Passed", ""), encoding="utf-8")
+            marker.write_text(line, encoding="utf-8")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--trx", str(src),
+                                     "--measurement-file", str(marker), "--output", str(dest)],
+                                    capture_output=True, text=True, check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(json.loads(dest.read_text(encoding="utf-8"))["status"], "NOT_MEASURED")
+
+    def test_dedicated_measurement_rejects_additional_untrusted_line(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "test.trx"
+            marker = Path(folder) / "metric.txt"
+            dest = Path(folder) / "out.json"
+            src.write_text(trx("Passed", ""), encoding="utf-8")
+            marker.write_text("untrusted-prefix\n" + line, encoding="utf-8")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--trx", str(src),
+                                     "--measurement-file", str(marker), "--output", str(dest)],
+                                    capture_output=True, text=True, check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(json.loads(dest.read_text(encoding="utf-8"))["status"], "NOT_MEASURED")
+
+    def test_dedicated_measurement_does_not_override_failed_trx(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        with tempfile.TemporaryDirectory() as folder:
+            src = Path(folder) / "test.trx"
+            marker = Path(folder) / "metric.txt"
+            dest = Path(folder) / "out.json"
+            src.write_text(trx("Failed", ""), encoding="utf-8")
+            marker.write_text(line, encoding="utf-8")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--trx", str(src),
+                                     "--measurement-file", str(marker), "--output", str(dest)],
+                                    capture_output=True, text=True, check=False)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(json.loads(dest.read_text(encoding="utf-8"))["status"], "NOT_MEASURED")
+
     def test_failed_test_does_not_validate_a_measurement(self):
         result, report = self.run_case(trx("Failed", "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"))
         self.assertNotEqual(result, 0)
@@ -48,6 +104,18 @@ class BenchmarkReportTests(unittest.TestCase):
     def test_unrelated_test_output_is_not_a_benchmark(self):
         line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
         result, report = self.run_case(trx("Passed", line, test_name="UnrelatedTest"))
+        self.assertNotEqual(result, 0)
+        self.assertEqual(report["status"], "NOT_MEASURED")
+
+    def test_test_name_suffix_cannot_impersonate_benchmark(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        result, report = self.run_case(trx("Passed", line, test_name="Prefix_Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries"))
+        self.assertNotEqual(result, 0)
+        self.assertEqual(report["status"], "NOT_MEASURED")
+
+    def test_duplicate_measurement_lines_are_rejected(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        result, report = self.run_case(trx("Passed", line + " " + line))
         self.assertNotEqual(result, 0)
         self.assertEqual(report["status"], "NOT_MEASURED")
 

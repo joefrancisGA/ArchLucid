@@ -71,7 +71,9 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
         string privateEndpointLine = datastore.PrivateEndpointRequired
             ? ArchitectureManifestDatastoreExport.PrivateEndpointRequiredOmissionLabel
             : ArchitectureManifestDatastoreExport.PrivateEndpointRequirementNotStoredLabel;
-        return $"{datastoreName}\\n{platformLabel}\\n{privateEndpointLine}";
+        string encryptionLine = ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(
+            datastore.EncryptionAtRestRequired);
+        return $"{datastoreName}\\n{platformLabel}\\n{privateEndpointLine}\\n{encryptionLine}";
     }
 
     private static string BuildRelationshipLabel(ManifestRelationship relationship)

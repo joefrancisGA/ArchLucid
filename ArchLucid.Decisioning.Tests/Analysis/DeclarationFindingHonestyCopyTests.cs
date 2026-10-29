@@ -22,6 +22,15 @@ public sealed class DeclarationFindingHonestyCopyTests
     }
 
     [Fact]
+    public void FormatResourceLabel_rejects_label_that_equals_node_id()
+    {
+        DeclarationFindingHonestyCopy
+            .FormatResourceLabel("node-abc", "node-abc")
+            .Should()
+            .Be(DeclarationFindingHonestyCopy.ResourceNameNotStored);
+    }
+
+    [Fact]
     public void FormatPropertyName_and_requirement_label_use_honesty_copy()
     {
         DeclarationFindingHonestyCopy.FormatPropertyName(" ")

@@ -54,7 +54,8 @@ public sealed class AskResponseComposer(
         new()
         {
             ThreadId = threadId,
-            Answer = "The assistant could not be reached. Review the finding details and retry."
+            Answer =
+                "The assistant could not be reached. Review the finding details and retry. Citations were not stored.",
         };
 
     public async Task<AskResponse> FinalizeAsync(

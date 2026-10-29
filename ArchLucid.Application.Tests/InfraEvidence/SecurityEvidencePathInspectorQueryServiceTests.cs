@@ -220,6 +220,40 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
             "finding IDs for fan-out hypotheses are not consumed; the snapshot batch supplies requested citations");
     }
 
+    [Fact]
+    public async Task Default_finding_id_lookup_enforces_workspace_and_project_scope()
+    {
+        InMemoryFindingRepository repository = new();
+        repository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
+        OperationalSecurityFindingRecord foreign = new()
+        {
+            FindingId = Guid.NewGuid(),
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = ProjectId,
+            PathId = PathId,
+        };
+        repository.StoredFindings.Add(foreign);
+
+        IReadOnlyList<Guid> ids = await ((IOperationalSecurityFindingRepository)repository)
+            .ListFindingIdsByPathIdInScopeAsync(CreateScope().ToProjectScopeKey(), PathId);
+
+        ids.Should().ContainSingle().Which.Should().Be(FindingId);
+    }
+
+    [Fact]
+    public async Task Default_snapshot_finding_ids_do_not_assume_path_snapshot_membership()
+    {
+        InMemoryFindingRepository repository = new();
+        repository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
+
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> ids =
+            await ((IOperationalSecurityFindingRepository)repository)
+                .ListFindingIdsBySnapshotInScopeAsync(CreateScope().ToProjectScopeKey(), SnapshotId);
+
+        ids.Should().BeEmpty("the fallback cannot associate a finding's path with a snapshot");
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {

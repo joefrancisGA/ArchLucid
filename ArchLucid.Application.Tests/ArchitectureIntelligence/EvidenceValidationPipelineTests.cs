@@ -77,6 +77,22 @@ public sealed class EvidenceValidationPipelineTests
     }
 
     [Fact]
+    public void Validate_completeness_detail_requires_integrity_before_verified_wording()
+    {
+        EvidenceValidationResult result = _pipeline.Validate(
+            "finding-5",
+            [],
+            ["orphan quote"],
+            _store,
+            "Critical finding");
+
+        EvidenceValidationStageOutcome completenessStage = result.StageResults
+            .Single(stage => stage.Stage == EvidenceValidationStage.Completeness);
+
+        completenessStage.Detail.Should().Be("Completeness was not verified because integrity verification did not pass.");
+    }
+
+    [Fact]
     public async Task ValidateAsync_uses_llm_semantic_assessment_when_gateway_returns_value()
     {
         ImmutableSourceArtifact artifact = StoreArtifact("quote appears in source for critical finding");

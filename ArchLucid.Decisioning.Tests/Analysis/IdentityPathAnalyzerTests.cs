@@ -20,7 +20,7 @@ public sealed class IdentityPathAnalyzerTests
 
         IdentityBlastRadiusPath path = paths.Should().ContainSingle().Subject;
         path.ActorLabel.Should().Be("checkout-func");
-        path.DatastoreLabel.Should().Be("kv-pay-prod");
+        path.DatastoreLabel.Should().Be("Pay prod key vault");
         path.RoleName.Should().Be("Contributor");
         path.HopCount.Should().Be(2);
     }
@@ -74,7 +74,7 @@ public sealed class IdentityPathAnalyzerTests
         IReadOnlyList<IdentityBlastRadiusPath> paths = IdentityPathAnalyzer.Analyze(graph);
 
         IdentityBlastRadiusPath path = paths.Should().ContainSingle().Subject;
-        path.DatastoreLabel.Should().Be("kv-pay-prod");
+        path.DatastoreLabel.Should().Be("Pay prod key vault");
         path.RoleName.Should().Be("Contributor");
         path.HopCount.Should().Be(IdentityPathAnalyzer.MaxHopCount);
     }
@@ -109,7 +109,7 @@ public sealed class IdentityPathAnalyzerTests
                 ["roleName"] = "Contributor",
             },
         };
-        GraphNode keyVault = BuildKeyVault("kv-pay-prod", "kv-pay-prod");
+        GraphNode keyVault = BuildKeyVault("kv-pay-prod", "Pay prod key vault");
 
         List<GraphEdge> edges =
         [
@@ -139,7 +139,7 @@ public sealed class IdentityPathAnalyzerTests
         for (int hop = 1; hop <= datastoreHopCount; hop++)
         {
             GraphNode node = hop == datastoreHopCount
-                ? BuildKeyVault("kv-pay-prod", "kv-pay-prod")
+                ? BuildKeyVault("kv-pay-prod", "Pay prod key vault")
                 : hop == 1
                     ? BuildContributorRole("role-contrib")
                     : new GraphNode
@@ -204,6 +204,44 @@ public sealed class IdentityPathAnalyzerTests
                 [CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.DataBearing,
             },
         };
+    }
+
+    [Fact]
+    public void Analyze_resolves_contributor_role_definition_id_to_display_name()
+    {
+        const string contributorRoleId =
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                BuildMachineActor("actor-checkout", "checkout-func"),
+                new GraphNode
+                {
+                    NodeId = "role-contrib",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "role-contrib",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_role_assignment",
+                        ["roleDefinitionId"] = contributorRoleId,
+                    },
+                },
+                BuildKeyVault("kv-pay-prod", "kv-pay-prod"),
+            ],
+            Edges =
+            [
+                BuildEdge("actor-checkout", "role-contrib"),
+                BuildEdge("role-contrib", "kv-pay-prod"),
+            ],
+        };
+
+        IdentityPathAnalyzer.Analyze(graph)
+            .Should()
+            .ContainSingle()
+            .Which.RoleName.Should()
+            .Be("Contributor");
     }
 
     private static GraphEdge BuildEdge(string fromNodeId, string toNodeId)

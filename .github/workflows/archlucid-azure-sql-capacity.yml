@@ -1,0 +1,106 @@
+name: Azure SQL capacity evidence (approved manual run)
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_id:
+        description: 'Dedicated ArchLucidCapacityTest_ Azure SQL database ARM ID'
+        required: true
+        type: string
+      database:
+        description: 'Dedicated test catalog name'
+        required: true
+        type: string
+      rows:
+        description: 'Bounded seeded temp-table rows'
+        required: true
+        default: '1000'
+        type: choice
+        options: ['100', '1000', '5000']
+      iterations:
+        description: 'Bounded sequential read iterations'
+        required: true
+        default: '30'
+        type: choice
+        options: ['10', '30', '100']
+      approval:
+        description: 'Must equal I_APPROVE_TEST_BENCHMARK'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-sql-capacity-approved
+  cancel-in-progress: false
+
+jobs:
+  isolated-azure-sql:
+    if: ${{ inputs.approval == 'I_APPROVE_TEST_BENCHMARK' }}
+    runs-on: ubuntu-latest
+    environment: azure-sql-capacity-test
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CAPACITY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_CAPACITY_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_CAPACITY_SUBSCRIPTION_ID }}
+      - name: Validate approved test resource
+        shell: bash
+        env:
+          TARGET_RESOURCE: ${{ inputs.resource_id }}
+          TARGET_DATABASE: ${{ inputs.database }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,re
+          rid=os.environ['TARGET_RESOURCE']
+          db=os.environ['TARGET_DATABASE']
+          pattern=r'^/subscriptions/[0-9a-fA-F-]{36}/resourceGroups/[^/]+/providers/Microsoft\.Sql/servers/[^/]+/databases/ArchLucidCapacityTest_[^/]+$'
+          if not re.fullmatch(pattern,rid,re.I) or not db.startswith('ArchLucidCapacityTest_') or rid.rsplit('/',1)[-1].casefold()!=db.casefold():
+              raise SystemExit('Rejected non-test Azure SQL target')
+          PY
+      - name: Build dedicated Azure SQL bench
+        run: dotnet build tools/ArchLucid.AzureSqlCapacityBench/ArchLucid.AzureSqlCapacityBench.csproj -c Release
+      - name: Execute bounded test-only SQL benchmark
+        env:
+          ARCHLUCID_AZURE_SQL_TEST_CONNECTION: ${{ secrets.AZURE_CAPACITY_SQL_TEST_CONNECTION }}
+          ARCHLUCID_AZURE_SQL_BENCH_OUTPUT: ${{ github.workspace }}/artifacts/capacity/azure-sql-benchmark.json
+          TARGET_RESOURCE: ${{ inputs.resource_id }}
+          TARGET_DATABASE: ${{ inputs.database }}
+          BENCH_ROWS: ${{ inputs.rows }}
+          BENCH_ITERATIONS: ${{ inputs.iterations }}
+        run: |
+          dotnet tools/ArchLucid.AzureSqlCapacityBench/bin/Release/net10.0/ArchLucid.AzureSqlCapacityBench.dll \
+            "$TARGET_RESOURCE" "$TARGET_DATABASE" "$BENCH_ROWS" "$BENCH_ITERATIONS" I_APPROVE_TEST_BENCHMARK
+      - name: Collect matching resource Monitor CPU evidence
+        env:
+          TARGET_RESOURCE: ${{ inputs.resource_id }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          item=json.load(open('artifacts/capacity/azure-sql-benchmark.json'))
+          subprocess.run(['python3','scripts/ops/collect_azure_sql_monitor_capacity.py',
+            '--resource-id',os.environ['TARGET_RESOURCE'],'--metric','cpu_percent',
+            '--start',item['measurementStartUtc'],'--end',item['measurementEndUtc'],
+            '--output','artifacts/capacity/azure-sql-monitor.json'],check=True)
+          PY
+      - name: Correlate evidence when available
+        run: |
+          python3 scripts/ci/correlate_sql_azure_monitor.py \
+            --benchmark artifacts/capacity/azure-sql-benchmark.json \
+            --monitor artifacts/capacity/azure-sql-monitor.json \
+            --output artifacts/capacity/azure-sql-correlation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: azure-sql-approved-capacity-evidence
+          path: artifacts/capacity/*.json
+          if-no-files-found: warn

@@ -1,0 +1,61 @@
+name: SecureNow topology allocation comparison
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'tools/SecureNow.TopologyCompareBench/**'
+      - 'ArchLucid.Application/SecureNow/SecureNowTopologyCardinalityForecast.cs'
+      - 'scripts/ci/compare_securenow_topology_allocations.py'
+      - 'scripts/ci/test_compare_securenow_topology_allocations.py'
+      - '.github/workflows/securenow-topology-compare.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build comparison runner (Release)
+        run: dotnet build tools/SecureNow.TopologyCompareBench/SecureNow.TopologyCompareBench.csproj -c Release
+      - name: Verify before-after report contracts (offline)
+        run: python3 -m unittest scripts.ci.test_compare_securenow_topology_allocations
+      - name: Compare algorithms in separate memory-limited processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/securenow/topology-comparison
+          for cohort in chain cyclic branching dense; do
+            for nodes in 50 200 500; do
+              for repetition in 1 2 3; do
+                for engine in copying-baseline optimized-dfs; do
+                  docker run --rm --memory=512m --memory-swap=512m --cpus=1 \
+                    -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/runtime:10.0 \
+                    dotnet tools/SecureNow.TopologyCompareBench/bin/Release/net10.0/SecureNow.TopologyCompareBench.dll \
+                    "$engine" "$cohort" "$nodes" 8 "$repetition" \
+                    "artifacts/securenow/topology-comparison/comparison-${engine}-${cohort}-${nodes}-run${repetition}.json"
+                done
+              done
+            done
+          done
+      - name: Verify semantic equivalence and summarize measurements
+        run: >-
+          python3 scripts/ci/compare_securenow_topology_allocations.py
+          --directory artifacts/securenow/topology-comparison
+          --expected-cohorts 12
+          --output artifacts/securenow/topology-compare-summary.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: securenow-topology-before-after
+          path: |
+            artifacts/securenow/topology-comparison/*.json
+            artifacts/securenow/topology-compare-summary.json
+          if-no-files-found: warn

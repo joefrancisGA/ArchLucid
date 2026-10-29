@@ -16,7 +16,8 @@ export type RunDetailEvidenceScopeHeaderProps = {
 };
 
 export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeaderProps): ReactElement {
-  const readinessVerdict: TrustEvidenceReadinessVerdict = props.readinessVerdict;
+  const readinessVerdict: TrustEvidenceReadinessVerdict =
+    props.evidenceItemCount === 0 ? "gaps" : props.readinessVerdict;
   const readinessKind = readinessVerdict === "complete" ? "ready" : "needs-attention";
   const coverageLine = props.evidenceCoverageLine?.trim() ?? "";
   const showEvidenceItems = props.evidenceItemCount > 0;
@@ -55,7 +56,14 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
               {props.deliverableCount}
             </dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-al-text-secondary">Deliverables</dt>
+            <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">
+              Deliverable count was not stored on this review.
+            </dd>
+          </div>
+        )}
       </dl>
       <div className="mt-3">
         <StatusTag kind={readinessKind} label={props.readinessHeadline} />
