@@ -5539,17 +5539,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-23 — `cost of quality` prose falsely selected Cost dimension
+- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-29 seed hunt (seed→hit): promoted bare `Deprioritize Cost` still selecting Cost because negation required `do not` / `don't` before the verb; added `CreateBareDeprioritizeDimensionPattern` on `IsNegatedDimensionMention`; regression `BuildRecommendations_balances_security_and_cost_when_priority_says_deprioritize_cost`; scoped Alternatives/ProposedChange/TradeOff tests 109/109. Private beta: when an invited operator's review priorities say to deprioritize cost, a security-versus-cost recommendation no longer resolves as cost-first; the competing findings stay balanced unless another priority actually selects a dimension.
+
 2026-10-23 seed hunt (seed→hit): promoted `cost of quality` goal phrasing still selecting Cost alongside Security; extended `IsCostTokenInCostOfDimensionGoalPhrase` with `quality`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_quality_security_program`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; scoped Alternatives/ProposedChange/TradeOff tests 124/124.
 
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of performance` selects Cost — input: `cost of performance security program`; reachability: sponsor prose; wrong outcome: balanced Security/Cost when performance is modifier not dimension.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of operations` with `cost control` selects Cost — input: `price of operations; cost control`; reachability: finance phrasing; wrong outcome: balanced Operations/Cost when operations is goal phrase.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — `before` syntax after `over` syntax in one comma-joined string — input: `Security over Cost, Cost before Security`; reachability: pasted sponsor bullets; wrong outcome: first `over` clause wins while later `before` ignored.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — input: mixed-dimension review package; contract gap only unless product requires all pairs.
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of delay` selects Cost — input: `cost of delay security rollout`; reachability: schedule-risk prose; wrong outcome: balanced Security/Cost.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of performance` selects Cost — **closed 2026-10-29 seed hunt:** saturated cost-noun synonym farm; do not extend the goal-phrase list.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `price of operations` with `cost control` selects Cost — **closed 2026-10-29 seed hunt:** saturated cost-noun synonym farm.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — `before` syntax after `over` syntax in one comma-joined string — **closed 2026-10-29 seed hunt:** first explicit pair match wins by existing contract.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — Security plus DataArchitecture actionable findings produce no trade-off object — **closed 2026-10-29 seed hunt:** pair matrix covers Security/Cost/Reliability only.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of delay` selects Cost — **closed 2026-10-29 seed hunt:** saturated cost-noun synonym farm.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — `cost of quality security program` selects Cost — **hit 2026-10-23 seed hunt:** extended `IsCostTokenInCostOfDimensionGoalPhrase` with `quality`; regression `BuildRecommendations_prefers_security_first_when_priority_is_cost_of_quality_security_program`.
 - [x] (valid-no-repro) `ArchitectureRecommendationTradeOffBuilder.TryResolveExplicitDimensionPrecedence` — comma-joined conflicting explicit pairs — **cheap-disproof 2026-10-23 seed hunt:** first `over`/`before` match in string wins by contract; regression `BuildRecommendations_prefers_security_first_when_comma_joined_priority_lists_security_over_cost_first`.
@@ -5852,11 +5854,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 69
-- **last-hunt:** 2026-10-12
-- **bugs-found:** 24
+- **hunts:** 70
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — Unicode priority text falsely matched a standalone Security dimension
+- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5873,6 +5875,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2081 (seed-only): reseeded architecture-recommendation; 13 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — bare `Deprioritize Cost` selects Cost — **hit 2026-10-29 seed hunt:** `CreateBareDeprioritizeDimensionPattern`; regression `BuildRecommendations_balances_security_and_cost_when_priority_says_deprioritize_cost`.
 
 - [x] Recommended change targets an element that is not in the current package (retired: engine has no package element targeting)
 - [x] Alternative list duplicates the primary recommendation as if it were distinct
