@@ -2581,6 +2581,56 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Assert.Equal("catalog probe timeout", active?.LastVerificationError);
     }
 
+    [Fact]
+    public async Task StartAsync_trims_correlation_id_on_started_migration_audit_event()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero));
+        PlatformAuditEvent? captured = null;
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ActiveTenant(clock));
+        tenants
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantCatalogMigrationStarted)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "  corr-trim-audit  ", "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, outcome);
+        Assert.NotNull(migrationId);
+        Assert.NotNull(captured);
+        Assert.Equal(AuditEventTypes.TenantCatalogMigrationStarted, captured!.EventType);
+        Assert.Equal("corr-trim-audit", captured.CorrelationId);
+
+        TenantCatalogMigrationRecord? active =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+
+        Assert.Equal("corr-trim-audit", active?.CorrelationId);
+    }
+
     private static TenantCatalogMigrationOrchestrator CreateOrchestrator(
         InMemoryTenantCatalogMigrationRepository migrations,
         ITenantRepository? tenantRepository = null,

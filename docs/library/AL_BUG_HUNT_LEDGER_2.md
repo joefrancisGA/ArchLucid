@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #144): promoted `(candidate)` unpadded `correlationId` on `TenantCatalogMigrationOrchestrator.AppendPlatformAuditAsync`; `StartAsync` persisted trimmed correlation ids but migration-started platform audit kept padded request value; central audit helper now trims correlation id and actor fields; regression `StartAsync_trims_correlation_id_on_started_migration_audit_event`; scoped filter 300/300 passed (`RunAnalyzers=false`). Private beta: catalog migration platform audit correlation ids match persisted migration rows so operators can trace migration steps in audit tooling.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.AppendPlatformAuditAsync` — padded correlation id on migration audit — **hit 2026-10-29 seed hunt #144:** trim on audit envelope; regression above.
+
 2026-10-29 seed hunt (seed→hit #143): promoted `(candidate)` whitespace-only `BaselineReviewCycleSource` on `TenantTrialFacade.GetTrialStatusAsync`; corrupt tenant rows could expose blank baseline source in trial status DTO; coalesce whitespace to null and trim non-blank; regression `GetTrialStatusAsync_treats_whitespace_only_baseline_review_cycle_source_as_null`; scoped filter 299/299 passed (`RunAnalyzers=false`). Private beta: trial status no longer shows an empty baseline review-cycle source field for invited operators checking trial ROI context.
 
 - [x] (proven) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `BaselineReviewCycleSource` — **hit 2026-10-29 seed hunt #143:** `NormalizeOptionalDisplayString`; regression above.
@@ -15915,11 +15919,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 143
-- **bugs-found:** 122
+- **hunts:** 144
+- **bugs-found:** 123
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — trial status whitespace baseline review-cycle source
+- **last-bug:** 2026-10-29 — migration audit correlation id trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
