@@ -137,7 +137,7 @@ function wizardConfirmCloudProviderField(value: string, touched: boolean): strin
     return "Google Cloud Platform";
   }
 
-  return "Cloud target was not stored.";
+  return trimmed;
 }
 
 function wizardConfirmPolicyReferences(

@@ -65,7 +65,7 @@ function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): 
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
-  if (node.provenance === "asserted" || node.accepted) {
+  if (node.provenance === "asserted") {
     return "assertedNode";
   }
 
@@ -92,8 +92,7 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix =
-    node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+  const suffix = node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -201,7 +200,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
   const nodeLines = activeNodes.map((node) => {
     const inferred =
-      node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+      node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
