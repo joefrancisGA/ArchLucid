@@ -84,7 +84,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
-        string primaryStatusValue = payload.StatusValue.Trim();
+        string primaryStatusValue = ItsmInboundJsonElementReader.NormalizeStatusText(payload.StatusValue);
         string effectiveStatusValue = payload.StatusValue;
         bool humanReviewResolvedFromAlternate = false;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
@@ -243,7 +243,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             if (mappedDisposition is null
                 && !string.IsNullOrWhiteSpace(effectivePayload.AlternateStatusValue))
             {
-                string alternateStatus = effectivePayload.AlternateStatusValue.Trim();
+                string alternateStatus = ItsmInboundJsonElementReader.NormalizeStatusText(effectivePayload.AlternateStatusValue);
                 FindingDisposition? alternateDisposition = statusMapper.TryMapToDisposition(alternateStatus, options);
 
                 if (alternateDisposition is not null)

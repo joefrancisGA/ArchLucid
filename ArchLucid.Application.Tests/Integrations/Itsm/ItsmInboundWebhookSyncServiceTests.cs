@@ -628,7 +628,9 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
         dispositionService
             .Setup(s => s.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(r => r.Disposition == FindingDisposition.Remediated),
+                It.Is<RecordFindingDispositionRequest>(r =>
+                    r.Disposition == FindingDisposition.Remediated
+                    && r.Rationale == "ITSM inbound sync: external status '6'."),
                 It.IsAny<ScopeContext>(),
                 "servicenow-webhook",
                 It.IsAny<CancellationToken>()))
