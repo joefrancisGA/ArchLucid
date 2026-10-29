@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #171): promoted `Tenant slug` prefix and `_NormalizedOrganizationName` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `Tenant slug-line` gateway text and `User_NormalizedOrganizationName` identifiers matched org duplicate gates; slug phrase matching now requires delimiter after `Tenant slug`, and normalized-name context requires `Tenants.NormalizedOrganizationName` or `IX_Tenants_NormalizedOrganizationName` only; regressions `IsDuplicateOrganization_does_not_match_duplicate_text_with_tenant_slug_line_substring` and `IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_identifier_substring`; scoped filter 335/335 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer maps unrelated slug-line or normalized-name identifier duplicate errors to org-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug prefix / `_NormalizedOrganizationName` false positive — **hit 2026-10-29 seed hunt #171:** `ContainsTenantSlugPhrase` + drop loose normalized token; regressions above.
+
 2026-10-29 seed hunt (seed→hit #170): promoted bare `_OrganizationName` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated billing or integration identifiers embedding that token matched org duplicate gates; dropped `_OrganizationName` token (normalized org column/index tokens unchanged); regression `IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_name_identifier_substring`; scoped filter 333/333 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer maps unrelated billing duplicate errors to org-already-provisioned idempotency.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `_OrganizationName` substring false positive — **hit 2026-10-29 seed hunt #170:** remove loose token; regression above.
@@ -16036,11 +16040,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 170
-- **bugs-found:** 149
+- **hunts:** 171
+- **bugs-found:** 150
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — OrganizationName identifier substring
+- **last-bug:** 2026-10-29 — Tenant slug prefix false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
