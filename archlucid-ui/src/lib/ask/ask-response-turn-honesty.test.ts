@@ -79,4 +79,15 @@ describe("ask-response-turn-honesty", () => {
     expect(ASK_ANSWER_NOT_STORED_LABEL).toBe("Answer was not stored.");
     expect(ASK_ANSWER_STORED_EMPTY_LABEL).toBe("Answer was stored empty.");
   });
+
+  it("treats whitespace-only citation ids as stored empty", () => {
+    const whitespaceOnly = {
+      referencedFindings: ["   "],
+      referencedDecisions: [],
+      referencedArtifacts: [],
+    };
+
+    expect(askWireCitationRefsStoredEmpty(whitespaceOnly)).toBe(true);
+    expect(askWireCitationRefsPresentInWire(whitespaceOnly)).toBe(false);
+  });
 });

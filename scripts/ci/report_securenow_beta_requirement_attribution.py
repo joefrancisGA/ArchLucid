@@ -30,11 +30,27 @@ def test_results(trx_files: list[Path]) -> tuple[dict[str, set[str]], list[str]]
         except (ET.ParseError, OSError):
             problems.append(f"unparseable_trx:{path.name}")
             continue
+        # VSTest/xUnit TRX commonly uses a method-only testName in Results.
+        # The class/FQN lives under TestDefinitions/UnitTest/TestMethod.
+        # Resolve by testId so FullyQualifiedName candidate filters can match.
+        definitions: dict[str, str] = {}
+        for node in root.iter():
+            if node.tag.rsplit("}", 1)[-1] != "UnitTest":
+                continue
+            test_id = node.attrib.get("id")
+            if not test_id:
+                continue
+            for child in node.iter():
+                if child.tag.rsplit("}", 1)[-1] == "TestMethod":
+                    class_name, method_name = child.attrib.get("className"), child.attrib.get("name")
+                    if class_name and method_name:
+                        definitions[test_id] = f"{class_name}.{method_name}"
+                    break
         found = 0
         for node in root.iter():
             if node.tag.rsplit("}", 1)[-1] != "UnitTestResult":
                 continue
-            name = str(node.attrib.get("testName", ""))
+            name = definitions.get(node.attrib.get("testId", ""), "") or str(node.attrib.get("testName", ""))
             outcome = str(node.attrib.get("outcome", "")).lower()
             if name and outcome in {"passed", "failed", "notexecuted", "inconclusive", "timeout"}:
                 observed.setdefault(name, set()).add(outcome)

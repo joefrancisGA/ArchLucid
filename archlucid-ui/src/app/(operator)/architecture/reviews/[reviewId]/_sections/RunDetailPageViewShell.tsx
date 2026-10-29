@@ -277,6 +277,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       signedReviewRecordIdLabel={signedReviewRecordIdLabel}
       workspaceStatus={workspaceStatus}
       reviewOwner={reviewOwnerLabel}
+      governanceDecisionRecordedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
       templateLabel={templateLabel}
       finalizedAtLabel={finalizedAtLabel}
       packageVersionLabel={packageVersionLabel}

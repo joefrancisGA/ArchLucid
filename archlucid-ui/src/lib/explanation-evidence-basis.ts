@@ -111,6 +111,21 @@ export function resolveExplanationEvidenceBasisBadges(
     }
   }
 
+  if (
+    (input.faithfulnessSupportRatio === null || input.faithfulnessSupportRatio === undefined)
+    && input.citationCount !== null
+    && input.citationCount !== undefined
+  ) {
+    badges.push(
+      badge(
+        "manual-review-required",
+        "Faithfulness support ratio was not stored.",
+        "Faithfulness support ratio was not stored for this explanation.",
+        true,
+      ),
+    );
+  }
+
   if (badges.length === 0) {
     if (input.citationCount === null || input.citationCount === undefined) {
       badges.push(

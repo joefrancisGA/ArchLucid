@@ -104,6 +104,7 @@ public static class HostedCloudExtractorCompositionModule
             .Validate(o => o.MaxWaitingCollectionTriggers is >= 1 and <= 10000 && o.AdmissionTimeoutSeconds is >= 1 and <= 300,
                 "SecureNow capacity settings are out of range.")
             .ValidateOnStart();
+        // Process-wide waiting budget; CollectionRunTriggerService stays scoped per request.
         services.AddScoped<CollectionRunTriggerService>();
         services
             .AddHttpClient<ICollectionRunTrigger, AzureAutomationCollectionRunTrigger>(static client =>

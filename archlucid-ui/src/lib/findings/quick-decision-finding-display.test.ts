@@ -7,6 +7,11 @@ import {
 } from "@/lib/findings/quick-decision-finding-display";
 
 describe("quick-decision-finding-display", () => {
+  it("labels whitespace-only owners as stored empty (P-14)", () => {
+    expect(formatQuickDecisionFindingOwnerDisplay("   ")).toBe("Owner was stored empty.");
+    expect(formatQuickDecisionFindingOwnerDisplay(null)).toBe("Owner was not stored.");
+  });
+
   it("maps uuid-shaped owners to display-name honesty (P-13)", () => {
     expect(formatQuickDecisionFindingOwnerDisplay("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).toBe(
       "Owner display name was not stored.",

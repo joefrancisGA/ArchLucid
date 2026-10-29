@@ -98,6 +98,26 @@ describe("infra-evidence-diagram-reconcile-explanation", () => {
     ).toBe("gateway-pip");
   });
 
+  it("does not surface correspondence id when diagram label is missing", () => {
+    expect(
+      formatDiagramReconcileResourceLabelForDisplay({
+        correspondenceId: "diagram-node-1",
+        diagramNodeId: "node-1",
+        diagramNodeLabel: null,
+        cloudResourceId: null,
+        azureResourceId: null,
+        resourceType: null,
+        resourceGroup: null,
+        terraformAddress: null,
+        matchKind: "Conflict",
+        confidenceBand: "High",
+        explainText: null,
+        aiRationale: null,
+        securityDiscrepancy: false,
+      }),
+    ).toBe("Resource name was not stored.");
+  });
+
   it("builds stable operational finding fingerprints", () => {
     expect(
       buildDiagramReconcileOperationalFindingFingerprint("run", "snap", "corr-1"),

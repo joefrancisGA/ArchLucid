@@ -91,9 +91,9 @@ describe("architecture-findings-dual-pane SoT", () => {
 
     expect(sync.matchKind).toBe("node-id");
     expect(sync.matchedNodeId).toBe("unlabeled-node");
-    expect(sync.matchedNodeLabel).toBe("Node label was not stored.");
-    expect(formatLinkedComponentStatus(sync)).toBe("Linked component: Node label was not stored.");
-    expect(resolveArchitectureDiagramNodeLabel("   ")).toBe("Node label was not stored.");
+    expect(sync.matchedNodeLabel).toBe("Node label was stored empty.");
+    expect(formatLinkedComponentStatus(sync)).toBe("Linked component: Node label was stored empty.");
+    expect(resolveArchitectureDiagramNodeLabel("   ")).toBe("Node label was stored empty.");
   });
 
   it("returns none when nothing matches", () => {

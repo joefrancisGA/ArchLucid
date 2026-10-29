@@ -17,6 +17,7 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
     IAuditService auditService,
     ICollectionRunAdmissionCounter admissionCounter,
+    TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
     IOptions<SecureNowCapacityOptions>? capacityOptions = null)
 {
@@ -50,6 +51,8 @@ public sealed class CollectionRunTriggerService(
     private readonly ICollectionRunAdmissionCounter _admissionCounter =
         admissionCounter ?? throw new ArgumentNullException(nameof(admissionCounter));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<CollectionRun> TriggerAsync(
         ScopeContext scope,
         string idempotencyKey,
@@ -65,6 +68,7 @@ public sealed class CollectionRunTriggerService(
         // A bounded number of callers may wait for either gate. Never reserve a
         // claim or invoke the external trigger until admitted.
         int waiting = _admissionCounter.IncrementWaiting();
+
         if (waiting > limits.MaxWaitingCollectionTriggers)
         {
             _admissionCounter.DecrementWaiting();
@@ -145,7 +149,7 @@ public sealed class CollectionRunTriggerService(
             RunId = runId,
             AgentVersion = "on-demand",
             Schedule = started.Schedule,
-            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            StartedUtc = _timeProvider.GetUtcNow().UtcDateTime,
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
@@ -192,7 +196,7 @@ public sealed class CollectionRunTriggerService(
             SubscriptionIds = subscriptionIds,
         };
         CollectionRunTriggerResult triggerResult = await _collectionRunTrigger.TriggerAsync(scope, request, cancellationToken);
-        DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime startedUtc = _timeProvider.GetUtcNow().UtcDateTime;
         CollectionRun run = new()
         {
             TenantId = scope.TenantId,

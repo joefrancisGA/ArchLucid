@@ -132,7 +132,17 @@ internal sealed class DiagramSubgraphPlanner
 
     private static string FormatSubnetSubgraphLabel(string? label)
     {
-        return string.IsNullOrWhiteSpace(label) ? "Subnet name was not stored." : $"Subnet {label.Trim()}";
+        if (label is null)
+        {
+            return "Subnet name was not stored.";
+        }
+
+        if (label.Length == 0 || label.Trim().Length == 0)
+        {
+            return "Subnet name was stored empty.";
+        }
+
+        return $"Subnet {label.Trim()}";
     }
 
     private static string ReadParentVnetLabel(IReadOnlyList<GraphNode> nodes, string parentArmId)

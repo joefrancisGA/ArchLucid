@@ -9,11 +9,61 @@ import re
 from pathlib import Path
 
 
-def build(env: dict[str, str]) -> dict:
+def core_candidate_attribution_valid(attribution: object, sha: str, run_id: str) -> bool:
+    """Require observed, passing Core TRX candidates tied to this exact Actions run.
+
+    This is *not* verification of the underlying requirements or authorization
+    to release. It prevents a successful dotnet exit with missing/empty TRX
+    from being counted as useful Core evidence.
+    """
+    if not isinstance(attribution, dict):
+        return False
+    if (attribution.get("schemaVersion") != 1
+            or attribution.get("product") != "SecureNow"
+            or attribution.get("evidenceClass") != "OBSERVED_TEST_RESULTS_CANDIDATE_ONLY"
+            or attribution.get("betaReleaseDecision") != "NO_GO"
+            or attribution.get("fullyVerifiedRequirementCount") != 0
+            or not isinstance(sha, str)
+            or not re.fullmatch(r"[0-9a-fA-F]{40}", sha)
+            or sha == "0" * 40
+            or attribution.get("testedSha") != sha.lower()
+            or attribution.get("githubRunId") != run_id
+            or attribution.get("sourceProblems") != []):
+        return False
+    rows = attribution.get("requirements")
+    if not isinstance(rows, list) or len(rows) != 22:
+        return False
+    if len({row.get("id") for row in rows if isinstance(row, dict)}) != 22:
+        return False
+    for rid in ("FR-EV-03", "NFR-02"):
+        row = next((entry for entry in rows if isinstance(entry, dict) and entry.get("id") == rid), None)
+        if (row is None or row.get("status") != "UNKNOWN"
+                or row.get("releaseEvidenceVerified") is not False
+                or row.get("blocker") != "CANDIDATE_TEST_PASSED_REQUIREMENT_UNVERIFIED"):
+            return False
+        observed = row.get("observedTests")
+        if not isinstance(observed, list) or not observed:
+            return False
+        if not any(isinstance(test, dict)
+                   and isinstance(test.get("name"), str)
+                   and "SecurityEvidencePathGuardTests." in test["name"]
+                   and test.get("outcomes") == ["passed"] for test in observed):
+            return False
+        if any(not isinstance(test, dict) or test.get("outcomes") != ["passed"] for test in observed):
+            return False
+    return True
+
+
+def build(env: dict[str, str], *, attribution: object = None) -> dict:
     checks = {
         "matrix_structure": env.get("MATRIX_RESULT", "unknown"),
         "verification_and_cross_scope_tests": env.get("APPLICATION_RESULT", "unknown"),
         "product_boundary_tests": env.get("ARCHITECTURE_RESULT", "unknown"),
+        "security_path_guard_tests": env.get("CORE_RESULT", "unknown"),
+        "security_path_guard_attribution": (
+            "success" if core_candidate_attribution_valid(
+                attribution, env.get("TESTED_SHA", ""), env.get("RUN_ID", "")) else "failure"
+        ),
     }
     offline = (
         all(value == "success" for value in checks.values())
@@ -42,11 +92,17 @@ def main() -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--output", type=Path)
     group.add_argument("--check", type=Path)
+    parser.add_argument("--attribution", type=Path, help="Observed TRX candidate report (required for PASS)")
     parser.add_argument("--expected-sha", help="Expected immutable GitHub commit SHA for --check")
     parser.add_argument("--expected-run-id", help="Expected GitHub Actions run ID for --check")
     args = parser.parse_args()
     if args.output:
-        payload = build(dict(os.environ))
+        try:
+            attribution = (json.loads(args.attribution.read_text(encoding="utf-8"))
+                           if args.attribution is not None else None)
+        except (OSError, ValueError, UnicodeError):
+            attribution = None  # Missing or invalid proof fails closed.
+        payload = build(dict(os.environ), attribution=attribution)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(payload, indent=2))
@@ -85,7 +141,9 @@ def main() -> int:
         or (args.expected_run_id is not None and str(payload.get("github_run_id", "")) != args.expected_run_id)
         or any(
         payload.get("checks", {}).get(k) != "success"
-        for k in ("matrix_structure", "verification_and_cross_scope_tests", "product_boundary_tests")
+        for k in ("matrix_structure", "verification_and_cross_scope_tests",
+                  "product_boundary_tests", "security_path_guard_tests",
+                  "security_path_guard_attribution")
         )
     ):
         print("Offline gate failed or missing checks; no promotion.")
