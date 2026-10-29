@@ -345,6 +345,22 @@ describe("decideHostGateRedirect", () => {
     });
   });
 
+  it("redirects marketing-host operator paths when pathname includes a dot segment", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/./architecture/reviews",
+        search: "?x=1",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://app.archlucid.net/architecture/reviews?x=1",
+    });
+  });
+
   it("matches split hosts that differ only by port (local dual-origin)", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "http://localhost:3000";
     process.env.ARCHLUCID_APP_SITE_URL = "http://localhost:3001";

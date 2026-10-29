@@ -1824,6 +1824,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` dot-segment paths — `/./architecture/reviews` on the marketing host stayed `next` because slash collapse left `/./` segments that failed operator prefix matching; resolve pathname with `URL` after lowercase and slash collapse; regression `redirects marketing-host operator paths when pathname includes a dot segment`; cheap-disproof closed four sibling `(candidate)` rows (`/signup/` prefix funnel by design, bare `/api` non-proxy stays on marketing host, `/SHOWCASE` query already preserved via lowercase normalize, IDN Host pairing not reproduced on this boundary); scoped host-gate vitest 21/21. Private beta: split-site users opening operator bookmarks with `/./` path noise on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — **hit 2026-10-29 thorough hunt:** URL pathname resolution in `normalizeHostGatePathname`; regression above.
+- [x] (invalid) `isMarketingOnlyPath` — `/signup/verify/extra` on app host — **cheap-disproof 2026-10-29 thorough hunt:** `/signup/` marketing prefix intentionally covers nested verify paths; app host redirects to public origin.
+- [x] (invalid) `decideHostGateRedirect` — marketing-host `/api` without trailing slash — **cheap-disproof 2026-10-29 thorough hunt:** only `/api/proxy/…` must stay on marketing host; bare `/api` is not operator and correctly stays `next`.
+- [x] (invalid) `decideHostGateRedirect` — `search` preserved on mixed-case `/SHOWCASE` — **cheap-disproof 2026-10-29 thorough hunt:** lowercase normalize + existing regression; `?utm=1` preserved on redirect.
+- [x] (invalid) `hostsMatch` — IDN Host vs punycode origin — **cheap-disproof 2026-10-29 thorough hunt:** no configured-origin / Host fixture in repo reproduces mismatch; defer unless pilot reports IDN split-host config.
+
+- [ ] (candidate) `normalizeHostGatePathname` — parent-segment (`/../`) escape after URL resolution — locus: pathname normalization; input: marketing host `/architecture/../welcome` (document vs block).
+- [ ] (candidate) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — locus: `normalizeHostGatePathname`; input: marketing host `/architecture/reviews%20`.
+- [ ] (candidate) `isOperatorPath` — `WORKSPACE_HEALTH_PATH` exact vs nested subpaths — locus: canonical operator prefixes; input: marketing host health path variants.
+- [ ] (candidate) `decideHostGateRedirect` — empty `search` vs missing `?` on welcome redirect from `/` — locus: public-host root branch; input: `/` with `search: ""` vs undefined caller behavior.
+- [ ] (candidate) `hostsMatch` — IPv6 literal Host header with configured hostname origin — locus: `normalizeRequestHost`; input: local split-host with bracketed IPv6 Host.
+
 2026-10-29 thorough hunt (hit): promoted `EXTRA_MARKETING_PREFIXES` bare `/showcase` funnel root — only `/showcase/` nested paths were marketing-only, so `app.archlucid.net/showcase` stayed `next` on the operator host instead of redirecting to the public origin; add `/showcase` to `EXTRA_MARKETING_EXACT_PATHS`; regressions `redirects app-host bare showcase funnel root to the public origin` and classifier assert on `/showcase`; cheap-disproof closed four sibling `(candidate)` rows (operator trailing slash already matches prefix, `/signup/` via `/signup/` marketing prefix, unknown-host fail-open by design, backslash paths not reachable); scoped host-gate vitest 20/20. Private beta: split-site pilots opening the showcase funnel root on the app host are sent to the public marketing origin instead of operator-shell 404 chrome.
 
 - [x] (proven) `EXTRA_MARKETING_PREFIXES` — `/showcase` without trailing slash not treated as marketing funnel — **hit 2026-10-29 thorough hunt:** `/showcase` in `EXTRA_MARKETING_EXACT_PATHS`; regressions above.
@@ -1832,13 +1846,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `decideHostGateRedirect` — unknown third host serves operator paths without redirect — **cheap-disproof 2026-10-29 thorough hunt:** unmatched Host returns `{ kind: "next" }` intentionally so CDN or preview hosts are not forced to app origin.
 - [x] (invalid) `decideHostGateRedirect` — backslash-normalized Windows-style pathname segments — **cheap-disproof 2026-10-29 thorough hunt:** Next middleware supplies forward-slash pathnames; backslash segments are not reachable inputs here.
 
-- [ ] (candidate) `isMarketingOnlyPath` — `/signup/verify` trailing segment on app host when only exact sitemap paths listed — locus: marketing sitemap exact list vs funnel prefixes; input: app host `/signup/verify/extra`.
-- [ ] (candidate) `decideHostGateRedirect` — marketing-host `/api/` proxy paths vs accidental `/api` without trailing slash — locus: operator prefix list; input: marketing host `/api` exact (non-proxy).
-- [ ] (candidate) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — locus: pathname normalization; input: marketing host `/./architecture/reviews`.
-- [ ] (candidate) `hostsMatch` — internationalized domain Host header vs punycode configured origin — locus: `hostnameFromOrigin` / `hostsMatch`; input: IDN public host with ASCII configured origin.
-- [ ] (candidate) `decideHostGateRedirect` — `search` preserved when redirecting app-host marketing path with empty pathname after normalization — locus: `pathAndQuery`; input: app host `/SHOWCASE` with mixed case and query string.
+- [x] (proven) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — **hit 2026-10-29 thorough hunt:** see zone-header note above.
 
-2026-10-29 seed hunt (seed→hit): promoted `decideHostGateRedirect` duplicate-leading-slash pathname — `//architecture/reviews` on the marketing host stayed `next` because prefix classifiers never matched the doubled slash; collapse repeated `/` segments in `normalizeHostGatePathname` before marketing/operator checks; regression `redirects marketing-host operator paths when pathname has a duplicate leading slash`; cheap-disproof closed four open `(candidate)` rows (showcase casing via existing lowercase normalize, `/` query variants, `:443` host pair, percent-encoded segment); scoped host-gate vitest 19/19. Private beta: split-site users following mistyped `//` bookmark URLs on the public host are forwarded to the app origin instead of marketing 404 chrome.
+2026-10-29 thorough hunt (hit): promoted `EXTRA_MARKETING_PREFIXES` bare `/showcase` funnel root — only `/showcase/` nested paths were marketing-only,
 
 - [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname bypasses operator prefix match — **hit 2026-10-29 seed hunt:** slash collapse in `normalizeHostGatePathname`; regression above.
 - [x] (invalid) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — **cheap-disproof 2026-10-29 seed hunt:** `decideHostGateRedirect` lowercases before `isMarketingOnlyPath`; `/Showcase/demo` on app host redirects like `/welcome` casing case.

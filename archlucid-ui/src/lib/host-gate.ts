@@ -229,7 +229,13 @@ function normalizeHostGatePathname(pathname: string): string {
     return "/";
   }
 
-  return collapsedSlashes;
+  try {
+    const resolved = new URL(collapsedSlashes, "http://localhost").pathname;
+
+    return resolved.length === 0 ? "/" : resolved;
+  } catch {
+    return collapsedSlashes;
+  }
 }
 
 export function decideHostGateRedirect(input: {
