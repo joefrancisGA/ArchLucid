@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #177): promoted `dbo.Tenants` double-space prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; duplicate-key text such as `dbo.Tenants  backup` still satisfied org context because whitespace after the table token did not require a following letter; `ContainsDboTenantsTableReference` now skips trailing whitespace before classifying space-delimited prose; regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_dbo_tenants_double_space_before_prose`, `IsDuplicateOrganization_detects_ix_tenants_slug_when_constraint_name_ends_with_semicolon`, and `IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_normalized_organization_name_history_index`; scoped filter 345/345 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key infrastructure prose with padded spacing after dbo.Tenants.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `dbo.Tenants` double-space prose — **hit 2026-10-29 seed hunt #177:** whitespace scan after dbo.Tenants token; regressions above.
+
 2026-10-29 seed hunt (seed→hit #176): promoted loose `dbo.Tenants ` substring and `Tenant slug` phrase false positive/negative on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `dbo.Tenants backup` satisfied org duplicate context while `Tenant slug: acme already exists` did not; `ContainsDboTenantsTableReference` now boundary-scans `dbo.Tenants` and `ContainsTenantSlugPhrase` accepts colon after the label; regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_dbo_tenants_in_unrelated_prose` and `IsDuplicateOrganization_detects_tenant_slug_label_with_colon_in_already_exists_message`; scoped filter 342/342 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on unrelated duplicate-key prose mentioning Tenants, and still recognizes colon-form slug already-exists copy.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `dbo.Tenants` prose / `Tenant slug:` phrase — **hit 2026-10-29 seed hunt #176:** dbo table boundary scan + slug phrase delimiter; regressions above.
@@ -16060,11 +16064,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 176
-- **bugs-found:** 155
+- **hunts:** 177
+- **bugs-found:** 156
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — dbo.Tenants prose / Tenant slug colon phrase
+- **last-bug:** 2026-10-29 — dbo.Tenants double-space prose false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
