@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Status` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Available` default; consolidated enum-zero handling into `ContractCollectionDefaults.CoalesceInvalidEnumZero` and migrated findings snapshot, coverage summary, and synthesized artifact status setters; regression `Deserialize_explicit_zero_status_yields_available_not_invalid_zero`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, and `PolicyPackStatus` for this run (deferred — same helper applies when those DTOs get regressions); scoped artifact bundle + prior enum regression tests 11/11; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with legacy numeric zero status deserializes to Available so export and bundle readers do not treat persisted bundles as an unnamed enum zero.
+
+- [x] (proven) `ArtifactBundle.Status` — explicit JSON `0` on bundle lifecycle status — **hit 2026-10-29 seed hunt:** `CoalesceInvalidEnumZero`; regression above.
+- [x] (invalid) `ArchitectureRunStatus` / `AgentTaskStatus` / `AlertStatus` / `PolicyPackStatus` numeric zero — **cheap-disproof 2026-10-29 seed hunt:** shared helper landed; promotion deferred until a scoped deserialization repro exists per type.
+
 2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Status` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Generated` default; `ContractCollectionDefaults.CoalesceSynthesizedArtifactGenerationStatus` on setter; regression `Deserialize_explicit_zero_status_yields_generated_not_invalid_zero`; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (not deserialized as whole DTO — pins parsed via `RunHeaderPinDeserializer`), `AgentResultEvidenceFaithfulnessReport.UnsupportedIds` (in-process checker output only), `AlertEvaluationOutcome` lists (persistence service return, no contract JSON surface), `AzureDevOpsManifestDeltaRequest.Findings` (integration in-process request), and `FindingsSnapshot.GenerationStatus` null token (throws on deserialize — no silent wrong enum); scoped SynthesizedArtifact deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact bundle JSON with legacy numeric zero status deserializes to Generated so artifact export and provenance readers do not treat rows as an unnamed enum zero.
 
 - [x] (proven) `SynthesizedArtifact.Status` — explicit JSON `0` on artifact generation status — **hit 2026-10-29 seed hunt:** `CoalesceSynthesizedArtifactGenerationStatus`; regression above.
@@ -5903,11 +5908,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 237
-- **bugs-found:** 351
+- **hunts:** 238
+- **bugs-found:** 352
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — SynthesizedArtifactGenerationStatus JSON numeric zero
+- **last-bug:** 2026-10-29 — ArtifactBundleStatus JSON numeric zero
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5967,11 +5972,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AlertEvaluationOutcome` evaluated/newly persisted lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `AzureDevOpsManifestDeltaRequest.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `FindingsSnapshot.GenerationStatus` null JSON token — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `ArtifactBundleStatus` — explicit JSON numeric `0` on bundle status enum if persisted JSON uses legacy zero ordinal.
-- [ ] (candidate) `ArchitectureRunStatus` — explicit JSON numeric `0` on architecture run status when replaying stored run JSON.
-- [ ] (candidate) `AgentTaskStatus` — explicit JSON numeric `0` on agent task rows in architecture run detail JSON.
-- [ ] (candidate) `AlertStatus` — explicit JSON numeric `0` on alert record JSON when severity/status fields use legacy ordinals.
-- [ ] (candidate) `PolicyPackStatus` — explicit JSON numeric `0` on policy pack content documents deserialized from storage.
+- [x] (proven) `ArtifactBundle.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `ArchitectureRunStatus` — explicit JSON numeric `0` on `ArchitectureRun` when replaying stored architecture run JSON.
+- [ ] (candidate) `AgentTaskStatus` — explicit JSON numeric `0` on agent tasks inside architecture run detail JSON.
+- [ ] (candidate) `AlertStatus` — explicit JSON numeric `0` on alert record JSON.
+- [ ] (candidate) `PolicyPackStatus` — explicit JSON numeric `0` on policy pack documents from storage JSON.
+- [ ] (candidate) `GovernanceApprovalStatus` — explicit JSON numeric `0` on governance approval request JSON.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
