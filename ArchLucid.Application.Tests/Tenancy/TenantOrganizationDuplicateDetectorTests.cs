@@ -61,4 +61,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
 
         TenantOrganizationDuplicateDetector.IsDuplicateOrganization(wrapped).Should().BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_generic_unique_word_without_constraint_context()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("A unique identifier format was invalid."))
+            .Should()
+            .BeFalse();
+    }
 }
