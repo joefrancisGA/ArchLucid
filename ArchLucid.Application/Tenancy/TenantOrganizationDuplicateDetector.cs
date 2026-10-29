@@ -116,7 +116,7 @@ public static class TenantOrganizationDuplicateDetector
             int afterPhrase = index + phrase.Length;
 
             if (afterPhrase >= text.Length
-                || text[afterPhrase] is '\'' or ' ' or '.' or ':' or ',')
+                || text[afterPhrase] is '\'' or ' ' or '.' or ':' or ',' or ';')
                 return true;
 
             start = index + phrase.Length;
@@ -150,7 +150,7 @@ public static class TenantOrganizationDuplicateDetector
             int afterToken = index + token.Length;
 
             if (afterToken >= text.Length
-                || text[afterToken] is '\'' or '"' or ' ' or '.' or ')' or ',')
+                || text[afterToken] is '\'' or '"' or ' ' or '.' or ')' or ',' or ';')
                 return true;
 
             start = index + token.Length;
@@ -222,8 +222,17 @@ public static class TenantOrganizationDuplicateDetector
             if (text[afterObject] is '.' or ',' or ')' or ';')
                 return true;
 
-            if (afterObject + 5 <= text.Length
-                && text.AsSpan(afterObject, 6).Equals(" with ", StringComparison.OrdinalIgnoreCase))
+            int next = afterObject;
+
+            while (next < text.Length && char.IsWhiteSpace(text[next]))
+                next++;
+
+            if (next >= text.Length)
+                return true;
+
+            if (next + 4 <= text.Length
+                && text.AsSpan(next, 4).Equals("with", StringComparison.OrdinalIgnoreCase)
+                && (next + 4 >= text.Length || !char.IsLetterOrDigit(text[next + 4])))
                 return true;
 
             start = index + objectToken.Length;

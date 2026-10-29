@@ -412,4 +412,32 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_duplicate_key_on_object_dbo_tenants_with_extra_space_before_with_clause()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.Tenants'  with unique index on slug."))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_tenant_slug_label_with_semicolon_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug; acme already exists"))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_unquoted_ix_tenants_slug_constraint_ending_with_semicolon()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Violation of UNIQUE KEY constraint IX_Tenants_Slug;"))
+            .Should()
+            .BeTrue();
+    }
 }
