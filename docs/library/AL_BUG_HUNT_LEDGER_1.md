@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end run diffs that listed `RequestId` and `CurrentManifestVersion` when the values differed only by letter case (`REQ-42` versus `req-42`, `V1` versus `v1` from caller request ids and `AuthorityCommitManifestVersionRules`, which keeps a leading `V`), while `RequestIdsDiffer` and `ManifestVersionsDiffer` stayed false, so a saved comparison then flipped those flags true; string `AddIfChanged` now uses ordinal ignore-case like those flags; regressions `CompareQuality_BuildAsync_ignores_request_id_and_manifest_version_that_differ_only_by_letter_case` and `CompareQuality_BuildAsync_reports_request_id_and_manifest_version_when_values_differ`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1083/1084** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews whose request ids or manifest versions differ only by letter case, the comparison leaves those fields unchanged and keeps that result after the report is saved.
+
+- [x] (proven) `EndToEndReplayComparisonService.BuildRunDiff` — case-only request ids and manifest versions were listed in `ChangedFields` while the ignore-case flags stayed false, and persist then marked them different — **hit 2026-10-29 seed hunt:** ordinal ignore-case string compare; regressions above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted architecture-analysis Markdown that interpolated a service purpose into a single bullet, so purpose text `Process payments` plus a newline and `## Injected heading` closed the bullet and started a new heading; `FormatMarkdownListText` collapses line breaks before the purpose bullet for services and datastores; regression `GenerateMarkdown_service_purpose_stays_on_one_bullet_when_purpose_contains_a_newline`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1081/1082** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an architecture analysis Markdown report, a service or datastore purpose that contains a line break stays on that purpose bullet instead of starting a new heading in the report.
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService.AppendManifestAndDiagram` — multiline service purpose broke the Markdown bullet — **hit 2026-10-29 seed hunt:** `FormatMarkdownListText`; regression above. [class:fail-open-validation]
@@ -16024,11 +16028,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 71
-- **bugs-found:** 67
+- **hunts:** 72
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — diagram and summary requests skipped the committed manifest when the manifest section was omitted
+- **last-bug:** 2026-10-29 — case-only request ids and manifest versions were listed as changed and then marked different on save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16184,6 +16188,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `EndToEndReplayComparisonService.BuildRunDiff` — case-only request ids and manifest versions were listed in `ChangedFields` while the ignore-case flags stayed false, and persist then marked them different — **hit 2026-10-29 seed hunt:** ordinal ignore-case string compare; regressions `CompareQuality_BuildAsync_ignores_request_id_and_manifest_version_that_differ_only_by_letter_case` and `CompareQuality_BuildAsync_reports_request_id_and_manifest_version_when_values_differ`. [class:fail-open-validation]
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — diagram and summary requests with `IncludeManifest` false left those sections empty — **hit 2026-10-29 seed hunt:** load the committed manifest for diagram, summary, and manifest compare without attaching the manifest section; regression `ArchitectureAnalysis_BuildAsync_generates_diagram_when_manifest_section_omitted`.
 
