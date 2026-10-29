@@ -1128,11 +1128,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 36
+- **hunts:** 37
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 21
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — compare clear on buyer cards dropped deep-linked inspectorRunId
+- **last-bug:** 2026-10-29 — Escape-close reopened inspector when router inspectorRunId lagged
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
