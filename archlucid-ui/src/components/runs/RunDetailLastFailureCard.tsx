@@ -71,11 +71,11 @@ export function RunDetailLastFailureCard(props: {
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runLastFailureTechDetailsHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runLastFailureTechDetailsHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setTechnicalDetailsOpen = useCallback(
@@ -94,7 +94,7 @@ export function RunDetailLastFailureCard(props: {
   useEffect(() => {
     const syncTechnicalDetailsOpenFromUrl = (): void => {
       const next = parseRunLastFailureTechOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runLastFailureTechOpen"),
+        new URLSearchParams(readWindowLocationSearch()).get(RUN_LAST_FAILURE_TECH_OPEN_PARAM),
       );
 
       if (technicalDetailsOpenRef.current === next) {
