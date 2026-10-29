@@ -15733,6 +15733,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #195): promoted `Tenant slug were` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug were reassigned already exists` matched org slug context because hunt #194 excluded `are` but not `were` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `were`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_were_substring_in_already_exists_message`; scoped filter 370/370 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug were phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug were prose — **hit 2026-10-29 seed hunt #195:** excluded slug phrase word `were`; regression above.
+
 2026-10-29 seed hunt (seed→hit #194): promoted `Tenant slug are` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug are invalid already exists` matched org slug context because hunt #193 excluded `been` but not `are` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `are`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_are_substring_in_already_exists_message`; scoped filter 369/369 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug are phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug are prose — **hit 2026-10-29 seed hunt #194:** excluded slug phrase word `are`; regression above.
@@ -16017,11 +16021,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 194
-- **bugs-found:** 173
+- **hunts:** 195
+- **bugs-found:** 174
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenant slug are prose duplicate-detector false positive
+- **last-bug:** 2026-10-29 — Tenant slug were prose duplicate-detector false positive
 - **last-bug:** 2026-10-29 — Tenant slug was prose
 
 ### Hypotheses
