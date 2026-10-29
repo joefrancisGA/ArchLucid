@@ -245,25 +245,84 @@ public static class TenantOrganizationDuplicateDetector
             || !text.AsSpan(start, 4).Equals("with", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        int afterWith = start + 4;
+        int clauseStart = start + 4;
 
-        if (afterWith >= text.Length || !char.IsWhiteSpace(text[afterWith]))
+        if (clauseStart >= text.Length || !char.IsWhiteSpace(text[clauseStart]))
             return false;
-
-        int clauseStart = afterWith;
 
         while (clauseStart < text.Length && char.IsWhiteSpace(text[clauseStart]))
             clauseStart++;
 
-        if (clauseStart + 6 <= text.Length
-            && text.AsSpan(clauseStart, 6).Equals("unique", StringComparison.OrdinalIgnoreCase))
+        if (clauseStart >= text.Length)
+            return false;
+
+        if (TryMatchSqlClauseKeyword(text, clauseStart, "constraint", out int afterConstraint))
+            return IsSqlIndexConstraintContinuation(text, afterConstraint);
+
+        if (TryMatchSqlClauseKeyword(text, clauseStart, "index", out int afterIndex))
+            return IsSqlIndexConstraintContinuation(text, afterIndex);
+
+        if (!TryMatchSqlClauseKeyword(text, clauseStart, "unique", out int afterUnique))
+            return false;
+
+        if (IsSqlClauseTerminal(text, afterUnique))
             return true;
 
-        if (clauseStart + 5 <= text.Length
-            && text.AsSpan(clauseStart, 5).Equals("index", StringComparison.OrdinalIgnoreCase))
+        if (!TryReadSqlClauseWordStart(text, afterUnique, out int followStart))
+            return false;
+
+        return TryMatchSqlClauseKeyword(text, followStart, "key", out _)
+            || TryMatchSqlClauseKeyword(text, followStart, "index", out _)
+            || TryMatchSqlClauseKeyword(text, followStart, "constraint", out _);
+    }
+
+    private static bool TryMatchSqlClauseKeyword(string text, int start, string keyword, out int afterKeyword)
+    {
+        afterKeyword = start;
+
+        if (start + keyword.Length > text.Length
+            || !text.AsSpan(start, keyword.Length).Equals(keyword, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        afterKeyword = start + keyword.Length;
+
+        return afterKeyword >= text.Length || !char.IsLetterOrDigit(text[afterKeyword]);
+    }
+
+    private static bool IsSqlClauseTerminal(string text, int start)
+    {
+        int index = start;
+
+        while (index < text.Length && char.IsWhiteSpace(text[index]))
+            index++;
+
+        return index >= text.Length;
+    }
+
+    private static bool TryReadSqlClauseWordStart(string text, int start, out int wordStart)
+    {
+        wordStart = start;
+
+        while (wordStart < text.Length && char.IsWhiteSpace(text[wordStart]))
+            wordStart++;
+
+        return wordStart < text.Length;
+    }
+
+    private static bool IsSqlIndexConstraintContinuation(string text, int start)
+    {
+        int index = start;
+
+        while (index < text.Length && char.IsWhiteSpace(text[index]))
+            index++;
+
+        if (index >= text.Length)
             return true;
 
-        return clauseStart + 10 <= text.Length
-            && text.AsSpan(clauseStart, 10).Equals("constraint", StringComparison.OrdinalIgnoreCase);
+        if (text[index] is '\'' or '"')
+            return true;
+
+        return index + 3 <= text.Length
+            && text.AsSpan(index, 3).Equals("IX_", StringComparison.OrdinalIgnoreCase);
     }
 }
