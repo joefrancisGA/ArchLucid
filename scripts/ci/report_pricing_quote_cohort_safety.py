@@ -12,7 +12,10 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-from pricing_quote_response_telemetry import load_records_from_export, parse_datetime
+try:
+    from scripts.ci.pricing_quote_response_telemetry import load_records_from_export, parse_datetime
+except ModuleNotFoundError:
+    from pricing_quote_response_telemetry import load_records_from_export, parse_datetime
 
 def build(payload: dict, *, as_of: datetime) -> dict:
     if not isinstance(payload, dict) or payload.get("schema") != "archlucid.pricing-quote-requests-export.v1":
