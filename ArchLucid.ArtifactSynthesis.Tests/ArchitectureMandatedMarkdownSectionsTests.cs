@@ -263,6 +263,28 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
     }
 
     [Fact]
+    public void Append_labels_blank_resource_and_empty_topology_lists()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Resources = ["   "],
+                Relationships = [],
+                Gaps = [],
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        string content = markdown.ToString();
+        content.Should().Contain("- Resource: Resource was stored empty.");
+        content.Should().Contain("Data-flow relationships were stored as an empty list.");
+        content.Should().Contain("Topology gaps were stored as an empty list.");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeGenerator_output_passes_bundle_header_validation()
     {
         ArchitectureNarrativeArtifactGenerator generator = new();
