@@ -5786,6 +5786,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `AdminQuickScanBudgetSnapshotResponse.RecentUsage` explicit JSON `null` on admin Quick Scan budget snapshot responses; `ContractCollectionDefaults.CoalesceReadOnly` on `RecentUsage` `init`; regression `Deserialize_null_recent_usage_yields_empty_list_not_null`; scoped AdminQuickScanBudgetSnapshotResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: admin Quick Scan budget JSON with null `recentUsage` deserializes to an empty list so operator budget dashboards do not null-reference when usage history is omitted.
+
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `RecentUsage` `init`; regression above.
+
 2026-10-29 seed hunt (seed→hit): promoted `PromptVariantStatsResponse.Variants` explicit JSON `null` on prompt A/B stats API responses; `ContractCollectionDefaults.CoalesceReadOnly` on `Variants` `init`; regression `Deserialize_null_variants_yields_empty_list_not_null`; scoped PromptVariantStatsResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: prompt variant stats JSON with null `variants` deserializes to an empty list so operator analytics views do not null-reference when no variants were sampled.
 
 - [x] (proven) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Variants` `init`; regression above.
@@ -5813,11 +5817,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 221
-- **bugs-found:** 335
+- **hunts:** 222
+- **bugs-found:** 336
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — PromptVariantStatsResponse.Variants JSON null
+- **last-bug:** 2026-10-29 — AdminQuickScanBudgetSnapshot RecentUsage JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5832,11 +5836,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `RealAgentFailureTriageEntry` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `PromptVariantStatsResponse.Variants` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot; locus: required `init` list; input: `"recentUsage": null`.
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `SynthesizedArtifact.ContributingDecisionIds` — explicit JSON `null` on synthesized artifact JSON; locus: init list; input: `"contributingDecisionIds": null`.
 - [ ] (candidate) `ProductLearningImprovementPlanRecord.ActionSteps` — explicit JSON `null` on improvement plan record JSON; locus: init list; input: `"actionSteps": null`.
 - [ ] (candidate) `RealAgentFailureTriageCatalogResponse.Entries` — explicit JSON `null` on triage catalog wrapper list; locus: required init list on catalog response type if present.
 - [ ] (candidate) `ArchitectureRecommendation.Alternatives` — verify sibling list properties on recommendation DTO still coalesce after partial prior fixes; input: `"alternatives": null`.
+- [ ] (candidate) `HeldCheckSecondPassResult.EngineTypes` — explicit JSON `null` on held-check second-pass result list; locus: init list coalesce gap.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5895,7 +5900,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 221 · **Bugs found:** 335 · **Consecutive dry hunts:** 0
+**Hunts:** 222 · **Bugs found:** 336 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
