@@ -162,7 +162,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           ) : null}
         </span>
       ) : null}
-      {systemName.length > 0 || systemDisplay.startsWith("System name") ? (
+      {systemName.length > 0 || formState.touchedFields.systemName === true ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemDisplay}
           {identityStepReached ? (
