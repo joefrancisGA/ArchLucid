@@ -14419,6 +14419,20 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-findings-advice
 
+2026-10-29 seed hunt #854 (seed→hit): reseeded `core-findings-advice` after picker `seedHunt` and empty hypothesis list; promoted five freshly seeded `(candidate)` rows; `InsightDensityTextSimilarity.Tokenize` left thin space (`U+2009`), figure space (`U+2007`), and medium mathematical space (`U+205F`) glued between resource tokens so near-duplicate findings under-penalized duplication (`Jaccard_similarity_treats_thin_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_figure_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_medium_mathematical_space_separated_resource_tokens_as_space_separated_peers`); `ConflictFindingPattern` missed `unable to comply with the constraint` for `HasFalsifiabilitySignal` (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`); `EnglishNegationTokenizer` missed `denied from` prohibitive phrasing (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~GenericArchitectureAdvicePatterns` filter **1689/1689** (Release). Private beta: invited operators reviewing LLM findings see fewer near-duplicate checklist noise pairs when titles use Unicode thin or figure spaces, and conflict or negated compliance wording routes through falsifiability and generic-advice filters correctly.
+
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — thin space (`U+2009`) separated resource tokens — **hit 2026-10-29 seed hunt #854:** split on `\u2009`; regression above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — figure space (`U+2007`) separated resource tokens — **hit 2026-10-29 seed hunt #854:** split on `\u2007`; regression above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — medium mathematical space (`U+205F`) separated resource tokens — **hit 2026-10-29 seed hunt #854:** split on `\u205F`; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `unable to comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-29 seed hunt #854:** `unable to comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `EnglishNegationTokenizer` — `denied from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-29 seed hunt #854:** added `denied from` to multi-word negations; regression above. [class:fail-open-validation]
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — hair space (`U+200A`) separated resource tokens vs space-separated peer under-penalized duplication — locus: `Tokenize` split set; input: `prod\u200Asql\u200Adb` vs `prod sql db`; wrong outcome: Jaccard below 0.85 high-duplication threshold.
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — six-per-em space (`U+2006`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2006sql\u2006db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not able to comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: conflict title with `not able to comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incapable of complying with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `incapable of complying with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `EnglishNegationTokenizer` — `rejected from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: prohibitive-from phrasing with `rejected from`; wrong outcome: `IsObviousGenericAdvice` true.
+
 2026-10-21 thorough hunt (hit, lane D): narrow no-break space / NBSP token delimiter parity; 1743 scoped tests passed.
 
 2026-10-14 thorough hunt (hit): cheap-disproof closed five picker `(candidate)` rows with failing repros; en-dash (`U+2013`) resource tokens split for Jaccard parity; `ConflictFindingPattern` extended for `failed to comply` and `does not comply with the constraint`; `EnglishNegationTokenizer` adds `prevented from` and `disallowed from`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
@@ -14432,11 +14446,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 30
-- **bugs-found:** 30
+- **hunts:** 31
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-14 — en-dash Jaccard parity, compliance tense variants, prohibitive-from negation
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — Unicode thin/figure/math spaces in Jaccard tokenization, unable-to-comply conflict wording, denied-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

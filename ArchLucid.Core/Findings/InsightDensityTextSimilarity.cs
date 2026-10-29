@@ -34,7 +34,7 @@ public static class InsightDensityTextSimilarity
     private static HashSet<string> Tokenize(string text)
     {
         HashSet<string> tokens = new(StringComparer.OrdinalIgnoreCase);
-        string[] parts = text.Split([' ', '\t', '\r', '\n', '\u00a0', '\u202f', '.', ',', ';', ':', '(', ')', '[', ']', '{', '}', '`', '\'', '"', '-', '\u2013', '\u2014', '/', '\\', '_', '@', '|', '+', '&', '=', '#', '!', '*', '^', '~', '%', '$', '?', '\u00b7', '\u2022'], StringSplitOptions.RemoveEmptyEntries);
+        string[] parts = text.Split([' ', '\t', '\r', '\n', '\u00a0', '\u202f', '\u2009', '\u2007', '\u205f', '.', ',', ';', ':', '(', ')', '[', ']', '{', '}', '`', '\'', '"', '-', '\u2013', '\u2014', '/', '\\', '_', '@', '|', '+', '&', '=', '#', '!', '*', '^', '~', '%', '$', '?', '\u00b7', '\u2022'], StringSplitOptions.RemoveEmptyEntries);
 
         foreach (string part in parts)
         {
