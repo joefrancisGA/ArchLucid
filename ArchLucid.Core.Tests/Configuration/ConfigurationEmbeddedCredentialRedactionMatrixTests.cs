@@ -9640,6 +9640,67 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         char.IsSurrogate(value[^2]).Should().BeFalse("truncation must not end on a high surrogate");
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_azure_sql_connection_string_contains_password_pair()
+    {
+        const string effectiveValue =
+            "Server=tcp:sql.database.windows.net;Authentication=Active Directory Password;User ID=u;Password=p";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ado_net_user_id_spelling_uses_space_before_id()
+    {
+        const string effectiveValue = "Server=.;User Id=sa;Password=secret;";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_scalar_is_raw_github_pat_without_key_pair()
+    {
+        const string effectiveValue = "ghp_abcdefghijklmnopqrstuvwxyz1234567890";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_blob_sas_query_omits_sig_parameter()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?se=2030&sp=r";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_jwt_bearer_signing_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Authentication:JwtBearer:SigningKey"] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Authentication:JwtBearer:SigningKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    private static void AssertPreserves(string effectiveValue)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [ConfigPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, ConfigPath, isSet: true);
+
+        value.Should().Be(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
