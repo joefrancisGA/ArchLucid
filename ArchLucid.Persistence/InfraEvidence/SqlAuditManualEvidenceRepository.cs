@@ -106,7 +106,7 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                                   AND r.RequirementId = @RequirementId
                             );
                            IF @@ROWCOUNT <> 1
-                               THROW 50008, 'Scoped audit assessment was not found.', 1;
+                               THROW 50008, 'Audit evidence submission could not be created because the referenced assessment/control/requirement was not found or is not in scope.', 1;
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(new CommandDefinition(sql, new
