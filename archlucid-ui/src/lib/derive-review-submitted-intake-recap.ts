@@ -16,6 +16,9 @@ const GENERATED_BRIEF_EVALUATION_DIRECTIVE_PATTERN =
 
 const MAX_RECAP_FIELD_VALUE_CHARS = 400;
 
+export const RECAP_FIELD_PREVIEW_TRUNCATION_NOTE =
+  "Preview shows the first 400 characters — full text was stored." as const;
+
 export type ReviewSubmittedIntakeRecapField = {
   readonly label: string;
   readonly value: string;
@@ -36,7 +39,7 @@ function truncateRecapValue(text: string): string {
     return text;
   }
 
-  return `${text.slice(0, MAX_RECAP_FIELD_VALUE_CHARS - 1).trimEnd()}…`;
+  return `${text.slice(0, MAX_RECAP_FIELD_VALUE_CHARS - 1).trimEnd()}… (${RECAP_FIELD_PREVIEW_TRUNCATION_NOTE})`;
 }
 
 function briefBodyWithoutScopeSection(description: string): string {

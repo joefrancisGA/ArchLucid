@@ -180,4 +180,26 @@ public sealed class ReasoningSummaryBuilderTests
         summary.Should().Contain("Rightsize the pool.");
         summary.Should().NotContain("Typed message should not win.");
     }
+
+    [Fact]
+    public void TryBuild_WhenEvidenceExcerptTruncated_StatesTruncationHonesty()
+    {
+        string longExcerpt = new('x', 400);
+
+        FindingInspectResponse inspect = new()
+        {
+            FindingId = "f1",
+            Severity = FindingSeverity.Warning,
+            DecisionRuleName = "Rule",
+            Evidence = [new FindingInspectEvidenceItem { Excerpt = longExcerpt }],
+            RecommendedActions = ["Act now."],
+            TypedPayload = JsonSerializer.SerializeToElement(new ArchitectureFinding { Category = "c", Message = "m" }),
+            RunId = Guid.NewGuid(),
+        };
+
+        string? summary = _sut.TryBuild(inspect);
+
+        summary.Should().NotBeNull();
+        summary.Should().Contain(ReasoningSummaryBuilder.EvidenceExcerptTruncatedForSummaryCopy);
+    }
 }

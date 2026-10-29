@@ -5,6 +5,8 @@ internal static class ConsultingDocxAppendixHonestyCopy
 {
     internal const string MermaidSourceNotStored = "Mermaid diagram source was not stored.";
 
+    internal const string MermaidSourceStoredEmpty = "Mermaid diagram source was stored empty.";
+
     internal const string ExecutionTraceIndexNotStored = "Execution trace index was not stored for this export.";
 
     internal const string DeterminismCheckNotStored = "Determinism check was not stored.";

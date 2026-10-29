@@ -159,6 +159,22 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const danglingEdgeOmitted = activeEdges.some(
     (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
+  const boundaryLine =
+    model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
+  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
+  const skippedUnlabeledLine =
+    model.skippedUnlabeledEntityCount > 0
+      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
+      : null;
+  const tailParts = [
+    boundaryLine,
+    skippedUnlabeledLine,
+    danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null,
+    ...(model.entitySectionHonestyLines ?? []),
+    ...(model.diagramHonestyNotes ?? []),
+    ...unmatchedLines,
+  ].filter((line): line is string => line !== null && line.length > 0);
+
   if (activeNodes.length === 0) {
     const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
     const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
@@ -167,11 +183,16 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
       return omittedSectionLines.join(". ");
     }
 
-    if (sectionHonesty.length > 0) {
-      return [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ");
-    }
+    const head =
+      sectionHonesty.length > 0
+        ? [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ")
+        : resolveEmptyArchitectureDiagramMessage(model);
 
-    return resolveEmptyArchitectureDiagramMessage(model);
+    const nonEntityTail = tailParts.filter(
+      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
+    );
+
+    return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
   }
 
   const nodeLines = activeNodes.map((node) => {
@@ -201,28 +222,8 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
-  const boundaryLine =
-    model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
-  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
-  const skippedUnlabeledLine =
-    model.skippedUnlabeledEntityCount > 0
-      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
-      : null;
 
-  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
-
-  return [
-    nodeLines.join("; "),
-    edgeLines.join("; "),
-    boundaryLine,
-    skippedUnlabeledLine,
-    danglingEdgeLine,
-    ...(model.entitySectionHonestyLines ?? []),
-    ...(model.diagramHonestyNotes ?? []),
-    ...unmatchedLines,
-  ]
-    .filter((line) => line !== null && line.length > 0)
-    .join(". ");
+  return [nodeLines.join("; "), edgeLines.join("; "), ...tailParts].filter((line) => line.length > 0).join(". ");
 }
 
 export function isValidMermaidArchitectureDiagram(source: string): boolean {

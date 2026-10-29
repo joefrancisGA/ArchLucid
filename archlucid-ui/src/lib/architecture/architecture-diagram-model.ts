@@ -313,6 +313,32 @@ function resolveFlowEdgeLabel(
   return RELATIONSHIP_NOT_STORED_LABEL;
 }
 
+function flowEdgeDedupeKey(edge: Pick<ArchitectureDiagramEdge, "sourceId" | "targetId" | "label" | "provenance">): string {
+  return `${edge.sourceId}\u001f${edge.targetId}\u001f${edge.label}\u001f${edge.provenance}`;
+}
+
+function pushFlowEdge(
+  edges: ArchitectureDiagramEdge[],
+  seenFlowEdgeKeys: Set<string>,
+  edgeIndexRef: { readonly current: number },
+  edge: Omit<ArchitectureDiagramEdge, "id" | "removed">,
+): void {
+  const candidate: ArchitectureDiagramEdge = {
+    ...edge,
+    id: `edge_${edgeIndexRef.current}`,
+    removed: false,
+  };
+  const key = flowEdgeDedupeKey(candidate);
+
+  if (seenFlowEdgeKeys.has(key)) {
+    return;
+  }
+
+  seenFlowEdgeKeys.add(key);
+  edges.push(candidate);
+  edgeIndexRef.current += 1;
+}
+
 function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
@@ -325,7 +351,8 @@ function addFlowEdges(
     return;
   }
 
-  let edgeIndex = edges.length;
+  const seenFlowEdgeKeys = new Set(edges.map((edge) => flowEdgeDedupeKey(edge)));
+  const edgeIndexRef = { current: edges.length };
 
   const recordUnmatchedFlow = (raw: string): void => {
     const normalized = raw.trim();
@@ -354,15 +381,12 @@ function addFlowEdges(
     for (const endpoints of parsedEndpoints) {
       const edgeLabel = resolveFlowEdgeLabel(endpoints, parsedEndpoints, trailingEdgeLabel, detailKind);
 
-      edges.push({
-        id: `edge_${edgeIndex}`,
+      pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
         sourceId: endpoints.sourceId,
         targetId: endpoints.targetId,
         label: edgeLabel,
         provenance: entity.provenance,
-        removed: false,
       });
-      edgeIndex += 1;
     }
     }
   }
@@ -379,15 +403,12 @@ function addFlowEdges(
       }
 
       for (const endpoints of parsedLineEndpoints) {
-        edges.push({
-          id: `edge_${edgeIndex}`,
+        pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
           sourceId: endpoints.sourceId,
           targetId: endpoints.targetId,
           label: resolveFlowEdgeLabel(endpoints, parsedLineEndpoints, "", "content"),
           provenance: flowSection.provenance,
-          removed: false,
         });
-        edgeIndex += 1;
       }
     }
   }

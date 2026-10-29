@@ -7,8 +7,18 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("executive");
 
     expect(lines.boxes).toBe("Azure resources");
-    expect(lines.connectors).toBe("Each connector is only as strong as its own line.");
+    expect(lines.connectors).toMatch(/Cross-group applies/);
     expect(lines.evidenceKind).toBe("This view does not prove reachability or runtime use.");
+  });
+
+  it("calls out executive overflow stripping and cross-group captions when requested (P-06/P-07)", () => {
+    const stripped = resolveInfraEvidenceDiagramReadingLegend("executive", {
+      executiveOverflowStripped: true,
+      crossGroupFanOutIncluded: true,
+    });
+
+    expect(stripped.boxes).toMatch(/executive overflow rollups/);
+    expect(stripped.connectors).toBe("Each connector is only as strong as its own line.");
   });
 
   it("describes data-flow view without declaring every connector", () => {
@@ -24,7 +34,7 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("dataArchitecture");
 
     expect(lines.boxes).toMatch(/Inventory of data platforms/);
-    expect(lines.connectors).toMatch(/not a data-flow diagram/);
+    expect(lines.connectors).toMatch(/not a data-flow diagram/i);
   });
 
   it("uses network placement reachability note", () => {

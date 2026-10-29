@@ -61,6 +61,9 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
+  const visibleTypes = neighborhood.types.slice(0, 4);
+  const remainingTypeCount = Math.max(0, neighborhood.types.length - visibleTypes.length);
+
   return (
     <button
       key={neighborhood.id}
@@ -83,7 +86,12 @@ function renderTile(
       </span>
       {neighborhood.types.length > 0 ? (
         <span className="flex flex-wrap gap-1">
-          {neighborhood.types.slice(0, 4).map(renderTypeChip)}
+          {visibleTypes.map(renderTypeChip)}
+          {remainingTypeCount > 0 ? (
+            <span className="text-[12px] text-[#64748b]">
+              + {remainingTypeCount} more type{remainingTypeCount === 1 ? "" : "s"} were stored.
+            </span>
+          ) : null}
         </span>
       ) : (
         <span className="text-[12px] text-[#64748b]">Resource types were not stored.</span>

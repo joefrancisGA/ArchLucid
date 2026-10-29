@@ -111,6 +111,8 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";
 
+    internal const string ArchitectureSummaryStoredEmptyCopy = "Architecture summary was stored empty.";
+
     internal static string FormatIdentityField(string? value, string missingCopy) =>
         FormatIdentityField(value, missingCopy, $"{missingCopy.Replace(" was not stored.", "", StringComparison.Ordinal)} was stored empty.");
 
