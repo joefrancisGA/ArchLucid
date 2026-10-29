@@ -61,7 +61,8 @@ describe("formatTransparencyTrailMarkdownSection", () => {
     expect(missing).toContain("Responder was not stored.");
     expect(missing).toContain("Question id was not stored.");
     expect(missing).toContain("Answer recorded time was not stored.");
-    expect(storedEmpty).not.toContain("was not stored.");
+    expect(storedEmpty).toContain("Responder was stored empty.");
+    expect(storedEmpty).not.toContain("Responder was not stored.");
   });
 
   it("states when skipped questions were not recorded on a complete trail", () => {

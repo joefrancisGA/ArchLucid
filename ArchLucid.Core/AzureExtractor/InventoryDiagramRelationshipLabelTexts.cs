@@ -321,7 +321,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
-        return $"Backend {backendName.Trim()} is not on this diagram.";
+        return $"Backend {backendName.Trim()} is not on this diagram. Observed traffic was not stored.";
     }
 
     public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)

@@ -210,7 +210,7 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
     }
 
     [Fact]
-    public void Classify_restore_point_collection_without_source_says_source_was_not_recorded()
+    public void Classify_restore_point_collection_without_source_says_protected_vm_was_not_stored()
     {
         GraphNode restorePointCollection = CreateTopologyNode(
             "rpc-node",
@@ -223,8 +223,47 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
             hasCitedDiagramEdges: false);
 
         result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
-        result.MissingRequirementMessage.Should().Be("protected virtual machine was not recorded");
+        result.MissingRequirementMessage.Should().Be("Protected virtual machine was not stored.");
         result.MissingRequirementMessage.Should().NotContain("no longer exists");
+    }
+
+    [Fact]
+    public void Classify_virtual_machine_without_subnet_placement_explains_missing_evidence()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        GraphNode vm = CreateTopologyNode("vm-node", vmArmId, "Microsoft.Compute/virtualMachines");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            vm,
+            CreateGraph([vm], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Unconnected);
+        result.UnresolvedRelationshipDetails.Should().Contain(
+            InventoryDiagramConnectionPostureCatalog.VirtualMachineNoStoredSubnetPlacementDetail);
+    }
+
+    [Fact]
+    public void Classify_virtual_machine_with_missing_nic_reference_is_orphaned()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        const string missingNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-missing";
+
+        GraphNode vm = CreateTopologyNode("vm-node", vmArmId, "Microsoft.Compute/virtualMachines");
+        vm.Properties["ipConfiguration.id"] =
+            missingNicArmId + "/ipConfigurations/ipconfig1";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            vm,
+            CreateGraph([vm], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().Contain("nic-missing");
     }
 
     [Fact]
