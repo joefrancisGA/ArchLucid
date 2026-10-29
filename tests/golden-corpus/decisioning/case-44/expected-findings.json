@@ -78,15 +78,15 @@
     ]
   },
   {
-    "findingId": "e62fb1f3-d57c-1d6c-168a-6c0244e03213",
+    "findingId": "02eb95e7-6f89-b227-47f0-dbec1aba37ef",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "db-subnet",
-      "sql-hr-prod"
+      "sql-hr",
+      "subnet-db"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

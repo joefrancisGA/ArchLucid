@@ -1,11 +1,11 @@
 [
   {
-    "findingId": "0e1b02b1-f967-4706-f2c6-c70e7645d4f4",
+    "findingId": "6f36f676-64bb-f9e5-e811-3cf60d8171fd",
     "findingType": "IdentityBlastRadiusFinding",
     "category": "Security",
     "severity": "Error",
-    "title": "Machine actor \u0027billing-func\u0027 has Contributor access to regulated datastore \u0027sa-audit-prod\u0027",
-    "rationale": "A machine identity can reach datastore \u0027sa-audit-prod\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
+    "title": "Machine actor \u0027billing-func\u0027 has Contributor access to regulated datastore \u0027Graph node label was not stored.\u0027",
+    "rationale": "A machine identity can reach datastore \u0027Graph node label was not stored.\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
     "relatedNodeIds": [
       "actor-billing",
       "role-contrib-sa",
@@ -78,14 +78,14 @@
     ]
   },
   {
-    "findingId": "b8a3b8fa-9cc9-cf5b-fb67-a3e2a9482d81",
+    "findingId": "8a82b391-712d-20cf-44c9-130efd660f51",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "billing-contributor-sa",
+      "role-contrib-sa",
       "sa-audit-prod"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
