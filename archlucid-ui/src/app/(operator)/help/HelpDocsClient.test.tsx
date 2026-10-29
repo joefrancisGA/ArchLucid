@@ -518,6 +518,47 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("filters external documentation when the query matches a query param on the vendor url", async () => {
+    const data = [
+      {
+        title: "External with query",
+        summary: "Vendor documentation that requires a version query param.",
+        category: "API",
+        url: "https://example.com/docs/alpha?version=2024",
+      },
+      {
+        title: "Other external",
+        summary: "Unrelated vendor link.",
+        category: "API",
+        url: "https://example.com/docs/beta",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External with query" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Other external" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "version=2024" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "External with query" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Other external" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {
@@ -679,6 +720,26 @@ describe("HelpDocsClient", () => {
     renderWithOperatorQuery(<HelpDocsClient />);
 
     expect(await screen.findByRole("searchbox")).toHaveValue("security");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("trims inbound q URL parameter when initializing the search box", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=%20policy%20");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("searchbox")).toHaveValue("policy");
 
     vi.unstubAllGlobals();
   });

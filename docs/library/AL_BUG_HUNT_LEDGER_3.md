@@ -1495,14 +1495,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (hit): promoted `parseHelpHubSearchQuery` — padded `?q=` deep links showed leading/trailing spaces in the search box while `normalizeHelpHubFilterQuery` trimmed for filtering, so shared help links looked broken until the operator edited the field; parse now trims inbound `q` to match debounced URL sync; regressions `trims inbound q URL parameter when initializing the search box` and `help-hub-search-url.test.ts`. Cheap-disproof closed scheme-relative href vs merge dedupe (`preserves query strings on external documentation link href` + `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`); debounced pathname equality (`preserves non-q URL parameters when debounced search sync updates q`, `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged`); static hash vs fetched deep link (`renders fetched doc-index deep links when only a hash fragment differs`); external url query filter (`filters external documentation when the query matches a query param on the vendor url` — haystack includes raw `e.url`). 56 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: operators opening help hub links with padded search params see the same filter text the hub applies immediately.
+
+- [x] (proven) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses trim — **hit 2026-10-29 thorough hunt:** `parseHelpHubSearchQuery` trims; regressions above.
+- [x] (invalid) `helpDocLinkHref` — scheme-relative external urls normalized for href differently from https duplicate merge key — **cheap-disproof 2026-10-29 thorough hunt:** href preserves raw url; merge key normalization is dedupe-only by design.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location.pathname`+`search` equality misses href built with different param ordering — **cheap-disproof 2026-10-29 thorough hunt:** at most one canonicalizing replace; unrelated param tests above.
+- [x] (valid-no-repro) `mergeDocIndex` — static row url with hash suffix prevents fetched deep link on same path without hash — **cheap-disproof 2026-10-29 thorough hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` allows fetched `#`/`?` variants; regression `renders fetched doc-index deep links when only a hash fragment differs`.
+- [x] (valid-no-repro) `normalizeDocIndexUrlForDedupe` — filter haystack deduped url token misses external url query search — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw `e.url`; regression `filters external documentation when the query matches a query param on the vendor url`.
+
+- [ ] (candidate) `helpHubSearchHrefFromSearch` — trimming inbound `q` on write but not on read left bookmarked `%20`-padded shares inconsistent until debounce — locus: parse vs href writer; input: monitor after parse trim fix (closed path).
+- [ ] (candidate) `HelpDocsClient` debounced search sync — uses `window.location` instead of `usePathname` when comparing href — locus: debounce effect ~245; input: basePath or soft-nav pathname drift (monitor `replaceIfHrefChanged` adoption).
+- [ ] (candidate) `mergeDocIndex` — fetched row with only `#` on external https url deduped against static internal quick link — locus: `docIndexFetchedUrlHasDeepLinkSuffix` external early return; input: external url with hash only (monitor duplicate external rows).
+- [ ] (candidate) `normalizeHelpHubFilterQuery` — trailing slash strip on filter token hides rows whose url path ends with slash — locus: while-loop ~86–88; input: filter query `reviews/` vs path `/architecture/reviews` (regression exists for url token).
+- [ ] (candidate) `HelpDocsClient.clearSearch` — immediate replace while debounced timer still pending could rewrite cleared q — locus: clearSearch vs debounce effect; input: type query then Escape before 250ms (monitor timer cleanup).
+
 2026-10-29 seed hunt (seed→hit): re-read `HelpDocsClient`, merge/dedupe helpers, and help index query hook after set-3 CLI churn; promoted `helpDocLinkHref` — external https doc-index rows routed through `normalizeDocIndexUrlForDedupe`, stripping query/hash on `Link` href while internal relative urls already preserved suffixes; external href now uses trimmed raw url (merge dedupe unchanged); regression `preserves query strings on external documentation link href`; cheap-disproof closed stale duplicate ledger `(candidate)` rows (deep-link merge, refetchOnMount, double-space filter covered by prior regressions); seeded five follow-on `(candidate)` rows below; 53 scoped `HelpDocsClient` vitest passed. Private beta: operators opening vendor documentation links from the help hub land on the intended versioned or tracked URL.
 
 - [x] (proven) `helpDocLinkHref` — external https doc-index urls stripped query/hash on navigation href — **hit 2026-10-29 seed hunt (seed→hit):** return trimmed url for all schemes; regression above.
-- [ ] (candidate) `helpDocLinkHref` — scheme-relative external urls (`//host/path?q=1`) still normalized for href differently from https duplicate merge key — locus: external branch vs `docIndexMergeDedupeKey`; input: scheme-relative row with query suffix.
-- [ ] (candidate) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses `normalizeHelpHubFilterQuery` trim — locus: url sync vs filter haystack; input: deep link `?q=%20policy%20`.
-- [ ] (candidate) `HelpDocsClient` debounced search sync — `window.location.pathname`+`search` equality misses href built with different param ordering — locus: 250ms debounce effect; input: help hub with unrelated search params plus `q`.
-- [ ] (candidate) `mergeDocIndex` — static row url with hash suffix prevents fetched deep link on same path without hash — locus: `docIndexFetchedUrlHasDeepLinkSuffix` guard; input: static `/help/topic` vs fetched `/help/topic#section`.
-- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — filter haystack uses deduped url token so searching for query substring on external url misses rows whose href still carries query — locus: filtered haystack `${normalizedUrl}`; input: search `version=2024` on external doc row.
 
 - **id:** ui-help-docs
 - **status:** open
@@ -1510,11 +1519,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 34
-- **bugs-found:** 19
+- **hunts:** 35
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — external help doc link href stripped query/hash
+- **last-bug:** 2026-10-29 — help hub q param trim on read
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
