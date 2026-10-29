@@ -20,7 +20,7 @@ public sealed class CompareVerdictChromeExportTests
             GateOutcome = new CompareVerdictChromeGateOutcomeDelta
             {
                 BaselineGateLabel = "Soft infeasible",
-                TargetGateLabel = "Gate pending",
+                TargetGateLabel = SendableExportCoverComposer.GateOutcomeNotStoredLine,
                 Changed = true,
             },
             PackAssignment = new CompareVerdictChromePackAssignmentDelta
