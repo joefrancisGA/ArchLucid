@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
+import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { StatusTag } from "@/components/ui/status-tag";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";

@@ -74,7 +74,7 @@ export function composeRunDetailEvidenceTab(
       artifactsExportsSection={artifactsExportsSectionEl}
       blockingFindingId={primaryConcernFindingId}
       blockingFindingTitle={primaryConcernLabel}
-      approvalBlocked={blockingApprovalCount > 0}
+      approvalBlocked={(blockingApprovalCount ?? 0) > 0}
       pagePrimaryOwnedElsewhere
     />
   );

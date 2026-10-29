@@ -75,8 +75,8 @@ export function composeRunDetailOverviewTab(
         packageOwnerLabel={reviewOwnerLabel}
         workspaceStatus={workspaceStatus}
       />
-      {blockingApprovalCount > 0 ? (
-        <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
+      {(blockingApprovalCount ?? 0) > 0 ? (
+        <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount ?? 0} />
       ) : null}
       <RunDetailInfeasibleDecisionLead feasibilityVerdict={feasibilityVerdict} runId={m.resolvedDetail.run.runId} />
       <RunDetailWorkspaceSummaryStripDeferred
