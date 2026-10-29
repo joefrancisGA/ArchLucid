@@ -1588,6 +1588,56 @@ describe("WebhooksIntegrationPage", () => {
     expect(navigationMocks.getSearchParams().get("webhookEnableId")).toBe(subscriptionId);
   });
 
+  it("keeps webhookEnableId when manual refresh fails after the subscription list never loaded", async () => {
+    const subscriptionId = "sub-enable-refresh-fail-never-loaded";
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
+    apiMocks.list.mockRejectedValue(new Error("list failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list failed/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list failed/i);
+    });
+
+    expect(navigationMocks.getCommittedQuery()).toContain(`webhookEnableId=${subscriptionId}`);
+    expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+  });
+
+  it("does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag", async () => {
+    navigationMocks.setQueryParam("webhooksDeliveryContractOpen", "1");
+
+    render(<WebhooksIntegrationPage />);
+
+    const deliveryDisclosure = screen.getByTestId("webhooks-delivery-contract-disclosure");
+    expect(deliveryDisclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(deliveryDisclosure).not.toHaveAttribute("open");
+    });
+
+    const alertRecordedRow = screen.getByText("Alert recorded").closest("label");
+    expect(alertRecordedRow).not.toBeNull();
+
+    fireEvent.click(within(alertRecordedRow as HTMLElement).getByText("Technical event name"));
+
+    await waitFor(() => {
+      expect(navigationMocks.getCommittedQuery()).toContain(
+        "webhooksTechnicalEventNameEventId=archlucid.alert.recorded",
+      );
+      expect(navigationMocks.getCommittedQuery()).not.toContain("webhooksDeliveryContractOpen=");
+    });
+  });
+
   it("opens disable confirmation from webhookDisableId after subscriptions finish loading", async () => {
     const subscriptionId = "sub-disable-deeplink-1";
     let resolveList: (rows: unknown[]) => void = () => {};
