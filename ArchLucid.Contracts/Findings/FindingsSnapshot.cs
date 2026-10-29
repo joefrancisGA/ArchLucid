@@ -42,11 +42,13 @@ public class FindingsSnapshot
     }
 
     /// <summary>Whether the snapshot is sealed for manifest finalization (defaults to <see cref="FindingsSnapshotGenerationStatus.Complete" /> for legacy rows).</summary>
+    private FindingsSnapshotGenerationStatus generationStatus = FindingsSnapshotGenerationStatus.Complete;
+
     public FindingsSnapshotGenerationStatus GenerationStatus
     {
-        get;
-        set;
-    } = FindingsSnapshotGenerationStatus.Complete;
+        get => generationStatus;
+        set => generationStatus = ContractCollectionDefaults.CoalesceFindingsSnapshotGenerationStatus(value);
+    }
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
     private List<FindingEngineFailure> engineFailures = [];

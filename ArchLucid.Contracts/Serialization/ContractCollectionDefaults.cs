@@ -18,4 +18,9 @@ public static class ContractCollectionDefaults
         value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     public static string CoalesceRequired(string? value) => value ?? string.Empty;
+
+    /// <summary>Maps explicit JSON numeric <c>0</c> (invalid for this enum) to <see cref="Findings.FindingsSnapshotGenerationStatus.Complete" />.</summary>
+    public static Findings.FindingsSnapshotGenerationStatus CoalesceFindingsSnapshotGenerationStatus(
+        Findings.FindingsSnapshotGenerationStatus value) =>
+        value == default ? Findings.FindingsSnapshotGenerationStatus.Complete : value;
 }
