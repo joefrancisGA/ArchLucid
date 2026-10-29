@@ -11,6 +11,9 @@ function okJsonFetchResponse(body: unknown): Response {
 }
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
+const searchParamsToString = vi.fn(() => searchParamsString);
+let searchParamsString = "";
+const routerReplace = vi.fn();
 
 function stubProductContextFetch(runId: string, content: string): void {
   vi.stubGlobal(
@@ -95,13 +98,23 @@ vi.mock("next/navigation", async (importOriginal) => {
       get: searchParamsGet,
       getAll: vi.fn(() => []),
       has: vi.fn(() => false),
-      toString: vi.fn(() => ""),
+      toString: searchParamsToString,
       entries: vi.fn(),
       forEach: vi.fn(),
       keys: vi.fn(),
       values: vi.fn(),
       [Symbol.iterator]: vi.fn(),
     }),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: routerReplace,
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
   });
 });
 
@@ -122,6 +135,9 @@ vi.mock("./ArchitectureIntelligenceNextReviewFooterClient", () => ({
 describe("ArchitectureIntelligencePageClient", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
+    searchParamsString = "";
+    searchParamsToString.mockImplementation(() => searchParamsString);
+    routerReplace.mockReset();
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -3422,6 +3438,57 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, cost");
+  });
+
+  it("syncs contextRunId in the URL when product source context returns a canonical run id", async () => {
+    const inboundRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const canonicalRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    searchParamsString = `runId=${inboundRunId}&from=reviews`;
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return inboundRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: canonicalRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Canonical run scope.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(canonicalRunId);
+    });
+
+    expect(routerReplace).toHaveBeenCalledWith(
+      expect.stringContaining(`contextRunId=${encodeURIComponent(canonicalRunId)}`),
+      { scroll: false },
+    );
   });
 });
 

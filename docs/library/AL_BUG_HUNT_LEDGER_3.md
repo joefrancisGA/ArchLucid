@@ -1910,6 +1910,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-29 thorough hunt (hit): promoted `useArchitectureIntelligenceProductContext` hydration — when product source-context returns a canonical `runId` different from the inbound `runId` search param, hydration updated local scope only and left a stale `contextRunId`/scope URL; hydration now calls `setActiveRunIdWithUrl` only when API and inbound ids differ; regression `syncs contextRunId in the URL when product source context returns a canonical run id`; `onSelectReview` clears stale `contextRunId` when writing `runId`; 58 scoped ArchitectureIntelligence page-client tests passed. Cheap-disproof closed analyze-always-publish (intentional analyze path), failure-panel scope banner (documented recovery contract), publish stale guard (existing `actionGenerationRef`), and pick-review strip unreachable with stale `contextRunId` (strip hidden when scope already set). Private beta: architecture intelligence deep links keep URL scope aligned with canonical product run ids after intake hydration.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression above.
+- [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` param when picking review — **hit 2026-10-29 thorough hunt:** delete `contextRunId` when setting `runId`.
+- [x] (invalid) `useArchitectureIntelligenceActions.analyzeThisReview` — analyze forces publish toggle before POST — **cheap-disproof 2026-10-29 thorough hunt:** analyze path intentionally passes `publish: true` to run reasoning for product publish workflow.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — scope banner during `productContextLoadFailed` — **cheap-disproof 2026-10-29 thorough hunt:** intentional recovery contract; regression `does not show next-review footer when product context load failure panel is visible` keeps banner visible.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` while pick strip open — **cheap-disproof 2026-10-29 thorough hunt:** strip renders only when `activeRunId` empty; `contextRunId`-only scope hides strip before pick.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.publishRun` — publish without stale guard on scope switch — **cheap-disproof 2026-10-29 thorough hunt:** `isStaleActionGeneration` before `setRunState` matches proven reasoning/continue guards.
+- [ ] (candidate) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail submitted architecture section; input: soft navigation then expand disclosure.
+- [ ] (candidate) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail authority chain section; input: soft navigation then expand disclosure.
+- [ ] (candidate) `FindingInspectWhyMattersSection` — finding inspect disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail finding inspect; input: soft navigation then expand why-it-matters disclosure.
+
 2026-10-29 seed hunt (seed→hit): re-read page client and action hooks; promoted `continueWithAnswers` — continue POST with omitted `runId` passed `undefined ?? activeRunId` but an empty string `runId` cleared `activeRunId` via `setActiveRunIdWithUrl`, dropping the scope banner for `contextRunId` deep links while results remained; fixed by only updating active run when continue response includes a non-empty trimmed id (mirrors reasoning run POST guard); regression `keeps contextRunId scope banner when continue response omits runId`; 57 scoped ArchitectureIntelligence page-client tests passed. Seeded five follow-on `(candidate)` rows below. Private beta: architecture intelligence interview resubmit no longer clears the deep-linked review scope when the continue API omits run id.
 
 - [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — empty or omitted continue `runId` cleared deep-linked scope — **hit 2026-10-29 seed hunt:** non-empty trimmed id gate; regression above.
@@ -1928,11 +1940,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 41
-- **bugs-found:** 28
+- **hunts:** 42
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — continue response without run id cleared architecture intelligence scope banner
+- **last-bug:** 2026-10-29 — canonical product run id did not sync architecture intelligence scope URL after hydration
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1950,11 +1962,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
 - [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST without usable `runId` cleared deep-linked scope while results remained — **hit 2026-10-29 seed hunt:** same non-empty trimmed id gate; regression `keeps contextRunId scope banner when continue response omits runId`.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext` hydration — source-context success calls raw `setActiveRunId` without `setActiveRunIdWithUrl` — locus: hydration effect after `sourceContextQuery`; input: API `runId` differs from inbound `runId` search param on deep link.
-- [ ] (candidate) `useArchitectureIntelligenceActions.analyzeThisReview` — analyze path always sets publish toggle true before POST — locus: `runReasoningWithOptions` publish branch; input: operator runs analyze then clears publish checkbox before response returns.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — scope banner visible during `productContextLoadFailed` while `activeRunId` set — locus: banner render guard vs failure panel; input: contextRunId deep link then source-context 503 after prior reasoning.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext` — `onSelectReview` sets `runId` param but not `contextRunId` — locus: review picker strip; input: operator picks review from strip while `contextRunId` still in URL.
-- [ ] (candidate) `useArchitectureIntelligenceActions.publishRun` — publish success replaces `runState` without verifying continue-generation guard on concurrent scope switch — locus: publish completion vs `actionGenerationRef`; input: scope switch during publish POST (monitor against proven stale guards).
+- [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression `syncs contextRunId in the URL when product source context returns a canonical run id`.
+- [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` when setting `runId` — **hit 2026-10-29 thorough hunt:** delete `contextRunId` on pick.
+- [x] (invalid) `useArchitectureIntelligenceActions.analyzeThisReview` — analyze forces publish toggle before POST — **cheap-disproof 2026-10-29 thorough hunt:** intentional analyze publish workflow.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — scope banner during `productContextLoadFailed` — **cheap-disproof 2026-10-29 thorough hunt:** documented recovery contract; existing failure-state regression.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` with pick strip — **cheap-disproof 2026-10-29 thorough hunt:** strip hidden when scope already set via `contextRunId`.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.publishRun` — missing stale guard on scope switch — **cheap-disproof 2026-10-29 thorough hunt:** `isStaleActionGeneration` on completion.
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
 - [x] (proven) `ArchitectureIntelligencePageClient` analysis checklist during source-context failure — a reachable source-context 503 hid the reasoning workspace but `analysisComplete` still read `runState.kind === "reasoning"`, so “Start analysis” displayed Done; fixed by requiring `showReasoningWorkspace`; regression `does not show reasoning results when product context load failure panel is visible` asserts In progress.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — **cheap-disproof 2026-10-11 thorough hunt:** the failure panel explicitly restores freeform intake and golden-fixture recovery, so run/golden controls remain available for operator-supplied replacement input; existing failure-state coverage exercises the recovery form.

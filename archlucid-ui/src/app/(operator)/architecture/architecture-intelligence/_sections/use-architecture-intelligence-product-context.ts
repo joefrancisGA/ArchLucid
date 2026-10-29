@@ -16,6 +16,7 @@ import {
   parseArchitectureIntelligenceTierFromSearch,
 } from "@/lib/architecture/architecture-intelligence-tier-url";
 import {
+  ARCHITECTURE_INTELLIGENCE_CONTEXT_RUN_PARAM,
   architectureIntelligenceContextRunHrefFromSearch,
   parseArchitectureIntelligenceContextRunIdFromSearch,
 } from "@/lib/architecture/architecture-intelligence-context-run-url";
@@ -310,7 +311,14 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
       return hydratedDescriptionFromQuery;
     });
-    setActiveRunId(sourceContextQuery.data.runId?.trim() || inboundRunId);
+    const apiRunId = sourceContextQuery.data.runId?.trim() ?? "";
+    const resolvedActiveRunId = apiRunId.length > 0 ? apiRunId : inboundRunId;
+
+    if (apiRunId.length > 0 && apiRunId !== inboundRunId) {
+      setActiveRunIdWithUrl(apiRunId);
+    } else {
+      setActiveRunId(resolvedActiveRunId);
+    }
     setPrioritiesRaw((currentPriorities) => {
       if (hydratedPrioritiesFromQuery.trim().length > 0) {
         return hydratedPrioritiesFromQuery;
@@ -462,7 +470,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
       const params = new URLSearchParams(searchParams.toString());
       params.set("runId", normalized);
-      router.replace(`${pathname}?${params.toString()}`);
+      params.delete(ARCHITECTURE_INTELLIGENCE_CONTEXT_RUN_PARAM);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams],
   );
