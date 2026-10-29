@@ -297,6 +297,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         // SQL connection is test-only; server metrics may be inaccessible to non-sysadmin identities.
         // The query below is deliberately advisory and cannot isolate this test's server CPU.
         SqlInstanceCapacityObserver.Sample serverBefore = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
+        DateTimeOffset benchmarkStartUtc = DateTimeOffset.UtcNow;
         Stopwatch overall = Stopwatch.StartNew();
         await Task.WhenAll(Enumerable.Range(0, concurrency).Select(async worker =>
         {
@@ -310,6 +311,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             }
         }));
         overall.Stop();
+        DateTimeOffset benchmarkEndUtc = DateTimeOffset.UtcNow;
         clientProcess.Refresh();
         double clientCpuMilliseconds = Math.Max(0, (clientProcess.TotalProcessorTime - clientCpuBefore).TotalMilliseconds);
         long clientMemoryAfter = clientProcess.WorkingSet64;
@@ -327,6 +329,8 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             schemaVersion = 1, backend = "SQL_SECURITY_EVIDENCE_PATH_REPOSITORY",
             pathCount, hopsPerPath = 1, concurrency, queries = samples.Length,
             elapsedSeconds = overall.Elapsed.TotalSeconds,
+            measurementStartUtc = benchmarkStartUtc,
+            measurementEndUtc = benchmarkEndUtc,
             p50Milliseconds = sorted[(sorted.Length - 1) / 2],
             p95Milliseconds = sorted[(int)Math.Ceiling(sorted.Length * .95) - 1],
             clientProcessCpuMillisecondsDelta = clientCpuMilliseconds,
