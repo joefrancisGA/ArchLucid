@@ -262,10 +262,12 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     };
   }, []);
 
+  const routerSearchString = searchParams.toString();
+
   useEffect(() => {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
-        runsListSearchHrefFromSearch(readWindowLocationSearch(), filterText, pathname),
+        runsListSearchHrefFromSearch(routerSearchString, filterText, pathname),
         { notify: false },
       );
     }, 250);
@@ -273,7 +275,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [filterText, pathname]);
+  }, [filterText, pathname, routerSearchString]);
 
   const setFilterText = useCallback((value: string): void => {
     filterTextRef.current = value;
@@ -283,10 +285,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const clearFilterText = useCallback(() => {
     filterTextRef.current = "";
     setFilterTextState("");
-    commitHrefIfChanged(runsListClearSearchHrefFromSearch(readWindowLocationSearch(), pathname), {
+    commitHrefIfChanged(runsListClearSearchHrefFromSearch(routerSearchString, pathname), {
       notify: false,
     });
-  }, [pathname]);
+  }, [pathname, routerSearchString]);
 
   const setSortOrder = useCallback((_order: SortOrder): void => {
     // Sort is URL-driven via FilterChip navigation; retained for hook API compatibility.
@@ -296,14 +298,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       commitHrefIfChanged(
         runsListCompareInspectorHrefFromSearch(
-          runsListEffectiveSearchFromSearch(readWindowLocationSearch(), filterTextRef.current),
+          runsListEffectiveSearchFromSearch(routerSearchString, filterTextRef.current),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, routerSearchString],
   );
 
   const setSelectedRun = useCallback(

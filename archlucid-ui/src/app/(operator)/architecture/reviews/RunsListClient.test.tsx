@@ -1359,6 +1359,35 @@ describe("RunsListClient inspector", () => {
     expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("q=Demo"));
   });
 
+  it("writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "q=Demo&staleToolbar=q-old",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?q=Demo");
+    runsListSearchParamsHarness.state.committedQuery = "q=Demo&staleToolbar=q-old";
+
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`inspectorRunId=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("staleToolbar");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q-old");
+  });
+
   it("preserves pending text filter in inspectorRunId URL sync before q= debounce completes", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

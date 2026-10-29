@@ -1096,19 +1096,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — `syncCompareInspectorToUrl`, debounced `q=` sync, and `clearFilterText` built hrefs from `readWindowLocationSearch()`, so row activation after soft navigation merged stale list query keys into `inspectorRunId` commits; write paths now use `searchParams.toString()` with pending filter merge via `runsListEffectiveSearchFromSearch`; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`; 56 scoped `RunsListClient` vitest passed. Private beta: opening the docked inspector on the reviews list no longer re-attaches stale toolbar query params after in-app navigation.
+
+- [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression above.
+
+- [ ] (candidate) `useRunsList` debounced `q=` sync — timer may rewrite `q=` from stale `filterText` ref after `clearFilterText` and immediate Escape within the same debounce window — locus: debounce effect ~267; input: type then Escape before 250ms with fake timers (extend clear/Escape tests).
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure toggle may merge stale committed search when buyer filter collapse path becomes reachable — locus: `commitHrefIfChanged` + `readWindowLocationSearch` in client ~115; input: soft-nav lag with `runsListFilterOpen=` (monitor unreachable UX branch).
+- [ ] (candidate) `useRunsList` `toggleCompareSelection` — third-compare rotation may drop `inspectorRunId` when compare bar clears under buyer card layout transition — locus: `showCompareSelection` effect ~565; input: buyer cards → table narrowing with two compare ids selected (monitor URL parity).
+- [ ] (candidate) `useRunsList` pagination hrefs — `nextCursor` omitted when pending filter text narrows page to one visible row but `totalCount` still multi-page — locus: `nextHref` builder ~540; input: typed filter + `totalCount > pageSize` with empty visible page (monitor edge pagination).
+- [ ] (candidate) `RunsListClient` filter Escape — `stopPropagation` on clear may still leave debounced `q=` scheduled from pre-clear keystrokes — locus: filter `onKeyDown` + hook debounce; input: rapid type + Escape with lagging committed `q=` (monitor debounce cleanup).
+
 - **id:** ui-runs-list
 - **status:** open
 - **impact:** low
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 34
-- **last-hunt:** 2026-10-10
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
+- **hunts:** 35
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-29 — inspector URL sync merged stale committed search after soft navigation
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1516,12 +1526,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `mergeDocIndex` — bare `#` on external url — **cheap-disproof 2026-10-29 thorough hunt:** empty hash fails `parsed.hash.length > 0`; generator unlikely to emit.
 - [x] (valid-no-repro) `helpDocCategoriesForDisplay` — unknown category order flash on filter clear — **cheap-disproof 2026-10-29 thorough hunt:** stable sort; empty sections not rendered.
 - [x] (valid-no-repro) `useHelpDocsIndexQuery` — empty index warning without refetch hint — **cheap-disproof 2026-10-29 thorough hunt:** static quick links intentional fallback; warning copy documents empty response.
-
-- [ ] (candidate) `mergeDocIndex` — two external hash variants on same merge key both render but share one claimed key — locus: claimedUrls set; input: `#intro` and `#advanced` on same vendor path (monitor duplicate anchor rows).
-- [ ] (candidate) `helpDocLinkHref` — scheme-relative urls without explicit https still omit noreferrer when url has leading tab — locus: linkProps trim; input: `\t//example.com/doc` (monitor whitespace classification).
-- [ ] (candidate) `HelpDocsClient` — filter haystack omits percent-encoded query tokens when raw url uses uppercase hex — locus: decodeDocIndexPathForDedupe; input: search `%2F` token on encoded path row.
-- [ ] (candidate) `mergeDocIndex` — static quick link claims merge key preventing fetched external vendor row with same pathname — locus: static `claimedUrls` seed; input: static `/help/troubleshooting` vs fetched external (invalid reachability monitor).
-- [ ] (candidate) `indexQuery.isPending` — active filter hides fetched-only matches until load completes then does not re-filter — locus: entries null branch; input: mount with `q=` matching fetched-only title (regression exists for post-load).
 
 2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows whose url differed only by a `#` fragment were dropped when the base vendor url was already merged because external urls always returned `false` for deep-link suffix; external hash fragments now bypass normalized-path dedupe (query-only duplicates still collapse); regression `renders fetched external doc links when only a hash fragment differs on the same https url`. Cheap-disproof closed parse/read trim monitor candidate (`parseHelpHubSearchQuery` trim shipped prior hunt); debounced `window.location` compare (`replaceIfHrefChanged` pattern documented, existing param-order tests); trailing-slash filter token (`filters entries when the search query ends with a trailing slash on the url path token`); Escape vs debounce (`clears the search box when Escape is pressed` + effect cleanup). 57 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: vendor documentation entries in the help hub can surface separate in-page anchor links without losing the base outbound url row.
 
