@@ -52,11 +52,12 @@ on:
         default: false
         type: boolean
 
-# One active CI run per PR (or per ref for workflow_dispatch / merge_group). A newer push cancels the
-# stale run so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+# RC37 push CI runs have SHA-specific groups so a repair push does not cancel an ongoing
+# non-deploying regression on the previous release-candidate commit.
+# Other events retain existing grouping and cancellation semantics.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC37' && github.sha) || (github.event.pull_request.number || github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
