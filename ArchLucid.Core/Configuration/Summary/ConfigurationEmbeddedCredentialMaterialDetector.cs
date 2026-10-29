@@ -163,7 +163,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 6; layer++)
+            for (int layer = 0; layer < 7; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -180,7 +180,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 5 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 6 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -345,19 +345,33 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 break;
 
             ReadOnlySpan<char> valuePart = cookiePart.Slice(equalsIndex + 1).Trim();
-            int semicolonIndex = valuePart.IndexOf(';');
-            ReadOnlySpan<char> cookieValue = semicolonIndex > 0 ? valuePart.Slice(0, semicolonIndex).Trim() : valuePart;
+            int valueEnd = IndexOfCookiePairDelimiter(valuePart);
+            ReadOnlySpan<char> cookieValue = valueEnd > 0 ? valuePart.Slice(0, valueEnd).Trim() : valuePart;
 
             if (cookieValue.Length >= 8)
                 return true;
 
-            if (semicolonIndex < 0)
+            if (valueEnd < 0)
                 break;
 
-            cookiePart = valuePart.Slice(semicolonIndex + 1);
+            cookiePart = valuePart.Slice(valueEnd + 1);
         }
 
         return false;
+    }
+
+    private static int IndexOfCookiePairDelimiter(ReadOnlySpan<char> valuePart)
+    {
+        int semicolonIndex = valuePart.IndexOf(';');
+        int commaIndex = valuePart.IndexOf(',');
+
+        if (semicolonIndex < 0)
+            return commaIndex;
+
+        if (commaIndex < 0)
+            return semicolonIndex;
+
+        return Math.Min(semicolonIndex, commaIndex);
     }
 
     /// <summary>
