@@ -14960,6 +14960,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 629
 - **bugs-found:** 1007
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — `X-Api-Key:` and Basic-auth header paste redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
