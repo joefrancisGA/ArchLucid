@@ -190,10 +190,10 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
-      "(submitted text, not operator-asserted)",
-    );
-    expect(mermaid).toMatch(/\.\.\./);
+    const normalized = mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ");
+    expect(normalized).toContain("(submitted text, not operator-asserted)");
+    expect(normalized).toContain("Full node label was stored; only a preview is shown.");
+    expect(mermaid).not.toMatch(/\.\.\./);
   });
 
   it("renders an explicit empty diagram placeholder", () => {

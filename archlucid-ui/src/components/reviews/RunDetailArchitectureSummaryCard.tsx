@@ -11,6 +11,10 @@ import type {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { stripInlineMarkdownFromReviewText } from "@/lib/review-display-title";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
@@ -62,7 +66,11 @@ function clampPreviewLine(line: string): string {
     return stripped;
   }
 
-  return `${stripped.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`;
+  return formatStoredTextPreview(
+    stripped,
+    PREVIEW_LINE_MAX_CHARS,
+    STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection,
+  );
 }
 
 function previewLines(text: string): readonly string[] {
@@ -88,7 +96,9 @@ function previewLines(text: string): readonly string[] {
       break;
     }
 
-    chunks.push(`${remaining.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`);
+    chunks.push(
+      formatStoredTextPreview(remaining, PREVIEW_LINE_MAX_CHARS, STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection),
+    );
     remaining = remaining.slice(PREVIEW_LINE_MAX_CHARS - 3);
   }
 

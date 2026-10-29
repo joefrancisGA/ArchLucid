@@ -9,6 +9,10 @@ import {
   resolveArchitectureDiagramNodeDisplayLabel,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No diagram components were stored.";
 
@@ -55,7 +59,9 @@ function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): 
     ? MERMAID_LABEL_MAX_CHARS - MERMAID_INFERRED_SUFFIX.length
     : MERMAID_LABEL_MAX_CHARS;
   const truncatedCore =
-    core.length > maxCoreLength ? `${core.slice(0, maxCoreLength - 3)}...` : core;
+    core.length > maxCoreLength
+      ? formatStoredTextPreview(core, maxCoreLength, STORED_TEXT_PREVIEW_CONTINUATION.mermaidNodeLabel)
+      : core;
   const label = hasInferredSuffix ? `${truncatedCore}${MERMAID_INFERRED_SUFFIX}` : truncatedCore;
 
   return wrapArchitectureDiagramLabelForMermaidSource(label, peerResourceNames);

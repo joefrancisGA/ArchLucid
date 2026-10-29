@@ -4,6 +4,10 @@ import {
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
 } from "./architecture-scope-understanding-shared";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 import type {
   DeriveScopeUnderstandingBulletsInput,
   ReconcileScopeUnderstandingBulletsInput,
@@ -186,7 +190,7 @@ export function deriveScopeUnderstandingBullets(
   if (overview.length > 0) {
     const excerpt =
       overview.length > SCOPE_CONTEXT_PREVIEW_MAX_LENGTH
-        ? `${overview.slice(0, SCOPE_CONTEXT_PREVIEW_MAX_LENGTH - 1).trimEnd()}…`
+        ? formatStoredTextPreview(overview, SCOPE_CONTEXT_PREVIEW_MAX_LENGTH, STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview)
         : overview;
 
     pushUniqueBullet(bullets, "context", "context", excerpt);
