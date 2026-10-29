@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end comparison correlation metadata that kept the policy-rule match honesty sentence when `PolicyRuleMatchCount` and `FuzzyMatchCount` were both zero, so a download said finding pairs matched on policy rule and fingerprint while unmatched counts showed they did not; `ComparisonFindingCorrelationMetadataBuilder` emits that sentence for the no-fuzzy branch, and `ComparisonFindingCorrelationMetadataNormalizer` now replaces it when no pairs matched; `ReplayComparisonFindingLifecycleDiffSlice` normalizes the built metadata before the report is returned; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_does_not_claim_policy_matches_when_no_finding_pairs_matched`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1092/1093** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews and no findings matched, the comparison says no finding pairs matched instead of saying they matched on policy rule and fingerprint.
+
+- [x] (proven) `ComparisonFindingCorrelationMetadataNormalizer` — zero match counts still used the policy-rule match honesty sentence — **hit 2026-10-29 seed hunt:** replace that sentence when both match counts are zero; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison Markdown that interpolated an agent `AddedClaims` string onto a bullet, so claim text `keep private endpoints` plus a newline and `## Injected heading` closed the bullet and started a new heading; claims are natural-language strings on `AgentResult.Claims` copied by `AgentResultDiffService` with no newline filter; list items in the replay, summary, and export-record Markdown formatters now go through shared `MarkdownListText`, and the architecture-analysis exporter delegates to that helper; regression `CompareQuality_GenerateMarkdown_keeps_added_claim_on_its_bullet_when_a_newline_is_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1091/1092** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an end-to-end replay comparison or export-record diff as Markdown, a line break in an agent claim, finding, warning, or other list item stays on that bullet instead of starting a new heading.
 
 - [x] (proven) `EndToEndReplayComparisonMarkdownExportFormatter.AppendList` — an added claim with a newline started a Markdown heading — **hit 2026-10-29 seed hunt:** shared `MarkdownListText` on replay, summary, and export-record list items; regression above. [class:fail-open-validation]
@@ -16060,11 +16064,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 80
-- **bugs-found:** 76
+- **hunts:** 81
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — replay comparison Markdown started a heading when an added claim contained a newline
+- **last-bug:** 2026-10-29 — comparison honesty note claimed policy-rule matches when no finding pairs matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16220,6 +16224,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `ComparisonFindingCorrelationMetadataNormalizer` — zero match counts still used the policy-rule match honesty sentence — **hit 2026-10-29 seed hunt:** replace that sentence when both match counts are zero; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_does_not_claim_policy_matches_when_no_finding_pairs_matched`. [class:fail-open-validation]
 
 - [x] (proven) `EndToEndReplayComparisonMarkdownExportFormatter.AppendList` — an added claim with a newline started a Markdown heading — **hit 2026-10-29 seed hunt:** shared `MarkdownListText` on replay, summary, and export-record list items; regression `CompareQuality_GenerateMarkdown_keeps_added_claim_on_its_bullet_when_a_newline_is_stored`. [class:fail-open-validation]
 

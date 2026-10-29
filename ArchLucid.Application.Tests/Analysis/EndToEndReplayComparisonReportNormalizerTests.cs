@@ -1169,6 +1169,35 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_does_not_claim_policy_matches_when_no_finding_pairs_matched()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 0,
+                FuzzyMatchCount = 0,
+                UnmatchedLeftCount = 4,
+                UnmatchedRightCount = 1,
+                HonestyNote =
+                    "Finding pairs matched on policy rule id and normalized fingerprint when both sides exposed a policy rule.",
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.FindingCorrelation.Should().NotBeNull();
+        report.FindingCorrelation!.UnmatchedLeftCount.Should().Be(4);
+        report.FindingCorrelation.UnmatchedRightCount.Should().Be(1);
+        report.FindingCorrelation.HonestyNote.Should().Be(
+            "No finding pairs matched. Unmatched findings are not treated as the same finding across the two runs.");
+        report.FindingCorrelation.HonestyNote.Should().NotContain("matched on policy rule");
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_resets_unknown_finding_correlation_primary_method()
     {
         EndToEndReplayComparisonReport report = new()
