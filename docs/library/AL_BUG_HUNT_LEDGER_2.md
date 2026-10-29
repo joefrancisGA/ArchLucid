@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #173): promoted `Tenants.NormalizedOrganizationName` embedded substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; compound table names such as `ArchiveTenants.NormalizedOrganizationName` matched org context; consolidated slug/normalized column checks into boundary-aware `ContainsTenantsTableColumnReference`; regression `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_archive_tenants_normalized_organization_name`; scoped filter 337/337 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats archive-table normalized organization name unique failures as org-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.NormalizedOrganizationName` compound name false positive — **hit 2026-10-29 seed hunt #173:** shared column boundary helper; regression above.
+
 2026-10-29 seed hunt (seed→hit #172): promoted `Tenants.Slug` embedded substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated table/column names such as `ArchiveTenants.Slug` matched slug context; slug column detection now uses `ContainsTenantsSlugColumnReference` with identifier boundary before `Tenants.Slug`; regression `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_archive_tenants_slug`; scoped filter 336/336 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats archive or compound table slug unique failures as org-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.Slug` substring in compound names — **hit 2026-10-29 seed hunt #172:** boundary-aware slug column token; regression above.
@@ -16044,11 +16048,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 172
-- **bugs-found:** 151
+- **hunts:** 173
+- **bugs-found:** 152
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenants.Slug compound name false positive
+- **last-bug:** 2026-10-29 — NormalizedOrganizationName compound false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
