@@ -8,7 +8,7 @@ import { Fragment, useCallback, useEffect, useState, type ReactNode } from "reac
 
 import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { splitBuyerAskSponsorLead } from "@/lib/ask-sponsor-lead";
-import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
+import { parseAskAssistantStructuredSections, resolveAskAssistantSectionTitle } from "@/lib/ask-assistant-section-parser";
 import {
   ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM,
   askAssistantMoreSourcesDisclosureHrefFromSearch,
@@ -28,7 +28,7 @@ const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
 const ASK_GROUNDING_SOURCE_LINK_NOT_STORED = "Source link was not stored.";
 const ASK_GROUNDING_SOURCE_LINK_STORED_EMPTY = "Source link was stored empty.";
-const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
+const ASK_SECTION_STORED_EMPTY = "This section was stored empty in the answer." as const;
 
 function renderAskSectionBody(
   body: string,
@@ -247,6 +247,10 @@ export function AskAssistantMessageBody(props: {
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
       <GroundingLinksFooter links={groundingLinks} buyerPolishedLinks={buyerPolishedLinks} />
+    ) : buyerPolishedLinks && groundingLinks === undefined ? (
+      <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+        {ASK_GROUNDING_SOURCES_NOT_STORED}
+      </p>
     ) : null;
 
   const buyerAnswerLeadPlain = buyerPolishedLinks ? (
@@ -310,8 +314,8 @@ export function AskAssistantMessageBody(props: {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
         )}
         {sectionsForRender.map((section, index) => (
-          <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
-            <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
+          <section key={`${section.key}-${index}`} aria-label={resolveAskAssistantSectionTitle(section)} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{resolveAskAssistantSectionTitle(section)}</h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds, reviewIdInScope)
@@ -338,9 +342,9 @@ export function AskAssistantMessageBody(props: {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
         )}
         {structured.sections.map((section, index) => (
-          <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+          <section key={`${section.key}-${index}`} aria-label={resolveAskAssistantSectionTitle(section)} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {section.title}
+              {resolveAskAssistantSectionTitle(section)}
             </h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0

@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { ASK_ASSISTANT_EVIDENCE_SECTION_TITLE } from "@/lib/ask-assistant-section-parser";
 import { AskAssistantMessageBody } from "./AskAssistantMessageBody";
 
 vi.mock("next/link", () => ({
@@ -80,7 +81,7 @@ describe("AskAssistantMessageBody", () => {
     expect(execLead?.textContent).toBe("First line.");
 
     expect(screen.getByRole("heading", { name: "Risk" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: ASK_ASSISTANT_EVIDENCE_SECTION_TITLE })).toBeInTheDocument();
 
     const evidenceLink = screen.getByRole("link", {
       name: `Open linked review 22222222-2222-4222-8222-222222222222`,
@@ -104,8 +105,8 @@ describe("AskAssistantMessageBody", () => {
     );
 
     expect(screen.getByText("Answer lead was not stored.")).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("This section was stored empty.");
-    expect(screen.getByRole("region", { name: "Evidence" })).toHaveTextContent("Stored evidence.");
+    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("This section was stored empty in the answer.");
+    expect(screen.getByRole("region", { name: ASK_ASSISTANT_EVIDENCE_SECTION_TITLE })).toHaveTextContent("Stored evidence.");
   });
 
   it("labels an empty answer body explicitly", () => {

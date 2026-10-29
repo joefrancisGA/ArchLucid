@@ -143,12 +143,14 @@ export function DiagramNeighborhoodMapView(
           {visibleLinks.map((link) => (
             <li key={`${link.from}-${link.to}`}>
               {`${titleFor(props.map, link.from)} — ${
-                link.count === null ? "Link count was not stored" : link.count
+                link.count === null
+                  ? "Link count was not stored"
+                  : `${link.count} stored link${link.count === 1 ? "" : "s"}`
               } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
           {remainingLinkCount > 0 ? (
-            <li>{`+ ${remainingLinkCount} more links were stored.`}</li>
+            <li>{`${remainingLinkCount} stored link${remainingLinkCount === 1 ? "" : "s"} are not listed in this preview.`}</li>
           ) : null}
         </ul>
       ) : null}

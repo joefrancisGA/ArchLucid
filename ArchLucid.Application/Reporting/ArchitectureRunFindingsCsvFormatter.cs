@@ -19,6 +19,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 {
     internal const string ConfidenceScoreNotStoredLabel = "Confidence score was not stored.";
 
+    internal const string StoredConfidenceScoreExportPrefix = "Stored confidence score: ";
+
     internal const string EvaluationConfidenceScoreExportPrefix = "Evaluation confidence score: ";
 
     internal const string EstimatedSavingsNotStoredLabel = "Estimated savings were not stored.";
@@ -462,7 +464,8 @@ public static class ArchitectureRunFindingsCsvFormatter
     {
         if (finding.ConfidenceScore.HasValue)
         {
-            return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+            return StoredConfidenceScoreExportPrefix
+                + finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
         }
 
         if (finding.EvaluationConfidenceScore.HasValue)

@@ -114,11 +114,35 @@ function wizardConfirmStarterPresetListSummary(
   return null;
 }
 
-function wizardConfirmCloudProviderField(value: string, touched: boolean): string {
+function wizardConfirmCloudProviderField(
+  value: string,
+  touched: boolean,
+  isAiSuggested: (field: WizardAiSuggestedFieldName, value: string) => boolean,
+  input?: {
+    readonly quickStartWizard: boolean;
+    readonly starterPresetId?: string;
+    readonly formValues: WizardFormValues;
+    readonly dirty: boolean;
+  },
+): string {
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
     return "Cloud was not stored.";
+  }
+
+  if (
+    input !== undefined
+    && input.quickStartWizard
+    && input.starterPresetId !== undefined
+    && !input.dirty
+    && wizardFormFieldMatchesPreset(input.starterPresetId, "cloudProvider", input.formValues)
+  ) {
+    return "Cloud target was filled from starter, not typed.";
+  }
+
+  if (isAiSuggested("cloudProvider", value)) {
+    return `Cloud target was parsed from the brief.${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`;
   }
 
   if (trimmed === "None") {
@@ -185,6 +209,37 @@ function wizardConfirmCommaChipList(
   }
 
   return values.map((value) => wizardConfirmListEntry(value, options.storedEmptyEntryLabel)).join(", ");
+}
+
+function wizardConfirmParsedCommaChipList(
+  values: string[] | null | undefined,
+  options: {
+    readonly notStoredLabel: string;
+    readonly storedEmptyLabel: string;
+    readonly storedEmptyEntryLabel: string;
+  },
+  field: WizardAiSuggestedFieldName,
+  isAiSuggested: (field: WizardAiSuggestedFieldName, value: string) => boolean,
+): string {
+  if (values === null || values === undefined) {
+    return options.notStoredLabel;
+  }
+
+  if (values.length === 0) {
+    return options.storedEmptyLabel;
+  }
+
+  return values
+    .map((value) => {
+      const entry = wizardConfirmListEntry(value, options.storedEmptyEntryLabel);
+
+      if (entry === options.storedEmptyEntryLabel) {
+        return entry;
+      }
+
+      return isAiSuggested(field, value) ? `${entry}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}` : entry;
+    })
+    .join(", ");
 }
 
 /**
@@ -397,21 +452,56 @@ export function WizardStepReview(props: {
                   return "System name was filled from starter, not typed.";
                 }
 
+                if (isAiSuggested("systemName", systemName)) {
+                  return `${systemName}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`;
+                }
+
                 return systemName;
               })()}
             </dd>
             <dt className="text-neutral-500">Environment</dt>
             <dd className="m-0">
-              {wizardConfirmStarterPresetScalarField(v.environment, "Environment was not stored.", {
-                ...starterPresetContext,
-                field: "environment",
-                dirty: formState.dirtyFields.environment === true,
-                filledCopy: `Environment ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
-              })}
+              {(() => {
+                const environment = v.environment?.trim() ?? "";
+
+                if (environment.length === 0) {
+                  return wizardConfirmStarterPresetScalarField(v.environment, "Environment was not stored.", {
+                    ...starterPresetContext,
+                    field: "environment",
+                    dirty: formState.dirtyFields.environment === true,
+                    filledCopy: `Environment ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
+                  });
+                }
+
+                const starterLabel = wizardConfirmStarterPresetScalarField(v.environment, "Environment was not stored.", {
+                  ...starterPresetContext,
+                  field: "environment",
+                  dirty: formState.dirtyFields.environment === true,
+                  filledCopy: `Environment ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
+                });
+
+                if (starterLabel !== environment && starterLabel.includes(WIZARD_STARTER_PRESET_FIELD_COPY)) {
+                  return starterLabel;
+                }
+
+                return isAiSuggested("environment", environment)
+                  ? `${environment}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`
+                  : environment;
+              })()}
             </dd>
             <dt className="text-neutral-500">Cloud</dt>
             <dd className="m-0">
-              {wizardConfirmCloudProviderField(v.cloudProvider, formState.touchedFields.cloudProvider === true)}
+              {wizardConfirmCloudProviderField(
+                v.cloudProvider,
+                formState.touchedFields.cloudProvider === true,
+                isAiSuggested,
+                {
+                  quickStartWizard,
+                  starterPresetId: props.starterPresetId,
+                  formValues: v,
+                  dirty: formState.dirtyFields.cloudProvider === true,
+                },
+              )}
             </dd>
             <dt className="text-neutral-500">Prior manifest</dt>
             <dd className="m-0">
@@ -428,12 +518,33 @@ export function WizardStepReview(props: {
 
         <ReadOnlyBlock title="Description">
           <p className="m-0 whitespace-pre-wrap">
-            {wizardConfirmStarterPresetScalarField(v.description, "Description was not stored.", {
-              ...starterPresetContext,
-              field: "description",
-              dirty: formState.dirtyFields.description === true,
-              filledCopy: `Description ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
-            })}
+            {(() => {
+              const description = v.description?.trim() ?? "";
+
+              if (description.length === 0) {
+                return wizardConfirmStarterPresetScalarField(v.description, "Description was not stored.", {
+                  ...starterPresetContext,
+                  field: "description",
+                  dirty: formState.dirtyFields.description === true,
+                  filledCopy: `Description ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
+                });
+              }
+
+              const starterLabel = wizardConfirmStarterPresetScalarField(v.description, "Description was not stored.", {
+                ...starterPresetContext,
+                field: "description",
+                dirty: formState.dirtyFields.description === true,
+                filledCopy: `Description ${WIZARD_STARTER_PRESET_FIELD_COPY}`,
+              });
+
+              if (starterLabel !== description && starterLabel.includes(WIZARD_STARTER_PRESET_FIELD_COPY)) {
+                return starterLabel;
+              }
+
+              return isAiSuggested("description", description)
+                ? `${description}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`
+                : description;
+            })()}
           </p>
           {v.inlineRequirements === null || v.inlineRequirements === undefined ? (
             <p className={cn("mt-2 m-0", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements were not stored.</p>
@@ -539,7 +650,12 @@ export function WizardStepReview(props: {
             <ul className="mt-1 list-disc pl-5">
               {v.assumptions.map((c, index) => (
                 <li key={`assumption-${index}`}>
-                  {wizardConfirmListEntry(c, "Assumption was stored empty.")}
+                  {wizardConfirmParsedListEntry(
+                    c,
+                    "Assumption was stored empty.",
+                    "assumptions",
+                    isAiSuggested,
+                  )}
                 </li>
               ))}
             </ul>
@@ -563,19 +679,29 @@ export function WizardStepReview(props: {
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">
-            {wizardConfirmCommaChipList(v.topologyHints, {
-              notStoredLabel: "Architecture hints were not stored.",
-              storedEmptyLabel: "Architecture hints were stored empty.",
-              storedEmptyEntryLabel: "Architecture hint was stored empty.",
-            })}
+            {wizardConfirmParsedCommaChipList(
+              v.topologyHints,
+              {
+                notStoredLabel: "Architecture hints were not stored.",
+                storedEmptyLabel: "Architecture hints were stored empty.",
+                storedEmptyEntryLabel: "Architecture hint was stored empty.",
+              },
+              "topologyHints",
+              isAiSuggested,
+            )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">
-            {wizardConfirmCommaChipList(v.securityBaselineHints, {
-              notStoredLabel: "Security baseline hints were not stored.",
-              storedEmptyLabel: "Security baseline hints were stored empty.",
-              storedEmptyEntryLabel: "Security baseline hint was stored empty.",
-            })}
+            {wizardConfirmParsedCommaChipList(
+              v.securityBaselineHints,
+              {
+                notStoredLabel: "Security baseline hints were not stored.",
+                storedEmptyLabel: "Security baseline hints were stored empty.",
+                storedEmptyEntryLabel: "Security baseline hint was stored empty.",
+              },
+              "securityBaselineHints",
+              isAiSuggested,
+            )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">
