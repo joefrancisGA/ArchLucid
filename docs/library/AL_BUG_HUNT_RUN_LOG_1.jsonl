@@ -2813,3 +2813,4 @@
 {"at":"2026-10-29T19:56:28.2644559Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"other"}
 {"at":"2026-10-29T20:11:18.1516233Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"other"}
 {"at":"2026-10-29T20:18:53.5293426Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T20:25:43.5757516Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}

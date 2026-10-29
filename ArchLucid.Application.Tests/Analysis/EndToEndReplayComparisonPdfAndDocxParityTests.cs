@@ -249,6 +249,39 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         text.Should().Contain("Fuzzy matches are possible");
     }
 
+    [SkippableFact]
+    public async Task CompareQuality_GeneratePdf_includes_finding_lifecycle_counts()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = 5,
+                PreviouslyIdentifiedStillPresentCount = 3,
+                ConfirmedResolvedCount = 2,
+                UnverifiedResolvedCount = 1,
+                AbsenceNotInformativeCount = 4,
+                HonestyNote = "absence is not a clean bill",
+            },
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        // PdfPig keeps Helvetica fi/ti ligatures as single characters, so assert the intact fragments.
+        text.Should().Contain("recorded decision: 2");
+        text.Should().Contain("present: 3");
+        text.Should().Contain("Finding lifecycle honesty: absence is not a clean bill");
+    }
+
     [Fact]
     public async Task CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character()
     {
