@@ -6473,7 +6473,25 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 36 · **Bugs found:** 23 · **Consecutive dry hunts:** 0
+**Hunts:** 37 · **Bugs found:** 24 · **Consecutive dry hunts:** 0
+
+2026-10-29 thorough hunt (hit #190): promoted ServiceNow string state `"6.0"` vs JSON number `6` synthetic replay drift and unmapped HR for float-string choice-list tokens; shared `ItsmInboundJsonElementReader.NormalizeStatusText` canonicalizes whole-number float strings for replay keys and ServiceNow HR mapping; regressions `NormalizeStatusText_canonicalizes_whole_number_float_strings`, `MapToHumanReview_treats_whole_number_float_string_states_like_integer_choice_list`, `BuildSynthetic_normalizes_whole_number_float_string_status_tokens_for_replay_dedupe`, and `ServiceNow_synthetic_replay_dedupes_json_number_state_and_whole_number_float_string_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 77/77 passed (`RunAnalyzers=false`). Private beta: ServiceNow inbound updates treat `"6.0"` and `6` as the same resolved state for dedupe and human-review sync on pilot webhooks without delivery-id headers.
+
+- [x] (proven) `ItsmInboundWebhookReplayEventId` / `ItsmInboundServiceNowStatusMapper` — `6` vs `"6.0"` replay and mapping drift — **hit 2026-10-29 thorough hunt #190:** shared numeric status normalization; regressions above.
+
+2026-10-29 thorough hunt (dry #190 lane B): closed stale duplicate `(candidate)` rows still listed under 2026-10-21 reseed (already disproved in #189 lane B); reseeded five follow-on `(candidate)` rows below; scoped filter 77/77. Private beta: n/a.
+
+- [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — alternate HR before correlation — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — inspect null ack — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition alternate fallback — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace finding id — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — empty tenant id — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
+
+- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryRead` — JSON string `"6.0"` is not normalized at read time while numeric JSON `6.0` is — locus: `ReadStringOrRawText` string branch; input: vendor flips between string and number encodings for the same choice-list value; reachability: synthetic replay now dedupes via mapper/replay normalization but audit `state` field may still show `"6.0"`.
+- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` — explicit delivery id bypasses status normalization entirely — locus: early return on delivery id; input: vendor reuses delivery id with changed status payload; reachability: intentional TB-968 contract vs mutation safety.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — lowercases synthetic replay event ids — locus: `eventId.Trim().ToLowerInvariant()`; input: mixed-case Jira status names in synthetic fallback keys; reachability: dedupe vs distinct vendor labels.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — replay claim retained when human review update returns zero rows — locus: `updated == 0` log only; input: correlation row with deleted finding record after existence check race; reachability: concurrent delete during webhook processing.
+- [ ] (candidate) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — global deployment secret vs per-tenant connector precedence when both configured — locus: secret resolution order; input: tenant route with mismatched tenant KV secret vs global secret; reachability: multi-tenant pilot misconfiguration.
 
 2026-10-29 thorough hunt (hit #189): promoted `(candidate)` synthetic replay key drift — ServiceNow JSON number state `6` vs string `"06"` without delivery id built distinct `ItsmInboundWebhookReplayEventId` keys so a vendor retry could mutate human review twice; `NormalizeStatusToken` canonicalizes integer status tokens in synthetic replay keys; regressions `BuildSynthetic_normalizes_leading_zero_numeric_status_tokens_for_replay_dedupe`, `Resolve_falls_back_to_normalized_synthetic_status_when_delivery_id_absent`, and `ServiceNow_synthetic_replay_dedupes_json_number_state_and_leading_zero_string_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 75/75 passed (`RunAnalyzers=false`). Private beta: ITSM inbound webhooks dedupe equivalent ServiceNow resolved-state payloads so pilot Jira/ServiceNow retries do not double-apply human review when only the state token formatting differs.
 
@@ -6553,11 +6571,11 @@
 - [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — tenant-scoped `authenticatedTenantId` mismatch vs correlation row tenant may still ack without mutation when correlation lookup is unscoped — **cheap-disproof 2026-10-08 seed hunt #30:** authenticated tenant routes call `TryGetByExternalKeyForTenantAsync`; regression `TryResolveCorrelationAsync_uses_tenant_scoped_lookup_when_authenticated_tenant_id_is_present` (pairs with `Jira_tenant_scoped_webhook_does_not_mutate_correlation_owned_by_another_tenant`).
 - [x] (valid-no-repro) `ItsmInboundJiraPayloadReader.TryReadJiraStatusName` — status names with only whitespace after trim fail `TryRead` before mapper sees empty human review guard — **cheap-disproof 2026-10-08 seed hunt #30:** `string.IsNullOrWhiteSpace(statusNameRaw)` rejects at reader; regression `TryRead_returns_false_when_status_name_is_whitespace_only`.
 
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — when primary `state` is unmapped but `AlternateStatusValue` maps to human review, pipeline promotes alternate before correlation — locus: ~90–96; input: ServiceNow webhook with divergent `state`/`incident_state` where only the incident token maps.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `GetInspectAsync` returns null while correlation row exists yields `Accepted=true` with `finding_not_found` rejected audit — locus: ~180–191; input: stale correlation whose finding inspect row was removed.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition sync falls back to `AlternateStatusValue` when primary status does not map to disposition but alternate does — locus: ~238–248; input: ServiceNow labels where human-review maps on primary but disposition mapping exists only on alternate token.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace-only `FindingId` on correlation row rejects with `finding_id_invalid_length` without touching disposition sync — locus: ~106–108; input: corrupted correlation row with whitespace finding id.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — `TenantId == Guid.Empty` on tenant-scoped facade request returns `ValidationFailed` before vendor token compare — locus: ~33–39; input: `ItsmInboundWebhookProcessRequest` with empty tenant guid from misbound route.
+- [x] (invalid) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — alternate HR before correlation — **cheap-disproof 2026-10-29 #190:** duplicate of #189; by design.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — inspect null ack — **cheap-disproof 2026-10-29 #190:** duplicate of #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition alternate fallback — **cheap-disproof 2026-10-29 #190:** duplicate of #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace finding id — **cheap-disproof 2026-10-29 #190:** duplicate of #189.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — empty tenant id — **cheap-disproof 2026-10-29 #190:** duplicate of #189.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookReplayEventIdTests`, `WebhookSecretsTests`, `ItsmInboundWebhookSyncServiceTests`, `ItsmInboundServiceNowStatusMapperTests`; 78 scoped `ItsmInboundWebhook` tests passed (67 Application + 11 Persistence).
 
