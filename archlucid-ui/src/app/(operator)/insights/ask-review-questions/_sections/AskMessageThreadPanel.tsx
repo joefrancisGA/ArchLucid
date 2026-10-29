@@ -58,9 +58,17 @@ function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): bo
     return null;
   }
 
-  const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
-  const hasDecision = refs.referencedDecisions.some((decisionId) => decisionId.trim().length > 0);
-  const hasArtifact = refs.referencedArtifacts.some((artifactId) => artifactId.trim().length > 0);
+  if (
+    refs.referencedFindings === null
+    && refs.referencedDecisions === null
+    && refs.referencedArtifacts === null
+  ) {
+    return null;
+  }
+
+  const hasFinding = (refs.referencedFindings ?? []).some((findingId) => findingId.trim().length > 0);
+  const hasDecision = (refs.referencedDecisions ?? []).some((decisionId) => decisionId.trim().length > 0);
+  const hasArtifact = (refs.referencedArtifacts ?? []).some((artifactId) => artifactId.trim().length > 0);
 
   return hasFinding || hasDecision || hasArtifact;
 }

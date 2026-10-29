@@ -9,6 +9,20 @@ internal static class ArchitectureReviewBoardExportHonestyCopy
 
     internal const string ManifestVersionNotStored = "Manifest version was not stored.";
 
+    internal const string HttpCorrelationIdNotStored = "HTTP correlation ID was not stored.";
+
+    internal const string ExtractorTimestampNotStored = "Extractor timestamp was not stored.";
+
+    internal const string EvidenceDetailNotStored = "Evidence detail was not stored.";
+
+    internal const string EvidenceReferenceNotStored = "Evidence reference was not stored.";
+
+    internal const string RiskDetailNotStored = "Risk detail was not stored.";
+
+    internal const string DecisionDetailNotStored = "Decision detail was not stored.";
+
+    internal const string OverviewItemStoredEmpty = "Overview item was stored empty.";
+
     internal const string MermaidDiagramSourceNotStored = "Mermaid diagram source was not stored.";
 
     internal const string DecisionRecordedTimeNotStored = "Recorded time was not stored.";

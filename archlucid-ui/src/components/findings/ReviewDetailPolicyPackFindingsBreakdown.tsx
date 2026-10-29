@@ -9,6 +9,7 @@ import type { PolicyPackFindingGroup } from "@/lib/group-findings-by-policy-pack
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { policyPacksEditHref } from "@/lib/policy/policy-packs-deep-link";
+import { POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 
 export type ReviewDetailPolicyPackFindingsBreakdownProps = {
   readonly groups: readonly PolicyPackFindingGroup[];
@@ -30,17 +31,18 @@ function ImpactCountLine(props: {
   }
 
   const mappedCount = Math.max(0, Math.trunc(mapped));
+  const unmappedOmitted = unmapped === null || unmapped === undefined || !Number.isFinite(unmapped);
   const unmappedCount =
-    unmapped !== null && unmapped !== undefined && Number.isFinite(unmapped)
-      ? Math.max(0, Math.trunc(unmapped))
-      : 0;
+    !unmappedOmitted && typeof unmapped === "number" ? Math.max(0, Math.trunc(unmapped)) : 0;
 
   return (
     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-impact-counts">
       {mappedCount} finding{mappedCount === 1 ? "" : "s"} cite curated policy rules
-      {unmappedCount > 0
-        ? `; ${unmappedCount} remain unmapped to a pack rule and should be reviewed separately.`
-        : "."}
+      {unmappedOmitted
+        ? `; ${POLICY_PACK_UNMAPPED_FINDING_COUNT_NOT_STORED}`
+        : unmappedCount > 0
+          ? `; ${unmappedCount} remain unmapped to a pack rule and should be reviewed separately.`
+          : "."}
     </p>
   );
 }

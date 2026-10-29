@@ -245,4 +245,20 @@ describe("parseAskCitationRefsFromMessageMetadata", () => {
     expect(parsed?.referencedDecisions).toEqual(["d-1"]);
     expect(parsed?.referencedArtifacts).toEqual(["a-1"]);
   });
+
+  it("preserves null citation lists separately from stored empty arrays", () => {
+    const parsed = parseAskCitationRefsFromMessageMetadata(
+      JSON.stringify({
+        referencedFindings: null,
+        referencedDecisions: [],
+        referencedArtifacts: null,
+      }),
+    );
+
+    expect(parsed).toEqual({
+      referencedFindings: null,
+      referencedDecisions: [],
+      referencedArtifacts: null,
+    });
+  });
 });
