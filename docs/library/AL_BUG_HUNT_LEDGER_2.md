@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #139): promoted `(candidate)` generic `"already exists"` substring on `TenantOrganizationDuplicateDetector`; unrelated infrastructure errors could map to duplicate-organization handling; require tenant/slug/organization context for `already exists` text (duplicate/`IX_`/SQL unchanged); regression `IsDuplicateOrganization_does_not_match_unrelated_already_exists_phrase`; scoped filter 295/295 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats unrelated “already exists” infrastructure failures as organization-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — generic `"already exists"` substring — **hit 2026-10-29 seed hunt #139:** context gate for already-exists text; regression above.
+
 2026-10-29 seed hunt (seed→hit #138): promoted `(candidate)` whitespace-only `LastVerificationError` on active catalog migration; `TenantMigrationStatusService` now maps blank errors to null (trim non-blank); regression `GetForTenantAsync_treats_whitespace_only_last_verification_error_as_null`; scoped filter 294/294 passed (`RunAnalyzers=false`). Private beta: tenant migration status no longer surfaces an empty verification error slot that looks like a silent failure banner.
 
 - [x] (proven) `TenantMigrationStatusService.GetForTenantAsync` — empty-string `LastVerificationError` — **hit 2026-10-29 seed hunt #138:** coalesce whitespace-only to null; regression above.
@@ -15866,9 +15870,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification failure message persisted with surrounding whitespace may display padded operator copy — locus: error message persist path; input: probe returns `"  timeout  "` (reachability: migration verification probe failure text).
 - [ ] (candidate) `TenantTrialHttpResults` — maps null `DaysRemaining` while still exposing `TrialExpiresUtc` for whitespace trial status rows — locus: trial status DTO assembly; input: legacy tenant row with blank `TrialStatus` and future expiry (reachability: manual SQL; policy cannot compute days without status).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `already exists` substring matches non-organization errors — locus: message sniff ~29; input: unrelated exception containing phrase "already exists" without slug/org context (reachability: generic infrastructure failures during provision).
 - [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — locus: lifecycle frozen throws ~49–56 vs offboard middleware; input: authenticated request on offboarded export-only tenant (reachability: erasure middleware ordering — prior valid-no-repro unless new bypass cited).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate organization detector on insert failure may classify inner `TimeoutException` wrapping duplicate text — locus: catch filter on `ProvisionAsync`; input: nested timeout whose message includes "duplicate" from unrelated subsystem (reachability: registration under load).
+- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate organization detector on insert failure may classify nested `duplicate` text from unrelated subsystem — locus: catch filter on `ProvisionAsync`; input: nested exception whose message includes "duplicate" without organization context (reachability: registration under load).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `duplicate` substring matches unrelated error text — locus: message sniff ~29; input: exception message "duplicate request id header" during provision (reachability: generic infrastructure failures).
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 290/291 (`RunAnalyzers=false`; 1 pre-existing `TenantMigrationStatusServiceTests` failure on VM). Private beta: n/a.
 
@@ -15886,11 +15890,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 138
-- **bugs-found:** 117
+- **hunts:** 139
+- **bugs-found:** 118
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — migration status blank verification error
+- **last-bug:** 2026-10-29 — duplicate org already-exists context gate
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

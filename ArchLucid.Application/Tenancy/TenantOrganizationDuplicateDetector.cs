@@ -26,9 +26,19 @@ public static class TenantOrganizationDuplicateDetector
 
         string text = ex.ToString();
 
-        return text.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
-               || text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
-               || text.Contains("IX_", StringComparison.OrdinalIgnoreCase)
-               || IsDuplicateOrganization(ex.InnerException);
+        if (text.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("IX_", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
+            && ContainsOrganizationDuplicateContext(text))
+            return true;
+
+        return IsDuplicateOrganization(ex.InnerException);
     }
+
+    private static bool ContainsOrganizationDuplicateContext(string text) =>
+        text.Contains("tenant", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("slug", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("organization", StringComparison.OrdinalIgnoreCase);
 }

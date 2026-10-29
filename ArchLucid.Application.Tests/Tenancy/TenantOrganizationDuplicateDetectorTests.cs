@@ -70,4 +70,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_already_exists_phrase()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Distributed cache entry already exists for unrelated resource."))
+            .Should()
+            .BeFalse();
+    }
 }
