@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingCategoryLine,
   formatQuickDecisionFindingOwnerDisplay,
   formatQuickDecisionFindingTitleDisplay,
 } from "@/lib/findings/quick-decision-finding-display";
@@ -32,5 +33,11 @@ describe("quick-decision-finding-display", () => {
     expect(formatQuickDecisionConfidenceWorkspaceLabel("Uncertain")).toBe(
       "Confidence Uncertain has no reviewer label.",
     );
+  });
+
+  it("labels finding category null, blank, and stored values (P-20)", () => {
+    expect(formatQuickDecisionFindingCategoryLine(null)).toBe("Finding category was not stored.");
+    expect(formatQuickDecisionFindingCategoryLine("")).toBe("Finding category was stored empty.");
+    expect(formatQuickDecisionFindingCategoryLine("  cost  ")).toBe("cost");
   });
 });

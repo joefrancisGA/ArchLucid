@@ -35,7 +35,7 @@ class TestPrivateBetaAccessCoverage(unittest.TestCase):
             root = Path(directory)
             target = root / sut.SCENARIO_MARKERS[0][0]
             target.parent.mkdir(parents=True)
-            # 0xFF 0xFE is not valid UTF-8, so strict decode must fail closed.
+            # 0xFF 0xFE is invalid UTF-8; a Python `b"\\xff"` literal would write ASCII instead.
             target.write_bytes(bytes((0xFF, 0xFE)) + " ".join(sut.SCENARIO_MARKERS[0][1]).encode())
             issues = sut.collect_violations(root)
             self.assertTrue(any("unable to read private-beta coverage" in issue for issue in issues))

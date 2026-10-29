@@ -214,7 +214,7 @@ export async function buildRunDetailPresentation(
     reviewOutcome: overallPosture,
     findings: quickDecisionFindings,
     recommendedActions,
-    blockingFindingCount: blockingApprovalCount ?? undefined,
+    blockingFindingCount: blockingApprovalCount ?? 0,
     hasFindingsSnapshot,
   });
 
@@ -286,7 +286,7 @@ export async function buildRunDetailPresentation(
     hasFindingsSnapshot,
     findingsSummaryLine: formatDecisionSnapshotFindingsLine(
       reviewStatusSummary.openFindingsCount,
-      blockingApprovalCount,
+      blockingApprovalCount ?? 0,
       reviewStatusSummary.findingsRequiringActionCount,
       hasFindingsSnapshot,
     ),
@@ -294,7 +294,7 @@ export async function buildRunDetailPresentation(
       governanceDecisionLabel: governancePresentation.governanceDecisionLabel,
       governanceDecisionRationale: model.resolvedDetail.run.operatorGovernanceDecisionRationale,
       overallPosture,
-      blockingFindingCount: blockingApprovalCount ?? undefined,
+      blockingFindingCount: blockingApprovalCount ?? 0,
       highestSeverity,
       themeSummaries: model.explanationSummary?.themeSummaries ?? null,
     }),

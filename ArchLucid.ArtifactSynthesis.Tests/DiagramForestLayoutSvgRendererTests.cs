@@ -685,7 +685,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeTrue(result.Error);
         result.Svg.Should().Contain(
-            "2 Source → 1 Ingestion → 3 Storage (1 with diagram neighbors, 2 no diagram neighbor on this view) → 1 Consumer · 1 resources whose stage was not stored.");
+            "2 Source → 1 Ingestion → 3 Storage (1 with diagram neighbors, 2 no diagram neighbor on this view) → 1 Consumer · 1 resources whose stage was not stored. · Diagram neighbors are adjacency on this layout, not network isolation.");
     }
 
     [Fact]

@@ -55,6 +55,22 @@ describe("ask-response-turn-honesty", () => {
 
     expect(askWireCitationRefsPresentInWire(present)).toBe(true);
     expect(reviewAskSourcesHonestyLabel(present)).toBe("");
+
+    expect(
+      askWireCitationRefsStoredEmpty({
+        referencedFindings: null,
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      }),
+    ).toBe(true);
+
+    expect(
+      askWireCitationRefsPresentInWire({
+        referencedFindings: null,
+        referencedDecisions: ["decision-1"],
+        referencedArtifacts: undefined,
+      }),
+    ).toBe(true);
   });
 
   it("uses finding-scoped source labels", () => {
