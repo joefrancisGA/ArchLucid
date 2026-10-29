@@ -31,13 +31,6 @@ public static class ItsmInboundWebhookReplayEventId
             CultureInfo.InvariantCulture,
             $"{providerName.Trim()}:{externalKey.Trim()}:{NormalizeStatusToken(statusOrState)}");
 
-    internal static string NormalizeStatusToken(string statusOrState)
-    {
-        string trimmed = statusOrState.Trim();
-
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numeric))
-            return numeric.ToString(CultureInfo.InvariantCulture);
-
-        return trimmed;
-    }
+    internal static string NormalizeStatusToken(string statusOrState) =>
+        ItsmInboundJsonElementReader.NormalizeStatusText(statusOrState);
 }

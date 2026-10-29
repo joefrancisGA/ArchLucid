@@ -13,7 +13,7 @@ public sealed class ItsmInboundServiceNowStatusMapper : IItsmInboundStatusMapper
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        string trimmed = statusValue.Trim();
+        string trimmed = ItsmInboundJsonElementReader.NormalizeStatusText(statusValue);
 
         if (trimmed.Length is 0)
 

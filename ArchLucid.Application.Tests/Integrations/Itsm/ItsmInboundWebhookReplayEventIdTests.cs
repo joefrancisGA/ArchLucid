@@ -52,6 +52,15 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
     }
 
     [Fact]
+    public void BuildSynthetic_normalizes_whole_number_float_string_status_tokens_for_replay_dedupe()
+    {
+        string integer = ItsmInboundWebhookReplayEventId.BuildSynthetic("ServiceNow", "abc", "6");
+        string floatString = ItsmInboundWebhookReplayEventId.BuildSynthetic("ServiceNow", "abc", "6.0");
+
+        floatString.Should().Be(integer);
+    }
+
+    [Fact]
     public void Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback()
     {
         string id = ItsmInboundWebhookReplayEventId.Resolve(
