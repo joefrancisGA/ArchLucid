@@ -39,6 +39,7 @@ import {
   askWireCitationRefsPresentInWire,
   normalizeAskWireAnswerForTurn,
   reviewAskSourcesHonestyLabel,
+  REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL,
   REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
 } from "@/lib/ask/ask-response-turn-honesty";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -64,6 +65,10 @@ type AskTurn = {
 };
 
 function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
+  if (turn.citationRefsOmitted) {
+    return new Set();
+  }
+
   const ids = new Set<string>();
 
   for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
@@ -349,12 +354,16 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
                 {turns.map((turn, index) => {
-                  const citationChips = buildAskCitationActionFollowUps({
-                    runId,
-                    referencedFindings: turn.referencedFindings,
-                    referencedDecisions: turn.referencedDecisions,
-                    referencedArtifacts: turn.referencedArtifacts,
-                  });
+                  const citationChips = buildAskCitationActionFollowUps(
+                    turn.citationRefsOmitted
+                      ? { runId }
+                      : {
+                          runId,
+                          referencedFindings: turn.referencedFindings,
+                          referencedDecisions: turn.referencedDecisions,
+                          referencedArtifacts: turn.referencedArtifacts,
+                        },
+                  );
                   const citationRefs = {
                     referencedFindings: turn.citationRefsOmitted
                       ? undefined
@@ -414,15 +423,23 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               </ol>
             ) : null}
 
-            {isStreaming && streamingContent.trim().length > 0 ? (
+            {isStreaming ? (
               <div
                 className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
                 data-testid="review-ask-dock-streaming-answer"
               >
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
-                </p>
-                <AskAssistantMessageBody content={streamingContent} citedReviewIds={new Set()} />
+                {streamingContent.trim().length > 0 ? (
+                  <>
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                      {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+                    </p>
+                    <AskAssistantMessageBody content={streamingContent} citedReviewIds={new Set()} />
+                  </>
+                ) : (
+                  <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    {REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL}
+                  </p>
+                )}
               </div>
             ) : null}
 

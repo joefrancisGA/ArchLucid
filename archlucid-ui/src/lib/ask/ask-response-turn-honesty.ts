@@ -14,6 +14,9 @@ export const FINDING_ASK_SOURCES_STORED_EMPTY_LABEL =
 export const REVIEW_ASK_STREAMING_UUID_LINKS_NOTE =
   "Streaming answer — UUIDs in the text are not linked until the answer finishes and citations are stored." as const;
 
+export const REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL =
+  "Answer text has not arrived." as const;
+
 export type AskWireAnswerState = "not-stored" | "stored-empty" | "content";
 
 export type AskWireCitationRefs = {

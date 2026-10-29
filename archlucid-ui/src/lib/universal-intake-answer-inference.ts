@@ -97,6 +97,10 @@ function isDiagramCaptionLine(line: string): boolean {
   return /^Diagram\s*[—\-]/i.test(line.trim()) || /\bDiagram\s*[—\-]/i.test(line);
 }
 
+function prefixInferredPillarAnswer(pillarLabel: string, excerpt: string): string {
+  return `Inferred from the brief, not a stored ${pillarLabel} answer: ${excerpt}`;
+}
+
 function formatMinutesLabel(minutes: number): string {
   if (minutes % 60 === 0 && minutes >= 60) {
     const hours = minutes / 60;
@@ -126,7 +130,7 @@ function inferReliabilityAnswer(corpus: string): string | null {
   }
 
   if (parts.length > 0) {
-    return parts.join("; ");
+    return prefixInferredPillarAnswer("reliability", parts.join("; "));
   }
 
   const explicitRecovery = findChunkMatching(corpus, [
@@ -136,56 +140,69 @@ function inferReliabilityAnswer(corpus: string): string | null {
   ]);
 
   if (explicitRecovery !== null) {
-    return explicitRecovery;
+    return prefixInferredPillarAnswer("reliability", explicitRecovery);
   }
 
-  return findChunkMatching(corpus, [
+  const excerpt = findChunkMatching(corpus, [
     /\b(?:uptime|availability|recovery|disaster recovery|high availability|geo failover|failover group|paired region|zone redundant)\b/i,
   ]);
+
+  return excerpt !== null ? prefixInferredPillarAnswer("reliability", excerpt) : null;
 }
 
 function inferSecurityAnswer(corpus: string): string | null {
-  return findChunkMatching(corpus, [
+  const excerpt = findChunkMatching(corpus, [
     /\b(?:PII|PHI|PCI(?:-DSS)?|HIPAA|GDPR|SOC\s*2|FedRAMP|trust boundary|trust edge|data sensitivity|regulated|confidential)\b/i,
     /\b(?:Entra(?:\s+ID)?|managed identity|private endpoint|Key Vault)\b/i,
   ]);
+
+  return excerpt !== null ? prefixInferredPillarAnswer("security", excerpt) : null;
 }
 
 function inferCostAnswer(corpus: string): string | null {
   const stated = deriveStatedConstraintContextFromTexts([corpus]);
 
   if (stated.monthlyCostCeilingUsd !== null) {
-    return `Monthly cost ceiling about $${stated.monthlyCostCeilingUsd.toLocaleString("en-US")}.`;
+    return prefixInferredPillarAnswer(
+      "cost",
+      `Monthly cost ceiling $${stated.monthlyCostCeilingUsd.toLocaleString("en-US")}.`,
+    );
   }
 
   const proseAfterFinOps = findProseAfterHeading(corpus, /^FinOps and capacity drivers$/i);
 
   if (proseAfterFinOps !== null) {
-    return proseAfterFinOps;
+    return prefixInferredPillarAnswer("cost", proseAfterFinOps);
   }
 
-  return findChunkMatching(corpus, [
+  const excerpt = findChunkMatching(corpus, [
     /\b(?:budget|cost constraint|cost ceiling|finops|monthly spend|operating cost|capacity drivers|budget gate|spend kill)\b/i,
     /\$\s*[\d,]+(?:\.\d+)?\s*(?:\/\s*month|per month|monthly)\b/i,
   ]);
+
+  return excerpt !== null ? prefixInferredPillarAnswer("cost", excerpt) : null;
 }
 
 function inferOperationsAnswer(corpus: string): string | null {
   const observabilityProse = findProseAfterHeading(corpus, /^Observability map$/i);
 
   if (observabilityProse !== null) {
-    return observabilityProse;
+    return prefixInferredPillarAnswer("operations", observabilityProse);
   }
 
-  return findChunkMatching(corpus, [
+  const excerpt = findChunkMatching(corpus, [
     /\b(?:on[- ]call|observability|monitoring|incident response|runbook|SRE|DevOps|day[- ]to[- ]day operations|OpenTelemetry|OTel|Application Insights)\b/i,
   ]);
+
+  return excerpt !== null ? prefixInferredPillarAnswer("operations", excerpt) : null;
 }
 
 function inferPerformanceAnswer(corpus: string): string | null {
-  return findChunkMatching(corpus, [
+  const excerpt = findChunkMatching(corpus, [
     /\b(?:latency|throughput|transactions per second|TPS|QPS|concurrent users|requests per second|autoscale|capacity)\b/i,
   ]);
+
+  return excerpt !== null ? prefixInferredPillarAnswer("performance", excerpt) : null;
 }
 
 function inferSustainabilityAnswer(corpus: string): string | null {
