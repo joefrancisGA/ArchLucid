@@ -54,4 +54,23 @@ public sealed class CoverageAssignmentsDeserializationTests
         summary.Should().NotBeNull();
         summary!.Assignments.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_entries_on_acknowledged_coverage_document_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "evaluationVersion": "acknowledged-coverage-v1",
+              "acknowledgedUtc": "2026-10-29T12:00:00Z",
+              "actorUserId": "operator",
+              "entries": null
+            }
+            """;
+
+        RunAcknowledgedCoverageDocument? document =
+            JsonSerializer.Deserialize<RunAcknowledgedCoverageDocument>(json, ContractJson.CamelCaseCompact);
+
+        document.Should().NotBeNull();
+        document!.Entries.Should().NotBeNull().And.BeEmpty();
+    }
 }

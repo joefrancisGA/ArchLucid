@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `RunAcknowledgedCoverageDocument.Entries` explicit JSON `null` on persisted run coverage acknowledgement JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Entries` setter; regression `Deserialize_null_entries_on_acknowledged_coverage_document_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` (`CoalesceReadOnly` on `init` since 2026-10-15 integrations pass); scoped CoverageAssignments deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: acknowledged coverage document JSON with null entries deserializes to an empty list so execute gates and audit readers do not null-reference when replaying operator acknowledgements.
+
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on acknowledged coverage document — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** already coalesced on `init`.
+
 2026-10-29 seed hunt (seed→hit): promoted `CoveragePreviewResult.Assignments` and `CoverageSummary.Assignments` explicit JSON `null` on governance coverage API JSON despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on both setters; regressions `Deserialize_null_assignments_on_preview_result_yields_empty_list_not_null` and `Deserialize_null_assignments_on_summary_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` rows `ArtifactDescriptor.Tags` (no `Tags` on `ArtifactDescriptor`), `ExportManifestDescriptor` (type not in repo), and `ArtifactBundle` nested trace list round-trip (already covered by `SynthesisTrace` list coalesce + bundle trace default); scoped CoverageAssignments deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: coverage preview and summary JSON with null assignments deserializes to empty lists so governance UI does not null-reference when rendering assignment tables.
 
 - [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — explicit JSON `null` on coverage assignment lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regressions above.
@@ -5848,11 +5853,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 228
-- **bugs-found:** 342
+- **hunts:** 229
+- **bugs-found:** 343
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — CoveragePreview/Summary Assignments JSON null
+- **last-bug:** 2026-10-29 — RunAcknowledgedCoverageDocument Entries JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5944,7 +5949,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 228 · **Bugs found:** 342 · **Consecutive dry hunts:** 0
+**Hunts:** 229 · **Bugs found:** 343 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
