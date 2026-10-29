@@ -25,6 +25,7 @@ import {
   printPackagePage,
   resolvePackagePrintSemanticSupportBandDisplayLine,
   resolvePackagePrintSemanticSupportBandStampLine,
+  resolvePackagePrintFindingsSnapshotPresent,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
   resolvePackagePrintStatusLabel,
@@ -262,5 +263,23 @@ describe("package-print-view (TB-2205)", () => {
     });
 
     expect(presentation.semanticSupportBandStampLine).toContain("1 Supported");
+  });
+
+  it("resolvePackagePrintFindingsSnapshotPresent does not treat unknown flags as absent (P-06/P-07)", () => {
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: undefined }), undefined),
+    ).toBeUndefined();
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: false }), undefined),
+    ).toBe(false);
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: true }), null),
+    ).toBe(true);
+  });
+
+  it("buildPackagePrintPresentation leaves findings snapshot flag undefined when omitted (P-06/P-07)", () => {
+    const presentation = buildPackagePrintPresentation(summary());
+
+    expect(presentation.semanticSupportFindingsSnapshotPresent).toBeUndefined();
   });
 });

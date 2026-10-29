@@ -27,7 +27,11 @@ export function formatReviewMeetingCaptureQuestionLabel(questionLabel: string): 
   return `Question text was not stored. Key: ${questionLabel.trim()}.`;
 }
 
-export function formatReviewMeetingCaptureAnswer(answer: string): string {
+export function formatReviewMeetingCaptureAnswer(answer: string | null | undefined): string {
+  if (answer === null || answer === undefined) {
+    return REVIEW_MEETING_CAPTURE_ANSWER_NOT_STORED;
+  }
+
   return formatReviewMeetingCaptureAnswerLine(answer);
 }
 
@@ -133,8 +137,10 @@ export function resolveReviewMeetingCaptureEntries(
   return buildReviewMeetingCaptureEntries(listPresenterAssertedAnswerEntries(trail));
 }
 
-export function hasReviewMeetingCapture(entries: readonly ReviewMeetingCaptureEntry[]): boolean {
-  return entries.length > 0;
+export function hasReviewMeetingCapture(
+  entries: readonly ReviewMeetingCaptureEntry[] | null | undefined,
+): boolean {
+  return entries !== null && entries !== undefined && entries.length > 0;
 }
 
 export function formatReviewMeetingCapturePlainText(
