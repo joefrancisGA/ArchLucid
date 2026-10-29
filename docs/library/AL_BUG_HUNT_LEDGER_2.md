@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #168): promoted bare `NormalizedOrganizationName` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated directory cache identifiers embedding that token matched org duplicate gates; context now requires `Tenants.NormalizedOrganizationName` or `_NormalizedOrganizationName` column/index tokens (sqlite gate aligned); regression `IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_substring_only`; scoped filter 330/330 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies unrelated duplicate errors that embed NormalizedOrganizationName inside another type name.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — loose NormalizedOrganizationName substring — **hit 2026-10-29 seed hunt #168:** tighten org-name column tokens; regression above.
+
 2026-10-29 seed hunt (seed→hit #167): promoted bare `Tenants.` / `dbo.Tenants` substring false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; FK text `Tenants.Id` and table names such as `dbo.TenantSettings` satisfied org context; replaced with delimiter-safe `ContainsDboTenantsTableReference` and dropped loose `Tenants.` token; regression `IsDuplicateOrganization_does_not_match_duplicate_key_referencing_tenants_id_foreign_key`; scoped filter 329/329 passed (`RunAnalyzers=false`). Private beta: registration bootstrap no longer treats nav-settings or FK duplicate-key failures as org-already-provisioned idempotency.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.` / `dbo.Tenants` prefix false positive — **hit 2026-10-29 seed hunt #167:** `ContainsDboTenantsTableReference`; regression above.
@@ -16024,11 +16028,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 167
-- **bugs-found:** 146
+- **hunts:** 168
+- **bugs-found:** 147
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenants dbo prefix false positive
+- **last-bug:** 2026-10-29 — NormalizedOrganizationName substring
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
