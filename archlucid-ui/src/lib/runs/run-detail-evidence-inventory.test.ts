@@ -244,6 +244,28 @@ describe("run-detail-evidence-inventory", () => {
     ).toBe(false);
   });
 
+  it("uses not-stored and stored-empty coverage lines when inventory is empty", () => {
+    expect(
+      deriveEvidenceScopeCoverageLine({
+        inventoryCount: 0,
+        findingsCoverageSummaryLine: "",
+        linkedFindingCount: 0,
+        openFindingCount: 0,
+        findingsSnapshotStored: false,
+      }),
+    ).toBe("Submitted evidence list was not stored.");
+
+    expect(
+      deriveEvidenceScopeCoverageLine({
+        inventoryCount: 0,
+        findingsCoverageSummaryLine: "",
+        linkedFindingCount: 0,
+        openFindingCount: 0,
+        findingsSnapshotStored: true,
+      }),
+    ).toBe("Submitted source list was stored empty.");
+  });
+
   it("replaces findings coverage copy when inventory is empty but findings cite pointers", () => {
     const line = deriveEvidenceScopeCoverageLine({
       inventoryCount: 0,
