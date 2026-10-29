@@ -1,10 +1,13 @@
 import {
   PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
-  SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE,
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
 } from "./architecture-scope-understanding-shared";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 import type {
   DeriveScopeUnderstandingBulletsInput,
   ReconcileScopeUnderstandingBulletsInput,
@@ -185,12 +188,13 @@ export function deriveScopeUnderstandingBullets(
   ).trim();
 
   if (overview.length > 0) {
-    const truncationSuffix = `… ${SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE}`;
     const excerpt =
       overview.length > SCOPE_CONTEXT_PREVIEW_MAX_LENGTH
-        ? `${overview
-            .slice(0, Math.max(0, SCOPE_CONTEXT_PREVIEW_MAX_LENGTH - truncationSuffix.length))
-            .trimEnd()}${truncationSuffix}`
+        ? formatStoredTextPreview(
+            overview,
+            SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
+            STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview,
+          )
         : overview;
 
     pushUniqueBullet(bullets, "context", "context", excerpt);

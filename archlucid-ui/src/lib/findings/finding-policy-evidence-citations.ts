@@ -16,6 +16,10 @@ import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 export type FindingPolicyPackCitationLink = {
   readonly packId: string;
@@ -51,7 +55,9 @@ function nonEmptyString(value: string | null | undefined): string | null {
 export function findingInspectEvidenceExcerptTitle(excerpt: string): string {
   const trimmed = excerpt.trim();
 
-  return trimmed.length > 80 ? `${trimmed.slice(0, 77)}…` : trimmed;
+  return trimmed.length > 80
+    ? formatStoredTextPreview(trimmed, 80, STORED_TEXT_PREVIEW_CONTINUATION.policyCitationExcerpt)
+    : trimmed;
 }
 
 export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence): string {
@@ -158,7 +164,9 @@ export function resolvePolicyTraceExcerptFromInspect(payload: FindingInspectPayl
   const reasoningTrace = nonEmptyString(payload.reasoningTrace);
 
   if (reasoningTrace !== null) {
-    return reasoningTrace.length > 320 ? `${reasoningTrace.slice(0, 317)}…` : reasoningTrace;
+    return reasoningTrace.length > 320
+      ? formatStoredTextPreview(reasoningTrace, 320, STORED_TEXT_PREVIEW_CONTINUATION.policyCitationExcerpt)
+      : reasoningTrace;
   }
 
   const firstEvidenceExcerpt = payload.evidence
