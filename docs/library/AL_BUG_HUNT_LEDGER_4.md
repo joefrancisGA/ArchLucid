@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-29 seed hunt #673 (hit): proved `Authorization: Digest` header pastes with a `response=` parameter and triple–base64-encoded Basic userinfo leaked in config summary; fixed via `ContainsDigestAuthorizationHeaderCredentials` and a third Basic base64 decode pass; cheap-disproof closed short Bearer tokens (`Resolve_preserves_non_credential_effective_values_when_authorization_bearer_token_is_shorter_than_eight_characters`), BOM-prefixed JSON arrays (`Resolve_redacts_json_effective_values_when_bom_prefixes_json_array_with_password_property`), and `Proxy-Authorization: Basic` (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_header_contains_base64_userinfo`); regressions `Resolve_redacts_embedded_credential_material_when_authorization_digest_header_contains_response_parameter` and `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_triple_base64_encoded`; reseeded five `(candidate)` rows; scoped Configuration filter **2807/2807** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Digest auth header dumps and triple-encoded Basic auth pastes on generic settings paths.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `Digest` auth header paste — **hit 2026-10-29 seed hunt #673:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Bearer token shorter than eight characters — **cheap-disproof 2026-10-29 seed hunt #673:** intentional preserve below length gate; regression above.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — triple-encoded Basic payload — **hit 2026-10-29 seed hunt #673:** regression above.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — UTF-16 BOM before JSON array of secrets — **cheap-disproof 2026-10-29 seed hunt #673:** UTF-8 BOM strip already covers `\uFEFF` prefix; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` variant — **cheap-disproof 2026-10-29 seed hunt #673:** existing `Basic ` scan; regression above.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Negotiate` SPNEGO blob paste — locus: auth scan; input: `Authorization: Negotiate YII...`; wrong outcome: leak; reachability: Kerberos/NTLM header dumps in settings.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Digest header with `response` only (no equals) — locus: Digest scan; input: `Authorization: Digest response="abc"`; wrong outcome: leak; reachability: malformed header copies.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — quadruple-encoded Basic payload — locus: three decode passes; input: four base64 layers over `user:pass`; wrong outcome: leak; reachability: deep proxy re-encoding.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge paste — locus: Basic scan; input: `WWW-Authenticate: Basic realm="x"`; wrong outcome: over-redaction; reachability: challenge-only headers without secrets.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie` session id paste — locus: preserve vs redact; input: `Set-Cookie: session=abc123; HttpOnly`; wrong outcome: leak; reachability: cookie header dumps in config.
+
 2026-10-29 seed hunt #672 (hit): proved `Authorization: Bearer` JWT pastes, double–base64-encoded Basic userinfo, and UTF-8 BOM–prefixed JSON with `clientSecret` leaked in config summary; fixed via `ContainsBearerAuthorizationHeaderCredentials`, a second Basic base64 decode pass, and BOM strip before JSON parse in `ConfigurationSensitiveConfigValueScanner`; cheap-disproof closed `ApiKey:` header without hyphen (`Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_api_key_without_hyphen_colon_delimiter`) and invalid Basic base64 preserve (`Resolve_preserves_non_credential_effective_values_when_authorization_basic_header_has_invalid_base64`); regressions `Resolve_redacts_embedded_credential_material_when_authorization_bearer_header_contains_jwt`, `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_double_base64_encoded`, and `Resolve_redacts_json_effective_values_when_utf8_bom_prefixes_client_secret_property`; reseeded five `(candidate)` rows; scoped Configuration filter **2802/2802** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Bearer header dumps, double-encoded Basic auth pastes, and BOM-prefixed JSON secret blobs on generic settings paths.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `Bearer` token after `Authorization:` prefix — **hit 2026-10-29 seed hunt #672:** regression above.
@@ -9822,11 +9836,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `ApiKey` HTTP header without hyphen — **cheap-disproof 2026-10-29 seed hunt #672:** regression above.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Basic` auth with invalid base64 — **cheap-disproof 2026-10-29 seed hunt #672:** regression above.
 
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Digest` auth header paste — locus: auth scan; input: `Authorization: Digest username="u", response="..."`; wrong outcome: leak; reachability: legacy HTTP auth header dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Bearer token shorter than eight characters — locus: length gate; input: `Authorization: Bearer abc`; wrong outcome: leak vs preserve; reachability: truncated header copies.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — triple-encoded Basic payload — locus: two decode passes; input: three layers of base64 over `user:pass`; wrong outcome: leak; reachability: proxy re-encoding chains.
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — UTF-16 BOM before JSON array of secrets — locus: BOM strip; input: `\uFEFF[{"password":"x"}]`; wrong outcome: leak; reachability: exported UTF-16 JSON blobs.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` variant — locus: Basic scan anchor; input: `Proxy-Authorization: Basic dXNlcjpwYXNz`; wrong outcome: leak; reachability: proxy tunnel config pastes.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `Digest` auth header paste — **hit 2026-10-29 seed hunt #673:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Bearer token shorter than eight characters — **cheap-disproof 2026-10-29 seed hunt #673:** see zone header row.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — triple-encoded Basic payload — **hit 2026-10-29 seed hunt #673:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — UTF-16 BOM before JSON array of secrets — **cheap-disproof 2026-10-29 seed hunt #673:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` variant — **cheap-disproof 2026-10-29 seed hunt #673:** see zone header row.
 
 2026-10-29 seed hunt #671 (hit): proved `X-Api-Key:` and `Authorization: Basic` base64 userinfo header pastes leaked in config summary; fixed via `X-Api-Key` credential key and `ContainsBasicAuthorizationHeaderCredentials` in `ConfigurationEmbeddedCredentialMaterialDetector`; regressions `Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_x_api_key_colon_delimiter` and `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_contains_base64_userinfo`; cheap-disproof closed storage `AccountName=` only preserve (`Resolve_preserves_non_credential_effective_values_when_storage_connection_string_has_account_name_only`), `AntiForgeryToken=` suffix not matching bare `Token` key (`Resolve_preserves_non_credential_effective_values_when_antiforgery_token_pair_ends_with_token_key_name`), table SAS without `sig` (`Resolve_preserves_non_credential_effective_values_when_table_sas_query_omits_sig_parameter`); reseeded five `(candidate)` rows; scoped Configuration filter **2797/2797** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts `X-Api-Key:` and Basic-auth header dumps pasted into app settings, not only `Api-Key:` pairs.
 
@@ -14971,11 +14985,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 630
-- **bugs-found:** 1008
+- **hunts:** 631
+- **bugs-found:** 1009
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Bearer headers, double Basic auth, and BOM JSON redaction in config summary
+- **last-bug:** 2026-10-29 — Digest auth and triple-encoded Basic redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none
