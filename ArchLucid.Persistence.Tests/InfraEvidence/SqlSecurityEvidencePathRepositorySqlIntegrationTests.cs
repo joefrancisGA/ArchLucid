@@ -296,7 +296,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         long clientMemoryBefore = clientProcess.WorkingSet64;
         // SQL connection is test-only; server metrics may be inaccessible to non-sysadmin identities.
         // The query below is deliberately advisory and cannot isolate this test's server CPU.
-        decimal? serverCpuBefore = null;
+        SqlInstanceCapacityObserver.Sample serverBefore = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
         Stopwatch overall = Stopwatch.StartNew();
         await Task.WhenAll(Enumerable.Range(0, concurrency).Select(async worker =>
         {
@@ -313,9 +313,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         clientProcess.Refresh();
         double clientCpuMilliseconds = Math.Max(0, (clientProcess.TotalProcessorTime - clientCpuBefore).TotalMilliseconds);
         long clientMemoryAfter = clientProcess.WorkingSet64;
-        decimal? serverCpuAfter = null;
-        decimal? serverCpuDelta = serverCpuBefore.HasValue && serverCpuAfter.HasValue &&
-            serverCpuAfter.Value >= serverCpuBefore.Value ? serverCpuAfter.Value - serverCpuBefore.Value : null;
+        SqlInstanceCapacityObserver.Sample serverAfter = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
         string? root = Environment.GetEnvironmentVariable("ARCHLUCID_CAPACITY_BENCH_OUTPUT");
         if (string.IsNullOrWhiteSpace(root)) return;
         Directory.CreateDirectory(root);
@@ -330,9 +328,15 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             clientProcessCpuMillisecondsDelta = clientCpuMilliseconds,
             clientWorkingSetBeforeBytes = clientMemoryBefore,
             clientWorkingSetAfterBytes = clientMemoryAfter,
-            serverInstanceCpuMillisecondsDelta = serverCpuDelta,
+            serverInstanceCpuMillisecondsDelta = (decimal?)null,
+            serverInstancePhysicalMemoryBeforeKb = serverBefore.PhysicalMemoryKb,
+            serverInstancePhysicalMemoryAfterKb = serverAfter.PhysicalMemoryKb,
+            serverInstanceCommittedMemoryBeforeKb = serverBefore.CommittedMemoryKb,
+            serverInstanceCommittedMemoryAfterKb = serverAfter.CommittedMemoryKb,
+            serverInstanceEvidenceBefore = serverBefore.EvidenceStatus,
+            serverInstanceEvidenceAfter = serverAfter.EvidenceStatus,
             resourceEvidenceStatus = "PROCESS_WIDE_SQL_INSTANCE_WIDE_NOT_ISOLATED",
-            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL DMV counter may be inaccessible and is then null. Not calibrated worker or SQL tier demand."
+            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL instance memory DMV may be inaccessible; CPU remains unavailable, not zero. Not calibrated worker or SQL tier demand."
         };
         await File.WriteAllTextAsync(Path.Combine(root, $"sql-repository-{pathCount}-{concurrency}.json"),
             System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
