@@ -11,6 +11,7 @@ import {
 } from "@/lib/architecture/architecture-diagram-copy";
 import {
   resolveArchitectureDiagramNodeDisplayLabel,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
@@ -28,6 +29,16 @@ import type {
 } from "@/lib/architecture/architecture-diagram-types";
 
 const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>)\s*/;
+
+function lineLooksLikeStoredDataFlow(text: string): boolean {
+  const trimmed = text.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return FLOW_SPLIT_PATTERN.test(trimmed);
+}
 
 type ResolvedSectionEntities =
   | { readonly state: "present"; readonly entities: readonly ArchitectureStructuredEntity[] }
@@ -116,7 +127,10 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
+    const displayLabel =
+      entity.label.trim().length === 0
+        ? ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED
+        : resolveArchitectureDiagramNodeDisplayLabel(entity.label);
 
     if (entity.label.trim().length === 0) {
       skippedUnlabeled.count += 1;
@@ -318,6 +332,7 @@ function addFlowEdges(
   nodes: readonly ArchitectureDiagramNode[],
   edges: ArchitectureDiagramEdge[],
   unmatchedDataFlows: string[],
+  diagramHonestyNotes: string[],
 ): void {
   const flowSection = parseResult.sections.find((section) => section.key === "data-flows");
 
@@ -374,7 +389,14 @@ function addFlowEdges(
       const parsedLineEndpoints = parseFlowEndpoints(line, nodes);
 
       if (parsedLineEndpoints.length === 0) {
-        recordUnmatchedFlow(line);
+        if (lineLooksLikeStoredDataFlow(line)) {
+          recordUnmatchedFlow(line);
+        } else if (line.trim().length > 0) {
+          diagramHonestyNotes.push(
+            `Data flow narrative line was not matched to diagram components: ${line.trim()}`,
+          );
+        }
+
         continue;
       }
 
@@ -447,7 +469,7 @@ export function buildArchitectureDiagramModel(
     diagramHonestyNotes.push(formatReviewTitleNotCollectedSystemNote(architectureName.trim()));
   }
 
-  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows);
+  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows, diagramHonestyNotes);
 
   const trustBoundaries = resolveArchitectureDiagramSectionEntities(byKey.get("trust-boundaries"));
   const trustBoundaryLabels =
