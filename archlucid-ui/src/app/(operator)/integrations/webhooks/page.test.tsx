@@ -679,6 +679,46 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("Connection refused");
   });
 
+  it("clears webhook test results when manual subscription refresh succeeds", async () => {
+    const subscriptionId = "sub-test-result-clear-on-refresh-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+    apiMocks.test.mockResolvedValue({
+      transportSucceeded: true,
+      statusCode: 202,
+      reasonPhrase: "Accepted",
+      responseBodyPreview: '{"ok":true}',
+      responseBodyTruncated: false,
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+
+    expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("HTTP 202");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId(`webhook-test-result-${subscriptionId}`)).toBeNull();
+  });
+
   it("shows inline test failure when webhook test request throws before a structured response", async () => {
     const subscriptionId = "22222222-2222-2222-2222-222222222222";
     apiMocks.list.mockResolvedValue([
