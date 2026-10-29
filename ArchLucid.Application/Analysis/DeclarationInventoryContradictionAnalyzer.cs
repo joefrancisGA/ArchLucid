@@ -77,7 +77,9 @@ public static class DeclarationInventoryContradictionAnalyzer
                     || string.IsNullOrWhiteSpace(inventoryValue))
                     continue;
 
-                if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(declarationValue, inventoryValue))
+                if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(
+                        DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, declarationValue),
+                        DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, inventoryValue)))
                     continue;
 
                 if (!DeclarationInventorySecurityPropertyInventoryReader.TryResolveSecurityTheme(
