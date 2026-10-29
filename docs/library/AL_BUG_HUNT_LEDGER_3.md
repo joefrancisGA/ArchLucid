@@ -7363,6 +7363,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-29 seed hunt (seed→hit): promoted `ReviewsHubInventoryRowActions` — row overflow menu URL writes used `readWindowLocationSearch()`, so opening More actions after soft navigation merged stale reviews-list query keys; `syncOpenOverflowRunIdToUrl` now uses `searchParams.toString()` with `useSearchParams` reconciliation; regression `writes row overflow disclosure from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubInventoryRowActions.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators opening a review row overflow menu no longer inherit stale toolbar query params after in-app navigation.
+
+- [x] (proven) `ReviewsHubInventoryRowActions` — row overflow disclosure href merged stale hub filter query after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + url param effect; regression above.
+- [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: `RunDetailLastFailureCard.tsx`; input: soft navigation on review detail then expand technical details.
+- [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
+- [ ] (candidate) `RemediationPatternsClient` — registry filter href writes use `readWindowLocationSearch()` on write — locus: remediation patterns operator route; input: soft navigation then change registry filter chip.
+- [ ] (candidate) `PlanningBridgePanel` — planning materialize follow-up URL writes use stale window search — locus: planning bridge under operator tree; input: soft navigation then open advanced planning disclosure.
+- [ ] (candidate) `OperatorBillingWalletPanel` — wallet settings disclosure or save path merges stale scope query — locus: billing wallet operator page; input: tenant scope switch via soft navigation then edit wallet.
+
 2026-10-29 seed hunt (seed→hit): reseeded after 491 commits; promoted `ReviewsHubDisclosuresClient` — hub analytics/guidance disclosure href writes used `readWindowLocationSearch()`, so after soft navigation expanding Samples or delta panels could merge stale reviews-list toolbar query keys; base href writes and `useSearchParams` reconciliation for disclosure flags; regression `writes reviews hub disclosure state from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubDisclosuresClient.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators toggling reviews hub guidance panels no longer inherit stale query params from the address bar after in-app navigation.
 
 - [x] (proven) `ReviewsHubDisclosuresClient` — disclosure href writes used stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + searchParams effect; regression above.
@@ -7370,8 +7379,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-29 thorough hunt (hit): promoted `ReviewsHubReviewInventory` — inventory filter and clear-filter href writes used `readWindowLocationSearch()`, so after soft navigation choosing Finalized or clearing filters could merge stale reviews-list toolbar query keys; `selectInventoryFilter` / `clearInventoryFilters` now use `searchParams.toString()`; regression `writes inventory filter from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubReviewInventory.url-sync.test.tsx` 1/1. Private beta: invited operators filtering the reviews inventory no longer inherit stale query params from the address bar after in-app navigation.
 
 - [x] (proven) `ReviewsHubReviewInventory` — inventory filter chip href built from stale `window.location.search` after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for filter/clear writes; regression above.
-- [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
-- [ ] (candidate) `ReviewsHubInventoryRowActions` — row action deep links merge stale hub filter query when built from `readWindowLocationSearch()` — locus: inventory row actions; input: cross-filter soft navigation then open row action menu link.
 - [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
 
 - **id:** ui-operator-routes
@@ -7380,13 +7387,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 35
+- **hunts:** 36
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 29
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — reviews hub inventory filter URLs merged stale toolbar query after soft navigation
+- **last-bug:** 2026-10-29 — reviews hub row overflow menu merged stale toolbar query after soft navigation
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
