@@ -171,6 +171,16 @@ describe("SignupForm", () => {
     expect(message).toBe("Enter a work email of at most 254 characters to continue.");
   });
 
+  it("deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "   ",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
+  });
+
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
     const message = deriveSignupFormReadinessMessage({
       adminEmail: "not-an-email",
@@ -1692,6 +1702,41 @@ describe("SignupForm", () => {
           JSON.stringify({
             tenantId: 123,
             defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: 1,
             defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
           }),
           { status: 201, headers: { "Content-Type": "application/json" } },
