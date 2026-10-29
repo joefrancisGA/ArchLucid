@@ -5786,6 +5786,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): re-read real-agent triage catalog contract lists; promoted `RealAgentFailureTriageEntry` explicit JSON `null` on `FailureClasses`, `OperatorNextSteps`, and `RelatedDocPaths`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; scoped RealAgentFailureTriageEntry deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: real-agent failure triage catalog JSON with null list fields deserializes to empty lists so operator triage UI does not null-reference when a scenario omits optional copy.
+
+- [x] (proven) `RealAgentFailureTriageEntry.FailureClasses` / `OperatorNextSteps` / `RelatedDocPaths` — explicit JSON `null` on triage catalog entry lists — **hit 2026-10-29 seed hunt:** consolidated `CoalesceReadOnly`; regression above.
+
 2026-10-29 seed hunt (seed→hit): re-read open `(candidate)` rows on required init-only API list DTOs; promoted `TenantItsmConnectorConnectionsListResponse.Connections` explicit JSON `null` leaving `Connections` null on ITSM connector list responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_connections_yields_empty_list_not_null`; scoped ITSM list deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: ITSM connector list JSON with `"connections": null` deserializes to an empty list so integrations settings UI does not null-reference when no connectors are returned.
 
 - [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Connections` `init`; regression above.
@@ -5805,11 +5809,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 218
-- **bugs-found:** 332
+- **hunts:** 219
+- **bugs-found:** 333
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — bulk disposition request/response id lists JSON null
+- **last-bug:** 2026-10-29 — ITSM connector list Connections JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5822,11 +5826,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
 - [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
 - [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RealAgentFailureTriageEntry` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot; locus: required `init` list; input: `"recentUsage": null`.
-- [ ] (candidate) `RealAgentFailureTriageEntry.FailureClasses` — explicit JSON `null` on triage catalog entry; locus: required `init` list; input: `"failureClasses": null`.
-- [ ] (candidate) `RealAgentFailureTriageEntry.OperatorNextSteps` — explicit JSON `null` on triage catalog entry; locus: required `init` list; input: `"operatorNextSteps": null`.
 - [ ] (candidate) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response; locus: required `init` list; input: `"variants": null`.
-- [ ] (candidate) `SynthesisTrace.GeneratorsUsed` — explicit JSON `null` on synthesis trace JSON; locus: init list with field initializer only; input: `"generatorsUsed": null`.
+- [ ] (candidate) `SynthesizedArtifact.ContributingDecisionIds` — explicit JSON `null` on synthesized artifact JSON; locus: init list with field initializer only; input: `"contributingDecisionIds": null`.
+- [ ] (candidate) `ProductLearningImprovementPlanRecord.ActionSteps` — explicit JSON `null` on improvement plan record JSON; locus: init list; input: `"actionSteps": null`.
+- [ ] (candidate) `HeldCheckSecondPassResult.EngineTypes` — explicit JSON `null` on held-check second-pass result; locus: verify regression coverage vs missing coalesce on a sibling list property.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5885,7 +5890,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 219 · **Bugs found:** 333 · **Consecutive dry hunts:** 0
+**Hunts:** 220 · **Bugs found:** 334 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
