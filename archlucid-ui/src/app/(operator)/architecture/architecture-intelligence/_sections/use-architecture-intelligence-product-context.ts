@@ -25,7 +25,7 @@ import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-archi
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
-import { architectureIntelligenceErrorToLoadFailure } from "./architecture-intelligence-page-helpers";
+import { architectureIntelligenceErrorToLoadFailure, shouldClearIntakeWhenInboundRunIdDropped } from "./architecture-intelligence-page-helpers";
 import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import type {
   ClosedLoopReasoningSourceText,
@@ -195,10 +195,12 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
-    const droppedInboundToDifferentContext =
-      previousInbound.length > 0 &&
-      inboundRunId.length === 0 &&
-      urlContextRunId !== previousInbound;
+    const droppedInboundToDifferentContext = shouldClearIntakeWhenInboundRunIdDropped(
+      previousInbound,
+      inboundRunId,
+      urlContextRunId,
+      activeRunId,
+    );
 
     const changedContextOnlyScope =
       inboundRunId.length === 0 &&
@@ -232,7 +234,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
+  }, [urlContextRunId, inboundRunId, activeRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
