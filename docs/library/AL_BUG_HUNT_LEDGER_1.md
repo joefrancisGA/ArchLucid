@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted architecture-analysis DOCX save that threw `ArgumentException` (`hexadecimal value 0x01, is an invalid character`) when an operator constraint copied by `DefaultEvidenceBuilder` contained a JSON-legal XML control character, so the Word download failed; `OpenXmlWordText.ForXml` now drops those characters on analysis and consulting DOCX text while keeping emoji; regression `CompareQuality_GenerateDocxAsync_writes_constraint_when_text_contains_an_xml_control_character`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1086/1087** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an architecture analysis Word report, a constraint that includes a control character still produces the document, with that character omitted and the rest of the constraint text kept.
+
+- [x] (proven) `OpenXmlDocxDocumentBuilder` — constraint text with U+0001 aborted DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` before WordprocessingML text; regression above. [class:other]
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that indexed only `resourceId` and `name`, so an Azure resource row whose full id is `id` and whose `name` is the short account name produced no public-network mismatch; indexing now uses the same inventory id reader as graph reconciliation; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1085/1086** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure) and `DeclarationInventoryContradictionAnalyzerTests` **11/11**. Private beta: when an invited operator reviews a storage account whose Azure inventory uses the standard id field and a short name, a declaration-versus-inventory mismatch such as public network access Disabled versus Enabled is reported.
 
 - [x] (proven) `DeclarationInventoryContradictionAnalyzer.IndexInventoryRows` — ARM `id` plus short `name` missed the topology resource — **hit 2026-10-29 seed hunt:** reuse graph inventory id readers; regression above. [class:fail-open-validation]
@@ -16036,11 +16040,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 74
-- **bugs-found:** 70
+- **hunts:** 75
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declaration-versus-inventory checks missed Azure rows that use id plus a short name
+- **last-bug:** 2026-10-29 — architecture analysis DOCX save threw when a constraint contained an XML control character
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16196,6 +16200,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `OpenXmlDocxDocumentBuilder` — constraint text with U+0001 aborted DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` before WordprocessingML text; regression `CompareQuality_GenerateDocxAsync_writes_constraint_when_text_contains_an_xml_control_character`. [class:other]
 
 - [x] (proven) `DeclarationInventoryContradictionAnalyzer.IndexInventoryRows` — ARM `id` plus short `name` missed the topology resource — **hit 2026-10-29 seed hunt:** reuse graph inventory id readers; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id`. [class:fail-open-validation]
 
