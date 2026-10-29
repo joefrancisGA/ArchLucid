@@ -5786,6 +5786,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `CoveragePreviewResult.Assignments` and `CoverageSummary.Assignments` explicit JSON `null` on governance coverage API JSON despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on both setters; regressions `Deserialize_null_assignments_on_preview_result_yields_empty_list_not_null` and `Deserialize_null_assignments_on_summary_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` rows `ArtifactDescriptor.Tags` (no `Tags` on `ArtifactDescriptor`), `ExportManifestDescriptor` (type not in repo), and `ArtifactBundle` nested trace list round-trip (already covered by `SynthesisTrace` list coalesce + bundle trace default); scoped CoverageAssignments deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: coverage preview and summary JSON with null assignments deserializes to empty lists so governance UI does not null-reference when rendering assignment tables.
+
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — explicit JSON `null` on coverage assignment lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regressions above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** `ArtifactDescriptor` has no tag list property.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** no matching contract type in repository.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** `SynthesisTrace` list coalesce landed prior run.
+
 2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Trace` explicit JSON `null` on bundle persistence JSON despite `new()` trace initializer; non-null default via `value ?? new SynthesisTrace()` on `Trace` setter; promoted `SynthesisTrace.GeneratorsUsed`, `SourceDecisionIds`, and `Notes` explicit JSON `null` with `ContractCollectionDefaults.Coalesce` on setters; regressions `Deserialize_null_trace_yields_empty_trace_not_null` and `Deserialize_null_generator_lists_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` (no such contract type in repo) and misnamed `SynthesisTrace.GeneratorIds` (property is `GeneratorsUsed`); scoped artifact bundle + synthesis trace deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle and synthesis trace JSON with null nested trace or list fields deserializes to empty defaults so synthesis read paths do not null-reference.
 
 - [x] (proven) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace — **hit 2026-10-29 seed hunt:** non-null default on setter; bundle regression above.
@@ -5841,11 +5848,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 227
-- **bugs-found:** 341
+- **hunts:** 228
+- **bugs-found:** 342
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — ArtifactBundle Trace and SynthesisTrace lists JSON null
+- **last-bug:** 2026-10-29 — CoveragePreview/Summary Assignments JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5870,11 +5877,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArtifactBundle.Trace` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `SynthesisTrace` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `ArtifactDescriptor.Tags` — explicit JSON `null` on artifact descriptor tag list if contract uses init-only list without coalesce.
-- [ ] (candidate) `ArtifactBundle` nested `Trace` list round-trip via full bundle JSON with null trace lists inside non-null trace object.
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `RunAcknowledgedCoverageDocument.Assignments` — explicit JSON `null` on acknowledged coverage document assignment list (sibling type in Governance/Coverage).
+- [ ] (candidate) `CoveragePreviewAssignment` nested list properties — scan assignment row DTO for collection fields without coalesce.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
-- [ ] (candidate) `ManifestDocument` artifact section list properties — scan for init/set list fields without coalesce on manifest JSON.
-- [ ] (candidate) `ExportManifestDescriptor` — explicit JSON `null` on export manifest file list when present on contract type.
+- [ ] (candidate) `ManifestDocument` artifact section list properties — scan Core manifest partials reached via Contracts API surfaces.
+- [ ] (candidate) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — verify init coalesce vs regression gap on page bundle response.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5933,7 +5944,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 227 · **Bugs found:** 341 · **Consecutive dry hunts:** 0
+**Hunts:** 228 · **Bugs found:** 342 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
