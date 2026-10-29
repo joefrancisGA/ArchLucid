@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `FindingRecordMetadataPage.Items` explicit JSON `null` on findings keyset metadata page JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_items_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult.Citations` / `UpstreamResultFingerprints` (existing `AgentResultDeserializationTests.Deserialize_null_collection_properties_yields_empty_lists_not_null`); scoped FindingRecordMetadataPage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: findings keyset metadata page JSON with null items deserializes to an empty list so run findings list stages and API clients do not null-reference when a page has no rows.
+
+- [x] (proven) `FindingRecordMetadataPage.Items` — explicit JSON `null` on keyset metadata page list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `AgentResult.Citations` / `UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** existing agent result null-collection regression.
+
 2026-10-29 seed hunt (seed→hit): promoted `CrossReviewFindingSourceCoverage.PriorAgentTypes` and `CurrentAgentTypes` explicit JSON `null` on cross-review source coverage JSON despite `HashSet` initializers; empty-set defaults on `init`; regression `Deserialize_null_agent_type_sets_yields_empty_sets_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult` nested lists (existing `AgentResultDeserializationTests`), `AlertRecord` collections (no list/dictionary properties), `CoveragePreviewRequest` (API model under `ArchLucid.Api`, not `ArchLucid.Contracts`); scoped CrossReviewFindingSourceCoverage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: cross-review finding source coverage JSON with null agent-type sets deserializes to empty sets so TB-2194 reduced-coverage logic does not null-reference when comparing prior vs current reviews.
 
 - [x] (proven) `CrossReviewFindingSourceCoverage.PriorAgentTypes` / `CurrentAgentTypes` — explicit JSON `null` on cross-review coverage sets — **hit 2026-10-29 seed hunt:** empty set defaults on `init`; regression above.
@@ -5883,11 +5888,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 234
-- **bugs-found:** 348
+- **hunts:** 235
+- **bugs-found:** 349
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — CrossReviewFindingSourceCoverage agent-type sets JSON null
+- **last-bug:** 2026-10-29 — FindingRecordMetadataPage.Items JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5935,9 +5940,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `CoveragePreviewRequest` API model list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `FindingRecordMetadataPage.Items` — explicit JSON `null` on finding metadata keyset page list (positional record).
-- [ ] (candidate) `AgentResult.Citations` — explicit JSON `null` on agent result citations enumerable when not using list coalesce path.
-- [ ] (candidate) `AgentResult.UpstreamResultFingerprints` — explicit JSON `null` vs empty dictionary semantics for TB-942 consistency checks.
+- [x] (proven) `FindingRecordMetadataPage.Items` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.Citations` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
 - [ ] (candidate) `CrossReviewFindingSourceCoverage` object initializer vs JSON — verify object-creation paths still populate sets when properties omitted.
 
