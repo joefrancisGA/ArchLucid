@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison DOCX that omitted finding-correlation metadata and finding-lifecycle counts stored by `ReplayComparisonFindingLifecycleDiffSlice`, so a Word download hid unmatched findings and the lifecycle honesty note that Markdown and PDF already print; `EndToEndReplayComparisonDocxExportFormatter` now writes that header on every profile; regression `CompareQuality_GenerateDocx_includes_finding_correlation_and_lifecycle_counts`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1088/1089** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison Word report, the document includes how findings were matched and the lifecycle counts, including unmatched findings and the honesty note.
+
+- [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — Word export omitted finding correlation and lifecycle counts — **hit 2026-10-29 seed hunt:** header lines from the stored metadata and `CrossReviewFindingLifecycleExportLines`; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison DOCX save that threw `ArgumentException` (`hexadecimal value 0x01, is an invalid character`) when an agent added claim contained a JSON-legal XML control character, so the Word download failed; `EndToEndReplayComparisonDocxExportFormatter` now writes headings, paragraphs, and bullets through `OpenXmlWordText.ForXml`; regression `CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1087/1088** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison Word report, an agent claim that includes a control character still produces the document, with that character omitted and the rest of the claim text kept.
 
 - [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — added-claim text with U+0001 aborted replay comparison DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` on headings, paragraphs, and bullets; regression above. [class:other]
@@ -16044,11 +16048,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 76
-- **bugs-found:** 72
+- **hunts:** 77
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — replay comparison DOCX save threw when an added claim contained an XML control character
+- **last-bug:** 2026-10-29 — replay comparison DOCX omitted finding correlation and lifecycle counts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16204,6 +16208,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — Word export omitted finding correlation and lifecycle counts — **hit 2026-10-29 seed hunt:** header lines from the stored metadata and `CrossReviewFindingLifecycleExportLines`; regression `CompareQuality_GenerateDocx_includes_finding_correlation_and_lifecycle_counts`. [class:fail-open-validation]
 
 - [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — added-claim text with U+0001 aborted replay comparison DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` on headings, paragraphs, and bullets; regression `CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character`. [class:other]
 

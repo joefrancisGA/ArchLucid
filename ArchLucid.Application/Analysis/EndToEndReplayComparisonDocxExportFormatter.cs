@@ -1,4 +1,5 @@
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -40,6 +41,7 @@ public static class EndToEndReplayComparisonDocxExportFormatter
             AddParagraph(body, $"Right Run ID: {report.RightRunId}");
             AddParagraph(body, $"Generated UTC: {TimeProvider.System.UtcNowDateTime():O}");
             AddParagraph(body, $"Profile: {p}");
+            AppendFindingHeader(body, report);
             AddSpacer(body);
             if (EndToEndComparisonExportProfile.IsShort(p))
             {
@@ -142,6 +144,27 @@ public static class EndToEndReplayComparisonDocxExportFormatter
         }
 
         return Task.FromResult(stream.ToArray());
+    }
+
+    private static void AppendFindingHeader(Body body, EndToEndReplayComparisonReport report)
+    {
+        if (report.FindingCorrelation is not null)
+        {
+            ComparisonFindingCorrelationMetadata metadata = report.FindingCorrelation;
+            AddParagraph(body, $"Finding correlation method: {metadata.PrimaryCorrelationMethod}");
+            AddParagraph(body, $"Finding dedupe key format: {ComparisonFindingCorrelationMetadata.DedupeKeyFormat}");
+            AddParagraph(body, $"Policy-rule matches: {metadata.PolicyRuleMatchCount}");
+            AddParagraph(body, $"Fuzzy (possible) matches: {metadata.FuzzyMatchCount}");
+            AddParagraph(body, $"Unmatched left findings: {metadata.UnmatchedLeftCount}");
+            AddParagraph(body, $"Unmatched right findings: {metadata.UnmatchedRightCount}");
+            AddParagraph(body, $"Correlation honesty: {metadata.HonestyNote}");
+        }
+
+        if (report.FindingLifecycle is not null)
+        {
+            foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
+                AddParagraph(body, line);
+        }
     }
 
     private static void AppendSponsorReport(Body body, EndToEndReplayComparisonReport report)
