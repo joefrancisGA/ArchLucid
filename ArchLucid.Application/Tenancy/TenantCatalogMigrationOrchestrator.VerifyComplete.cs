@@ -92,7 +92,14 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             actorUserId,
             actorUserName,
             active.CorrelationId,
-            new { migrationId = active.MigrationId, probe.ProbeRunId, probe.ErrorMessage, probe.WriteFreezeVerified, probe.AuthorizationBoundaryVerified },
+            new
+            {
+                migrationId = active.MigrationId,
+                probe.ProbeRunId,
+                ErrorMessage = normalizedError,
+                probe.WriteFreezeVerified,
+                probe.AuthorizationBoundaryVerified,
+            },
             cancellationToken).ConfigureAwait(false);
 
         if (!probe.Passed)

@@ -2582,6 +2582,61 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task RunVerificationAsync_trims_whitespace_in_verification_failed_audit_payload()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-trim-audit-error",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationVerificationProbe> verification = new(MockBehavior.Strict);
+        verification
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = false,
+                    ErrorMessage = "  catalog probe timeout  ",
+                });
+
+        PlatformAuditEvent? captured = null;
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantCatalogMigrationVerificationFailed)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            CreateDefaultTenantRepository().Object,
+            new Mock<ITenantSuspendCommandService>(MockBehavior.Loose).Object,
+            CreateDefaultProjectionRefresh(),
+            verification.Object,
+            audit.Object,
+            new FakeTimeProvider(DateTimeOffset.UtcNow));
+
+        (TenantCatalogMigrationCommandOutcome outcome, _) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+        Assert.NotNull(captured);
+        Assert.Contains("\"ErrorMessage\":\"catalog probe timeout\"", captured!.DataJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("  catalog probe timeout  ", captured.DataJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task StartAsync_trims_correlation_id_on_started_migration_audit_event()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();

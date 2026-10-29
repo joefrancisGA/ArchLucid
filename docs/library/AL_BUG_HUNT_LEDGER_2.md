@@ -15848,6 +15848,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #147): promoted verification-failed audit payload drift on `TenantCatalogMigrationOrchestrator.RunVerificationAsync`; persisted `LastVerificationError` was trimmed via `NormalizeVerificationErrorMessage` but platform audit JSON still embedded raw padded `probe.ErrorMessage`; audit payload now uses normalized error; regression `RunVerificationAsync_trims_whitespace_in_verification_failed_audit_payload`; scoped filter 303/303 passed (`RunAnalyzers=false`). Private beta: migration verification failure audits match operator-visible migration status error text.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded verification error in failed audit JSON — **hit 2026-10-29 seed hunt #147:** audit `ErrorMessage` uses `normalizedError`; regression above.
+- [x] (invalid) `TenantErasureCommandService.TrySetLegalHoldAsync` — legal-hold audit actor padding — **cheap-disproof 2026-10-29 seed hunt #147:** shared erasure audit helper trims actors in #146.
+- [x] (invalid) `TenantTrialFacade.FormatTrialStatusForDisplay` — unknown lifecycle label padding — **cheap-disproof 2026-10-29 seed hunt #147:** fallback already returns `trialStatus.Trim()`; whitespace-only status maps to `None` via early `GetTrialStatusAsync` branch.
+
 2026-10-29 seed hunt (seed→hit #146): promoted `(candidate)` unpadded correlation id on `TenantErasureCommandService.AppendPlatformAuditAsync`; erasure offboard/legal-hold platform audit kept padded correlation ids; trim correlation id and actor fields at audit envelope (parity #144/#145); regression `TryOffboardTenantAsync_trims_correlation_id_on_offboard_audit_event`; scoped filter 302/302 passed (`RunAnalyzers=false`). Private beta: tenant erasure offboard audit correlation ids align with operator-initiated erasure requests for traceability.
 
 - [x] (proven) `TenantErasureCommandService.AppendPlatformAuditAsync` — padded correlation id on erasure audit — **hit 2026-10-29 seed hunt #146:** trim on audit envelope; regression above.
@@ -15857,9 +15863,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantSuspendCommandService.AppendPlatformAuditAsync` — padded correlation id on suspend audit — **hit 2026-10-29 seed hunt #145:** trim on audit envelope; regression above.
 
-- [ ] (candidate) `TenantTrialFacade.FormatTrialStatusForDisplay` — unknown lifecycle label with surrounding spaces — locus: fallback ~210; input: corrupt `TrialStatus` token (reachability: manual SQL; display-only).
-- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — legal-hold audit actor display name padding — locus: legal-hold audit path; input: padded actor name on hold set (reachability: erasure API; actor trim covered #146 if shared helper used).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned `Probe` result still exposes raw padded `ErrorMessage` to API caller while persistence trimmed — locus: return tuple ~99; input: padded probe failure text (reachability: migration verify API response body).
 - [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `Stage` string if enum storage corrupted — locus: `Stage.ToString()` passthrough; input: N/A without corrupt row (reachability: low).
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases vs offboarded tenant — locus: middleware ordering; input: export-only offboarded write (reachability: prior valid-no-repro).
+
+- [ ] (candidate) `TenantTrialFacade.FormatTrialStatusForDisplay` — unknown lifecycle label with surrounding spaces — **cheap-disproof 2026-10-29 #147** (trim fallback).
 
 - [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — offboard/legal-hold audit correlation id padding — **hit 2026-10-29 #146** (proven above).
 
@@ -15934,11 +15942,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 146
-- **bugs-found:** 125
+- **hunts:** 147
+- **bugs-found:** 126
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — erasure offboard audit correlation id trim
+- **last-bug:** 2026-10-29 — verification failed audit error message trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
