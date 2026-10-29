@@ -200,9 +200,17 @@ def main():
                 revision = json.loads(args.revision_json.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 revision = {}
-            report = capture(expected_sha=args.expected_sha, revision_name=args.revision,
-                             update_start_utc=args.update_start_utc, revision=revision,
-                             base_url=args.base_url, api_key=os.environ.get(args.api_key_env))
+            try:
+                report = capture(expected_sha=args.expected_sha, revision_name=args.revision,
+                                 update_start_utc=args.update_start_utc, revision=revision,
+                                 base_url=args.base_url, api_key=os.environ.get(args.api_key_env))
+            except (ValueError, OSError):
+                report = {
+                    "schemaVersion": 1, "environment": "staging",
+                    "status": "INCONCLUSIVE", "reason": "INVALID_PROBE_CONFIGURATION",
+                    "readiness": {"status": "NOT_MEASURED"},
+                    "firstAuthenticatedBusinessRead": {"status": "NOT_MEASURED"},
+                }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print("Cold-start staging evidence:", report["status"], report.get("reason", ""))
