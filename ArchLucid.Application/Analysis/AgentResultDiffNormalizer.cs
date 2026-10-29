@@ -83,7 +83,7 @@ internal static class AgentResultDiffNormalizer
     private static string NormalizeRunIdAnchor(string runId) =>
         string.IsNullOrWhiteSpace(runId) ? string.Empty : AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
-    private static double? NormalizeOptionalConfidence(double? confidence)
+    internal static double? NormalizeOptionalConfidence(double? confidence)
     {
         if (!confidence.HasValue)
             return null;

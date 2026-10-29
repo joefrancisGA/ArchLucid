@@ -2817,3 +2817,15 @@
 {"at":"2026-10-29T20:30:24.0461166Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
 {"at":"2026-10-29T20:38:27.0899254Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
 {"at":"2026-10-29T20:46:43.2054145Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T20:58:27.9726645Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T21:11:57.9859192Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T21:20:04.5918920Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T21:30:09.9617333Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T21:43:19.6767972Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T21:57:29.9589901Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T22:03:35.1647677Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T22:05:59.6386889Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T22:17:03.4089412Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"fail-open-validation"}
+{"at":"2026-10-29T22:27:15.3418471Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T22:34:50.4588320Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-29T22:45:56.8486241Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}

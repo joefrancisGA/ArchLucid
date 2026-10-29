@@ -19,6 +19,7 @@ public static class DeclarationSecurityPropertyKeyResolver
             [
                 "tf.allow_blob_public_access",
                 "tf.allowblobpublicaccess",
+                "tf.allow_nested_items_to_be_public",
                 "allowBlobPublicAccess",
             ],
             [DeclarationSecurityPropertyLogicalNames.HttpsOnly] =
@@ -28,6 +29,8 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "httpsOnly",
                 "tf.supports_https_traffic_only",
                 "tf.supportshttpstrafficonly",
+                "tf.https_traffic_only_enabled",
+                "tf.enable_https_traffic_only",
                 "supportsHttpsTrafficOnly",
             ],
             [DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion] =
@@ -67,6 +70,7 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "defaultAction",
                 "tf.networkacls",
                 "tf.network_acls",
+                "tf.network_rules",
                 "tf.networkrules",
             ],
             [DeclarationSecurityPropertyLogicalNames.K8sPrivileged] =
