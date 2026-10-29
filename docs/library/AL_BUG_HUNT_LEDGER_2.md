@@ -13162,16 +13162,16 @@
 - **code-changed-since:** yes
 
 - **id:** api-authority-admin-controllers
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 73
-- **bugs-found:** 54
+- **hunts:** 415
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — client-error telemetry null context value caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
