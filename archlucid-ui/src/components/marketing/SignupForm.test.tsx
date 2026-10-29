@@ -26,6 +26,7 @@ import {
   type SignupFormValues,
 } from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
+import { registrationScopeHeaders } from "@/lib/registration-session";
 import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
 function fillRequiredFields() {
@@ -156,6 +157,18 @@ describe("SignupForm", () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+
+  it("deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email", () => {
+    const overlongEmail = `${"a".repeat(243)}@example.com`;
+
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: overlongEmail,
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toBe("Enter a work email of at most 254 characters to continue.");
   });
 
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
@@ -1641,6 +1654,65 @@ describe("SignupForm", () => {
     await waitFor(() => {
       expect(showError).toHaveBeenCalledWith("Signup", rawText);
     });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows raw response text when register returns an empty JSON object on error", async () => {
+    vi.mocked(showError).mockClear();
+
+    const response = Response.json({}, { status: 400 });
+    const rawText = await response.clone().text();
+
+    vi.stubGlobal("fetch", vi.fn(async () => response));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", rawText);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when tenantId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: 123,
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
 
     vi.unstubAllGlobals();
   });

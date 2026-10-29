@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-10-29 seed hunt (hit): promoted misleading signup readiness for overlong work email after `.max(254)` on `adminEmail` — `deriveSignupFormReadinessMessage` still returned generic invalid-email copy; now maps schema max message to TB-2010-style guidance; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`. Cheap-disproof closed four sibling `(candidate)` rows — numeric JSON `tenantId` on `201` intentionally omits scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); non-OK empty `{}` uses raw-body contract (`shows raw response text when register returns an empty JSON object on error`); post-`409` rename retry allowed by existing in-flight/`registerCompletedRef` regressions; IDN work emails blocked at zod `.email()` (invalid-email regressions). Reseeded five follow-on `(candidate)` rows. 126 scoped SignupForm vitest tests passed. Private beta: invited evaluation signup now shows the 254-character work-email limit in readiness copy instead of a misleading “valid email” hint.
+
 2026-10-29 thorough hunt (hit): promoted overlong work email accepted client-side — `signupFormSchema` had no maximum on `adminEmail` while other identity fields cap at 200; added `.max(254)` aligned with sign-in email bounds; regression `signupFormSchema rejects admin email longer than 254 characters`. Cheap-disproof closed four sibling `(candidate)` rows — missing `tenantId` on `201` intentional verify path (`persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`); array-root success JSON unreachable API contract (`does not persist top-level tenantId when register response body is a JSON array of objects`); numeric/object `detail` uses raw body contract (`shows raw response text when register returns numeric JSON detail`, existing array-detail test); fixed `409` toast by design (`shows fixed duplicate organization toast when register returns 409 with HTML body`). Reseeded five follow-on `(candidate)` rows. 123 scoped SignupForm vitest tests passed. Private beta: evaluation signup no longer posts RFC-overlong work emails that fail only after a server round trip.
 
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; regressions `shows synthetic message when HTTP 502 register response body is empty`, `shows raw response text when ProblemDetails JSON omits string detail`, `still posts register when first-touch cookie has only capturedUtc without UTM fields`, and `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`; reaffirmed array-root `201` navigation via `still navigates after 201 when register response body is a JSON array`; seeded five follow-on `(candidate)` rows; 119 scoped SignupForm vitest tests passed; no production code changed.
@@ -11,11 +13,16 @@
 - [x] (invalid) `SignupForm` `onSubmit` — array-shaped success JSON omits top-level `tenantId` — **cheap-disproof 2026-10-29 thorough hunt:** unreachable API object shape; regression `does not persist top-level tenantId when register response body is a JSON array of objects`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric or object `detail` on errors — **cheap-disproof 2026-10-29 thorough hunt:** explicit raw-text contract; regressions `shows raw response text when server detail is not a string` and `shows raw response text when register returns numeric JSON detail`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` with HTML body skips server detail — **cheap-disproof 2026-10-29 thorough hunt:** fixed duplicate-org toast by design; regression `shows fixed duplicate organization toast when register returns 409 with HTML body`.
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `tenantId` as JSON number still spreads into session storage — locus: session merge ~187–194; input: `{ tenantId: 123 }` (monitor scope header typing).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — overlong work email surfaces generic readiness instead of max-length copy — locus: readiness switch; input: 255-char email after schema max (monitor TB-2010 copy).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-OK empty JSON `{}` shows status-only toast — locus: detail fallback; input: `400` with `{}` body (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — success after `409` retry in same session blocked by `registerCompletedRef` — locus: success latch; input: duplicate name then rename flow (monitor).
-- [ ] (candidate) `signupFormSchema` — internationalized domain work emails pass zod `.email()` but fail downstream — locus: punycode; input: IDN local-part (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with `tenantId` as JSON number still spreads into session storage — **cheap-disproof 2026-10-29 seed hunt:** numeric ids stored but `registrationScopeHeaders` requires string tenant id; regression `does not emit registration scope headers when tenantId is stored as a JSON number`.
+- [x] (proven) `deriveSignupFormReadinessMessage` — overlong work email surfaces generic readiness instead of max-length copy — **hit 2026-10-29 seed hunt:** readiness maps `.max(254)` schema message; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK empty JSON `{}` shows status-only toast — **cheap-disproof 2026-10-29 seed hunt:** raw response text contract; regression `shows raw response text when register returns an empty JSON object on error`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — success after `409` retry in same session blocked by `registerCompletedRef` — **cheap-disproof 2026-10-29 seed hunt:** retry allowed after non-ok; regressions `still allows register retry after duplicate organization conflict` and `allows register retry after a non-ok register response`.
+- [x] (valid-no-repro) `signupFormSchema` — internationalized domain work emails pass zod `.email()` but fail downstream — **cheap-disproof 2026-10-29 seed hunt:** zod rejects IDN before submit; inline invalid-email regressions.
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultWorkspaceId` omits registration scope headers — locus: `registrationScopeHeaders` string gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: 1 }` (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `503` with empty body surfaces generic status-only toast — locus: detail fallback; input: `503` with zero-length body (monitor).
+- [ ] (candidate) `SignupForm` — repeated Enter key while `Creating…` disabled fires a second register POST — locus: in-flight gate + keyboard submit; input: double Enter before `submitting` flips (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — verify redirect double-encodes `%` in work-email local part — locus: `encodeURIComponent` on trimmed email; input: `ops%25@example.com` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — whitespace-only organization name after trim surfaces generic required-field copy — locus: readiness trim branch; input: `"   "` org name with valid email (monitor TB-2010).
 
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five fresh promotion attempts (work-email bidi/Cf blocked by zod `.email()`; post-success navigation throw intentionally leaves `Creating…` latched; funnel telemetry ordered before `router.push`; non-string JSON `detail` on registration errors matches ProblemDetails string contract; `NaN`/`Infinity` optional team size blocked by schema). Seeded five follow-on `(candidate)` rows; 115 scoped SignupForm vitest tests passed; no production or test code changed.
 
@@ -213,11 +220,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 60
-- **bugs-found:** 13
+- **hunts:** 61
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — signup work email over 254 characters accepted client-side
+- **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 

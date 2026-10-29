@@ -137,6 +137,10 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
 
   switch (issuePath) {
     case "adminEmail":
+      if (issueMessage === "Work email must be at most 254 characters.") {
+        return "Enter a work email of at most 254 characters to continue.";
+      }
+
       return "Enter a valid work email to continue.";
     case "adminDisplayName":
       if (issueMessage === "Full name contains unsupported characters.") {
