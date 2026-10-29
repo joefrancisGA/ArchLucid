@@ -16811,6 +16811,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-29 seed hunt (seed→hit): promoted `TradeoffRequirementConflictDetector.ContainsHighAvailabilityTarget` parsing `99.5%` with the current culture, so a host that treats '.' as a group separator counted 99.5% availability as a strict reliability conflict; parse with `CultureInfo.InvariantCulture`; regression `DetectConflict_does_not_treat_99_5_percent_availability_as_strict_when_dot_is_group_separator`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1374/1393** passed (`RunAnalyzers=false`, 19 pre-existing failures). Private beta: when an invited operator records a 99.5% availability requirement and accepts a reliability tradeoff, that requirement stays below the 99.9% strict bar instead of being flagged as a conflict on hosts whose number format uses '.' as a thousands separator.
+
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-26 hit follow-ons (`non-vpn` delimiter negation, `internetworking` vs `network` prefix, duplicate invulnerability row, `private link optional` affirmation, serverless/non-network theme parity); seeded five mechanism-backed `(candidate)` rows below; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1,345/1,359** passed (`RunAnalyzers=false`, 14 unrelated baseline failures); no production code changed.
 
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` before split affirms `vpn` — **cheap-disproof 2026-10-27 seed hunt:** delimiter split yields `non` then `vpn`; `IsNegatedDelimiterPart` skips negated keyword parts (same shape as `No VPN` hit).
@@ -16861,11 +16863,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 55
-- **bugs-found:** 45
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-26 — non-network constraint false network-isolation theme
+- **hunts:** 56
+- **bugs-found:** 46
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — 99.5% availability parsed with current culture as a strict reliability conflict
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16972,6 +16974,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `TradeoffRequirementConflictDetector.ContainsHighAvailabilityTarget` — `99.5%` availability parsed with the current culture, so a group-separator '.' counted it as at least 99.9 and flagged a reliability tradeoff conflict — **hit 2026-10-29 seed hunt:** `double.TryParse` with `CultureInfo.InvariantCulture`; regression `DetectConflict_does_not_treat_99_5_percent_availability_as_strict_when_dot_is_group_separator`.
 
 - [x] (valid-no-repro) Merge keeps conflicting findings from two agents without deduplication — `FindingSnapshotConfluentMerger` dedupes payload-equal partitions and emits `finding-merge-conflict` for payload-unequal keys; `FindingsOrchestratorTests.GenerateFindingsSnapshotAsync_payload_conflict_is_confluent`.
 - [x] (proven) Advisory alert fires for a finding outside the run scope — **hit 2026-08-18:** `AlertEvaluator` / `AlertMetricSnapshotBuilder` did not filter `RecommendationRecords` by `context.RunId`.
