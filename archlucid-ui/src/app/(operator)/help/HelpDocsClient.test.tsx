@@ -518,6 +518,125 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("filters external documentation when the query matches a query param on the vendor url", async () => {
+    const data = [
+      {
+        title: "External with query",
+        summary: "Vendor documentation that requires a version query param.",
+        category: "API",
+        url: "https://example.com/docs/alpha?version=2024",
+      },
+      {
+        title: "Other external",
+        summary: "Unrelated vendor link.",
+        category: "API",
+        url: "https://example.com/docs/beta",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External with query" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Other external" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "version=2024" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "External with query" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Other external" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("renders the base external url when doc-index lists a hash variant before the https row", async () => {
+    const data = [
+      {
+        title: "External alpha (anchor first)",
+        summary: "Scheme-relative hash variant listed before https base.",
+        category: "API",
+        url: "//example.com/docs/alpha#intro",
+      },
+      {
+        title: "External alpha",
+        summary: "Https base vendor path.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha (anchor first)" })).toHaveAttribute(
+      "href",
+      "//example.com/docs/alpha#intro",
+    );
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("renders fetched external doc links when only a hash fragment differs on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "Vendor documentation base path.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (in-page anchor)",
+        summary: "Same vendor path with hash fragment in doc-index.",
+        category: "API",
+        url: "https://example.com/docs/alpha#intro",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    const anchorLink = await screen.findByRole("link", { name: "External alpha (in-page anchor)" });
+
+    expect(anchorLink).toHaveAttribute("href", "https://example.com/docs/alpha#intro");
+    expect(anchorLink).toHaveAttribute("target", "_blank");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {
@@ -679,6 +798,26 @@ describe("HelpDocsClient", () => {
     renderWithOperatorQuery(<HelpDocsClient />);
 
     expect(await screen.findByRole("searchbox")).toHaveValue("security");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("trims inbound q URL parameter when initializing the search box", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=%20policy%20");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("searchbox")).toHaveValue("policy");
 
     vi.unstubAllGlobals();
   });

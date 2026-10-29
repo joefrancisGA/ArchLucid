@@ -1495,14 +1495,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` merge-order gap — when doc-index listed an external hash or scheme-relative `#` variant before the https base row, the base link was dropped because normalized-path dedupe fired without checking for an already-merged deep-link variant; `mergedIncludesDeepLinkVariantForKey` now keeps the base outbound row; regression `renders the base external url when doc-index lists a hash variant before the https row`. Cheap-disproof closed scheme-relative/hash suffix parse parity (same `docIndexFetchedUrlHasDeepLinkSuffix` URL parse as prior external hash hit); HelpProductGuide debounce (outside zone `paths`); bare `#` fragment guard (`parsed.hash.length > 0`); category order flash (display-only sort); empty index warning (intentional static fallback). 58 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: help hub vendor links stay complete regardless of doc-index row order when both anchor and base urls are present.
+
+- [x] (proven) `docIndexMergeDedupeKey` / `mergeDocIndex` — hash variant before https base dropped base row — **hit 2026-10-29 thorough hunt:** `mergedIncludesDeepLinkVariantForKey`; regression above.
+- [x] (invalid) `HelpProductGuide` — topic search debounce pathname compare — **cheap-disproof 2026-10-29 thorough hunt:** locus outside zone `paths` (`HelpDocsClient.tsx` only).
+- [x] (valid-no-repro) `mergeDocIndex` — bare `#` on external url — **cheap-disproof 2026-10-29 thorough hunt:** empty hash fails `parsed.hash.length > 0`; generator unlikely to emit.
+- [x] (valid-no-repro) `helpDocCategoriesForDisplay` — unknown category order flash on filter clear — **cheap-disproof 2026-10-29 thorough hunt:** stable sort; empty sections not rendered.
+- [x] (valid-no-repro) `useHelpDocsIndexQuery` — empty index warning without refetch hint — **cheap-disproof 2026-10-29 thorough hunt:** static quick links intentional fallback; warning copy documents empty response.
+
+- [ ] (candidate) `mergeDocIndex` — two external hash variants on same merge key both render but share one claimed key — locus: claimedUrls set; input: `#intro` and `#advanced` on same vendor path (monitor duplicate anchor rows).
+- [ ] (candidate) `helpDocLinkHref` — scheme-relative urls without explicit https still omit noreferrer when url has leading tab — locus: linkProps trim; input: `\t//example.com/doc` (monitor whitespace classification).
+- [ ] (candidate) `HelpDocsClient` — filter haystack omits percent-encoded query tokens when raw url uses uppercase hex — locus: decodeDocIndexPathForDedupe; input: search `%2F` token on encoded path row.
+- [ ] (candidate) `mergeDocIndex` — static quick link claims merge key preventing fetched external vendor row with same pathname — locus: static `claimedUrls` seed; input: static `/help/troubleshooting` vs fetched external (invalid reachability monitor).
+- [ ] (candidate) `indexQuery.isPending` — active filter hides fetched-only matches until load completes then does not re-filter — locus: entries null branch; input: mount with `q=` matching fetched-only title (regression exists for post-load).
+
+2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows whose url differed only by a `#` fragment were dropped when the base vendor url was already merged because external urls always returned `false` for deep-link suffix; external hash fragments now bypass normalized-path dedupe (query-only duplicates still collapse); regression `renders fetched external doc links when only a hash fragment differs on the same https url`. Cheap-disproof closed parse/read trim monitor candidate (`parseHelpHubSearchQuery` trim shipped prior hunt); debounced `window.location` compare (`replaceIfHrefChanged` pattern documented, existing param-order tests); trailing-slash filter token (`filters entries when the search query ends with a trailing slash on the url path token`); Escape vs debounce (`clears the search box when Escape is pressed` + effect cleanup). 57 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: vendor documentation entries in the help hub can surface separate in-page anchor links without losing the base outbound url row.
+
+- [x] (proven) `mergeDocIndex` — fetched external https row with only `#` deduped against base vendor url — **hit 2026-10-29 thorough hunt:** hash-aware `docIndexFetchedUrlHasDeepLinkSuffix`; regression above.
+- [x] (invalid) `helpHubSearchHrefFromSearch` — read/write trim mismatch for padded `q` — **cheap-disproof 2026-10-29 thorough hunt:** closed by prior `parseHelpHubSearchQuery` trim hit.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location` vs `usePathname` href compare — **cheap-disproof 2026-10-29 thorough hunt:** canonical help path; at most one replace; monitor `replaceIfHrefChanged` for future refactor.
+- [x] (valid-no-repro) `normalizeHelpHubFilterQuery` — trailing slash strip hides path matches — **cheap-disproof 2026-10-29 thorough hunt:** regression `filters entries when the search query ends with a trailing slash on the url path token`.
+- [x] (valid-no-repro) `HelpDocsClient.clearSearch` — debounced timer rewrites cleared q — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `query` change; regression `clears the search box when Escape is pressed`.
+
+2026-10-29 thorough hunt (hit): promoted `parseHelpHubSearchQuery` — padded `?q=` deep links showed leading/trailing spaces in the search box while `normalizeHelpHubFilterQuery` trimmed for filtering, so shared help links looked broken until the operator edited the field; parse now trims inbound `q` to match debounced URL sync; regressions `trims inbound q URL parameter when initializing the search box` and `help-hub-search-url.test.ts`. Cheap-disproof closed scheme-relative href vs merge dedupe (`preserves query strings on external documentation link href` + `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`); debounced pathname equality (`preserves non-q URL parameters when debounced search sync updates q`, `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged`); static hash vs fetched deep link (`renders fetched doc-index deep links when only a hash fragment differs`); external url query filter (`filters external documentation when the query matches a query param on the vendor url` — haystack includes raw `e.url`). 56 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: operators opening help hub links with padded search params see the same filter text the hub applies immediately.
+
+- [x] (proven) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses trim — **hit 2026-10-29 thorough hunt:** `parseHelpHubSearchQuery` trims; regressions above.
+- [x] (invalid) `helpDocLinkHref` — scheme-relative external urls normalized for href differently from https duplicate merge key — **cheap-disproof 2026-10-29 thorough hunt:** href preserves raw url; merge key normalization is dedupe-only by design.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location.pathname`+`search` equality misses href built with different param ordering — **cheap-disproof 2026-10-29 thorough hunt:** at most one canonicalizing replace; unrelated param tests above.
+- [x] (valid-no-repro) `mergeDocIndex` — static row url with hash suffix prevents fetched deep link on same path without hash — **cheap-disproof 2026-10-29 thorough hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` allows fetched `#`/`?` variants; regression `renders fetched doc-index deep links when only a hash fragment differs`.
+- [x] (valid-no-repro) `normalizeDocIndexUrlForDedupe` — filter haystack deduped url token misses external url query search — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw `e.url`; regression `filters external documentation when the query matches a query param on the vendor url`.
+
 2026-10-29 seed hunt (seed→hit): re-read `HelpDocsClient`, merge/dedupe helpers, and help index query hook after set-3 CLI churn; promoted `helpDocLinkHref` — external https doc-index rows routed through `normalizeDocIndexUrlForDedupe`, stripping query/hash on `Link` href while internal relative urls already preserved suffixes; external href now uses trimmed raw url (merge dedupe unchanged); regression `preserves query strings on external documentation link href`; cheap-disproof closed stale duplicate ledger `(candidate)` rows (deep-link merge, refetchOnMount, double-space filter covered by prior regressions); seeded five follow-on `(candidate)` rows below; 53 scoped `HelpDocsClient` vitest passed. Private beta: operators opening vendor documentation links from the help hub land on the intended versioned or tracked URL.
 
 - [x] (proven) `helpDocLinkHref` — external https doc-index urls stripped query/hash on navigation href — **hit 2026-10-29 seed hunt (seed→hit):** return trimmed url for all schemes; regression above.
-- [ ] (candidate) `helpDocLinkHref` — scheme-relative external urls (`//host/path?q=1`) still normalized for href differently from https duplicate merge key — locus: external branch vs `docIndexMergeDedupeKey`; input: scheme-relative row with query suffix.
-- [ ] (candidate) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses `normalizeHelpHubFilterQuery` trim — locus: url sync vs filter haystack; input: deep link `?q=%20policy%20`.
-- [ ] (candidate) `HelpDocsClient` debounced search sync — `window.location.pathname`+`search` equality misses href built with different param ordering — locus: 250ms debounce effect; input: help hub with unrelated search params plus `q`.
-- [ ] (candidate) `mergeDocIndex` — static row url with hash suffix prevents fetched deep link on same path without hash — locus: `docIndexFetchedUrlHasDeepLinkSuffix` guard; input: static `/help/topic` vs fetched `/help/topic#section`.
-- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — filter haystack uses deduped url token so searching for query substring on external url misses rows whose href still carries query — locus: filtered haystack `${normalizedUrl}`; input: search `version=2024` on external doc row.
 
 - **id:** ui-help-docs
 - **status:** open
@@ -1510,11 +1535,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 34
-- **bugs-found:** 19
+- **hunts:** 36
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — external help doc link href stripped query/hash
+- **last-bug:** 2026-10-29 — external https doc-index hash fragments dropped on merge
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1935,14 +1960,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-29 thorough hunt (hit): promoted inbound `runId` drop after canonical hydration — removing `runId` while keeping `contextRunId` aligned to the canonical active scope incorrectly wiped hydrated description/priorities because intake reset keyed only on `contextRunId !== previousInbound`; `shouldClearIntakeWhenInboundRunIdDropped` now treats matching `activeRunId` as same scope; regressions `architecture-intelligence-page-helpers.test.ts` and `keeps hydrated intake when inbound runId is removed but contextRunId matches canonical scope`. Cheap-disproof closed invalid-tier reasoning without opening depth select (`reviewTier` state defaults Standard and invalid `tier` is stripped before POST); continue POST with scope switch mid-interview (`actionGenerationRef` stale guard + continue path uses current `activeRunId`). 7 scoped unit tests passed locally; page-client integration on CI. Private beta: operators who drop `runId` from architecture intelligence URLs after canonical scope sync keep hydrated intake instead of an empty form.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` removed while `contextRunId` matches canonical active scope after hydration — **hit 2026-10-29 thorough hunt:** `shouldClearIntakeWhenInboundRunIdDropped`; helper + page-client regressions above.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — analysis depth select shows Standard while URL still carries bogus `tier` until operator opens select — **cheap-disproof 2026-10-29 thorough hunt:** invalid tier strip effect + `reviewTier` state; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST uses stale run id after scope switch mid-interview — **cheap-disproof 2026-10-29 thorough hunt:** `invalidateInFlightActions` on context switch; regressions `clears reasoning results when contextRunId switches` and `keeps contextRunId scope banner when continue response omits runId`.
+
+- [ ] (candidate) `useArchitectureIntelligenceProductContext` — `clearedInboundContextConflictRef` never resets when inbound `runId` changes without remount — locus: conflict strip ref ~296–305; input: navigate A|B conflict then replace inbound id in-place (monitor one-shot strip).
+- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning response `runId` overwrites `contextRunId`-only URL scope with a third id — locus: `setActiveRunId` after run POST ~99–103; input: freeform `contextRunId` scope then run returns different `runId` (monitor banner vs URL sync).
+- [ ] (candidate) `useArchitectureIntelligenceProductContext.retryProductContextLoad` — reload nonce replays hydration while operator edited description mid-load — locus: `productContextReloadNonce` + hydration effect ~335–386; input: edit textarea during failed-then-retry product context fetch.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — golden fixture load after invalid `tier` strip reintroduces bogus tier in share link — locus: fixture action vs tier strip ref; input: `tier=Typo` deep link then load golden fixture without changing depth select.
+- [ ] (candidate) `useArchitectureIntelligenceProductContext.onSelectReview` — picking a review while `contextRunId`-only scope leaves interview answers from prior freeform run — locus: `onSelectReview` + `setInterviewAnswers`; input: reasoning interview answers then pick-review strip selection without clearing answers.
+
+2026-10-29 thorough hunt (hit): promoted conflicting `runId`/`contextRunId` deep links — when both search params disagreed, `contextRunId` scope could override inbound product hydration and leave a stale scope param in the URL; inbound `runId` is now authoritative, stale `contextRunId` is stripped via `router.replace`, and the `contextRunId` effect skips conflicting values; regression `strips stale contextRunId from the URL when inbound runId disagrees` supported by `architecture-intelligence-url-sync.test.ts` (contextRunId clear href helper). Promoted invalid `tier` query values — UI defaulted analysis depth to Standard while the URL kept a bogus `tier=` token until the operator changed depth; invalid tiers are now stripped from the URL once; regressions `removes invalid tier search param from the URL while defaulting analysis depth` (page client) and tier helper unit tests in `architecture-intelligence-url-sync.test.ts`. Cheap-disproof closed reasoning POST proxy-scope candidate — `postJson` always merges operator scope headers and `buildRequest` includes `activeRunId` from `contextRunId` scope; extended `keeps contextRunId scope banner when reasoning response omits runId` to assert request body `runId`. 4 URL-sync unit tests verified locally; full ArchitectureIntelligence page-client suite on CI. Private beta: architecture intelligence deep links no longer disagree between inbound review scope, URL params, and analysis depth after manual URL edits.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — **hit 2026-10-29 thorough hunt:** inbound `runId` wins; stale `contextRunId` removed from URL; conflicting context effect skipped.
+- [x] (proven) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — **hit 2026-10-29 thorough hunt:** strip invalid `tier` search param; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
+- [x] (invalid) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — **cheap-disproof 2026-10-29 thorough hunt:** `mergeRegistrationScopeForProxy` on every POST; body includes `runId`; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed three mis-seeded `(candidate)` rows — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection` are review-detail loci under `archlucid-ui/src/app/(operator)/architecture/reviews/`, outside this zone's `paths` (`ArchitectureIntelligencePageClient` tree); no `readWindowLocationSearch` write locus exists under `architecture-intelligence/_sections`. Re-read product-context and page-client URL scope boundaries; 58 scoped ArchitectureIntelligence page-client tests passed. Reseeded three zone-local `(candidate)` rows below. Operator-route disclosure URL candidates remain queued under `ui-operator-routes`.
 
 - [x] (invalid) `RunDetailSubmittedArchitectureSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
 - [x] (invalid) `RunDetailAuthorityChainSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
 - [x] (invalid) `FindingInspectWhyMattersSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — locus: scope resolution between URL params and hydration; input: both params set to different ids then product context hydrates.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — locus: analysis depth select vs tier param parse; input: deep link with unknown tier value then change depth.
-- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — locus: buildRequest runId vs proxy scope headers; input: contextRunId-only scope then run reasoning.
 
 2026-10-29 thorough hunt (hit): promoted `useArchitectureIntelligenceProductContext` hydration — when product source-context returns a canonical `runId` different from the inbound `runId` search param, hydration updated local scope only and left a stale `contextRunId`/scope URL; hydration now calls `setActiveRunIdWithUrl` only when API and inbound ids differ; regression `syncs contextRunId in the URL when product source context returns a canonical run id`; `onSelectReview` clears stale `contextRunId` when writing `runId`; 58 scoped ArchitectureIntelligence page-client tests passed. Cheap-disproof closed analyze-always-publish (intentional analyze path), failure-panel scope banner (documented recovery contract), publish stale guard (existing `actionGenerationRef`), and pick-review strip unreachable with stale `contextRunId` (strip hidden when scope already set). Private beta: architecture intelligence deep links keep URL scope aligned with canonical product run ids after intake hydration.
 
@@ -1971,11 +2011,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 43
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
+- **hunts:** 45
+- **bugs-found:** 32
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — canonical product run id did not sync architecture intelligence scope URL after hydration
+- **last-bug:** 2026-10-29 — inbound runId drop cleared canonical-scoped intake
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

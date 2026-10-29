@@ -1861,3 +1861,8 @@
 {"at":"2026-10-29T19:35:05.3007116Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:40:34.8976429Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:43:15.2853561Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-29T21:02:38.9544756Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T21:07:37.4442925Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T21:09:31.2531336Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T21:10:47.0149185Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T21:12:11.9111836Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}

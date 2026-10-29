@@ -25,7 +25,7 @@ import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-archi
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
-import { architectureIntelligenceErrorToLoadFailure } from "./architecture-intelligence-page-helpers";
+import { architectureIntelligenceErrorToLoadFailure, shouldClearIntakeWhenInboundRunIdDropped } from "./architecture-intelligence-page-helpers";
 import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import type {
   ClosedLoopReasoningSourceText,
@@ -104,6 +104,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const previousUrlContextRunIdRef = useRef("");
   const previousInboundRunIdForScopeRef = useRef(inboundRunId);
   const actionGenerationRef = useRef(0);
+  const strippedInvalidTierRef = useRef<string | null>(null);
+  const clearedInboundContextConflictRef = useRef<string | null>(null);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
   }, []);
@@ -181,14 +183,24 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     previousUrlContextRunIdRef.current = urlContextRunId;
     previousInboundRunIdForScopeRef.current = inboundRunId;
 
+    if (
+      inboundRunId.length > 0 &&
+      urlContextRunId.length > 0 &&
+      urlContextRunId !== inboundRunId
+    ) {
+      return;
+    }
+
     if (urlContextRunId.length === 0) {
       return;
     }
 
-    const droppedInboundToDifferentContext =
-      previousInbound.length > 0 &&
-      inboundRunId.length === 0 &&
-      urlContextRunId !== previousInbound;
+    const droppedInboundToDifferentContext = shouldClearIntakeWhenInboundRunIdDropped(
+      previousInbound,
+      inboundRunId,
+      urlContextRunId,
+      activeRunId,
+    );
 
     const changedContextOnlyScope =
       inboundRunId.length === 0 &&
@@ -222,7 +234,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     setActiveRunId(urlContextRunId);
-  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
+  }, [urlContextRunId, inboundRunId, activeRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
@@ -280,6 +292,20 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return;
     }
 
+    if (urlContextRunId.length > 0 && urlContextRunId !== inboundRunId) {
+      const conflictKey = `${inboundRunId}|${urlContextRunId}`;
+
+      if (clearedInboundContextConflictRef.current !== conflictKey) {
+        clearedInboundContextConflictRef.current = conflictKey;
+        router.replace(
+          architectureIntelligenceContextRunHrefFromSearch(searchParams.toString(), null, pathname),
+          { scroll: false },
+        );
+      }
+    } else {
+      clearedInboundContextConflictRef.current = null;
+    }
+
     invalidateInFlightActions();
     setRunState(null);
     setInterviewAnswers({});
@@ -287,7 +313,26 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     setError(null);
     setPublishToProduct(false);
     setReviewTier(urlReviewTier ?? "Standard");
-  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier]);
+  }, [inboundRunId, invalidateInFlightActions, productContextReloadNonce, urlReviewTier, urlContextRunId, pathname, router, searchParams]);
+
+  useEffect(() => {
+    const rawTier = searchParams.get("tier")?.trim() ?? "";
+
+    if (rawTier.length === 0 || urlReviewTier !== null) {
+      strippedInvalidTierRef.current = null;
+
+      return;
+    }
+
+    if (strippedInvalidTierRef.current === rawTier) {
+      return;
+    }
+
+    strippedInvalidTierRef.current = rawTier;
+    router.replace(architectureIntelligenceTierHrefFromSearch(searchParams.toString(), null, pathname), {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams, urlReviewTier]);
 
   useEffect(() => {
     if (inboundRunId.length === 0 || sourceContextQuery.data === undefined) {
