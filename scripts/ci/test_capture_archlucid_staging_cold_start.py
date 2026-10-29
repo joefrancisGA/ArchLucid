@@ -114,8 +114,11 @@ class StagingColdStartEvidenceTests(unittest.TestCase):
         self.assertIn(marker, manual)
         self.assertLess(merge.index(marker), merge.index("      - name: Smoke — product path"))
         self.assertLess(manual.index(marker), manual.index("      # Export the UI FQDN"))
-        self.assertIn("staging-cold-start-status:", merge)
-        self.assertIn("if: always()", merge)
+        absence = (root / ".github/workflows/archlucid-staging-unmeasured.yml").read_text()
+        self.assertIn("workflow_run:", absence)
+        self.assertIn("CD staging on merge", absence)
+        self.assertIn("--skip-reason", absence)
+        self.assertNotIn("staging-cold-start-status:", merge)
         self.assertIn("github.event.inputs.target == 'staging'", manual)
 
     def test_api_emits_attributed_startup_phase_events(self):
