@@ -35,8 +35,12 @@ public sealed class TenantMigrationStatusService(
         return new TenantMigrationStatusSnapshot
         {
             InMigration = true,
-            Message = active.MaintenanceMessage,
-            CorrelationId = active.CorrelationId,
+            Message = string.IsNullOrWhiteSpace(active.MaintenanceMessage)
+                ? null
+                : active.MaintenanceMessage.Trim(),
+            CorrelationId = string.IsNullOrWhiteSpace(active.CorrelationId)
+                ? null
+                : active.CorrelationId.Trim(),
             Stage = active.Stage.ToString(),
             MigrationId = active.MigrationId,
             LastVerificationError = string.IsNullOrWhiteSpace(active.LastVerificationError)

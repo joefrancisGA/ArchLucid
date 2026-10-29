@@ -15848,6 +15848,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #142): promoted `(candidate)` whitespace-only migration maintenance message on `TenantMigrationStatusService.GetForTenantAsync`; corrupt rows could expose blank `Message` while `InMigration` true; coalesce whitespace maintenance/correlation fields to null and trim non-blank; regression `GetForTenantAsync_treats_whitespace_only_maintenance_message_as_null`; scoped filter 298/298 passed (`RunAnalyzers=false`). Private beta: catalog migration status API no longer returns whitespace-only maintenance copy that looks like a missing operator banner.
+
+- [x] (proven) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `MaintenanceMessage` — **hit 2026-10-29 seed hunt #142:** trim/coalesce message and correlation id; regression above.
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `TargetCatalogVersion` — **cheap-disproof 2026-10-29 seed hunt #142:** snapshot has no target catalog field; candidate stale.
+- [x] (invalid) `TenantSlugNormalizer.FromName` — interior double-hyphen — **cheap-disproof 2026-10-29 seed hunt #142:** consecutive separators collapse to single hyphen by design (`a--b` → `a-b`); existing `FromName_produces_expected_slug` coverage.
+- [x] (invalid) `TrialLimitGate.GuardWriteAsync` — offboarded export-only bypass — **cheap-disproof 2026-10-29 seed hunt #142:** erasure quarantine middleware blocks tenant APIs before trial gate on pilot path; post-active phases already throw `LifecycleWritesFrozen`.
+
 2026-10-29 seed hunt (seed→hit #141): promoted `(candidate)` bare `"duplicate"` substring on `TenantOrganizationDuplicateDetector`; unrelated infrastructure errors (e.g. duplicate request id) could classify as duplicate organization; require `duplicate key`/`duplicate entry` or organization context for other duplicate text (`IX_`/SQL/`already exists` gates unchanged); regression `IsDuplicateOrganization_does_not_match_unrelated_duplicate_phrase`; scoped filter 297/297 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer mis-reports unrelated gateway or infrastructure duplicate wording as organization-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `duplicate` substring false positive — **hit 2026-10-29 seed hunt #141:** `ContainsDuplicateOrganizationText`; regression above.
