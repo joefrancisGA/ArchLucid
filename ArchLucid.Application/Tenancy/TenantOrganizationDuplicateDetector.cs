@@ -279,7 +279,8 @@ public static class TenantOrganizationDuplicateDetector
             return TryReadSqlClauseWordStart(text, afterUniqueIndex, out int afterIndexWord)
                 && TryMatchSqlClauseKeyword(text, afterIndexWord, "on", out int afterOn)
                 && TryReadSqlClauseWordStart(text, afterOn, out int onTarget)
-                && TryMatchSqlClauseKeyword(text, onTarget, "slug", out _);
+                && TryMatchSqlClauseKeyword(text, onTarget, "slug", out int afterSlug)
+                && IsSqlClauseTerminal(text, afterSlug);
         }
 
         if (TryMatchSqlClauseKeyword(text, followStart, "constraint", out int afterUniqueConstraint))
@@ -318,7 +319,10 @@ public static class TenantOrganizationDuplicateDetector
         while (index < text.Length && char.IsWhiteSpace(text[index]))
             index++;
 
-        return index >= text.Length;
+        if (index >= text.Length)
+            return true;
+
+        return text[index] is '.' or ';' or ')' or ',';
     }
 
     private static bool TryReadSqlClauseWordStart(string text, int start, out int wordStart)
