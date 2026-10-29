@@ -29,8 +29,12 @@ public static class SecureNowTopologyCardinalityForecast
             if (depth >= maxDepth || !adjacency.TryGetValue(node, out var neighbors))
                 return [];
             // Descending order matches the original LIFO processing order.
-            return neighbors.Distinct(StringComparer.Ordinal)
+            var sorted = neighbors.Distinct(StringComparer.Ordinal)
                 .OrderBy(x => x, StringComparer.Ordinal).ToArray();
+            foreach (string item in sorted)
+                if (string.IsNullOrWhiteSpace(item))
+                    throw new ArgumentException("Neighbor IDs must be nonblank.", nameof(adjacency));
+            return sorted;
         }
 
         foreach (string seed in seeds.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
@@ -48,6 +52,7 @@ public static class SecureNowTopologyCardinalityForecast
                         return new Result(count, traversed, seen.Count, true, "TOPOLOGY_PREFIX_COUNT_TRUNCATED");
                     count++;
                     seen.Add(frame.Node);
+                    traversed += frame.Neighbors.Length;
                 }
                 if (frame.NextIndex >= frame.Neighbors.Length)
                 {
@@ -56,9 +61,6 @@ public static class SecureNowTopologyCardinalityForecast
                 }
                 string next = frame.Neighbors[frame.NextIndex];
                 stack.Push(frame with { NextIndex = frame.NextIndex + 1 });
-                if (string.IsNullOrWhiteSpace(next))
-                    throw new ArgumentException("Neighbor IDs must be nonblank.", nameof(adjacency));
-                traversed++;
                 if (activePath.Contains(next))
                     continue;
                 activePath.Add(next);
