@@ -521,6 +521,13 @@ jobs:
             --revision-json "$REVISION_JSON" \
             --base-url "${SMOKE_TEST_BASE_URL:-}" \
             --output "artifacts/cold-start/staging-cold-start-${GITHUB_RUN_ID}.json"
+          # Best-effort: read only the deployed revision's replica console events,
+          # discard raw logs, and attach validated phase durations to the artifact.
+          python3 scripts/ci/join_archlucid_staging_phase_logs.py \
+            --artifact "artifacts/cold-start/staging-cold-start-${GITHUB_RUN_ID}.json" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --app "$CONTAINER_APP_API_NAME" \
+            --revision "${DEPLOYED_REVISION:-}"
           rm -f "$REVISION_JSON"
           echo "### Staging cold-start probe" >> "$GITHUB_STEP_SUMMARY"
           python3 -c 'import json,sys; a=json.load(open(sys.argv[1])); print("Status:",a["status"],"—",a.get("reason",""))' \

@@ -36,6 +36,9 @@ namespace ArchLucid.Api;
     "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
 {
+    // Stable only inside this process; distinguishes restarted replicas in mixed log streams.
+    private static readonly string ColdStartProcessBootId = Guid.NewGuid().ToString("N");
+
     public static async Task Main(string[] args)
     {
         long processStartupTimestamp = Stopwatch.GetTimestamp();
@@ -277,8 +280,9 @@ public partial class Program
         ILogger logger, string environment, string phase, long start, long end)
     {
         logger.LogInformation(
-            "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
-            DateTimeOffset.UtcNow,
+            "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} RecordedUnixMs={RecordedUnixMs} ProcessBootId={ProcessBootId} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            ColdStartProcessBootId,
             Environment.GetEnvironmentVariable("ARCHLUCID_BUILD_COMMIT_SHA") ?? "unknown",
             phase, Math.Round(Stopwatch.GetElapsedTime(start, end).TotalMilliseconds, 3),
             environment);
