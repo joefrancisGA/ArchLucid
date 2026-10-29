@@ -7743,6 +7743,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows — overlapping `showSampleResult` guarded by `sampleRequestGenerationRef` and single telemetry (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`); blank showcase run ids map to `unknown` and still record viewed (`resolveShowcaseScenarioSlug maps blank run ids to unknown`, `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`); missing artifact section nav click no-ops safely (`does not throw when artifact section is removed before nav click`; buyer body always mounts sections); volatile Quick Scan session id stable per tab when storage throws (`reuses the same volatile session id when localStorage writes fail`; no capacity messaging change by design). Reseeded five follow-on `(candidate)` rows. 20 scoped marketing vitest tests in touched suites passed; no production code changed.
+
 2026-10-11 seed hunt (seed-only): re-read Quick Scan browser/session identity helpers, sample loading and submit lifecycle, showcase telemetry, and the demo artifact body; no fresh row met the same-run hunt-ready bar. Seeded five bounded candidates for whitespace-padded browser identifiers, overlapping sample-result requests, status-transition sample overwrite, duplicate showcase-view telemetry on render-mode changes, and missing optional artifact sections. Three focused artifact-navigation suites passed 6/6; no production or regression code changed.
 
 2026-10-11 seed hunt (seed→hit): `DemoPreviewArtifactNav` selected the active artifact from only the latest `IntersectionObserver` entries, so a later callback containing a less-visible section could override the actually most-visible section. Persisted intersection ratios per section and selected from the full known visibility state; regression `keeps the most visible section active when a later observer callback reports only another section`; three focused artifact-navigation suites passed 6/6.
@@ -7773,10 +7775,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7797,10 +7799,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ShowcasePageTelemetry` — `renderMode` transition records duplicate `showcase_viewed` — **hit 2026-10-15 thorough hunt:** once-per-`runId` ref; regression `records showcase_viewed once per run even when renderMode changes`.
 - [x] (invalid) `DemoPreviewArtifactNav` — nav buttons when optional artifact section absent — **cheap-disproof 2026-10-15 thorough hunt:** buyer `DemoPreviewMarketingBody` always renders the five artifact sections with fixed ids paired to `ARTIFACT_ITEMS`; engineering body omits the nav entirely.
 - [x] (proven) `useQuickScanClient.onSubmit` — in-flight sample could overwrite completed AI analysis — **hit 2026-10-21 thorough hunt lane C:** bump `sampleRequestGenerationRef` when POST starts; regression `does not let a stale sample response overwrite a completed AI analysis`.
-- [ ] (candidate) `QuickScanWorkspaceSection` — capacity-state sample CTA and manual “View sample” can invoke `showSampleResult` twice before the first fetch settles; input: double activation on SampleOnly; wrong outcome: duplicate telemetry or flickering status copy; reachability: workspace section handlers calling `client.showSampleResult`.
-- [ ] (candidate) `recordShowcaseViewed` — empty scenario slug after `resolveShowcaseScenarioSlug` skips all telemetry silently; input: malformed showcase `runId` route segment; wrong outcome: marketing funnel under-reports visits without a failed-state signal; reachability: `ShowcasePageTelemetry` mount on `/showcase/[runId]`.
-- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — click no-ops when target id missing without aria feedback; input: DOM mutation removing a section after mount; wrong outcome: keyboard/screen-reader users get no scroll or focus change; reachability: `scrollToSection` early return when `getElementById` is null.
-- [ ] (candidate) `ensureSessionId` volatile fallback — private-mode `localStorage` throw uses per-tab volatile id without surfacing storage loss to capacity messaging; input: `localStorage.setItem` throws after read; wrong outcome: session identity resets every navigation without operator-visible hint; reachability: `quick-scan-session.ts` catch branch + marketing POST headers.
+- [x] (valid-no-repro) `QuickScanWorkspaceSection` — double sample activation before fetch settles — **cheap-disproof 2026-10-29 thorough hunt:** `sampleRequestGenerationRef` + single telemetry; regression `records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`.
+- [x] (invalid) `recordShowcaseViewed` — empty scenario slug skips telemetry — **cheap-disproof 2026-10-29 thorough hunt:** `resolveShowcaseScenarioSlug` maps blank run ids to `unknown`; regressions `resolveShowcaseScenarioSlug maps blank run ids to unknown` and `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing target without feedback — **cheap-disproof 2026-10-29 thorough hunt:** intentional no-op when section absent; regression `does not throw when artifact section is removed before nav click`.
+- [x] (valid-no-repro) `ensureSessionId` volatile fallback without operator hint — **cheap-disproof 2026-10-29 thorough hunt:** volatile id stable within tab; regression `reuses the same volatile session id when localStorage writes fail`.
+- [ ] (candidate) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — locus: no in-flight dedupe; input: rapid double activation (monitor cost/abuse).
+- [ ] (candidate) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — locus: `resolveShowcaseScenarioSlug` catch branch; input: invalid percent-encoding (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — locus: early return before `setActiveId`; input: DOM removal after observer priming (monitor).
+- [ ] (candidate) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — locus: parallel volatile helpers; input: private mode navigation (monitor).
+- [ ] (candidate) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — locus: blank run id mapping; input: product analytics contract (monitor).
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.

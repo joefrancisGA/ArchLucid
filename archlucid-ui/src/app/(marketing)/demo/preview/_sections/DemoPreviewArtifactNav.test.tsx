@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { DemoPreviewArtifactNav } from "./DemoPreviewArtifactNav";
@@ -67,5 +67,31 @@ describe("DemoPreviewArtifactNav", () => {
       "aria-current",
       "true",
     );
+  });
+
+  it("does not throw when artifact section is removed before nav click", () => {
+    class IntersectionObserverMock {
+      public constructor(_callback: IntersectionObserverCallback) {}
+
+      public observe(): void {}
+
+      public disconnect(): void {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
+    const section = document.createElement("div");
+    section.id = "artifact-sponsor-report";
+    document.body.appendChild(section);
+
+    render(<DemoPreviewArtifactNav />);
+
+    const scrollIntoView = vi.fn();
+    section.scrollIntoView = scrollIntoView;
+    document.body.removeChild(section);
+
+    fireEvent.click(screen.getByTestId("demo-preview-artifact-nav-artifact-sponsor-report"));
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 });

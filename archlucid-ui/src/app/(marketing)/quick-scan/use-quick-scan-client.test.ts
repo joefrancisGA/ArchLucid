@@ -15,6 +15,8 @@ vi.mock("@/lib/quick-scan/quick-scan-telemetry", () => ({
   trackQuickScanSampleViewed: vi.fn(),
 }));
 
+import { trackQuickScanSampleViewed } from "@/lib/quick-scan/quick-scan-telemetry";
+
 vi.mock("@/lib/auth/turnstile-config", () => ({
   isTurnstileBotChallengeConfigured: vi.fn(() => false),
   readTurnstileSiteKey: vi.fn(() => null),
@@ -251,6 +253,46 @@ describe("useQuickScanClient", () => {
     });
 
     expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+  });
+
+  it("records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles", async () => {
+    let resolveSample: ((value: Response) => void) | undefined;
+    const samplePromise = new Promise<Response>((resolve) => {
+      resolveSample = resolve;
+    });
+
+    vi.mocked(trackQuickScanSampleViewed).mockClear();
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        return samplePromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("SampleOnly");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await act(async () => {
+      resolveSample?.({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      } as Response);
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledTimes(1);
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledWith("SampleOnly");
   });
 
   it("does not let a stale sample response overwrite a completed AI analysis", async () => {
