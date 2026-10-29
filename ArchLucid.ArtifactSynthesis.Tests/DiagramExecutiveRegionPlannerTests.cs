@@ -37,6 +37,26 @@ public sealed class DiagramExecutiveRegionPlannerTests
     }
 
     [Fact]
+    public void BuildSingleRegionCaption_appends_unlocated_resource_count()
+    {
+        GraphNode located = new()
+        {
+            NodeId = "vm-1",
+            Properties = new Dictionary<string, string> { ["arm.location"] = "eastus" },
+        };
+        GraphNode unlocated = new() { NodeId = "rollup-1" };
+
+        string? caption = DiagramExecutiveRegionPlanner.BuildSingleRegionCaption(
+            [located, unlocated],
+            [
+                new DiagramNode { SeedNodeId = located.NodeId },
+                new DiagramNode { SeedNodeId = unlocated.NodeId },
+            ]);
+
+        caption.Should().Contain("1 resource(s) had no stored region");
+    }
+
+    [Fact]
     public void BuildSingleRegionCaption_returns_null_when_multiple_regions_exist()
     {
         GraphNode east = new()

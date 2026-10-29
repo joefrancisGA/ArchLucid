@@ -8,6 +8,7 @@ export type DiagramNeighborhood = {
   readonly kind: string | null;
   readonly title: string | null;
   readonly resourceCount: number | null;
+  readonly typeGroupsTotal: number | null;
   readonly memberIds: readonly string[];
   readonly frameIds: readonly string[];
   readonly types: readonly DiagramNeighborhoodType[];
@@ -129,6 +130,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
       kind: element.getAttribute("kind"),
       title: element.getAttribute("title"),
       resourceCount: readNonNegativeInteger(element, "resource-count"),
+      typeGroupsTotal: readNonNegativeInteger(element, "type-groups-total"),
       memberIds: [...element.querySelectorAll(":scope > member")]
         .map((member) => member.getAttribute("id") ?? "")
         .filter(Boolean),

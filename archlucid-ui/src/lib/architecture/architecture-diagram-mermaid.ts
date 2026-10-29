@@ -1,6 +1,8 @@
 import {
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
+  ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
+  formatArchitectureDiagramTextAlternativeOverflowNotice,
   formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -204,7 +206,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
-  const edgeLines = renderedEdges.map((edge) => {
+  const edgeLinesAll = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
@@ -224,6 +226,13 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
+  const cappedNodeLines = nodeLines.slice(0, ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP);
+  const cappedEdgeLines = edgeLinesAll.slice(0, ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP);
+  const overflowNotice = formatArchitectureDiagramTextAlternativeOverflowNotice(
+    Math.max(0, nodeLines.length - cappedNodeLines.length),
+    Math.max(0, edgeLinesAll.length - cappedEdgeLines.length),
+  );
+  const edgeLines = cappedEdgeLines;
 
   const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
   const omittedConnectionLine =
@@ -232,12 +241,13 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
       : null;
 
   return [
-    nodeLines.join("; "),
+    cappedNodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
     danglingEdgeLine,
     omittedConnectionLine,
+    overflowNotice.length > 0 ? overflowNotice : null,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,

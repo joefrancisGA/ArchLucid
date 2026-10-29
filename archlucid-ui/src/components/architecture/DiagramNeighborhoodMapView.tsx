@@ -62,7 +62,10 @@ function renderTile(
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
   const visibleTypes = neighborhood.types.slice(0, 4);
-  const remainingTypeCount = Math.max(0, neighborhood.types.length - visibleTypes.length);
+  const typeGroupsTotal = neighborhood.typeGroupsTotal ?? neighborhood.types.length;
+  const remainingTypeCount = Math.max(0, typeGroupsTotal - visibleTypes.length);
+  const collapsedSingletonTailTitle =
+    neighborhood.title !== null && /^Other resource groups \(\d+\)$/.test(neighborhood.title.trim());
 
   return (
     <button
@@ -84,6 +87,11 @@ function renderTile(
           ? "Resource count was not stored"
           : `${neighborhood.resourceCount} resources`}
       </span>
+      {collapsedSingletonTailTitle ? (
+        <span className="text-[12px] text-[#64748b]">
+          Partial rollup of isolated singleton resource groups — not every member is listed on this card.
+        </span>
+      ) : null}
       {neighborhood.types.length > 0 ? (
         <span className="flex flex-wrap gap-1">
           {visibleTypes.map(renderTypeChip)}
@@ -140,7 +148,7 @@ export function DiagramNeighborhoodMapView(
             </li>
           ))}
           {remainingLinkCount > 0 ? (
-            <li>{`+ ${remainingLinkCount} more links`}</li>
+            <li>{`+ ${remainingLinkCount} more links were stored.`}</li>
           ) : null}
         </ul>
       ) : null}

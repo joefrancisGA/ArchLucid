@@ -6,6 +6,34 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 /// <summary>User-visible captions for IDX-08 collapsed singleton resource-group tails.</summary>
 public static partial class DiagramForestCollapsedSingletonTailLabels
 {
+    public const string CollapsedSingletonTailPartialRollupLine =
+        "Partial rollup of isolated singleton resource groups.";
+
+    public static string? BuildCollapsedSingletonTailInvitationLine(DiagramNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (!node.IsCollapsedResourceGroupTail)
+        {
+            return null;
+        }
+
+        if (!TryParseCollapsedResourceGroupCount(node.Label, out int total))
+        {
+            return "Isolated singleton resource group count was not stored on this card.";
+        }
+
+        int sampleCount = node.CollapsedResourceGroupTailMemberNames.Count;
+
+        if (sampleCount == 0)
+        {
+            return $"Summarizes {total} isolated singleton resource groups.";
+        }
+
+        return
+            $"Sample names for {sampleCount} of {total} isolated singleton resource groups — not the full list.";
+    }
+
     public static string ResolveResourceGroupCaption(DiagramNode node, string fallback)
     {
         ArgumentNullException.ThrowIfNull(node);

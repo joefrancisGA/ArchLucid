@@ -135,7 +135,7 @@ describe("DiagramNeighborhoodMapView", () => {
     }));
     render(<DiagramNeighborhoodMapView map={{ ...map, links }} onOpenNeighborhood={vi.fn()} />);
 
-    expect(screen.getByText("+ 1 more links")).toBeInTheDocument();
+    expect(screen.getByText("+ 1 more links were stored.")).toBeInTheDocument();
   });
 
   it("distinguishes missing counts from stored zero", () => {

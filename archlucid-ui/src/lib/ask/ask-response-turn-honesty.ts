@@ -6,6 +6,19 @@ export const REVIEW_ASK_SOURCES_NOT_STORED_LABEL =
 export const REVIEW_ASK_SOURCES_STORED_EMPTY_LABEL =
   "Ask sources were stored empty on this answer." as const;
 
+export const REVIEW_ASK_FINDING_CITATIONS_NOT_STORED_LABEL =
+  "Finding citations were not stored on this answer." as const;
+export const REVIEW_ASK_FINDING_CITATIONS_STORED_EMPTY_LABEL =
+  "Finding citations were stored empty on this answer." as const;
+export const REVIEW_ASK_DECISION_CITATIONS_NOT_STORED_LABEL =
+  "Decision citations were not stored on this answer." as const;
+export const REVIEW_ASK_DECISION_CITATIONS_STORED_EMPTY_LABEL =
+  "Decision citations were stored empty on this answer." as const;
+export const REVIEW_ASK_ARTIFACT_CITATIONS_NOT_STORED_LABEL =
+  "Artifact citations were not stored on this answer." as const;
+export const REVIEW_ASK_ARTIFACT_CITATIONS_STORED_EMPTY_LABEL =
+  "Artifact citations were stored empty on this answer." as const;
+
 export const FINDING_ASK_SOURCES_NOT_STORED_LABEL =
   "Sources were not stored on this answer." as const;
 export const FINDING_ASK_SOURCES_STORED_EMPTY_LABEL =
@@ -206,6 +219,62 @@ export function formatAskCitationListHonestyLabels(labels: readonly string[]): s
 
 export function reviewAskSourcesHonestyLabel(refs: AskWireCitationRefs): string {
   return formatAskCitationListHonestyLabels(reviewAskCitationListHonestyLabels(refs));
+}
+
+function reviewAskCitationListHonestyLabel(
+  list: readonly string[] | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string | null {
+  if (askWireCitationRefFieldOmitted(list)) {
+    return notStoredLabel;
+  }
+
+  if (citationRefListStoredEmpty(list)) {
+    return storedEmptyLabel;
+  }
+
+  return null;
+}
+
+/** Per-list labels when one citation list was omitted or stored empty while others carry ids. */
+export function reviewAskPerListSourceHonestyLabels(refs: AskWireCitationRefs): readonly string[] {
+  if (askWireCitationRefsOmitted(refs)) {
+    return [];
+  }
+
+  const labels: string[] = [];
+  const findingLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedFindings,
+    REVIEW_ASK_FINDING_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_FINDING_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (findingLabel !== null) {
+    labels.push(findingLabel);
+  }
+
+  const decisionLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedDecisions,
+    REVIEW_ASK_DECISION_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_DECISION_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (decisionLabel !== null) {
+    labels.push(decisionLabel);
+  }
+
+  const artifactLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedArtifacts,
+    REVIEW_ASK_ARTIFACT_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_ARTIFACT_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (artifactLabel !== null) {
+    labels.push(artifactLabel);
+  }
+
+  return labels;
 }
 
 export function findingAskSourcesHonestyLabel(refs: AskWireCitationRefs): string {

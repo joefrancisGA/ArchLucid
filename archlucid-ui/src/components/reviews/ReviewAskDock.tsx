@@ -39,9 +39,8 @@ import {
   askWireCitationRefsOmitted,
   askWireCitationRefsPresentInWire,
   normalizeAskWireAnswerForTurn,
+  reviewAskPerListSourceHonestyLabels,
   reviewAskSourcesHonestyLabel,
-  reviewAskCitationListHonestyLabels,
-  formatAskCitationListHonestyLabels,
   REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL,
   REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
 } from "@/lib/ask/ask-response-turn-honesty";
@@ -405,9 +404,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                       : turn.referencedArtifacts,
                   };
                   const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
-                  const sourcesHonestyLabel = formatAskCitationListHonestyLabels(
-                    reviewAskCitationListHonestyLabels(citationRefs),
-                  );
+                  const sourcesHonestyLabel = reviewAskSourcesHonestyLabel(citationRefs);
+                  const perListSourceHonestyLabels = reviewAskPerListSourceHonestyLabels(citationRefs);
                   const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
@@ -439,9 +437,20 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                       />
                     )}
                     {refsPresentInWire ? (
-                      <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                      <>
+                        {perListSourceHonestyLabels.map((label) => (
+                          <p
+                            key={label}
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="review-ask-dock-sources-per-list"
+                          >
+                            {label}
+                          </p>
+                        ))}
+                        <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                      </>
                     ) : null}
-                    {sourcesHonestyLabel.length > 0 ? (
+                    {!refsPresentInWire && sourcesHonestyLabel.length > 0 ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"
