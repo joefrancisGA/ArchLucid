@@ -1,3 +1,5 @@
+> **Scope:** Internal offline SecureNow synthetic-demo claim checks for engineering reviewers; not real customer evidence or beta release authorization.
+
 # SecureNow synthetic buyer-demo contract (GTM-03)
 
 **Internal offline evidence only — not pilot results, buyer validation, release GO or permission to deploy.**
