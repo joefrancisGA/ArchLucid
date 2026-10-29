@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #172): promoted `Tenants.Slug` embedded substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated table/column names such as `ArchiveTenants.Slug` matched slug context; slug column detection now uses `ContainsTenantsSlugColumnReference` with identifier boundary before `Tenants.Slug`; regression `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_archive_tenants_slug`; scoped filter 336/336 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats archive or compound table slug unique failures as org-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.Slug` substring in compound names — **hit 2026-10-29 seed hunt #172:** boundary-aware slug column token; regression above.
+
 2026-10-29 seed hunt (seed→hit #171): promoted `Tenant slug` prefix and `_NormalizedOrganizationName` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `Tenant slug-line` gateway text and `User_NormalizedOrganizationName` identifiers matched org duplicate gates; slug phrase matching now requires delimiter after `Tenant slug`, and normalized-name context requires `Tenants.NormalizedOrganizationName` or `IX_Tenants_NormalizedOrganizationName` only; regressions `IsDuplicateOrganization_does_not_match_duplicate_text_with_tenant_slug_line_substring` and `IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_identifier_substring`; scoped filter 335/335 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer maps unrelated slug-line or normalized-name identifier duplicate errors to org-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug prefix / `_NormalizedOrganizationName` false positive — **hit 2026-10-29 seed hunt #171:** `ContainsTenantSlugPhrase` + drop loose normalized token; regressions above.
@@ -16040,11 +16044,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 171
-- **bugs-found:** 150
+- **hunts:** 172
+- **bugs-found:** 151
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenant slug prefix false positive
+- **last-bug:** 2026-10-29 — Tenants.Slug compound name false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
