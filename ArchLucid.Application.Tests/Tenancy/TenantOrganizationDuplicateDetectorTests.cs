@@ -79,4 +79,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_duplicate_phrase()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate request id header rejected by upstream gateway."))
+            .Should()
+            .BeFalse();
+    }
 }

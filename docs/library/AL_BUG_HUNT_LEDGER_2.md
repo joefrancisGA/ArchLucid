@@ -15848,6 +15848,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #141): promoted `(candidate)` bare `"duplicate"` substring on `TenantOrganizationDuplicateDetector`; unrelated infrastructure errors (e.g. duplicate request id) could classify as duplicate organization; require `duplicate key`/`duplicate entry` or organization context for other duplicate text (`IX_`/SQL/`already exists` gates unchanged); regression `IsDuplicateOrganization_does_not_match_unrelated_duplicate_phrase`; scoped filter 297/297 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer mis-reports unrelated gateway or infrastructure duplicate wording as organization-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `duplicate` substring false positive — **hit 2026-10-29 seed hunt #141:** `ContainsDuplicateOrganizationText`; regression above.
+- [x] (invalid) `TenantProvisioningService.ProvisionAsync` — nested duplicate text without organization context — **cheap-disproof 2026-10-29 seed hunt #141:** same detector fix; regression covers unrelated duplicate phrase.
+- [x] (invalid) `TenantTrialHttpResults` — null `DaysRemaining` with `TrialExpiresUtc` on whitespace trial status — **cheap-disproof 2026-10-29 seed hunt #141:** `GetTrialStatusAsync` early return when `TrialStatus` blank is intentional non-trial display; no supported JwtBearer pilot write path for corrupt whitespace-active rows.
+
 2026-10-29 seed hunt (seed→hit #140): promoted `(candidate)` padded verification probe error on `RunVerificationAsync`; `TenantCatalogMigrationOrchestrator` now trims failure text before `MarkVerificationResultAsync` (whitespace-only → null); regression `RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message`; scoped filter 296/296 passed (`RunAnalyzers=false`). Private beta: catalog migration verification failures show trimmed operator copy instead of padded whitespace in persisted status.
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded verification error persist — **hit 2026-10-29 seed hunt #140:** `NormalizeVerificationErrorMessage`; regression above.
@@ -15872,10 +15878,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TenantTrialHttpResults` — maps null `DaysRemaining` while still exposing `TrialExpiresUtc` for whitespace trial status rows — locus: trial status DTO assembly; input: legacy tenant row with blank `TrialStatus` and future expiry (reachability: manual SQL; policy cannot compute days without status).
 - [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — locus: lifecycle frozen throws ~49–56 vs offboard middleware; input: authenticated request on offboarded export-only tenant (reachability: erasure middleware ordering — prior valid-no-repro unless new bypass cited).
-- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate organization detector on insert failure may classify nested `duplicate` text from unrelated subsystem — locus: catch filter on `ProvisionAsync`; input: nested exception whose message includes "duplicate" without organization context (reachability: registration under load).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `duplicate` substring matches unrelated error text — locus: message sniff ~29; input: exception message "duplicate request id header" during provision (reachability: generic infrastructure failures).
+- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — active migration with whitespace-only `TargetCatalogVersion` may surface non-null status shell — locus: snapshot assembly; input: row with blank target version after partial start (reachability: migration API read).
+- [ ] (candidate) `TenantSlugNormalizer.Normalize` — preserves interior double-hyphen segments that collapse differently in DNS routing — locus: slug transform; input: signup slug with `--` segment (reachability: self-service registration).
+
+2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `duplicate` substring matches unrelated error text — **hit 2026-10-29 #141** (moved to proven above).
+- [x] (invalid) `TenantProvisioningService.ProvisionAsync` — nested duplicate text — **cheap-disproof 2026-10-29 #141** (detector fix).
+- [x] (invalid) `TenantTrialHttpResults` — null DaysRemaining with expiry on whitespace status — **cheap-disproof 2026-10-29 #141** (intentional early return).
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 290/291 (`RunAnalyzers=false`; 1 pre-existing `TenantMigrationStatusServiceTests` failure on VM). Private beta: n/a.
 
@@ -15893,11 +15904,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 140
-- **bugs-found:** 119
+- **hunts:** 141
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — migration verification error trim on persist
+- **last-bug:** 2026-10-29 — duplicate-organization duplicate substring context gate
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
