@@ -9,8 +9,8 @@ public static class AzureInventoryDataFlowEvidenceCatalog
 {
     private static readonly AzureInventoryDataFlowEvidenceAssociation[] Catalog =
     [
-        Row(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.DeclaredRead, "Reads from"),
-        Row(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.DeclaredWrite, "Writes to"),
+        Row(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.DeclaredRead, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored),
+        Row(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.DeclaredWrite, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored),
         Row(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.Undeclared, InventoryDiagramRelationshipLabelTexts.LinkedServiceConfiguredObservedRunNotStored),
         Row(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, AzureInventoryDataFlowEvidenceFamily.InferredHostname, PathConfidenceBand.Possible, AzureInventoryDataFlowEdgeDirection.Undeclared, "No stored link; hostname or linked-service text was inferred."),
         Row(AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, AzureInventoryDataFlowEvidenceFamily.DeclaredMovement, PathConfidenceBand.Probable, AzureInventoryDataFlowEdgeDirection.DeclaredRead, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored),

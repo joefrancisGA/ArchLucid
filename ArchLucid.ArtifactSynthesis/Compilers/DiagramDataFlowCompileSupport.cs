@@ -91,7 +91,16 @@ internal static class DiagramDataFlowCaptionBuilder
 
         if (hasObservedRuntime)
         {
-            captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            List<GraphEdge> observedRuntimeEdges = includedEdges
+                .Where(IsObservedRuntimeGraphEdge)
+                .ToList();
+
+            if (observedRuntimeEdges.Count > 0
+                && observedRuntimeEdges.All(edge =>
+                    DiagramEdgeLabelHumanizer.ObservedDependencyHasStoredTimeWindow(edge.Properties)))
+            {
+                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            }
         }
 
         bool hasIngestion = includedNodes.Any(node =>
@@ -155,6 +164,16 @@ internal static class DiagramDataFlowCaptionBuilder
         }
 
         return captions;
+    }
+
+    private static bool IsObservedRuntimeGraphEdge(GraphEdge edge)
+    {
+        return (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? fromType)
+                && fromType is not null
+                && fromType.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime)
+            || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+                && fromInference is not null
+                && fromInference.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime);
     }
 }
 
