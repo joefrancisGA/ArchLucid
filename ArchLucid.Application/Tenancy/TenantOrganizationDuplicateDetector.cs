@@ -69,7 +69,7 @@ public static class TenantOrganizationDuplicateDetector
         || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains(".OrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("Tenants.", StringComparison.OrdinalIgnoreCase)
+        || ContainsDboTenantsTableReference(text)
         || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase);
 
     private static bool ContainsOrganizationSlugContext(string text) =>
@@ -88,4 +88,11 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
         text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase)
         || text.Contains("IX_Tenants'", StringComparison.OrdinalIgnoreCase);
+
+    private static bool ContainsDboTenantsTableReference(string text) =>
+        text.Contains("object 'dbo.Tenants'", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("dbo.Tenants'", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("dbo.Tenants\"", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("dbo.Tenants ", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("dbo.Tenants.", StringComparison.OrdinalIgnoreCase);
 }

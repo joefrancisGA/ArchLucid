@@ -234,4 +234,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_key_referencing_tenants_id_foreign_key()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.TenantNavSettings'. Conflict with FOREIGN KEY constraint referencing Tenants.Id."))
+            .Should()
+            .BeFalse();
+    }
 }
