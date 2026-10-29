@@ -204,7 +204,7 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Factories {string.Join(", ", ordered)}";
         }
 
-        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalTargetHostsLine(IReadOnlyList<string> targetHosts)
@@ -226,7 +226,7 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Hosts {string.Join(", ", ordered)}";
         }
 
-        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalIntegrationRuntimesLine(IReadOnlyList<string> integrationRuntimes)
@@ -248,7 +248,7 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Runtimes {string.Join(", ", ordered)}";
         }
 
-        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatStoredExternalScalarLine(

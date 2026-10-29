@@ -16,6 +16,7 @@ import {
   scopeConfirmedSummaryMessage,
   validateScopeUnderstandingItem,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
+  SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_MAX_LENGTH,
   SCOPE_ITEM_NO_LETTER_MESSAGE,
@@ -227,7 +228,8 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
 
     expect(contextRow?.value.length).toBeLessThanOrEqual(SCOPE_CONTEXT_PREVIEW_MAX_LENGTH);
-    expect(contextRow?.value.endsWith("…")).toBe(true);
+    expect(contextRow?.value).toContain("…");
+    expect(contextRow?.value).toContain(SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE);
   });
 
   it("ignores a scope block already merged into the brief instead of restating it", () => {

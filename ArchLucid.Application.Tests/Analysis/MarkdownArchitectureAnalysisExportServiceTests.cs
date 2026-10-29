@@ -306,6 +306,27 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_distinguishes_null_from_stored_empty_diagram_and_summary()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Diagram = "   ",
+            Summary = " ",
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceStoredEmpty);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryStoredEmptyCopy);
+    }
+
+    [Fact]
     public void GenerateMarkdown_evidence_identity_fields_use_stored_empty_copy_when_whitespace()
     {
         ArchitectureAnalysisReport report = new()

@@ -67,7 +67,7 @@ describe("buildArchitectureDiagramModel", () => {
     );
 
     expect(model.nodes.filter((node) => node.label === "Claims API")).toHaveLength(1);
-    expect(model.nodes.filter((node) => node.label === "Node label was not stored.")).toHaveLength(1);
+    expect(model.nodes.filter((node) => node.label === "Node label was stored empty.")).toHaveLength(1);
     expect(model.skippedUnlabeledEntityCount).toBe(1);
   });
 
@@ -372,5 +372,43 @@ describe("buildArchitectureDiagramModel", () => {
         label: "TLS 1.2",
       }),
     ]);
+  });
+
+  it("dedupes identical flow edges from entity and narrative parsing (P-03)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Gateway", detail: null, provenance: "asserted" },
+              { label: "API", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: "Gateway -> API (HTTPS)",
+            entities: [
+              {
+                label: "Gateway -> API",
+                detail: "HTTPS",
+                provenance: "asserted",
+              },
+            ],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "Gateway -> API",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toHaveLength(1);
   });
 });

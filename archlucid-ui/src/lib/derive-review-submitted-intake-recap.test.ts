@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveReviewSubmittedIntakeRecap } from "./derive-review-submitted-intake-recap";
+import {
+  deriveReviewSubmittedIntakeRecap,
+  RECAP_FIELD_PREVIEW_TRUNCATION_NOTE,
+} from "./derive-review-submitted-intake-recap";
 
 const GENERATED_BRIEF = [
   'Architecture review intake for "ArchLucid".',
@@ -40,6 +43,19 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
     expect(deriveReviewSubmittedIntakeRecap({ description: "   " })?.fields).toEqual([
       { label: "Intake description", value: "Intake description was stored empty." },
     ]);
+  });
+
+  it("notes when a recap field preview is truncated (P-20)", () => {
+    const longBrief = "z".repeat(500);
+    const recap = deriveReviewSubmittedIntakeRecap({
+      description: longBrief,
+      systemName: "Edge",
+    });
+
+    const briefField = recap?.fields.find((field) => field.label === "Architecture brief");
+
+    expect(briefField?.value).toContain(RECAP_FIELD_PREVIEW_TRUNCATION_NOTE);
+    expect(briefField?.value.length).toBeLessThan(longBrief.length);
   });
 
   it("includes operator-authored brief text for non-generated descriptions", () => {

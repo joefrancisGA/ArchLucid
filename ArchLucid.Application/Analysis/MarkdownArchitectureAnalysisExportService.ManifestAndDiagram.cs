@@ -128,16 +128,21 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         sb.AppendLine("## Diagram");
         sb.AppendLine();
 
-        if (!string.IsNullOrWhiteSpace(report.Diagram))
+        if (report.Diagram is null)
+        {
+            sb.AppendLine(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
+            sb.AppendLine();
+        }
+        else if (string.IsNullOrWhiteSpace(report.Diagram))
+        {
+            sb.AppendLine(ConsultingDocxAppendixHonestyCopy.MermaidSourceStoredEmpty);
+            sb.AppendLine();
+        }
+        else
         {
             sb.AppendLine("```mermaid");
             sb.AppendLine(report.Diagram);
             sb.AppendLine("```");
-        }
-        else
-        {
-            sb.AppendLine(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
-            sb.AppendLine();
         }
 
         sb.AppendLine();
@@ -145,10 +150,18 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         sb.AppendLine("## Architecture Summary");
         sb.AppendLine();
 
-        if (!string.IsNullOrWhiteSpace(report.Summary))
-            sb.AppendLine(report.Summary.Trim());
-        else
+        if (report.Summary is null)
+        {
             sb.AppendLine(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
+        }
+        else if (string.IsNullOrWhiteSpace(report.Summary))
+        {
+            sb.AppendLine(ArchitectureEvidenceRequestExport.ArchitectureSummaryStoredEmptyCopy);
+        }
+        else
+        {
+            sb.AppendLine(report.Summary.Trim());
+        }
 
         sb.AppendLine();
     }

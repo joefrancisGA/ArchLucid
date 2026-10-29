@@ -3176,7 +3176,13 @@ export function DiagramsWorkbenchClient() {
               No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
-          <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
+          <InfraEvidenceDiagramReadingLegend
+            mode={selectedMode}
+            executiveOverflowStripped={
+              mermaidSource.trim().length > 0 && mermaidSource !== displayMermaidSource
+            }
+            crossGroupFanOutIncluded={includeCrossGroupFanOut}
+          />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
