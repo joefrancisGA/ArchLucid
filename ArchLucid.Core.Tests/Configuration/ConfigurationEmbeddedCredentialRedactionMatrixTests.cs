@@ -9539,6 +9539,49 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_my_password_env_style_key_uses_underscore_delimiter()
+    {
+        const string effectiveValue = "MY_PASSWORD=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_blob_url_uses_shared_access_signature_query_parameter()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?SharedAccessSignature=abc&se=2030";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_mongodb_srv_uri_contains_userinfo_credentials()
+    {
+        const string effectiveValue = "mongodb+srv://user:pass@cluster.mongodb.net/";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_oauth_token_url_contains_client_secret_query_pair()
+    {
+        const string effectiveValue = "https://login.example.com/token?client_id=a&client_secret=b";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_service_bus_connection_string_contains_shared_access_key_pair()
+    {
+        const string effectiveValue =
+            "Endpoint=sb://ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_event_hub_connection_string_contains_shared_access_key_pair()
+    {
+        const string effectiveValue = "Endpoint=sb://ns.servicebus.windows.net/;SharedAccessKey=secret";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
