@@ -82,6 +82,32 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
     expect(changed).not.toContain("requiredCapabilities");
   });
 
+
+  it("ignores nested dirty fields from untracked document arrays", () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+    expect(preset).toBeDefined();
+    if (preset === undefined) return;
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+    // React Hook Form marks object-array entries using nested field objects.
+    // Untracked documents must not make untouched starter fields appear edited.
+    const dirtyFields = {
+      documents: [{ name: true, contentType: false, content: false }],
+      infrastructureDeclarations: [{ content: true }],
+      constraints: [undefined, false],
+      requiredCapabilities: [false, undefined],
+    };
+
+    const matching = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields,
+    });
+
+    expect(matching).toContain("constraints");
+    expect(matching).toContain("requiredCapabilities");
+  });
+
   it("matches a live form field against the selected starter preset", () => {
     const greenfield = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
 

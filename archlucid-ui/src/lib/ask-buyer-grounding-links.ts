@@ -170,7 +170,7 @@ export function collectCitedReviewIdsFromAskAnswerRefs(
     return cited;
   }
 
-  for (const artifactId of refs.referencedArtifacts) {
+  for (const artifactId of refs.referencedArtifacts ?? []) {
     const trimmed = artifactId.trim().toLowerCase();
 
     if (trimmed.length > 0) {

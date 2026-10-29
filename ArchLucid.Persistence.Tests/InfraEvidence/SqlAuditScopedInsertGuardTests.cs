@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.InfraEvidence;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SqlAuditScopedInsertGuardTests
 {
     [Theory]

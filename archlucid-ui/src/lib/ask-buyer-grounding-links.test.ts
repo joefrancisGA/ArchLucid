@@ -47,6 +47,7 @@ describe("buyerAskGroundingLinksForRun", () => {
       label: "Decision citation decision-9. A link to that decision was not stored.",
     }]);
     expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", {})).toEqual(new Set());
+    expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", { referencedArtifacts: null })).toEqual(new Set());
     expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", {
       referencedArtifacts: ["run-a", "other"],
     })).toEqual(new Set(["run-a", "other"]));

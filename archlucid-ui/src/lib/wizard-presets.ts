@@ -67,20 +67,20 @@ export function wizardFormFieldMatchesPreset(
   return false;
 }
 
-const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = [
+const WIZARD_RECAP_PRESET_TRACKED_FIELDS = [
   "systemName",
   "environment",
   "cloudProvider",
   "description",
   "constraints",
   "requiredCapabilities",
-];
+] as const satisfies readonly (keyof WizardFormValues)[];
 
 /** Fields that still match the starter preset and were not dirtied — for recap honesty. */
 export function resolveWizardRecapPresetMatchingFields(input: {
   readonly presetId: string | null | undefined;
   readonly formValues: WizardFormValues;
-  readonly dirtyFields: Partial<Record<keyof WizardFormValues, boolean | readonly (boolean | undefined)[]>>;
+  readonly dirtyFields: Partial<Record<(typeof WIZARD_RECAP_PRESET_TRACKED_FIELDS)[number], boolean | readonly (boolean | undefined)[]>>;
 }): readonly (keyof WizardFormValues)[] {
   const presetId = input.presetId?.trim() ?? "";
 
