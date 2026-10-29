@@ -52,6 +52,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (ContainsBasicAuthorizationHeaderCredentials(trimmed))
             return true;
 
+        if (ContainsBearerAuthorizationHeaderCredentials(trimmed))
+            return true;
+
         if (!trimmed.Contains('=') && !trimmed.Contains(':') && !trimmed.Contains('%'))
             return false;
 
@@ -146,24 +149,74 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         try
         {
-            byte[] bytes = Convert.FromBase64String(token.ToString());
-            string decoded = Encoding.UTF8.GetString(bytes);
-            ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
+            ReadOnlySpan<char> payload = token;
 
-            if (decodedTrimmed.IsEmpty)
-                return false;
+            for (int layer = 0; layer < 2; layer++)
+            {
+                byte[] bytes = Convert.FromBase64String(payload.ToString());
+                string decoded = Encoding.UTF8.GetString(bytes);
+                ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
 
-            if (ContainsUrlUserInfoCredentials(decodedTrimmed))
-                return true;
+                if (decodedTrimmed.IsEmpty)
+                    return false;
 
-            int colonIndex = decodedTrimmed.IndexOf(':');
+                if (ContainsUrlUserInfoCredentials(decodedTrimmed))
+                    return true;
 
-            return colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1;
+                int colonIndex = decodedTrimmed.IndexOf(':');
+
+                if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
+                    return true;
+
+                if (layer == 1 || !LooksLikeBase64Payload(decodedTrimmed))
+                    return false;
+
+                payload = decodedTrimmed;
+            }
+
+            return false;
         }
         catch (FormatException)
         {
             return false;
         }
+    }
+
+    private static bool LooksLikeBase64Payload(ReadOnlySpan<char> value)
+    {
+        if (value.IsEmpty || value.Length % 4 != 0)
+            return false;
+
+        foreach (char c in value)
+        {
+            if (char.IsWhiteSpace(c))
+                continue;
+
+            if (char.IsLetterOrDigit(c) || c is '+' or '/' or '=')
+                continue;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool ContainsBearerAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int bearerIndex = trimmed.IndexOf("Bearer ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (bearerIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> token = trimmed.Slice(bearerIndex + "Bearer ".Length).Trim();
+        int end = 0;
+
+        while (end < token.Length && !char.IsWhiteSpace(token[end]))
+            end++;
+
+        token = token.Slice(0, end);
+
+        return token.Length >= 8;
     }
 
     /// <summary>
