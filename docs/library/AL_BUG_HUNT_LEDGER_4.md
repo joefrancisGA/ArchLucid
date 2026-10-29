@@ -23793,6 +23793,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-29 seed hunt #173 (dry): cheap-disproof closed five hunt #172 `(candidate)` rows — assessments listing first-page invalid JSON clears details and counts (`CollectSubscriptionDefenderCompanionsAsync_clears_assessments_and_counts_when_first_assessments_page_is_invalid_json`); security contact listing first-page invalid JSON yields unavailable contact (`CollectSubscriptionDefenderCompanionsAsync_marks_security_contacts_unavailable_when_first_contacts_page_is_invalid_json`); defender score controls per-score `nextLink` with secureScores listing scope rejected (`CollectSubscriptionDefenderCompanionsAsync_rejects_defender_score_controls_next_link_with_secure_scores_listing_scope`); Medium severity alerts rank before Low when start times tie under row cap (`CollectSubscriptionDefenderFollowOnAsync_keeps_medium_severity_alerts_over_low_when_row_cap_reached_with_tied_start_times`); AWS null `ResourceType` with valid ARN retained as empty type (`CollectAsync_retains_resource_with_empty_resource_type_when_arn_is_present`); reseeded five follow-on `(candidate)` rows; scoped hunt regressions **369/369** — 284 Azure integration plus 85 Application AWS/GCP tests (`RunAnalyzers=false`); no production change. Private beta: n/a — no product fix.
+
+- [x] (valid-no-repro) `ReadDefenderAssessmentsAsync` — assessments listing first-page invalid JSON clears details and counts — **cheap-disproof 2026-10-29 seed hunt #173:** `failed` on zero accepted clears assessments before counts export; regression above.
+- [x] (valid-no-repro) `ReadDefenderSecurityContactAsync` — security contact listing first-page invalid JSON yields unavailable contact — **cheap-disproof 2026-10-29 seed hunt #173:** `failed` returns `UnavailableContact`; regression above.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender score controls per-score `nextLink` with secureScores listing scope — **cheap-disproof 2026-10-29 seed hunt #173:** exact listing-path validation on controls walk; regression above.
+- [x] (valid-no-repro) `ReadDefenderAlertsAsync` — Medium severity alerts rank before Low when start times tie under row cap — **cheap-disproof 2026-10-29 seed hunt #173:** `AlertSeverityRank`; regression above.
+- [x] (invalid) `AwsResourceExplorerInventoryCollector.CollectAsync` — null resource type with valid ARN omitted without failing collect — **cheap-disproof 2026-10-29 seed hunt #173:** null type maps to empty string row; regression above.
+
+- [ ] (candidate) `ReadDefenderGovernanceAsync` — subscription governance listing first-page invalid JSON clears assignments — locus: governance `onFailed`; input: malformed first page; wrong outcome: partial assignments retained.
+- [ ] (candidate) `ReadDefenderAlertsAsync` — High severity alerts rank before Medium when start times tie under row cap — locus: `AlertSeverityRank`; input: High vs Medium same `startTimeUtc`; wrong outcome: wrong alert dropped.
+- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender assessments `nextLink` with secureScores listing scope — locus: assessments listing-path guard; input: cross-scope next link; wrong outcome: reject follow.
+- [ ] (candidate) `ReadDefenderPricingsAsync` — pricings listing first-page HTTP 403 clears rows without partial retain — locus: pricings `onFailed`; input: HTTP 403; wrong outcome: rows retained.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — empty display name with valid asset name skipped without failing collect — locus: display-name guard; input: blank display name; wrong outcome: throw or poison row.
+
 2026-10-28 seed hunt #172 (seed-only): reseeded `cloud-extractors` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #171; cheap-disproof closed secureScores listing first-page invalid JSON clearing (`CollectSubscriptionDefenderCompanionsAsync_clears_all_score_controls_when_first_secure_scores_page_is_invalid_json`), pricings listing first-page HTTP 404 clearing (`CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_returns_http_404`), security contacts `nextLink` with secureScoreControls scope (`CollectSubscriptionDefenderCompanionsAsync_rejects_defender_security_contacts_next_link_with_secure_score_controls_scope`), Informational vs Low alert rank under tied start times (`CollectSubscriptionDefenderFollowOnAsync_keeps_low_severity_alerts_over_informational_when_row_cap_reached_with_tied_start_times`); marked GCP null asset type `(invalid)` — collector emits empty `resourceType` by design (`CollectFromRawPagesAsync_emits_empty_resource_type_when_asset_type_is_unset`); seeded five follow-on `(candidate)` rows; scoped hunt regressions **364/364** — 280 Azure integration plus 84 Application AWS/GCP tests (`RunAnalyzers=false`); no production code changed. Private beta: n/a — no product fix.
 
 - [x] (valid-no-repro) `ReadDefenderScoreControlsAsync` — secureScores listing first-page invalid JSON clears all score controls — **cheap-disproof 2026-10-28 seed hunt #172:** `scoresFailed` on zero accepted; regression `CollectSubscriptionDefenderCompanionsAsync_clears_all_score_controls_when_first_secure_scores_page_is_invalid_json`.
@@ -23806,6 +23820,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender score controls per-score `nextLink` with secureScores listing scope — locus: controls listing-path guard; input: cross-scope next link; wrong outcome: reject follow.
 - [ ] (candidate) `ReadDefenderAlertsAsync` — Medium severity alerts rank before Low when start times tie under row cap — locus: `AlertSeverityRank`; input: Medium vs Low same time; wrong outcome: wrong alert dropped.
 - [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — null resource type with valid ARN omitted without failing collect — locus: type guard; input: null `ResourceType`; wrong outcome: throw or poison row.
+
+- [x] (invalid) `ReadDefenderAssessmentsAsync` — assessments listing first-page invalid JSON clears details and counts — **cheap-disproof 2026-10-29 seed hunt #173:** duplicate hypothesis row; see zone header closure.
+- [x] (valid-no-repro) `ReadDefenderSecurityContactAsync` — security contact listing first-page invalid JSON yields unavailable contact — **cheap-disproof 2026-10-29 seed hunt #173:** duplicate hypothesis row; see zone header closure.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender score controls per-score `nextLink` with secureScores listing scope — **cheap-disproof 2026-10-29 seed hunt #173:** duplicate hypothesis row; see zone header closure.
+- [x] (valid-no-repro) `ReadDefenderAlertsAsync` — Medium severity alerts rank before Low when start times tie under row cap — **cheap-disproof 2026-10-29 seed hunt #173:** duplicate hypothesis row; see zone header closure.
+- [x] (invalid) `AwsResourceExplorerInventoryCollector.CollectAsync` — null resource type with valid ARN omitted without failing collect — **cheap-disproof 2026-10-29 seed hunt #173:** duplicate hypothesis row; see zone header closure.
 
 2026-10-28 seed hunt #171 (seed-only): reseeded `cloud-extractors` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #170; cheap-disproof closed secureScores listing first-page HTTP 500 clearing all controls (`CollectSubscriptionDefenderCompanionsAsync_clears_all_score_controls_when_first_secure_scores_page_returns_http_500`), subscription governance HTTP 500 without assessment walk (`CollectSubscriptionDefenderFollowOnAsync_clears_governance_when_first_subscription_governance_page_returns_http_500_without_assessment_walk`), assessments `nextLink` with pricings scope (`CollectSubscriptionDefenderCompanionsAsync_rejects_defender_assessments_next_link_with_pricings_scope`), Critical alert canonical rank under tied start times (`CollectSubscriptionDefenderFollowOnAsync_keeps_critical_severity_alerts_when_row_cap_reached_with_tied_start_times`), and GCP whitespace-only asset name skip (`CollectFromRawPagesAsync_omits_resources_when_name_is_whitespace_only`); seeded five follow-on `(candidate)` rows; scoped hunt regressions **360/360** — 276 Azure integration plus 84 Application AWS/GCP tests (`RunAnalyzers=false`); no production code changed. Private beta: n/a — no product fix.
 
@@ -24343,10 +24363,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 147
+- **hunts:** 148
 - **bugs-found:** 93
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-22 — AWS Resource Explorer partition query trims region before prefix checks
 - **related-pd-tb:** none
 - **code-changed-since:** no
