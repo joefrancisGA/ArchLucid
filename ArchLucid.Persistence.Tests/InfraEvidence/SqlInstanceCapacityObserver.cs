@@ -25,9 +25,23 @@ internal static class SqlInstanceCapacityObserver
             await using SqlDataReader reader = await command.ExecuteReaderAsync(ct);
             if (!await reader.ReadAsync(ct))
                 return new(null, null, null, "SQL_INSTANCE_DMV_EMPTY");
-            return new(null, reader.IsDBNull(0) ? null : reader.GetInt64(0),
-                reader.IsDBNull(1) ? null : reader.GetInt64(1),
-                "SQL_INSTANCE_MEMORY_SNAPSHOT_NOT_QUERY_ISOLATED");
+            long? physical = reader.IsDBNull(0) ? null : reader.GetInt64(0);
+            long? committed = reader.IsDBNull(1) ? null : reader.GetInt64(1);
+            await reader.DisposeAsync();
+            // Cumulative CPU worker time of cached completed query plans, in microseconds.
+            // Not SQL process CPU and can drop if plans are evicted or server resets.
+            try
+            {
+                command.CommandText = "SELECT SUM(CONVERT(bigint, total_worker_time)) FROM sys.dm_exec_query_stats";
+                object? raw = await command.ExecuteScalarAsync(ct);
+                long? microseconds = raw is null or DBNull ? null : Convert.ToInt64(raw);
+                return new(microseconds.HasValue ? microseconds.Value / 1000 : null,
+                    physical, committed, "CACHED_QUERY_WORKER_CPU_INSTANCE_WIDE");
+            }
+            catch (SqlException)
+            {
+                return new(null, physical, committed, "SQL_QUERY_CPU_DMV_UNAVAILABLE");
+            }
         }
         catch (SqlException)
         {
