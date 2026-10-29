@@ -346,14 +346,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-29 seed hunt (seed-only): re-read `TenantIsolationNegativeTestCommand.WriteArtifactsAsync`, offline manifest replay (`TenantIsolationNegativeTestOfflineRunner`), live list scan/pagination (`TenantIsolationNegativeTestLiveRunner`), and `DeriveOverallVerdict`; cheap-disproved stale filename-only artifact candidates (shared `EnsureArtifactParentDirectoryExists` covers markdown parity) and offline overall PASS when a cross-tenant probe SKIPped (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` documents intentional fixture replay); no new hunt-ready row met failing-repro bar; seeded five bounded candidates below; scoped `TenantIsolationNegativeTest*` vitest 59/59; no production code changed.
+
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--json-out` — **cheap-disproof 2026-10-29 seed hunt:** fixed 2026-10-21; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`.
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--markdown-out` — **cheap-disproof 2026-10-29 seed hunt:** same `EnsureArtifactParentDirectoryExists` guard as JSON path.
+
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — manifest replay lacks live `RunListClaimsMorePages` signal when `observedOutcome` is verified absent without scan-incomplete copy — locus: exclude replay trust; input: hand-authored manifest for hasMore-without-nextCursor list page.
+- [ ] (candidate) `TenantIsolationNegativeTestManifestProbe.Verdict` — stored manifest verdict field ignored by offline replay — locus: `EvaluateReplayProbe`; input: manifest row with `verdict: pass` contradicting observed leak copy (verify intentional vs drift).
+- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ExecuteLiveProbeAsync` — deny-status probes treat HTTP 408/429 as Fail while list exclusion SKIPs — locus: `EvaluateDenyStatus` vs exclude path; input: alternate-scope 408 on `cross-tenant-run-get` (document fail-closed contract).
+- [ ] (candidate) `TenantIsolationNegativeTestCommand.RunAsync` — overall `Skip` and `Fail` both map to `CliExitCode.OperationFailed` — locus: exit code branch; input: live run with only SKIP cross-tenant probes (verify pilot CI expectation).
+- [ ] (candidate) `TenantIsolationNegativeTestOutputPaths.Resolve` — explicit `--json-out` / `--markdown-out` bypass default artifact directory without `GetFullPath` normalization — locus: path resolution; input: relative `../outside.json` from repo root cwd.
+
 2026-10-21 seed hunt (seed→hit, lane C): lock `cli-tenant-isolation` verified on origin (`40b4314fa0`); promoted `WriteArtifactsAsync` — `--json-out report.json` (filename only) made `Path.GetDirectoryName` return empty and `Directory.CreateDirectory("")` fail before writing tenant-isolation evidence; skip directory creation when no parent path; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`; 59 scoped `TenantIsolationNegativeTest` tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected tenant-isolation command/runner facade, artifact output handling, offline/live verdict delegation, and focused tests. Existing filename-only artifact candidates and replay verdict contracts were not duplicated; no fresh reachable wrong-outcome mechanism met the promotion bar. The focused `TenantIsolationNegativeTestRunnerTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
-
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--markdown-out report.md` filename-only output path may diverge from JSON artifact handling when no directory component exists; verify the documented relative-file input and expected artifact success contract before promotion.
 
 2026-10-12 seed hunt (seed-only): reread the selected command/runner and focused test inventory, then examined the existing filename-only `--json-out` / `--markdown-out` candidates. The input is documented and the write branch is source-backed, but the same-run repro could not reach test discovery because of the existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no candidate was promoted and no temporary regression was retained. No production code changed.
 
@@ -421,10 +429,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-21 — filename-only --json-out artifact paths threw on CreateDirectory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1816,15 +1824,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 thorough hunt (hit): promoted `decideHostGateRedirect` case-sensitive pathname classification — mixed-case marketing paths on the app host (e.g. `/Welcome`) stayed `next` instead of redirecting to the public origin, and mixed-case operator paths on the marketing host stayed on marketing chrome; normalize pathname to lowercase before split-host classifiers and redirect targets; regressions `redirects app-host marketing paths when pathname casing differs from canonical marketing routes` and `redirects marketing-host operator paths when pathname casing differs from canonical operator routes`; cheap-disproof closed five open `(candidate)` rows (shim prefix audit, Host header case, get-started funnel, www query matrix, `/auth` slash edge); scoped host-gate vitest 18/18. Private beta: split-site hosting forwards mistyped-casing bookmarks to the correct origin instead of leaving users on the wrong host’s 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — case-sensitive pathname breaks marketing/operator handoff — **hit 2026-10-29 thorough hunt:** `normalizeHostGatePathname` lowercases before `isMarketingOnlyPath` / `isOperatorPath`; redirect `pathAndQuery` uses normalized pathname; regressions above.
+
 2026-10-25 seed hunt (seed→hit): promoted split-host marketing requests for legacy `/quick-start` bookmark staying `next` instead of redirecting to the app origin — `LEGACY_QUICK_START_PATH` was in retired redirect shims but missing from `LEGACY_OPERATOR_PATH_PREFIXES`; added prefix import; regressions `treats legacy bookmark paths as operator paths` and `redirects marketing-host legacy quick-start bookmark to the app origin`; scoped host-gate vitest 16/16. Private beta: invited users opening `/quick-start` on the public marketing host are forwarded to the app origin under split-site hosting instead of seeing marketing 404 chrome.
 
 - [x] (proven) `LEGACY_OPERATOR_PATH_PREFIXES` — `/quick-start` omitted from split-host operator handoff — **hit 2026-10-25 seed hunt:** import `LEGACY_QUICK_START_PATH`; `host-gate.test.ts` classifier + redirect regressions.
 
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — locus: prefix list; input: no shim path left marketing-only on split host.
-- [ ] (candidate) `decideHostGateRedirect` — uppercase Host header normalization — locus: `normalizeRequestHost`; input: mixed-case host still matches configured origins.
-- [ ] (candidate) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — locus: funnel paths; input: split-host app host should not treat canonical get-started as marketing-only incorrectly.
-- [ ] (candidate) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — locus: `hostsMatch`; input: matrix test for www marketing host.
-- [ ] (candidate) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — locus: classifier; input: `/auth` without trailing slash still operator.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — **cheap-disproof 2026-10-29 thorough hunt:** every `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` entry is already classified as operator; canonicalize exports covered by prior lane-C prefix alignment.
+- [x] (invalid) `decideHostGateRedirect` — uppercase Host header normalization — **cheap-disproof 2026-10-29 thorough hunt:** `normalizeRequestHost` already lowercases Host; mixed-case `ArchLucid.NET` redirects operator paths.
+- [x] (invalid) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — **cheap-disproof 2026-10-29 thorough hunt:** `/get-started` is marketing-only by design; app host correctly redirects to public origin.
+- [x] (invalid) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — **cheap-disproof 2026-10-29 thorough hunt:** `www.archlucid.net` + `/dashboard?x=1` redirects with query intact.
+- [x] (invalid) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — **cheap-disproof 2026-10-29 thorough hunt:** `/auth` matches `/auth/` prefix rule; `/auth/signin` already regression-covered.
+
+- [ ] (candidate) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — locus: pathname normalization; input: marketing host request with leading `//`.
+- [ ] (candidate) `decideHostGateRedirect` — marketing-host root redirect drops uncommon but valid query on `/` → `/welcome` — locus: `/` branch; input: `/` with empty vs duplicate `?` search strings.
+- [ ] (candidate) `decideHostGateRedirect` — configured public origin uses explicit `:443` while Host header omits port — locus: `hostnameFromOrigin` vs `normalizeRequestHost`; input: production-style host pair.
+- [ ] (candidate) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — locus: `EXTRA_MARKETING_PREFIXES`; input: `/Showcase/demo` on app host after pathname fix.
+- [ ] (candidate) `decideHostGateRedirect` — percent-encoded pathname casing in legacy bookmark segment — locus: normalized lowercase vs encoded bytes; input: marketing host `%2Freviews` style paths if reachable.
 
 - **id:** ui-host-gate
 - **status:** open
@@ -1832,11 +1850,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — `/quick-start` legacy bookmark missing from split-host operator prefixes
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5768,16 +5786,165 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `FindingRecordMetadataPage.Items` explicit JSON `null` on findings keyset metadata page JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_items_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult.Citations` / `UpstreamResultFingerprints` (existing `AgentResultDeserializationTests.Deserialize_null_collection_properties_yields_empty_lists_not_null`); scoped FindingRecordMetadataPage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: findings keyset metadata page JSON with null items deserializes to an empty list so run findings list stages and API clients do not null-reference when a page has no rows.
+
+- [x] (proven) `FindingRecordMetadataPage.Items` — explicit JSON `null` on keyset metadata page list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `AgentResult.Citations` / `UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** existing agent result null-collection regression.
+
+2026-10-29 seed hunt (seed→hit): promoted `CrossReviewFindingSourceCoverage.PriorAgentTypes` and `CurrentAgentTypes` explicit JSON `null` on cross-review source coverage JSON despite `HashSet` initializers; empty-set defaults on `init`; regression `Deserialize_null_agent_type_sets_yields_empty_sets_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult` nested lists (existing `AgentResultDeserializationTests`), `AlertRecord` collections (no list/dictionary properties), `CoveragePreviewRequest` (API model under `ArchLucid.Api`, not `ArchLucid.Contracts`); scoped CrossReviewFindingSourceCoverage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: cross-review finding source coverage JSON with null agent-type sets deserializes to empty sets so TB-2194 reduced-coverage logic does not null-reference when comparing prior vs current reviews.
+
+- [x] (proven) `CrossReviewFindingSourceCoverage.PriorAgentTypes` / `CurrentAgentTypes` — explicit JSON `null` on cross-review coverage sets — **hit 2026-10-29 seed hunt:** empty set defaults on `init`; regression above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** scalar alert row DTO only.
+- [x] (invalid) `CoveragePreviewRequest` API model lists — **cheap-disproof 2026-10-29 seed hunt:** lives outside `ArchLucid.Contracts` zone paths.
+
+2026-10-29 seed hunt (seed→hit): promoted `InsightDensityCurationSummary.HeldCheckLedgerEntries`, `ProseAssumptionRegisterEntries`, and `ProseAssumptionHeldCheckAsks` explicit JSON `null` on findings snapshot curation JSON despite nullable list types; `ContractCollectionDefaults.CoalesceReadOnly` on all three setters; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `CompositeAlertEvaluationResult` (in-process result type — not findings/API JSON surface), `ValueReportSnapshot` (builder-constructed positional record, not JSON DTO path); scoped InsightDensityCurationSummary deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: insight-density curation JSON with null list fields deserializes to empty lists so findings emit and export honesty paths do not null-reference when replaying snapshot curation blocks.
+
+- [x] (proven) `InsightDensityCurationSummary` list properties — explicit JSON `null` on curation summary lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regression above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** persistence service return type, not OpenAPI JSON contract.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** sponsor DOCX builder record, not deserialized API DTO.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingExplainabilityEvidenceRecord.EvidenceRefs` and `AlternativePathsConsidered` explicit JSON `null` on explainability evidence JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `CoveragePreviewInput.UserOverrides` (nullable by design — only mapped from API request with null-conditional), `PilotReportCard` list properties (already `CoalesceReadOnly` on `FindingsBySeverity`); scoped FindingExplainabilityEvidenceRecord deserialization + existing round-trip test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: finding explainability evidence JSON with null list fields deserializes to empty lists so decisioning narrative builders do not null-reference when replaying slim evidence rows.
+
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — explicit JSON `null` on explainability evidence record — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** nullable optional overrides; API mapper uses null-conditional.
+- [x] (invalid) `PilotReportCard` response lists — **cheap-disproof 2026-10-29 seed hunt:** `FindingsBySeverity` already coalesced.
+
+2026-10-29 seed hunt (seed→hit): promoted `RephraseClarificationAnswersResponse.RephrasedAnswers` and `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` explicit JSON `null` on clarification rephrase and pilot snapshot API JSON despite dictionary initializers; empty dictionary defaults on setters; regressions `Deserialize_null_rephrased_answers_yields_empty_dictionary_not_null` and `Deserialize_null_findings_produced_by_severity_yields_empty_dictionary_not_null`; scoped RephraseClarificationAnswersResponse + WhyArchLucidSnapshotResponse deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: clarification rephrase and why-archlucid snapshot JSON with null answer/severity maps deserializes to empty dictionaries so operator intake and demo proof pages do not null-reference when maps are omitted.
+
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on rephrase response — **hit 2026-10-29 seed hunt:** empty dictionary on setter; regression above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — explicit JSON `null` on pilot snapshot severity map — **hit 2026-10-29 seed hunt:** empty ordinal dictionary on setter; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `ComplianceDriftTrendPoint.ChangesByType` explicit JSON `null` on compliance drift trend JSON despite dictionary initializer; non-null empty default on `init`; regression `Deserialize_null_changes_by_type_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` rows `ItsmFindingCorrelationsBatchResponse.Findings` (already `CoalesceReadOnly` on setter), `WorkingWorkspaceContinuityValues` / DTO lists (regression since IH-066), `CoveragePreviewAssignment` and `RunCoverageAcknowledgementEntry` (no collection properties); scoped ComplianceDriftTrendPoint deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: compliance drift trend JSON with null change-type buckets deserializes to an empty map so governance trend charts do not null-reference when a bucket has no typed changes.
+
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — explicit JSON `null` on drift trend point — **hit 2026-10-29 seed hunt:** empty dictionary default on `init`; regression above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** `CoalesceReadOnly` on setter already present.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** `WorkingWorkspaceContinuityDtoDeserializationTests` covers null lists.
+
+2026-10-29 seed hunt (seed→hit): promoted `RunAcknowledgedCoverageDocument.Entries` explicit JSON `null` on persisted run coverage acknowledgement JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Entries` setter; regression `Deserialize_null_entries_on_acknowledged_coverage_document_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` (`CoalesceReadOnly` on `init` since 2026-10-15 integrations pass); scoped CoverageAssignments deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: acknowledged coverage document JSON with null entries deserializes to an empty list so execute gates and audit readers do not null-reference when replaying operator acknowledgements.
+
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on acknowledged coverage document — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** already coalesced on `init`.
+
+2026-10-29 seed hunt (seed→hit): promoted `CoveragePreviewResult.Assignments` and `CoverageSummary.Assignments` explicit JSON `null` on governance coverage API JSON despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on both setters; regressions `Deserialize_null_assignments_on_preview_result_yields_empty_list_not_null` and `Deserialize_null_assignments_on_summary_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` rows `ArtifactDescriptor.Tags` (no `Tags` on `ArtifactDescriptor`), `ExportManifestDescriptor` (type not in repo), and `ArtifactBundle` nested trace list round-trip (already covered by `SynthesisTrace` list coalesce + bundle trace default); scoped CoverageAssignments deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: coverage preview and summary JSON with null assignments deserializes to empty lists so governance UI does not null-reference when rendering assignment tables.
+
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — explicit JSON `null` on coverage assignment lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regressions above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** `ArtifactDescriptor` has no tag list property.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** no matching contract type in repository.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** `SynthesisTrace` list coalesce landed prior run.
+
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Trace` explicit JSON `null` on bundle persistence JSON despite `new()` trace initializer; non-null default via `value ?? new SynthesisTrace()` on `Trace` setter; promoted `SynthesisTrace.GeneratorsUsed`, `SourceDecisionIds`, and `Notes` explicit JSON `null` with `ContractCollectionDefaults.Coalesce` on setters; regressions `Deserialize_null_trace_yields_empty_trace_not_null` and `Deserialize_null_generator_lists_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` (no such contract type in repo) and misnamed `SynthesisTrace.GeneratorIds` (property is `GeneratorsUsed`); scoped artifact bundle + synthesis trace deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle and synthesis trace JSON with null nested trace or list fields deserializes to empty defaults so synthesis read paths do not null-reference.
+
+- [x] (proven) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace — **hit 2026-10-29 seed hunt:** non-null default on setter; bundle regression above.
+- [x] (proven) `SynthesisTrace.GeneratorsUsed` / `SourceDecisionIds` / `Notes` — explicit JSON `null` on trace list fields — **hit 2026-10-29 seed hunt:** `Coalesce` on setters; trace regression above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** no `ProductLearningImprovementPlanThemeRecord` type under `ArchLucid.Contracts`.
+
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Metadata` explicit JSON `null` on artifact persistence JSON despite `new()` dictionary initializer; `ContractCollectionDefaults.CoalesceDictionary` on `Metadata` setter; regression `Deserialize_null_metadata_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` `HeldCheckSecondPassResult.EngineTypes` (`UnblockedEngineTypes` already uses `CoalesceReadOnly` on `init`); scoped SynthesizedArtifact deserialization test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact JSON with null metadata deserializes to an empty dictionary so packaging and descriptor mappers do not null-reference when reading optional tags.
+
+- [x] (proven) `SynthesizedArtifact.Metadata` — explicit JSON `null` on artifact metadata dictionary — **hit 2026-10-29 seed hunt:** `CoalesceDictionary` on setter; regression above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** property is `UnblockedEngineTypes` with existing `CoalesceReadOnly`.
+
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Artifacts` explicit JSON `null` on artifact bundle persistence JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Artifacts` setter; regression `Deserialize_null_artifacts_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `RealAgentFailureTriageCatalogResponse.Entries` (no such contract type — triage catalog is application static `RealAgentFailureTriageCatalog`, not a JSON DTO); scoped ArtifactBundle deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with null artifacts deserializes to an empty list so export and query paths do not null-reference when a bundle has no synthesized rows yet.
+
+- [x] (proven) `ArtifactBundle.Artifacts` — explicit JSON `null` on bundle artifact list — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+- [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** no `RealAgentFailureTriageCatalogResponse` in `ArchLucid.Contracts`; catalog lives in `ArchLucid.Application/Runs/RealAgentFailureTriageCatalog.cs`.
+
+2026-10-29 seed hunt (seed→hit): promoted `ProductLearningImprovementPlanRecord.ActionSteps` explicit JSON `null` on improvement plan persistence/API JSON despite `= []` init default; `ContractCollectionDefaults.CoalesceReadOnly` on `ActionSteps` `init`; regression `Deserialize_null_action_steps_yields_empty_list_not_null`; scoped ProductLearningImprovementPlanRecord deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: product-learning improvement plan JSON with null action steps deserializes to an empty list so planning UI and SQL round-trip do not null-reference when a plan has no bounded actions yet.
+
+- [x] (proven) `ProductLearningImprovementPlanRecord.ActionSteps` — explicit JSON `null` on improvement plan record JSON — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `ActionSteps` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.ContributingDecisionIds` explicit JSON `null` on persisted synthesized artifact JSON despite `= []` field initializer; `ContractCollectionDefaults.Coalesce` on `ContributingDecisionIds` setter; regression `Deserialize_null_contributing_decision_ids_yields_empty_list_not_null`; scoped SynthesizedArtifact deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with null contributing decision ids deserializes to an empty list so provenance builders and UI do not null-reference when linking decisions.
+
+- [x] (proven) `SynthesizedArtifact.ContributingDecisionIds` — explicit JSON `null` on synthesized artifact JSON — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `AdminQuickScanBudgetSnapshotResponse.RecentUsage` explicit JSON `null` on admin Quick Scan budget snapshot responses; `ContractCollectionDefaults.CoalesceReadOnly` on `RecentUsage` `init`; regression `Deserialize_null_recent_usage_yields_empty_list_not_null`; scoped AdminQuickScanBudgetSnapshotResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: admin Quick Scan budget JSON with null `recentUsage` deserializes to an empty list so operator budget dashboards do not null-reference when usage history is omitted.
+
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `RecentUsage` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `PromptVariantStatsResponse.Variants` explicit JSON `null` on prompt A/B stats API responses; `ContractCollectionDefaults.CoalesceReadOnly` on `Variants` `init`; regression `Deserialize_null_variants_yields_empty_list_not_null`; scoped PromptVariantStatsResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: prompt variant stats JSON with null `variants` deserializes to an empty list so operator analytics views do not null-reference when no variants were sampled.
+
+- [x] (proven) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Variants` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): re-read real-agent triage catalog contract lists; promoted `RealAgentFailureTriageEntry` explicit JSON `null` on `FailureClasses`, `OperatorNextSteps`, and `RelatedDocPaths`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; scoped RealAgentFailureTriageEntry deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: real-agent failure triage catalog JSON with null list fields deserializes to empty lists so operator triage UI does not null-reference when a scenario omits optional copy.
+
+- [x] (proven) `RealAgentFailureTriageEntry.FailureClasses` / `OperatorNextSteps` / `RelatedDocPaths` — explicit JSON `null` on triage catalog entry lists — **hit 2026-10-29 seed hunt:** consolidated `CoalesceReadOnly`; regression above.
+
+2026-10-29 seed hunt (seed→hit): re-read open `(candidate)` rows on required init-only API list DTOs; promoted `TenantItsmConnectorConnectionsListResponse.Connections` explicit JSON `null` leaving `Connections` null on ITSM connector list responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_connections_yields_empty_list_not_null`; scoped ITSM list deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: ITSM connector list JSON with `"connections": null` deserializes to an empty list so integrations settings UI does not null-reference when no connectors are returned.
+
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Connections` `init`; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `RecordBulkFindingDispositionRequest.FindingIds` and `RecordBulkFindingDispositionResponse.UpdatedFindingIds` explicit JSON `null` on governance bulk disposition request/response bodies; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `Deserialize_null_finding_ids_yields_empty_list_not_null` and `Deserialize_null_updated_finding_ids_yields_empty_list_not_null`; scoped RecordBulkFindingDisposition deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: bulk finding disposition API JSON with null id lists deserializes to empty lists so governance UI and clients do not null-reference when applying or reviewing bulk updates.
+
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `FindingIds` `init`; regression above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — explicit JSON `null` on bulk disposition response — **hit 2026-10-29 thorough hunt:** same fix pattern; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `FindingVerificationReportResponse.Results` explicit JSON `null` leaving `Results` null on ADR 0062 verification report responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_results_yields_empty_list_not_null`; cheap-disproof closed five stale `(candidate)` rows (clarification delta lists, inference questionnaire items, buyer run summary lists — already regression-covered); scoped Contracts-filtered vitest 1061 tests (1060 passed, 1 unrelated baseline failure in `RunAgentLlmCostEstimateDtoDeserializationTests`). Private beta: finding verification report JSON with `"results": null` deserializes to an empty list so operator surfaces do not null-reference when rendering an empty verification matrix.
+
+- [x] (proven) `FindingVerificationReportResponse.Results` — explicit JSON `null` on verification report response — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `Results` `init`; regression `FindingVerificationReportResponseDeserializationTests`.
+
 - **id:** archlucid-contracts
 - **status:** open
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
+- **hunts:** 235
+- **bugs-found:** 349
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — FindingRecordMetadataPage.Items JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** `Coalesce` on setter; nested regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** same nested delta regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `init`; regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** regression `Deserialize_null_summary_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
+
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RealAgentFailureTriageEntry` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `PromptVariantStatsResponse.Variants` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesizedArtifact.ContributingDecisionIds` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ProductLearningImprovementPlanRecord.ActionSteps` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ArtifactBundle.Artifacts` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesizedArtifact.Metadata` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ArtifactBundle.Trace` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesisTrace` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — **hit 2026-10-29 seed hunt:** see zone hunt note above (ledger candidate misnamed `Assignments`).
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewAssignment` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on row DTO.
+- [x] (invalid) `RunCoverageAcknowledgementEntry` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on entry DTO.
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `PilotReportCard` response list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `InsightDensityCurationSummary` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `CrossReviewFindingSourceCoverage` agent-type sets — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewRequest` API model list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `FindingRecordMetadataPage.Items` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.Citations` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
+- [ ] (candidate) `CrossReviewFindingSourceCoverage` object initializer vs JSON — verify object-creation paths still populate sets when properties omitted.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5825,18 +5992,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-21 seed hunt (seed→hit): promoted `SpecialistReviewFinding.Rationale` explicit JSON `null` on specialist review finding JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_rationale_yields_empty_string_not_null`; SpecialistReviewFinding deserialization tests 4/4.
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 216 · **Bugs found:** 330 · **Consecutive dry hunts:** 0
+**Hunts:** 234 · **Bugs found:** 348 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
@@ -5895,11 +6062,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 215 · **Bugs found:** 329 · **Consecutive dry hunts:** 0
@@ -5964,11 +6131,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 214 · **Bugs found:** 328 · **Consecutive dry hunts:** 0
@@ -6861,11 +7028,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
@@ -7100,17 +7267,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-29 seed hunt (seed→hit): reseeded after 491 commits; promoted `ReviewsHubDisclosuresClient` — hub analytics/guidance disclosure href writes used `readWindowLocationSearch()`, so after soft navigation expanding Samples or delta panels could merge stale reviews-list toolbar query keys; base href writes and `useSearchParams` reconciliation for disclosure flags; regression `writes reviews hub disclosure state from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubDisclosuresClient.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators toggling reviews hub guidance panels no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `ReviewsHubDisclosuresClient` — disclosure href writes used stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + searchParams effect; regression above.
+- [ ] (candidate) `ReviewsHubReviewInventory` — inventory filter chip href built from `readWindowLocationSearch()` on write — locus: `ReviewsHubReviewInventory.tsx` `selectInventoryFilter`; input: soft navigation clears hub search params then operator changes inventory filter chip.
+- [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
+- [ ] (candidate) `ReviewsHubInventoryRowActions` — row action deep links merge stale hub filter query when built from `readWindowLocationSearch()` — locus: inventory row actions; input: cross-filter soft navigation then open row action menu link.
+- [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
+- [ ] (candidate) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes use `readWindowLocationSearch()` — locus: new-run wizard client pilot toggles; input: soft navigation on `/architecture/reviews/new` then toggle focused pilot mode.
+
 - **id:** ui-operator-routes
 - **status:** open
 - **impact:** medium
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 33
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 27
+- **hunts:** 34
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — policy pack selection URL kept stale version-diff params when switching `packId`
+- **last-bug:** 2026-10-29 — reviews hub disclosure URLs merged stale toolbar query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9120,6 +9296,16 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `GovernanceFindingsList.resolveFindingRunId` and `useGovernanceFindingTriage.openForRow` matched padded register `findingId` strings with strict equality, so Alt+1–3 keyboard disposition could not resolve `runId` from focused cards with padded `data-finding-id`; shared `resolveGovernanceFindingRunIdFromDisplayedRows`, trim-aware `openForRow`, and normalized ids in `FindingKeyboardTriageHost`; regressions in `governance-findings-queue-presentation.run-id.test.ts` and `use-governance-finding-triage.test.ts`; cheap-disproof closed three sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators can apply keyboard finding dispositions from the governance findings queue when register rows retain padded finding ids.
+
+2026-10-29 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` cleared `focusedFinding` before URL hydration opened the triage panel and compared raw `activeRow.findingId` to trimmed URL tokens, breaking deep-linked triage on padded register rows; gate URL sync until hydration opens the panel and compare trimmed ids; regressions in `use-governance-finding-triage-with-cursor.test.tsx`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators opening governance findings triage from a `focusedFinding` link keep the panel and URL cursor when register rows retain padded finding ids.
+
+2026-10-29 thorough hunt (hit): `resolveContinueLastGovernanceFinding` compared recent-view finding ids to raw `row.findingId`, so padded register rows missed the recent match and the queue fell back to the wrong “oldest open” finding; extended trimmed-id matching to triage `focusedFinding` hydration, keyboard card focus, and `extractGovernanceFindingIds`; regressions `matches recent view when queue row findingId retains padding` and `focuses finding cards when data-finding-id retains padding`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 15 scoped vitest tests passed. Private beta: Invited operators resuming triage on the governance findings queue land on the finding they last viewed instead of a different open row when register data retained padded finding ids.
+
+2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueClient.availableFindingIds` built a set from raw `row.findingId` while URL bulk tokens and dedupe keys use trimmed ids, so deep-linked `bulkFindings` selections dropped and row checkboxes stayed unchecked when a register row retained padding; shared `governanceFindingsQueueAvailableFindingIdSet`, `normalizeGovernanceQueueFindingId`, and `isGovernanceQueueFindingIdSelected` at the selection boundary; regressions in `governance-findings-queue-selection.test.ts`, `governance-findings-queue-desk-url.test.ts`, and bulk-actions hook tests; cheap-disproof closed four remaining `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 21 scoped governance selection vitest tests passed. Private beta: Invited operators on the governance findings queue keep bulk-selection and checkbox state aligned with `bulkFindings` URLs when upstream register rows include padded finding ids.
+
+2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueResultsSection` rendered `PolicyPackAssignFromReviewStrip` when `scopedRunId` was whitespace-only because the guard checked raw string length instead of `scopedRunFilterActive`; align with scope banner and gate on active review scope; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped ResultsSection vitest passed. Private beta: Invited operators on the governance findings queue no longer see a policy-pack assignment strip tied to a blank review id when review scope is not actually selected.
+
 2026-10-25 seed hunt (seed→hit): operational and buyer-polished queue rows treated whitespace-only `category` as a policy-area fallback (`row.category &&`) while policy-rule chrome already required trim; shared `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`; operational-row cells 3/3. Reseeded five follow-on `(candidate)` rows.
 
 2026-10-25 thorough hunt (hit): `dedupeGovernanceFindingRows` keyed on raw `runId`/`findingId` so padded and trimmed identities duplicated actionable rows after mixed register/trace merges; trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`. Review column links encoded padded `runId` while inspect links trimmed; shared `governanceFindingQueueRowReviewHref`; regression `uses a trimmed run id in the review column link when the row carries padding`; row-mappers 12/12, operational-row 2/2, bulk-actions 6/6. Cheap-disproof closed remediation-factory `findingId` padding (parse trims), assigned-to-me framework-control display (`coerceComplianceRuleKey`), and grouped row remount keys (mappers normalize run ids).
@@ -9138,11 +9324,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 62
-- **bugs-found:** 41
+- **hunts:** 67
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — whitespace-only category showed policy-area fallback on queue rows
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — keyboard disposition could not resolve runId for padded finding ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9152,11 +9338,36 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims, so any pre-dedupe padded row could remount and drop focus when grouping toggles — locus: `GovernanceFindingsQueueTableBody` / virtualized body keys; input: render padded rows before dedupe in a future loader path.
-- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership uses raw `row.findingId` without trim, so a padded finding id on a row could miss URL-restored `bulkFindings` selections — locus: `availableFindingIds` memo; input: row with `findingId: " finding-1 "` and URL `bulkFindings=finding-1`.
-- [ ] (candidate) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present and skips omission copy, unlike status/severity guards — locus: `governanceQueueTitleLabel`; input: finding row with `title: "   "`.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row when it sorts before findings if density filters hide all earlier finding rows — locus: triage target resolver after density filter; input: mixed queue with decision at index 0 and filtered-out low-density findings above the first visible finding.
-- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive`, so whitespace-only scoped run ids could render a strip with an empty review id — locus: policy-pack strip guard; input: `scopedRunId` of three spaces with scope filter inactive.
+- [x] (valid-no-repro) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims — **cheap-disproof 2026-10-29 thorough hunt:** queue rows pass through `dedupeGovernanceFindingRows` before render; hypothetical pre-dedupe loader path is not reachable in the current fetch pipeline.
+- [x] (proven) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership used raw `row.findingId` without trim — **hit 2026-10-29 thorough hunt (second pass):** shared trimmed available-id set and checkbox matching; see proven row above under Hypotheses.
+- [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueTitleLabel` already uses `row.title.trim().length > 0` before omission copy.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row — **cheap-disproof 2026-10-29 thorough hunt:** `resolveFirstFindingTriageTarget` uses `displayedRows.find((candidate) => candidate.recordKind === "finding")`.
+- [x] (proven) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive` — **hit 2026-10-29 thorough hunt:** gate on `scopedRunFilterActive`; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`.
+
+- [x] (proven) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership used raw `row.findingId` without trim while URL bulk tokens use trimmed ids — **hit 2026-10-29 thorough hunt:** `governanceFindingsQueueAvailableFindingIdSet` + `isGovernanceQueueFindingIdSelected`; regressions `stores trimmed finding ids when register rows retain padding` and `matches bulkFindings to trimmed ids when register rows retain padding`.
+- [x] (valid-no-repro) `GovernanceFindingsQueueResultsSection` — `FindingsTriageFirstFindingStrip` renders when `firstFindingTriageTarget` references a finding hidden by register filter but still present in `displayedRows` — **cheap-disproof 2026-10-29 thorough hunt:** `firstFindingTriageTarget` resolves from `displayedRows` after register/NL/job filters (`use-governance-findings-queue-synopsis.ts`).
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — `PickReviewBeforeTriageStrip` vs inactive `scopedRunFilterActive` when URL carries whitespace `runId` — **cheap-disproof 2026-10-29 thorough hunt:** strip intentionally shown when review scope is inactive (`!scopedRunFilterActive`), matching scope banner semantics.
+- [x] (invalid) `useGovernanceFindingsQueueBulkActions` — bulk URL restore keeps padded ids that dedupe collapsed visually but remain in `rows` length — **cheap-disproof 2026-10-29 thorough hunt:** dedupe runs before rows reach the client; hypothetical pre-dedupe duplicate length is test-harness-only, not reachable in fetch pipeline.
+- [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — severity omission copy path when `severity` is whitespace-only — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueSeverityCell` already treats `row.severity.trim().length === 0` as omitted.
+
+- [x] (proven) `resolveContinueLastFindingTarget` / `resolveContinueLastGovernanceFinding` — recent-view finding id match used raw `row.findingId` — **hit 2026-10-29 thorough hunt:** `normalizeGovernanceQueueFindingId` on compare; regression `matches recent view when queue row findingId retains padding`.
+- [x] (proven) `extractGovernanceFindingIds` — ITSM prefetch and triage helpers consumed raw ids while URL tokens trim — **hit 2026-10-29 thorough hunt (same pass):** trim in `extractGovernanceFindingIds`; `governanceQueueRowFindingIdEquals` for triage URL hydration.
+- [x] (proven) `governance-findings-queue-keyboard-focus` — card focus queried raw `data-finding-id` only — **hit 2026-10-29 thorough hunt (same pass):** `queryGovernanceFindingCardElement`; regression `focuses finding cards when data-finding-id retains padding`.
+- [x] (valid-no-repro) `GovernanceAssignedToMePathInspectSection` — path inspect vs padded `data-finding-id` — **cheap-disproof 2026-10-29 thorough hunt:** trimmed `availableFindingIds`; keyboard focus helper finds padded DOM ids.
+- [x] (invalid) `GovernanceFindingsQueueMobileCard` — mobile bulk select bypasses checkbox helper — **cheap-disproof 2026-10-29 thorough hunt:** no mobile bulk checkbox path (desktop table only).
+- [x] (invalid) `governanceFindingsClearReviewScopeHref` — scope clear preserves stale `bulkFindings` — **cheap-disproof 2026-10-29 thorough hunt:** deletes `bulkFindings` by design (`clears stale bulk selection params tied to the scoped review`).
+
+- [x] (proven) `useGovernanceFindingTriageWithCursor` — URL sync cleared `focusedFinding` before hydration opened triage and compared raw row ids — **hit 2026-10-29 thorough hunt:** hydration gate + trimmed compare; regressions in `use-governance-finding-triage-with-cursor.test.tsx`.
+- [x] (proven) `GovernanceFindingsList` mobile triage — same hook backs mobile `openTriageRow` — **hit 2026-10-29 thorough hunt (same pass):** shared cursor hook fix.
+- [x] (valid-no-repro) `resolveFirstFindingTriageTarget` — nested `focusedFinding` href emission — **cheap-disproof 2026-10-29 thorough hunt:** `governanceFindingInspectHref` trims before `params.set`.
+- [x] (valid-no-repro) `governanceFindingInspectHref` — inspect href vs recent-view trim — **cheap-disproof 2026-10-29 thorough hunt:** href builder trims finding ids.
+- [x] (invalid) `WorkbenchFindingSelectionSync` — raw `data-finding-id` compare — **cheap-disproof 2026-10-29 thorough hunt:** review workbench only, outside governance findings queue surfaces.
+
+- [ ] (candidate) `useGovernanceFindingTriage` — `openForRow` indexes rows with raw `findingId` equality — locus: triage panel row lookup; input: padded vs trimmed duplicate ids before dedupe in harness.
+- [ ] (candidate) `FindingKeyboardTriageHost` — Alt+J/K walks `[data-finding-id]` without trim parity vs normalized bulk selection — locus: keyboard triage vs bulkFindings; input: padded card with trimmed selection.
+- [ ] (candidate) `parseGovernanceFindingTriageFocusedFindingIdFromSearch` — whitespace-only `focusedFinding` param skips hydration while panel state stale — locus: `%20`-only focusedFinding URL; input: `focusedFinding=%20%20`.
+- [ ] (candidate) `GovernanceFindingTriagePanel` — disposition actions use raw `activeRow.findingId` while API clients trim — locus: in-panel disposition POST; input: padded active row.
+- [ ] (candidate) `usePrefetchItsmFindingCorrelations` — prefetch list trimmed but bulk ITSM callbacks pass raw row ids — locus: ITSM chip vs padded selection; input: bulk ITSM on padded row.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
@@ -12680,13 +12891,19 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — dependency-neighborhood seed picker clobbered executive catalog rows with stale visible-outline hydration
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — dependency seed catalog ignored Show never-show after catalog cache early-return
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` early-return left `seedCandidateNodes` stale when `includeNeverShow` toggled after the executive catalog was cached; dedicated effect refilters cached `seedCatalogOutline` for the current snapshot whenever `includeNeverShow` changes; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who turn on Show never-show components while choosing a dependency-neighborhood starting resource see metric alerts and other filtered inventory rows in the seed picker without reloading the snapshot.
+
+2026-10-29 thorough hunt (hit): soft URL `snapshotId` changes left `selectedSnapshotId` on the prior snapshot until a full snapshots refetch finished, so dependency-neighborhood seed catalog state stayed paired with the old id; resync `selectedSnapshotId` from `urlSnapshotId` once snapshots are loaded (mirroring mode URL sync); regression `refreshes dependency seed catalog when the URL snapshot id changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who use browser back/forward or bookmarked snapshot links on infra diagrams while picking a dependency-neighborhood starting resource get that URL snapshot's executive catalog instead of stale seeds from the prior snapshot.
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` treated any non-empty `seedCatalogOutline` as fresh and skipped refetch on snapshot change while async executive catalog responses could still apply to the wrong snapshot id; pair catalog state with `seedCatalogSnapshotId`, bail stale async completions with `selectedSnapshotIdRef`, and clear both on snapshot change; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood and seed-catalog workbench vitest passed. Private beta: Invited operators who change the infra diagrams snapshot while dependency neighborhood awaits a starting resource see that snapshot's executive catalog in the seed picker instead of stale resources from the prior snapshot.
 
 2026-10-25 thorough hunt (hit): `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stops visible-outline seed hydration while dependency neighborhood awaits a starting resource (fixes executive catalog seeds replaced by stale executive canvas nodes after mode switch); regressions `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource` and `keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-seed, seed-catalog, strip-overflow, and workbench vitest passed. Private beta: Invited operators switching to dependency neighborhood before choosing a starting resource keep the full executive catalog in the seed picker instead of a truncated list copied from the previous diagram view.
 
@@ -12733,11 +12950,29 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — **cheap-disproof 2026-10-25 thorough hunt:** legend rows derive from filtered outline props; observed swatches are layout-level accents independent of family chip filtering.
 - [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — **cheap-disproof 2026-10-25 thorough hunt:** workbench parses `displayMermaidSource` for `mermaidOutline` after strip + display normalization on every render response.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — locus: `loadSeedCatalog` effect; input: rapid snapshot picker change while dependency neighborhood awaits seed.
-- [ ] (candidate) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — locus: helper guard; input: selected-resources awaiting multi-select with partial render visible.
-- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — locus: catalog effect filter; input: executive catalog containing SQL database never-show rows.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — locus: outline panel state; input: operator selects edge then catalog reload replaces outline nodes.
-- [ ] (candidate) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — locus: display normalization order; input: mixed-case executive edge labels in catalog mermaid.
+- [x] (proven) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — **hit 2026-10-29 thorough hunt:** `seedCatalogSnapshotId` + `selectedSnapshotIdRef` guard `loadSeedCatalog`; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`.
+- [x] (valid-no-repro) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — **cheap-disproof 2026-10-29 thorough hunt:** helper returns false for `selectedResources` with empty `appliedSeedNodeId`; covered by regression `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource`.
+- [x] (valid-no-repro) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — **cheap-disproof 2026-10-29 thorough hunt:** catalog effect applies `filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow)` before `setSeedCandidateNodes`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — **cheap-disproof 2026-10-29 thorough hunt:** outline panel already clears selected edges when `outline` changes; regression `clears a selected edge detail panel when the outline changes`.
+- [x] (valid-no-repro) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — **cheap-disproof 2026-10-29 thorough hunt:** intentional display parity for picker labels matching canvas; seed catalog resolver applies normalization before parse by design.
+
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter change clears snapshot selection but leaves dependency-neighborhood seed catalog paired to the prior snapshot id — **cheap-disproof 2026-10-29 thorough hunt:** `applySubscriptionFilterChange` clears `selectedSnapshotId` when the snapshot falls outside the filter, which triggers the existing seed-catalog reset effect on `[selectedSnapshotId]`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — toggling Show never-show components while catalog load is in flight applies filtered nodes to the wrong snapshot — **cheap-disproof 2026-10-29 thorough hunt:** `includeNeverShow` only refilters the same snapshot's parsed outline via `filterInfraEvidenceMermaidOutline`; `seedCatalogSnapshotId` pairing prevents cross-snapshot application after the 2026-10-29 picker hit.
+- [x] (proven) `DiagramsWorkbenchClient` — soft URL navigation updates `urlSnapshotId` without clearing seed catalog when mode stays dependency neighborhood — **hit 2026-10-29 thorough hunt:** resync selected snapshot from URL when snapshots are loaded; regression `refreshes dependency seed catalog when the URL snapshot id changes`.
+- [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render returns before executive catalog fetch completes and seed picker briefly lists visible-outline nodes — **cheap-disproof 2026-10-29 thorough hunt:** `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stays false while dependency neighborhood awaits a seed, so render responses cannot hydrate the picker.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — applied seed from URL survives snapshot change and blocks catalog refresh while picker still shows prior snapshot seeds — **cheap-disproof 2026-10-29 thorough hunt:** with a deep-linked applied seed the workbench leaves catalog-awaiting mode (`dependencyNeighborhoodAwaitingSeed` false), so the stale-catalog picker path does not apply; snapshot picker changes still clear render state via `handleSnapshotChange`.
+
+- [x] (proven) `DiagramsWorkbenchClient` — toggling Show never-show while awaiting seed skips refiltering seed candidates when catalog early-return fires — **hit 2026-10-29 thorough hunt:** refilter effect on cached `seedCatalogOutline`; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked `seedNodeId` on snapshot A leaves applied seed after URL snapshot moves to B without clearing the param — **cheap-disproof 2026-10-29 thorough hunt:** with an applied seed the workbench exits catalog-awaiting mode; neighborhood render uses the seed against the current `selectedSnapshotId`, not the stale catalog picker list.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter confirm dialog applies filter without clearing seed catalog when selection survives filter — **cheap-disproof 2026-10-29 thorough hunt:** confirm path calls `applySubscriptionFilterChange`, which clears mode/render when the filter changes and resets catalog via `selectedSnapshotId` when the snapshot drops out of the filter.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadSnapshots` refetch after URL snapshot change races URL resync effect and briefly restores prior catalog — **cheap-disproof 2026-10-29 thorough hunt:** URL resync sets `selectedSnapshotId` immediately when snapshots are already loaded; catalog clear tracks selection id and `seedCatalogSnapshotId` pairing from the same-day hits.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — seed catalog reload replaces outline nodes but leaves selected inventory edge from prior catalog parse — **cheap-disproof 2026-10-29 thorough hunt:** dependency-neighborhood seed pick uses catalog outline for the picker only; `selectedInventoryEdge` clears when `familyFilteredOutline` changes from render, not catalog cache.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — clearing applied seed after snapshot change does not remove deep-linked `seedNodeId` from the URL — locus: snapshot change + URL seed param; input: applied neighborhood render after soft-nav snapshot without seed param update.
+- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog refilter effect runs while `loadingSeedCatalog` true and flashes empty picker options — locus: refilter vs load race; input: slow catalog fetch then rapid never-show toggle.
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change to ALL resets mode and leaves dependency-neighborhood URL mode out of sync with cleared picker state — locus: `applySubscriptionFilterChange` ALL branch; input: filter to ALL while awaiting seed.
+- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — SQL master database rows appear in seed catalog when never-show off but collapse report omits them — locus: never-show name heuristic vs catalog parse; input: executive catalog with master DB node.
+- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog refetch after snapshot change ignores `includeNeverShow` until refilter effect runs — locus: load + refilter ordering; input: deep-linked includeNeverShow=1 on snapshot change.
 
 - **id:** infra-evidence-diagrams
 - **status:** open

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Coverage;
 
 /// <summary>Resolved, explainable coverage for a prospective architecture run (not persisted).</summary>
@@ -45,9 +47,11 @@ public sealed class CoveragePreviewResult
         set;
     }
 
+    private IReadOnlyList<CoveragePreviewAssignment> assignments = [];
+
     public IReadOnlyList<CoveragePreviewAssignment> Assignments
     {
-        get;
-        set;
-    } = [];
+        get => assignments;
+        set => assignments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

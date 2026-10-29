@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class SynthesizedArtifact
 {
@@ -63,17 +65,21 @@ public class SynthesizedArtifact
         set;
     } = SynthesizedArtifactGenerationStatus.Generated;
 
+    private Dictionary<string, string> metadata = new();
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new();
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     /// <summary>Architecture decisions that contributed to this artifact (provenance / explainability).</summary>
+    private List<string> contributingDecisionIds = [];
+
     public List<string> ContributingDecisionIds
     {
-        get;
-        set;
-    } = [];
+        get => contributingDecisionIds;
+        set => contributingDecisionIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 

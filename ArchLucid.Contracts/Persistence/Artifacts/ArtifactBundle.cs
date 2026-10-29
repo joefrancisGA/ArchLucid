@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class ArtifactBundle
 {
@@ -51,16 +53,20 @@ public class ArtifactBundle
         set;
     } = ArtifactBundleStatus.Available;
 
+    private List<SynthesizedArtifact> artifacts = [];
+
     public List<SynthesizedArtifact> Artifacts
     {
-        get;
-        set;
-    } = [];
+        get => artifacts;
+        set => artifacts = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private SynthesisTrace trace = new();
 
     public SynthesisTrace Trace
     {
-        get;
-        set;
-    } = new();
+        get => trace;
+        set => trace = value ?? new SynthesisTrace();
+    }
 }
 

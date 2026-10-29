@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public sealed class FindingVerificationReportResponse
@@ -38,9 +40,11 @@ public sealed class FindingVerificationReportResponse
         init;
     }
 
+    private IReadOnlyList<FindingVerificationResultResponse> results = [];
+
     public required IReadOnlyList<FindingVerificationResultResponse> Results
     {
-        get;
-        init;
+        get => results;
+        init => results = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 }
