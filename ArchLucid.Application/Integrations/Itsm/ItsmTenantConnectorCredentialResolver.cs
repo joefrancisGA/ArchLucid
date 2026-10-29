@@ -72,6 +72,8 @@ public sealed class ItsmTenantConnectorCredentialResolver(
 
             if (!string.IsNullOrWhiteSpace(secret))
                 return secret.Trim();
+
+            return null;
         }
 
         IntegrationsItsmInboundOptions inbound = _inboundOptions.CurrentValue;

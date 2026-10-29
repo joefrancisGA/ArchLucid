@@ -6473,7 +6473,24 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 42 · **Bugs found:** 29 · **Consecutive dry hunts:** 0
+**Hunts:** 43 · **Bugs found:** 30 · **Consecutive dry hunts:** 0
+
+2026-10-29 seed hunt (seed→hit #196): promoted tenant inbound webhook auth gap — enabled connector with `InboundWebhookKeyVaultSecretName` configured but empty Key Vault lookup still fell through to deployment-wide secrets when allowed; fail closed with `null` after a configured tenant inbound secret name resolves empty; regression `TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_inbound_secret_name_configured_but_keyvault_value_missing`; scoped webhook + credential resolver filter 85/85 passed (`RunAnalyzers=false`). Private beta: tenant-scoped ITSM inbound URLs no longer accept webhooks signed with legacy deployment-wide secrets when the tenant’s configured Key Vault secret is missing.
+
+- [x] (proven) `ItsmTenantConnectorCredentialResolver.TryResolveInboundWebhookSecretAsync` — configured inbound secret name + missing KV value + global fallback — **hit 2026-10-29 seed hunt #196:** regression above.
+
+2026-10-29 seed hunt (seed-only #196 lane B): cheap-disproof on optional timestamp header absence (documented TB-968/runbook), audit `state` trim-only (reader canonicalizes), ResolveAlternate trim return (re-normalized at read), replay retention on zero-row HR (intentional dedupe), Jira Unicode homoglyph statuses (exotic); reseeded five follow-on `(candidate)` rows; scoped filter 85/85. Private beta: n/a.
+
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — missing timestamp when skew enabled — **cheap-disproof 2026-10-29 #196:** documented optional header in `ITSM_INBOUND_WEBHOOK_REPLAY_GUARD.md`; regression `ProcessAsync_skips_timestamp_skew_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — ServiceNow audit `state` trim-only — **cheap-disproof 2026-10-29 #196:** payload reader normalizes before pipeline; replay keys canonicalized (#190–#194).
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.ResolveAlternateStatusValue` — trim-only incident return — **cheap-disproof 2026-10-29 #196:** TryRead re-normalizes; canonical compare in #194.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.TryClaimReplayAsync` — replay retained after zero-row HR — **cheap-disproof 2026-10-29 #196:** vendor-friendly TB-968 dedupe; existing sync regressions.
+- [x] (valid-no-repro) `ItsmInboundJiraPayloadReader.TryRead` — Unicode homoglyph status names — **cheap-disproof 2026-10-29 #196:** no production homoglyph workflow evidence; trim suffices for Jira names today.
+- [ ] (candidate) `ItsmTenantConnectorCredentialResolver.TryResolveInboundWebhookSecretAsync` — enabled tenant without inbound secret name still uses deployment-wide secret — locus: fall-through after tenant row; input: migration tenants without KV inbound mapping; reachability: intentional until tenant secret configured.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `effectiveStatusValue` assignment still uses trim on alternate promotion — locus: ~98; input: defense-in-depth normalization; reachability: reader-normalized payloads today.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateServiceNowStatusDetail` — rejected/unknown status audit uses trim-only effective state — locus: ~390; input: parity with synced audit canonicalization; reachability: operator audit readability.
+- [ ] (candidate) `ItsmInboundWebhooksController.ResolveDeliveryId` — delivery id header whitespace-only treated as absent — locus: header resolution; input: synthetic replay vs explicit blank delivery id; reachability: dedupe edge cases.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.TryClaimAsync` — concurrent duplicate claims same millisecond — locus: TryAdd race; input: parallel webhook delivery; reachability: Persistence guard tests.
 
 2026-10-29 seed hunt (seed→hit #195): promoted `(candidate)` disabled tenant connector still accepted deployment-wide inbound webhook secrets — `TryResolveInboundWebhookSecretAsync` skipped disabled tenant rows and fell through to global Jira/ServiceNow secrets when `AllowDeploymentWideWebhookSecrets` was true; fail closed with `null` when a tenant row exists and `IsEnabled` is false; regression `TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_connector_disabled_even_if_deployment_secret_allowed`; scoped webhook + credential resolver filter 84/84 passed (`RunAnalyzers=false`). Private beta: ITSM inbound webhooks for a tenant with the connector disabled are rejected (401) instead of authenticating via legacy deployment-wide secrets.
 
