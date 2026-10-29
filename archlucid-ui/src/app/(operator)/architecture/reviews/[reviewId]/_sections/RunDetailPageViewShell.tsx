@@ -313,7 +313,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-        blockingFindingCount={blockingApprovalCount}
+        blockingFindingCount={blockingApprovalCount ?? 0}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
         manifestStatus={m.manifestSummary?.status ?? null}
