@@ -1,3 +1,5 @@
+> **Scope:** SecureNow Marketplace prepublication hold. Not a live Partner Center offer, and not permission to treat an ArchLucid subscription as SecureNow access.
+
 # SecureNow Marketplace offer — prepublication contract (NOT LIVE)
 
 **Status: HOLD / OWNER REVIEW ONLY.** This is not an approved transactable offer, not a listing in Partner Center, and does not authorize using the ArchLucid Marketplace subscription plans for SecureNow. SecureNow's controlled beta remains **NO_GO**.

@@ -1,3 +1,5 @@
+> **Scope:** Internal proposal for a SecureNow controlled pilot. Not an approved customer offer. Beta remains NO_GO until the owner checklist is cleared.
+
 # SecureNow — controlled enterprise pilot offer and acceptance plan
 
 > **INTERNAL PROPOSAL / NOT AN APPROVED CUSTOMER OFFER.** Buyer-adaptable commercial planning document, not a release certification, binding quote, deployed capability attestation, or claim of customer results. A synthetic demo is **NOT customer evidence**. SecureNow beta release remains **NO_GO** until all owner-approved staging, identity, security and release gates are completed. Pricing, dates, legal terms, security assurances and scope require human approval.
