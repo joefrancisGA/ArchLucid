@@ -209,6 +209,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             // sequence such as %25253D. Inspect it once rather than decoding the
             // entire config value thousands of times (quadratic work for deep inputs).
             // As with literal separators, empty credential values fail closed.
+
             if (rest[afterKey] == '%' && IsRepeatedlyEncodedSeparator(rest.Slice(afterKey)))
                 return true;
 
@@ -231,6 +232,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     {
         // One encoding of '=' is %3D, and each additional encoding inserts 25
         // after the leading percent: %253D, %25253D, etc. ':' ends in 3A.
+
         if (value.Length < 3 || value[0] != '%')
             return false;
 
