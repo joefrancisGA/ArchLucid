@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #176): promoted loose `dbo.Tenants ` substring and `Tenant slug` phrase false positive/negative on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `dbo.Tenants backup` satisfied org duplicate context while `Tenant slug: acme already exists` did not; `ContainsDboTenantsTableReference` now boundary-scans `dbo.Tenants` and `ContainsTenantSlugPhrase` accepts colon after the label; regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_dbo_tenants_in_unrelated_prose` and `IsDuplicateOrganization_detects_tenant_slug_label_with_colon_in_already_exists_message`; scoped filter 342/342 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on unrelated duplicate-key prose mentioning Tenants, and still recognizes colon-form slug already-exists copy.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `dbo.Tenants` prose / `Tenant slug:` phrase — **hit 2026-10-29 seed hunt #176:** dbo table boundary scan + slug phrase delimiter; regressions above.
+
 2026-10-29 seed hunt (seed→hit #175): promoted `Tenants.Slug` embedded column substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; extended column names such as `Tenants.SlugHistory` matched slug org context because `ContainsTenantsTableColumnReference` only bounded the table prefix; column detection now requires a non-identifier character after the column token; regressions `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_slug_history_column` and `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_normalized_organization_name_history_column`; scoped filter 340/340 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats slug-history or normalized-name-history column unique failures as org-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.Slug*` extended column name false positive — **hit 2026-10-29 seed hunt #175:** trailing identifier boundary on column token; regressions above.
@@ -16056,11 +16060,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 175
-- **bugs-found:** 154
+- **hunts:** 176
+- **bugs-found:** 155
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenants.Slug extended column name false positive
+- **last-bug:** 2026-10-29 — dbo.Tenants prose / Tenant slug colon phrase
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
