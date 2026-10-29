@@ -49,9 +49,10 @@ public static class TenantOrganizationDuplicateDetector
             && ContainsOrganizationDuplicateContext(text));
 
     private static bool ContainsOrganizationDuplicateContext(string text) =>
-        text.Contains("tenant", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("slug", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("organization", StringComparison.OrdinalIgnoreCase);
+        text.Contains("slug", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("organization", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("IX_", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("Tenants.", StringComparison.OrdinalIgnoreCase);
 
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)

@@ -116,4 +116,22 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_already_exists_on_unrelated_tenant_settings()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("TenantSettings row already exists for this key."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_on_unrelated_tenant_settings()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate TenantSettings entry rejected during nav seed."))
+            .Should()
+            .BeFalse();
+    }
 }
