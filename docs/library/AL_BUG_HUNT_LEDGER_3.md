@@ -5786,6 +5786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `InsightDensityCurationSummary.HeldCheckLedgerEntries`, `ProseAssumptionRegisterEntries`, and `ProseAssumptionHeldCheckAsks` explicit JSON `null` on findings snapshot curation JSON despite nullable list types; `ContractCollectionDefaults.CoalesceReadOnly` on all three setters; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `CompositeAlertEvaluationResult` (in-process result type — not findings/API JSON surface), `ValueReportSnapshot` (builder-constructed positional record, not JSON DTO path); scoped InsightDensityCurationSummary deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: insight-density curation JSON with null list fields deserializes to empty lists so findings emit and export honesty paths do not null-reference when replaying snapshot curation blocks.
+
+- [x] (proven) `InsightDensityCurationSummary` list properties — explicit JSON `null` on curation summary lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regression above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** persistence service return type, not OpenAPI JSON contract.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** sponsor DOCX builder record, not deserialized API DTO.
+
 2026-10-29 seed hunt (seed→hit): promoted `FindingExplainabilityEvidenceRecord.EvidenceRefs` and `AlternativePathsConsidered` explicit JSON `null` on explainability evidence JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `CoveragePreviewInput.UserOverrides` (nullable by design — only mapped from API request with null-conditional), `PilotReportCard` list properties (already `CoalesceReadOnly` on `FindingsBySeverity`); scoped FindingExplainabilityEvidenceRecord deserialization + existing round-trip test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: finding explainability evidence JSON with null list fields deserializes to empty lists so decisioning narrative builders do not null-reference when replaying slim evidence rows.
 
 - [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — explicit JSON `null` on explainability evidence record — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
@@ -5870,11 +5876,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 232
-- **bugs-found:** 346
+- **hunts:** 233
+- **bugs-found:** 347
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — FindingExplainabilityEvidenceRecord list JSON null
+- **last-bug:** 2026-10-29 — InsightDensityCurationSummary list JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5915,11 +5921,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `PilotReportCard` response list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `InsightDensityCurationSummary` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `CoveragePreviewRequest` API model list properties — scan OpenAPI request DTO lists deserialized before mapper coalesce.
-- [ ] (candidate) `ValueReportSnapshot` collection fields — scan value report snapshot contract for JSON null bypass on initializers.
-- [ ] (candidate) `InsightDensityCurationSummary` list properties — explicit JSON `null` on insight density summary lists if missing coalesce.
-- [ ] (candidate) `CompositeAlertEvaluationResult` nested lists — scan composite alert evaluation contract collections.
+- [ ] (candidate) `AgentResult` nested list properties — scan agent result contract lists on JSON round-trip through AgentResultJsonConverter.
+- [ ] (candidate) `FindingsSnapshot` nested optional objects beyond curation — verify withheld/checklist nested lists after curation fix.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
+- [ ] (candidate) `AlertRecord` metadata or tag lists — scan alert record contract collections for JSON null bypass.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5978,7 +5987,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 232 · **Bugs found:** 346 · **Consecutive dry hunts:** 0
+**Hunts:** 233 · **Bugs found:** 347 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
