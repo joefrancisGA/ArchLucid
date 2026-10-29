@@ -61,7 +61,9 @@ public sealed class RunFindingCoverageSummary
     public FindingsSnapshotGenerationStatus GenerationStatus
     {
         get => generationStatus;
-        init => generationStatus = ContractCollectionDefaults.CoalesceFindingsSnapshotGenerationStatus(value);
+        init => generationStatus = ContractCollectionDefaults.CoalesceInvalidEnumZero(
+            value,
+            FindingsSnapshotGenerationStatus.Complete);
     }
 
     /// <summary>Governance disposition counts for findings on this run (null when snapshot missing).</summary>

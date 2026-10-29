@@ -19,13 +19,11 @@ public static class ContractCollectionDefaults
 
     public static string CoalesceRequired(string? value) => value ?? string.Empty;
 
-    /// <summary>Maps explicit JSON numeric <c>0</c> (invalid for this enum) to <see cref="Findings.FindingsSnapshotGenerationStatus.Complete" />.</summary>
-    public static Findings.FindingsSnapshotGenerationStatus CoalesceFindingsSnapshotGenerationStatus(
-        Findings.FindingsSnapshotGenerationStatus value) =>
-        value == default ? Findings.FindingsSnapshotGenerationStatus.Complete : value;
-
-    /// <summary>Maps explicit JSON numeric <c>0</c> (invalid for this enum) to <see cref="Persistence.Artifacts.SynthesizedArtifactGenerationStatus.Generated" />.</summary>
-    public static Persistence.Artifacts.SynthesizedArtifactGenerationStatus CoalesceSynthesizedArtifactGenerationStatus(
-        Persistence.Artifacts.SynthesizedArtifactGenerationStatus value) =>
-        value == default ? Persistence.Artifacts.SynthesizedArtifactGenerationStatus.Generated : value;
+    /// <summary>
+    ///     Substitutes <paramref name="legacyDefaultWhenInvalidZero" /> when JSON numeric <c>0</c> deserializes to
+    ///     <see langword="default" /> for enums with no zero member (property initializers do not apply on deserialize).
+    /// </summary>
+    public static TEnum CoalesceInvalidEnumZero<TEnum>(TEnum value, TEnum legacyDefaultWhenInvalidZero)
+        where TEnum : struct, Enum =>
+        EqualityComparer<TEnum>.Default.Equals(value, default) ? legacyDefaultWhenInvalidZero : value;
 }
