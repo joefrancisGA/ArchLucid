@@ -569,6 +569,17 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_extracts_vault_host_when_secret_uri_host_contains_replacement_character()
+    {
+        const string vaultHostWithReplacement = "my\uFFFDmiddle.vault.azure.net";
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            $"@Microsoft.KeyVault(SecretUri=https://{vaultHostWithReplacement}/secrets/sql-password)");
+
+        keyVaultHost.Should().Be(vaultHostWithReplacement.ToLowerInvariant());
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_returns_null_when_secrets_path_uses_percent_encoded_slashes()
     {
         (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
