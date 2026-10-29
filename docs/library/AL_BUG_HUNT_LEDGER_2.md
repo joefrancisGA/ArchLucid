@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #180): promoted bare `with` word false positive after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` introduced by hunt #179 whitespace-tolerant matching; prose such as `object 'dbo.Tenants' with backup table` matched org context; `ContainsWithUniqueIndexClause` now requires `with unique`, `with index`, or `with constraint` after the quoted object token; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unrelated_prose`; scoped filter 350/350 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key text that mentions dbo.Tenants with unrelated with-clause prose while still accepting SQL with unique index shapes.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare with after object dbo.Tenants — **hit 2026-10-29 seed hunt #180:** `ContainsWithUniqueIndexClause`; regression above.
+
 2026-10-29 seed hunt (seed→hit #179): promoted false negatives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` for padded `object 'dbo.Tenants'  with` duplicate-key text, semicolon-delimited `Tenant slug;` already-exists copy, and unquoted `IX_Tenants_Slug;` constraint names; object reference matching skips whitespace before a `with` clause, and slug/index token delimiters accept semicolon; regressions `IsDuplicateOrganization_detects_duplicate_key_on_object_dbo_tenants_with_extra_space_before_with_clause`, `IsDuplicateOrganization_detects_tenant_slug_label_with_semicolon_in_already_exists_message`, and `IsDuplicateOrganization_detects_unquoted_ix_tenants_slug_constraint_ending_with_semicolon`; scoped filter 349/349 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency still recognizes real SQL duplicate-key and slug already-exists shapes that use extra spacing or semicolon delimiters.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — whitespace before with / semicolon slug and index tokens — **hit 2026-10-29 seed hunt #179:** object `with` scan + delimiter expansion; regressions above.
@@ -16072,11 +16076,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 179
-- **bugs-found:** 158
+- **hunts:** 180
+- **bugs-found:** 159
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — object with whitespace / semicolon slug and index false negatives
+- **last-bug:** 2026-10-29 — bare with after object dbo.Tenants false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
