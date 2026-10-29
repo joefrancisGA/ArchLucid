@@ -5,13 +5,20 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
 /// <summary>
-/// Reuses visible, enriched inventory evidence only during an awaited analysis pipeline.
-/// AsyncLocal carries the run through diff-consumer fan-out without changing public engine ports.
-/// Canonical reads and all mutable path, finding, assertion and rank reads bypass this context.
+/// Run-local reuse of enriched snapshot evidence. Only identical repository/scope/snapshot
+/// reads coalesce; unrelated keys can load concurrently. Canonical and mutable evidence
+/// reads never use this cache. All retained data is released with its owning run.
 /// </summary>
 internal static class SecureNowAnalysisRun
 {
     private static readonly AsyncLocal<RunState?> Current = new();
+
+    // Conservative retention controls, not calibrated CLR heap-size limits.
+    internal const int MaxRetainedSnapshots = 8;
+    internal const int MaxTrackedKeys = 16;
+    internal const int MaxConcurrentSnapshotLoads = 4;
+    internal const long MaxRetainedEstimatedBytes = 16L * 1024 * 1024;
+    internal const long MaxSingleEstimatedBytes = 8L * 1024 * 1024;
 
     public static IDisposable Begin() => new RunLease();
 
@@ -25,44 +32,129 @@ internal static class SecureNowAnalysisRun
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(repository);
+        ArgumentNullException.ThrowIfNull(scope);
         cancellationToken.ThrowIfCancellationRequested();
+
         RunState? run = Current.Value;
-
         if (run is null || !run.Active)
-            return await ReadAsync(repository, scope, snapshotId, cancellationToken);
+            return await ReadAsync(repository, scope, snapshotId, cancellationToken).ConfigureAwait(false);
 
-        await run.Gate.WaitAsync(cancellationToken);
+        SnapshotKey key = new(scope.TenantId, scope.WorkspaceId, scope.ProjectId, snapshotId);
+        CacheEntry? entry = null;
+        bool leader = false;
+        bool bypass = false;
+
+        lock (run.Sync)
+        {
+            if (!run.Active)
+            {
+                bypass = true;
+            }
+            else if (run.Entries.TryGetValue(repository, out var entries) &&
+                     entries.TryGetValue(key, out entry))
+            {
+                run.Touch(entry);
+            }
+            else
+            {
+                // Evict completed entries first. In-flight entries are never evicted or
+                // replaced, preventing two simultaneous reads for the same tracked key.
+                while (run.TrackedCount >= MaxTrackedKeys && run.Lru.First is not null)
+                    run.EvictOldest();
+
+                if (run.TrackedCount >= MaxTrackedKeys)
+                {
+                    // Fail open to the authoritative repository, but still observe the
+                    // run's global read-concurrency limit. Do not retain extra entries.
+                    bypass = true;
+                }
+                else
+                {
+                    entries ??= new Dictionary<SnapshotKey, CacheEntry>();
+                    run.Entries[repository] = entries;
+                    entry = new CacheEntry(repository, key);
+                    entries.Add(key, entry);
+                    run.TrackedCount++;
+                    leader = true;
+                }
+            }
+        }
+
+        if (bypass)
+            return await ReadWithLimitAsync(run, repository, scope, snapshotId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (leader)
+            _ = LoadAndPublishAsync(run, entry!, repository, scope, snapshotId);
+
+        // Canceling one waiter cannot cancel the shared read needed by other waiters.
+        return await entry!.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task LoadAndPublishAsync(
+        RunState run,
+        CacheEntry entry,
+        IAzureInventorySnapshotRepository repository,
+        ScopeContext scope,
+        Guid snapshotId)
+    {
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (!run.Active)
-                return await ReadAsync(repository, scope, snapshotId, cancellationToken);
+            SecureNowAnalysisSnapshot? loaded = await ReadWithLimitAsync(
+                run, repository, scope, snapshotId, run.Stop.Token).ConfigureAwait(false);
 
-            SnapshotKey key = new(scope.TenantId, scope.WorkspaceId, scope.ProjectId, snapshotId);
-            Dictionary<SnapshotKey, SecureNowAnalysisSnapshot?> snapshots;
-            lock (run.Snapshots)
+            long bytes = EstimateRetainedBytes(loaded);
+            lock (run.Sync)
             {
-                if (!run.Snapshots.TryGetValue(repository, out snapshots!))
+                if (run.Active && bytes <= MaxSingleEstimatedBytes &&
+                    run.Contains(entry))
                 {
-                    snapshots = [];
-                    run.Snapshots.Add(repository, snapshots);
+                    entry.EstimatedBytes = bytes;
+                    entry.Node = run.Lru.AddLast(entry);
+                    run.RetainedEstimatedBytes += bytes;
+                    while (run.Lru.Count > MaxRetainedSnapshots ||
+                           run.RetainedEstimatedBytes > MaxRetainedEstimatedBytes)
+                        run.EvictOldest();
                 }
-                if (snapshots.TryGetValue(key, out SecureNowAnalysisSnapshot? cached))
-                    return cached;
+                else
+                {
+                    run.Remove(entry);
+                }
             }
+            entry.Completion.TrySetResult(loaded);
+        }
+        catch (OperationCanceledException ex)
+        {
+            lock (run.Sync)
+                run.Remove(entry);
+            entry.Completion.TrySetCanceled(ex.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+            lock (run.Sync)
+                run.Remove(entry);
+            entry.Completion.TrySetException(ex);
+        }
+    }
 
-            SecureNowAnalysisSnapshot? loaded = await ReadAsync(repository, scope, snapshotId, cancellationToken);
-            // Exceptions and cancelled reads never become cache entries.
-            lock (run.Snapshots)
-            {
-                if (run.Active)
-                    snapshots.Add(key, loaded);
-            }
-            return loaded;
+    private static async Task<SecureNowAnalysisSnapshot?> ReadWithLimitAsync(
+        RunState run,
+        IAzureInventorySnapshotRepository repository,
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken)
+    {
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(
+            run.Stop.Token, cancellationToken);
+        await run.ReadSlots.WaitAsync(linked.Token).ConfigureAwait(false);
+        try
+        {
+            return await ReadAsync(repository, scope, snapshotId, linked.Token).ConfigureAwait(false);
         }
         finally
         {
-            run.Gate.Release();
+            run.ReadSlots.Release();
         }
     }
 
@@ -73,19 +165,102 @@ internal static class SecureNowAnalysisRun
         CancellationToken cancellationToken)
     {
         AzureInventorySnapshotDetailReadModel? snapshot =
-            await repository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+            await repository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken)
+                .ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         return snapshot is null ? null : new SecureNowAnalysisSnapshot(snapshot);
     }
 
+    /// <summary>
+    /// Deliberately conservative row-count proxy. Large strings, object graph overhead,
+    /// lazily built indexes and concurrent in-flight reads are not exact heap accounting.
+    /// </summary>
+    private static long EstimateRetainedBytes(SecureNowAnalysisSnapshot? value)
+    {
+        if (value is null)
+            return 1024;
+
+        var s = value.Snapshot;
+        long rows = (long)s.Resources.Count + s.Properties.Count + s.Tags.Count +
+            s.Relationships.Count + s.AdfExternalSources.Count + s.RoleAssignments.Count +
+            s.Diagnostics.Count + s.DefenderSummaries.Count + s.DefenderPricings.Count +
+            s.DefenderScoreControls.Count + s.DefenderAssessments.Count +
+            s.DefenderAssessmentCounts.Count + s.DefenderSecurityContacts.Count +
+            s.DefenderGovernanceAssignments.Count + s.DefenderComplianceStandards.Count +
+            s.DefenderComplianceControls.Count + s.DefenderAlerts.Count +
+            s.DefenderAttackPaths.Count + s.DefenderVulnerabilityCounts.Count +
+            s.DefenderVulnerabilityFindings.Count;
+
+        return checked(1024L + rows * 512L);
+    }
+
     private readonly record struct SnapshotKey(Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid SnapshotId);
+
+    private sealed class CacheEntry(
+        IAzureInventorySnapshotRepository repository, SnapshotKey key)
+    {
+        public IAzureInventorySnapshotRepository Repository { get; } = repository;
+        public SnapshotKey Key { get; } = key;
+        public TaskCompletionSource<SecureNowAnalysisSnapshot?> Completion { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public LinkedListNode<CacheEntry>? Node { get; set; }
+        public long EstimatedBytes { get; set; }
+    }
 
     private sealed class RunState
     {
         public volatile bool Active = true;
-        public SemaphoreSlim Gate { get; } = new(1, 1);
-        public Dictionary<IAzureInventorySnapshotRepository, Dictionary<SnapshotKey, SecureNowAnalysisSnapshot?>> Snapshots { get; } =
+        public object Sync { get; } = new();
+        public CancellationTokenSource Stop { get; } = new();
+        public SemaphoreSlim ReadSlots { get; } = new(MaxConcurrentSnapshotLoads, MaxConcurrentSnapshotLoads);
+        public Dictionary<IAzureInventorySnapshotRepository, Dictionary<SnapshotKey, CacheEntry>> Entries { get; } =
             new(ReferenceEqualityComparer.Instance);
+        public LinkedList<CacheEntry> Lru { get; } = new();
+        public int TrackedCount { get; set; }
+        public long RetainedEstimatedBytes { get; set; }
+
+        public bool Contains(CacheEntry entry) =>
+            Entries.TryGetValue(entry.Repository, out var entries) &&
+            entries.TryGetValue(entry.Key, out CacheEntry? existing) &&
+            ReferenceEquals(existing, entry);
+
+        public void Touch(CacheEntry entry)
+        {
+            if (entry.Node is null)
+                return;
+            Lru.Remove(entry.Node);
+            entry.Node = Lru.AddLast(entry);
+        }
+
+        public void EvictOldest()
+        {
+            if (Lru.First is { Value: CacheEntry entry })
+                Remove(entry);
+        }
+
+        public void Remove(CacheEntry entry)
+        {
+            if (!Contains(entry))
+                return;
+            Entries[entry.Repository].Remove(entry.Key);
+            if (Entries[entry.Repository].Count == 0)
+                Entries.Remove(entry.Repository);
+            TrackedCount--;
+            if (entry.Node is not null)
+            {
+                Lru.Remove(entry.Node);
+                entry.Node = null;
+                RetainedEstimatedBytes -= entry.EstimatedBytes;
+            }
+        }
+
+        public void Clear()
+        {
+            Entries.Clear();
+            Lru.Clear();
+            TrackedCount = 0;
+            RetainedEstimatedBytes = 0;
+        }
     }
 
     private sealed class RunLease : IDisposable
@@ -101,11 +276,15 @@ internal static class SecureNowAnalysisRun
             if (_disposed)
                 return;
             _disposed = true;
-            _state.Active = false;
+            lock (_state.Sync)
+            {
+                _state.Active = false;
+                _state.Clear();
+            }
             Current.Value = _previous;
-            // No pipeline work outlives its owner. Inherited execution contexts see Active=false.
-            lock (_state.Snapshots)
-                _state.Snapshots.Clear();
+            // Ongoing reads observe cancellation even when their repository
+            // ignores it initially. Do not dispose primitives under live tasks.
+            _state.Stop.Cancel();
         }
     }
 
