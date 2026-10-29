@@ -2005,6 +2005,58 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListClaimsMorePages()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        string manifestPath = Path.Combine(Path.GetTempPath(), $"tenant-isolation-manifest-{Guid.NewGuid():N}.json");
+        string manifestJson = """
+                              {
+                                "schemaVersion": 1,
+                                "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+                                "scenarios": [
+                                  {
+                                    "name": "truncated-list",
+                                    "probes": [
+                                      {
+                                        "name": "cross-tenant-run-list",
+                                        "path": "/v1/runs",
+                                        "expectedOutcome": "exclude-run-id",
+                                        "observedOutcome": "HTTP 200; foreign runId absent",
+                                        "observedStatusCode": 200,
+                                        "evidence": "hasMore without nextCursor",
+                                        "foreignRunIdVisible": false,
+                                        "runListPayloadScannable": true,
+                                        "runListClaimsMorePages": true
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                              """;
+
+        File.WriteAllText(manifestPath, manifestJson);
+
+        try
+        {
+            TenantIsolationNegativeTestRunner runner = new();
+            TenantIsolationNegativeTestReport report = runner.RunOffline(
+                repositoryRoot!,
+                new TenantIsolationNegativeTestOptions { ManifestPath = manifestPath });
+
+            report.Probes.Should().ContainSingle();
+            report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+            report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
     public void RunOffline_IgnoresManifestPassVerdictWhenObservedStatusIsUnexpectedSuccess()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();

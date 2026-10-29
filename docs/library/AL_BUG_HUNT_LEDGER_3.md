@@ -346,16 +346,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner` — exclude-run-id manifest replay false-passed when `runListClaimsMorePages` was true but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` without scan-incomplete copy (live list scan already SKIPs via `RunListClaimsMorePages`); offline replay now honors optional manifest `runListClaimsMorePages` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListClaimsMorePages`; 55 scoped `TenantIsolationNegativeTestRunnerTests` passed. Cheap-disproof closed manifest `verdict` override (intentional observed-only replay), deny 408/429 vs list SKIP asymmetry (fail-closed deny contract), Skip/Fail both → `OperationFailed` (pilot non-pass exit), and explicit artifact paths without `GetFullPath` (operator-supplied outputs). Private beta: offline tenant-isolation fixture replay no longer false-passes truncated run-list pages that claimed more results without a continuation cursor.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — `runListClaimsMorePages` manifest signal ignored on exclude replay — **hit 2026-10-29 thorough hunt:** optional `runListClaimsMorePages` → SKIP; regression above.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestManifestProbe.Verdict` — stored manifest verdict ignored — **cheap-disproof 2026-10-29 thorough hunt:** intentional; regression `RunOffline_IgnoresManifestPassVerdictWhenObservedStatusIsUnexpectedSuccess`.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestLiveRunner` — deny 408/429 Fail vs list exclusion Skip — **cheap-disproof 2026-10-29 thorough hunt:** `EvaluateDenyStatus_Treats429AsFailNotSkip` and live list skip regressions document fail-closed deny vs unverifiable list scan.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand.RunAsync` — overall Skip and Fail both exit `OperationFailed` — **cheap-disproof 2026-10-29 thorough hunt:** non-`Pass` overall verdict maps to operation failed for pilot CI; Skip is not success.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestOutputPaths.Resolve` — explicit out paths skip default artifact dir normalization — **cheap-disproof 2026-10-29 thorough hunt:** explicit `--json-out` / `--markdown-out` are operator-controlled like other CLI write targets; default paths remain under `artifacts/tenant-isolation-negative-test/`.
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — exclude replay omits live `ScanIncomplete` when `runListPayloadScannable` omitted but list JSON embedded in evidence claims `hasMore` — locus: manifest evidence parsing; input: fixture with hasMore in captured payload text only.
+- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner` — primary-scope run visible probe treats alternate-scope headers on primary client — locus: probe client selection; input: misconfigured scope headers on primary HttpClient (monitor against existing scope tests).
+- [ ] (candidate) `TenantIsolationNegativeTestCommand` — markdown artifact omits correlation ids when probe evidence truncates mid-string — locus: `BuildMarkdown`; input: probe with 300+ char observed outcome.
+
 2026-10-29 seed hunt (seed-only): re-read `TenantIsolationNegativeTestCommand.WriteArtifactsAsync`, offline manifest replay (`TenantIsolationNegativeTestOfflineRunner`), live list scan/pagination (`TenantIsolationNegativeTestLiveRunner`), and `DeriveOverallVerdict`; cheap-disproved stale filename-only artifact candidates (shared `EnsureArtifactParentDirectoryExists` covers markdown parity) and offline overall PASS when a cross-tenant probe SKIPped (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` documents intentional fixture replay); no new hunt-ready row met failing-repro bar; seeded five bounded candidates below; scoped `TenantIsolationNegativeTest*` vitest 59/59; no production code changed.
 
 - [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--json-out` — **cheap-disproof 2026-10-29 seed hunt:** fixed 2026-10-21; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`.
 - [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--markdown-out` — **cheap-disproof 2026-10-29 seed hunt:** same `EnsureArtifactParentDirectoryExists` guard as JSON path.
-
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — manifest replay lacks live `RunListClaimsMorePages` signal when `observedOutcome` is verified absent without scan-incomplete copy — locus: exclude replay trust; input: hand-authored manifest for hasMore-without-nextCursor list page.
-- [ ] (candidate) `TenantIsolationNegativeTestManifestProbe.Verdict` — stored manifest verdict field ignored by offline replay — locus: `EvaluateReplayProbe`; input: manifest row with `verdict: pass` contradicting observed leak copy (verify intentional vs drift).
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ExecuteLiveProbeAsync` — deny-status probes treat HTTP 408/429 as Fail while list exclusion SKIPs — locus: `EvaluateDenyStatus` vs exclude path; input: alternate-scope 408 on `cross-tenant-run-get` (document fail-closed contract).
-- [ ] (candidate) `TenantIsolationNegativeTestCommand.RunAsync` — overall `Skip` and `Fail` both map to `CliExitCode.OperationFailed` — locus: exit code branch; input: live run with only SKIP cross-tenant probes (verify pilot CI expectation).
-- [ ] (candidate) `TenantIsolationNegativeTestOutputPaths.Resolve` — explicit `--json-out` / `--markdown-out` bypass default artifact directory without `GetFullPath` normalization — locus: path resolution; input: relative `../outside.json` from repo root cwd.
 
 2026-10-21 seed hunt (seed→hit, lane C): lock `cli-tenant-isolation` verified on origin (`40b4314fa0`); promoted `WriteArtifactsAsync` — `--json-out report.json` (filename only) made `Path.GetDirectoryName` return empty and `Directory.CreateDirectory("")` fail before writing tenant-isolation evidence; skip directory creation when no parent path; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`; 59 scoped `TenantIsolationNegativeTest` tests passed.
 
@@ -429,11 +434,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 52
-- **bugs-found:** 25
+- **hunts:** 53
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-21 — filename-only --json-out artifact paths threw on CreateDirectory
+- **last-bug:** 2026-10-29 — offline exclude replay ignored runListClaimsMorePages manifest signal
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
