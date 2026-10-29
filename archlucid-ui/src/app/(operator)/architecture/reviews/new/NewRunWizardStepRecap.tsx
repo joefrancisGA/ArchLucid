@@ -215,10 +215,18 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {props.stepIndex >= 4 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
-          {hasBlankConstraintEntry ? (
+          {constraintsNonEmpty.length > 0 ? (
+            <>
+              {constraintsPreview.preview}
+              {hasBlankConstraintEntry ? (
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {" "}
+                  (one constraint entry was stored empty)
+                </span>
+              ) : null}
+            </>
+          ) : hasBlankConstraintEntry ? (
             <span className="text-neutral-600 dark:text-neutral-400">A constraint entry was stored empty.</span>
-          ) : constraintsNonEmpty.length > 0 ? (
-            constraintsPreview.preview
           ) : hasConstraintsArray ? (
             <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
           ) : (
