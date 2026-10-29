@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 
@@ -35,9 +36,14 @@ namespace ArchLucid.Api;
     "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
 {
+    // Stable only inside this process; distinguishes restarted replicas in mixed log streams.
+    private static readonly string ColdStartProcessBootId = Guid.NewGuid().ToString("N");
+
     public static async Task Main(string[] args)
     {
+        long processStartupTimestamp = Stopwatch.GetTimestamp();
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        long builderCreatedTimestamp = Stopwatch.GetTimestamp();
 
         // Configuration layering (lowest → highest for the same key):
         // 1. WebApplication defaults — appsettings.json (pilot-minimal product defaults) then appsettings.{Environment}.json
@@ -164,7 +170,17 @@ public partial class Program
             builder.Services.AddHostedService<TrialFunnelHealthProbe>();
         }
 
+        long registrationCompletedTimestamp = Stopwatch.GetTimestamp();
         WebApplication app = builder.Build();
+        long applicationBuiltTimestamp = Stopwatch.GetTimestamp();
+        // Stable structured events for hosted cold-start log correlation. No credentials,
+        // connection strings or tenant details are recorded.
+        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "builder-create",
+            processStartupTimestamp, builderCreatedTimestamp);
+        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "service-registration",
+            builderCreatedTimestamp, registrationCompletedTimestamp);
+        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "application-build",
+            registrationCompletedTimestamp, applicationBuiltTimestamp);
 
         ConsoleHangDiagnostics.UseLogger(
             app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.HangDiagnostics"));
@@ -216,7 +232,16 @@ public partial class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(app);
+        long persistenceStartTimestamp = Stopwatch.GetTimestamp();
+        try
+        {
+            await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync(app);
+        }
+        finally
+        {
+            LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "persistence-bootstrap",
+                persistenceStartTimestamp, Stopwatch.GetTimestamp());
+        }
 
         if (app.Logger.IsEnabled(LogLevel.Information))
 
@@ -228,8 +253,11 @@ public partial class Program
         app.UseSerilogRequestLogging(ArchLucidSerilogRequestLogging.ConfigureRequestLogging);
         app.UseArchLucidPipelineAfterSerilogRequestLogging();
 
+        long hostRunStartTimestamp = Stopwatch.GetTimestamp();
         app.Lifetime.ApplicationStarted.Register(() =>
         {
+            LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "host-start",
+                hostRunStartTimestamp, Stopwatch.GetTimestamp());
             IServer server = app.Services.GetRequiredService<IServer>();
             IServerAddressesFeature? addressesFeature = server.Features.Get<IServerAddressesFeature>();
             ICollection<string> addresses = addressesFeature?.Addresses ?? Array.Empty<string>();
@@ -246,6 +274,18 @@ public partial class Program
         });
 
         await app.RunAsync();
+    }
+
+    private static void LogColdStartPhase(
+        ILogger logger, string environment, string phase, long start, long end)
+    {
+        logger.LogInformation(
+            "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} RecordedUnixMs={RecordedUnixMs} ProcessBootId={ProcessBootId} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            ColdStartProcessBootId,
+            Environment.GetEnvironmentVariable("ARCHLUCID_BUILD_COMMIT_SHA") ?? "unknown",
+            phase, Math.Round(Stopwatch.GetElapsedTime(start, end).TotalMilliseconds, 3),
+            environment);
     }
 }
 

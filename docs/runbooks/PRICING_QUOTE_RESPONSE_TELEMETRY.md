@@ -98,3 +98,8 @@ Optional: add `--strict` to exit non-zero when `weeklyDisposition` is **HOLD** (
 - Inbox + real-time aging: [`MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)
 - Proof handoff checklist: [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - Grafana sales-ops row: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)
+
+
+## Additional privacy-safe duplicate and aging signals (GTM-06)
+
+`scripts/ci/report_pricing_quote_cohort_safety.py` reads the **same existing authorized export**, groups probable duplicates by normalized email+company **in memory only**, and emits counts and unanswered aging bands without customer identifiers, freeform notes or stable hashes. Use `--input`, `--as-of`, and `--output`. A probable duplicate is **not** a merge instruction; never automatically close or contact a lead from this report. It does not replace the existing weekly response/close SLA workflow.
