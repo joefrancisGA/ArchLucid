@@ -61,6 +61,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (ContainsNegotiateAuthorizationHeaderCredentials(trimmed))
             return true;
 
+        if (ContainsNtlmAuthorizationHeaderCredentials(trimmed))
+            return true;
+
         if (ContainsSetCookieHeaderCredentials(trimmed))
             return true;
 
@@ -160,7 +163,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 4; layer++)
+            for (int layer = 0; layer < 5; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -177,7 +180,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 3 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 4 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -290,14 +293,45 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         return token.Length >= 8;
     }
 
+    private static bool ContainsNtlmAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int ntlmIndex = trimmed.IndexOf("NTLM ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (ntlmIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> token = trimmed.Slice(ntlmIndex + "NTLM ".Length).Trim();
+        int end = 0;
+
+        while (end < token.Length && !char.IsWhiteSpace(token[end]))
+            end++;
+
+        token = token.Slice(0, end);
+
+        return token.Length >= 8;
+    }
+
     private static bool ContainsSetCookieHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int headerIndex = trimmed.IndexOf("Set-Cookie:", StringComparison.OrdinalIgnoreCase);
+        if (TryReadCookieHeaderCredentialValue(trimmed, "Set-Cookie:", out int cookieValueLength))
+            return cookieValueLength >= 8;
+
+        return TryReadCookieHeaderCredentialValue(trimmed, "Cookie:", out cookieValueLength) && cookieValueLength >= 8;
+    }
+
+    private static bool TryReadCookieHeaderCredentialValue(
+        ReadOnlySpan<char> trimmed,
+        ReadOnlySpan<char> headerPrefix,
+        out int cookieValueLength)
+    {
+        cookieValueLength = 0;
+
+        int headerIndex = trimmed.IndexOf(headerPrefix, StringComparison.OrdinalIgnoreCase);
 
         if (headerIndex < 0)
             return false;
 
-        ReadOnlySpan<char> cookiePart = trimmed.Slice(headerIndex + "Set-Cookie:".Length).Trim();
+        ReadOnlySpan<char> cookiePart = trimmed.Slice(headerIndex + headerPrefix.Length).Trim();
         int equalsIndex = cookiePart.IndexOf('=');
 
         if (equalsIndex <= 0)
@@ -308,7 +342,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         ReadOnlySpan<char> cookieValue = semicolonIndex > 0 ? valuePart.Slice(0, semicolonIndex).Trim() : valuePart;
 
-        return cookieValue.Length >= 8;
+        cookieValueLength = cookieValue.Length;
+
+        return cookieValueLength > 0;
     }
 
     /// <summary>
