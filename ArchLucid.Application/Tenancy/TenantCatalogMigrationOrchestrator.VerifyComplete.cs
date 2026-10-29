@@ -97,7 +97,7 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             new
             {
                 migrationId = active.MigrationId,
-                probe.ProbeRunId,
+                ProbeRunId = publicProbe.ProbeRunId,
                 ErrorMessage = normalizedError,
                 probe.WriteFreezeVerified,
                 probe.AuthorizationBoundaryVerified,
@@ -116,13 +116,16 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         {
             Passed = probe.Passed,
             ErrorMessage = NormalizeVerificationErrorMessage(probe.ErrorMessage),
-            ProbeRunId = probe.ProbeRunId,
+            ProbeRunId = NormalizeOptionalProbeRunId(probe.ProbeRunId),
             WriteFreezeVerified = probe.WriteFreezeVerified,
             AuthorizationBoundaryVerified = probe.AuthorizationBoundaryVerified,
         };
 
     private static string? NormalizeVerificationErrorMessage(string? errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage) ? null : errorMessage.Trim();
+
+    private static string? NormalizeOptionalProbeRunId(string? probeRunId) =>
+        string.IsNullOrWhiteSpace(probeRunId) ? null : probeRunId.Trim();
 
     public async Task<TenantCatalogMigrationCommandOutcome> CompleteAsync(
         Guid tenantId,
