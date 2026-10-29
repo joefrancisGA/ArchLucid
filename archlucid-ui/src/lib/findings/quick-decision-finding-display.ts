@@ -25,6 +25,20 @@ export function formatQuickDecisionFindingTitleDisplay(
   return titleTrimmed;
 }
 
+export function formatQuickDecisionFindingCategoryLine(
+  category: string | null | undefined,
+): string {
+  if (category === null || category === undefined) {
+    return "Finding category was not stored.";
+  }
+
+  if (category.trim().length === 0) {
+    return "Finding category was stored empty.";
+  }
+
+  return category.trim();
+}
+
 export function formatQuickDecisionFindingOwnerDisplay(
   assignedToUserId: string | null | undefined,
   emptyLabel = "Owner was not stored.",

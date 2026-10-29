@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 using ArchLucid.Application.Agents;
@@ -18,6 +19,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 {
     internal const string ConfidenceScoreNotStoredLabel = "Confidence score was not stored.";
 
+    internal const string EvaluationConfidenceScoreExportPrefix = "Evaluation confidence score: ";
+
     internal const string EstimatedSavingsNotStoredLabel = "Estimated savings were not stored.";
 
     internal const string CategoryNotStoredLabel = "Category was not stored.";
@@ -35,6 +38,11 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string FindingsNotStoredReviewerLine = "Findings were not stored.";
 
     internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
+
+    internal const string AgentResultFindingsListNotStoredReviewerLine =
+        "Findings list was not stored on one or more agent results.";
+
+    internal const string FindingNotMutedStatusLabel = "Finding is not muted.";
 
     internal const string ChecklistCoverageRowsOmittedLinePrefix = "Checklist coverage rows omitted from this file:";
 
@@ -113,7 +121,12 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         if (sb.Length == lengthAfterHeader)
         {
-            sb.Insert(0, $"{NoDecisionGradeFindingsReviewerLine}\n");
+            bool anyNullFindingsList = detail.Results.Any(result => result?.Findings is null);
+            string emptyExportLine = anyNullFindingsList
+                ? AgentResultFindingsListNotStoredReviewerLine
+                : NoDecisionGradeFindingsReviewerLine;
+
+            sb.Insert(0, $"{emptyExportLine}\n");
         }
 
         return sb.ToString();
@@ -210,10 +223,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         return n;
     }
 
-    public static string FormatFindingStatus(bool isMuted)
-    {
-        return isMuted ? "muted" : "active";
-    }
+    public static string FormatFindingStatus(bool isMuted) => isMuted ? "muted" : FindingNotMutedStatusLabel;
 
     internal static string FormatSeverityForExport(FindingSeverity severity)
     {
@@ -227,9 +237,9 @@ public static class ArchitectureRunFindingsCsvFormatter
         severity switch
         {
             FindingSeverity.Critical => "Critical",
-            FindingSeverity.Error => "High",
-            FindingSeverity.Warning => "Medium",
-            FindingSeverity.Info => "Low",
+            FindingSeverity.Error => "Error",
+            FindingSeverity.Warning => "Warning",
+            FindingSeverity.Info => "Info",
             _ => "Reviewer label was not stored.",
         };
 
@@ -396,12 +406,18 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatConfidenceScore(ArchitectureFinding finding)
     {
-        if (!finding.ConfidenceScore.HasValue)
+        if (finding.ConfidenceScore.HasValue)
         {
-            return ConfidenceScoreNotStoredLabel;
+            return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
         }
 
-        return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+        if (finding.EvaluationConfidenceScore.HasValue)
+        {
+            return EvaluationConfidenceScoreExportPrefix
+                + finding.EvaluationConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return ConfidenceScoreNotStoredLabel;
     }
 
     private static string FormatCategory(string? category)

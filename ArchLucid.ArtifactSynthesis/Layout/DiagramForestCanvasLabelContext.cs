@@ -356,9 +356,7 @@ public sealed class DiagramForestCanvasLabelContext
             int count = consumerIdsByNodeId.TryGetValue(node.NodeId, out HashSet<string>? consumerIds)
                 ? consumerIds.Count
                 : 0;
-            result[node.NodeId] = count == 0
-                ? "No diagram neighbor on this view."
-                : $"{count} diagram neighbors on this view.";
+            result[node.NodeId] = DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(count);
         }
 
         return result;

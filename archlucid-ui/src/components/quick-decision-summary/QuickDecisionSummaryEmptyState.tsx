@@ -114,7 +114,9 @@ export function QuickDecisionSummaryEmptyState({
     const warningPhrase =
       warningN !== null && warningN > 0
         ? ` ${warningN} monitored risk${warningN === 1 ? "" : "s"} ${warningN === 1 ? "is" : "are"} recorded on this review — review severity and controls below.`
-        : "";
+        : warningN === 0
+          ? " Monitored risk count was stored as zero on this review headline."
+          : "";
 
     return (
       <p className="m-0 text-neutral-600 dark:text-neutral-400">
@@ -139,6 +141,24 @@ export function QuickDecisionSummaryEmptyState({
         data-testid="quick-decision-headline-count-stored-zero"
       >
         Manifest headline finding count was stored as zero.
+      </p>
+    );
+  }
+
+  if (
+    !buyerPolishedShell &&
+    typeof headlineFindingCount === "number" &&
+    Number.isFinite(headlineFindingCount) &&
+    Math.trunc(headlineFindingCount) > 0
+  ) {
+    const n = Math.trunc(headlineFindingCount);
+
+    return (
+      <p
+        className="m-0 text-neutral-600 dark:text-neutral-400"
+        data-testid="quick-decision-workspace-headline-findings"
+      >
+        {`Manifest headline records ${n} finding${n === 1 ? "" : "s"} — open the findings tab for the stored list.`}
       </p>
     );
   }

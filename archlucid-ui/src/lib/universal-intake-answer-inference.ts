@@ -286,8 +286,17 @@ const INFERENCE_BY_QUESTION_KEY: Record<string, (corpus: string) => string | nul
 };
 
 /** Deterministic, buyer-safe extraction from brief/evidence text — never invents facts beyond the corpus. */
+export function stripDiagramCaptionLinesFromInferenceCorpus(corpus: string): string {
+  return corpus
+    .split(/\r?\n/)
+    .filter((line) => !isDiagramCaptionLine(line))
+    .join("\n");
+}
+
+/** Deterministic, buyer-safe extraction from brief/evidence text — never invents facts beyond the corpus. */
 export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<Record<string, string>> {
-  const normalized = normalizeClarificationInferenceCorpus(corpus);
+  const withoutDiagramCaptions = stripDiagramCaptionLinesFromInferenceCorpus(corpus);
+  const normalized = normalizeClarificationInferenceCorpus(withoutDiagramCaptions);
 
   if (normalized.length < UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS) {
     return {};

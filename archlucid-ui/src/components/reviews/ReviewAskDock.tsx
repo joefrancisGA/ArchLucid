@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from "rea
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
 import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
-import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
+import { StatusTag } from "@/components/ui/status-tag";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+  const [retrievalDegraded, setRetrievalDegraded] = useState<boolean | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
   const askDockDisabled = props.disabled === true;
@@ -249,6 +250,12 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
+      if (response.retrievalDegraded === undefined) {
+        setRetrievalDegraded(null);
+      } else {
+        setRetrievalDegraded(response.retrievalDegraded === true);
+      }
+
       const citationRefs = {
         referencedFindings: response.referencedFindings,
         referencedDecisions: response.referencedDecisions,
@@ -342,6 +349,25 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               <span className="font-medium text-al-text-primary">Review id:</span>{" "}
               {runId.length > 0 ? runId : "Review id was not stored."}
             </p>
+            {retrievalDegraded === null ? (
+              <StatusTag
+                kind="neutral"
+                label="Retrieval mode was not stored."
+                data-testid="review-ask-dock-retrieval-not-stored"
+              />
+            ) : retrievalDegraded ? (
+              <StatusTag
+                kind="needs-attention"
+                label="Vector search unavailable; using text search instead."
+                data-testid="review-ask-dock-retrieval-degraded"
+              />
+            ) : (
+              <StatusTag
+                kind="neutral"
+                label="Vector search was used for retrieval."
+                data-testid="review-ask-dock-retrieval-full"
+              />
+            )}
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">

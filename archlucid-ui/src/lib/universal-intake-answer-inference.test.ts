@@ -133,4 +133,11 @@ describe("mergeInferredUniversalIntakeAnswers", () => {
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.security");
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.cloud-target");
   });
+
+  it("does not infer from diagram caption lines alone (P-07)", () => {
+    const corpus =
+      "Diagram — system overview\nDiagram — data flow\n".padEnd(UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS + 5, "x");
+
+    expect(inferUniversalIntakeAnswersFromCorpus(corpus)).toEqual({});
+  });
 });
