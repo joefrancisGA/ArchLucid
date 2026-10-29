@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `RephraseClarificationAnswersResponse.RephrasedAnswers` and `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` explicit JSON `null` on clarification rephrase and pilot snapshot API JSON despite dictionary initializers; empty dictionary defaults on setters; regressions `Deserialize_null_rephrased_answers_yields_empty_dictionary_not_null` and `Deserialize_null_findings_produced_by_severity_yields_empty_dictionary_not_null`; scoped RephraseClarificationAnswersResponse + WhyArchLucidSnapshotResponse deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: clarification rephrase and why-archlucid snapshot JSON with null answer/severity maps deserializes to empty dictionaries so operator intake and demo proof pages do not null-reference when maps are omitted.
+
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on rephrase response — **hit 2026-10-29 seed hunt:** empty dictionary on setter; regression above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — explicit JSON `null` on pilot snapshot severity map — **hit 2026-10-29 seed hunt:** empty ordinal dictionary on setter; regression above.
+
 2026-10-29 seed hunt (seed→hit): promoted `ComplianceDriftTrendPoint.ChangesByType` explicit JSON `null` on compliance drift trend JSON despite dictionary initializer; non-null empty default on `init`; regression `Deserialize_null_changes_by_type_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` rows `ItsmFindingCorrelationsBatchResponse.Findings` (already `CoalesceReadOnly` on setter), `WorkingWorkspaceContinuityValues` / DTO lists (regression since IH-066), `CoveragePreviewAssignment` and `RunCoverageAcknowledgementEntry` (no collection properties); scoped ComplianceDriftTrendPoint deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: compliance drift trend JSON with null change-type buckets deserializes to an empty map so governance trend charts do not null-reference when a bucket has no typed changes.
 
 - [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — explicit JSON `null` on drift trend point — **hit 2026-10-29 seed hunt:** empty dictionary default on `init`; regression above.
@@ -5859,11 +5864,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 230
-- **bugs-found:** 344
+- **hunts:** 231
+- **bugs-found:** 345
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — ComplianceDriftTrendPoint ChangesByType JSON null
+- **last-bug:** 2026-10-29 — Rephrase + WhyArchLucid snapshot dictionary JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5899,10 +5904,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `CoveragePreviewAssignment` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on row DTO.
 - [x] (invalid) `RunCoverageAcknowledgementEntry` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on entry DTO.
-- [ ] (candidate) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on clarification rephrase response dictionary despite initializer.
-- [ ] (candidate) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — explicit JSON `null` on pilot snapshot severity map despite initializer.
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `CoveragePreviewInput.UserOverrides` — explicit JSON `null` on coverage preview user override list (nullable reference semantics vs UI null-ref).
 - [ ] (candidate) `FindingExplainabilityEvidenceRecord` positional lists — explicit JSON `null` on explainability evidence record list fields.
+- [ ] (candidate) `WhyArchLucidSnapshotResponse` other dictionary/list fields — scan snapshot DTO for remaining collection initializers bypassed by JSON null.
+- [ ] (candidate) `PilotReportCard` response list properties — scan pilot report card contract lists for missing coalesce.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
@@ -5962,7 +5969,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 230 · **Bugs found:** 344 · **Consecutive dry hunts:** 0
+**Hunts:** 231 · **Bugs found:** 345 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
