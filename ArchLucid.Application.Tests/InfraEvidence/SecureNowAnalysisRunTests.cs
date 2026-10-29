@@ -363,9 +363,14 @@ public sealed class SecureNowAnalysisRunTests
             .Select(_ => Guid.NewGuid()).ToArray();
         var replies = ids.ToDictionary(id => id, _ =>
             new TaskCompletionSource<AzureInventorySnapshotDetailReadModel?>(TaskCreationOptions.RunContinuationsAsynchronously));
+        TaskCompletionSource fifthStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
         repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .Returns((ScopeContext _, Guid id, CancellationToken _) => replies[id].Task);
+            .Returns((ScopeContext _scope, Guid id, CancellationToken _token) =>
+            {
+                if (id == ids[4]) fifthStarted.TrySetResult();
+                return replies[id].Task;
+            });
 
         using IDisposable run = SecureNowAnalysisRun.Begin();
         Task<SecureNowAnalysisSnapshot?>[] tasks = ids.Select(id =>
@@ -373,8 +378,7 @@ public sealed class SecureNowAnalysisRunTests
         repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[4], It.IsAny<CancellationToken>()), Times.Never);
         replies[ids[0]].SetResult(new() { Header = new() { SnapshotId = ids[0] } });
         await tasks[0];
-        // Slot release is asynchronous; allow the awaiting load to acquire it.
-        await Task.Yield();
+        await fifthStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
         repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[4], It.IsAny<CancellationToken>()), Times.Once);
         foreach (Guid id in ids.Skip(1))
             replies[id].SetResult(new() { Header = new() { SnapshotId = id } });
