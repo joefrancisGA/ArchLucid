@@ -365,6 +365,19 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_shift_in_character()
+    {
+        const string secretWithShiftIn = "part1\u000Fpart2";
+        string reference =
+            $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithShiftIn})";
+
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(reference);
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be(secretWithShiftIn);
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_vertical_tab_character()
     {
         const string secretWithVt = "part1\vpart2";
