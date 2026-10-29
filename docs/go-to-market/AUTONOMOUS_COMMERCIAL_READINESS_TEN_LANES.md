@@ -1,3 +1,5 @@
+> **Scope:** Internal offline commercial-readiness evidence checks for engineering reviewers; not a launch approval, customer proof, or buyer-facing offer.
+
 # Autonomous engineering workpack — ten low-scoring business/marketability priorities
 
 **Status:** Internal engineering preparation, NOT commercial launch certification, a customer result, financial attestation, security release GO, or an approved offer. This workpack is built to produce machine-readable *gaps* and safe demo material without any real customer interaction or infrastructure change.
