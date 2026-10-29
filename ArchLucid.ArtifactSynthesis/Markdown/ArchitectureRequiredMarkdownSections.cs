@@ -225,7 +225,7 @@ public static class ArchitectureRequiredMarkdownSections
         if (manifest.Cost is not null)
         {
             sb.AppendLine(
-                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(cost.CurrencyCode)}");
             written++;
             written += AppendStoredCostStringList(
                 sb,
@@ -263,18 +263,22 @@ public static class ArchitectureRequiredMarkdownSections
         {
             foreach (ManifestIssue issue in issues.Items.Where(static i => i is not null))
             {
-                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.Severity,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
-                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored,
+                    "Severity was stored empty.");
+                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.IssueType,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
-                string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored,
+                    "Issue type was stored empty.");
+                string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.Title,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
-                string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored,
+                    "Issue title was stored empty.");
+                string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.Description,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
+                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored,
+                    "Issue description was stored empty.");
                 sb.AppendLine($"- [{severity}] {issueType} {issueTitle}: {issueDescription}");
                 written++;
             }

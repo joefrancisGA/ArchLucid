@@ -1,4 +1,5 @@
 import {
+  ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX,
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
   ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
@@ -50,22 +51,33 @@ export type ArchitectureDiagramMermaidOptions = {
 
 const MERMAID_LABEL_MAX_CHARS = 160;
 const MERMAID_INFERRED_SUFFIX = ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX;
+const MERMAID_ACCEPTED_INFERENCE_SUFFIX = ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX;
+
+function architectureDiagramNodeProvenanceSuffix(node: ArchitectureDiagramNode): string {
+  if (node.provenance !== "inferred") {
+    return "";
+  }
+
+  return node.accepted ? MERMAID_ACCEPTED_INFERENCE_SUFFIX : MERMAID_INFERRED_SUFFIX;
+}
 
 function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
   const escaped = singleLine.replace(/"/g, "'");
-  const hasInferredSuffix = escaped.endsWith(MERMAID_INFERRED_SUFFIX);
-  const core = hasInferredSuffix
-    ? escaped.slice(0, -MERMAID_INFERRED_SUFFIX.length)
-    : escaped;
-  const maxCoreLength = hasInferredSuffix
-    ? MERMAID_LABEL_MAX_CHARS - MERMAID_INFERRED_SUFFIX.length
-    : MERMAID_LABEL_MAX_CHARS;
+  const hasInferredSuffix =
+    escaped.endsWith(MERMAID_INFERRED_SUFFIX) || escaped.endsWith(MERMAID_ACCEPTED_INFERENCE_SUFFIX);
+  const suffix = escaped.endsWith(MERMAID_ACCEPTED_INFERENCE_SUFFIX)
+    ? MERMAID_ACCEPTED_INFERENCE_SUFFIX
+    : escaped.endsWith(MERMAID_INFERRED_SUFFIX)
+      ? MERMAID_INFERRED_SUFFIX
+      : "";
+  const core = hasInferredSuffix ? escaped.slice(0, -suffix.length) : escaped;
+  const maxCoreLength = hasInferredSuffix ? MERMAID_LABEL_MAX_CHARS - suffix.length : MERMAID_LABEL_MAX_CHARS;
   const truncatedCore =
     core.length > maxCoreLength
       ? formatStoredTextPreview(core, maxCoreLength, STORED_TEXT_PREVIEW_CONTINUATION.mermaidNodeLabel)
       : core;
-  const label = hasInferredSuffix ? `${truncatedCore}${MERMAID_INFERRED_SUFFIX}` : truncatedCore;
+  const label = hasInferredSuffix ? `${truncatedCore}${suffix}` : truncatedCore;
 
   return wrapArchitectureDiagramLabelForMermaidSource(label, peerResourceNames);
 }
@@ -98,7 +110,7 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix = node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+  const suffix = architectureDiagramNodeProvenanceSuffix(node);
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -205,8 +217,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   }
 
   const nodeLines = activeNodes.map((node) => {
-    const inferred =
-      node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+    const inferred = architectureDiagramNodeProvenanceSuffix(node);
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;

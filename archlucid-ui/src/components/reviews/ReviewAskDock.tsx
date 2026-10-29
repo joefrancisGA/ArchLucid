@@ -11,6 +11,10 @@ import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFo
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { StatusTag } from "@/components/ui/status-tag";
+import {
+  ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
+  ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
+} from "@/lib/ask-retrieval-mode-copy";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -359,7 +363,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             {retrievalDegraded === null ? (
               <StatusTag
                 kind="neutral"
-                label="Retrieval mode was not stored."
+                label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
                 data-testid="review-ask-dock-retrieval-not-stored"
               />
             ) : retrievalDegraded ? (
@@ -371,7 +375,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             ) : (
               <StatusTag
                 kind="neutral"
-                label="Vector search was used for retrieval."
+                label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
                 data-testid="review-ask-dock-retrieval-full"
               />
             )}

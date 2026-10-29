@@ -195,7 +195,10 @@ public static class ArchitectureMandatedMarkdownSections
             foreach (ManifestRelationship relationship in topology.Relationships)
             {
                 if (relationship is null)
+                {
+                    lines.Add("- Relationship was not stored.");
                     continue;
+                }
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
                     ? "Relationship source id was not stored."

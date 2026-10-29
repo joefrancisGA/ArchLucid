@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import {
   ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED,
+  ARCHITECTURE_DIAGRAM_LEGEND_ACCEPTED_INFERENCE,
   ARCHITECTURE_DIAGRAM_LEGEND_HEADING,
   ARCHITECTURE_DIAGRAM_LEGEND_INFERRED,
   ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE,
@@ -65,6 +66,7 @@ export function ArchitectureDiagramLegend(props: ArchitectureDiagramLegendProps)
       </p>
       <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED}</li>
+        <li>{ARCHITECTURE_DIAGRAM_LEGEND_ACCEPTED_INFERENCE}</li>
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_INFERRED}</li>
         <li data-testid="architecture-diagram-legend-inferred-line">{ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE}</li>
       </ul>

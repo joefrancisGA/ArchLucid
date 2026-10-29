@@ -38,6 +38,19 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string CostCurrencyNotStored = "Cost currency was not stored.";
 
+    internal const string CostCurrencyStoredEmpty = "Cost currency was stored empty.";
+
+    internal const string AssumptionsNotStored = "Assumptions were not stored.";
+
+    internal const string ConstraintsNotStored = "Constraints were not stored.";
+
+    internal const string ConstraintsStoredEmpty = "Constraints were stored empty.";
+
+    internal const string DecisionsNotStored = "Decisions were not stored.";
+
+    internal static string FormatCostCurrency(string? value) =>
+        FormatStoredStringField(value, CostCurrencyNotStored, CostCurrencyStoredEmpty);
+
     internal const string NoSourceFindingIdsStored = "No source finding ids were stored.";
 
     internal const string NoSourceGraphNodeIdsStored = "No source graph node ids were stored.";

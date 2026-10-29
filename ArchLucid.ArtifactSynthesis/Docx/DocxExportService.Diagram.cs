@@ -119,12 +119,8 @@ public sealed partial class DocxExportService
 
     private static void AppendManifestTopologySummaryForDiagramFallback(Body body, ManifestDocument manifest)
     {
-        int resourceCount = manifest.Topology.Resources.Count;
-        int patternCount = manifest.Topology.SelectedPatterns.Count;
-        int decisionCount = manifest.Decisions.Count;
-
         WordDocumentBuilder.AddBodyText(
             body,
-            $"Committed manifest includes {resourceCount} topology resource(s), {patternCount} selected pattern(s), and {decisionCount} decision(s). See Topology Posture and Decisions below for full detail.");
+            DocxExportManifestPostureHonesty.FormatDiagramFallbackTopologyCensusLine(manifest));
     }
 }
