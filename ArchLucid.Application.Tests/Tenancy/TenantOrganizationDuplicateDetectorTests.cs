@@ -304,4 +304,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_archive_tenants_slug()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("UNIQUE constraint failed: ArchiveTenants.Slug"))
+            .Should()
+            .BeFalse();
+    }
 }

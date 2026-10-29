@@ -72,8 +72,29 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool ContainsOrganizationSlugContext(string text) =>
         ContainsTenantSlugPhrase(text)
-        || text.Contains("Tenants.Slug", StringComparison.OrdinalIgnoreCase)
+        || ContainsTenantsSlugColumnReference(text)
         || text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase);
+
+    private static bool ContainsTenantsSlugColumnReference(string text)
+    {
+        const string token = "Tenants.Slug";
+        int start = 0;
+
+        while (start <= text.Length - token.Length)
+        {
+            int index = text.IndexOf(token, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (index == 0 || (!char.IsLetterOrDigit(text[index - 1]) && text[index - 1] != '_'))
+                return true;
+
+            start = index + token.Length;
+        }
+
+        return false;
+    }
 
     private static bool ContainsTenantSlugPhrase(string text)
     {
