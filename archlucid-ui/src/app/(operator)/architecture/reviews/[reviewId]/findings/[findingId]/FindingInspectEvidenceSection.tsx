@@ -23,7 +23,7 @@ import {
   findingInspectEvidenceExcerptTitle,
   type FindingPolicyEvidenceCitationModel,
 } from "@/lib/findings/finding-policy-evidence-citations";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
 import { FindingInspectPolicyRuleCallout } from "./FindingInspectPolicyRuleCallout";
@@ -260,7 +260,7 @@ export function FindingInspectEvidenceSection({
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const searchParamsString = readWindowLocationSearch();
+  const searchParamsString = searchParams.toString();
   const urlOpenCitationArtifactId = parseFindingInspectEvidenceCitationArtifactIdFromSearch(
     searchParams.get(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM),
   );
@@ -290,11 +290,11 @@ export function FindingInspectEvidenceSection({
   const syncDiagramCitationPreviewToUrl = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
       commitHrefIfChanged(
-        findingInspectDiagramCitationPreviewHrefFromSearch(readWindowLocationSearch(), citation, pathname),
+        findingInspectDiagramCitationPreviewHrefFromSearch(searchParams.toString(), citation, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setDiagramPreviewCitation = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
@@ -311,11 +311,11 @@ export function FindingInspectEvidenceSection({
   const syncOpenCitationArtifactIdToUrl = useCallback(
     (artifactId: string | null) => {
       commitHrefIfChanged(
-        findingInspectEvidenceCitationDisclosureHrefFromSearch(readWindowLocationSearch(), artifactId, pathname),
+        findingInspectEvidenceCitationDisclosureHrefFromSearch(searchParams.toString(), artifactId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setOpenCitationArtifactId = useCallback(
     (artifactId: string | null) => {
