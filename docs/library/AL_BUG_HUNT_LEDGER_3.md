@@ -12689,13 +12689,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 14
-- **bugs-found:** 13
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — dependency-neighborhood seed catalog stale after soft URL snapshot navigation
+- **last-bug:** 2026-10-29 — dependency seed catalog ignored Show never-show after catalog cache early-return
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` early-return left `seedCandidateNodes` stale when `includeNeverShow` toggled after the executive catalog was cached; dedicated effect refilters cached `seedCatalogOutline` for the current snapshot whenever `includeNeverShow` changes; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who turn on Show never-show components while choosing a dependency-neighborhood starting resource see metric alerts and other filtered inventory rows in the seed picker without reloading the snapshot.
 
 2026-10-29 thorough hunt (hit): soft URL `snapshotId` changes left `selectedSnapshotId` on the prior snapshot until a full snapshots refetch finished, so dependency-neighborhood seed catalog state stayed paired with the old id; resync `selectedSnapshotId` from `urlSnapshotId` once snapshots are loaded (mirroring mode URL sync); regression `refreshes dependency seed catalog when the URL snapshot id changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who use browser back/forward or bookmarked snapshot links on infra diagrams while picking a dependency-neighborhood starting resource get that URL snapshot's executive catalog instead of stale seeds from the prior snapshot.
 
@@ -12758,11 +12760,17 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render returns before executive catalog fetch completes and seed picker briefly lists visible-outline nodes — **cheap-disproof 2026-10-29 thorough hunt:** `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stays false while dependency neighborhood awaits a seed, so render responses cannot hydrate the picker.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — applied seed from URL survives snapshot change and blocks catalog refresh while picker still shows prior snapshot seeds — **cheap-disproof 2026-10-29 thorough hunt:** with a deep-linked applied seed the workbench leaves catalog-awaiting mode (`dependencyNeighborhoodAwaitingSeed` false), so the stale-catalog picker path does not apply; snapshot picker changes still clear render state via `handleSnapshotChange`.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — toggling Show never-show while awaiting seed skips refiltering seed candidates when catalog early-return fires — locus: `loadSeedCatalog` early return + `includeNeverShow` effect dep; input: enable never-show after executive catalog cached for current snapshot.
-- [ ] (candidate) `DiagramsWorkbenchClient` — deep-linked `seedNodeId` on snapshot A leaves applied seed after URL snapshot moves to B without clearing the param — locus: URL seed sync vs snapshot resync; input: bookmarked seed on snapshot A then soft-nav snapshot query to B.
-- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter confirm dialog applies filter without clearing seed catalog when selection survives filter — locus: confirm path + visible snapshot; input: filter change that keeps snapshot but clears mode while dependency neighborhood picker was open.
-- [ ] (candidate) `DiagramsWorkbenchClient` — `loadSnapshots` refetch after URL snapshot change races URL resync effect and briefly restores prior catalog — locus: duplicate snapshot resolution paths; input: slow snapshots API after browser back.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — seed catalog reload replaces outline nodes but leaves selected inventory edge from prior catalog parse — locus: edge selection vs catalog-only outline swap; input: select edge in side panel then snapshot URL changes during dependency-neighborhood seed pick.
+- [x] (proven) `DiagramsWorkbenchClient` — toggling Show never-show while awaiting seed skips refiltering seed candidates when catalog early-return fires — **hit 2026-10-29 thorough hunt:** refilter effect on cached `seedCatalogOutline`; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked `seedNodeId` on snapshot A leaves applied seed after URL snapshot moves to B without clearing the param — **cheap-disproof 2026-10-29 thorough hunt:** with an applied seed the workbench exits catalog-awaiting mode; neighborhood render uses the seed against the current `selectedSnapshotId`, not the stale catalog picker list.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter confirm dialog applies filter without clearing seed catalog when selection survives filter — **cheap-disproof 2026-10-29 thorough hunt:** confirm path calls `applySubscriptionFilterChange`, which clears mode/render when the filter changes and resets catalog via `selectedSnapshotId` when the snapshot drops out of the filter.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadSnapshots` refetch after URL snapshot change races URL resync effect and briefly restores prior catalog — **cheap-disproof 2026-10-29 thorough hunt:** URL resync sets `selectedSnapshotId` immediately when snapshots are already loaded; catalog clear tracks selection id and `seedCatalogSnapshotId` pairing from the same-day hits.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — seed catalog reload replaces outline nodes but leaves selected inventory edge from prior catalog parse — **cheap-disproof 2026-10-29 thorough hunt:** dependency-neighborhood seed pick uses catalog outline for the picker only; `selectedInventoryEdge` clears when `familyFilteredOutline` changes from render, not catalog cache.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — clearing applied seed after snapshot change does not remove deep-linked `seedNodeId` from the URL — locus: snapshot change + URL seed param; input: applied neighborhood render after soft-nav snapshot without seed param update.
+- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog refilter effect runs while `loadingSeedCatalog` true and flashes empty picker options — locus: refilter vs load race; input: slow catalog fetch then rapid never-show toggle.
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change to ALL resets mode and leaves dependency-neighborhood URL mode out of sync with cleared picker state — locus: `applySubscriptionFilterChange` ALL branch; input: filter to ALL while awaiting seed.
+- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — SQL master database rows appear in seed catalog when never-show off but collapse report omits them — locus: never-show name heuristic vs catalog parse; input: executive catalog with master DB node.
+- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog refetch after snapshot change ignores `includeNeverShow` until refilter effect runs — locus: load + refilter ordering; input: deep-linked includeNeverShow=1 on snapshot change.
 
 - **id:** infra-evidence-diagrams
 - **status:** open
