@@ -86,17 +86,25 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                                @ExpirationUtc, @DocumentVersion, @DocumentKind, @EvidenceHashSha256, @BlobPointer,
                                @ReviewStatus, @ProvenanceKind, @ItsmProvider, @ItsmExternalKey
                            FROM dbo.AuditAssessments a
-                           INNER JOIN dbo.AuditControls c
-                               ON c.TenantId = a.TenantId
-                              AND c.FrameworkId = a.FrameworkId
-                              AND c.ControlId = @ControlId
-                           INNER JOIN dbo.AuditEvidenceRequirements r
-                               ON r.TenantId = a.TenantId
-                              AND r.FrameworkId = a.FrameworkId
-                              AND r.ControlId = c.ControlId
-                              AND r.RequirementId = @RequirementId
                            WHERE a.TenantId = @TenantId AND a.WorkspaceId = @WorkspaceId
-                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId;
+                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId
+                             AND EXISTS
+                             (
+                                 SELECT 1
+                                 FROM dbo.AuditControls c
+                                 WHERE c.TenantId = a.TenantId
+                                   AND c.FrameworkId = a.FrameworkId
+                                   AND c.ControlId = @ControlId
+                             )
+                             AND EXISTS
+                            (
+                                SELECT 1
+                                FROM dbo.AuditEvidenceRequirements r
+                                WHERE r.TenantId = a.TenantId
+                                  AND r.FrameworkId = a.FrameworkId
+                                  AND r.ControlId = @ControlId
+                                  AND r.RequirementId = @RequirementId
+                            );
                            IF @@ROWCOUNT <> 1
                                THROW 50008, 'Scoped audit assessment was not found.', 1;
                            """;
