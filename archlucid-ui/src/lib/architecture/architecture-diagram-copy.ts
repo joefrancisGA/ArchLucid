@@ -153,6 +153,9 @@ export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
 
+export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
+  "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
+
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
   "Flow detail was not stored." as const;
 

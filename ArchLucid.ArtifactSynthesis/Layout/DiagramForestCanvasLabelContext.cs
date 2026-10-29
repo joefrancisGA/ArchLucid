@@ -211,6 +211,11 @@ public sealed class DiagramForestCanvasLabelContext
     {
         List<string> ordered = OrderDistinctTrimmed(targetHosts);
 
+        if (ordered.Count == 0)
+        {
+            return "Linked service host was stored empty.";
+        }
+
         if (ordered.Count == 1)
         {
             return $"Host {ordered[0]}";
@@ -227,6 +232,11 @@ public sealed class DiagramForestCanvasLabelContext
     private static string FormatExternalIntegrationRuntimesLine(IReadOnlyList<string> integrationRuntimes)
     {
         List<string> ordered = OrderDistinctTrimmed(integrationRuntimes);
+
+        if (ordered.Count == 0)
+        {
+            return "Integration runtime was stored empty.";
+        }
 
         if (ordered.Count == 1)
         {

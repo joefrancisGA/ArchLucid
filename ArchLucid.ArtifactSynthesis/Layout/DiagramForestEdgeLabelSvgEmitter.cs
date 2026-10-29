@@ -44,7 +44,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         bool privateEndpointEdge = !string.IsNullOrWhiteSpace(accessibilityTitleOverride);
         string displayLabel = relationshipNotStored
             ? privateEndpointEdge
-                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                ? DiagramForestPrivateEndpointEdgeAccessibility.AccessTitlePrefix
                 : DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
             : rawLabel;
         string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim();
@@ -123,8 +123,12 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel
-            || (relationshipNotStored && (privateEndpointEdge || suppressEmptyRelationshipOnPathLabel)))
+        if (suppressOnPathLabel)
+        {
+            return edgeGroup;
+        }
+
+        if (relationshipNotStored && suppressEmptyRelationshipOnPathLabel && !privateEndpointEdge)
         {
             return edgeGroup;
         }

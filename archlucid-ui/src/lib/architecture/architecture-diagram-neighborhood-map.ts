@@ -139,8 +139,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
         .map((type) => ({
           name: type.getAttribute("name"),
           count: readNonNegativeInteger(type, "count"),
-        }))
-        .filter((type) => type.name !== null),
+        })),
     }))
     .filter((neighborhood) => neighborhood.id.length > 0);
 

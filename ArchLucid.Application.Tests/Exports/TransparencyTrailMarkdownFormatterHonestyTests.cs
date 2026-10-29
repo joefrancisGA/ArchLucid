@@ -76,4 +76,12 @@ public sealed class TransparencyTrailMarkdownFormatterHonestyTests
             .Should()
             .Be(" — Responder was stored empty.");
     }
+
+    [Fact]
+    public void FormatAssertedTrailQuestionIdSuffix_labels_stored_empty_question_id()
+    {
+        TransparencyTrailMarkdownFormatter.FormatAssertedTrailQuestionIdSuffix("   ")
+            .Should()
+            .Be(" — Question id was stored empty.");
+    }
 }
