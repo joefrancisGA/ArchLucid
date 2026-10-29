@@ -2223,6 +2223,167 @@ public abstract class SharedHttpMethodMutatingController : ControllerBase
         return MetadataReference.CreateFromImage(image.ToArray());
     }
 
+    private static MetadataReference BuildSharedDefaultInterfaceMutatingReference()
+    {
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "Shared.Contracts",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AuditAndMvcStubs +
+                    """
+
+namespace Shared.Contracts
+{
+using Microsoft.AspNetCore.Mvc;
+
+public interface ISharedMutatingDefaultApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+}
+""")
+            ],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        using MemoryStream image = new();
+        EmitResult emit = compilation.Emit(image);
+        Assert.True(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
+
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_controller_inherits_mutating_default_interface_implementation_without_audit()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IMutatingDefaultApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+
+public sealed class {|#0:DefaultInterfaceMutatingController|}(IAuditService auditService) : ControllerBase, IMutatingDefaultApi
+{
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.DefaultInterfaceMutatingController.ArchLucid.Api.Probe.IMutatingDefaultApi.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_is_absent_when_default_interface_implementation_body_calls_LogAsync_via_extension_method()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Core.Audit
+{
+public static class AuditServiceExtensions
+{
+    public static System.Threading.Tasks.Task LogAsync(
+        this IAuditService auditService,
+        AuditEvent auditEvent,
+        System.Threading.CancellationToken cancellationToken) =>
+        System.Threading.Tasks.Task.CompletedTask;
+}
+}
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IMutatingDefaultApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(
+        IAuditService auditService,
+        System.Threading.CancellationToken cancellationToken)
+    {
+        return auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken)
+            .ContinueWith<IActionResult>(_ => null!, cancellationToken);
+    }
+}
+
+public sealed class DefaultInterfaceExtensionAuditedController(IAuditService auditService)
+    : ControllerBase, IMutatingDefaultApi
+{
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_controller_inherits_unaudited_mutating_default_interface_from_referenced_assembly()
+    {
+        MetadataReference sharedDefaultInterfaceReference = BuildSharedDefaultInterfaceMutatingReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AuditAndMvcStubs +
+                    """
+
+namespace ArchLucid.Api.Probe
+{
+using Microsoft.AspNetCore.Mvc;
+using Shared.Contracts;
+
+public sealed class ReferencedDefaultInterfaceMutatingController : ControllerBase, ISharedMutatingDefaultApi
+{
+}
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedDefaultInterfaceReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new MutatingControllerAuditAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Contains(diagnostics, diagnostic =>
+            diagnostic.Id == Al0003MutatingControllerAuditDescriptor.Rule.Id &&
+            diagnostic.GetMessage().Contains("ReferencedDefaultInterfaceMutatingController", StringComparison.Ordinal) &&
+            diagnostic.GetMessage().Contains("ISharedMutatingDefaultApi.Post", StringComparison.Ordinal));
+    }
+
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
         ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)

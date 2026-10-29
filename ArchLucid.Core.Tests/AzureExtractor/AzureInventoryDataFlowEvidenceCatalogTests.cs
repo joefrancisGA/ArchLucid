@@ -71,7 +71,7 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
         evidence.DefaultBand.Should().Be(PathConfidenceBand.Probable);
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.MayAccess);
-        evidence.DiagramLabel.Should().Be("May access");
+        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel);
         evidence.DiagramLabel.Should().NotContain("Reads from");
         evidence.IncludeOnDataFlow.Should().BeTrue();
     }

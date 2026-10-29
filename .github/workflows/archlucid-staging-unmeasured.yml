@@ -1,0 +1,45 @@
+name: ArchLucid staging deployment absence evidence
+
+# Independent from the deploy workflow: reporting a skipped deploy must never
+# change "CD staging on merge" from skipped/failed into a successful deployment.
+on:
+  workflow_run:
+    workflows: [CD staging on merge]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  record-unmeasured-staging:
+    if: github.event.workflow_run.conclusion != 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: master
+      - name: Record absence without inventing cold-start numbers
+        env:
+          DEPLOY_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          DEPLOY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          DEPLOY_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          REASON="STAGING_DEPLOY_WORKFLOW_${DEPLOY_CONCLUSION:-unknown}_RUN_${DEPLOY_RUN_ID}"
+          if [ "${DEPLOY_CONCLUSION:-}" != "skipped" ]; then
+            ARGS+=(--deployment-attempted)
+          fi
+          python3 scripts/ci/capture_archlucid_staging_cold_start.py \
+            --skip-reason "$REASON" \
+            --expected-sha "${DEPLOY_HEAD_SHA:-}" \
+            "${ARGS[@]}" \
+            --output "staging-cold-start-unmeasured.json"
+          echo "Staging cold-start evidence: $REASON (no measured performance is asserted)." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: staging-cold-start-unmeasured-${{ github.run_id }}
+          path: staging-cold-start-unmeasured.json
+          if-no-files-found: warn

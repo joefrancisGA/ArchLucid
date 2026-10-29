@@ -5,6 +5,10 @@ export const GRAPH_VIEW_MODEL_EXPORT_NODE_LABEL_NOT_STORED = "Node label was not
 export const GRAPH_VIEW_MODEL_EXPORT_RELATIONSHIP_TYPE_NOT_STORED =
   "Relationship type was not stored." as const;
 
+/** Live canvas export — not the sealed review record at finalize. */
+export const GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER =
+  "Live graph export from the open review canvas — not the sealed review record produced at finalize." as const;
+
 export type GraphStaticExportMeta = {
   readonly runId: string;
   readonly mode: string;
@@ -32,7 +36,10 @@ export function graphViewModelToJsonSnapshot(
 ): string {
   const payload = {
     exportKind: "ArchLucid.GraphViewModel.v1",
-    meta,
+    meta: {
+      ...meta,
+      openReviewDisclaimer: GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER,
+    },
     nodes: graph.nodes.map((node) => ({
       ...node,
       label: graphNodeExportLabel(node),
@@ -69,7 +76,7 @@ function sanitizeMermaidIdentifier(raw: string): string {
  * Skips edges whose endpoints are missing from `nodes` after id mapping.
  */
 export function graphViewModelToMermaidFlowchart(graph: GraphViewModel): string {
-  const lines: string[] = ["flowchart LR"];
+  const lines: string[] = [`%% ${GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER}`, "flowchart LR"];
 
   const idMap = new Map<string, string>();
   const usedIds = new Set<string>();
@@ -107,12 +114,14 @@ export function graphViewModelToMermaidFlowchart(graph: GraphViewModel): string 
   return `${lines.join("\n")}\n`;
 }
 
+export const GRAPH_VIEW_MODEL_EXPORT_REVIEW_ID_FILENAME_SEGMENT = "review-id-not-stored" as const;
+
 /** Filename segment safe on Windows/macOS/Linux downloads. */
 export function safeGraphExportFilenameSegment(raw: string): string {
   const t = raw.trim();
 
   if (t.length === 0) {
-    return "run";
+    return GRAPH_VIEW_MODEL_EXPORT_REVIEW_ID_FILENAME_SEGMENT;
   }
 
   return t.replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_").slice(0, 96);

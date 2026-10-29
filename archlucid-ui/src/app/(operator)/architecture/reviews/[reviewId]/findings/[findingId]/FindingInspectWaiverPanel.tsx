@@ -19,9 +19,11 @@ import {
   formatActiveWaiverEvidenceRef,
   formatActiveWaiverRationale,
   formatDispositionHistoryActor,
+  formatDispositionHistoryDisposition,
   formatDispositionHistoryRationale,
   formatDispositionHistoryRecordedTime,
 } from "@/lib/findings/finding-disposition-history-display";
+import { formatQuickDecisionFindingOwnerDisplay } from "@/lib/findings/quick-decision-finding-display";
 import {
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
@@ -101,11 +103,12 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
                 ? "Waiver expiration was not stored."
                 : `Active waiver expires ${activeWaiver.expiresAtUtc}`}
               {" "}
-              {activeWaiver.ownerUserId === null || activeWaiver.ownerUserId === undefined
-                ? "Waiver owner was not stored."
-                : activeWaiver.ownerUserId.trim().length === 0
-                  ? "Waiver owner was stored empty."
-                  : `— owner ${activeWaiver.ownerUserId}`}
+              {formatQuickDecisionFindingOwnerDisplay(
+                activeWaiver.ownerUserId,
+                activeWaiver.ownerUserId === null || activeWaiver.ownerUserId === undefined
+                  ? "Waiver owner was not stored."
+                  : "Waiver owner was stored empty.",
+              )}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-active-waiver-rationale">
               <span className="font-medium">Rationale:</span> {formatActiveWaiverRationale(activeWaiver.rationale)}
@@ -217,7 +220,9 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
           <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
               <li key={event.eventId} data-testid={`finding-inspect-disposition-history-event-${event.eventId}`}>
-                <span className="font-medium">{event.disposition}</span>
+                <span className="font-medium">
+                  {formatDispositionHistoryDisposition(event.disposition)}
+                </span>
                 {" · "}
                 {formatDispositionHistoryActor(event.reviewerUserId)}
                 {" · "}

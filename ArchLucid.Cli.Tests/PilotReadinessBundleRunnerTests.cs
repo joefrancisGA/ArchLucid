@@ -33,10 +33,20 @@ public sealed class PilotReadinessBundleRunnerTests
         report.Slots.Should().Contain(slot =>
             slot.SlotKey == PilotReadinessBundleSlots.ShipGateEvidence
             && slot.Verdict == PilotReadinessBundleSlotVerdict.Skipped);
-        report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.BuyerProofEvidenceLedger);
-        report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.CitationIntegrity);
+        report.Slots.Should().Contain(slot =>
+            slot.SlotKey == PilotReadinessBundleSlots.BuyerProofEvidenceLedger
+            && slot.Verdict == PilotReadinessBundleSlotVerdict.Pass);
+        report.Slots.Should().Contain(slot =>
+            slot.SlotKey == PilotReadinessBundleSlots.DecisionOwnerScoreboard
+            && slot.Verdict == PilotReadinessBundleSlotVerdict.Pass);
+        report.Slots.Should().Contain(slot =>
+            slot.SlotKey == PilotReadinessBundleSlots.FrontierAiBaseline
+            && slot.Verdict == PilotReadinessBundleSlotVerdict.Pass);
+        report.Slots.Should().Contain(slot =>
+            slot.SlotKey == PilotReadinessBundleSlots.CitationIntegrity
+            && slot.Verdict == PilotReadinessBundleSlotVerdict.Pass);
         report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.TenantIsolationNegativeTest);
         report.Slots.Should().Contain(slot => slot.SlotKey == PilotReadinessBundleSlots.ItsmPullForwardGate);
-        report.OverallVerdict.Should().NotBe(PilotReadinessBundleVerdict.Fail);
+        report.OverallVerdict.Should().Be(PilotReadinessBundleVerdict.Pass);
     }
 }

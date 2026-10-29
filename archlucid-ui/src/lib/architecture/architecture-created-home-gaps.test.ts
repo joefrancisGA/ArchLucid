@@ -55,3 +55,16 @@ describe("buildMissingItems artifact honesty (P-14)", () => {
     expect(items.some((item) => item.label.includes("not uploaded"))).toBe(false);
   });
 });
+
+describe("buildMissingItems system name (P-16)", () => {
+  it("surfaces a system-name page check when architecture name is blank", () => {
+    const items = buildMissingItems(
+      baseInput({
+        architectureName: "   ",
+      }),
+    );
+
+    expect(items.some((item) => item.id === "system-name")).toBe(true);
+    expect(items.find((item) => item.id === "system-name")?.label).toContain("System name");
+  });
+});

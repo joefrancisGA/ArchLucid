@@ -16,6 +16,7 @@ import {
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
 import {
   formatDispositionHistoryActor,
+  formatDispositionHistoryDisposition,
   formatDispositionHistoryRationale,
   formatDispositionHistoryRecordedTime,
   formatDispositionHistoryRevisitDue,
@@ -114,7 +115,9 @@ export function FindingDispositionHistorySection(
             className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid={`${testId}-event-${event.eventId}`}
           >
-            <span className="font-medium text-al-text-primary">{event.disposition}</span>
+            <span className="font-medium text-al-text-primary">
+              {formatDispositionHistoryDisposition(event.disposition)}
+            </span>
             {" · "}
             {formatDispositionHistoryActor(event.reviewerUserId)}
             {" · "}

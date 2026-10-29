@@ -188,6 +188,13 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
         "Pipeline dataset is configured to write. An observed write was not stored.";
 
+    public const string ObservedInLogsReadLabel = "Observed in logs (read)";
+
+    public const string ObservedInLogsWriteLabel = "Observed in logs (write)";
+
+    public const string ObservedInLogsDiagnosticTimeWindowNotStored =
+        "Diagnostic time window was not stored.";
+
     public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
         "Event subscription names this destination. Observed delivery was not stored.";
 
@@ -314,7 +321,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
-        return $"Backend {backendName.Trim()} is not on this diagram.";
+        return $"Backend {backendName.Trim()} is not on this diagram. Observed traffic was not stored.";
     }
 
     public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)

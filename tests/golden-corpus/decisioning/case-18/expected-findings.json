@@ -38,12 +38,12 @@
     ]
   },
   {
-    "findingId": "6ae9096c-8d7b-5abe-25ed-5e56673544c8",
+    "findingId": "c6bf9c45-fcd3-290d-a4ce-4102d4e9a667",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
     "title": "Requirement detected: Auth-2",
-    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture. Mandatory flag was not stored.",
     "relatedNodeIds": [
       "r1",
       "t1"

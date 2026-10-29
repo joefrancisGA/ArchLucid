@@ -104,7 +104,7 @@ docker_pull_retry() {
 }
 
 DOTNET_SDK_IMAGE="${DOTNET_SDK_IMAGE:-mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23}"
-DOTNET_ASPNET_IMAGE="${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0.12-alpine3.23}"
+DOTNET_ASPNET_IMAGE="${DOTNET_ASPNET_IMAGE:-mcr.microsoft.com/dotnet/aspnet:10.0.14-alpine3.24}"
 
 maybe_disable_ipv6_for_mcr
 

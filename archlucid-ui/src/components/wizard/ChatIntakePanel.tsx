@@ -60,7 +60,27 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
       markAiSuggested("topologyHints", parsed.topologyHints ?? []);
       markAiSuggested("securityBaselineHints", parsed.securityBaselineHints ?? []);
 
-      setParseSuccess("Parsed into the wizard below — review every field before submitting.");
+      if (parsed.systemName !== null && parsed.systemName !== undefined) {
+        markAiSuggested("systemName", [parsed.systemName]);
+      }
+
+      if (parsed.description !== null && parsed.description !== undefined) {
+        markAiSuggested("description", [parsed.description]);
+      }
+
+      if (parsed.environment !== null && parsed.environment !== undefined) {
+        markAiSuggested("environment", [parsed.environment]);
+      }
+
+      if (parsed.cloudProvider !== null && parsed.cloudProvider !== undefined) {
+        markAiSuggested("cloudProvider", [String(parsed.cloudProvider)]);
+      }
+
+      setParseSuccess(
+        merged.systemName?.includes("not stored")
+          ? "Parsed into the wizard below — system name was not stored in intake; review every field before submitting."
+          : "Parsed into the wizard below — review every field before submitting.",
+      );
       onParsed?.();
     } catch (e: unknown) {
       if (isApiRequestError(e)) {

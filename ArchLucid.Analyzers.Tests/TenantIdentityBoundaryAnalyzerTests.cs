@@ -726,6 +726,34 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_banned_type_identifier_in_collection_expression_cast_element_at_call_site()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(object[] items) { }
+
+        void Call()
+        {
+            M([({|#0:IHttpContextAccessor|})null!]);
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.IHttpContextAccessor");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
   public async Task Reports_delegate_type_argument_with_banned_type_in_inner_layer_assembly()
   {
     const string testCode = """

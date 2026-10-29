@@ -1,15 +1,6 @@
-import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { governanceFindingsQueueAvailableFindingIdSet } from "@/lib/governance/governance-findings-queue-selection";
 
-export function governanceAssignedToMePathInspectFindingIdSet(
-  rows: readonly GovernanceFindingQueueRow[],
-): ReadonlySet<string> {
-  const ids = rows
-    .filter((row) => row.recordKind === "finding")
-    .map((row) => row.findingId.trim())
-    .filter((id) => id.length > 0);
-
-  return new Set(ids);
-}
+export const governanceAssignedToMePathInspectFindingIdSet = governanceFindingsQueueAvailableFindingIdSet;
 
 /** Single bulk selection wins; otherwise honor a durable `findingId` cursor when it matches a visible row. */
 export function resolveGovernanceAssignedToMePathInspectFindingId(input: {

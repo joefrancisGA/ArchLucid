@@ -525,6 +525,49 @@ Describe 'al-bug-pick-zone.ps1' {
         @($resultThree.candidateHypotheses).Count | Should -Be 2
     }
 
+    It 'reads open candidates from the newest diary header before the next hunt note' {
+        $content = @"
+# fixture
+
+## Zone: zone-diary-queue
+
+2026-10-29 seed hunt (seed→hit): closed prior row; seeded follow-ons below.
+
+- [x] (proven) Example — already fixed — **hit 2026-10-29 seed hunt:** regression above.
+- [ ] (candidate) Token path — misspelled error code — locus: alias collapse; input: JSON body.
+- [ ] (candidate) Callback path — authorize error query — locus: alias collapse; input: query string.
+
+2026-10-27 seed hunt (seed→hit): older hunt note.
+
+- [ ] (candidate) Stale buried candidate — must not score — locus: old row.
+
+- **id:** zone-diary-queue
+- **status:** open
+- **aliases:** diary header queue
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc
+- **hunts:** 12
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-25 — example
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) Legacy row — closed in ### Hypotheses only.
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger -Hint 'zone-diary-queue'
+
+        $result.zoneId | Should -Be 'zone-diary-queue'
+        @($result.candidateHypotheses).Count | Should -Be 2
+        @($result.openHypotheses).Count | Should -Be 2
+        $result.seedHunt | Should -Be $false
+        $result.candidateHypotheses[0] | Should -Match 'Token path'
+    }
+
     It 'counts only hunt-ready rows in the hypothesis tie-break' {
         $content = @"
 # fixture

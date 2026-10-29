@@ -57,6 +57,10 @@ public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider ru
                 continue;
 
             string label = GraphNodeReviewerLabel.ForFindingTitle(actor.Label);
+            string trustOriginDisplay = actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin)
+                                        && !string.IsNullOrWhiteSpace(trustOrigin)
+                ? trustOrigin.Trim()
+                : "Trust origin was not stored.";
             List<string> rulesApplied = policyRuleId is null
                 ? ["external-exposure-trust-boundary"]
                 : [policyRuleId, theme];
@@ -70,16 +74,14 @@ public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider ru
                 Severity = FindingSeverity.Warning,
                 Title = $"External actor '{label}' lacks an explicit trust boundary",
                 Rationale =
-                    "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+                    "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls. "
+                    + $"Trust origin on this actor: {trustOriginDisplay}.",
                 PayloadType = nameof(ExternalExposureFindingPayload),
                 Payload = new ExternalExposureFindingPayload
                 {
                     ActorNodeId = actor.NodeId,
                     ActorLabel = label,
-                    TrustOrigin = actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin)
-                                  && !string.IsNullOrWhiteSpace(trustOrigin)
-                        ? trustOrigin.Trim()
-                        : "Trust origin was not stored.",
+                    TrustOrigin = trustOriginDisplay,
                 },
                 RelatedNodeIds = [actor.NodeId],
                 EvidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(

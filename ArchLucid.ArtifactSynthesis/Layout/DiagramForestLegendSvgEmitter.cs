@@ -55,7 +55,7 @@ public static class DiagramForestLegendSvgEmitter
             rows.Add("Private endpoint access");
         }
 
-        rows.Add("Connector");
+        rows.Add("Solid connector (stored relationship)");
 
         if (input.HasDashedPeeringEdges)
         {
@@ -69,8 +69,13 @@ public static class DiagramForestLegendSvgEmitter
 
         foreach (DiagramNode rollup in input.RollupNodes)
         {
-            rows.Add(rollup.Label);
-            rows.AddRange(rollup.DataFlowRollupMemberNames.Select(member => $"  {member}"));
+            string rollupLabel = DiagramSubgraphLabelFormatter.FormatForDiagram(rollup.Label);
+            rows.Add(rollupLabel);
+            rows.AddRange(
+                rollup.DataFlowRollupMemberNames.Select(member =>
+                    string.IsNullOrWhiteSpace(member)
+                        ? "  Rollup member name was stored empty."
+                        : $"  {member.Trim()}"));
         }
 
         double height = TopPadding + (rows.Count * RowHeight) + TopPadding;
@@ -118,7 +123,7 @@ public static class DiagramForestLegendSvgEmitter
                 continue;
             }
 
-            if (string.Equals(row, "Connector", StringComparison.Ordinal))
+            if (string.Equals(row, "Solid connector (stored relationship)", StringComparison.Ordinal))
             {
                 group.Add(SolidLine(svgNamespace, LeftPadding, y - 4.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));

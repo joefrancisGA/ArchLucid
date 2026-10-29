@@ -89,8 +89,8 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
             RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
 
         model.SystemNameDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
-        model.RunIdDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
-        model.SealedFindingsSection.Should().Contain("No sealed findings snapshot");
+        model.RunIdDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.RunIdStoredEmpty);
+        model.SealedFindingsSection.Should().Be(RunSummaryOnePagerHonestyCopy.FindingsSnapshotIdNotStored);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
         RunSummaryOnePagerDocumentModel model =
             RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
 
-        model.TopFindingsEmptyCopy.Should().Be(RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored);
+        model.TopFindingsEmptyCopy.Should().Be(RunSummaryOnePagerHonestyCopy.NoCriticalOrErrorFindingTitles);
     }
 
     [Fact]

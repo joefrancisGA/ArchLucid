@@ -71,10 +71,14 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
             $"- Run ID: {MarkdownPackageExportHonestyCopy.ResolveIdentityField(evidence.RunId, MarkdownPackageExportHonestyCopy.RunIdNotStored)}");
         sb.AppendLine(
             $"- Request ID: {MarkdownPackageExportHonestyCopy.ResolveIdentityField(evidence.RequestId, MarkdownPackageExportHonestyCopy.RequestIdNotStored)}");
-        sb.AppendLine($"- Policy Count: {evidence.Policies.Count}");
-        sb.AppendLine($"- Service Catalog Hint Count: {evidence.ServiceCatalog.Count}");
-        sb.AppendLine($"- Pattern Hint Count: {evidence.Patterns.Count}");
-        sb.AppendLine($"- Evidence Note Count: {evidence.Notes.Count}");
+        sb.AppendLine(
+            $"- Policy Count: {MarkdownPackageExportHonestyCopy.FormatEvidenceCollectionCount(evidence.Policies.Count, MarkdownPackageExportHonestyCopy.PolicyCountStoredEmpty)}");
+        sb.AppendLine(
+            $"- Service Catalog Hint Count: {MarkdownPackageExportHonestyCopy.FormatEvidenceCollectionCount(evidence.ServiceCatalog.Count, MarkdownPackageExportHonestyCopy.ServiceCatalogCountStoredEmpty)}");
+        sb.AppendLine(
+            $"- Pattern Hint Count: {MarkdownPackageExportHonestyCopy.FormatEvidenceCollectionCount(evidence.Patterns.Count, MarkdownPackageExportHonestyCopy.PatternHintCountStoredEmpty)}");
+        sb.AppendLine(
+            $"- Evidence Note Count: {MarkdownPackageExportHonestyCopy.FormatEvidenceCollectionCount(evidence.Notes.Count, MarkdownPackageExportHonestyCopy.EvidenceNoteCountStoredEmpty)}");
         sb.AppendLine();
         return sb.ToString();
     }

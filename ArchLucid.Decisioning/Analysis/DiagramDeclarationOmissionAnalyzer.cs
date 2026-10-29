@@ -156,9 +156,9 @@ public static partial class DiagramDeclarationOmissionAnalyzer
         omissions.Add(
             new DiagramDeclarationOmission(
                 participant.NodeId,
-                GraphNodeReviewerLabel.ForFindingTitle(participant.Label),
+                DeclarationFindingHonestyCopy.FormatResourceLabel(participant.Label),
                 targetNode.NodeId,
-                GraphNodeReviewerLabel.ForFindingTitle(targetNode.Label),
+                DeclarationFindingHonestyCopy.FormatResourceLabel(targetNode.Label),
                 propertyName,
                 referencedToken,
                 referenceKind));

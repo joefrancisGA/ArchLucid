@@ -99,6 +99,17 @@ public static class InventoryDiagramOrphanedStateClassifier
                 [InventoryDiagramConnectionPostureCatalog.AccessConnectorNoWorkspaceCitationDetail]);
         }
 
+        if (armResourceType.Equals("Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase))
+        {
+            if (HasStoredVirtualMachineNetworkPlacement(graphNode, graph, armIdToGraphNode))
+            {
+                return InventoryDiagramConnectionStateResult.None;
+            }
+
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.VirtualMachineNoStoredSubnetPlacementDetail]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
@@ -183,6 +194,11 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (IsHostPoolChildArmType(armResourceType))
         {
             return TryClassifyOrphanedHostPoolChild(properties, armResourceType, armIdToGraphNode);
+        }
+
+        if (armResourceType.Equals("Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase))
+        {
+            return TryClassifyOrphanedVirtualMachine(graphNode, graph, armIdToGraphNode);
         }
 
         return null;
@@ -462,7 +478,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (string.IsNullOrWhiteSpace(sourceArmId))
         {
             return InventoryDiagramConnectionStateResult.Orphaned(
-                "protected virtual machine was not recorded");
+                "Protected virtual machine was not stored.");
         }
 
         if (!IsArmIdResolvable(sourceArmId, armIdToGraphNode))
@@ -739,6 +755,86 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         return null;
+    }
+
+    private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedVirtualMachine(
+        GraphNode graphNode,
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        if (HasStoredVirtualMachineNetworkPlacement(graphNode, graph, armIdToGraphNode))
+        {
+            return null;
+        }
+
+        if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
+            && !string.IsNullOrWhiteSpace(ipConfigurationId))
+        {
+            string? nicArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+
+            if (!string.IsNullOrWhiteSpace(nicArmId)
+                && !IsArmIdResolvable(nicArmId, armIdToGraphNode))
+            {
+                string nicName = ReadResourceName(nicArmId, "network interface");
+                return InventoryDiagramConnectionStateResult.Orphaned(
+                    $"network interface {nicName} is not in this inventory snapshot.");
+            }
+        }
+
+        return null;
+    }
+
+    private static bool HasStoredVirtualMachineNetworkPlacement(
+        GraphNode graphNode,
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.FromNodeId != graphNode.NodeId && edge.ToNodeId != graphNode.NodeId)
+            {
+                continue;
+            }
+
+            if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(edge.InferenceSource, "inventory-vm-nic", StringComparison.OrdinalIgnoreCase))
+            {
+                string otherNodeId = edge.FromNodeId == graphNode.NodeId ? edge.ToNodeId : edge.FromNodeId;
+
+                if (graph.Nodes.Any(node =>
+                        string.Equals(node.NodeId, otherNodeId, StringComparison.Ordinal)
+                        && IsArmIdResolvable(ReadArmId(node), armIdToGraphNode)))
+                {
+                    return true;
+                }
+            }
+
+            GraphNode? otherNode = graph.Nodes.FirstOrDefault(node =>
+                string.Equals(node.NodeId, edge.FromNodeId == graphNode.NodeId ? edge.ToNodeId : edge.FromNodeId, StringComparison.Ordinal));
+
+            if (otherNode is not null
+                && string.Equals(
+                    ReadArmType(otherNode),
+                    "Microsoft.Network/virtualNetworks/subnets",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
+            && !string.IsNullOrWhiteSpace(ipConfigurationId))
+        {
+            string? nicArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+
+            if (!string.IsNullOrWhiteSpace(nicArmId)
+                && IsArmIdResolvable(nicArmId, armIdToGraphNode))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool TryClassifyUnconnected(string armResourceType)

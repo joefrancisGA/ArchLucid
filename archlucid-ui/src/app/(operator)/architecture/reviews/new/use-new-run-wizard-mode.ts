@@ -52,6 +52,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   const [wizardMode, setWizardMode] = useState<NewRunWizardMode>(
     () => urlMode ?? readStoredWizardMode() ?? "quick",
   );
+  const [committedManifestProbeFailed, setCommittedManifestProbeFailed] = useState(false);
   const wizardModeRef = useRef(wizardMode);
   wizardModeRef.current = wizardMode;
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
@@ -128,6 +129,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     if (committedProbeQuery.isSuccess && committedProbeQuery.data !== undefined) {
+      setCommittedManifestProbeFailed(false);
       setWizardMode(
         resolveFirstRunWizardMode({
           hasCommittedManifest: committedProbeQuery.data.hasCommittedManifest,
@@ -139,6 +141,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     if (committedProbeQuery.isError && !modeChosenRef.current) {
+      setCommittedManifestProbeFailed(true);
       setWizardMode("quick");
     }
   }, [
@@ -149,5 +152,5 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     storedMode,
   ]);
 
-  return { wizardMode, persistWizardMode };
+  return { wizardMode, persistWizardMode, committedManifestProbeFailed };
 }

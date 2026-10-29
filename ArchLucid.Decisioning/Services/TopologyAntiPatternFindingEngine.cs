@@ -47,12 +47,14 @@ public sealed class TopologyAntiPatternFindingEngine : IFindingEngine
                 if (connectedTargets.Contains(data.NodeId))
                     continue;
 
+                string datastoreLabel = GraphNodeReviewerLabel.ForFindingTitle(data.Label);
+
                 findings.Add(FindingFactory.CreateTopologyGapFinding(
                     EngineType,
-                    $"Datastore '{data.Label}' has no compute dependency edge",
+                    $"Datastore '{datastoreLabel}' has no compute dependency edge",
                     "No CONNECTS_TO or DEPENDS_ON edge links a compute resource to this datastore.",
                     "datastore-without-compute-dependency",
-                    $"Datastore '{data.Label}' is isolated from compute in the topology graph.",
+                    $"Datastore '{datastoreLabel}' is isolated from compute in the topology graph.",
                     "Reviewers cannot trace data-flow or blast-radius paths for this datastore.",
                     FindingSeverity.Warning,
                     [data.NodeId]));
@@ -61,15 +63,19 @@ public sealed class TopologyAntiPatternFindingEngine : IFindingEngine
 
         foreach (GraphNode node in topologyNodes)
         {
-            if (!LooksPubliclyExposed(node))
+            if (!TryDescribePublicExposure(node, out string exposureTitle, out string exposureRationale))
                 continue;
+
+            string resourceLabel = GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 
             findings.Add(FindingFactory.CreateTopologyGapFinding(
                 EngineType,
-                $"Topology resource '{node.Label}' appears publicly exposed",
-                "The resource is flagged for public exposure via properties or naming.",
+                exposureTitle.Replace("{label}", resourceLabel, StringComparison.Ordinal),
+                exposureRationale,
                 "public-exposure-suspected",
-                $"Resource '{node.Label}' may rely on a public network path.",
+                exposureRationale.Contains("publicEndpoint property was stored true", StringComparison.Ordinal)
+                    ? $"Resource '{resourceLabel}' may rely on a public network path."
+                    : $"Resource '{resourceLabel}' name suggests public exposure; confirm ingress controls.",
                 "Landing-zone reviewers should confirm private connectivity and ingress controls.",
                 FindingSeverity.Warning,
                 [node.NodeId]));
@@ -78,19 +84,35 @@ public sealed class TopologyAntiPatternFindingEngine : IFindingEngine
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static bool LooksPubliclyExposed(GraphNode node)
+    private static bool TryDescribePublicExposure(
+        GraphNode node,
+        out string titleTemplate,
+        out string rationale)
     {
         if (node.Properties.TryGetValue("publicEndpoint", out string? publicEndpoint)
             && string.Equals(publicEndpoint, "true", StringComparison.OrdinalIgnoreCase))
         {
+            titleTemplate = "Topology resource '{label}' appears publicly exposed";
+            rationale = "The publicEndpoint property was stored true.";
             return true;
         }
 
         string label = (node.Label ?? string.Empty).ToLowerInvariant();
 
-        return DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "public")
-               && (DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "sql")
-                   || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(label)
-                   || TopologyDatastoreLabelHeuristic.ContainsAffirmativeBlobKeyword(label));
+        if (DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "public")
+            && (DecisioningTextTokenMatcher.ContainsStandaloneToken(label, "sql")
+                || TopologyDatastoreLabelHeuristic.ContainsAffirmativeStorageKeyword(label)
+                || TopologyDatastoreLabelHeuristic.ContainsAffirmativeBlobKeyword(label)))
+        {
+            titleTemplate =
+                "Topology resource '{label}' name includes \"public\"; a public endpoint property was not stored";
+            rationale =
+                "Resource name includes \"public\". A public endpoint property was not stored.";
+            return true;
+        }
+
+        titleTemplate = string.Empty;
+        rationale = string.Empty;
+        return false;
     }
 }

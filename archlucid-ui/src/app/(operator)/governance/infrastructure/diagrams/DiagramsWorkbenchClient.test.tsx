@@ -345,7 +345,7 @@ describe("DiagramsWorkbenchClient", () => {
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
     expect(within(modePicker).getByRole("option", {
-      name: "Full subscription — backbone resources; some components may be hidden",
+      name: "Full subscription — resources in this snapshot, with NICs and some network detail omitted",
     })).toHaveValue("full");
   });
 
@@ -414,7 +414,7 @@ describe("DiagramsWorkbenchClient", () => {
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
     expect(readingCardCaption?.textContent ?? "").toMatch(/No diagram neighbor on this view/);
     expect(readingCardCaption?.textContent ?? "").toMatch(
-      /opens the list of names\. Click that card again to close the list\./,
+      /not network isolation/,
     );
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
@@ -667,7 +667,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
   });
 
-  it("omits UUID subscription ids from snapshot picker labels", async () => {
+  it("labels UUID-only subscriptions in snapshot picker options when no display name was stored", async () => {
     const subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d";
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
       items: [
@@ -696,7 +696,8 @@ describe("DiagramsWorkbenchClient", () => {
     await waitFor(() => {
       expect(picker).toHaveTextContent("9/1/2026");
     });
-    expect(picker).not.toHaveTextContent(subscriptionId);
+    expect(picker).toHaveTextContent("Subscription name was not stored.");
+    expect(picker).toHaveTextContent(`Subscription id ${subscriptionId}.`);
   });
 
   it("opens dependency neighborhood drill-down when seed node is in the URL", async () => {
@@ -1494,7 +1495,7 @@ describe("DiagramsWorkbenchClient", () => {
       expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
     expect(screen.getByTestId("infra-diagrams-one-resource-group-caption")).toHaveTextContent(
-      "This diagram shows one resource group.",
+      "This diagram shows resources in rg-net. Other resource groups in this snapshot are not on this canvas.",
     );
     expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
   });
@@ -2055,5 +2056,283 @@ describe("DiagramsWorkbenchClient", () => {
 
     expect(networkDetails).not.toBeChecked();
     expect(privateEndpoints).toBeChecked();
+  });
+
+  it("does not keep the prior snapshot executive seed catalog after the snapshot picker changes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const seedA = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const seedB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      const catalogSeed = snapshotId === snapshotB ? seedB : seedA;
+      const label = snapshotId === snapshotB ? "catalog-only-vnet-b" : "catalog-only-vnet-a";
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-a al-seed=${catalogSeed}`,
+            `    n_catalog["${label}"]`,
+          ].join("\n"),
+          metrics: {
+            nodeCount: 1,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 200,
+            layoutEstimate: 100,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_visible["visible-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
+    render(<DiagramsWorkbenchClient />);
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "dependencyNeighborhood" },
+    });
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-a" })).toBeInTheDocument();
+    });
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-snapshot-picker"), {
+      target: { value: snapshotB },
+    });
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).queryByRole("option", { name: "catalog-only-vnet-a" })).not.toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-b" })).toBeInTheDocument();
+    });
+  });
+
+  it("refreshes dependency seed catalog when the URL snapshot id changes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const seedA = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const seedB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      const catalogSeed = snapshotId === snapshotB ? seedB : seedA;
+      const label = snapshotId === snapshotB ? "catalog-only-vnet-b" : "catalog-only-vnet-a";
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-a al-seed=${catalogSeed}`,
+            `    n_catalog["${label}"]`,
+          ].join("\n"),
+          metrics: {
+            nodeCount: 1,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 200,
+            layoutEstimate: 100,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_visible["visible-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotA}&mermaidMode=dependencyNeighborhood`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-a" })).toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotB}&mermaidMode=dependencyNeighborhood`,
+    );
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).queryByRole("option", { name: "catalog-only-vnet-a" })).not.toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-b" })).toBeInTheDocument();
+    });
+  });
+
+  it("refilters dependency seed catalog candidates when Show never-show components is enabled", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const vnetSeed = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const alertSeed = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-net al-seed=${vnetSeed}`,
+            '    n_vnet["backbone-vnet"]',
+            `    %% al-type=Microsoft.Insights/metricAlerts al-rg=rg-ops al-seed=${alertSeed}`,
+            '    n_alert["ops-metric-alert"]',
+          ].join("\n"),
+          metrics: {
+            nodeCount: 2,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 400,
+            layoutEstimate: 200,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_visible["visible-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "backbone-vnet" })).toBeInTheDocument();
+      expect(within(picker).queryByRole("option", { name: "ops-metric-alert" })).not.toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&includeNeverShow=1`,
+    );
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "backbone-vnet" })).toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "ops-metric-alert" })).toBeInTheDocument();
+    });
   });
 });

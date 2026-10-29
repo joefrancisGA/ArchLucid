@@ -59,14 +59,14 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/connections");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && ((edge.Label.Contains("IPsec", StringComparison.Ordinal)
-                    && edge.Label.Contains("gw-a", StringComparison.Ordinal)
-                    && edge.Label.Contains("gw-b", StringComparison.Ordinal))
+            && (edge.Label.Contains("IPsec", StringComparison.Ordinal)
+                || edge.Label.Contains(
+                    InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored,
+                    StringComparison.Ordinal)
                 || string.Equals(
                     edge.Label,
                     InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
-                    StringComparison.Ordinal)
-                || edge.Label.Contains("gw-a", StringComparison.Ordinal)));
+                    StringComparison.Ordinal)));
     }
 
     [Fact]

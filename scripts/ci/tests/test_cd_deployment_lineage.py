@@ -18,12 +18,36 @@ from cd_deployment_lineage import (
     build_tag_image_ref,
     format_lineage_summary_markdown,
     require_digest,
+    require_non_empty,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCdDeploymentLineage(unittest.TestCase):
+    def test_lineage_fields_reject_control_character_injection(self) -> None:
+        for value in ("release\\nforged", "release\\rforged",
+                      "release\\tforged", "release\\x00forged"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "control characters"):
+                format_lineage_summary_markdown(
+                    commit_sha="abc123", build_id=value,
+                    target_environment="staging", image_tag="abc123",
+                    api_tag_ref="reg/api:abc123",
+                    api_digest_ref="reg/api@sha256:" + "a" * 64,
+                    ui_tag_ref="reg/ui:abc123",
+                    ui_digest_ref="reg/ui@sha256:" + "b" * 64,
+                    worker_digest_ref="reg/worker@sha256:" + "c" * 64,
+                    build_result="success", deploy_result="success",
+                    verify_result="success", smoke_result="success",
+                )
+
+    def test_lineage_fields_reject_raw_controls_including_boundary_whitespace(self) -> None:
+        for value in ("release\nforged", "release\rforged",
+                      "release\tforged", "release\x00forged",
+                      "\nrelease", "release\n", "\trelease"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "control characters"):
+                require_non_empty("build_id", value)
+
     def test_require_digest_accepts_sha256(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
         self.assertEqual(require_digest("api", digest), digest)
@@ -38,16 +62,51 @@ class TestCdDeploymentLineage(unittest.TestCase):
         with self.assertRaises(ValueError):
             require_digest("api", "abcdef")
 
+    def test_full_digest_contract_rejects_truncation_nonhex_and_zero(self) -> None:
+        invalid = (
+            "sha256:", "sha256:abcd", "sha256:" + "0" * 64,
+            "sha256:" + "z" * 64, "sha256:" + "f" * 65,
+            "sha256:" + "f" * 63, "sha256:" + "f" * 63 + " ",
+            "sha512:" + "f" * 64, "sha256:../" + "f" * 61,
+        )
+        for digest in invalid:
+            with self.subTest(digest=digest):
+                with self.assertRaises(ValueError):
+                    require_digest("api", digest)
+
+    def test_full_digest_contract_accepts_case_insensitive_hex(self) -> None:
+        self.assertEqual(
+            require_digest("api", "sha256:" + "ABcd" * 16),
+            "sha256:" + "ABcd" * 16,
+        )
+
     def test_build_digest_and_tag_refs(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", digest[:12])
+        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "sha-abc123")
         digest_ref = build_digest_image_ref("myacr.azurecr.io", "archlucid-api", digest)
 
-        self.assertEqual(tag_ref, f"myacr.azurecr.io/archlucid-api:{digest[:12]}")
+        self.assertEqual(tag_ref, "myacr.azurecr.io/archlucid-api:sha-abc123")
         self.assertEqual(digest_ref, f"myacr.azurecr.io/archlucid-api@{digest}")
 
         with self.assertRaises(ValueError):
             build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "latest-staging")
+
+    def test_mutable_latest_tags_are_blocked_case_insensitively(self) -> None:
+        for tag in ("latest", "LATEST", "Latest-prod", "lAtEsT-2026"):
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                build_tag_image_ref("registry.example", "app", tag)
+
+    def test_invalid_image_tags_are_rejected(self) -> None:
+        for tag in ("bad/tag", "bad:tag", "bad tag", ".hidden", "-bad",
+                    "bad\\ntag", "x" * 129, "bad@tag"):
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                build_tag_image_ref("registry.example", "app", tag)
+
+    def test_valid_immutable_image_tag_is_preserved(self) -> None:
+        self.assertEqual(
+            build_tag_image_ref("registry.example", "app", "sha-abcdef123456"),
+            "registry.example/app:sha-abcdef123456",
+        )
 
     def test_format_lineage_summary_includes_required_fields(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

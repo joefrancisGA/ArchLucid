@@ -51,7 +51,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         data-testid="run-cost-preview-error"
         className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
       >
-        Cost preview did not load.
+        Cost preview was not loaded.
       </div>
     );
   }

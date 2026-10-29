@@ -49,7 +49,7 @@ function primaryFindingTitleForCopy(title: string): string {
 export function deriveReviewNextActionLabel(input: {
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly primaryConcernFinding: QuickDecisionFinding | null;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
   readonly hasFindingsSnapshot?: boolean;
 }): string {
   const primary = input.primaryConcernFinding;
@@ -105,7 +105,7 @@ export function deriveReviewStatusSummary(input: {
   readonly reviewOutcome: string;
   readonly findings: readonly QuickDecisionFinding[];
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
   readonly hasFindingsSnapshot?: boolean;
 }): ReviewStatusSummary {
   const primaryConcernFinding = derivePrimaryConcernFinding(input.findings);
@@ -128,7 +128,7 @@ export function deriveSponsorBottomLineContent(input: {
   readonly governanceDecisionLabel: string;
   readonly governanceDecisionRationale: string | null | undefined;
   readonly overallPosture: string;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
   readonly highestSeverity: string | null;
   readonly themeSummaries: readonly string[] | null | undefined;
 }): SponsorBottomLineContent | null {

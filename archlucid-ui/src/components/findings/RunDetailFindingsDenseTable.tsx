@@ -99,6 +99,14 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
       onKeyDown={keyboardNav.onTableKeyDown}
       data-testid="run-detail-findings-dense-table-region"
     >
+      {findings.length === 0 ? (
+        <p
+          className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-dense-table-empty"
+        >
+          No findings were stored on this review record.
+        </p>
+      ) : null}
       <p className={cn("mb-2 text-neutral-500", DESIGN_TOKENS.table.cellSecondary)} aria-hidden="true">
         <kbd className={cn("rounded border border-neutral-300 px-1 font-mono dark:border-neutral-600", OPERATOR_TYPOGRAPHY.micro)}>
           j

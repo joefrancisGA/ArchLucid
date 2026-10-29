@@ -19744,10 +19744,7 @@
             "items": {
               "$ref": "#/components/schemas/HeldCheckLedgerRollupEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "heldCheckSecondPass": {
             "anyOf": [
@@ -19781,19 +19778,13 @@
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "proseAssumptionRegisterEntries": {
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "retainedFindingCount": {
             "format": "int32",
@@ -131259,13 +131250,28 @@
           },
           "429": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Too Many Requests."
+            "description": "Too Many Requests"
           },
           "500": {
             "content": {

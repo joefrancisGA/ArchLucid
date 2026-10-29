@@ -19744,10 +19744,7 @@
             "items": {
               "$ref": "#/components/schemas/HeldCheckLedgerRollupEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "heldCheckSecondPass": {
             "anyOf": [
@@ -19781,19 +19778,13 @@
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "proseAssumptionRegisterEntries": {
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
             },
-            "type": [
-              "null",
-              "array"
-            ]
+            "type": "array"
           },
           "retainedFindingCount": {
             "format": "int32",

@@ -12,4 +12,8 @@ describe("buildRunScopedAuditExportParams", () => {
     expect(Date.parse(params.fromUtcIso)).not.toBeNaN();
     expect(new Date(params.toUtcIso).getTime()).toBeGreaterThan(new Date(params.fromUtcIso).getTime());
   });
+
+  it("throws when run id is missing", () => {
+    expect(() => buildRunScopedAuditExportParams("   ")).toThrow("Run id was not stored.");
+  });
 });

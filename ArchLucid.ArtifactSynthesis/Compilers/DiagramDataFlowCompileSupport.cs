@@ -91,7 +91,16 @@ internal static class DiagramDataFlowCaptionBuilder
 
         if (hasObservedRuntime)
         {
-            captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            List<GraphEdge> observedRuntimeEdges = includedEdges
+                .Where(IsObservedRuntimeGraphEdge)
+                .ToList();
+
+            if (observedRuntimeEdges.Count > 0
+                && observedRuntimeEdges.All(edge =>
+                    DiagramEdgeLabelHumanizer.ObservedDependencyHasStoredTimeWindow(edge.Properties)))
+            {
+                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            }
         }
 
         bool hasIngestion = includedNodes.Any(node =>
@@ -117,19 +126,54 @@ internal static class DiagramDataFlowCaptionBuilder
         bool hasDirectionalEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase));
 
         bool hasLinkedServiceEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedService, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
 
         if (hasIngestion && hasLinkedServiceEdges && !hasDirectionalEdges)
         {
             captions.Add(DiagramDataFlowHonestyLegend.PipelineDirectionMissingSentence);
         }
 
+        List<string> omittedStages = [];
+
+        foreach (string stage in AzureInventoryDataFlowStageNames.OrderedStages)
+        {
+            bool hasStageNode = includedNodes.Any(node =>
+                AzureInventoryDataFlowStageNames.EqualsStage(
+                    InventoryDataFlowStageResolver.Resolve(node),
+                    stage));
+
+            if (!hasStageNode)
+                omittedStages.Add(stage);
+        }
+
+        if (omittedStages.Count > 0 && omittedStages.Count < AzureInventoryDataFlowStageNames.OrderedStages.Count)
+        {
+            captions.Add(
+                $"{DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix} {string.Join(", ", omittedStages)}.");
+        }
+
         return captions;
+    }
+
+    private static bool IsObservedRuntimeGraphEdge(GraphEdge edge)
+    {
+        return (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? fromType)
+                && fromType is not null
+                && fromType.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime)
+            || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+                && fromInference is not null
+                && fromInference.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime);
     }
 }
 
