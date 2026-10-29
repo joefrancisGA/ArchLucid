@@ -469,6 +469,19 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_delete_character()
+    {
+        const string secretWithDelete = "part1\u007Fpart2";
+        string reference =
+            $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithDelete})";
+
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(reference);
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be(secretWithDelete);
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_returns_null_when_secrets_path_uses_percent_encoded_slashes()
     {
         (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
