@@ -7373,7 +7373,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
 - [ ] (candidate) `ReviewsHubInventoryRowActions` — row action deep links merge stale hub filter query when built from `readWindowLocationSearch()` — locus: inventory row actions; input: cross-filter soft navigation then open row action menu link.
 - [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
-- [ ] (candidate) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes use `readWindowLocationSearch()` — locus: new-run wizard client pilot toggles; input: soft navigation on `/architecture/reviews/new` then toggle focused pilot mode.
 
 - **id:** ui-operator-routes
 - **status:** open
@@ -9052,6 +9051,15 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-29 seed hunt (seed→hit): promoted open `(candidate)` `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes used `readWindowLocationSearch()`, so after soft navigation disabling focused pilot mode merged stale query keys from the address bar; `syncPilotTogglesToUrl` now uses `searchParams.toString()`; regression `writes pilot toggle from useSearchParams when window.location.search lags after soft navigation`; `use-new-run-wizard-client.pilot-url.test.ts` 2/2. Seeded five follow-on `(candidate)` rows below. Private beta: full guided wizard pilot toggles no longer resurrect stale toolbar params after in-app navigation on `/architecture/reviews/new`.
+
+- [x] (proven) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes merged stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for toggle writes; regression above.
+- [ ] (candidate) `useNewRunWizardMode.persistWizardMode` — embedded path-switcher mount persists full mode via `readWindowLocationSearch()` — locus: `use-new-run-wizard-mode.ts` `persistWizardMode`; input: soft navigation clears wizard query then embedded detailed wizard auto-pins `mode=full`.
+- [ ] (candidate) `useNewRunWizardSteps.goToStep` — wizard step href writes use `readWindowLocationSearch()` on write — locus: `use-new-run-wizard-steps.ts`; input: soft navigation on reviews/new then stepper advances a slide.
+- [ ] (candidate) `useGuidedIntakeWizard.setStep` — guided intake step href writes use `readWindowLocationSearch()` on write — locus: `use-guided-intake-wizard.ts`; input: soft navigation clears intake params then operator moves to clarifications step.
+- [ ] (candidate) `FirstPilotIntakeFields` — standards selection disclosure href writes use `readWindowLocationSearch()` — locus: quick-start standards panel; input: soft navigation then expand standards picker.
+- [ ] (candidate) `SimplifiedPilotWizard` — advanced config disclosure href writes use `readWindowLocationSearch()` — locus: simplified pilot chrome; input: soft navigation then open advanced configuration disclosure.
+
 2026-10-29 thorough hunt (hit): promoted `useFirstPilotIntakeWizard.setScopeGateOpen` — scope gate URL writes were gated on `scopeGateOpenRef` matching resolved, so after soft navigation or popstate synced the ref ahead of React state, closing or confirming the gate skipped `commitHrefIfChanged` and left stale `scopeGate=` in the address bar; shared `resolveScopeGateOpenTransition` syncs URL when React `current` differs from resolved (also applied to `useGuidedIntakeBriefForm`); regressions `still syncs URL when ref already matches resolved but React state lags after external URL sync` and `clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state`; `scope-gate-open-setter.test.ts` 2/2; first-pilot scope gate URL sync 2/2. Private beta: quick start and guided intake scope confirmation clears the scope gate query param even when the URL ref updated before the panel caught up.
 
 - [x] (proven) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — **hit 2026-10-29 thorough hunt:** `resolveScopeGateOpenTransition` uses `current !== resolved`; regressions above.
@@ -9087,8 +9095,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 - [x] (proven) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — **hit 2026-10-26 thorough hunt:** restore marks example prefill applied; skip when title/brief populated; regression template+auto-restore fixture.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — **cheap-disproof 2026-10-26 thorough hunt:** `markResumed` clears recheck UI; upload throw matches submitRun await semantics; monitor.
-- [ ] (candidate) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes use `readWindowLocationSearch()` — locus: new-run wizard client pilot toggles; input: soft navigation on `/architecture/reviews/new` then toggle focused pilot mode.
-- [x] (proven) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — **hit 2026-10-26 thorough hunt:** per-`priorRunId` guard; regression priorRunId swap fixture.
+- [x] (proven) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes merged stale query after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()`; regression `writes pilot toggle from useSearchParams when window.location.search lags after soft navigation`.
+- [ ] (candidate) `useNewRunWizardMode.persistWizardMode` — mode URL write on embedded mount uses stale window search — locus: `use-new-run-wizard-mode.ts`; input: path switcher embed pins full mode after soft navigation.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / query-prefill ordering — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; automation readiness vs restore unchanged.
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` popstate race — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; no new repro.
 
@@ -9098,10 +9106,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — scope gate URL skipped when ref synced before React state on intake wizards
+- **last-bug:** 2026-10-29 — new-run wizard pilot toggle merged stale query after soft navigation
 - **code-changed-since:** no
 
-**Hunts:** 70 · **Bugs found:** 41 · **Consecutive dry hunts:** 0
+**Hunts:** 71 · **Bugs found:** 42 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
