@@ -16,6 +16,11 @@ Do not add English-phrase signals to al-bug-audit-proven-rows.py.
 week-uom-synonym: bans new HasCompactWeekk+Suffix / ContainsSpacedSlashWeekk+Token
 methods and per-length AzureRetailPricesSkuMatchers*Weekkk*Tests.cs files.
 HasCompactWeekSuffix and topology matchers are not banned.
+
+inventory-host-ladder: bans new per-integer inventory-host cheap-disproof test
+method names (cosmos .eN, U+1ECx storage, U+XXFFFE Key Vault, percent-decode depth,
+firewall [N,"a"]) unless listed in al-bug-inventory-host-ladder-test-allowlist.txt.
+Extend AzureInventoryAppSettingHostPinnedMechanismTheoryTests instead.
 """
 
 from __future__ import annotations
@@ -27,6 +32,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ALLOWLIST = Path(__file__).resolve().parent / "al-bug-retired-class-allowlist.txt"
+INVENTORY_HOST_LADDER_ALLOWLIST = (
+    Path(__file__).resolve().parent / "al-bug-inventory-host-ladder-test-allowlist.txt"
+)
 
 TRY_PARSE_BOOL_DEF = re.compile(
     r"^\s*(?:public|private|internal|protected|static|\s)+\s*bool\s+TryParseBooleanString\s*\(",
@@ -46,6 +54,19 @@ WEEK_K_TEST_FILE = re.compile(
 WEEK_K_TEST_ALLOWLIST = {
     "ArchLucid.Core.Tests/Costing/AzureRetailPricesSkuMatchersWeekMeterTests.cs",
 }
+
+INVENTORY_HOST_LADDER_METHOD_PATTERNS = (
+    re.compile(r"ParseSettingValues_e\d+_regional_cosmos"),
+    re.compile(r"ParseSettingValues_u1E[0-9A-Fa-f]{2}_in_account_name"),
+    re.compile(r"noncharacter_u[0-9A-Fa-f]+FFFE"),
+    re.compile(r"at_layer_one_hundred_\w+_percent_encoded"),
+    re.compile(r"json_array_of_number_one_hundred_\w+_and_string"),
+)
+INVENTORY_HOST_LADDER_TEST_ROOTS = (
+    "ArchLucid.Core.Tests/AzureExtractor",
+    "ArchLucid.Core.Tests/InfraEvidence",
+)
+TEST_METHOD_DEF = re.compile(r"^\s*public void (\w+)\(", re.MULTILINE)
 
 PRODUCTION_CS_ROOTS = (
     "ArchLucid.Core",
@@ -139,6 +160,34 @@ def find_week_uom_synonym_violations(root: Path) -> list[str]:
     return errors
 
 
+def load_inventory_host_ladder_allowlist(path: Path) -> set[str]:
+    return load_allowlist(path)
+
+
+def find_inventory_host_ladder_test_violations(root: Path, allowlist: set[str]) -> list[str]:
+    errors: list[str] = []
+    for folder in INVENTORY_HOST_LADDER_TEST_ROOTS:
+        base = root / folder
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*Tests.cs"):
+            relative = rel(root, path)
+            text = path.read_text(encoding="utf-8")
+            for match in TEST_METHOD_DEF.finditer(text):
+                method = match.group(1)
+                if not any(p.search(method) for p in INVENTORY_HOST_LADDER_METHOD_PATTERNS):
+                    continue
+                key = f"{relative}::{method}"
+                if key in allowlist:
+                    continue
+                errors.append(
+                    f"inventory-host-ladder: new per-integer test method {key} — "
+                    "extend AzureInventoryAppSettingHostPinnedMechanismTheoryTests or "
+                    "docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md",
+                )
+    return errors
+
+
 def find_pester3_violations(root: Path) -> list[str]:
     errors: list[str] = []
     tests_dir = root / "scripts" / "tests"
@@ -161,6 +210,8 @@ def scan(root: Path, allowlist: set[str]) -> list[str]:
     errors.extend(find_fail_open_redaction_violations(root, allowlist))
     errors.extend(find_pester3_violations(root))
     errors.extend(find_week_uom_synonym_violations(root))
+    ladder_allowlist = load_inventory_host_ladder_allowlist(INVENTORY_HOST_LADDER_ALLOWLIST)
+    errors.extend(find_inventory_host_ladder_test_violations(root, ladder_allowlist))
     return errors
 
 
