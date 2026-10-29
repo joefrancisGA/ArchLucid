@@ -56,7 +56,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This Sponsor report was generated with AI assistance from agent-stream findings and severity counts. Review before sharing with sponsors._
+_This sponsor summary combines sealed snapshot copy (when stored), agent-stream severity counts, and sponsor report prose. Review before sharing with sponsors._
 
 ## Portfolio signals (snapshot at export)
 
@@ -67,7 +67,6 @@ _This Sponsor report was generated with AI assistance from agent-stream findings
 
 ### Next actions
 - Review stale PHI minimization risk in the architecture risk register.
-- Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.
 
 ## ROI basis
 
@@ -81,6 +80,7 @@ _This Sponsor report was generated with AI assistance from agent-stream findings
 
 ## Sponsor artifact evidence badges
 
+- **Proof package:** Proof package was not loaded for this export.
 - **Evidence source:** **Azure Retail catalog** (`azure-retail`)
 - **Evidence freshness:** **Fresh** (`fresh`)
 

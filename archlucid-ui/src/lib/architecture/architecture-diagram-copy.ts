@@ -49,7 +49,7 @@ export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
   "The architecture diagram could not be rendered. Edit the diagram or regenerate from your brief." as const;
 
 export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
-  "The diagram did not paint in the browser. Retry, switch diagram mode, or export Mermaid to inspect the source." as const;
+  "This painted view is too large for the browser viewport. Switch diagram mode or export Mermaid — the diagram source was stored and did not fail to render." as const;
 
 export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
 
@@ -152,6 +152,9 @@ export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
+
+export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
+  "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
   "Flow detail was not stored." as const;

@@ -242,6 +242,88 @@ public sealed class SponsorReviewPacketComposerTests
     }
 
     [Fact]
+    public void ComposeMarkdown_labels_null_manifest_and_roi_sections()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = null,
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+            BasisBreakdown = null,
+            RealizedValue = null,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow);
+
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.ManifestNotStored);
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.RoiBasisBreakdownNotStored);
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.RealizedValueNotStored);
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.ProofPackageNotLoaded);
+    }
+
+    [Fact]
+    public void ComposeMarkdown_decision_rows_distinguish_empty_from_null_fields()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            topDecisions:
+            [
+                new SponsorReviewPacketDecisionRow
+                {
+                    Title = string.Empty,
+                    SelectedOption = string.Empty,
+                },
+            ]);
+
+        markdown.Should().Contain($"**{SponsorReviewPacketExportHonestyCopy.DecisionTitleStoredEmpty}**");
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.SelectedOptionStoredEmpty);
+    }
+
+    [Fact]
     public void ComposeMarkdown_top_decisions_use_not_stored_copy_for_blank_rows()
     {
         ArchitectureRunDetail detail = new()
@@ -285,7 +367,8 @@ public sealed class SponsorReviewPacketComposerTests
                 },
             ]);
 
-        markdown.Should().Contain("**Decision title was not stored.** — Selected option was not stored.");
+        markdown.Should().Contain(
+            $"**Decision title was not stored.** — {SponsorReviewPacketExportHonestyCopy.SelectedOptionStoredEmpty}");
     }
 
     [Fact]

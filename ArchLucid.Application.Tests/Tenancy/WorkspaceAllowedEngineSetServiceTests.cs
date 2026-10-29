@@ -71,6 +71,39 @@ public sealed class WorkspaceAllowedEngineSetServiceTests
         stored!.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
     }
 
+    [Fact]
+    public async Task SetAsync_trims_surrounding_whitespace_on_allowed_and_default_alias_ids()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryTenantSettingsRepository settings = new();
+        IReadOnlyList<string> aliasIds =
+        [
+            AgentModelAliasIds.EconomyGeneral,
+            AgentModelAliasIds.StandardGeneral,
+        ];
+
+        WorkspaceAllowedEngineSetService sut = CreateService(
+            tenantId,
+            settings,
+            CreateRegistry(aliasIds));
+
+        string paddedDefault = $"  {AgentModelAliasIds.StandardGeneral}  ";
+        string paddedAllowed = $"  {AgentModelAliasIds.EconomyGeneral}  ";
+
+        await sut.SetAsync(
+            new WorkspaceAllowedEngineSetSnapshot(
+                [paddedAllowed, AgentModelAliasIds.StandardGeneral],
+                paddedDefault,
+                WorkspaceAllowedEngineSetSource.TenantOverride),
+            CancellationToken.None);
+
+        WorkspaceAllowedEngineSetSnapshot roundTrip = await sut.GetAsync(CancellationToken.None);
+
+        roundTrip.DefaultAliasId.Should().Be(AgentModelAliasIds.StandardGeneral);
+        roundTrip.AllowedAliasIds.Should().Contain(AgentModelAliasIds.EconomyGeneral);
+        roundTrip.AllowedAliasIds.Should().NotContain(paddedAllowed);
+    }
+
     private static WorkspaceAllowedEngineSetService CreateService(
         Guid tenantId,
         InMemoryTenantSettingsRepository settings,

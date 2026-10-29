@@ -27,6 +27,7 @@ const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
 const ASK_GROUNDING_SOURCE_LINK_NOT_STORED = "Source link was not stored.";
+const ASK_GROUNDING_SOURCE_LINK_STORED_EMPTY = "Source link was stored empty.";
 const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
 
 function renderAskSectionBody(
@@ -169,13 +170,16 @@ function GroundingLinksFooter(props: {
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {primaryLinks.map((link, index) => (
           <li key={link.href ?? `label-only-${index}-${link.label}`}>
-            {link.href !== undefined && link.href.length > 0 ? (
+            {link.href != null && link.href.length > 0 ? (
               <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                 {renderGroundingLinkLabel(link.label)}
               </Link>
             ) : (
               <span className="text-neutral-800 dark:text-neutral-200">
-                {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+                {renderGroundingLinkLabel(link.label)} ·{" "}
+                {link.href === null || link.href === undefined
+                  ? ASK_GROUNDING_SOURCE_LINK_NOT_STORED
+                  : ASK_GROUNDING_SOURCE_LINK_STORED_EMPTY}
               </span>
             )}
           </li>
@@ -193,13 +197,16 @@ function GroundingLinksFooter(props: {
           <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
             {overflowLinks.map((link, index) => (
               <li key={link.href ?? `overflow-label-only-${index}-${link.label}`}>
-                {link.href !== undefined && link.href.length > 0 ? (
+                {link.href != null && link.href.length > 0 ? (
                   <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
                     {renderGroundingLinkLabel(link.label)}
                   </Link>
                 ) : (
                   <span className="text-neutral-800 dark:text-neutral-200">
-                    {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+                    {renderGroundingLinkLabel(link.label)} ·{" "}
+                    {link.href === null || link.href === undefined
+                      ? ASK_GROUNDING_SOURCE_LINK_NOT_STORED
+                      : ASK_GROUNDING_SOURCE_LINK_STORED_EMPTY}
                   </span>
                 )}
               </li>

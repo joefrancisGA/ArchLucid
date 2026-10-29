@@ -178,13 +178,17 @@ public sealed class SponsorReviewPacketBuilder(
         IReadOnlyList<ArchitectureFinding> topFindings)
     {
         int critical = topFindings.Count(static f => f.Severity == FindingSeverity.Critical);
-        int high = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
+        int errorSeverity = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
 
         string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(
             detail.Manifest?.SystemName);
 
+        string committedStatusClause = detail.IsCommitted
+            ? "is committed"
+            : "is not committed";
+
         return
-            $"Architecture review for {systemName} is committed with {critical} critical and {high} high findings in the top set. "
+            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the top set. "
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 

@@ -11,6 +11,32 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
+# Markers the owner-approved private sheet must keep. Absence means the sheet
+# drifted or was removed. It does not authorize Marketplace publication.
+_PRIVATE_QUOTE_MARKERS = (
+    "OWNER APPROVED PRIVATE QUOTE SHEET",
+    "NOT A PUBLIC LIST PRICE",
+    "beta remains **NO_GO**",
+    "SN-EVAL",
+    "$8,000",
+    "SN-ANNUAL",
+    "$24,000",
+    "SN-SUB-ADD",
+    "$6,000",
+    "SN-SNAP-4",
+    "$1,500",
+    "USD",
+    "tax extra",
+    "Joseph Francis (Sole Proprietorship)",
+    "Publisher display name",
+    "**SecureNow**",
+    "securenow-azure-evidence",
+)
+
+
+def _private_quote_sheet_approved(text: str) -> bool:
+    return bool(text) and all(marker in text for marker in _PRIVATE_QUOTE_MARKERS)
+
 
 def audit(root: Path, candidate: dict | None = None) -> dict:
     files = {
@@ -18,6 +44,7 @@ def audit(root: Path, candidate: dict | None = None) -> dict:
         "billingOptions": "ArchLucid.Core/Configuration/AzureMarketplaceBillingOptions.cs",
         "securenowHold": "docs/securenow/CONTROLLED_PILOT_OFFER.md",
         "prepublicationContract": "docs/securenow/MARKETPLACE_PREPUBLICATION_CONTRACT.md",
+        "privateQuoteSheet": "docs/securenow/PRIVATE_PRICE_SHEET.md",
     }
     contents = {}
     for key, rel in files.items():
@@ -32,8 +59,10 @@ def audit(root: Path, candidate: dict | None = None) -> dict:
         "globalOfferIdOptionExists": "MarketplaceOfferId" in contents["billingOptions"],
         "securenowPilotMarkedNotApproved": "NOT AN APPROVED CUSTOMER OFFER" in contents["securenowHold"],
         "productSpecificOfferContract": "Fail closed" in contents["prepublicationContract"],
+        "privateQuoteSheetApproved": _private_quote_sheet_approved(contents["privateQuoteSheet"]),
         "webhookOfferIdCheckedBeforeMutation": False,
         "crossProductEntitlementNegativeTestsObserved": False,
+        # A private quote sheet is not Partner Center plan approval and must stay a hold.
         "ownerApprovedPlanAndPricing": False,
         "betaReleaseGoObserved": False,
     }

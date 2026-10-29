@@ -821,7 +821,7 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER =
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION = "Retry load" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
   "Record dependencies and connectivity that Azure inventory alone cannot prove — for example connection strings in application config that are not ingested.";
