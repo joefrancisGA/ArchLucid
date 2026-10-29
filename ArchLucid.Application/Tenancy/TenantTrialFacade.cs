@@ -216,6 +216,8 @@ public sealed class TenantTrialFacade(
             return null;
 
         DateTimeOffset anchor = tenant.TrialStartUtc ?? tenant.CreatedUtc;
-        return (committedUtc - anchor).TotalSeconds;
+        double totalSeconds = (committedUtc - anchor).TotalSeconds;
+
+        return totalSeconds < 0 ? null : totalSeconds;
     }
 }

@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #137): promoted `(candidate)` negative `TimeToFirstCommittedManifestTotalSeconds` when `TrialFirstManifestCommittedUtc` precedes trial start anchor; `TenantTrialFacade` now omits the metric (null) instead of exposing negative seconds; regression `GetTrialStatusAsync_omits_time_to_first_manifest_when_commit_precedes_trial_start`; scoped filter 293/293 passed (`RunAnalyzers=false`). Private beta: trial status no longer shows a negative time-to-first-commit value for backfilled or inconsistent tenant rows.
+
+- [x] (proven) `TenantTrialFacade.ComputeTimeToFirstCommittedManifestTotalSeconds` — negative seconds when commit precedes anchor — **hit 2026-10-29 seed hunt #137:** return null when delta &lt; 0; regression above.
+
 2026-10-29 seed hunt (seed→hit): promoted `(candidate)` generic `"unique"` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated registration/provision exceptions could be classified as duplicate organization; removed bare `"unique"` text match (SQL/duplicate/`IX_`/`already exists` retained); regression `IsDuplicateOrganization_does_not_match_generic_unique_word_without_constraint_context`; scoped filter 292/292 passed (`RunAnalyzers=false`). Private beta: self-service signup and trial registration no longer mis-report unrelated validation failures as “organization already provisioned” when the underlying error message happens to contain the word unique.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — generic `"unique"` substring false positive — **hit 2026-10-29 seed hunt:** drop standalone `unique` match; regression above.
@@ -15855,7 +15859,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` returns before `ComputeDaysRemainingForStatusDisplay` even when `TrialExpiresUtc` is set — locus: early return ~51–57 vs expiry branch ~62–68; input: tenant row with `"   "` trial status and future expiry (reachability: legacy or manually edited `dbo.Tenants` row).
-- [ ] (candidate) `TenantTrialFacade.ComputeTimeToFirstCommittedManifestTotalSeconds` — exposes negative seconds when first manifest commit precedes trial start anchor — locus: `(committedUtc - anchor).TotalSeconds` ~218–219; input: backfilled `TrialFirstManifestCommittedUtc` before `TrialStartUtc` (reachability: migration/import ordering).
 - [ ] (candidate) `TenantSettingBooleanParser.TryParse` — non-`bool.TryParse` truthy tokens (`"1"`, `"yes"`) read as unparsed/false — locus: `bool.TryParse(raw.Trim())` ~14; input: boolean tenant setting stored as `"1"` via ops/SQL (reachability: manual settings row not written through `Format`).
 - [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — maps empty-string `LastVerificationError` without coalescing to null for operator banner — locus: snapshot assignment ~42; input: active migration row with `LastVerificationError = ''` (reachability: migration status API consumed by operator UI).
 
@@ -15875,11 +15878,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 136
-- **bugs-found:** 115
+- **hunts:** 137
+- **bugs-found:** 116
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — duplicate org detector generic unique substring
+- **last-bug:** 2026-10-29 — negative trial time-to-first-manifest seconds
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

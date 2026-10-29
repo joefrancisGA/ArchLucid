@@ -352,4 +352,56 @@ public sealed class TenantTrialFacadeTests
 
         result.Outcome.Should().Be(TenantTrialHttpOutcome.Conflict);
     }
+
+    [Fact]
+    public async Task GetTrialStatusAsync_omits_time_to_first_manifest_when_commit_precedes_trial_start()
+    {
+        DateTimeOffset start = DateTimeOffset.Parse("2026-06-01T12:00:00Z", CultureInfo.InvariantCulture);
+        DateTimeOffset commit = start.AddHours(-2);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-1111-2222-3333-555555555555"),
+            ProjectId = Guid.Parse("cccccccc-1111-2222-3333-666666666666"),
+        };
+
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = start.AddDays(-1),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialStartUtc = start,
+            TrialExpiresUtc = start.AddDays(14),
+            TrialFirstManifestCommittedUtc = commit,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialFacade facade = TenantTrialFacadeTestSupport.Create(
+            tenants.Object,
+            scopeProvider.Object,
+            audit: Mock.Of<Core.Audit.IAuditService>(),
+            gate: Mock.Of<IBillingTrialConversionGate>(),
+            trialUsers: Mock.Of<ITrialIdentityUserRepository>(),
+            trialAbuseRepository: Mock.Of<ISelfServiceTrialAbuseRepository>(),
+            schedulerOpts.Object,
+            new FixedUtcTimeProvider(start.AddDays(1)));
+
+        TenantTrialStatusQueryResult result = await facade.GetTrialStatusAsync(CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        result.Status!.TimeToFirstCommittedManifestTotalSeconds.Should().BeNull();
+        result.Status.FirstCommitUtc.Should().Be(commit);
+    }
 }
