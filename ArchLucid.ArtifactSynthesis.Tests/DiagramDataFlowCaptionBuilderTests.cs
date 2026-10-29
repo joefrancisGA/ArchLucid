@@ -43,6 +43,7 @@ public sealed class DiagramDataFlowCaptionBuilderTests
         IReadOnlyList<string> withoutWindow = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edgesWithoutWindow);
 
         withoutWindow.Should().NotContain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+        withoutWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
 
         List<GraphEdge> edgesWithWindow =
         [

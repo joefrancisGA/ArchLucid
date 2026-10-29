@@ -200,7 +200,6 @@ internal static class SponsorReviewPacketDemoFixture
                 NextActions =
                 [
                     "Review stale PHI minimization risk in the architecture risk register.",
-                    "Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off."
                 ]
             }
         };

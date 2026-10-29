@@ -63,7 +63,7 @@ public sealed class SponsorReviewPacketBuilderTests
     }
 
     [Fact]
-    public async Task BuildMarkdownAsync_counts_error_severity_findings_as_high_in_sponsor_report()
+    public async Task BuildMarkdownAsync_counts_error_severity_findings_in_sponsor_report()
     {
         ArchitectureRunDetail detail = new()
         {
@@ -119,7 +119,7 @@ public sealed class SponsorReviewPacketBuilderTests
         string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
 
         markdown.Should().NotBeNull();
-        markdown.Should().Contain("1 critical and 1 high findings");
+        markdown.Should().Contain("1 critical and 1 Error-severity findings");
     }
 
     [Fact]
