@@ -95,38 +95,48 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add("No execution traces were found for this run.");
         }
 
+        bool needsManifest = request.IncludeManifest
+            || request.IncludeDiagram
+            || request.IncludeSummary
+            || request.IncludeManifestCompare;
+        string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+            ? $"v1-{run.RunId}"
+            : run.CurrentManifestVersion.Trim();
+        GoldenManifest? loadedManifest = null;
+
+        if (needsManifest)
+        {
+            loadedManifest = primaryDetail?.Manifest;
+
+            if (loadedManifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(loadedManifest.RunId, run.RunId))
+                loadedManifest = null;
+
+            if (loadedManifest is null)
+            {
+                loadedManifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
+
+                if (loadedManifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(loadedManifest.RunId, run.RunId))
+                    loadedManifest = null;
+            }
+        }
+
         if (request.IncludeManifest)
         {
-            report.Manifest = primaryDetail?.Manifest;
-
-            if (report.Manifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
-                report.Manifest = null;
-
-            string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-                ? $"v1-{run.RunId}"
-                : run.CurrentManifestVersion.Trim();
-
-            if (report.Manifest is null)
-            {
-                report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
-
-                if (report.Manifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
-                    report.Manifest = null;
-            }
+            report.Manifest = loadedManifest;
 
             if (report.Manifest is null)
                 report.Warnings.Add($"Manifest '{manifestVersionKey}' was not found.");
         }
 
         if (request.IncludeDiagram)
-            if (report.Manifest is not null)
-                report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
+            if (loadedManifest is not null)
+                report.Diagram = diagramGenerator.GenerateMermaid(loadedManifest);
             else
                 report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
 
         if (request.IncludeSummary)
-            if (report.Manifest is not null)
-                report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
+            if (loadedManifest is not null)
+                report.Summary = summaryGenerator.GenerateMarkdown(loadedManifest, report.Evidence);
             else
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
 
@@ -147,7 +157,7 @@ public sealed class ArchitectureAnalysisService(
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
                 report.Warnings.Add("Manifest comparison was requested but CompareManifestVersion was not provided.");
-            else if (report.Manifest is null)
+            else if (loadedManifest is null)
                 report.Warnings.Add("Manifest comparison was requested but the primary manifest is not available.");
             else
             {
@@ -157,13 +167,13 @@ public sealed class ArchitectureAnalysisService(
 
                 if (compareManifest is null)
                     report.Warnings.Add($"Compare manifest '{compareManifestVersion}' was not found.");
-                else if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
+                else if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(compareManifest.RunId, loadedManifest.RunId))
                 {
                     report.Warnings.Add(
-                        $"Compare manifest '{compareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
+                        $"Compare manifest '{compareManifestVersion}' does not belong to run '{loadedManifest.RunId}'.");
                 }
                 else
-                    report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
+                    report.ManifestDiff = manifestDiffService.Compare(loadedManifest, compareManifest);
             }
 
         if (!request.IncludeAgentResultCompare)
