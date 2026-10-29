@@ -562,6 +562,16 @@ export function DiagramsWorkbenchClient() {
   }, [urlMermaidMode]);
 
   useEffect(() => {
+    if (loadingSnapshots || snapshots.length === 0) {
+      return;
+    }
+
+    const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, snapshots);
+
+    setSelectedSnapshotId(resolvedSnapshotId);
+  }, [loadingSnapshots, snapshots, urlSnapshotId]);
+
+  useEffect(() => {
     setSelectedEvidenceFamily(urlEvidenceFamily as InfraEvidenceDiagramFamily);
   }, [urlEvidenceFamily]);
 

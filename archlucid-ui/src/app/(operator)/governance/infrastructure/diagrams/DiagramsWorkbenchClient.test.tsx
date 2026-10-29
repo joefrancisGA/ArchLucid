@@ -2156,4 +2156,103 @@ describe("DiagramsWorkbenchClient", () => {
       expect(within(picker).getByRole("option", { name: "catalog-only-vnet-b" })).toBeInTheDocument();
     });
   });
+
+  it("refreshes dependency seed catalog when the URL snapshot id changes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const seedA = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const seedB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      const catalogSeed = snapshotId === snapshotB ? seedB : seedA;
+      const label = snapshotId === snapshotB ? "catalog-only-vnet-b" : "catalog-only-vnet-a";
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-a al-seed=${catalogSeed}`,
+            `    n_catalog["${label}"]`,
+          ].join("\n"),
+          metrics: {
+            nodeCount: 1,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 200,
+            layoutEstimate: 100,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_visible["visible-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotA}&mermaidMode=dependencyNeighborhood`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-a" })).toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotB}&mermaidMode=dependencyNeighborhood`,
+    );
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).queryByRole("option", { name: "catalog-only-vnet-a" })).not.toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "catalog-only-vnet-b" })).toBeInTheDocument();
+    });
+  });
 });
