@@ -32,6 +32,10 @@ public static class TenantOrganizationDuplicateDetector
         if (ContainsDuplicateOrganizationText(text))
             return true;
 
+        if (text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
+            && ContainsOrganizationDuplicateContext(text))
+            return true;
+
         if (text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
             && ContainsOrganizationDuplicateContext(text))
             return true;

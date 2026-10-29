@@ -81,6 +81,15 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     }
 
     [SkippableFact]
+    public void IsDuplicateOrganization_detects_sqlite_unique_constraint_failed_with_slug_context()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("UNIQUE constraint failed: Tenants.Slug"))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
     public void IsDuplicateOrganization_does_not_match_unrelated_duplicate_phrase()
     {
         TenantOrganizationDuplicateDetector.IsDuplicateOrganization(

@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #158): promoted SQLite-style `UNIQUE constraint failed` false negative on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; self-service provision races on slug/org unique indexes returned generic errors without `duplicate key` text; treat `UNIQUE constraint failed` with tenant/slug/organization context as duplicate organization; regression `IsDuplicateOrganization_detects_sqlite_unique_constraint_failed_with_slug_context`; scoped filter 314/314 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotently returns already-provisioned instead of 500 when SQLite reports slug unique violations.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — SQLite `UNIQUE constraint failed` false negative — **hit 2026-10-29 seed hunt #158:** context gate for sqlite unique text; regression above.
+
 2026-10-29 seed hunt (seed→hit #157): promoted padded workspace allowed-engine alias ids on `WorkspaceAllowedEngineSetService.SetAsync`; validation required exact registry match while `IsAliasAllowed` compared trimmed ids; normalize allowed/default alias ids on write and trim stored allowed ids on read; regression `SetAsync_trims_surrounding_whitespace_on_allowed_and_default_alias_ids`; scoped filter 313/313 passed (`RunAnalyzers=false`). Private beta: workspace engine allowlist updates succeed when admin UI sends trimmed alias ids with accidental surrounding whitespace.
 
 - [x] (proven) `WorkspaceAllowedEngineSetService.SetAsync` — padded allowed/default engine alias ids — **hit 2026-10-29 seed hunt #157:** `NormalizeSnapshot`; regression above.
@@ -15984,11 +15988,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 157
-- **bugs-found:** 136
+- **hunts:** 158
+- **bugs-found:** 137
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — workspace allowed engine alias trim
+- **last-bug:** 2026-10-29 — sqlite unique constraint duplicate detect
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
