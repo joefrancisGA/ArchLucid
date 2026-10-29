@@ -9687,6 +9687,48 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         value.Should().Be("***");
     }
 
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
+    {
+        const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_hostname_contains_pass_substring()
+    {
+        const string effectiveValue = "Server=pass-through.db.internal;Integrated Security=true";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_api_key_colon_delimiter()
+    {
+        const string effectiveValue = "Api-Key: secret-value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_blob_sas_url_contains_spr_and_sig_query_parameters()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?spr=https&sig=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_returns_null_for_whitespace_only_effective_value_on_generic_config_path()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "   ",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true).Should().BeNull();
+    }
+
     private static void AssertPreserves(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

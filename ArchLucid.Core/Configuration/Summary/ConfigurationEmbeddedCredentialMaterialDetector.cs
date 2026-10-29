@@ -15,6 +15,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         "AccessKey",
         "AccessToken",
         "ApiKey",
+        "Api-Key",
         "Password",
         "Pwd",
         "PWD",
