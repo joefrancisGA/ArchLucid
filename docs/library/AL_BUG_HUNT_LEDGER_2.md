@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #166): promoted generic `.Slug` / `_Slug` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; any table or index name ending in `Slug` satisfied slug context, so integration webhook slug unique violations could map to org-already-provisioned; slug context now requires `Tenant slug`, `Tenants.Slug`, or `IX_Tenants_Slug`; regression `IsDuplicateOrganization_does_not_match_duplicate_key_on_unrelated_table_slug_column`; scoped filter 328/328 passed (`RunAnalyzers=false`). Private beta: registration and provision no longer treat unrelated slug-column unique errors as duplicate organization idempotency.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — generic `.Slug` / `_Slug` false positive — **hit 2026-10-29 seed hunt #166:** tighten `ContainsOrganizationSlugContext`; regression above.
+
 2026-10-29 seed hunt (seed→hit #165): promoted bare `OrganizationName` substring and generic `IX_*Slug*` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated cache or integration index errors matched organization duplicate gates; org-name context now requires `.OrganizationName`, `_OrganizationName`, or `NormalizedOrganizationName`, and tenant org index detection is limited to `IX_Tenants_`/`IX_Tenants'`; regressions `IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_name_substring_only` and `IsDuplicateOrganization_does_not_match_unrelated_ix_slug_index_outside_tenants_table`; scoped filter 327/327 passed (`RunAnalyzers=false`). Private beta: registration no longer misclassifies unrelated duplicate errors that merely embed `OrganizationName` in another identifier or a non-tenant slug index.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — loose OrganizationName / IX slug index false positive — **hit 2026-10-29 seed hunt #165:** tighten org-name and index reference gates; regressions above.
@@ -16016,11 +16020,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 165
-- **bugs-found:** 144
+- **hunts:** 166
+- **bugs-found:** 145
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — OrganizationName IX slug false positive
+- **last-bug:** 2026-10-29 — generic Slug column false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
