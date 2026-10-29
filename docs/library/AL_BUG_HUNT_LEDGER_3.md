@@ -1725,13 +1725,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook, including loading/failure gates, scope resets, Continue-last navigation, checklist completion, and existing regressions; no additional hunt-ready defect survived cheap-disproof. Seeded two concrete follow-up candidates; 59 focused webhook tests passed.
 
-2026-10-29 seed hunt (hit): promoted technical-event-name disclosure vs lagging `useSearchParams` — dismiss cleared committed `webhooksTechnicalEventNameEventId` but `<details open>` stayed bound to stale router param; create form now resolves event id from committed search for open state and URL writes; regression `keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id`. Cheap-disproof closed disable-cancel lag candidate (`valid-no-repro`, shared toggle resolver from prior hit); added regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`. Reseeded five `(candidate)` rows. 63 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook event technical-name help without it snapping back open while App Router query catches up.
+2026-10-29 seed hunt (hit): promoted delivery-contract disclosure vs lagging router params — local `useEffect`/`useState` and `searchParams`-based writes could keep the panel open from stale `webhooksDeliveryContractOpen` or resurrect cleared `webhookEnableId` when opening the contract after a lagging enable cancel; delivery open state now derives from committed search and contract URL writes use `readWindowLocationSearch`; regressions `keeps delivery contract disclosure closed after dismiss when useSearchParams still lags open param` and `does not resurrect webhookEnableId when opening delivery contract after enable cancel with lagging router params`. Reseeded five `(candidate)` rows. 65 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook delivery help and open it after dismissing enable confirmation without stale query params reopening dialogs or disclosures.
 
-- [ ] (candidate) `WebhooksCreateSubscriptionForm` — delivery-contract `useEffect` may reopen disclosure when `webhooksDeliveryContractOpen` lags after committed clear — locus: delivery contract state sync; input: close delivery contract deep link with lag harness.
-- [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — manual refresh with only deep-link `webhookEnableId` may drop id on failed load — locus: refresh + failed load; input: refresh after list failure with enable deep link.
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — triple overlapping list responses may apply stale rows if request ids reuse — locus: loadRequestRef; input: extend newest-load overlap test.
-- [ ] (candidate) `WebhooksCreateSubscriptionForm.syncDeliveryContractOpenToUrl` — stale `searchParams` base on write may resurrect cleared toggle params — locus: delivery contract URL write; input: open contract while enable confirm id in lagging router snapshot.
-- [ ] (candidate) `useWebhooksSettingsConnectionTest.onTestWebhook` — connection test toast may fire in new workspace when scope switches mid-request — locus: scope generation guard + toast presenter; input: scope switch during in-flight test (extend scope-switch tests).
+- [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — manual refresh with deep-link `webhookEnableId` may drop id on failed load — locus: refresh + failed load; input: refresh after list failure with enable deep link.
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — triple overlapping list responses may apply stale rows — locus: loadRequestRef; input: extend newest-load overlap test.
+- [ ] (candidate) `useWebhooksSettingsConnectionTest.onTestWebhook` — toast may fire in new workspace when scope switches mid-request — locus: scope generation + toast; input: scope switch during in-flight test.
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — opening technical event disclosure after delivery contract close with lag may merge stale delivery param into committed search — locus: technical event URL write base; input: lag harness across both disclosures.
+- [ ] (candidate) `useWebhooksSettingsMutations` URL-sync effect — back navigation may reopen disable confirm when committed cleared but router still carries `webhookDisableId` after popstate — locus: toggle resolver + history; input: popstate harness after disable cancel.
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — delivery contract disclosure and URL writes vs lagging `webhooksDeliveryContractOpen` / stale toggle params — **hit 2026-10-29 seed hunt:** `resolveWebhooksDeliveryContractOpenForUrlSync` + committed-search writes; regressions above.
+
+2026-10-29 seed hunt (hit): promoted technical-event-name disclosure vs lagging `useSearchParams` — dismiss cleared committed `webhooksTechnicalEventNameEventId` but `<details open>` stayed bound to stale router param; create form now resolves event id from committed search for open state and URL writes; regression `keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id`. Cheap-disproof closed disable-cancel lag candidate (`valid-no-repro`, shared toggle resolver from prior hit); added regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`. Reseeded five `(candidate)` rows. 63 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook event technical-name help without it snapping back open while App Router query catches up.
 
 - [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect — disable confirmation cancel vs lagging `webhookDisableId` — **cheap-disproof 2026-10-29 seed hunt:** shared committed-search toggle resolver from enable-cancel hit; regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`.
 - [x] (proven) `WebhooksCreateSubscriptionForm` — technical event name disclosure stayed open after dismiss when `webhooksTechnicalEventNameEventId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhooksTechnicalEventNameEventIdForUrlSync`; regression above.
@@ -1748,11 +1752,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 48
-- **bugs-found:** 29
+- **hunts:** 49
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — technical event name disclosure reopened after dismiss when event id lagged
+- **last-bug:** 2026-10-29 — delivery contract lag resurrected webhookEnableId or stayed open from stale param
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -103,6 +103,7 @@ import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-n
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import {
   WEBHOOKS_BANNED_UI_PATTERNS,
+  WEBHOOKS_DELIVERY_CONTRACT_HEADING,
   WEBHOOKS_EMPTY_TITLE,
   WEBHOOKS_ENABLE_CONFIRM_LABEL,
   WEBHOOKS_ENABLE_CONFIRM_TITLE,
@@ -1269,6 +1270,61 @@ describe("WebhooksIntegrationPage", () => {
 
     await waitFor(() => {
       expect(disclosure).not.toHaveAttribute("open");
+    });
+  });
+
+  it("keeps delivery contract disclosure closed after dismiss when useSearchParams still lags open param", async () => {
+    navigationMocks.setQueryParam("webhooksDeliveryContractOpen", "1");
+
+    render(<WebhooksIntegrationPage />);
+
+    const disclosure = screen.getByTestId("webhooks-delivery-contract-disclosure");
+    expect(disclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(disclosure).not.toHaveAttribute("open");
+    });
+  });
+
+  it("does not resurrect webhookEnableId when opening delivery contract after enable cancel with lagging router params", async () => {
+    const subscriptionId = "sub-delivery-after-enable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+      expect(navigationMocks.getCommittedQuery()).not.toContain("webhookEnableId=");
+      expect(navigationMocks.getCommittedQuery()).toContain("webhooksDeliveryContractOpen=1");
     });
   });
 
