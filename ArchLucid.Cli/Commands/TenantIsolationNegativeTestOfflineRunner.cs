@@ -89,24 +89,20 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             return true;
         }
 
-        int objectStart = trimmed.IndexOf('{');
-        int arrayStart = trimmed.IndexOf('[');
-        int start = objectStart switch
+        for (int index = 0; index < trimmed.Length; index++)
         {
-            < 0 => arrayStart,
-            _ when arrayStart < 0 => objectStart,
-            _ => Math.Min(objectStart, arrayStart),
-        };
+            if (trimmed[index] is not ('{' or '['))
+                continue;
 
-        if (start < 0)
-            return false;
+            string embedded = trimmed[index..];
+            if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
+                continue;
 
-        string embedded = trimmed[start..];
-        if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
-            return false;
+            jsonPayload = embedded;
+            return true;
+        }
 
-        jsonPayload = embedded;
-        return true;
+        return false;
     }
 
     private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)

@@ -1852,3 +1852,5 @@
 {"at":"2026-10-29T19:09:32.7819762Z","zoneId":"ui-architecture-intelligence","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:11:05.7310152Z","zoneId":"ui-architecture-intelligence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:13:37.4318868Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T19:17:12.5053862Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T19:20:43.1698110Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared"}
