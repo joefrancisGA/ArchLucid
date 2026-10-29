@@ -17563,14 +17563,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-21 thorough hunt (hit, lane C): `PixelDiagramIntakeStubDetector` no longer throws when structured diagram JSON root is not an object; ContextIngestion scoped filter 830/830.
 
-2026-10-12 seed hunt (seed-only): reread recent scope isolation, HCL redaction, Terraform comment masking, ARM/Bicep path resolution, CloudFormation YAML, and canonical property handling. The heredoc resource-header candidate met the mechanism bar, but its focused repro was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was promoted and no production change was made.
+2026-10-29 seed hunt #856 (seed→hit): cheap-disproof closed three open `(candidate)` rows — ARM `../` duplicate basename (`ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist`); CloudFormation multi-document YAML fail-closed empty parse (`ParseAsync_multiDocumentYamlTemplate_ReturnsEmptyWhenYamlMultiDocumentIsNotSupported`); mixed Bicep/HCL object-only array serialization by design (`TryParseToJsonElement_mixedObjectAndPrimitiveArray_returnsObjectArrayOnly`); proved HCL `# password = …` line comments false-positive whole-block redaction in `ContainsSensitiveKeyAssignment` and phantom Terraform resources from heredoc decoy `resource` headers via `MaskHeredocBodies` before comment masking; regressions `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_line_comment`, `ParseAsync_HeredocBodyContainingResourceHeaderText_YieldsSingleResource`; reseeded five follow-on `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **835/837** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). Private beta: invited operators uploading Terraform/HCL infra configs keep non-secret block fields when secrets appear only in `#` comments, and heredoc example text no longer splits resource bodies into phantom resources on the RC35 ingestion path.
 
-- [ ] (candidate) `SimpleTerraformResourceBlockParser.ExtractBlocks` — a reachable Terraform heredoc containing text such as `resource "azurerm_storage_account" "example"` may be matched as a real block because comment masking does not mask heredoc contents; wrong outcome: a phantom resource truncates the preceding block body.
-- [ ] (candidate) `InfrastructureDeclarationBatchPathIndex.TryResolve` — a reachable ARM `templateLink.uri` using `../` with duplicate basenames may fall through from an unnormalized parent-relative path to the wrong basename alias; wrong outcome: the wrong linked template is ingested.
-- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — a reachable non-secret HCL block containing a comment line such as `# password = ...` may be redacted because assignment detection does not remove line comments; wrong outcome: canonical non-secret block data is lost.
+- [x] (proven) `SimpleTerraformResourceBlockParser.ExtractBlocks` — heredoc decoy `resource` header matched as real block — **hit 2026-10-29 seed hunt #856:** mask heredoc bodies before header scan; regression `ParseAsync_HeredocBodyContainingResourceHeaderText_YieldsSingleResource`.
+- [x] (valid-no-repro) `InfrastructureDeclarationBatchPathIndex.TryResolve` — ARM `../` with duplicate basenames — **cheap-disproof 2026-10-29 seed hunt #856:** parent-relative resolution precedes basename fallback; regression `ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist`.
+- [x] (proven) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — `# password = …` comment line redacted whole block — **hit 2026-10-29 seed hunt #856:** skip `#`/`//` line comments before key scan; regression `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_line_comment`.
 - [x] (proven) `PixelDiagramIntakeStubDetector.TryDetect` — array/scalar JSON root threw on `TryGetProperty` — **hit 2026-10-21 lane C:** require object root; regression `TryDetect_ReturnsFalse_WhenStructuredDiagramJsonRootIsNotAnObject`.
-- [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a reachable multi-document CloudFormation YAML upload may deserialize only the first document or skip the batch instead of preserving later `Resources`; wrong outcome: valid resources disappear from ingestion.
-- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — a reachable mixed Bicep/HCL array containing object and primitive elements may serialize only object members; wrong outcome: primitive property values are silently omitted from canonical `tf.*` data.
+- [x] (valid-no-repro) `CloudFormationTemplateParser.ParseRootElement` — multi-document CloudFormation YAML — **cheap-disproof 2026-10-29 seed hunt #856:** unsupported multi-doc returns empty; regression above.
+- [x] (valid-no-repro) `BicepArrayLiteralConverter.TryParseToJsonElement` — mixed object/primitive array — **cheap-disproof 2026-10-29 seed hunt #856:** object-array path by design; regression above.
+
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — a reachable Terraform file with an unclosed heredoc may leave trailing lines unmasked so decoy `resource`/`module` headers still match; wrong outcome: phantom blocks after a truncated heredoc.
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — a reachable HCL line with trailing `// password = …` after a non-secret assignment may still redact the whole nested block; wrong outcome: canonical non-secret block data is lost.
+- [ ] (candidate) `ArchitectureDiagramCanonicalObjectMapper.Map` — a reachable structured-diagram payload with duplicate trimmed node IDs may emit duplicate canonical `ObjectId` values while edge lookup keeps the last node; wrong outcome: connectivity attaches to the wrong duplicate.
+- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` — a syntactically valid `ActorsJson` array containing one malformed actor object may fall back to the original array so reordering valid entries changes scope metadata; wrong outcome: unstable scope metadata across equivalent actor sets.
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — a reachable heredoc opener inside a `#` or `//` comment line may still start masking and blank following lines; wrong outcome: real resource headers after the comment are skipped.
+
+2026-10-12 seed hunt (seed-only): reread recent scope isolation, HCL redaction, Terraform comment masking, ARM/Bicep path resolution, CloudFormation YAML, and canonical property handling. The heredoc resource-header candidate met the mechanism bar, but its focused repro was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was promoted and no production change was made.
 
 2026-10-12 seed hunt (seed-only): promoted one bounded candidate for `PixelDiagramIntakeStubDetector.TryDetect`: a reachable structured-diagram JSON upload whose root is an array or scalar can make `JsonElement.TryGetProperty` throw `InvalidOperationException` instead of returning no stub, but the focused repro could not execute because unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors blocked test discovery. The temporary repro was removed; no production or regression code changed.
 
@@ -19600,22 +19608,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1061
-- **bugs-found:** 429
+- **hunts:** 1062
+- **bugs-found:** 431
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-10 — malformed JSON resource entry discarded valid sibling resources
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — HCL `#` comment lines false-positive whole-block redaction; heredoc decoy resource headers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-12 seed hunt (seed-only): reread recent scope isolation, HCL redaction, Terraform comment masking, ARM/Bicep path resolution, CloudFormation YAML, and canonical property handling. The heredoc resource-header candidate met the mechanism bar, but its focused repro was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was promoted and no production change was made.
+2026-10-29 seed hunt #856 (seed→hit): see zone header closure for heredoc masking, HCL comment redaction, and three cheap-disproof rows; scoped filter **835/837** (two unrelated audit manual-evidence tests failing).
 
-- [ ] (candidate) `SimpleTerraformResourceBlockParser.ExtractBlocks` — a reachable Terraform heredoc containing text such as `resource "azurerm_storage_account" "example"` may be matched as a real block because comment masking does not mask heredoc contents; wrong outcome: a phantom resource truncates the preceding block body.
-- [ ] (candidate) `InfrastructureDeclarationBatchPathIndex.TryResolve` — a reachable ARM `templateLink.uri` using `../` with duplicate basenames may fall through from an unnormalized parent-relative path to the wrong basename alias; wrong outcome: the wrong linked template is ingested.
-- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — a reachable non-secret HCL block containing a comment line such as `# password = ...` may be redacted because assignment detection does not remove line comments; wrong outcome: canonical non-secret block data is lost.
-- [ ] (candidate) `PixelDiagramIntakeStubDetector.TryDetect` — a reachable structured-diagram JSON upload with an array or scalar root may throw while probing `intakeStub` instead of returning no stub; wrong outcome: document normalization fails rather than skipping malformed input safely. Repro promotion is pending execution after the unrelated application compile blocker is cleared.
-- [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a reachable multi-document CloudFormation YAML upload may deserialize only the first document or skip the batch instead of preserving later `Resources`; wrong outcome: valid resources disappear from ingestion.
-- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — a reachable mixed Bicep/HCL array containing object and primitive elements may serialize only object members; wrong outcome: primitive property values are silently omitted from canonical `tf.*` data.
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — unclosed heredoc leaves trailing lines unmasked; wrong outcome: phantom blocks after truncated heredoc.
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — trailing inline `// password = …` after assignment; wrong outcome: whole nested block redacted.
+- [ ] (candidate) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed node IDs; wrong outcome: edges attach to wrong duplicate node.
+- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` — malformed actor in valid array; wrong outcome: unstable scope metadata on reorder.
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — heredoc opener inside comment line starts masking; wrong outcome: real headers after comment skipped.
 
 2026-10-10 seed hunt (seed-only): reread JSON, appsettings, CloudFormation, Kubernetes YAML document splitting, connector parser ordering, structured diagram routing, actor metadata canonicalization, and error boundaries; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 826/826. Retained the three bounded candidates above; no production change.
 
