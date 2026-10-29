@@ -116,7 +116,7 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
             for relative_path in sut.GENERATED_PATH_FILES:
                 path = root / relative_path
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(b"\\xff\\xfe" + " ".join(f'"{route}"' for route in sut.REQUIRED_ROUTES).encode())
+                path.write_bytes(b"\xff\xfe" + " ".join(f'"{route}"' for route in sut.REQUIRED_ROUTES).encode())
             issues = sut.collect_generated_client_violations(root)
             self.assertTrue(any("unreadable generated API paths file" in item for item in issues))
 

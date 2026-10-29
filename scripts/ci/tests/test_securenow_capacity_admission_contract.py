@@ -8,8 +8,10 @@ CONTROLLER = ROOT / "ArchLucid.Api/Controllers/Authority/CollectionRunsControlle
 class CapacityAdmissionContract(unittest.TestCase):
     def test_bounded_wait_and_cancellation_safety(self):
         source = SERVICE.read_text(encoding="utf-8")
-        self.assertIn("Interlocked.Increment(ref waitingAdmissions)", source)
-        self.assertIn("Interlocked.Decrement(ref waitingAdmissions)", source)
+        self.assertIn("_admissionCounter.Increment()", source)
+        self.assertIn("CollectionTriggerAdmissionCounter _admissionCounter", source)
+        self.assertNotIn("private static int waitingAdmissions", source)
+        self.assertIn("_admissionCounter.Decrement()", source)
         self.assertIn("timeout.CancelAfter(", source)
         self.assertIn("catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)", source)
         self.assertIn("SecureNowCapacityExceededException", source)

@@ -23,8 +23,8 @@
 # Hadolint — base name can expand empty. Optional overrides:
 #   --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=... (omit or set a non-empty tag)
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
-# Pin latest MCR aspnet patch for alpine3.23 (floating 10.0-alpine* can lag). See security/docker-api-runtime.trivyignore when Trivy fixedVersion > published tag.
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.12-alpine3.23
+# Pin security-serviced MCR aspnet patch for alpine3.23 (floating 10.0-alpine* can lag). See security/docker-api-runtime.trivyignore when Trivy fixedVersion > published tag.
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.13-alpine3.23
 FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src

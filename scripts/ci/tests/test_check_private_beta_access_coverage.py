@@ -35,7 +35,7 @@ class TestPrivateBetaAccessCoverage(unittest.TestCase):
             root = Path(directory)
             target = root / sut.SCENARIO_MARKERS[0][0]
             target.parent.mkdir(parents=True)
-            target.write_bytes(b"\\xff\\xfe" + " ".join(sut.SCENARIO_MARKERS[0][1]).encode())
+            target.write_bytes(b"\xff\xfe" + " ".join(sut.SCENARIO_MARKERS[0][1]).encode())
             issues = sut.collect_violations(root)
             self.assertTrue(any("unable to read private-beta coverage" in issue for issue in issues))
 
