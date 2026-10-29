@@ -1237,6 +1237,80 @@ public sealed class TrialTenantBootstrapServiceTests
     }
 
     [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_coalesces_whitespace_only_industry_vertical_other_to_null_on_commit()
+    {
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.CommitSelfServiceTrialAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync("owner@example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        TrialSignupCompanyProfileCapture profile = new(null, null, "Other", "   ");
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, profile, CancellationToken.None);
+
+        repo.Verify(
+            r => r.CommitSelfServiceTrialAsync(
+                tenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                "Other",
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_persists_signup_baseline_before_demo_seed_when_capture_present()
     {
         List<string> steps = [];

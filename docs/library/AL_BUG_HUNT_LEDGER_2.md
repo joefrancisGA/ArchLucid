@@ -15848,6 +15848,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #151): promoted whitespace-only `IndustryVerticalOther` at trial commit on `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync`; `CommitSelfServiceTrialAsync` stored padded blank other-industry text for `Other` signups while welcome preseed and registration validators coalesce whitespace; normalize company size, vertical, and other specification at commit; regression `TryBootstrapAfterSelfRegistrationAsync_coalesces_whitespace_only_industry_vertical_other_to_null_on_commit`; scoped filter 306/306 passed (`RunAnalyzers=false`). Private beta: self-service trial tenants no longer persist invisible “other industry” text that breaks welcome pre-seed copy selection.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — whitespace-only `IndustryVerticalOther` at commit — **hit 2026-10-29 seed hunt #151:** `NormalizeOptionalIndustryVerticalOther`; regression above.
+- [x] (invalid) `TrialVerticalWelcomeRequestFactory.NormalizeOtherSpecification` — whitespace-only other at read — **cheap-disproof 2026-10-29 seed hunt #151:** factory already coalesces whitespace; this hunt closed bootstrap persist drift.
+
 2026-10-29 seed hunt (seed→hit #150): promoted whitespace-only signup baseline source note at persist on `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync`; `PersistTrialSignupBaselineReviewCycleAsync` and `CommitSelfServiceTrialAsync` stored padded blank `SourceNote` while #143 normalized read on `TenantTrialFacade`; `NormalizeOptionalBaselineSourceNote` coalesces whitespace to null; regression `TryBootstrapAfterSelfRegistrationAsync_coalesces_whitespace_only_baseline_source_note_to_null_on_persist`; scoped filter 305/305 passed (`RunAnalyzers=false`). Private beta: trial signup no longer persists invisible baseline review-cycle source text that reappears as a blank field after the trial status read-path fix.
 
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — whitespace-only baseline `SourceNote` at persist — **hit 2026-10-29 seed hunt #150:** `NormalizeOptionalBaselineSourceNote` on persist and commit; regression above.
@@ -15955,11 +15960,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 150
-- **bugs-found:** 129
+- **hunts:** 151
+- **bugs-found:** 130
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — trial signup baseline source note persist trim
+- **last-bug:** 2026-10-29 — trial commit industry vertical other trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
