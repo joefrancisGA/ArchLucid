@@ -1,13 +1,12 @@
 namespace ArchLucid.Application.SecureNow;
 
-/// <summary>
-/// Exact bounded simple-path prefix counting over supplied directed adjacency.
-/// This is topology-aware structural counting, not SecureNow semantic path evaluation.
-/// </summary>
+/// <summary>Counts bounded directed simple-path prefixes; no security-path semantic filtering.</summary>
 public static class SecureNowTopologyCardinalityForecast
 {
     public sealed record Result(long PrefixCount, long TraversedEdges, int VisitedNodes,
         bool Truncated, string EvidenceStatus);
+
+    private sealed record Frame(string Node, int Depth, string[] Neighbors, int NextIndex);
 
     public static Result Count(
         IReadOnlyDictionary<string, IReadOnlyList<string>> adjacency,
@@ -21,40 +20,51 @@ public static class SecureNowTopologyCardinalityForecast
             throw new ArgumentOutOfRangeException(nameof(adjacency), "Graph exceeds bounded analysis input.");
 
         long count = 0, traversed = 0;
-        bool truncated = false;
-        HashSet<string> seenNodes = new(StringComparer.Ordinal);
+        HashSet<string> seen = new(StringComparer.Ordinal);
+        HashSet<string> activePath = new(StringComparer.Ordinal);
+        Stack<Frame> stack = new();
+
+        string[] Children(string node, int depth)
+        {
+            if (depth >= maxDepth || !adjacency.TryGetValue(node, out var neighbors))
+                return [];
+            // Descending order matches the original LIFO processing order.
+            return neighbors.Distinct(StringComparer.Ordinal)
+                .OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        }
+
         foreach (string seed in seeds.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
             if (string.IsNullOrWhiteSpace(seed))
                 throw new ArgumentException("Seed IDs must be nonblank.", nameof(seeds));
-            Stack<(string Node, int Depth, HashSet<string> Path)> stack = new();
-            stack.Push((seed, 0, new HashSet<string>(StringComparer.Ordinal) { seed }));
+            activePath.Add(seed);
+            stack.Push(new Frame(seed, 0, Children(seed, 0), 0));
             while (stack.Count > 0)
             {
-                if (count >= maxPrefixes)
+                Frame frame = stack.Pop();
+                if (frame.NextIndex == 0)
                 {
-                    truncated = true;
-                    return new Result(count, traversed, seenNodes.Count, truncated, "TOPOLOGY_PREFIX_COUNT_TRUNCATED");
+                    if (count >= maxPrefixes)
+                        return new Result(count, traversed, seen.Count, true, "TOPOLOGY_PREFIX_COUNT_TRUNCATED");
+                    count++;
+                    seen.Add(frame.Node);
                 }
-                var current = stack.Pop();
-                count++;
-                seenNodes.Add(current.Node);
-                if (current.Depth >= maxDepth ||
-                    !adjacency.TryGetValue(current.Node, out IReadOnlyList<string>? neighbors))
+                if (frame.NextIndex >= frame.Neighbors.Length)
+                {
+                    activePath.Remove(frame.Node);
                     continue;
-
-                foreach (string next in neighbors.Distinct(StringComparer.Ordinal).OrderByDescending(x => x, StringComparer.Ordinal))
-                {
-                    if (string.IsNullOrWhiteSpace(next))
-                        throw new ArgumentException("Neighbor IDs must be nonblank.", nameof(adjacency));
-                    traversed++;
-                    if (current.Path.Contains(next))
-                        continue;
-                    HashSet<string> path = new(current.Path, StringComparer.Ordinal) { next };
-                    stack.Push((next, current.Depth + 1, path));
                 }
+                string next = frame.Neighbors[frame.NextIndex];
+                stack.Push(frame with { NextIndex = frame.NextIndex + 1 });
+                if (string.IsNullOrWhiteSpace(next))
+                    throw new ArgumentException("Neighbor IDs must be nonblank.", nameof(adjacency));
+                traversed++;
+                if (activePath.Contains(next))
+                    continue;
+                activePath.Add(next);
+                stack.Push(new Frame(next, frame.Depth + 1, Children(next, frame.Depth + 1), 0));
             }
         }
-        return new Result(count, traversed, seenNodes.Count, truncated, "TOPOLOGY_STRUCTURAL_ONLY");
+        return new Result(count, traversed, seen.Count, false, "TOPOLOGY_STRUCTURAL_ONLY");
     }
 }
