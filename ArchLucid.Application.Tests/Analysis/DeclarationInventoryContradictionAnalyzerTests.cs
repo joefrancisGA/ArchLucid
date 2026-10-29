@@ -481,6 +481,52 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_does_not_flag_minimum_tls_when_declaration_1_2_matches_inventory_tls1_2()
+    {
+        // Older declarations store 1.2. ARM and azurerm storage inventory store TLS1_2.
+        // DeclarationMinimumTlsVersion treats both as TLS 1.2.
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.minimum_tls_version"] = "1.2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "minimumTlsVersion": "TLS1_2"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
     public void TryResolveSecurityTheme_returns_false_for_unknown_logical_name()
     {
         DeclarationInventorySecurityPropertyInventoryReader.TryResolveSecurityTheme(

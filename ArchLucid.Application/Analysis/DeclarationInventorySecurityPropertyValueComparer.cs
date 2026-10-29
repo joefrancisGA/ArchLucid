@@ -8,11 +8,39 @@ internal static class DeclarationInventorySecurityPropertyValueComparer
 {
     internal static string ComparableToken(string logicalName, string value)
     {
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion)
+            return CanonicalMinimumTlsVersion(value);
+
         if (logicalName == DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction
             && TryExtractDefaultActionToken(value, out string token))
             return token;
 
         return value;
+    }
+
+    /// <summary>
+    ///     ARM and azurerm storage emit <c>TLS1_2</c>. Older declarations and App Service
+    ///     <c>minTlsVersion</c> use <c>1.2</c>. Both name the same protocol version.
+    /// </summary>
+    private static string CanonicalMinimumTlsVersion(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        string normalized = value.Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal);
+
+        return normalized switch
+        {
+            "1.0" or "tls1.0" or "tls10" => "1.0",
+            "1.1" or "tls1.1" or "tls11" => "1.1",
+            "1.2" or "tls1.2" or "tls12" => "1.2",
+            "1.3" or "tls1.3" or "tls13" => "1.3",
+            _ => normalized,
+        };
     }
 
     internal static bool ValuesMatch(string declarationValue, string inventoryValue)

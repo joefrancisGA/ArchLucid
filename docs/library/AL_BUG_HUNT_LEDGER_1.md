@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory minimum TLS checks that compared the older declaration literal `1.2` with ARM/azurerm inventory `TLS1_2` as different strings, so a storage account whose declaration and inventory both require TLS 1.2 was reported as a transport-security contradiction; `DeclarationMinimumTlsVersion` already treats `1.2`, `tls1.2`, and `tls12` as the same floor, and `ComparableToken` now canonicalizes those minimum-TLS literals before the compare; regression `CompareQuality_Analyze_does_not_flag_minimum_tls_when_declaration_1_2_matches_inventory_tls1_2`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1093/1094** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose declaration sets minimum TLS to 1.2 and whose Azure inventory stores TLS1_2, that pair is left as agreement, while 1.2 versus 1.0 is still reported.
+
+- [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.ComparableToken` — declaration `1.2` and inventory `TLS1_2` were reported as a minimum-TLS mismatch — **hit 2026-10-29 seed hunt:** canonicalize `1.0`–`1.3` and `TLS1_*` literals before compare; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end comparison correlation metadata that kept the policy-rule match honesty sentence when `PolicyRuleMatchCount` and `FuzzyMatchCount` were both zero, so a download said finding pairs matched on policy rule and fingerprint while unmatched counts showed they did not; `ComparisonFindingCorrelationMetadataBuilder` emits that sentence for the no-fuzzy branch, and `ComparisonFindingCorrelationMetadataNormalizer` now replaces it when no pairs matched; `ReplayComparisonFindingLifecycleDiffSlice` normalizes the built metadata before the report is returned; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_does_not_claim_policy_matches_when_no_finding_pairs_matched`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1092/1093** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews and no findings matched, the comparison says no finding pairs matched instead of saying they matched on policy rule and fingerprint.
 
 - [x] (proven) `ComparisonFindingCorrelationMetadataNormalizer` — zero match counts still used the policy-rule match honesty sentence — **hit 2026-10-29 seed hunt:** replace that sentence when both match counts are zero; regression above. [class:fail-open-validation]
@@ -16064,11 +16068,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 81
-- **bugs-found:** 77
+- **hunts:** 82
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — comparison honesty note claimed policy-rule matches when no finding pairs matched
+- **last-bug:** 2026-10-29 — declaration minimum TLS 1.2 was flagged against inventory TLS1_2
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16224,6 +16228,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.ComparableToken` — declaration `1.2` and inventory `TLS1_2` were reported as a minimum-TLS mismatch — **hit 2026-10-29 seed hunt:** canonicalize `1.0`–`1.3` and `TLS1_*` literals before compare; regression `CompareQuality_Analyze_does_not_flag_minimum_tls_when_declaration_1_2_matches_inventory_tls1_2`. [class:fail-open-validation]
 
 - [x] (proven) `ComparisonFindingCorrelationMetadataNormalizer` — zero match counts still used the policy-rule match honesty sentence — **hit 2026-10-29 seed hunt:** replace that sentence when both match counts are zero; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_does_not_claim_policy_matches_when_no_finding_pairs_matched`. [class:fail-open-validation]
 
