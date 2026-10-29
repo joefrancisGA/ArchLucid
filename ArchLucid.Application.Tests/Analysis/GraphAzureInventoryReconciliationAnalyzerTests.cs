@@ -5272,6 +5272,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_configuration_attributes_supplementary_configuration_json_combines_with_resourceGroup_in_attributes_properties_supplementary_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-000000000063";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-config-attrs-supp-attrs-props-supp-rg-343";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-config-attrs-supp-attrs-props-supp-rg-343";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-config-attrs-supp-attrs-props-supp-rg-343",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] =
+                            "{\"attributes\":{\"supplementaryConfiguration\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["attributes"] = """{"properties":{"supplementaryConfiguration":{"resourceGroup":"rg"}}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_supplementary_configuration_properties_configuration_json_combines_with_resourceGroup_in_attributes_properties_supplementary_configuration_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000005a";
