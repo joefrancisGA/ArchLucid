@@ -161,7 +161,7 @@ export function groupDiagramReconcileInventoryOnlyRows(
     }));
 }
 
-function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRow): string {
+export function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRow): string {
   const azureResourceId = row.azureResourceId?.trim();
 
   if (azureResourceId == null || azureResourceId.length === 0) {
@@ -236,7 +236,7 @@ export function buildDiagramReconcileCsv(
             ? ""
             : row.resourceType,
         1,
-        row.azureResourceId,
+        displayInventoryResourceName(row),
         row.explainText,
       ].map(csvCell).join(","));
     });

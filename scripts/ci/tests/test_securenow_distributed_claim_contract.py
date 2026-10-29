@@ -4,7 +4,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 SQL = ROOT / "ArchLucid.Persistence/SecureNow/SqlCollectionTriggerClaimRepository.cs"
-MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/10001_SecureNowCollectionTriggerClaims.sql"
+MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/417_SecureNowCollectionTriggerClaims.sql"
 
 class DistributedClaimContracts(unittest.TestCase):
     def test_unique_scope_and_key(self):

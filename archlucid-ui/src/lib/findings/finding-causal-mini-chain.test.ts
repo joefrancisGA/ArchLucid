@@ -26,7 +26,9 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(chain.steps.map((step) => step.key)).toEqual(["rule", "evidence", "recommendation"]);
     expect(chain.steps[0]?.value).toBe("Require private endpoints");
     expect(chain.steps[1]?.value).toBe("2 cited evidence references");
-    expect(chain.steps[2]?.value).toBe("Lock down public ingress.");
+    expect(chain.steps[2]?.value).toBe(
+      "Lock down public ingress. (Full recommendation was stored; only the first sentence is shown.)",
+    );
   });
 
   it("returns honest empties when fields are missing", () => {
@@ -75,6 +77,27 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(withoutLabel.steps[1]?.value).toBe(
       "0 cited evidence references Evidence label was not stored.",
     );
+  });
+
+  it("does not treat category as rule id when policyRuleId is missing", () => {
+    const row = {
+      runId: "run-1",
+      runLabel: "Run",
+      manifestId: "-",
+      findingId: "f1",
+      title: "Finding",
+      severity: "High",
+      category: "security",
+      status: "Open",
+      recommended: "Fix it.",
+      recordKind: "finding",
+      policyRuleId: null,
+      evidenceRefCount: 0,
+    } as GovernanceFindingQueueRow;
+
+    const chain = findingCausalMiniChainFromGovernanceQueueRow(row);
+
+    expect(chain?.steps[0]?.value).toBeNull();
   });
 
   it("maps quick-decision, governance queue, and inspect payloads", () => {

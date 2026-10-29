@@ -78,15 +78,15 @@
     ]
   },
   {
-    "findingId": "1415ea8a-e673-fd3b-a76e-b903e257a420",
+    "findingId": "936f6d34-bfbf-55f0-3ed8-bdaf21d55725",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-contributor-kv",
-      "kvdatastore"
+      "obj-93cf65ed6a539e4b632c24f4af8cdc57",
+      "role-contrib-kv"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

@@ -81,11 +81,11 @@ function evidenceLinkLabel(
     return `Open evidence artifact ${artifact}`;
   }
 
-  if (artifact.length > 0) {
-    return `Open ${artifact}`;
+  if (!hasHref) {
+    return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
   }
 
-  return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  return _fallbackLabel;
 }
 
 function evidenceCitationSlug(row: FindingInspectEvidence, idx: number): string {

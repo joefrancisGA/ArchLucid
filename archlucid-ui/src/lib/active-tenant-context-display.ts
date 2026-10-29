@@ -72,11 +72,11 @@ export function resolveActiveTenantContext(
   const workspaceId = (scope?.workspaceId ?? headers["x-workspace-id"] ?? "").trim();
   const workspaceLabel = scope?.workspaceLabel?.trim() ?? "";
 
-  const resolvedTenantId = tenantId.length > 0 ? tenantId : "unknown";
+  const resolvedTenantId = tenantId.length > 0 ? tenantId : "";
   const displayName =
     tenantId.length > 0
       ? resolveTenantOrganizationDisplayName(tenantId, tenantId)
-      : "Unknown tenant";
+      : "Tenant id was not stored.";
 
   return {
     displayName,
@@ -100,5 +100,10 @@ export function formatActiveTenantContextTooltip(context: ActiveTenantContextVie
         ? ` · Workspace ID: ${context.workspaceId}`
         : "";
 
-  return `Active tenant: ${context.displayName} (ID: ${context.tenantId})${workspacePart}. Database-per-tenant isolation applies to this session.`;
+  const tenantIdPart =
+    context.tenantId.trim().length > 0
+      ? `ID: ${context.tenantId}`
+      : "Tenant id was not stored.";
+
+  return `Active tenant: ${context.displayName} (${tenantIdPart})${workspacePart}. Database-per-tenant isolation applies to this session.`;
 }

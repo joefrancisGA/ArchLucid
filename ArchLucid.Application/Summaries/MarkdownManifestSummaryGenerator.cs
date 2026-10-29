@@ -203,9 +203,14 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             sb.AppendLine($"- Created UTC: {metadata.CreatedUtc:O}");
         }
 
-        List<string> traceIds = metadata?.DecisionTraceIds ?? [];
-        if (traceIds.Count > 0)
-            sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
+        if (metadata is null || metadata.DecisionTraceIds.Count == 0)
+        {
+            sb.AppendLine($"- Decision Trace Count: {ArchitectureManifestMarkdownSummaryExport.DecisionTraceCountNotStored}");
+        }
+        else
+        {
+            sb.AppendLine($"- Decision Trace Count: {metadata.DecisionTraceIds.Count}");
+        }
     }
 
     private static string FormatRelationshipType(ManifestRelationship relationship) =>

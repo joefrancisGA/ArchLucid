@@ -16,11 +16,12 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
     IAuditService auditService,
+    ICollectionRunAdmissionCounter admissionCounter,
+    TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
-    IOptions<SecureNowCapacityOptions>? capacityOptions = null) 
+    IOptions<SecureNowCapacityOptions>? capacityOptions = null)
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
-    private static int waitingAdmissions;
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
     // Cross-replica capacity and idempotency require durable orchestration.
     private static readonly SemaphoreSlim ActiveTriggerSlots = new(8, 8);
@@ -47,6 +48,11 @@ public sealed class CollectionRunTriggerService(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly ICollectionRunAdmissionCounter _admissionCounter =
+        admissionCounter ?? throw new ArgumentNullException(nameof(admissionCounter));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<CollectionRun> TriggerAsync(
         ScopeContext scope,
         string idempotencyKey,
@@ -61,10 +67,11 @@ public sealed class CollectionRunTriggerService(
         limits.Validate();
         // A bounded number of callers may wait for either gate. Never reserve a
         // claim or invoke the external trigger until admitted.
-        int waiting = Interlocked.Increment(ref waitingAdmissions);
+        int waiting = _admissionCounter.IncrementWaiting();
+
         if (waiting > limits.MaxWaitingCollectionTriggers)
         {
-            Interlocked.Decrement(ref waitingAdmissions);
+            _admissionCounter.DecrementWaiting();
             throw new SecureNowCapacityExceededException();
         }
 
@@ -90,7 +97,7 @@ public sealed class CollectionRunTriggerService(
                 throw new SecureNowCapacityExceededException();
             }
             // Waiting admission capacity is released as soon as execution starts.
-            Interlocked.Decrement(ref waitingAdmissions);
+            _admissionCounter.DecrementWaiting();
             waiting = 0;
             AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             TriggerAttempts.Add(1);
@@ -103,10 +110,11 @@ public sealed class CollectionRunTriggerService(
             if (hasTenantGate)
                 triggerGate.Release();
             if (waiting != 0)
-                Interlocked.Decrement(ref waitingAdmissions);
+                _admissionCounter.DecrementWaiting();
         }
     }
 
+    [InformationalAudit]
     private async Task<CollectionRun> TriggerDurablyAsync(
         ScopeContext scope, string idempotencyKey,
         IReadOnlyList<string> subscriptionIds, CancellationToken cancellationToken)
@@ -141,7 +149,7 @@ public sealed class CollectionRunTriggerService(
             RunId = runId,
             AgentVersion = "on-demand",
             Schedule = started.Schedule,
-            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            StartedUtc = _timeProvider.GetUtcNow().UtcDateTime,
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
@@ -188,7 +196,7 @@ public sealed class CollectionRunTriggerService(
             SubscriptionIds = subscriptionIds,
         };
         CollectionRunTriggerResult triggerResult = await _collectionRunTrigger.TriggerAsync(scope, request, cancellationToken);
-        DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime startedUtc = _timeProvider.GetUtcNow().UtcDateTime;
         CollectionRun run = new()
         {
             TenantId = scope.TenantId,

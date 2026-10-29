@@ -209,7 +209,10 @@ internal static class InventoryDiagramParentAttachmentApplier
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
-            ReadResourceName(connectorDiagramNode.ArmResourceId, connectorDiagramNode.Label));
+            ReadResourceName(
+                connectorDiagramNode.ArmResourceId,
+                connectorDiagramNode.Label,
+                connectorDiagramNode.NodeId));
         DiagramEdge? existingEdge = ast.Edges.FirstOrDefault(edge =>
             string.Equals(edge.FromNodeId, parentDiagramNodeId, StringComparison.Ordinal)
             && string.Equals(edge.ToNodeId, externalTargetDiagramNodeId, StringComparison.Ordinal)
@@ -304,7 +307,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         DiagramNode childNode,
         InventoryDiagramParentAttachmentCategory category)
     {
-        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label);
+        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label, childNode.NodeId);
 
         return category switch
         {
@@ -315,12 +318,12 @@ internal static class InventoryDiagramParentAttachmentApplier
         };
     }
 
-    private static string ReadResourceName(string? armResourceId, string fallbackLabel)
+    private static string ReadResourceName(string? armResourceId, string fallbackLabel, string? nodeId)
     {
         return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
             armResourceId,
             fallbackLabel,
-            nodeId: null,
+            nodeId,
             InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 

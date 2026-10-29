@@ -38,6 +38,7 @@ function normalizeCompareValue(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase();
 }
 
+/** Layout adjacency on the rendered diagram — not network isolation or reachability proof. */
 function resolveDiagramNeighborNodeIds(
   outline: InfraEvidenceMermaidOutline,
   startingDiagramNodeId: string,

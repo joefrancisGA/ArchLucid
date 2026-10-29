@@ -91,14 +91,14 @@
     ]
   },
   {
-    "findingId": "89f9e389-6325-f94f-2eb2-88d5b0866b23",
+    "findingId": "14a013c3-7704-6a8c-10bd-dc6cc8b9d30f",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-api"
+      "cmp-golden-63"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

@@ -290,7 +290,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         ast.Should().NotBeNull();
         ast!.Title.Should().Be("N");
         ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "N");
-        ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t");
+        ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t → o");
         ast.Nodes.Should().Contain(n => n.NodeId == "issue-0" && n.Label == "open issue");
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == MermaidManifestDiagramHonestyCopy.DecisionEdgeLabel);
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == MermaidManifestDiagramHonestyCopy.IssueEdgeLabel);

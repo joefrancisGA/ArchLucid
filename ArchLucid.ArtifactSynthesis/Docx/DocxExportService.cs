@@ -250,7 +250,7 @@ public sealed partial class DocxExportService(
                 WordDocumentBuilder.AddBodyText(body, FormatTopologyResourceLine(resource));
 
         else
-            WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "Topology resources were stored empty.");
 
         if (manifest.Topology.SelectedPatterns.Count > 0)
         {
@@ -259,18 +259,25 @@ public sealed partial class DocxExportService(
         }
         else
         {
-            WordDocumentBuilder.AddBodyText(body, "No selected patterns were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "Selected patterns were stored empty.");
         }
 
-        foreach (string gap in manifest.Topology.Gaps)
-            WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
+        if (manifest.Topology.Gaps.Count > 0)
+        {
+            foreach (string gap in manifest.Topology.Gaps)
+                WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
+        }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(body, "Topology gaps were stored empty.");
+        }
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
 
         if (manifest.Security.Controls.Count == 0)
 
-            WordDocumentBuilder.AddBodyText(body, "No security controls were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "Security controls were stored empty.");
 
         else
         {
@@ -290,6 +297,9 @@ public sealed partial class DocxExportService(
 
         foreach (string gap in manifest.Security.Gaps)
             WordDocumentBuilder.AddBodyText(body, FormatSecurityGapLine(gap));
+
+        if (manifest.Security.Gaps.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "Security gaps were stored empty.");
         WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeComplianceSection)
@@ -375,7 +385,7 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
 
             if (manifest.UnresolvedIssues.Items.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "Unresolved issues were not stored.");
+                WordDocumentBuilder.AddBodyText(body, "Unresolved issues were stored empty.");
             else
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);
@@ -452,9 +462,9 @@ public sealed partial class DocxExportService(
                 List<(string Name, string ArtifactType, string Format)> artRows = artifacts
                     .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
                     .Select(a => (
-                        SanitizeArtifactText(a.Name),
-                        SanitizeArtifactText(a.ArtifactType),
-                        SanitizeArtifactText(a.Format)))
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.Name, "Artifact name"),
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.ArtifactType, "Artifact type"),
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.Format, "Artifact format")))
                     .ToList();
                 WordDocumentBuilder.AddThreeColumnTable(
                     body,
@@ -469,8 +479,14 @@ public sealed partial class DocxExportService(
         List<(string, string)> provenanceRows =
         [
             ("Metric", "Value"),
-            ("Rule set", SanitizeArtifactText($"{manifest.RuleSetId} {manifest.RuleSetVersion}")),
-            ("Manifest hash", SanitizeArtifactText(manifest.ManifestHash)),
+            (
+                "Rule set",
+                DocxManifestFieldPresentation.FormatManifestTableCell(
+                    string.IsNullOrWhiteSpace(manifest.RuleSetId) && string.IsNullOrWhiteSpace(manifest.RuleSetVersion)
+                        ? null
+                        : $"{manifest.RuleSetId} {manifest.RuleSetVersion}".Trim(),
+                    "Rule set")),
+            ("Manifest hash", DocxManifestFieldPresentation.FormatManifestTableCell(manifest.ManifestHash, "Manifest hash")),
             ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
             ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
             ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
@@ -479,7 +495,7 @@ public sealed partial class DocxExportService(
         foreach ((string label, string value) in CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(
                      manifest.EffectiveGovernanceAtCommit))
         {
-            provenanceRows.Add((label, SanitizeArtifactText(value)));
+            provenanceRows.Add((label, DocxManifestFieldPresentation.FormatComparedOptionalValue(value)));
         }
 
         WordDocumentBuilder.AddSimpleTable(body, provenanceRows, true);

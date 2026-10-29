@@ -33,4 +33,24 @@ describe("architecture-intelligence-reasoning-finding-display (P-01–P-03)", ()
       }),
     ).toBe(ARCHITECTURE_INTELLIGENCE_INTEGRITY_OUTCOME_NOT_STORED);
   });
+
+  it("does not call a missing integrity id a failure", () => {
+    expect(
+      formatArchitectureIntelligenceIntegrityLabel({
+        findingId: "f-missing",
+        integritySet: new Set(["f-other"]),
+        validationPassed: undefined,
+      }),
+    ).toBe("This finding id was not in the integrity-passed list.");
+  });
+
+  it("does not infer integrity from validation when finding id is missing", () => {
+    expect(
+      formatArchitectureIntelligenceIntegrityLabel({
+        findingId: "",
+        integritySet: new Set(),
+        validationPassed: true,
+      }),
+    ).toBe(ARCHITECTURE_INTELLIGENCE_INTEGRITY_OUTCOME_NOT_STORED);
+  });
 });

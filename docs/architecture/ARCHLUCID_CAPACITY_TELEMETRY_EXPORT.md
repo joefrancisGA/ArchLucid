@@ -1,0 +1,7 @@
+# Capacity telemetry observation export
+
+`WorkloadTelemetryObservationExport.Export` accepts a **trusted, pre-aggregated interval delta** from a configured metrics backend, plus a matched revision/workload/metric forecast. It serializes schema-v1 observations for `WorkloadForecastHistory.Import` and `Summarize`. Allowlisted instruments: prompt tokens, completion tokens, embedding tokens and container-job runs, verified from current ArchLucid telemetry declarations. The caller must first convert cumulative monotonic counters to **window deltas**, choose the same time window as its forecast, filter to an appropriate cohort, and omit all per-tenant labels. Cumulative snapshots and unsupported metric names are rejected by the explicit scope and allowlist, not auto-converted.
+
+This is an **adapter**, not an operational metrics exporter: no Prometheus, Application Insights, Azure Monitor or network integration has been configured; actual telemetry collection, retention policy, provenance, environment matching and scheduled export require an approved operator configuration. Counters alone cannot calibrate CPU seconds, memory or worker sizing. No observed production measurements are included in the repository.
+
+Use `WorkloadForecastHistory.Import(export.Json)` to validate, retain in an approved artifact store, and compare with the forecast. Do not send tenant-scoped data or credentials into CI artifacts.

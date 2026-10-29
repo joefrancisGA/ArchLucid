@@ -8,6 +8,7 @@ public static class DiagramNodeHumanCaptionFactory
 {
     public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
     public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+    public const string ResourceGroupStoredEmptyCaption = "Resource group was stored empty.";
     public const string ResourceNameNotStoredCaption = "Resource name was not stored";
     public const string ResourceNameStoredEmptyCaption = "Resource name was stored empty.";
 
@@ -150,16 +151,24 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · {string.Join(" · ", node.DataFlowTraversalHopEvidenceDetails)}";
         }
-        string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
-            ? null
-            : node.ArmResourceGroup.Trim();
+        string? resourceGroupCaption = node.ArmResourceGroup switch
+        {
+            null => null,
+            _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => null,
+            _ => node.ArmResourceGroup.Trim(),
+        };
         if (node.IncludeResourceGroupInCaption)
         {
-            combined = resourceGroupCaption is not null
-                ? $"{combined} · {resourceGroupCaption}"
-                : $"{combined} · {ResourceGroupNotStoredCaption}";
+            string resourceGroupLine = node.ArmResourceGroup switch
+            {
+                null => ResourceGroupNotStoredCaption,
+                { Length: 0 } => ResourceGroupStoredEmptyCaption,
+                _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => ResourceGroupStoredEmptyCaption,
+                _ => node.ArmResourceGroup.Trim(),
+            };
+            combined = $"{combined} · {resourceGroupLine}";
         }
-        string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
+        string accessibilityTitle = resourceGroupCaption is null
             ? combined
             : $"{combined} · {resourceGroupCaption}";
 

@@ -252,6 +252,106 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             && item.Hops[0].InferenceSource == null && item.Hops[0].CloudResourceId == null);
     }
 
+
+    [SkippableTheory]
+    [InlineData(1000, 1)]
+    [InlineData(2000, 4)]
+    public async Task Benchmark_real_scoped_path_repository_reads(int pathCount, int concurrency)
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository repository = new(factory);
+        Guid snapshot = await InsertSnapshotAsync(factory, TenantA);
+        DateTime now = DateTime.UtcNow;
+        const int batchSize = 200;
+        for (int offset = 0; offset < pathCount; offset += batchSize)
+        {
+            var batch = Enumerable.Range(offset, Math.Min(batchSize, pathCount - offset)).Select(index =>
+            {
+                Guid pathId = Guid.NewGuid();
+                return new SecurityEvidencePathWithHops(
+                    CreatePathHeader(pathId, TenantA, snapshot, now),
+                    [new SecurityEvidencePathHopRecord
+                    {
+                        HopRowId = Guid.NewGuid(), PathId = pathId, TenantId = TenantA,
+                        HopOrdinal = 1, FromNodeId = $"benchmark-principal-{index}",
+                        ToNodeId = $"benchmark-resource-{index}", EdgeType = "can-read",
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                        HopConfidenceBand = PathConfidenceBand.Confirmed,
+                        EvidenceReference = $"snapshot:{snapshot:D}"
+                    }]);
+            }).ToArray();
+            var inserted = await repository.InsertBatchIfNotExistsAsync(batch);
+            inserted.Should().OnlyContain(x => x.Created);
+        }
+        var scope = ProjectSnapshotScopeKey.Create(
+            ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId), snapshot);
+        const int samplesPerWorker = 5;
+        long[] samples = new long[concurrency * samplesPerWorker];
+        var warm = await repository.ListWithHopsBySnapshotAsync(scope);
+        warm.Should().HaveCount(pathCount);
+        using Process clientProcess = Process.GetCurrentProcess();
+        clientProcess.Refresh();
+        TimeSpan clientCpuBefore = clientProcess.TotalProcessorTime;
+        long clientMemoryBefore = clientProcess.WorkingSet64;
+        // SQL connection is test-only; server metrics may be inaccessible to non-sysadmin identities.
+        // The query below is deliberately advisory and cannot isolate this test's server CPU.
+        SqlInstanceCapacityObserver.Sample serverBefore = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
+        DateTimeOffset benchmarkStartUtc = DateTimeOffset.UtcNow;
+        Stopwatch overall = Stopwatch.StartNew();
+        await Task.WhenAll(Enumerable.Range(0, concurrency).Select(async worker =>
+        {
+            for (int i = 0; i < samplesPerWorker; i++)
+            {
+                long start = Stopwatch.GetTimestamp();
+                var result = await repository.ListWithHopsBySnapshotAsync(scope);
+                long ticks = Stopwatch.GetTimestamp() - start;
+                if (result.Count != pathCount) throw new InvalidOperationException("Incomplete scoped read");
+                samples[worker * samplesPerWorker + i] = ticks;
+            }
+        }));
+        overall.Stop();
+        DateTimeOffset benchmarkEndUtc = DateTimeOffset.UtcNow;
+        clientProcess.Refresh();
+        double clientCpuMilliseconds = Math.Max(0, (clientProcess.TotalProcessorTime - clientCpuBefore).TotalMilliseconds);
+        long clientMemoryAfter = clientProcess.WorkingSet64;
+        SqlInstanceCapacityObserver.Sample serverAfter = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
+        // DMV totals span the entire instance and may decrease after plan-cache eviction.
+        long? queryCpuDelta = serverBefore.CpuMilliseconds.HasValue && serverAfter.CpuMilliseconds.HasValue &&
+            serverAfter.CpuMilliseconds.Value >= serverBefore.CpuMilliseconds.Value
+            ? serverAfter.CpuMilliseconds.Value - serverBefore.CpuMilliseconds.Value : null;
+        string? root = Environment.GetEnvironmentVariable("ARCHLUCID_CAPACITY_BENCH_OUTPUT");
+        if (string.IsNullOrWhiteSpace(root)) return;
+        Directory.CreateDirectory(root);
+        double[] sorted = samples.Select(t => t * 1000d / Stopwatch.Frequency).Order().ToArray();
+        var report = new
+        {
+            schemaVersion = 1, backend = "SQL_SECURITY_EVIDENCE_PATH_REPOSITORY",
+            pathCount, hopsPerPath = 1, concurrency, queries = samples.Length,
+            elapsedSeconds = overall.Elapsed.TotalSeconds,
+            measurementStartUtc = benchmarkStartUtc,
+            measurementEndUtc = benchmarkEndUtc,
+            p50Milliseconds = sorted[(sorted.Length - 1) / 2],
+            p95Milliseconds = sorted[(int)Math.Ceiling(sorted.Length * .95) - 1],
+            clientProcessCpuMillisecondsDelta = clientCpuMilliseconds,
+            clientWorkingSetBeforeBytes = clientMemoryBefore,
+            clientWorkingSetAfterBytes = clientMemoryAfter,
+            serverCachedQueryWorkerCpuMillisecondsDelta = queryCpuDelta,
+            serverCachedQueryWorkerCpuBeforeMilliseconds = serverBefore.CpuMilliseconds,
+            serverCachedQueryWorkerCpuAfterMilliseconds = serverAfter.CpuMilliseconds,
+            serverInstancePhysicalMemoryBeforeKb = serverBefore.PhysicalMemoryKb,
+            serverInstancePhysicalMemoryAfterKb = serverAfter.PhysicalMemoryKb,
+            serverInstanceCommittedMemoryBeforeKb = serverBefore.CommittedMemoryKb,
+            serverInstanceCommittedMemoryAfterKb = serverAfter.CommittedMemoryKb,
+            serverInstanceEvidenceBefore = serverBefore.EvidenceStatus,
+            serverInstanceEvidenceAfter = serverAfter.EvidenceStatus,
+            resourceEvidenceStatus = "PROCESS_WIDE_SQL_INSTANCE_WIDE_NOT_ISOLATED",
+            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL instance memory DMV may be inaccessible; SQL CPU is cached completed-query worker time, instance-wide and potentially affected by plan eviction; null is not zero. Not calibrated worker or SQL tier demand."
+        };
+        await File.WriteAllTextAsync(Path.Combine(root, $"sql-repository-{pathCount}-{concurrency}.json"),
+            System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
     private static async Task<Guid> InsertSnapshotAsync(SqlConnectionFactory factory, Guid tenantId)
     {
         SqlAzureExtractorPackageRepository packageRepository = new(factory);

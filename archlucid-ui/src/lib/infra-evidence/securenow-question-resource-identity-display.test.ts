@@ -98,6 +98,15 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     ).toBe("Resource-scoped question (resource name was not stored).");
   });
 
+    it("labels stored-empty resource type separately from omitted type", () => {
+    expect(
+      secureNowQuestionResourceTypeLabel({
+        ...baseQuestion,
+        resourceType: "   ",
+      }),
+    ).toBe("Resource type was stored empty.");
+  });
+
   it("defaults unknown pack scope with missing prompt text to subscription copy", () => {
     const packQuestion: SecureNowQuestion = {
       ...baseQuestion,

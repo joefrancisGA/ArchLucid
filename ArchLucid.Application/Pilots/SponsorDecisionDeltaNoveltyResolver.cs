@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
@@ -60,7 +61,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
 
         if (findings.Count == 0)
         {
-            return "No active findings recorded — ArchLucid did not surface a material recommended change in this package.";
+            return PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty;
         }
 
         StringBuilder sb = new();
@@ -188,7 +189,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
     private static string Truncate(string value, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "(no message)";
+            return ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel;
 
         string trimmed = value.Trim();
 
