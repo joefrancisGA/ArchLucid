@@ -456,6 +456,19 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_synchronous_idle_character()
+    {
+        const string secretWithSyn = "part1\u0016part2";
+        string reference =
+            $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithSyn})";
+
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(reference);
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be(secretWithSyn);
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_vertical_tab_character()
     {
         const string secretWithVt = "part1\vpart2";
