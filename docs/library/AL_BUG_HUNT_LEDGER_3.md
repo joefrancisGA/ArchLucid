@@ -5786,6 +5786,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): re-read governance approval JSON after prior workflow `Status` null fix; promoted `GovernanceApprovalRequest` explicit JSON `null` on required string fields (`RunId`, `ManifestVersion`, `RequestedBy`, environment labels) bypassing `= string.Empty` / environment defaults; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault` on backing-field setters; `ApprovalRequestId` regen when null or empty; regression `Deserialize_null_run_id_yields_empty_string_not_null`; scoped GovernanceApprovalRequest deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: governance approval JSON with null run or environment fields deserializes to legacy empty/default strings so promotion workflow UI and SQL MERGE paths do not null-reference when replaying stored requests.
+
+- [x] (proven) `GovernanceApprovalRequest.RunId` / `ManifestVersion` / `RequestedBy` / environment strings — explicit JSON `null` on required promotion strings — **hit 2026-10-29 seed hunt:** `CoalesceRequired` / `CoalesceStringDefault`; regression above.
+- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on advisory recommendation title despite `= null!` initializer — locus: auto-property setter; input: persisted recommendation row JSON with `"title": null`; reachability: workflow persistence round-trip.
+- [ ] (candidate) `PolicyPack.Name` / `Description` — explicit JSON `null` on policy pack display fields — locus: auto-property setters; input: policy pack API JSON with null name; reachability: governance policy pack import.
+- [ ] (candidate) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline or trigger summary — locus: auto-property setters; input: alert notification payload with null title; reachability: alert delivery webhook JSON.
+- [ ] (candidate) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` should mint a new id when absent — locus: `ApprovalRequestId` setter; input: `"approvalRequestId": null` on create payload (verify regen vs empty).
+- [ ] (candidate) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on integration health summary status — locus: `init` only property with `= string.Empty`; input: ITSM health probe JSON with null status; reachability: integrations settings health card.
+
 2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
 
 - [x] (proven) `RecommendationRecord.Status` / `AlertRecord.Status` / `PolicyPack.Status` / `GovernanceApprovalRequest.Status` — explicit JSON `null` on workflow status strings — **hit 2026-10-29 seed hunt:** `CoalesceStringDefault`; regressions above.
@@ -5919,11 +5928,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 240
-- **bugs-found:** 354
+- **hunts:** 241
+- **bugs-found:** 355
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — workflow Status string JSON null
+- **last-bug:** 2026-10-29 — governance approval RunId/ManifestVersion null JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
