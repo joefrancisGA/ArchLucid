@@ -83,11 +83,13 @@ public class RecommendationRecord
         set;
     }
 
+    private string status = RecommendationStatus.Proposed;
+
     public string Status
     {
-        get;
-        set;
-    } = RecommendationStatus.Proposed;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, RecommendationStatus.Proposed);
+    }
 
     public DateTime CreatedUtc
     {

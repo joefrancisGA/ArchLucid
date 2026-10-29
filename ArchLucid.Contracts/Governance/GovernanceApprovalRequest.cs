@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -63,11 +65,13 @@ public sealed class GovernanceApprovalRequest
     } = GovernanceEnvironment.Test;
 
     /// <summary>Current lifecycle status of the request; see <see cref="GovernanceApprovalStatus" />.</summary>
+    private string status = GovernanceApprovalStatus.Draft;
+
     public string Status
     {
-        get;
-        set;
-    } = GovernanceApprovalStatus.Draft;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, GovernanceApprovalStatus.Draft);
+    }
 
     /// <summary>Identity of the user who submitted the promotion request.</summary>
     public string RequestedBy

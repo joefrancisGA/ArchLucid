@@ -42,4 +42,31 @@ public sealed class RecommendationRecordDeserializationTests
         record.SupportingArtifactIdsJson.Should().Be("[]");
         record.SourceEvidenceLinksJson.Should().Be("[]");
     }
+
+    [Fact]
+    public void Deserialize_null_status_yields_proposed_not_null()
+    {
+        const string json = """
+            {
+              "recommendationId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "runId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              "title": "t",
+              "category": "c",
+              "rationale": "r",
+              "suggestedAction": "a",
+              "urgency": "u",
+              "expectedImpact": "e",
+              "status": null
+            }
+            """;
+
+        RecommendationRecord? record =
+            JsonSerializer.Deserialize<RecommendationRecord>(json, ContractJson.CamelCaseCompact);
+
+        record.Should().NotBeNull();
+        record!.Status.Should().Be(RecommendationStatus.Proposed);
+    }
 }

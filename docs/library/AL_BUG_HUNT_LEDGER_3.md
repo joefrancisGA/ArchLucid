@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
+
+- [x] (proven) `RecommendationRecord.Status` / `AlertRecord.Status` / `PolicyPack.Status` / `GovernanceApprovalRequest.Status` — explicit JSON `null` on workflow status strings — **hit 2026-10-29 seed hunt:** `CoalesceStringDefault`; regressions above.
+- [x] (invalid) `GoldenManifestCreateTimePinCommitment` positional pin lists — **cheap-disproof 2026-10-29 seed hunt:** unchanged — not deserialized as whole DTO.
+
 2026-10-29 seed hunt (seed→hit): promoted `RecommendationRecord` supporting JSON columns explicit JSON `null` bypassing `= "[]"` initializers on `SupportingFindingIdsJson`, `SupportingDecisionIdsJson`, `SupportingArtifactIdsJson`, and `SourceEvidenceLinksJson`; `ContractCollectionDefaults.CoalesceJsonArrayLiteral` on all four setters; regression `Deserialize_null_supporting_json_columns_yields_empty_array_literals_not_null`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, `PolicyPackStatus`, and `GovernanceApprovalStatus` numeric-zero rows (architecture/agent task enums use defined-ordinal converters that throw; alert/policy/governance status are string constants not enums); scoped RecommendationRecord deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: advisory recommendation JSON with null supporting-id columns deserializes to `[]` literals so workflow persistence and evidence link composition do not null-reference before SQL ISJSON constraints.
 
 - [x] (proven) `RecommendationRecord` supporting JSON columns — explicit JSON `null` on persisted JSON-array strings — **hit 2026-10-29 seed hunt:** `CoalesceJsonArrayLiteral`; regression above.
@@ -5914,11 +5919,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 239
-- **bugs-found:** 353
+- **hunts:** 240
+- **bugs-found:** 354
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — RecommendationRecord supporting JSON null
+- **last-bug:** 2026-10-29 — workflow Status string JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
