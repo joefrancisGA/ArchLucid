@@ -6,7 +6,7 @@
     { "slotKey": "buyer-proof-evidence-ledger", "verdict": "Pass" },
     { "slotKey": "return-trigger-telemetry", "verdict": "Pass" },
     { "slotKey": "decision-owner-scoreboard", "verdict": "Pass" },
-    { "slotKey": "frontier-ai-baseline", "verdict": "Warn" },
+    { "slotKey": "frontier-ai-baseline", "verdict": "Pass" },
     { "slotKey": "citation-integrity", "verdict": "Pass" },
     { "slotKey": "tenant-isolation-negative-test", "verdict": "Pass" },
     { "slotKey": "itsm-pull-forward-gate", "verdict": "Pass" },

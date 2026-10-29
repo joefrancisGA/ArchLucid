@@ -242,6 +242,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     clearWizardSessionRef,
   } = useNewRunWizardTemplateRestore({
     stepIndex: wizardSteps.stepIndex,
+    wizardStepCount: wizardSteps.stepDefinitions.length,
     templateWizardSessionState,
     showFullWizardShell: wizardSteps.effectiveShowFullWizardShell,
     reset,

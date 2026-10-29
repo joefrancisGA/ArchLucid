@@ -199,7 +199,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = responderLabel.Trim();
 
-        return trimmed.Length > 0 ? $" — {trimmed}" : string.Empty;
+        return trimmed.Length > 0 ? $" — {trimmed}" : " — Responder was stored empty.";
     }
 
     internal static string FormatAssertedTrailQuestionIdSuffix(string? questionId)

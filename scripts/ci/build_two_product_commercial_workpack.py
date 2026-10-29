@@ -20,9 +20,55 @@ SHA = re.compile(r"^[a-fA-F0-9]{40}$")
 RISKY = (
     ("guaranteed_outcome", re.compile(r"\bguarantee(?:d|s)?\s+(?:ROI|savings|breach prevention|breach avoidance)\b", re.I)),
     ("unsupported_certification", re.compile(r"\b(?:SOC\s*2|ISO\s*27001)\s+certified\b", re.I)),
-    ("autonomous_remediation", re.compile(r"\b(?:automatically|autonomously)\s+(?:apply|remediate|fix)\b", re.I)),
+    ("autonomous_remediation", re.compile(r"\b(?:automatically|autonomously)\s+(?:apply|remediate|fix(?:s|es|ed|ing)?)\b", re.I)),
     ("proven_customer_roi", re.compile(r"\bproven\s+customer\s+(?:ROI|savings)\b", re.I)),
 )
+
+
+
+# Deliberately small, source-only classifier: this catches common negation
+# bypasses without attempting to decide whether a buyer claim is actually true.
+_CLAIM_BOUNDARY = re.compile(
+    r"[.;|!?]|\s+\b(?:but|however|yet|nevertheless|instead)\b\s+"
+    r"|,\s*(?=(?:we|our|archlucid|securenow|the product|this product)\b)", re.I
+)
+_CLAIM_DENIAL = re.compile(
+    r"\b(?:do\s+not|don't|must\s+not|should\s+not|never|cannot|can't)\s+"
+    r"(?:say|claim|promise|assert|imply|guarantee|certify|apply|remediate|fix)\b"
+    r"|\bno\s+(?:blanket\s+warranty|claim\s+of|guarantee(?:d|s)?|promises?)\b"
+    r"|\bwithout\s+(?:claiming|guaranteeing)\b", re.I
+)
+
+
+def _negated_risky_claim(line: str, match: re.Match[str]) -> bool:
+    """Suppress only the local denied example, not other claims on that line.
+
+    A remote 'no' or 'not' in a different sentence, table column, contrastive
+    clause or independent comma-led assertion cannot silence a later promise.
+    This heuristic never approves the truth, publication or legality of copy.
+    """
+    left, right = 0, len(line)
+    for delim in _CLAIM_BOUNDARY.finditer(line):
+        if delim.end() <= match.start():
+            left = delim.end()
+        elif delim.start() >= match.end():
+            right = delim.start()
+            break
+    prefix, suffix = line[left:match.start()], line[match.end():right]
+    if _CLAIM_DENIAL.search(prefix):
+        return True
+    if re.search(r"\b(?:not|no|never|without|cannot|can't|don't)\s*$", prefix, re.I):
+        return True
+    # "A request for guaranteed breach prevention ... is not acceptable"
+    # describes a rejected condition rather than a product guarantee.
+    if (re.search(r"\b(?:request|requests|expectation)\s+for\s*$", prefix, re.I)
+            and re.search(r"\b(?:is|are)\s+not\s+(?:an?\s+)?acceptable\b", suffix, re.I)):
+        return True
+    # A buyer FAQ question is not a product certification assertion.
+    if (re.search(r"^\s*['\"“‘]?\s*(?:is|are|can|will|does|do|was|were)\b", prefix, re.I)
+            and re.match(r"^\s*\?", line[match.end():])):
+        return True
+    return False
 
 
 def read_text(root: Path, path: str) -> str:
@@ -296,20 +342,22 @@ def claims(root: Path) -> dict:
     missing = []
     for product, docs in sources.items():
         for path in docs:
+            # A symlink is not a stable, reviewed claim source.
+            if (root / path).is_symlink():
+                missing.append(path)
+                continue
             content = read_text(root, path)
             if not content:
                 missing.append(path)
                 continue
             for line_no, line in enumerate(content.splitlines(), 1):
-                # Negative statements and quoted "do not say" examples are
-                # explicitly prohibited claims, not endorsement of those claims.
-                negated = bool(re.search(r"\b(?:no|not|never|cannot|can't|do not|must not|without|don't)\b", line, re.I))
-                if negated:
-                    continue
                 for label, pattern in RISKY:
-                    if pattern.search(line):
-                        findings.append({"product": product, "source": path,
-                                         "line": line_no, "risk": label})
+                    for match in pattern.finditer(line):
+                        if not _negated_risky_claim(line, match):
+                            # Deliberately omit actual text, buyer identifiers and
+                            # free-form source fragments from exported artifacts.
+                            findings.append({"product": product, "source": path,
+                                             "line": line_no, "risk": label})
     return {
         "status": "REVIEW_NEEDED" if findings or missing else "STATIC_GUARD_CLEAR_NOT_MARKET_VALIDATED",
         "findings": findings, "missingSources": missing,

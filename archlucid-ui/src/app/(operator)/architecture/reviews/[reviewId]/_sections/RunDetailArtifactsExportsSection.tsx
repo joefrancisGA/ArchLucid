@@ -57,7 +57,7 @@ import {
   parseRunDeliverablesOpenFromSearch,
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
@@ -162,11 +162,11 @@ export function RunDetailArtifactsExportsSection(
   const syncDeliverablesOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailDeliverablesDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailDeliverablesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setDeliverablesOpen = useCallback(
@@ -295,7 +295,7 @@ export function RunDetailArtifactsExportsSection(
       });
   }, [collateralExportBlockedReason, manifestId]);
 
-  const exportUrlParams = new URLSearchParams(readWindowLocationSearch());
+  const exportUrlParams = new URLSearchParams(searchParams.toString());
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">

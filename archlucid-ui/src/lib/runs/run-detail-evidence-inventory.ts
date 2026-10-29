@@ -340,6 +340,7 @@ export type EvidenceScopeCoverageInput = {
   readonly findingsCoverageSummaryLine: string;
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
+  readonly findingsSnapshotStored?: boolean;
 };
 
 /** Coverage copy for the Evidence tab header — never implies satisfied coverage when inventory is empty. */
@@ -353,6 +354,14 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
     const findingNoun = linkedCount === 1 ? "finding with" : "findings with";
 
     return `${linkedCount} open ${findingNoun} evidence references recorded — submitted source names were not stored.`;
+  }
+
+  if (input.findingsSnapshotStored === false) {
+    return "Submitted evidence list was not stored.";
+  }
+
+  if (input.findingsSnapshotStored === true) {
+    return "Submitted source list was stored empty.";
   }
 
   return "No submitted source documents are listed for this review.";

@@ -16,7 +16,7 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
     IAuditService auditService,
-    CollectionTriggerAdmissionCounter admissionCounter,
+    ICollectionRunAdmissionCounter admissionCounter,
     TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
     IOptions<SecureNowCapacityOptions>? capacityOptions = null)
@@ -48,7 +48,7 @@ public sealed class CollectionRunTriggerService(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private readonly CollectionTriggerAdmissionCounter _admissionCounter =
+    private readonly ICollectionRunAdmissionCounter _admissionCounter =
         admissionCounter ?? throw new ArgumentNullException(nameof(admissionCounter));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
@@ -67,11 +67,11 @@ public sealed class CollectionRunTriggerService(
         limits.Validate();
         // A bounded number of callers may wait for either gate. Never reserve a
         // claim or invoke the external trigger until admitted.
-        int waiting = _admissionCounter.Increment();
+        int waiting = _admissionCounter.IncrementWaiting();
 
         if (waiting > limits.MaxWaitingCollectionTriggers)
         {
-            _admissionCounter.Decrement();
+            _admissionCounter.DecrementWaiting();
             throw new SecureNowCapacityExceededException();
         }
 
@@ -97,7 +97,7 @@ public sealed class CollectionRunTriggerService(
                 throw new SecureNowCapacityExceededException();
             }
             // Waiting admission capacity is released as soon as execution starts.
-            _admissionCounter.Decrement();
+            _admissionCounter.DecrementWaiting();
             waiting = 0;
             AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             TriggerAttempts.Add(1);
@@ -110,10 +110,11 @@ public sealed class CollectionRunTriggerService(
             if (hasTenantGate)
                 triggerGate.Release();
             if (waiting != 0)
-                _admissionCounter.Decrement();
+                _admissionCounter.DecrementWaiting();
         }
     }
 
+    [InformationalAudit]
     private async Task<CollectionRun> TriggerDurablyAsync(
         ScopeContext scope, string idempotencyKey,
         IReadOnlyList<string> subscriptionIds, CancellationToken cancellationToken)

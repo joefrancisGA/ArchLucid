@@ -32,7 +32,7 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["key-findings-plain-english"].isEmpty).toBe(true);
     expect(byId["residual-risks"].isEmpty).toBe(true);
     expect(byId["what-is-excluded"].isEmpty).toBe(true);
-    expect(byId["what-is-excluded"].body).toBe("Excluded notes were not stored for this rehearsal.");
+    expect(byId["what-is-excluded"].body).toBe("Exclusion notes were not stored for this rehearsal preview.");
   });
 
   it("reuses synopsis and plain-English finding builder content when present", () => {
@@ -56,7 +56,7 @@ describe("sponsor-rehearsal-preview (TB-2208)", () => {
     expect(byId["sponsor-report"].body).toContain("Claims intake review");
     expect(byId["sponsor-report"].body).toContain("2 accepted");
     expect(byId["key-findings-plain-english"].isEmpty).toBe(false);
-    expect(byId["key-findings-plain-english"].body).toContain("Recorded severity High: Public ingress");
+    expect(byId["key-findings-plain-english"].body).toContain("High finding: Public ingress");
     expect(byId["key-findings-plain-english"].body).toContain("elevated concern");
     expect(byId["residual-risks"].isEmpty).toBe(false);
     expect(byId["residual-risks"].body).toContain("weekly sampling");

@@ -184,6 +184,7 @@ public sealed partial class PilotRunDeltaComputer
             ManifestCommittedUtc = committedUtc,
             TimeToCommittedManifest = wall,
             FindingsBySeverity = findings,
+            AgentResultsIncludedInDetail = detail.AgentResultsIncludedInDetail,
             FindingsCountsFromSnapshot = findingsFromSnapshot,
             MutedFindingsExcludedCount = mutedFindingsExcluded,
             SponsorNarrativeFindings = sponsorNarrativeFindings,

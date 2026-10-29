@@ -9,7 +9,7 @@ class CollectionCapacityContractTests(unittest.TestCase):
         src = SOURCE.read_text(encoding="utf-8")
         self.assertIn("new(8, 8)", src)
         self.assertIn("ActiveTriggerSlots.WaitAsync(admissionToken)", src)
-        self.assertIn("CollectionTriggerAdmissionCounter _admissionCounter", src)
+        self.assertIn("_admissionCounter.IncrementWaiting()", src)
         self.assertIn("ActiveTriggerSlots.Release()", src)
         self.assertLess(src.index("triggerGate.WaitAsync(admissionToken)"), src.index("ActiveTriggerSlots.WaitAsync(admissionToken)"))
         self.assertIn("securenow.collection.admission_wait_ms", src)

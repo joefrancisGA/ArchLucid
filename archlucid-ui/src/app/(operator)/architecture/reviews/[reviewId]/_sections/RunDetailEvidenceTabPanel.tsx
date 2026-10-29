@@ -79,6 +79,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     findingsCoverageSummaryLine: props.evidenceCoverageSummaryLine,
     linkedFindingCount: props.linkedFindingCount,
     openFindingCount: props.openFindingCount,
+    findingsSnapshotStored,
   });
   const hasManifest = Boolean((props.manifestId ?? "").trim().length > 0);
   const evidencePresence = deriveEvidencePresenceFromInventoryKinds({

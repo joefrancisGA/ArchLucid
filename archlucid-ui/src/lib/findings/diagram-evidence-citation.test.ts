@@ -25,4 +25,13 @@ describe("diagram-evidence-citation", () => {
       }),
     ).toBe("Cited shape id app-gateway. A display name was not stored.");
   });
+
+  it("labels missing diagram citation evidence item id", () => {
+    expect(
+      diagramEvidenceCitationLabel({
+        evidenceItemId: "   ",
+        shapeOrEdgeId: "api",
+      }),
+    ).toBe("Diagram citation evidence item id was not stored.");
+  });
 });

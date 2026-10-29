@@ -37,7 +37,11 @@ export function SeverityTag({
       ? trimmedLabel
       : rawSeverityMissing
         ? "Severity was not stored."
-        : SEVERITY_LABELS[resolved]
+        : resolved === "unknown"
+          ? (severity?.trim().length ?? 0) > 0
+            ? `Severity ${severity?.trim()} has no reviewer label.`
+            : SEVERITY_LABELS.unknown
+          : SEVERITY_LABELS[resolved]
   ).trim();
 
   return (

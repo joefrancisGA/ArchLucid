@@ -15,6 +15,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_LINKED_SERVICE_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNNAMED_KIND,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import type {
   InfraEvidenceMermaidOutline,
@@ -97,6 +98,44 @@ function resolveInferredKinds(
   return { hasAppSettings, hasLinkedServiceGuess, hasAi };
 }
 
+function resolveInferredSourceLegendFallback(
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+): InfraEvidenceDiagramLegendInferredCopy {
+  const inferredEdges = (outline?.edges ?? []).filter((edge) => edge.source === "inferred");
+  let hasStoredUnnamedSource = false;
+  let allSourcesMissing = inferredEdges.length > 0;
+
+  for (const edge of inferredEdges) {
+    const source = normalizedInferenceSource(edge);
+
+    if (source.length === 0) {
+      continue;
+    }
+
+    allSourcesMissing = false;
+
+    if (
+      !isAppSettingsInferredEdge(edge)
+      && !isLinkedServiceTextGuessEdge(edge)
+      && !isAiInferredEdge(edge)
+    ) {
+      hasStoredUnnamedSource = true;
+    }
+  }
+
+  if (hasStoredUnnamedSource) {
+    return {
+      legendLine: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNNAMED_KIND,
+      footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
+    };
+  }
+
+  return {
+    legendLine: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
+    footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
+  };
+}
+
 export function resolveInfraEvidenceDiagramLegendInferredCopy(
   outline: InfraEvidenceMermaidOutline | null | undefined,
   mermaidSource?: string | null,
@@ -138,9 +177,6 @@ export function resolveInfraEvidenceDiagramLegendInferredCopy(
     };
   }
 
-  return {
-    legendLine: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
-    footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
-  };
+  return resolveInferredSourceLegendFallback(outline);
 }
 

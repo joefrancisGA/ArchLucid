@@ -87,9 +87,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity"),
                 Notes = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description"),
                 IssueType = DocxManifestFieldPresentation.FormatManifestTableCell(issue.IssueType, "Issue type"),
-                SupportingFindingIds = issue.SupportingFindingIds.Count == 0
-                    ? null
-                    : issue.SupportingFindingIds.ToList(),
+                SupportingFindingIds = issue.SupportingFindingIds.ToList(),
             });
 
         string content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);

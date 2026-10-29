@@ -16,6 +16,7 @@ on:
       - 'ArchLucid.Application/InfraEvidence/RemediationInstances/**'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstance*'
       - 'ArchLucid.Architecture.Tests/ProductCapability/SecureNowProductBoundaryTests.cs'
+      - 'ArchLucid.Core.Tests/InfraEvidence/SecurityEvidencePathGuardTests.cs'
 
 permissions:
   contents: read
@@ -46,20 +47,16 @@ jobs:
         continue-on-error: true
         run: |
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter 'FullyQualifiedName~RemediationInstanceVerificationEvaluatorPathTests|FullyQualifiedName~RemediationInstanceVerificationEvaluatorPropertyTests|FullyQualifiedName~ApproveAsync_rejects_cross_scope_instance_without_mutating_owner_record' --logger 'trx;LogFileName=securenow-beta-application.trx'
+      - name: Verify security evidence path guard candidates from Core
+        id: core
+        continue-on-error: true
+        run: |
+          dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj -c Release --filter 'FullyQualifiedName~SecurityEvidencePathGuardTests' --logger 'trx;LogFileName=securenow-beta-core.trx'
       - name: Verify security product architecture boundary
         id: architecture
         continue-on-error: true
         run: |
           dotnet test ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj -c Release --filter 'FullyQualifiedName~SecureNowProductBoundaryTests' --logger 'trx;LogFileName=securenow-beta-architecture.trx'
-      - name: Emit immutable-SHA scoped assessment, never infer staging success
-        if: always()
-        env:
-          MATRIX_RESULT: ${{ steps.matrix.outcome }}
-          APPLICATION_RESULT: ${{ steps.application.outcome }}
-          ARCHITECTURE_RESULT: ${{ steps.architecture.outcome }}
-          TESTED_SHA: ${{ github.sha }}
-          RUN_ID: ${{ github.run_id }}
-        run: python3 scripts/ci/securenow_beta_smoke_report.py --output artifacts/securenow-beta/offline-gate.json
       - name: Attribute all 22 beta requirements to observed TRX candidates (never PASS automatically)
         if: always()
         env:
@@ -70,7 +67,21 @@ jobs:
             --sha "$TESTED_SHA" --run-id "$RUN_ID" \
             --trx ArchLucid.Application.Tests/TestResults/securenow-beta-application.trx \
             --trx ArchLucid.Architecture.Tests/TestResults/securenow-beta-architecture.trx \
+            --trx ArchLucid.Core.Tests/TestResults/securenow-beta-core.trx \
             --output artifacts/securenow-beta/requirement-attribution.json
+      - name: Emit immutable-SHA scoped assessment, including observed Core TRX
+        if: always()
+        env:
+          MATRIX_RESULT: ${{ steps.matrix.outcome }}
+          APPLICATION_RESULT: ${{ steps.application.outcome }}
+          ARCHITECTURE_RESULT: ${{ steps.architecture.outcome }}
+          CORE_RESULT: ${{ steps.core.outcome }}
+          TESTED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: >-
+          python3 scripts/ci/securenow_beta_smoke_report.py
+          --attribution artifacts/securenow-beta/requirement-attribution.json
+          --output artifacts/securenow-beta/offline-gate.json
 
       - name: Upload offline evidence
         if: always()

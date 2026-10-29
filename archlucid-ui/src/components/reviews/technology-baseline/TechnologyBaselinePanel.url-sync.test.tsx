@@ -217,4 +217,97 @@ describe("TechnologyBaselinePanel URL sync", () => {
       expect(screen.queryByTestId("technology-baseline-rationale-dialog")).not.toBeInTheDocument();
     });
   });
+
+  it("does not open the rationale dialog from a prior run ledger while the next run is still loading", async () => {
+    const otherRunId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+    let resolveOtherRun: ((value: { runId: string; entries: unknown[] }) => void) | undefined;
+
+    mockGetTechnologyLedger.mockImplementation(async (requestedRunId: string) => {
+      if (requestedRunId === otherRunId) {
+        return await new Promise((resolve) => {
+          resolveOtherRun = resolve;
+        });
+      }
+
+      return {
+        runId: runId.replace(/-/g, ""),
+        entries: [
+          {
+            entryId: "entry-assumed",
+            runId: runId.replace(/-/g, ""),
+            role: "PrimaryDatastore",
+            technologyName: "Azure SQL Database",
+            providerFamily: "Azure",
+            status: "Assumed",
+            source: "AgentProposed",
+            evidenceRef: "agentTopologyProposal:demo:ds-1",
+            rationale: "Proposed by the architecture-structure assessment.",
+            isLocked: false,
+            createdUtc: "2026-01-01T00:00:00.000Z",
+            updatedUtc: "2026-01-01T00:00:00.000Z",
+          },
+        ],
+      };
+    });
+
+    searchParamsHarness.applyQuery(`reviewTab=overview&${TECHNOLOGY_BASELINE_ENTRY_PARAM}=entry-assumed`);
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={runId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    await screen.findByText("Azure SQL Database");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("technology-baseline-rationale-dialog")).toBeInTheDocument();
+    });
+
+    rerender(
+      <SearchParamsRerenderHost>
+        <TechnologyBaselinePanel
+          runId={otherRunId}
+          manifestFinalized={false}
+          buyerPolished={false}
+          usedStaticDemoRun={false}
+          warningCountDisplay={0}
+        />
+      </SearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByTestId("technology-baseline-rationale-dialog")).not.toBeInTheDocument();
+
+    resolveOtherRun?.({
+      runId: otherRunId.replace(/-/g, ""),
+      entries: [
+        {
+          entryId: "entry-other",
+          runId: otherRunId.replace(/-/g, ""),
+          role: "PrimaryDatastore",
+          technologyName: "Other datastore",
+          providerFamily: "Azure",
+          status: "Assumed",
+          source: "AgentProposed",
+          evidenceRef: "agentTopologyProposal:demo:ds-2",
+          rationale: "Different run.",
+          isLocked: false,
+          createdUtc: "2026-01-01T00:00:00.000Z",
+          updatedUtc: "2026-01-01T00:00:00.000Z",
+        },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Other datastore")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("technology-baseline-rationale-dialog")).not.toBeInTheDocument();
+  });
 });

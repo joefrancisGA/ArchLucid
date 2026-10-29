@@ -199,12 +199,14 @@ public static class ArchitectureRequiredMarkdownSections
             string controlName = string.IsNullOrWhiteSpace(control.ControlName)
                 ? "Control name was not stored."
                 : control.ControlName.Trim();
-            string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                 control.Impact,
-                ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
-            string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored,
+                ArchitectureManifestNarrativeHonestyCopy.ImpactStoredEmpty);
+            string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                 control.Status,
-                ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+                ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
             sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
             written++;
         }
@@ -412,8 +414,11 @@ public static class ArchitectureRequiredMarkdownSections
         string? endpointId,
         string missingIdCopy)
     {
-        if (string.IsNullOrWhiteSpace(endpointId))
+        if (endpointId is null)
             return missingIdCopy;
+
+        if (endpointId.Length == 0 || string.IsNullOrWhiteSpace(endpointId))
+            return "Relationship endpoint id was stored empty.";
 
         string id = endpointId.Trim();
 
