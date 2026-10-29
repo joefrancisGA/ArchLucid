@@ -88,3 +88,21 @@ The first-hour product motion is checked by `scripts/ci/check_first_hour_buyer_j
 ### GTM-08: case-balanced buyer-comparison evidence (offline methodology guard)
 
 The optional paired-score reporter requires **three distinct scenario/case IDs** before it emits descriptive dimension deltas. Multiple evaluators on the same scenario cannot be counted as three independent scenarios. It now uses the median reviewer delta *within each case* and then the median of those per-case deltas, giving each scenario equal weight rather than allowing a heavily reviewed case to dominate. Reports include the number of matched reviewer pairs and distinct cases but no IDs or raw scores. This is a methodology/anti-pseudoreplication guard, **not** proof of evaluator blinding, customer adoption, statistical significance, competitive superiority or ROI. The status remains descriptive and the winner field remains null.
+
+### Scoped buyer-claim drift enforcement (GTM-10)
+
+The optional ten-lane report's canonical buyer-copy scan is now **merge-blocking
+in the commercial offline workflow** for the four explicitly inventoried
+ArchLucid/SecureNow buyer documents. The scanner checks each risky assertion
+separately. A nearby "no" or "do not say" in another clause, a table cell, or
+a preceding sentence cannot suppress a later ROI, unsupported certification,
+autonomous-remediation, or customer-outcome promise. Legitimate explicitly
+negated examples and FAQ questions are not endorsements.
+
+The workpack emits only **product, repository path, line and risk code**, not
+the original buyer-copy text. Missing or symlinked canonical claim sources
+fail the check rather than silently returning CLEAR. Tests cover multiple
+claims on a single line and conflicting caveats, and the CI asserts that lane
+10 has no findings and no missing sources before it passes. A passing scan
+is **not** legal clearance, evidence of a customer outcome, or permission to
+publish: the explicit owner review and release gates remain unchanged.
