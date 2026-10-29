@@ -55,6 +55,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (ContainsBearerAuthorizationHeaderCredentials(trimmed))
             return true;
 
+        if (ContainsDigestAuthorizationHeaderCredentials(trimmed))
+            return true;
+
         if (!trimmed.Contains('=') && !trimmed.Contains(':') && !trimmed.Contains('%'))
             return false;
 
@@ -151,7 +154,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 2; layer++)
+            for (int layer = 0; layer < 3; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -168,7 +171,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 1 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 2 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -217,6 +220,35 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         token = token.Slice(0, end);
 
         return token.Length >= 8;
+    }
+
+    private static bool ContainsDigestAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        if (trimmed.IndexOf("Digest ".AsSpan(), StringComparison.OrdinalIgnoreCase) < 0)
+            return false;
+
+        int responseIndex = trimmed.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
+
+        if (responseIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> valuePart = trimmed.Slice(responseIndex + "response=".Length).Trim();
+
+        if (valuePart.IsEmpty)
+            return false;
+
+        if (valuePart[0] == '"')
+        {
+            int closingQuote = valuePart.Slice(1).IndexOf('"');
+
+            return closingQuote >= 4;
+        }
+
+        int commaIndex = valuePart.IndexOf(',');
+
+        ReadOnlySpan<char> token = commaIndex > 0 ? valuePart.Slice(0, commaIndex).Trim() : valuePart;
+
+        return token.Length >= 4;
     }
 
     /// <summary>

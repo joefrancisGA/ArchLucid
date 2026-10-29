@@ -9760,6 +9760,44 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_digest_header_contains_response_parameter()
+    {
+        const string effectiveValue = "Authorization: Digest username=\"u\", response=\"deadbeef\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_authorization_bearer_token_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Authorization: Bearer abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_triple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string effectiveValue = $"Authorization: Basic {tripleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_bom_prefixes_json_array_with_password_property()
+    {
+        const string effectiveValue = "\uFEFF[{\"password\":\"x\"}]";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_header_contains_base64_userinfo()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
