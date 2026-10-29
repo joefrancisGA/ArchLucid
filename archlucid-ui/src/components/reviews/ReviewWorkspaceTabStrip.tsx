@@ -22,6 +22,7 @@ export const REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID = "review-detail-workspace-tab
 
 export type ReviewWorkspaceTabCounts = {
   readonly findings?: number | null;
+  readonly findingsHonestyLabel?: string | null;
   readonly evidence?: number | null;
   readonly decisionsRemediation?: number | null;
   readonly decisionsRemediationHonestyLabel?: string | null;
@@ -85,6 +86,12 @@ function honestyLabelForTab(
   tabId: ReviewDetailTabId,
   counts: ReviewWorkspaceTabCounts,
 ): string | null {
+  if (tabId === "findings") {
+    const label = counts.findingsHonestyLabel?.trim() ?? "";
+
+    return label.length > 0 ? label : null;
+  }
+
   if (tabId === "decisions-remediation") {
     const label = counts.decisionsRemediationHonestyLabel?.trim() ?? "";
 

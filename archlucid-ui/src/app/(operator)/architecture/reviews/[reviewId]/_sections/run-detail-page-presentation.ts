@@ -62,7 +62,7 @@ export type RunDetailPresentation = {
   readonly signedReviewRecordIdLabel: string | null;
 
   readonly overallPosture: string;
-  readonly blockingApprovalCount: number;
+  readonly blockingApprovalCount: number | null;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
   readonly withheldListLoadState: string | null;
@@ -182,7 +182,7 @@ export async function buildRunDetailPresentation(
     showProgressTracker: model.showProgressTracker,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
-    blockingFindingCount: blockingApprovalCount,
+    blockingFindingCount: blockingApprovalCount ?? undefined,
     workingDesk: model.buyerPolishedArtifactTable !== true,
     effectiveWorkingCareerRehearsalDoor: model.progressForPipelineUi.workingCareerRehearsalDoor,
   });
@@ -202,19 +202,19 @@ export async function buildRunDetailPresentation(
     manifestId: model.manifestId,
     showProgressTracker: model.showProgressTracker,
     hasCommitBlockingFailures: coverageBlocking,
-    blockingFindingCount: blockingApprovalCount,
+    blockingFindingCount: blockingApprovalCount ?? undefined,
     buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
     operatorGovernanceDecision: model.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: model.manifestSummary?.status ?? null,
     runCompleted: model.runCompleted,
     evidenceCoverageComplete,
-    skipDuplicateFindingsActions: coverageBlocking || (hasManifest && blockingApprovalCount > 0),
+    skipDuplicateFindingsActions: coverageBlocking || (hasManifest && (blockingApprovalCount ?? 0) > 0),
   });
   const reviewStatusSummary = deriveReviewStatusSummary({
     reviewOutcome: overallPosture,
     findings: quickDecisionFindings,
     recommendedActions,
-    blockingFindingCount: blockingApprovalCount,
+    blockingFindingCount: blockingApprovalCount ?? undefined,
     hasFindingsSnapshot,
   });
 
@@ -294,7 +294,7 @@ export async function buildRunDetailPresentation(
       governanceDecisionLabel: governancePresentation.governanceDecisionLabel,
       governanceDecisionRationale: model.resolvedDetail.run.operatorGovernanceDecisionRationale,
       overallPosture,
-      blockingFindingCount: blockingApprovalCount,
+      blockingFindingCount: blockingApprovalCount ?? undefined,
       highestSeverity,
       themeSummaries: model.explanationSummary?.themeSummaries ?? null,
     }),

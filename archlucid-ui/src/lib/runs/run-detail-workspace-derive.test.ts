@@ -297,6 +297,12 @@ describe("run-detail-workspace-derive", () => {
     ).toBe("Approved");
   });
 
+  it("does not infer zero blocking findings when the count was omitted", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: null }),
+    ).toBe("Pending");
+  });
+
   it("does not append a second blocking qualifier", () => {
     expect(
       formatDecisionSnapshotGovernanceOutcome({

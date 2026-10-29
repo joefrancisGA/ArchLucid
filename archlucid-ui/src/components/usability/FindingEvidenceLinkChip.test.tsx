@@ -38,6 +38,7 @@ describe("FindingEvidenceLinkChip", () => {
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
       "Evidence reference count was not stored",
     );
+    expect(screen.getByTestId("finding-evidence-link-chip").tagName).toBe("SPAN");
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveAttribute(
       "aria-label",
       "Evidence reference count was not stored",

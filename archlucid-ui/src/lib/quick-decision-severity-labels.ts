@@ -18,6 +18,25 @@ export function firstRecommendationSentence(text: string): string {
   return t;
 }
 
+export const QUICK_DECISION_RECOMMENDATION_TRUNCATED_SUFFIX =
+  "Full recommendation was stored; only the first sentence is shown." as const;
+
+/** First sentence for display, with explicit honesty when the stored recommendation continues after that sentence. */
+export function formatRecommendationFirstSentenceWithTruncationHonesty(text: string): string {
+  const trimmed = text.trim();
+  const sentence = firstRecommendationSentence(trimmed);
+
+  if (sentence.length === 0) {
+    return "";
+  }
+
+  if (sentence.length < trimmed.length) {
+    return `${sentence} (${QUICK_DECISION_RECOMMENDATION_TRUNCATED_SUFFIX})`;
+  }
+
+  return sentence;
+}
+
 export function severityBadgeLabel(severityValue: number | null | undefined): string {
   if (severityValue == null || !Number.isFinite(severityValue)) {
     return "Severity label was not stored.";

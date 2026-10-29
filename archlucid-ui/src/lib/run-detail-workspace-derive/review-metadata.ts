@@ -178,13 +178,24 @@ export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
 }
 
 /** Buyer-facing approver on review metadata — never surfaces a raw user id as a display name. */
+export const RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY =
+  "Architecture request id was stored empty." as const;
+
 export function formatReviewGovernanceDecisionRecordedByDisplay(
   operatorGovernanceDecisionByUserId: string | null | undefined,
 ): string | null {
-  const trimmed = operatorGovernanceDecisionByUserId?.trim() ?? "";
+  if (operatorGovernanceDecisionByUserId === null || operatorGovernanceDecisionByUserId === undefined) {
+    return null;
+  }
+
+  if (operatorGovernanceDecisionByUserId.length === 0) {
+    return "Governance decision recorder was stored empty.";
+  }
+
+  const trimmed = operatorGovernanceDecisionByUserId.trim();
 
   if (trimmed.length === 0) {
-    return null;
+    return "Governance decision recorder was stored empty.";
   }
 
   if (isUuidLike(trimmed)) {

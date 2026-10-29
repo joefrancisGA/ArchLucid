@@ -232,7 +232,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             }
             data-testid="ask-retrieval-degraded-badge"
           />
-        ) : null}
+        ) : (
+          <StatusTag
+            kind="neutral"
+            label="Vector search was used for retrieval."
+            data-testid="ask-retrieval-full-badge"
+          />
+        )}
       </div>
       <div className="grid gap-3">
         {messages.length === 0 ? (

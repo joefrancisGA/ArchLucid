@@ -5,6 +5,8 @@ export const INFRA_EVIDENCE_MERMAID_FALLBACK_NODE_COUNT_NOT_STORED = "Node count
 export const INFRA_EVIDENCE_MERMAID_FALLBACK_EDGE_COUNT_NOT_STORED = "Edge count was not stored.";
 export const INFRA_EVIDENCE_MERMAID_RENDER_FAILURE_REASON_NOT_STORED = "Failure reason was not stored.";
 export const INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED = "Exclusion reason was not stored.";
+export const INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_STORED_EMPTY =
+  "Exclusion reason was stored empty." as const;
 
 export function formatInfraEvidenceMermaidFallbackArtifactStatus(status: string | null): string {
   if (status === null) {
@@ -64,5 +66,5 @@ export function formatInfraEvidenceMermaidAlwaysExcludedReason(
 
   const trimmed = exclusionReason.trim();
 
-  return trimmed.length > 0 ? trimmed : INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED;
+  return trimmed.length > 0 ? trimmed : INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_STORED_EMPTY;
 }

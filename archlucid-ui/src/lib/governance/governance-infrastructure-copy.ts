@@ -257,7 +257,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
   "Has a line on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "Off-diagram use was not stored." as const;
+  "Off-diagram use detail was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
   "No stored association" as const;
@@ -281,13 +281,21 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STA
   "Same resource group as starting resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR =
-  "Shares a diagram edge with the starting resource." as const;
+  "Shares a diagram edge with the starting resource (layout adjacency, not network isolation)." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL =
   "Search rows whose connection state was not classified" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY =
   "Showing {shown} of {total} resources whose connection state was not classified." as const;
+
+export function formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(count: number): string {
+  if (count === 1) {
+    return "1 resource has connection state that was not classified on this diagram outline.";
+  }
+
+  return `${count} resources have connection state that was not classified on this diagram outline.`;
+}
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED =
   "{shown} of {total}" as const;
@@ -649,6 +657,9 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL = "Resource
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resource Group" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_COUNTS_NOT_STORED_LABEL =
+  "Work counts were not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL = "All resources" as const;
 

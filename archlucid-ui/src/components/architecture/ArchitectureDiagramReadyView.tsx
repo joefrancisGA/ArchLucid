@@ -113,6 +113,15 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
               {formatArchitectureDiagramUnlabeledComponentsNotice(panel.diagramModel.skippedUnlabeledEntityCount)}
             </p>
           ) : null}
+          {panel.diagramModel?.entitySectionHonestyLines?.map((line) => (
+            <p
+              key={line}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-section-honesty"
+            >
+              {line}
+            </p>
+          )) ?? null}
           {panel.diagramModel?.diagramHonestyNotes?.map((note) => (
             <p
               key={note}
