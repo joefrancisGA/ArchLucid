@@ -277,7 +277,9 @@ public partial class Program
         ILogger logger, string environment, string phase, long start, long end)
     {
         logger.LogInformation(
-            "ArchLucidColdStartPhase Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
+            "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
+            DateTimeOffset.UtcNow,
+            Environment.GetEnvironmentVariable("ARCHLUCID_BUILD_COMMIT_SHA") ?? "unknown",
             phase, Math.Round(Stopwatch.GetElapsedTime(start, end).TotalMilliseconds, 3),
             environment);
     }
