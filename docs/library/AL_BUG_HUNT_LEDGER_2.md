@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #178): promoted quoted `object 'dbo.Tenants'` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; infrastructure prose such as `object 'dbo.Tenants' backup table` matched via blind Contains and bare `dbo.Tenants'` delimiter; `ContainsObjectDboTenantsReference` now requires SQL-shaped suffixes after the quoted object token and bare `dbo.Tenants` no longer treats a trailing quote as sufficient context; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_quoted_dbo_tenants_followed_by_prose`; scoped filter 346/346 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer fires on duplicate-key messages that quote dbo.Tenants in non-SQL prose.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — quoted object dbo.Tenants prose — **hit 2026-10-29 seed hunt #178:** `ContainsObjectDboTenantsReference`; regression above.
+
 2026-10-29 seed hunt (seed→hit #177): promoted `dbo.Tenants` double-space prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; duplicate-key text such as `dbo.Tenants  backup` still satisfied org context because whitespace after the table token did not require a following letter; `ContainsDboTenantsTableReference` now skips trailing whitespace before classifying space-delimited prose; regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_dbo_tenants_double_space_before_prose`, `IsDuplicateOrganization_detects_ix_tenants_slug_when_constraint_name_ends_with_semicolon`, and `IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_normalized_organization_name_history_index`; scoped filter 345/345 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key infrastructure prose with padded spacing after dbo.Tenants.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `dbo.Tenants` double-space prose — **hit 2026-10-29 seed hunt #177:** whitespace scan after dbo.Tenants token; regressions above.
@@ -16064,11 +16068,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 177
-- **bugs-found:** 156
+- **hunts:** 178
+- **bugs-found:** 157
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — dbo.Tenants double-space prose false positive
+- **last-bug:** 2026-10-29 — quoted object dbo.Tenants prose false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
