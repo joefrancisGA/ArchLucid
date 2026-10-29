@@ -34,6 +34,7 @@
 ## Commercial engineering (internal; not release authorization)
 
 - [Controlled pilot proposal](CONTROLLED_PILOT_OFFER.md) requires approval, real staging security and buyer authorization.
+- [Procurement evidence index](PROCUREMENT_PACK_INDEX.md) lists SecureNow and platform-shared artifacts with buyer-safe status labels. It is not an approved customer offer.
 - [Marketplace prepublication contract](MARKETPLACE_PREPUBLICATION_CONTRACT.md) explicitly forbids reusing ArchLucid subscriptions as SecureNow entitlements and keeps live commerce disabled.
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
 - [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
