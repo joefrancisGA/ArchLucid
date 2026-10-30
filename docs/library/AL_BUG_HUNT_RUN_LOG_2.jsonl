@@ -2161,3 +2161,4 @@
 {"at":"2026-10-30T15:26:00.0697960Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:28:17.2609327Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:39:38.0374684Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T15:46:39.5067233Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
