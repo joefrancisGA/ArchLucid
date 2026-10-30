@@ -2820,8 +2820,6 @@
 {"at":"2026-10-30T16:10:39.0206832Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:11:38.9390042Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:14:30.8669223Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-30T16:15:13.5998095Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}
-=======
 {"at":"2026-10-30T16:16:53.8868485Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
->>>>>>> c9bc5fb6d1 (Record knowledge-graph-provenance thorough hunt #902 (dry).)
+{"at":"2026-10-30T16:20:11.4778584Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
