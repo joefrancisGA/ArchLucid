@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWizardPresetIdFromDeeplink } from "@/lib/wizard-preset-deeplink";
 import {
   resolveWizardPresetLabel,
+  isWizardFormFieldDirty,
   resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   WIZARD_STARTER_PRESET_FIELD_COPY,
@@ -31,14 +32,6 @@ function truncate(value: string, limit: number): { readonly preview: string; rea
   }
 
   return { preview: `${value.slice(0, limit - 3)}…`, clipped: true };
-}
-
-function isWizardDirtyFlag(value: unknown): boolean {
-  if (Array.isArray(value)) {
-    return value.some(Boolean);
-  }
-
-  return value === true;
 }
 
 function formatCloudProviderLabel(
@@ -204,8 +197,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     formValues,
   };
 
-  const constraintsDirty = isWizardDirtyFlag(formState.dirtyFields.constraints);
-  const capabilitiesDirty = isWizardDirtyFlag(formState.dirtyFields.requiredCapabilities);
+  const constraintsDirty = isWizardFormFieldDirty(formState.dirtyFields.constraints);
+  const capabilitiesDirty = isWizardFormFieldDirty(formState.dirtyFields.requiredCapabilities);
 
   const briefDisplay = recapStarterScalarLabel(description, "Brief was not stored yet.", {
     ...recapPresetContext,

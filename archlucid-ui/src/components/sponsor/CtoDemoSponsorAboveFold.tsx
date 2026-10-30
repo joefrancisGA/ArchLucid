@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CtoDemoSponsorTenantIsolationCallout } from "@/components/cto-demo/CtoDemoSponsorTenantIsolationCallout";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoHeroStat,
@@ -11,7 +10,10 @@ import {
 } from "@/lib/buyer/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
-import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  getFindingEvidenceInspectHref,
+  getFindingGovernanceDispositionHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import {
   formatSponsorTraceConfidenceDisplay,
   severitySortRank,
@@ -57,7 +59,6 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
 }
 
 const OVERALL_ASSESSMENT_NOT_STORED_LABEL = "Overall assessment was not stored.";
-const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/governance/approval-queue";
 
 /** Compact CTO demo landing hero — verdict, top risks, and sponsor action above the fold (#4). */
 export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): ReactElement {
@@ -142,7 +143,7 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
                       ·
                     </span>
                     <Link
-                      href={governanceStepHref}
+                      href={getFindingGovernanceDispositionHref(runId, risk.findingId)}
                       className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >
