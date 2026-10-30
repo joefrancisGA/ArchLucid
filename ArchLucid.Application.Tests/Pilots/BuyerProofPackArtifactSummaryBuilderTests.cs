@@ -91,6 +91,23 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
     }
 
     [Fact]
+    public void Build_when_severity_token_contains_pipe_escapes_table_cell()
+    {
+        const string deltasJson = """
+                                  {
+                                    "findingsBySeverity": [
+                                      { "severity": "Warn|ing", "count": 1 }
+                                    ]
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        string severityRow = markdown.Split('\n').Single(line => line.StartsWith("| Warn", StringComparison.Ordinal)).TrimEnd();
+        severityRow.Should().Be("| Warn\\|ing | 1 |");
+    }
+
+    [Fact]
     public void Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary()
     {
         const string deltasJson = """

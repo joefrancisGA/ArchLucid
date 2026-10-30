@@ -60,7 +60,10 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| Severity | Count |");
         sb.AppendLine("| --- | ---: |");
         foreach (KeyValuePair<string, int> row in deltas.FindingsBySeverity)
-            sb.AppendLine($"| {row.Key} | {row.Value} |");
+        {
+            string severity = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(row.Key);
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| {severity} | {row.Value} |");
+        }
         sb.AppendLine();
     }
 

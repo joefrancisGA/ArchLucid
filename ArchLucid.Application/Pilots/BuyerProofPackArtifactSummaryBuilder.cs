@@ -63,6 +63,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
                     count = "Count was not stored.";
                 }
 
+                severity = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(severity);
                 builder.AppendLine(CultureInfo.InvariantCulture, $"| {severity} | {count} |");
             }
         }

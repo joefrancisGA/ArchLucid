@@ -52,4 +52,23 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
         sb.ToString().Should().Contain($"Created: `{created:O}`");
     }
+
+    [Fact]
+    public void Findings_by_severity_table_when_severity_label_contains_pipe_escapes_table_cell()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsBySeverity = [new KeyValuePair<string, int>("Warn|ing", 2)],
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.StartsWith("| Warn", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| Warn\\|ing | 2 |");
+    }
 }
