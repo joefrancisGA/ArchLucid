@@ -16633,6 +16633,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ## Zone: application-pilots
 
 - (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
+- (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row when JSON severity token contains pipe — locus: compact summary table; input: tampered deltas JSON (defense-in-depth).
+- (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF delta table omits simulator zero-valid caveat — locus: one-pager table; input: simulator run with resolved zero LLM calls.
+- (candidate) `ValueReportReviewCycleSectionFormatter` — tenant baseline source note markdown in value-report DOCX/markdown cohort sections — locus: parallel to hunt 76 source note; input: operator note with heading injection.
+- (candidate) `PilotValueReportService.BuildAsync` — empty window still surfaces sponsor narrative sections — locus: empty report path; input: inverted window (documented intentional).
+
+2026-10-30 seed hunt (seed→hit): promoted ROI evidence completeness **Claim disposition** and appended **NarrativeBlock** echoing ROI gate copy without sanitizing embedded newlines (sibling to hunt 76 source note); `EscapeMarkdownTableCell` on both strings; regressions `AppendMarkdownSection_when_disposition_lead_line_contains_markdown_heading_does_not_emit_extra_heading` and `AppendMarkdownSection_when_narrative_block_contains_markdown_heading_does_not_emit_extra_heading`; cheap-disproof closed five hunt-76 `(candidate)` rows; seeded five follow-on rows; scoped **50** unit tests passed. Private beta: Sponsor first-value ROI evidence completeness sections no longer render injectable markdown from ROI gate disposition or narrative copy.
+
+- [x] (proven) `RoiEvidenceCompletenessMarkdownFormatter` — disposition lead line and narrative block markdown injection — **hit 2026-10-30 seed hunt (hunt 77):** sanitize claim disposition and narrative tail; regressions above. [class:fail-open-validation]
+
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — simulator caveat parity — **cheap-disproof 2026-10-30 seed hunt (hunt 77):** duplicate hunt 76; disclosure not table breakage.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — sample-run caution in compact summary — **cheap-disproof 2026-10-30 seed hunt (hunt 77):** duplicate hunt 76; limitations + JSON checklist cover sample posture.
+- [x] (invalid) `SponsorDecisionDeltaNoveltyResolver` — evidence-class pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 77):** duplicate hunt 76; fixed product labels.
+- [x] (invalid) `PilotValueReportMarkdownFormatter` — semantic support pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 77):** duplicate hunt 76; table cell escape present.
+- [x] (valid-no-repro) `RoiEvidenceCompletenessMarkdownFormatter` — disposition heading lens only — **cheap-disproof 2026-10-30 seed hunt (hunt 77):** fixed with narrative block in same hit.
+
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits `IsSampleRun` caution when only manifest flag set — locus: summary builder; input: sample run with caution on manifest but not echoed in summary table.
 - (candidate) `SponsorDecisionDeltaNoveltyResolver` — novelty markdown table echoes raw evidence-class token without pipe escape — locus: decision-delta novelty section; input: evidence class label containing `|`.
 - (candidate) `PilotValueReportMarkdownFormatter` — semantic support band table cell when unsupported label list includes pipe — locus: sponsor status semantic row; input: unsupported semantic label with `|`.
@@ -16646,8 +16662,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — sample-run caution in compact summary — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** `isSampleRun` appears in proof checklist JSON; limitations markdown carries caution banner (2026-10-05 hit).
 - [x] (invalid) `SponsorDecisionDeltaNoveltyResolver` — evidence-class pipe escape — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** labels are fixed product strings, not user tokens.
 - [x] (invalid) `PilotValueReportMarkdownFormatter` — semantic support pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** `FormatSponsorStatusTableCell` already escapes unsupported labels.
-
-- (candidate) `RoiEvidenceCompletenessMarkdownFormatter` — tenant baseline source note with embedded line breaks or pipes in strong-tier body — locus: `BuildStrongTierBody`; input: `TenantBaselineReviewCycleSource` operator note with `|` or CRLF.
 
 2026-10-30 seed hunt (seed-only): re-read ROI evidence completeness, buyer proof ZIP guard scope, board-pack digest cover copy, and pilot value report empty-window governance path after hunt 74 seed-only; cheap-disproof closed five hunt-74 `(candidate)` rows (ROI gate escape consolidation is refactor-only while hunts 70–73 prove table cells; ZIP tamper lens not reachable in single-threaded builder; PDF/deltas LLM caveat parity is disclosure not table breakage; empty-window pending governance intentional per prior dry; sub-week digest ISO label covered by clamp + cover copy); no failing repro met promotion bar; seeded five follow-on rows; scoped **56** unit tests passed. Private beta: n/a.
 
