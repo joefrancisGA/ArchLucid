@@ -146,9 +146,13 @@ internal static class ExecutiveVnetSummaryBuilder
 
     private static string? ResolveSubnetParentArmId(GraphNode node)
     {
-        if (node.Properties.TryGetValue("arm.parentId", out string? parentId)
-            && !string.IsNullOrWhiteSpace(parentId))
+        if (node.Properties.TryGetValue("arm.parentId", out string? parentId))
         {
+            if (string.IsNullOrWhiteSpace(parentId))
+            {
+                return null;
+            }
+
             return parentId.Trim();
         }
 

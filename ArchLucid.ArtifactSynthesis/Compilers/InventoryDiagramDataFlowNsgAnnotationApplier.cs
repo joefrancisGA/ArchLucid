@@ -43,11 +43,16 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
             }
 
             if (!diagramNodesById.TryGetValue(edge.FromNodeId, out DiagramNode? fromDiagramNode)
-                || !diagramNodesById.TryGetValue(edge.ToNodeId, out DiagramNode? toDiagramNode)
-                || string.IsNullOrWhiteSpace(fromDiagramNode.SeedNodeId)
+                || !diagramNodesById.TryGetValue(edge.ToNodeId, out DiagramNode? toDiagramNode))
+            {
+                ApplyUnlinkedEndpointNsgHonesty(edge, null, null);
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(fromDiagramNode.SeedNodeId)
                 || string.IsNullOrWhiteSpace(toDiagramNode.SeedNodeId))
             {
-                ApplyUnlinkedEndpointNsgHonesty(edge);
+                ApplyUnlinkedEndpointNsgHonesty(edge, fromDiagramNode, toDiagramNode);
                 continue;
             }
 
@@ -165,9 +170,12 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
         }
     }
 
-    private static void ApplyUnlinkedEndpointNsgHonesty(DiagramEdge edge)
+    private static void ApplyUnlinkedEndpointNsgHonesty(
+        DiagramEdge edge,
+        DiagramNode? fromDiagramNode,
+        DiagramNode? toDiagramNode)
     {
-        const string suffix = "NSG annotation skipped — connector endpoint is not on this diagram.";
+        string suffix = ResolveUnlinkedEndpointNsgHonestySuffix(fromDiagramNode, toDiagramNode);
         if (string.IsNullOrWhiteSpace(edge.Label))
         {
             edge.Label = suffix;
@@ -179,4 +187,39 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
             edge.Label = $"{edge.Label} · {suffix}";
         }
     }
+
+    private static string ResolveUnlinkedEndpointNsgHonestySuffix(
+        DiagramNode? fromDiagramNode,
+        DiagramNode? toDiagramNode)
+    {
+        List<string> reasons = [];
+
+        if (fromDiagramNode is not null && IsSeedNodeIdStoredEmpty(fromDiagramNode.SeedNodeId))
+        {
+            reasons.Add("From endpoint seed id was stored empty");
+        }
+        else if (fromDiagramNode is not null && string.IsNullOrWhiteSpace(fromDiagramNode.SeedNodeId))
+        {
+            reasons.Add("From endpoint seed id was not stored");
+        }
+
+        if (toDiagramNode is not null && IsSeedNodeIdStoredEmpty(toDiagramNode.SeedNodeId))
+        {
+            reasons.Add("To endpoint seed id was stored empty");
+        }
+        else if (toDiagramNode is not null && string.IsNullOrWhiteSpace(toDiagramNode.SeedNodeId))
+        {
+            reasons.Add("To endpoint seed id was not stored");
+        }
+
+        if (reasons.Count == 0)
+        {
+            return "NSG annotation skipped — connector endpoint is not on this diagram.";
+        }
+
+        return $"NSG annotation skipped — {string.Join("; ", reasons)}.";
+    }
+
+    private static bool IsSeedNodeIdStoredEmpty(string? seedNodeId) =>
+        seedNodeId is not null && seedNodeId.Length == 0;
 }

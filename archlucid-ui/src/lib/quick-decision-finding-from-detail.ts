@@ -215,7 +215,15 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const findingId = findingIdRaw;
 
-      const category = typeof fr.category === "string" ? fr.category.trim() : "";
+      const categoryRaw = fr.category;
+      let category: string | null = null;
+
+      if (categoryRaw === null || categoryRaw === undefined) {
+        category = null;
+      } else if (typeof categoryRaw === "string") {
+        const trimmed = categoryRaw.trim();
+        category = trimmed.length > 0 ? trimmed : "";
+      }
       const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
@@ -339,7 +347,12 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       out.push({
         findingId,
         title,
-        category: category.length > 0 ? category : null,
+        category:
+          category === null
+            ? null
+            : category.length > 0
+              ? category
+              : "",
         recommendation,
         severityValue,
         severityStored,

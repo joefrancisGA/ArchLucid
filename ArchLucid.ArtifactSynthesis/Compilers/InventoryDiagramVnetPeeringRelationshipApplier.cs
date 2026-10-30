@@ -76,9 +76,7 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
 
                 if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState))
                 {
-                    string outlineSentence = string.IsNullOrWhiteSpace(peering.PeeringState)
-                        ? InventoryDiagramRelationshipLabelTexts.FormatPeeringStateNotStored(remoteName)
-                        : InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
+                    string outlineSentence = FormatDisconnectedPeeringOutline(remoteName, peering.PeeringState);
                     AddUnresolvedDetail(localDiagramNode, outlineSentence);
                     continue;
                 }
@@ -89,7 +87,7 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
                 {
                     AddUnresolvedDetail(
                         localDiagramNode,
-                        InventoryDiagramRelationshipLabelTexts.FormatPeeringConnectedOffCanvas(remoteName));
+                        FormatConnectedPeeringOffCanvasOutline(remoteName));
                     continue;
                 }
 
@@ -166,6 +164,36 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
         }
     }
 
+    private static string FormatDisconnectedPeeringOutline(string remoteName, string? peeringState)
+    {
+        if (string.Equals(
+                remoteName,
+                InventoryDiagramArmSegmentResourceNames.RemoteNetworkNameNotStored,
+                StringComparison.Ordinal))
+        {
+            return string.IsNullOrWhiteSpace(peeringState)
+                ? "Peering state was not stored. Remote network name was not stored."
+                : "Peering is not connected. Remote network name was not stored.";
+        }
+
+        return string.IsNullOrWhiteSpace(peeringState)
+            ? InventoryDiagramRelationshipLabelTexts.FormatPeeringStateNotStored(remoteName)
+            : InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
+    }
+
+    private static string FormatConnectedPeeringOffCanvasOutline(string remoteName)
+    {
+        if (string.Equals(
+                remoteName,
+                InventoryDiagramArmSegmentResourceNames.RemoteNetworkNameNotStored,
+                StringComparison.Ordinal))
+        {
+            return "Peering is connected. The remote network is not on this diagram. Remote network name was not stored. Observed traffic was not stored.";
+        }
+
+        return InventoryDiagramRelationshipLabelTexts.FormatPeeringConnectedOffCanvas(remoteName);
+    }
+
     private static string BuildUndirectedPairKey(string leftId, string rightId)
     {
         if (string.CompareOrdinal(leftId, rightId) <= 0)
@@ -174,25 +202,5 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
         }
 
         return rightId + "|" + leftId;
-    }
-
-    private static string ReadResourceName(string armId)
-    {
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return "Remote network name was not stored.";
-        }
-
-        string remoteName = armId[(lastSlash + 1)..].Trim();
-
-        if (remoteName.Length == 0
-            || string.Equals(remoteName, "virtualNetworks", StringComparison.OrdinalIgnoreCase))
-        {
-            return "Remote network name was not stored.";
-        }
-
-        return remoteName;
     }
 }

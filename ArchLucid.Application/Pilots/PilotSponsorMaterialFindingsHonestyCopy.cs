@@ -14,6 +14,9 @@ internal static class PilotSponsorMaterialFindingsHonestyCopy
     internal const string MaterialFindingsSetStoredEmpty =
         "The sponsor material finding set was stored empty for this package.";
 
+    internal const string MaterialFindingsRemainderSuffix =
+        "Additional material findings were not listed here.";
+
     internal static string FormatRelatedGraphNodeCount(int count) =>
         count > 0
             ? count.ToString(System.Globalization.CultureInfo.InvariantCulture)

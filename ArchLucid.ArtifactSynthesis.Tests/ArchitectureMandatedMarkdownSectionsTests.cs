@@ -46,6 +46,21 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
     }
 
     [Fact]
+    public void Append_assumptions_list_emits_not_stored_line_for_null_entries()
+    {
+        StringBuilder markdown = new();
+        ManifestDocument manifest = new()
+        {
+            Assumptions = ["Valid assumption", null!],
+        };
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        markdown.ToString().Should().Contain("- Assumption was not stored.");
+        markdown.ToString().Should().Contain("- Valid assumption");
+    }
+
+    [Fact]
     public void Append_does_not_emit_retired_not_stored_placeholders()
     {
         StringBuilder markdown = new();

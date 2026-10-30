@@ -4,6 +4,8 @@ export const FINDING_COUNTERFACTUAL_STORED_EMPTY = "Counterfactual was stored em
 
 export const FINDING_COUNTERFACTUAL_NOT_STORED = "Counterfactual was not stored." as const;
 
+export const FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE = "Counterfactual was not readable from stored finding JSON." as const;
+
 export function parseCounterfactualFromTraceNotes(
   notes: readonly string[] | null | undefined,
 ): string | null {
@@ -91,7 +93,7 @@ export function extractCounterfactualFromQuickDecisionFinding(input: {
 
     return extractCounterfactualFromFindingWire(parsed);
   } catch {
-    return null;
+    return FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE;
   }
 }
 
