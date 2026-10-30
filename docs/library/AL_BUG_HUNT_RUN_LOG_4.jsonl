@@ -2851,4 +2851,5 @@
 {"at":"2026-10-30T17:02:18.3220778Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T17:03:39.5508450Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T17:04:58.9284996Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T17:05:40.8000922Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T17:06:13.9904188Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
