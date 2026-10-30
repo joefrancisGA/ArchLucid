@@ -158,7 +158,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             foreach (string relatedId in findingGroup
-                         .SelectMany(f => f.RelatedNodeIds)
+                         .SelectMany(f => f.RelatedNodeIds ?? [])
+                         .Where(static id => id is not null)
                          .Select(NormalizeId)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
 

@@ -2520,4 +2520,88 @@ public sealed class ProvenanceBuilderTests
             .Should()
             .ContainSingle();
     }
+
+    [Fact]
+    public void Build_skips_null_related_node_id_entries_when_linking_findings_to_graph_nodes()
+    {
+        const string graphNodeId = "graph-node-a";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "finding-null-related",
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Finding",
+                        Rationale = "r",
+                        RelatedNodeIds = [null!, graphNodeId],
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot
+            {
+                Nodes =
+                [
+                    new GraphNode { NodeId = graphNodeId, NodeType = "Service", Label = "Node" },
+                ],
+            },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode)
+            .Should()
+            .ContainSingle();
+    }
+
+    [Fact]
+    public void Build_coalesces_decision_provenance_nodes_when_duplicate_rows_use_whitespace_only_decision_ids()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions =
+                [
+                    new ResolvedArchitectureDecision
+                    {
+                        DecisionId = "   ",
+                        Category = "c",
+                        Title = "Blank id",
+                        SelectedOption = "opt",
+                        Rationale = "r",
+                    },
+                    new ResolvedArchitectureDecision
+                    {
+                        DecisionId = "  ",
+                        Category = "c",
+                        Title = "Second blank id",
+                        SelectedOption = "opt",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Where(n => n.Type == ProvenanceNodeType.Decision).Should().ContainSingle();
+    }
 }

@@ -10538,6 +10538,140 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         merged.Nodes.Should().Contain(n => n.NodeId == "inv");
     }
 
+    [Fact]
+    public void Merge_skips_null_graph_edge_entries_in_base_and_overlay_lists()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+                new GraphNode { NodeId = "b", NodeType = "Service", Label = "B" },
+            ],
+            Edges =
+            [
+                null!,
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges = [null!],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == "a" && e.ToNodeId == "b");
+    }
+
+    [Fact]
+    public void BuildOverlay_skips_relationship_edges_when_either_endpoint_resource_was_skipped_for_empty_arm_id()
+    {
+        const string validArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    CloudResourceId = CloudResourceId,
+                    AzureResourceId = validArmId,
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = "   ",
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = "   ",
+                    ToAzureResourceId = validArmId,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().ContainSingle();
+        overlay.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Merge_appends_both_overlay_edges_when_directed_keys_differ_only_by_edge_type()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+                new GraphNode { NodeId = "b", NodeType = "Service", Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-connects",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "e-contains",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ContainsResource,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Select(e => e.EdgeType).Should().BeEquivalentTo(
+            [GraphEdgeTypes.ConnectsTo, GraphEdgeTypes.ContainsResource]);
+    }
+
     private static AzureInventorySnapshotDetailReadModel CreateSnapshotFixture()
     {
         return new AzureInventorySnapshotDetailReadModel
