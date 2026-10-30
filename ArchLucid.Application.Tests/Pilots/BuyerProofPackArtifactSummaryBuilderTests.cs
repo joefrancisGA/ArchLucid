@@ -44,6 +44,57 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
     }
 
     [Fact]
+    public void Build_when_proof_checklist_property_name_contains_pipe_escapes_table_cell()
+    {
+        const string deltasJson = """
+                                  {
+                                    "proofPackageCompleteness": {
+                                      "buyer|SafeField": "ok"
+                                    }
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        string fieldRow = markdown.Split('\n').Single(line => line.Contains("SafeField", StringComparison.Ordinal)).TrimEnd();
+        fieldRow.Should().Be("| `buyer\\|SafeField` | `ok` |");
+    }
+
+    [Fact]
+    public void Build_when_proof_checklist_property_name_contains_backtick_preserves_inline_code()
+    {
+        const string deltasJson = """
+                                  {
+                                    "proofPackageCompleteness": {
+                                      "buyer`SafeField": "ok"
+                                    }
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        string fieldRow = markdown.Split('\n').Single(line => line.Contains("SafeField", StringComparison.Ordinal)).TrimEnd();
+        fieldRow.Should().Be("| ``buyer`SafeField`` | `ok` |");
+    }
+
+    [Fact]
+    public void Build_when_severity_token_contains_backtick_preserves_inline_code()
+    {
+        const string deltasJson = """
+                                  {
+                                    "findingsBySeverity": [
+                                      { "severity": "Warn`ing", "count": 1 }
+                                    ]
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        string severityRow = markdown.Split('\n').Single(line => line.Contains("| ``Warn", StringComparison.Ordinal)).TrimEnd();
+        severityRow.Should().Be("| ``Warn`ing`` | 1 |");
+    }
+
+    [Fact]
     public void Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection()
     {
         const string deltasJson = """
@@ -120,8 +171,8 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
 
         string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
 
-        string severityRow = markdown.Split('\n').Single(line => line.StartsWith("| Warn", StringComparison.Ordinal)).TrimEnd();
-        severityRow.Should().Be("| Warn\\|ing | 1 |");
+        string severityRow = markdown.Split('\n').Single(line => line.Contains("| `Warn", StringComparison.Ordinal)).TrimEnd();
+        severityRow.Should().Be("| `Warn\\|ing` | 1 |");
     }
 
     [Fact]
