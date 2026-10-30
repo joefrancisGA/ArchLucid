@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-30 seed hunt #717 (hit): proved Basic authorization pastes with **line-separator-separated** suffix parameters leaked because delimiter truncation covered line feed but not `\u2028`; fixed via line-separator suffix truncation in `TryBasicAuthorizationPayloadFromToken` (paragraph separator `\u2029` pinned in the same pass); proved `WWW-Authenticate: Basic` challenges with trailing base64 after semicolon-separated `realm` leaked because header token parsing split comma segments only; fixed by splitting Basic header tokens on `;` as well as `,` in `TryBasicAuthorizationHeaderToken`; cheap-disproof closed eight-character `Set-Cookie2:` session values before `SameSite=None` (`Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_samesite_none`), bare `Proxy-Authorization: Basic` base64 pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_header_contains_base64_userinfo`), and JSON string properties with percent-encoded carriage return on Basic pastes (`Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_carriage_return_on_basic_paste`); regressions `Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_line_separator_suffix` and `Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_semicolon_separated_realm`; reseeded five `(candidate)` rows; scoped Configuration filter **3000/3000** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Basic pastes that use Unicode line-separator-delimited suffix junk after base64 and semicolon-delimited Basic challenge parameters that carry trailing base64 userinfo.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload truncated by line-separator suffix — **hit 2026-10-30 seed hunt #717:** regression above.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge with trailing base64 after semicolon-separated realm — **hit 2026-10-30 seed hunt #717:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie2:` SameSite=None compound with eight-character session — **cheap-disproof 2026-10-30 seed hunt #717:** length gate; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` bare base64 without realm prefix — **cheap-disproof 2026-10-30 seed hunt #717:** shared Basic scan; regression above.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded carriage return — **cheap-disproof 2026-10-30 seed hunt #717:** JSON + percent decode; regression above.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload truncated by paragraph-separator suffix — locus: whitespace delimiters; input: `Authorization: Basic dXNlcjpwYXNz\u2029other=value`; wrong outcome: leak; reachability: concatenated header pastes in logs.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge with trailing base64 after tab-separated realm — locus: challenge segment scan; input: `WWW-Authenticate: Basic realm=app\tdXNlcjpwYXNz`; wrong outcome: leak; reachability: malformed challenge dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie:` SameSite=Lax compound with eight-character session — locus: cookie scan; input: `Set-Cookie: a=1; session=12345678; SameSite=Lax`; wrong outcome: preserve long session; reachability: browser-style Set-Cookie dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` with empty realm equals base64 paste — locus: shared Basic scan; input: `Proxy-Authorization: Basic realm= dXNlcjpwYXNz`; wrong outcome: leak; reachability: proxy header pastes.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded form feed — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%0C"}`; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
+
 2026-10-30 seed hunt #716 (dry): cheap-disproof closed Basic authorization pastes with **word-joiner-separated** suffix parameters (`Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_word_joiner_suffix` — pair-delimiter `\u2060` already truncates mid-token; no new Basic suffix slot), trailing base64 after unquoted `realm` (`Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_unquoted_realm`, hunt #708), eight-character `Set-Cookie:` session values before `SameSite=None` (`Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_samesite_none`), `Proxy-Authorization: Basic` realm base64 in backticks (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_backticks_contain_base64_userinfo`, hunt #704), and JSON string properties with percent-encoded newline on Basic pastes (`Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_newline_on_basic_paste`); reseeded five `(candidate)` rows; scoped Configuration filter **2996/2996** (Release, `RunAnalyzers=false`). Private beta: no product change; matrix pins document fail-closed behavior for the probed paste shapes.
 
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload truncated by word-joiner suffix — **cheap-disproof 2026-10-30 seed hunt #716:** `\u2060` pair delimiter; regression above.
@@ -15419,11 +15433,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 674
-- **bugs-found:** 1045
-- **consecutive-dry-hunts:** 3
+- **hunts:** 675
+- **bugs-found:** 1047
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — byte-order-mark Basic suffix redaction in config summary
+- **last-bug:** 2026-10-30 — line-separator Basic suffix and semicolon-delimited Basic challenge redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none
