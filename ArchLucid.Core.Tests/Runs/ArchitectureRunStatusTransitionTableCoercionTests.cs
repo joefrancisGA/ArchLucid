@@ -63,6 +63,15 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_coerces_empty_string_legacy_status_to_created()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus(string.Empty, out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_negative_fractional_whole_number_ordinal()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-5.0", out ArchitectureRunStatus status);
@@ -237,6 +246,17 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
 
         result.IsAllowed.Should().BeFalse();
         result.TargetStatus.Should().Be(ArchitectureRunStatus.PartiallyCompleted);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_committed()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Committed,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Committed);
     }
 
     [Fact]

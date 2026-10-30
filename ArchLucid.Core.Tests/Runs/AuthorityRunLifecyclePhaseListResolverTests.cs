@@ -430,6 +430,38 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_retrying_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa15"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_waiting_for_results_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa16"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_unparseable_legacy_status_with_context_snapshot_returns_in_progress_for_in_memory_rows_only()
     {
         RunRecord header = new()
