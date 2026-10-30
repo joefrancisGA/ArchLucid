@@ -506,6 +506,14 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             if (afterKey >= rest.Length)
                 continue;
 
+            // Uri.EscapeDataString applied repeatedly to '=' or ':' yields a compact
+            // sequence such as %25253D. Inspect it once rather than decoding the
+            // entire config value thousands of times (quadratic work for deep inputs).
+            // As with literal separators, empty credential values fail closed.
+
+            if (rest[afterKey] == '%' && IsRepeatedlyEncodedSeparator(rest.Slice(afterKey)))
+                return true;
+
             if (rest[afterKey] is not ('=' or ':'))
                 continue;
 
@@ -519,6 +527,23 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    private static bool IsRepeatedlyEncodedSeparator(ReadOnlySpan<char> value)
+    {
+        // One encoding of '=' is %3D, and each additional encoding inserts 25
+        // after the leading percent: %253D, %25253D, etc. ':' ends in 3A.
+
+        if (value.Length < 3 || value[0] != '%')
+            return false;
+
+        int index = 1;
+
+        while (index + 1 < value.Length && value[index] == '2' && value[index + 1] == '5')
+            index += 2;
+
+        return index + 1 < value.Length && value[index] == '3'
+            && value[index + 1] is 'D' or 'd' or 'A' or 'a';
     }
 
     private static bool IsKeyContinuationCharacter(char character) =>

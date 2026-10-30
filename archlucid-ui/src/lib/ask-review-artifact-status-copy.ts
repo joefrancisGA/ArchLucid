@@ -119,21 +119,30 @@ export function resolveAskAssistantGroundingCitationMarker(
     return ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER;
   }
 
+  // Absence is distinct from an explicitly stored empty citation list.
+  if (
+    citationRefs.referencedFindings == null
+    && citationRefs.referencedDecisions == null
+    && citationRefs.referencedArtifacts == null
+  ) {
+    return ASK_CITATION_LISTS_NOT_STORED_MARKER;
+  }
+
   const messages: string[] = [];
 
-  if (citationRefs.referencedFindings === null) {
+  if (citationRefs.referencedFindings == null) {
     messages.push(ASK_CITATION_FINDINGS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedFindings.length === 0) {
     messages.push(ASK_CITATION_FINDINGS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedDecisions === null) {
+  if (citationRefs.referencedDecisions == null) {
     messages.push(ASK_CITATION_DECISIONS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedDecisions.length === 0) {
     messages.push(ASK_CITATION_DECISIONS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedArtifacts === null) {
+  if (citationRefs.referencedArtifacts == null) {
     messages.push(ASK_CITATION_ARTIFACTS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedArtifacts.length === 0) {
     messages.push(ASK_CITATION_ARTIFACTS_STORED_EMPTY_MARKER);

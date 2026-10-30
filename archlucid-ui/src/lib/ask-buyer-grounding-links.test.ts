@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildAskAnswerCitationSourceLinks,
   buyerAskGroundingLinksForRun,
+  collectCitedReviewIdsFromAskAnswerRefs,
 } from "@/lib/ask-buyer-grounding-links";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -35,6 +36,21 @@ describe("buyerAskGroundingLinksForRun", () => {
   it("returns null when the run id is empty", () => {
     expect(buyerAskGroundingLinksForRun("")).toBeNull();
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
+  });
+
+  it("does not invent citation links when optional citation arrays are absent", () => {
+    expect(buildAskAnswerCitationSourceLinks("run-a", {})).toEqual([]);
+    expect(buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: null,
+      referencedDecisions: ["decision-9"],
+    })).toEqual([{
+      label: "Decision citation decision-9. A link to that decision was not stored.",
+    }]);
+    expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", {})).toEqual(new Set());
+    expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", { referencedArtifacts: null })).toEqual(new Set());
+    expect(collectCitedReviewIdsFromAskAnswerRefs("run-a", {
+      referencedArtifacts: ["run-a", "other"],
+    })).toEqual(new Set(["run-a", "other"]));
   });
 
   it("buildAskAnswerCitationSourceLinks labels missing review id", () => {

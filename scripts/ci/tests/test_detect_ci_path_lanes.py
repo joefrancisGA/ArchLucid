@@ -92,6 +92,21 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_terraform"])
         self.assertTrue(lanes["run_infra_diagrams_layout"])
 
+    def test_rc38_push_concurrency_is_branch_scoped_and_merge_group_safe(self) -> None:
+        """Keep one RC38 push run active without changing PR, dispatch or merge-queue groups."""
+        workflow = (_REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        concurrency = workflow.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+
+        self.assertIn("push:\n    branches: [RC38]", workflow)
+        self.assertIn(
+            "github.event_name == 'push' && github.ref == 'refs/heads/RC38' "
+            "&& format('rc38-push-{0}', github.ref)",
+            concurrency,
+        )
+        self.assertIn("(github.event.pull_request.number || github.ref)", concurrency)
+        self.assertNotIn("github.sha", concurrency)
+        self.assertIn("cancel-in-progress: ${{ github.event_name != 'merge_group' }}", concurrency)
+
     def test_empty_diff_fail_open(self) -> None:
         lanes = DETECT.classify_paths([])
 

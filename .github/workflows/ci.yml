@@ -36,10 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC36-only full regression and coverage on every branch push; no production deployment.
+# RC38-only full regression and coverage on every branch push; no production deployment.
 on:
   push:
-    branches: [RC36]
+    branches: [RC38]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -52,11 +52,11 @@ on:
         default: false
         type: boolean
 
-# One active CI run per PR (or per ref for workflow_dispatch / merge_group). A newer push cancels the
-# stale run so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+# RC38 push CI uses one branch-scoped group: a new candidate supersedes older RC38 push runs.
+# A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC38' && format('rc38-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
@@ -2736,6 +2736,7 @@ jobs:
             ${{ runner.temp }}/coverage-fast-core/project-timing.log
             ${{ runner.temp }}/coverage-fast-core/**/*.trx
             ${{ runner.temp }}/coverage-fast-core/**/Sequence_*.xml
+            ${{ runner.temp }}/coverage-fast-core/**/*.vstest.diag*.log
           if-no-files-found: warn
 
   # Branch protection / downstream `needs` target: fails when build or any test shard fails.
@@ -3890,7 +3891,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC36' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC38' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
@@ -4247,11 +4248,17 @@ jobs:
           cache: false
 
   ui-unit:
-    name: "Operator UI: unit (Vitest)"
+    name: "Operator UI: unit (Vitest shard ${{ matrix.shard }})"
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 65
+    # All four shards are required; sharding reduces per-process heap pressure
+    # without excluding failing assertions from the non-deploying RC38 gate.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/4", "2/4", "3/4", "4/4"]
     steps:
       - uses: actions/checkout@v7
 
@@ -4271,13 +4278,15 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=12288
         run: |
           npm ci
-          npm run test:vitest-single-worker
+          npm run test:vitest-single-worker -- --shard="${{ matrix.shard }}"
 
       - name: Generate npm SBOM (CycloneDX)
+        if: matrix.shard == '1/4'
         working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
       - uses: actions/upload-artifact@v7
+        if: matrix.shard == '1/4'
         with:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
@@ -4403,6 +4412,25 @@ jobs:
           npm run typecheck:e2e
           npm run build
           npm run check:first-load-js
+
+      - name: Generate First Load JS evidence and run diagnostics regression tests
+        if: always()
+        working-directory: archlucid-ui
+        run: |
+          node --test scripts/ui-first-load-evidence.test.mjs
+          node scripts/ui-first-load-evidence.mjs
+
+      - name: Upload First Load JS route and shared-chunk diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-first-load-js-diagnostics
+          path: |
+            archlucid-ui/.next/diagnostics/route-bundle-stats.json
+            archlucid-ui/.next/diagnostics/first-load-evidence.json
+            archlucid-ui/performance/first-load-js-baseline.v1.json
+          if-no-files-found: warn
+
 
   ui-lighthouse-ci:
     name: "Operator UI: Lighthouse CI synthetic checks (lab)"
