@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CtoDemoSponsorTenantIsolationCallout } from "@/components/cto-demo/CtoDemoSponsorTenantIsolationCallout";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoHeroStat,
@@ -141,7 +141,7 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
                       ·
                     </span>
                     <Link
-                      href={governanceStepHref}
+                      href={GOVERNANCE_FINDINGS_PATH}
                       className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >

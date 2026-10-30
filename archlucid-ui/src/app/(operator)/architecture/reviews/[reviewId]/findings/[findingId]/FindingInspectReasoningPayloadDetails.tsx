@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SyntheticEvent } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";

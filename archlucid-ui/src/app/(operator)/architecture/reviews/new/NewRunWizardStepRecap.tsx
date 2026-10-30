@@ -196,16 +196,12 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     formValues,
   };
 
-  const constraintsDirty =
-    Array.isArray(formState.dirtyFields.constraints)
-    && formState.dirtyFields.constraints.some(Boolean)
-      ? true
-      : formState.dirtyFields.constraints === true;
-  const capabilitiesDirty =
-    Array.isArray(formState.dirtyFields.requiredCapabilities)
-    && formState.dirtyFields.requiredCapabilities.some(Boolean)
-      ? true
-      : formState.dirtyFields.requiredCapabilities === true;
+  const constraintsDirty = Array.isArray(formState.dirtyFields.constraints)
+    ? formState.dirtyFields.constraints.some(Boolean)
+    : Boolean(formState.dirtyFields.constraints);
+  const capabilitiesDirty = Array.isArray(formState.dirtyFields.requiredCapabilities)
+    ? formState.dirtyFields.requiredCapabilities.some(Boolean)
+    : Boolean(formState.dirtyFields.requiredCapabilities);
 
   const briefDisplay = recapStarterScalarLabel(description, "Brief was not stored yet.", {
     ...recapPresetContext,
