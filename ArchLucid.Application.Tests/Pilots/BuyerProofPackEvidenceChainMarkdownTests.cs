@@ -40,6 +40,31 @@ public sealed class BuyerProofPackEvidenceChainMarkdownTests
     }
 
     [Fact]
+    public void Evidence_chain_section_when_manifest_version_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(
+            sb,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingTitle = "Gap",
+                TopFindingSeverity = "Error",
+                TopFindingEvidenceChain = new FindingEvidenceChainResponse
+                {
+                    ManifestVersion = "v1`draft",
+                },
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Manifest version |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| Manifest version | ``v1`draft`` |");
+    }
+
+    [Fact]
     public void Decision_trace_section_when_event_description_contains_pipe_preserves_inline_code()
     {
         StringBuilder sb = new();

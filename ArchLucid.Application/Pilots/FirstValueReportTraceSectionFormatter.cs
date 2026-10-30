@@ -47,7 +47,8 @@ public static class FirstValueReportTraceSectionFormatter
             }
             else
             {
-                sb.AppendLine($"{index}. **Trace** — `{trace.Kind}`");
+                sb.AppendLine(
+                    $"{index}. **Trace** — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trace.Kind.ToString())}");
             }
 
             index++;
@@ -94,12 +95,12 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine("| Pointer | Value |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
-            $"| Manifest version | `{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(chain.ManifestVersion ?? "Manifest version was not stored.")}` |");
-        sb.AppendLine($"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
-        sb.AppendLine($"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
+            $"| Manifest version | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(chain.ManifestVersion ?? "Manifest version was not stored.")} |");
+        sb.AppendLine($"| Findings snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored."))} |");
+        sb.AppendLine($"| Context snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored."))} |");
+        sb.AppendLine($"| Graph snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored."))} |");
+        sb.AppendLine($"| Decision trace id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored."))} |");
+        sb.AppendLine($"| Golden manifest id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored."))} |");
         sb.AppendLine($"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
         sb.AppendLine($"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         sb.AppendLine();
@@ -114,6 +115,6 @@ public static class FirstValueReportTraceSectionFormatter
     {
         return string.IsNullOrWhiteSpace(value)
             ? missingLabel
-            : $"`{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(value.Trim())}`";
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim());
     }
 }
