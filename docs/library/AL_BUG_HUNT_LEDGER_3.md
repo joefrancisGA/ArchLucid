@@ -7855,13 +7855,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #33 (dry): cheap-disproof closed three open `(candidate)` rows — repeated sample generation keeps the newest response, observer cleanup disconnects queued delivery, and Unicode normalization is outside the route-derived slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #35 (dry): cheap-disproof closed three open `(candidate)` rows — sample retry error handling remains generation-guarded, observer refs are reset on remount, and malformed percent escapes intentionally fall back to the trimmed route segment. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #32 — **cheap-disproof 2026-10-30 thorough hunt #33:** repeated sample generation, observer cleanup, and route Unicode input produce no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #33 — **cheap-disproof 2026-10-30 thorough hunt #35:** sample retry errors, remounted observer refs, and malformed route encoding produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — a sample failure after a successful retry restores stale sample error text — locus: shared error state across generation changes; input: first sample fails after second sample succeeds (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — observer cleanup leaves a stale intersection ratio that affects a remounted nav instance — locus: ref map lifetime across effect cleanup; input: unmount and remount the nav while callbacks are queued (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — malformed percent-encoding fallback diverges from the server’s canonical scenario label — locus: client `decodeURIComponent` catch path; input: generated `runId` with malformed percent escape (monitor).
+- [ ] (candidate) `useQuickScanClient` — a sample request that fails after cancellation still sets a visible error on the next form state — locus: abort/error handling boundary; input: cancelled sample promise rejects after a new render (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — remounting with an identical catalog retains an obsolete active id from the prior instance — locus: state initialization versus browser scroll position; input: nav remount after route transition (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — percent-decoded control sequences are forwarded to analytics without canonical filtering — locus: route slug sanitization; input: encoded newline or tab in `runId` (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
