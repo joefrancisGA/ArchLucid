@@ -10732,6 +10732,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_ideographic_space_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz\u3000other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_max_age()
+    {
+        const string effectiveValue = "Set-Cookie2: a=1; session=12345678; Max-Age=3600";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_question_mark_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%3F"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_unquoted_realm()
     {
         const string effectiveValue = "WWW-Authenticate: Basic realm=app, dXNlcjpwYXNz";
