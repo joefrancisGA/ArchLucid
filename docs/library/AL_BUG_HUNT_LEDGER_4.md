@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-30 seed hunt #686 (dry): promoted five open `(candidate)` rows from hunt #685; cheap-disproof closed shared Digest scan on `Proxy-Authorization: Digest` tab pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_digest_has_tab_after_scheme`), Negotiate schemes with carriage return before the token (`Resolve_redacts_embedded_credential_material_when_negotiate_header_has_carriage_return_after_scheme`), form-feed cookie pairs with a nine-character second value (`Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_q_before_nine_char_r_separated_by_form_feed`), vertical-tab-separated Basic base64 chunks (`Resolve_redacts_embedded_credential_material_when_basic_payload_uses_vertical_tab_separated_base64_chunks`), and Bearer schemes with form feed before the token (`Resolve_redacts_embedded_credential_material_when_bearer_header_has_form_feed_after_scheme`); reseeded five `(candidate)` rows; scoped Configuration filter **2871/2871** (Release, `RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Digest` with tab after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** shared Digest scan; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Negotiate` with carriage return after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** whitespace after scheme; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by form feed with `\f` delimiter hardening — **cheap-disproof 2026-10-30 seed hunt #686:** fail-closed on combined value; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload with vertical tab between base64 chunks — **cheap-disproof 2026-10-30 seed hunt #686:** collapse treats vertical tab as whitespace; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with form feed after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** whitespace after scheme; regression above.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Negotiate` with newline after scheme — locus: Negotiate scan; input: `Proxy-Authorization: Negotiate\nYWRtaW46cGFzcw==`; wrong outcome: leak; reachability: proxy Negotiate dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Digest` with form feed after scheme — locus: Digest scan; input: `Authorization: Digest\u000Cresponse=deadbeef0123`; wrong outcome: leak; reachability: exotic Digest header dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by form feed with `\f` in delimiter set — locus: `IndexOfCookiePairDelimiter`; input: `Cookie: m=1\u000Cn=1234567890`; wrong outcome: miss second pair when delimiter added; reachability: cookie pair iteration.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: NTLM` with form feed after scheme — locus: NTLM scan; input: `Authorization: NTLM\u000CTlRMTVNTUAABAAA`; wrong outcome: leak; reachability: exotic NTLM header dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload with newline between base64 chunks after interior space — locus: collapse scan; input: `Authorization: Basic dXNlcjpw\nYXNz`; wrong outcome: leak; reachability: MIME-wrapped Basic pastes.
+
 2026-10-30 seed hunt #685 (dry): promoted five open `(candidate)` rows from hunt #684; cheap-disproof closed shared NTLM scan on `Proxy-Authorization: NTLM` newline pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_ntlm_has_newline_after_scheme`), Digest headers with a tab after the scheme (`Resolve_redacts_embedded_credential_material_when_digest_header_has_tab_after_scheme`), form-feed cookie pairs with a seven-character second value (`Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_a_before_seven_char_s_separated_by_form_feed`), Bearer schemes with carriage return before the token (`Resolve_redacts_embedded_credential_material_when_bearer_header_has_carriage_return_after_scheme`), and form-feed-separated Basic base64 chunks (`Resolve_redacts_embedded_credential_material_when_basic_payload_uses_form_feed_separated_base64_chunks`); reseeded five `(candidate)` rows; scoped Configuration filter **2866/2866** (Release, `RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: NTLM` with newline after scheme — **cheap-disproof 2026-10-30 seed hunt #685:** shared NTLM scan; regression above.
@@ -9822,11 +9836,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with carriage return after scheme — **cheap-disproof 2026-10-30 seed hunt #685:** whitespace trim after scheme; regression above.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload with form feed between base64 chunks — **cheap-disproof 2026-10-30 seed hunt #685:** collapse treats form feed as whitespace; regression above.
 
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Digest` with tab after scheme — locus: Digest scan; input: `Proxy-Authorization: Digest\tresponse=deadbeef0123`; wrong outcome: leak; reachability: proxy Digest dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Negotiate` with carriage return after scheme — locus: Negotiate scan; input: `Authorization: Negotiate\rYWRtaW46cGFzcw==`; wrong outcome: leak; reachability: CRLF Negotiate header copies.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by form feed with `\f` delimiter hardening — locus: delimiter set; input: `Cookie: q=1\u000Cr=123456789`; wrong outcome: miss second pair; reachability: exotic cookie dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload with vertical tab between base64 chunks — locus: collapse scan; input: `Authorization: Basic dXNlcjpw\u000BYXNz`; wrong outcome: leak; reachability: MIME-wrapped Basic pastes.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with form feed after scheme — locus: Bearer scan; input: `Authorization: Bearer\u000CeyJhbGciOiJIUzI1NiJ9`; wrong outcome: leak; reachability: exotic Bearer header dumps.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Digest` with tab after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Negotiate` with carriage return after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by form feed with `\f` delimiter hardening — **cheap-disproof 2026-10-30 seed hunt #686:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload with vertical tab between base64 chunks — **cheap-disproof 2026-10-30 seed hunt #686:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with form feed after scheme — **cheap-disproof 2026-10-30 seed hunt #686:** see zone header row.
 
 2026-10-30 seed hunt #684 (dry): promoted five open `(candidate)` rows from hunt #683; cheap-disproof closed shared Bearer scan on `Proxy-Authorization: Bearer` newline pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_bearer_has_newline_after_scheme`), NTLM tokens with internal line breaks (`Resolve_redacts_embedded_credential_material_when_ntlm_token_contains_internal_line_break`), Bearer schemes followed by tabs only (`Resolve_preserves_non_credential_effective_values_when_bearer_scheme_is_followed_by_tabs_only`), form-feed cookie pairs with a ten-character second value (`Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_z_before_ten_char_s_separated_by_form_feed`), and tab-separated Basic base64 chunks (`Resolve_redacts_embedded_credential_material_when_basic_payload_uses_tab_separated_base64_chunks`); reseeded five `(candidate)` rows; scoped Configuration filter **2861/2861** (Release, `RunAnalyzers=false`).
 
@@ -15141,9 +15155,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 643
+- **hunts:** 644
 - **bugs-found:** 1019
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Bearer and NTLM newline-after-scheme redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
