@@ -2928,3 +2928,4 @@
 {"at":"2026-10-30T22:14:37.6240705Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:17:41.4706926Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:18:59.1776611Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T22:23:12.4502627Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
