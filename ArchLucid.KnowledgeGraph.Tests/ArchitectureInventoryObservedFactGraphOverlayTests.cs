@@ -6071,6 +6071,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_reasoning_traces_when_base_reasoning_trace_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-reasoning-trace-case";
+        const string reasoningTrace = "inventory snapshot resource linkage";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = reasoningTrace,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = reasoningTrace.ToUpperInvariant(),
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.ReasoningTrace.Should().Be(reasoningTrace);
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_duplicate_nodes_disagree_on_category_for_base_graph_node_id_when_base_category_is_whitespace_only()
     {
         const string SharedNodeId = "inventory-node-base-whitespace-category-conflict";

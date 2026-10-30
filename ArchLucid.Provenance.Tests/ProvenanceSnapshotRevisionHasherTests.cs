@@ -1713,6 +1713,39 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
             .Should().NotBe(ProvenanceSnapshotRevisionHasher.Compute(pair, BundleId));
     }
 
+    [Fact]
+    public void Compute_changes_when_duplicate_artifact_rows_differ_only_by_content_hash_casing_with_same_semantic_content()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "HASH-V1",
+        };
+
+        ProvenanceBuildInput single = CreateInput([firstRow]);
+        ProvenanceBuildInput pair = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(pair, BundleId),
+                "duplicate artifact rows whose content hashes differ only by casing share one representative fingerprint");
+    }
+
     private static Finding CreateSampleFinding() =>
         new()
         {
