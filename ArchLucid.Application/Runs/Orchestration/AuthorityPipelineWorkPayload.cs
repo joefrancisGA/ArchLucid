@@ -154,7 +154,7 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableProseReferenceText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
     }
 
@@ -164,14 +164,13 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableProseReferenceText(value))
+            .Where(static value => value is not null && HasUsableMultilineBodyText(value))
             .ToList();
     }
 
     /// <summary>
-    ///     Inline requirements, constraints, assumptions, policy references, topology hints, security baselines,
-    ///     and capability lines are prose. Ordinary spaces stay. Whitespace other than U+0020 still fails because
-    ///     those consumers only trim the ends.
+    ///     Document and declaration names are single-line identifiers. Ordinary spaces stay; other
+    ///     whitespace (including newlines) fails.
     /// </summary>
     private static bool HasUsableProseReferenceText(string? value)
     {

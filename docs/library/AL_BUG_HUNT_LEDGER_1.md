@@ -4583,9 +4583,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — embedded NBSP in document content survived materialization
+- **last-bug:** 2026-10-30 — multiline policy and requirement lines were dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted policy references and inline requirements with embedded newlines being dropped because list materialization used single-line `HasUsableProseReferenceText`; string lists now use `HasUsableMultilineBodyText` while document names stay single-line; regressions `Deserialize_keeps_policy_reference_when_entry_contains_newlines` and `Deserialize_keeps_inline_requirements_when_entry_contains_newlines`; scoped payload JSON tests 48/48. Private beta: when an invited operator's deferred authority run includes a multiline policy reference or inline requirement, that entry stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.MaterializePathReferenceStringList` / `MaterializeReferenceStringList` — multiline entries were dropped — **hit 2026-10-30 seed hunt:** route string lists through `HasUsableMultilineBodyText`; regressions above.
 
 2026-10-30 seed hunt (seed→hit): promoted document and infrastructure declaration bodies keeping an embedded no-break space because only `HasUsableIdentifierText` ran on content; bodies now use `HasUsableMultilineBodyText` so NBSP is rejected while newlines stay; regressions `Deserialize_filters_document_when_content_contains_embedded_nbsp` and `Deserialize_keeps_document_when_content_contains_newlines`; scoped payload JSON tests 46/46. Private beta: when an invited operator's deferred authority run includes a source document or infrastructure declaration body with an embedded no-break space, that entry is dropped on resume like document names.
 
@@ -4625,11 +4629,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 53
-- **bugs-found:** 29
+- **hunts:** 54
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — embedded NBSP in document content survived materialization
+- **last-bug:** 2026-10-30 — multiline policy and requirement lines were dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

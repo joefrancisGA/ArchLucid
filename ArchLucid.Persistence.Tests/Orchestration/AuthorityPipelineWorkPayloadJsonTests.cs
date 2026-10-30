@@ -809,6 +809,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_inline_requirements_when_entry_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1d1d1d1d-1d1d-1d1d-1d1d-1d1d1d1d1d1d");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": ["REQ: line one\nline two"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("REQ: line one\nline two");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces()
     {
         Guid runId = Guid.Parse("17171717-1717-1717-1717-171717171717");
@@ -855,6 +878,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
 
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.PolicyReferences.Should().Equal("keep-policy");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_policy_reference_when_entry_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1e1e1e1e-1e1e-1e1e-1e1e-1e1e1e1e1e1e");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "policyReferences": ["Organizational standard\nsection 3.2"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.PolicyReferences.Should().Equal("Organizational standard\nsection 3.2");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
