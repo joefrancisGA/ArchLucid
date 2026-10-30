@@ -1171,13 +1171,27 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-30 thorough hunt #347 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #354 — record/struct exemption syntax registration (no Persistence `record` carries `[TenantScopeExempt]`; ARCH006 exemption lookup walks containing symbols), `QueryUnbufferedAsync` coverage (2026-10-02 dry hunt / scoped audit export SQL), missing registry additional file fail-open (CI supplies `tenant_scoped_tables.v1.json`), `CommandDefinition` named `commandText` (handled at ~239–241; regression `ARCH006_reports_unscoped_sql_for_command_definition_named_command_argument`), and `GeneratedCodeAnalysisFlags.None` (intentional; no codegen Persistence SQL today); reseeded five `(candidate)` rows; cloud VM analyzer harness span mismatches (2/32 pass) — verification via code review and cited regressions. Private beta: n/a.
+
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption validation on `ClassDeclaration` only, not `record`/`struct` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not monitored — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable registry disables ARCH006 — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL only `command`/`commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — skips generated sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — `RecordDeclarationSyntax` never analyzed for ARCH006b empty justification — locus: `SyntaxKind.ClassDeclaration` only ~71–73; input: blank `[TenantScopeExempt]` on persistence `record` type; reachability: future record repositories with type-level exemptions (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted from monitored invocations — locus: immutable set ~17–36; input: new streaming query against tenant table without scope predicates; reachability: audit export if SQL changes (monitor).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — format/interpolated dynamic SQL may stay ARCH006a-only — locus: unanalyzable path; input: format-built SQL referencing `dbo.Runs`; reachability: dynamic repository helpers (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — `ExecuteAsync(CommandDefinition)` overloads skip invocation SQL extraction — locus: member-access name filter; input: SQL only inside `CommandDefinition` variable; reachability: local command pattern (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — suffix mismatch on additional file path silently disables ARCH006 — locus: `EndsWith("tenant_scoped_tables.v1.json")`; input: misconfigured local analyzer additional file; reachability: contributor Persistence inner loop (monitor).
+
 2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; scoped `TenantScopedQueryScopeBindingAnalyzerTests` on cloud VM: 2/32 passed (`RunAnalyzers=false` — 30 failures are diagnostic line-position mismatches in the harness, not a ledger-promoted defect; no analyzer code changed this run).
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on persistence `record`; reachability: ARCH006b at declaration vs exemption lookup via containing symbols.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — locus: immutable set ~17–36; input: Dapper `QueryUnbufferedAsync` with static SQL; reachability: audit export streaming path (prior cheap-disproof noted scoped SQL in production caller).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — locus: `GetText()` null ~87–90; input: missing additional file in analyzer options; reachability: local Persistence build without registry additional file.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — locus: ~235–241; input: `new CommandDefinition(commandText: sql)` vs positional; reachability: Dapper `CommandDefinition` ctor overload naming.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — locus: ~47; input: source-generated SQL in Persistence; reachability: future codegen repositories bypassing analyzer.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
@@ -1185,10 +1199,10 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** no
