@@ -102,14 +102,16 @@ public sealed class QuickScanService(
                     ? messageElement.GetString()!.Trim()
                     : "Finding message was not stored.";
 
-                bool severityStored = findingElement.TryGetProperty("severity", out JsonElement severityElement)
+                bool severityOnWire = findingElement.TryGetProperty("severity", out JsonElement severityElement)
                     && !string.IsNullOrWhiteSpace(severityElement.GetString());
-                string severityStr = severityStored ? severityElement.GetString()! : string.Empty;
+                string severityStr = severityOnWire ? severityElement.GetString()! : string.Empty;
 
-                FindingSeverity severity = FindingSeverity.Info;
+                FindingSeverity severity = default;
+                FindingSeverity parsedSeverity = default;
+                bool severityParsed = severityOnWire
+                    && Enum.TryParse(severityStr, true, out parsedSeverity);
 
-                if (severityStored
-                    && Enum.TryParse(severityStr, true, out FindingSeverity parsedSeverity))
+                if (severityParsed)
                 {
                     severity = parsedSeverity;
                 }
@@ -126,11 +128,13 @@ public sealed class QuickScanService(
                     Category = category,
                     Message = message,
                     Severity = severity,
+                    SeverityStored = severityParsed,
+                    SourceAgentStored = sourceAgentStored,
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = sourceAgentStored ? sourceAgent : default,
                     ConfidenceScore = confidenceScore,
                     ConfidenceLevel = confidenceLevel,
-                    ReasoningTrace = severityStored
+                    ReasoningTrace = severityParsed
                         ? null
                         : "Severity was not stored.",
                 });

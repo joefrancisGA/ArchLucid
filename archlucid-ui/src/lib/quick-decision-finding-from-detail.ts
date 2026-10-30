@@ -43,6 +43,8 @@ export type QuickDecisionFinding = {
   iacStub?: string | null;
   /** Governance tier: blocking violations vs opt-in baseline guidance. */
   enforcementTier: FindingEnforcementTierKind;
+  /** False when the run-detail finding row omitted `enforcementTier` (default enum is not a stored fact). */
+  enforcementTierStored?: boolean;
   /** Normalized evidence ref excerpts for TB-385 inline display. */
   evidenceRefSnippets?: readonly string[];
   /** Persisted insight-density score when present on the wire. */
@@ -265,7 +267,14 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const iacStub =
         typeof iacStubRaw === "string" && iacStubRaw.trim().length > 0 ? iacStubRaw.trim() : null;
 
-      const enforcementTier: FindingEnforcementTierKind = normalizeFindingEnforcementTier(fr.enforcementTier);
+      const enforcementTierStored =
+        typeof fr.enforcementTierStored === "boolean"
+          ? fr.enforcementTierStored
+          : fr.enforcementTier !== null && fr.enforcementTier !== undefined
+            && (typeof fr.enforcementTier !== "string" || fr.enforcementTier.trim().length > 0);
+      const enforcementTier: FindingEnforcementTierKind = enforcementTierStored
+        ? normalizeFindingEnforcementTier(fr.enforcementTier)
+        : null;
 
       const insightDensityRaw = fr.insightDensityScore;
       const insightDensityScore =
@@ -339,6 +348,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         evidenceRefSnippets: collectEvidenceRefSnippets(evidenceRefsRaw),
         iacStub,
         enforcementTier,
+        enforcementTierStored,
         insightDensityScore,
         whyThisIsNotGeneric,
         policyRuleId,

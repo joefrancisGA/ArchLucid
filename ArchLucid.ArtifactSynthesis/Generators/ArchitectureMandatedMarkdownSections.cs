@@ -392,9 +392,10 @@ public static class ArchitectureMandatedMarkdownSections
                 if (issue is null)
                     continue;
 
-                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.Severity,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityStoredEmpty);
                 string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
                     issue.IssueType,
                     ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);

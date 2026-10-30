@@ -23,6 +23,20 @@ public sealed class ArchitectureFinding
         set;
     } = FindingSeverity.Info;
 
+    /// <summary>False when agent JSON omitted <c>severity</c> (default enum is not a stored fact).</summary>
+    public bool SeverityStored
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>False when agent JSON omitted <c>sourceAgent</c> (default enum is not a stored fact).</summary>
+    public bool SourceAgentStored
+    {
+        get;
+        set;
+    } = true;
+
     /// <summary>Optional self-rated confidence from the producing agent when mapped from <c>AgentResult</c>.</summary>
     public double? ConfidenceScore
     {
@@ -115,6 +129,13 @@ public sealed class ArchitectureFinding
         get;
         set;
     } = FindingEnforcementTier.PolicyViolation;
+
+    /// <summary>False when agent JSON omitted <c>enforcementTier</c> (default enum is not a stored fact).</summary>
+    public bool EnforcementTierStored
+    {
+        get;
+        set;
+    } = true;
 
     /// <summary>Deterministic or LLM-refined insight-density score in [0, 100] (TB-382).</summary>
     public int? InsightDensityScore
