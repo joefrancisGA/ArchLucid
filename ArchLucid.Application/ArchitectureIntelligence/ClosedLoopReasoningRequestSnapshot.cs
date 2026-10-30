@@ -20,7 +20,7 @@ internal static class ClosedLoopReasoningRequestSnapshot
             SourceTexts = request.SourceTexts
                 .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
                 .ToList(),
-            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(request.DeclaredPriorities),
+            DeclaredPriorities = ClosedLoopDeclaredPrioritiesNormalizer.NormalizeForDisplay(request.DeclaredPriorities),
             FramingAnswers = ClosedLoopFramingAnswersNormalizer.Normalize(request.FramingAnswers),
             UseGoldenFixture = request.UseGoldenFixture,
             ContinueFromExistingRun = request.ContinueFromExistingRun,
