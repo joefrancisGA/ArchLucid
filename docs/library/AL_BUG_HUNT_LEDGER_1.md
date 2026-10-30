@@ -16632,11 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `SponsorDecisionDeltaNoveltyResolver` — novelty lead still names LLM basis unresolved without parallel audit-unresolved branch — locus: persisted-run proof strings; input: `AuditRowCountResolved` false with resolved LLM count.
-- (candidate) `FirstValueReportBuilder` — sponsor status `Audit row basis` row omitted from cross-surface consistency test matrix — locus: `SponsorArtifactCrossSurfaceConsistencyTests`; input: unresolved audit on shared deltas fixture.
-- (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary string cells still mirror raw JSON for free-text completeness notes — locus: `SummarizeJsonElement` string branch; input: future buyer-edited note field with markdown table metacharacters.
+- (candidate) `FirstValueReportSemanticSupportBandSectionFormatter` — semantic support band ignores unresolved audit when LLM resolved — locus: sponsor status semantic cell; input: `AuditRowCountResolved` false on otherwise sendable run.
+- (candidate) `SponsorDecisionDeltaNoveltyMarkdownFormatter` — evidence class line omits audit-unresolved copy in golden markdown fixtures — locus: formatter tests; input: unresolved audit fixture not asserted.
+- (candidate) `BuyerProofPackArtifactSummaryBuilder` — governed-finding coverage string branch omits table-cell escaping — locus: coverage summary markdown; input: coverage label containing `|`.
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
-- (candidate) `PilotValueReportService.BuildAsync` — inverted window returns `EmptyReport` while sponsor first-page still built on empty deltas path — locus: `BuildAsync` early empty; input: `toExclusive <= from` with pending governance count.
+- (candidate) `PilotValueReportService.BuildAsync` — inverted window returns `EmptyReport` while governance pending-now still populated — locus: `BuildAsync` early empty; input: `toExclusive <= from` with pending approvals.
+
+2026-10-30 seed hunt (seed→hit): promoted novelty **Evidence class** still reading PilotStrict-attested when LLM trace resolved but audit row count query failed; `ResolveEvidenceClassLabel` now gates on `AuditRowCountResolved`, Strong novelty requires audit resolved, and confidence basis summary lists audit resolution; regression `Resolve_when_audit_row_basis_unresolved_does_not_claim_pilot_strict_attested_evidence_class`; cheap-disproof closed five hunt-66 `(candidate)` rows; seeded five follow-on rows; scoped **51** unit tests passed. Private beta: Sponsors reading the decision-delta / novelty block no longer see fully attested PilotStrict evidence class when audit counts failed to load for the run.
+
+- [x] (proven) `SponsorDecisionDeltaNoveltyResolver.ResolveEvidenceClassLabel` — audit unresolved with LLM resolved — **hit 2026-10-30 seed hunt (hunt 67):** audit-unresolved label; regression above. [class:state-machine-gap]
+
+- [x] (invalid) `FirstValueReportBuilder` — cross-surface test matrix gap — **cheap-disproof 2026-10-30 seed hunt (hunt 67):** test coverage lens only; production fix landed hunt 66 on formatter.
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — free-text completeness notes pipe risk — **cheap-disproof 2026-10-30 seed hunt (hunt 67):** no reachable buyer-edited note field on pilot path today; future-field lens.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 67):** PDF delta table is abbreviated by design; sponsor-status row carries simulator zero-valid caveat.
+- [x] (invalid) `PilotValueReportService.BuildAsync` — inverted window vs sponsor first-page — **cheap-disproof 2026-10-30 seed hunt (hunt 67):** empty window path documented; pending-now is intentional point-in-time signal (hunt 57 closure).
 
 2026-10-30 seed hunt (seed→hit): promoted sponsor first-page status exposing `LLM call basis` but omitting audit attestation so forwarders could miss failed audit queries before scrolling to computed deltas; added `Audit row basis` via `FormatSponsorAuditRowBasis` mirroring `proof.AuditRowCountResolved` and truncation copy; regressions `AppendMarkdownSection_when_audit_row_count_unresolved_emits_not_attested_audit_basis_row` and `AppendMarkdownSection_when_audit_row_count_truncated_discloses_cap_on_first_page`; cheap-disproof closed five hunt-65 `(candidate)` rows; seeded five follow-on rows; scoped **44** unit tests passed. Private beta: Sponsors reading only the first-page status table on a first-value report now see audit attestation gaps and query-cap lower bounds alongside LLM trace basis before forwarding the packet.
 
@@ -16764,11 +16773,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 66
-- **bugs-found:** 46
+- **hunts:** 67
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — sponsor first-page missing audit row basis
+- **last-bug:** 2026-10-30 — novelty evidence class when audit unresolved
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
