@@ -101,7 +101,19 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
-        return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture))} row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
+        if (!c.LlmCallCountResolved)
+            return "Missing — execution trace query failed; count is not attested.";
+
+        string countDisplay =
+            FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
+
+        if (deltas.LlmCallCount == 0)
+        {
+            return
+                $"{countDisplay} row(s) in execution traces ({PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain}).";
+        }
+
+        return $"{countDisplay} row(s) in execution traces.";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Not present on this run.";

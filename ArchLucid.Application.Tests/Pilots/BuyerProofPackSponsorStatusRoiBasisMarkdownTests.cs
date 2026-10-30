@@ -110,6 +110,37 @@ public sealed class BuyerProofPackSponsorStatusRoiBasisMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_status_llm_call_basis_when_zero_resolved_discloses_shared_simulator_caveat()
+    {
+        StringBuilder sb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.Sendable,
+            new ProofPackageCompletenessResponse
+            {
+                LlmCallCountResolved = true,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+            },
+            new PilotRunDeltas { LlmCallCount = 0, LlmCallCountResolved = true },
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Pass,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                true,
+                "Pass",
+                "Pass narrative"));
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM call basis |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain);
+    }
+
+    [Fact]
     public void Sponsor_status_roi_claim_gate_row_when_lead_line_contains_backtick_preserves_inline_code()
     {
         StringBuilder sb = new();

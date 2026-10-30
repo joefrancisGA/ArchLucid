@@ -73,7 +73,13 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (!proof.LlmCallCountResolved)
             return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
 
-        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
+        if (deltas.LlmCallCount == 0)
+        {
+            return
+                $"**0** trace row(s) for this run ({PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain}).";
+        }
+
+        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run.";
     }
 
     private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)

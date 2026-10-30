@@ -117,6 +117,32 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
             .TrimEnd();
 
         row.Should().Contain("`3` row(s)");
+        row.Should().NotContain(PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain);
+    }
+
+    [Fact]
+    public void Proof_package_section_when_llm_count_zero_resolved_discloses_shared_simulator_caveat()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { LlmCallCount = 0, LlmCallCountResolved = true },
+            new ProofPackageCompletenessResponse
+            {
+                LlmCallCountResolved = true,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM-call count |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain);
     }
 
     [Fact]
