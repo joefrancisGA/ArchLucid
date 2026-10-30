@@ -3594,6 +3594,20 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (dry #82): cheap-disproof closed five open `(candidate)` rows from hunt #81 (expiry boundary `>=` covered by exactly-now tests, header comma vs config segment split by design, invalidate replace clears multi-segment slot, reader-only deployment regression, test-actor duplicate-header skip regression); reseeded five follow-on `(candidate)` rows; scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — expiry instant `>=` boundary — **cheap-disproof 2026-10-30 thorough hunt #82:** intentional inclusive expiry; regressions `When_admin_key_expiry_is_exactly_now_returns_failure` and `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — inbound header comma not split — **cheap-disproof 2026-10-30 thorough hunt #82:** comma splitting is config-side rotation only; header uses first non-empty value as one material string (~144–157, ~194–219).
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — `InvalidatePrevious=true` on multi-segment slot — **cheap-disproof 2026-10-30 thorough hunt #82:** replace returns single `ReplaceConfigValue`; operator replaces entire config value; `AdminApiKeySettingsServiceTests` invalidate paths.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — reader-only with empty admin — **cheap-disproof 2026-10-30 thorough hunt #82:** regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role` (no admin key configured).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — test actor header normalization — **cheap-disproof 2026-10-30 thorough hunt #82:** regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — single `AdminKeyExpiresAt` governs every comma-separated admin segment during rotation cutover — locus: slot-level expiry ~88–89; input: appended new admin segment while older segment still listed and past slot expiry (reachability: zero-downtime comma-separated rotation).
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — replace rotation response omits guidance to rotate paired `*ExpiresAt` config entry — locus: `AdminApiKeyRotateResponse` fields ~41–48; input: invalidate replace after operator set slot expiry in config (reachability: admin settings rotate API).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.BuildApiKeyClaims` — tenant/workspace/project scope claims come from options snapshot at auth time — locus: `keys.TenantId` ~255–262; input: `IOptionsMonitor` reload changes scope between requests without key rotation (reachability: Key Vault scope binding reload).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — expired admin failure message when shared material matches admin slot but reader slot still valid uses admin expiry text only when both match and admin expired first — locus: fail ordering ~117–119 vs reader success ~106–114; input: distinct admin/reader keys where header matches expired admin key only (reachability: dual-slot deployments).
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — `HasConfiguredKeyMaterial` treats invisible-only comma segments as unconfigured while auth ignores blank segments — locus: masker vs normalizer parity ~87–88; input: config value `valid-key,,` with empty middle segment (reachability: append rotation typo).
+
 2026-10-30 thorough hunt (dry #81): cheap-disproof closed ten open `(candidate)` rows (shared admin/reader slot precedence with expired-admin reader fallback, normalizer paste equivalence by design, comma rotation delimiter, append rotation expiry metadata in response, rotation audit ordering before HTTP 200, legacy canonical slot audit, invalid slot 400 before audit, empty-slot reload fail-closed, `DateTimeOffset` expiry comparison); reseeded five follow-on `(candidate)` rows; scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey`/`ReadOnlyKey` grants admin when both valid — **cheap-disproof 2026-10-30 thorough hunt #81:** intentional admin-first overlap; regression `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
@@ -3607,12 +3621,6 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — empty normalized slot during reload — **cheap-disproof 2026-10-30 thorough hunt #81:** blank segments ignored; all slots empty yields `Invalid API key` fail-closed (~125).
 - [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — non-UTC expiry offset display — **cheap-disproof 2026-10-30 thorough hunt #81:** handler `IsKeyExpired` compares `DateTimeOffset` instants; snapshot passes bound values; tests use `"O"` round-trip (`AdminApiKeySettingsServiceTests`, handler expiry tests).
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.IsKeyExpired` — key rejected when `GetUtcNow()` equals configured expiry instant (`>=`) — locus: ~239–240; input: request at exact `AdminKeyExpiresAt` boundary (reachability: rotation runbooks).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — inbound `X-Api-Key` containing a comma is matched as one normalized string, not split like config segments — locus: `ExtractProvidedApiKey` vs config comma split ~194–219; input: client sends comma-containing header value against comma-separated config (reachability: misconfigured HTTP client).
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — `InvalidatePrevious=true` on slot whose config already lists multiple comma-separated segments — locus: replace vs append paths; input: operator replace-rotates admin slot with two active rotation segments (reachability: admin settings rotate API).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — `Enabled=true` with only reader slot configured still evaluates expired admin branch messaging when header matches reader only — locus: admin match fail ordering ~117–125; input: empty `AdminKey` with valid `ReadOnlyKey` (reachability: reader-only deployment).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — `AllowTestActorHeaders` reuses `ExtractProvidedApiKey` normalization for test actor name header — locus: ~170–175; input: governance E2E sends invisible-only first `X-ArchLucid-Test-Actor-Name` then valid second value (reachability: CI segregation tests).
-
 2026-10-20 thorough hunt (hit): `api-key-auth` — promoted hunt-ready `ApiKeyMaterialNormalizer` hex casing; uppercase hex in `Authentication:ApiKey:AdminKey` with lowercase `X-Api-Key` failed `ConstantTimeKeyEquals` while rotation issues lowercase hex; `IsAsciiHexKeyMaterial` + lowercase fold for long hex-only segments; regressions `When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates`, `Normalize_lowercases_ascii_hex_key_material`, `Normalize_preserves_case_for_non_hex_key_material`; cheap-disproof closed stale `(candidate)` legacy audit `keyId` row (fixed 2026-10-11); 73 scoped ApiKey auth/settings unit tests passed (2 SQL endpoint tests blocked — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — hex-only key material compared case-sensitively — **hit 2026-10-20 thorough hunt lane B:** uppercase deployment hex with lowercase header rejected valid admin auth; lowercase fold for ascii-hex segments ≥32 chars; `ApiKeyAuthenticationHandlerTests.When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates` + `ApiKeyMaterialNormalizerTests`.
@@ -3624,9 +3632,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
