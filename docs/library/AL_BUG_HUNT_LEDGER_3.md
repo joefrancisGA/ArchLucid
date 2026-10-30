@@ -2,6 +2,14 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #9 (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and registration-session scope shaping after candidate exhaustion; no same-run hypothesis met the hunt-ready failing-repro bar. Seeded five bounded `(candidate)` rows for malformed response retry cleanup, first-touch header serialization, optional industry normalization, company-size readiness precedence, and success navigation/session ordering. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — malformed registration response followed by retry retains stale provisioning/session fields — locus: success-session write ordering; input: malformed `201`, then valid retry (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — first-touch header serialization changes payload scope when optional UTM fields are absent — locus: `serializeFirstTouchHeader`; input: captured timestamp-only cookie (monitor).
+- [ ] (candidate) `SignupForm` — `industryVerticalOther` normalization differs between readiness and register payload — locus: trim/optional-field parity; input: padded Other specification (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — locus: readiness precedence; input: blank email + invalid enum (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — locus: best-effort session writes; input: throwing `sessionStorage` (monitor).
+
 2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #7 — **cheap-disproof 2026-10-30 thorough hunt #8:** all five were already closed by the existing regression suite; no new failing repro.
