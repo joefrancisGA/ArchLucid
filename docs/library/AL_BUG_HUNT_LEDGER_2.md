@@ -14214,24 +14214,33 @@
 ---
 
 ## Zone: api-governance-tenancy-controllers
-2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
-- [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
+2026-10-30 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/` and `ArchLucid.Api/Controllers/Tenancy/` plus scoped `GovernanceController`/`TenancyController` tests; no hunt-ready row promoted after falsification pass; seeded five mechanism-backed follow-on candidates; 149/167 scoped unit tests passed — 18 integration tests skipped/failed without SQL (`ARCHLUCID_SQL_TEST`) (`RunAnalyzers=false`). Private beta: n/a.
 
 - **id:** api-governance-tenancy-controllers
 - **status:** open
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
-- **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
+- **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 331
-- **last-hunt:** 2026-10-21
+- **hunts:** 332
+- **last-hunt:** 2026-10-30
 - **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch treats null `ListActiveByTenantAsync` as empty via BadRequest while foreign-metadata branch coalesces null — locus: `ProjectCrud.cs` ~50–73; input: repository returns null on both branches (reachability: soft-delete guard parity).
+- [ ] (candidate) `GovernanceCoverageController.PreviewCoverage` — scope posture sealed-manifest guard when committed-run catalog is empty — locus: `EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync`; input: preview with no committed runs (reachability: coverage preview before first run).
+- [ ] (candidate) `GovernanceController` policy-pack simulate — run-scoped sealed guard skips when manifest-compare detail is null — locus: `EnsureGovernanceSimulateRunSealedManifestAllowedAsync`; input: simulate POST with unknown run id (reachability: 404 vs 409 ordering).
+- [ ] (candidate) `GovernanceStickinessController` bulk disposition sealed guard — partial finding id list skips guard when run lookup fails — locus: `EnsureBulkDispositionSealedManifestAllowedAsync`; input: bulk disposition with mixed in-scope and foreign finding ids.
+- [ ] (candidate) `TenantWorkspacesController` workspace inventory list — `ListActiveByTenantAsync` null coalesce on list endpoints vs delete guard branches — locus: `WorkspaceList.cs` / `RetentionPurge.cs` vs `ProjectCrud.cs`; input: compare null-catalog handling across tenancy routes.
+
+2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
+
+- [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 
