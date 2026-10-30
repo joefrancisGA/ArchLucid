@@ -12,7 +12,7 @@ describe("SecureNow reviewer home copy (SN-MKT-06)", () => {
     expect(SECURENOW_REVIEWER_HOME_SECTION_LEAD).toMatch(/NO_GO/);
 
     const labels = SECURENOW_REVIEWER_HOME_ROWS.map((row) => row.label);
-    expect(labels).toEqual(["Draft overview", "Reviewer packet", "Request a conversation"]);
+    expect(labels).toEqual(["Draft overview", "Reviewer packet", "Request a conversation", "Accessibility"]);
     expect(SECURENOW_REVIEWER_HOME_ROWS.filter((row) => row.recommendedFirst === true)).toHaveLength(0);
   });
 
