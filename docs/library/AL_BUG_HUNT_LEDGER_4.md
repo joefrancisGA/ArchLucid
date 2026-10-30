@@ -21881,13 +21881,27 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 185
-- **bugs-found:** 48
+- **hunts:** 186
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — null elements in persisted graph snapshot crashed provenance build
+- **last-bug:** 2026-10-30 — null graph node entries crashed inventory overlay merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt #991 (hit): rotation did not fire (`shouldRotate: false`). Cheap-disproof closed five open `(candidate)` rows from hunt #990 — **hit** null base/overlay `GraphNode` entries in `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` (repros `Merge_skips_null_base_graph_node_entries_from_deserialized_snapshot`, `Merge_skips_null_inventory_overlay_node_entries`; merge now uses `OfType` node/edge projections); **valid-no-repro** whitespace-only duplicate `FindingId` rows coalesce to one finding provenance node (`Build_coalesces_finding_provenance_nodes_when_duplicate_rows_use_whitespace_only_finding_ids`); **invalid** duplicate ARM rows with disagreeing `cloudResourceId` already fail fast (`BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_cloud_resource_id`); **valid-no-repro** graph nodes whose ids differ only by padding still emit a single influence edge (`Build_links_influence_when_graph_lists_node_ids_differing_only_by_surrounding_whitespace`). Scoped filter **699** KnowledgeGraph + **182** Provenance tests passed. Private beta: inventory observed-fact overlay merge survives deserialized graph snapshots that retain null node entries instead of aborting review graph assembly.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null `GraphNode` in `baseGraph.Nodes` — **hit 2026-10-30 thorough hunt #991:** skip null node/edge collection elements before merge indexing; regression `Merge_skips_null_base_graph_node_entries_from_deserialized_snapshot`.
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null overlay node row — **hit 2026-10-30 thorough hunt #991:** same `OfType` projection; regression `Merge_skips_null_inventory_overlay_node_entries`.
+- [x] (valid-no-repro) `ProvenanceBuilder.Build` — whitespace-only `FindingId` duplicate provenance nodes — **cheap-disproof 2026-10-30 thorough hunt #991:** regression above.
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — duplicate resource rows with conflicting `cloudResourceId` — **cheap-disproof 2026-10-30 thorough hunt #991:** `BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_cloud_resource_id`.
+- [x] (valid-no-repro) `ProvenanceBuilder.Build` — duplicate graph node ids differing only by whitespace vs influence edges — **cheap-disproof 2026-10-30 thorough hunt #991:** regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null `GraphEdge` in base or overlay edge lists reaches `BuildEdgeKey` during edge indexing and can fail before merge completes; reachability: malformed deserialized graph snapshot edge arrays.
+- [ ] (candidate) `ProvenanceBuilder.Build` — null `Finding` rows whose `RelatedNodeIds` contains null elements reaches `NormalizeId` inside influence-edge construction; reachability: persisted findings snapshot JSON with null related-id entries.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — resources whose ARM id normalizes to empty are skipped but a relationship referencing those raw ids may still attempt edge creation if endpoint maps are inconsistent; reachability: inventory snapshot mixing empty-normalized resource ids with relationship rows.
+- [ ] (candidate) `ProvenanceBuilder.Build` — manifest decision rows with whitespace-only `DecisionId` collapse to empty keys and may duplicate decision provenance nodes when multiple blank ids appear; reachability: persisted manifest decision list.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay edge rows referencing node ids absent from merged node set are skipped silently while duplicate overlay edges with disagreeing `EdgeType` may only throw on second duplicate row; reachability: inventory overlay snapshot with orphan edges and conflicting duplicate edge metadata.
 
 2026-10-30 seed hunt #990 (hit): picker `seedHunt` with no visible open rows (hunt #989 candidates omitted `- [ ]` checkboxes); re-read `ProvenanceBuilder` and proved the first null-collection monitor via `GraphJsonSerialization.DeserializeSnapshot` retaining a null `nodes[]` element — `Build` threw before materializing provenance. `ProvenanceBuilder` now projects persisted collections with `OfType`/`null`-safe rule ids; regression `Build_skips_null_graph_node_element_from_deserialized_snapshot`; scoped filter **697** KnowledgeGraph + **180** Provenance tests passed. Private beta: provenance views for runs whose graph projection JSON contains sparse/null array elements no longer crash during build.
 

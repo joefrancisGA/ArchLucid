@@ -1,6 +1,9 @@
+using System.Text;
+
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inventory;
@@ -10493,6 +10496,46 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         merged.Nodes.Should().Contain(node => node.NodeId == "context-node");
         merged.Nodes.Should().Contain(node =>
             node.Properties.GetValueOrDefault("cloudResourceId") == CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
+    public void Merge_skips_null_base_graph_node_entries_from_deserialized_snapshot()
+    {
+        GraphSnapshot? baseGraph = GraphJsonSerialization.DeserializeSnapshot(
+            Encoding.UTF8.GetBytes("""{"nodes":[null,{"nodeId":"ctx","nodeType":"Service","label":"Ctx"}],"edges":[]}"""));
+
+        baseGraph.Should().NotBeNull();
+        baseGraph!.Nodes.Any(static node => node is null).Should().BeTrue();
+
+        GraphSnapshot overlay = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "ctx");
+    }
+
+    [Fact]
+    public void Merge_skips_null_inventory_overlay_node_entries()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "ctx", NodeType = "Service", Label = "Ctx" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [null!, new GraphNode { NodeId = "inv", NodeType = "Resource", Label = "Inv" }],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "inv");
     }
 
     private static AzureInventorySnapshotDetailReadModel CreateSnapshotFixture()

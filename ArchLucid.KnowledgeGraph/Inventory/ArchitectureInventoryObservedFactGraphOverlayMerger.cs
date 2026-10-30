@@ -15,18 +15,23 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        HashSet<string> baseNodeIds = baseGraph.Nodes
+        List<GraphNode> baseNodes = baseGraph.Nodes.OfType<GraphNode>().ToList();
+        List<GraphNode> overlayNodes = inventoryOverlay.Nodes.OfType<GraphNode>().ToList();
+        List<GraphEdge> baseEdges = baseGraph.Edges.OfType<GraphEdge>().ToList();
+        List<GraphEdge> overlayEdges = inventoryOverlay.Edges.OfType<GraphEdge>().ToList();
+
+        HashSet<string> baseNodeIds = baseNodes
             .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         HashSet<string> existingNodeIds = new(baseNodeIds, StringComparer.OrdinalIgnoreCase);
 
-        List<GraphNode> mergedNodes = [.. baseGraph.Nodes];
+        List<GraphNode> mergedNodes = [.. baseNodes];
 
         HashSet<string> baseGraphNodeIdsWithOverlayDuplicateRowSeen =
             new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphNode inventoryNode in inventoryOverlay.Nodes)
+        foreach (GraphNode inventoryNode in overlayNodes)
         {
             string normalizedInventoryNodeId = NormalizeNodeId(inventoryNode.NodeId);
 
@@ -68,18 +73,18 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
             existingNodeIds.Add(NormalizeNodeId(normalizedNode.NodeId));
         }
 
-        HashSet<string> baseEdgeKeys = baseGraph.Edges
+        HashSet<string> baseEdgeKeys = baseEdges
             .Select(static edge => BuildEdgeKey(edge))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         HashSet<string> edgeKeys = new(baseEdgeKeys, StringComparer.OrdinalIgnoreCase);
 
-        List<GraphEdge> mergedEdges = [.. baseGraph.Edges];
+        List<GraphEdge> mergedEdges = [.. baseEdges];
 
         HashSet<string> baseGraphEdgeKeysWithOverlayDuplicateRowSeen =
             new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphEdge inventoryEdge in inventoryOverlay.Edges)
+        foreach (GraphEdge inventoryEdge in overlayEdges)
         {
             if (!existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.FromNodeId))
                 || !existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.ToNodeId)))
