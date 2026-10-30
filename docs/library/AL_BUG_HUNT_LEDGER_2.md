@@ -3611,6 +3611,20 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (dry #98): cheap-disproof closed five open `(candidate)` rows from hunt #97 — valid-no-repro admin slot evaluated before reader when both match shared material (`HandleAuthenticateAsync` ~88–114 admin branch before reader; `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader` for expiry ordering); valid-no-repro `GetSnapshot` echoes bound `Enabled` with masked slots by design (`GetSnapshot_returns_enabled_and_masked_admin_segments`); valid-no-repro comma-separated config segments authenticate during rotation (`When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`, reader twin); valid-no-repro rotation audit JSON omits plaintext key material (`CreateRotationAuditEvent` ~60–68, hunt #88 audit contract); valid-no-repro duplicate `X-Api-Key` headers use first substantive value (`When_enabled_true_and_duplicate_api_key_headers_use_first_value`, skip variants); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 18); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — valid admin match evaluated before reader match on dual-slot hosts — **cheap-disproof 2026-10-30 thorough hunt #98:** admin branch ~88–104 precedes reader ~106–114; shared-key expiry regression above.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — echoes `Enabled` flag alongside masked slots — **cheap-disproof 2026-10-30 thorough hunt #98:** intentional operator visibility; regression above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — either configured comma segment may authenticate during rotation — **cheap-disproof 2026-10-30 thorough hunt #98:** zero-downtime rotation design; regressions above.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — serializes deployment metadata only, never plaintext key — **cheap-disproof 2026-10-30 thorough hunt #98:** hunt #88 audit contract; controller audit tests.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers use first substantive value — **cheap-disproof 2026-10-30 thorough hunt #98:** regressions above.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — locus: ~225–233; input: timing side channel on unequal keys (reachability: auth handler monitor).
+- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — locus: ~87–88; input: append rotation onto whitespace-only slot (reachability: #1896 replace-on-append family).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — locus: ~64–67; input: misconfigured Production host (reachability: startup + handler guard monitor).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — locus: ~85; input: legacy deployment route (reachability: #90 replace-only monitor).
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — locus: ~151/210; input: invisible delimiter variants (reachability: normalization hit suite monitor).
+
 2026-10-30 thorough hunt (dry #97): cheap-disproof closed five open `(candidate)` rows from hunt #96 — valid-no-repro `ConstantTimeKeyEquals` uses SHA-256 `FixedTimeEquals` by design (~225–233); valid-no-repro whitespace-only slots unconfigured via masker (`HasConfiguredKeyMaterial` ~87–88, whitespace append→replace regressions); valid-no-repro Production blocks bypass on `Enabled=false` path (~64–67, `When_enabled_false_and_bypass_true_in_production_returns_failure`); valid-no-repro legacy rotate hard-codes invalidate replace (~85, #90); valid-no-repro `ApiKeyMaterialNormalizer` shared on config segments and headers (~151/210, normalization hit regressions); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 17); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-10-30 thorough hunt #97:** intentional timing-safe digest compare ~225–233.
@@ -3619,11 +3633,11 @@
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-10-30 thorough hunt #97:** `InvalidatePrevious = true` ~85 by design (#90).
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — **cheap-disproof 2026-10-30 thorough hunt #97:** single normalizer; prior invisible-char hit suite.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — valid admin match evaluated before reader match on dual-slot hosts — locus: ~88–114; input: shared rotation material (reachability: admin-first precedence monitor).
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — echoes `Enabled` flag alongside masked slots — locus: ~19–24; input: admin settings GET (reachability: operator dashboard).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — either configured comma segment may authenticate during rotation — locus: ~194–219; input: zero-downtime cutover (reachability: comma rotation regressions).
-- [ ] (candidate) `AdminApiKeySettingsController.CreateRotationAuditEvent` — serializes deployment metadata only, never plaintext key — locus: ~63–68; input: successful rotate (reachability: #88 audit contract).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers use first substantive value — locus: ~144–157; input: double `X-Api-Key` headers (reachability: duplicate-header regressions).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — valid admin match evaluated before reader match on dual-slot hosts — **cheap-disproof 2026-10-30 thorough hunt #98:** see hunt #98 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — echoes `Enabled` flag alongside masked slots — **cheap-disproof 2026-10-30 thorough hunt #98:** see hunt #98 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — either configured comma segment may authenticate during rotation — **cheap-disproof 2026-10-30 thorough hunt #98:** see hunt #98 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — serializes deployment metadata only, never plaintext key — **cheap-disproof 2026-10-30 thorough hunt #98:** see hunt #98 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers use first substantive value — **cheap-disproof 2026-10-30 thorough hunt #98:** see hunt #98 diary row.
 
 2026-10-30 thorough hunt (dry #96): cheap-disproof closed five open `(candidate)` rows from hunt #95 — valid-no-repro admin slot evaluated before reader when both match shared material (`HandleAuthenticateAsync` ~88–114 admin branch before reader; `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader` for expiry ordering); valid-no-repro `GetSnapshot` echoes bound `Enabled` with masked slots by design (`GetSnapshot_returns_enabled_and_masked_admin_segments`, operator dashboard contract); valid-no-repro comma-separated config segments authenticate during rotation (`When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`, reader twin); valid-no-repro rotation audit JSON omits plaintext key material (`CreateRotationAuditEvent` ~60–68, hunt #88 `Rotate_replace_returns_plaintext_once_without_logging_in_audit_payload` blocked on SQL VM — controller audit tests cover actor/slot payload); valid-no-repro duplicate `X-Api-Key` headers use first substantive value (`When_enabled_true_and_duplicate_api_key_headers_use_first_value`, blank/invisible skip variants); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 16); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
@@ -3847,9 +3861,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 97
+- **hunts:** 98
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
