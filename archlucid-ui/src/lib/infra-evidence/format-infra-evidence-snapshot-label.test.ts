@@ -138,4 +138,13 @@ describe("formatInfraEvidenceScopeFreshnessLine", () => {
   it("returns null when neither snapshot nor diff is selected", () => {
     expect(formatInfraEvidenceScopeFreshnessLine({ snapshot: null, selectedDiff: null })).toBeNull();
   });
+
+  it("labels pending capture resource counts without implying zero (P-10)", () => {
+    expect(formatInfraEvidenceSnapshotLabel(snapshot({ captureStatus: 0, resourceCount: 0 }))).toContain(
+      "Resource count was not stored — inventory capture is still in progress.",
+    );
+    expect(formatInfraEvidenceSnapshotLabel(snapshot({ captureStatus: 0, resourceCount: 0 }))).not.toContain(
+      "0 resources",
+    );
+  });
 });

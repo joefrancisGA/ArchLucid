@@ -24,7 +24,7 @@ public static class DiagramDataFlowHonestyLegend
         "Authorization may allow access labels are authorization evidence (Probable band), not observed use.";
 
     public const string PrivateNetworkPathDnsSentence =
-        "Private network path is a DNS-joined private endpoint hop. Private DNS zone link was not stored in this snapshot.";
+        "Private network path is a DNS-joined private endpoint hop. Private DNS zone link was not stored on the collected graph.";
 
     public const string ObservedRuntimeTimeWindowSentence =
         "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";
@@ -36,10 +36,10 @@ public static class DiagramDataFlowHonestyLegend
         "Pipeline direction was not stored in this package. Re-collect Azure inventory to refresh pipeline metadata.";
 
     public const string NoResolvedStoresOrSourcesSentence =
-        "No resolved stores or named sources in this snapshot.";
+        "No resolved stores or named sources on this diagram.";
 
     public const string OmittedDataFlowStagesSentencePrefix =
-        "Data flow stages omitted from this snapshot:";
+        "Data flow stages with no resolved nodes on this diagram (stage classification, not missing inventory census):";
 
     public const string UnclassifiedArmResourceTypeCaption =
         "ARM resource type was not stored.";

@@ -25,7 +25,7 @@ public static class DecisionConfidenceSourceMapper
             return ToBuyerLabel((DecisionConfidenceSource)ordinal);
         }
 
-        return BuyerDecisionConfidenceSource.Unknown;
+        return BuyerDecisionConfidenceSource.Unrecognized;
     }
 
     /// <summary>Returns the buyer-facing label for an internal confidence source.</summary>
@@ -40,7 +40,7 @@ public static class DecisionConfidenceSourceMapper
             DecisionConfidenceSource.LlmAgent => BuyerDecisionConfidenceSource.ModelAssisted,
             DecisionConfidenceSource.Unknown => BuyerDecisionConfidenceSource.Unknown,
             DecisionConfidenceSource.NotComputed => BuyerDecisionConfidenceSource.NotComputed,
-            _ => BuyerDecisionConfidenceSource.Unknown,
+            _ => BuyerDecisionConfidenceSource.Unrecognized,
         };
     }
 

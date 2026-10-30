@@ -22,6 +22,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         policyRuleId: "rule-1",
         trustLabel: "DeterministicRule",
         trustLabelReason: "Matched egress policy.",
@@ -163,6 +164,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 
@@ -179,6 +181,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         itsmLinkedTicketsSummary: "",
       },
     ]);
@@ -198,6 +201,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 
@@ -215,6 +219,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
       isMuted: false,
       muteReason: null,
       enforcementTier: "PolicyViolation",
+      classification: FINDING_CLASSIFICATION_DECISION_GRADE,
     }]);
 
     expect(csv).toContain("Recommended action was stored empty.");
@@ -237,7 +242,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
-        classification: "DecisionGrade",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         semanticSupportBand: "",
         semanticSupportBandScorerVersion: "as099-llm-finalize-v1",
       } as QuickDecisionFinding,
@@ -263,6 +268,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         confidenceLevel: "Low",
         trustLabel: "DeterministicRule",
         trustLabelReason: "Matched egress policy.",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
       {
         findingId: "checklist",
@@ -286,7 +292,8 @@ describe("buildQuickDecisionFindingsCsv", () => {
     expect(csv).toContain("DeterministicRule");
     expect(csv).not.toContain("checklist");
     expect(csv).toContain("Checklist coverage rows omitted from this file: 1");
-    expect(csv.split("\n")).toHaveLength(3);
+    expect(csv).toContain("No unclassified classification rows were omitted.");
+    expect(csv.split("\n")).toHaveLength(4);
   });
 
   it("states when no checklist coverage rows were omitted", () => {
@@ -301,10 +308,12 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 
     expect(csv.startsWith("No checklist coverage rows were omitted.")).toBe(true);
+    expect(csv.split("\n")[1]).toBe("No unclassified classification rows were omitted.");
   });
 
   it("quotes CSV cells that contain carriage returns", () => {
@@ -319,6 +328,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 
@@ -338,6 +348,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         humanReviewStatus: 0,
         humanReviewStatusStored: false,
       },
@@ -360,6 +371,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 

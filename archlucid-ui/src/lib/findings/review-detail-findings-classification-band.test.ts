@@ -5,6 +5,8 @@ import {
   countFindingsByClassificationBand,
   filterFindingsByClassificationBand,
   isUncitedFinding,
+  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+  FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
 
 function finding(
@@ -49,19 +51,30 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
       decisionGrade: 1,
       checklist: 1,
       uncited: 0,
+      unclassified: 0,
     });
   });
 
+  it("counts unclassified and unrecognized rows for the strip (P-11)", () => {
+    const counts = countFindingsByClassificationBand([
+      finding({ findingId: "omit-1", classification: null }),
+      finding({ findingId: "weird-1", classification: "LegacyGate" }),
+    ]);
+
+    expect(counts.unclassified).toBe(2);
+  });
+
   it("does not treat omitted evidenceRefCount as uncited (P-06)", () => {
-    const omitted = finding({ findingId: "omit-1", evidenceRefCount: null });
-    const zero = finding({ findingId: "zero-1", evidenceRefCount: 0 });
+    const omitted = finding({ findingId: "omit-1", evidenceRefCount: null, classification: FINDING_CLASSIFICATION_DECISION_GRADE });
+    const zero = finding({ findingId: "zero-1", evidenceRefCount: 0, classification: FINDING_CLASSIFICATION_DECISION_GRADE });
 
     expect(isUncitedFinding(omitted)).toBe(false);
     expect(isUncitedFinding(zero)).toBe(true);
     expect(countFindingsByClassificationBand([omitted, zero])).toEqual({
-      decisionGrade: 0,
+      decisionGrade: 2,
       checklist: 0,
       uncited: 1,
+      unclassified: 0,
     });
   });
 });

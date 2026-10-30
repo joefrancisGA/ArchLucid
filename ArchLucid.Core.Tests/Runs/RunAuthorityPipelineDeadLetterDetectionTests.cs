@@ -72,6 +72,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_whole_number_schema_version_above_int32_max()
+    {
+        const string json = """
+            {"schemaVersion":4294967296.0,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_true_when_schema_version_property_is_omitted()
     {
         const string json = """
@@ -240,6 +250,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_true_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":true}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_whitespace_only_failure_class_token()
     {
         const string json = """
@@ -271,6 +291,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_object_valued_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":{"kind":"PipelineDeadLetter"}}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token()
     {
         const string json = """
@@ -290,6 +320,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
 
         // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_quoted_null_string_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"null"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
 
     [Fact]

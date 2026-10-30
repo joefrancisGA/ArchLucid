@@ -1635,6 +1635,87 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_AL0001_when_controller_declares_authorized_action_but_inherits_unauthorized_default_interface_mutating_member()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IUnsecuredDefaultMutatingApi
+    {
+        [HttpPost("default")]
+        Task<IActionResult> DefaultPost(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public sealed class {|#0:MixedAuthorizedDeclaredController|} : ControllerBase, IUnsecuredDefaultMutatingApi
+    {
+        [Authorize]
+        [HttpPost("explicit")]
+        public IActionResult ExplicitAuthorized() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("MixedAuthorizedDeclaredController");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_empty_controller_when_default_interface_member_carries_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedDefaultApi
+    {
+        [Authorize]
+        [HttpPost("x")]
+        Task<IActionResult> Post(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public sealed class EmptyAuthorizedDefaultInterfaceController : ControllerBase, IAuthorizedDefaultApi
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_when_default_interface_implementation_carries_Authorize()
     {
         const string testCode = AspNetCoreStubs +

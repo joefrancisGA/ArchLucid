@@ -52,6 +52,14 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string NoChecklistCoverageRowsOmittedLine = "No checklist coverage rows were omitted.";
 
+    internal const string UnclassifiedClassificationRowsOmittedLinePrefix =
+        "Unclassified classification rows omitted from this file:";
+
+    internal const string NoUnclassifiedClassificationRowsOmittedLine =
+        "No unclassified classification rows were omitted.";
+
+    internal const string FindingClassificationDecisionGradeExportLabel = "Decision-grade finding";
+
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
     internal const string DispositionNotStoredLabel = "Disposition was not stored.";
@@ -101,8 +109,10 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string ExternalTrackingHeaderSuffix =
         "Provider,ExternalKey,ExternalUrl,HumanReviewStatus,LatestDisposition,RevisitDueUtc,ItsmLinkedTicketsSummary";
 
+    internal const string ClassificationHeaderSuffix = "Classification";
+
     internal const string HeaderLine =
-        LegacyHeaderLine + "," + TrustLabelHeaderSuffix + "," + ExternalTrackingHeaderSuffix;
+        LegacyHeaderLine + "," + ClassificationHeaderSuffix + "," + TrustLabelHeaderSuffix + "," + ExternalTrackingHeaderSuffix;
 
     /// <returns>CSV text including header; empty findings yield header only.</returns>
     public static string BuildCsvContent(
@@ -123,6 +133,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         int omittedChecklistCount = CountOmittedChecklistCoverageFindingsInDetail(detail);
         sb.Append(FormatChecklistCoverageOmissionReviewerLine(omittedChecklistCount)).Append('\n');
+        int omittedUnclassifiedCount = CountOmittedUnclassifiedFindingsInDetail(detail);
+        sb.Append(FormatUnclassifiedClassificationOmissionReviewerLine(omittedUnclassifiedCount)).Append('\n');
         sb.Append(HeaderLine).Append('\n');
         int lengthAfterHeader = sb.Length;
 
@@ -205,6 +217,11 @@ public static class ArchitectureRunFindingsCsvFormatter
             ? $"{ChecklistCoverageRowsOmittedLinePrefix} {omittedChecklistCount}"
             : NoChecklistCoverageRowsOmittedLine;
 
+    internal static string FormatUnclassifiedClassificationOmissionReviewerLine(int omittedUnclassifiedCount) =>
+        omittedUnclassifiedCount > 0
+            ? $"{UnclassifiedClassificationRowsOmittedLinePrefix} {omittedUnclassifiedCount}"
+            : NoUnclassifiedClassificationRowsOmittedLine;
+
     /// <summary>Count of checklist-coverage rows excluded from CSV export.</summary>
     public static int CountOmittedChecklistCoverageFindingsInDetail(ArchitectureRunDetail detail)
     {
@@ -226,6 +243,36 @@ public static class ArchitectureRunFindingsCsvFormatter
             {
                 if (finding is not null
                     && DecisionGradeFindingExportFilter.IsChecklistCoverageForExport(finding.Classification))
+                {
+                    n++;
+                }
+            }
+        }
+
+        return n;
+    }
+
+    /// <summary>Count of findings with no stored classification excluded from CSV export.</summary>
+    public static int CountOmittedUnclassifiedFindingsInDetail(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        if (detail.Results is null || detail.Results.Count == 0)
+            return 0;
+
+        int n = 0;
+
+        foreach (AgentResult result in detail.Results)
+        {
+            if (result?.Findings is null || result.Findings.Count == 0)
+            {
+                continue;
+            }
+
+            foreach (ArchitectureFinding finding in result.Findings)
+            {
+                if (finding is not null
+                    && DecisionGradeFindingExportFilter.IsUnclassifiedForExport(finding.Classification))
                 {
                     n++;
                 }
@@ -304,6 +351,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(FormatMuteReason(finding.IsMuted, finding.MuteReason)),
                 ExportFormatterService.EscapeCsvField(confidence),
+                ExportFormatterService.EscapeCsvField(FormatClassificationForExport(finding.Classification)),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabel(finding.TrustLabel)),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabelReason(finding.TrustLabelReason)),
                 ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking, trackingEnrichmentLoaded)),
@@ -488,6 +536,21 @@ public static class ArchitectureRunFindingsCsvFormatter
         }
 
         return string.IsNullOrWhiteSpace(category) ? CategoryStoredEmptyLabel : category.Trim();
+    }
+
+    internal static string FormatClassificationForExport(FindingClassification? classification)
+    {
+        if (classification == FindingClassification.DecisionGradeFinding)
+        {
+            return FindingClassificationDecisionGradeExportLabel;
+        }
+
+        if (classification == FindingClassification.ChecklistCoverage)
+        {
+            return FindingClassification.ChecklistCoverage.ToString();
+        }
+
+        return DecisionGradeFindingExportFilter.FindingClassificationNotStoredLabel;
     }
 
     private static string FormatMessage(string? message)

@@ -35,6 +35,9 @@ export function formatArchitectureRecommendationOriginLabel(
 export const ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED =
   "Provenance was not stored." as const;
 
+export const ARCHITECTURE_RECOMMENDATION_SUPPORT_STATUS_NOT_STORED =
+  "Support status was not stored." as const;
+
 export function formatArchitectureRecommendationSupportStatusLabel(supportStatus: string): string {
   const trimmed = supportStatus.trim();
 
@@ -65,7 +68,7 @@ export function formatArchitectureRecommendationProvenanceLine(
   const supportStatus = provenance.supportStatus?.trim() ?? "";
 
   if (supportStatus.length === 0) {
-    return `Origin: ${originLabel}`;
+    return `Origin: ${originLabel} · Support: ${ARCHITECTURE_RECOMMENDATION_SUPPORT_STATUS_NOT_STORED}`;
   }
 
   return `Origin: ${originLabel} · Support: ${formatArchitectureRecommendationSupportStatusLabel(supportStatus)}`;

@@ -142,7 +142,7 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
       />,
     );
 
-    expect(screen.getByText("Finding category was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Finding category was not stored.")).toBeInTheDocument();
     cleanup();
 
     render(

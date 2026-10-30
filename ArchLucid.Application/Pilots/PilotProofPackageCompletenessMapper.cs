@@ -50,7 +50,8 @@ public static class PilotProofPackageCompletenessMapper
                 deltas.SynthesizedArtifactDescriptorCountResolved ? deltas.SynthesizedArtifactDescriptorCount : null,
             ArtifactDescriptorCountResolved = deltas.SynthesizedArtifactDescriptorCountResolved,
             TimeToCommittedManifestResolved = deltas.TimeToCommittedManifest is not null,
-            FindingsBySeverityPresent = true,
+            FindingsBySeverityPresent =
+                deltas.FindingsCountsFromSnapshot || deltas.AgentResultsIncludedInDetail,
             TopFindingEvidenceChainPresentOrNotApplicable =
                 deltas.TopFindingId is null || deltas.TopFindingEvidenceChain is not null,
             AuditRowsPresentOrLowerBound =
