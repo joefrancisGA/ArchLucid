@@ -2546,6 +2546,12 @@ describe("SignupForm", () => {
     expect(screen.getByLabelText(/Work email/i)).toHaveAttribute("maxLength", "254");
   });
 
+  it("caps the full-name input at the schema maximum", () => {
+    render(<SignupForm />);
+
+    expect(screen.getByLabelText(/Full name/i)).toHaveAttribute("maxLength", "200");
+  });
+
   it("shows overlong-industry readiness when Other specification exceeds 200 characters", async () => {
     render(<SignupForm />);
     fillRequiredFields();

@@ -240,7 +240,13 @@ export function SignupForm() {
             <Label htmlFor="signup-name" className={OPERATOR_TYPOGRAPHY.body}>
               Full name
             </Label>
-            <Input id="signup-name" autoComplete="name" {...register("adminDisplayName")} className="mt-1.5 h-10" />
+            <Input
+              id="signup-name"
+              autoComplete="name"
+              maxLength={200}
+              {...register("adminDisplayName")}
+              className="mt-1.5 h-10"
+            />
             {formState.errors.adminDisplayName ? (
               <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
                 {formState.errors.adminDisplayName.message}
