@@ -8934,6 +8934,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-30 seed hunt #48 (hit): promoted `ReviewAskDock` — completed answer turns persisted across cross-review soft navigation because the dock had no `runId` reset or stale-response guard, so the next review displayed the prior review's answer and could scope follow-up citations to the new review; reset review-scoped Ask state on `runId` changes and ignore late responses from an old run; regression `does not keep the prior review's answer visible after soft navigation to another review`; Ask dock focused suite 8/8. Private beta: invited architects switching reviews after asking a grounded question no longer see the prior review's answer carried into the new review or risk acting on mismatched citation scope.
+
+- [x] (proven) `ReviewAskDock` — Ask answer turns survive `runId` changes and old responses can commit into the next review — **hit 2026-10-30 seed hunt:** reset turns/thread/question/error state on `runId` changes, ignore responses whose request run no longer matches the active review, and retain the regression above.
+- [ ] (candidate) `ReviewChainOfCustodySection` — closing a default-open custody disclosure reopens both sections when no URL section key is present — locus: `isSectionOpen` default fallback; input: operator closes “Who and when” without `reviewChainOfCustodySection` in the review URL; wrong outcome: the section cannot remain closed.
+- [ ] (candidate) `ReviewAgentExecutionLogSection` — agent execution rows sort incorrectly when API `createdUtc` values use equivalent timestamps with different offsets — locus: lexicographic `createdUtc` sort; input: persisted execution results with `2026-10-30T10:00:00Z` and `2026-10-30T06:30:00-04:00`; wrong outcome: audit order differs from chronology.
+
 2026-10-30 thorough hunt #47 (dry): cheap-disproof closed five open `(candidate)` rows — governance confirmation, technology rationale, first-screen proof, More sections, and assessment narrative disclosures all reconcile URL changes through `useSearchParams` without requiring `popstate`; 13 focused URL-sync tests passed and no production code changed.
 
 - [x] (valid-no-repro) `RunDetailRunGovernanceDispositionActions` — stale confirmation state after review navigation — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDispDecision query changes without a popstate event`; URL-derived state clears through the `useSearchParams` effect.
