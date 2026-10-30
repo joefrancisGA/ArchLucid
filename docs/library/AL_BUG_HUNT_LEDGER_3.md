@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #88 (seed-only): re-read `SignupForm`, `signupFormSchema`, optional field bounds, and the 144-test focused suite; visible schema limits now match their rendered controls, and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
 2026-10-30 seed hunt #87 (hit): proved the `organizationName` schema capped organization names at 200 characters but the rendered organization input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the organization input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 144/144. Private beta: invited buyers entering a long organization name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
 
 - [x] (proven) `SignupForm` — `organizationName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #87:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
@@ -346,7 +348,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
