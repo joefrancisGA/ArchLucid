@@ -41,4 +41,51 @@ public sealed class BuyerProofPackFirstValueRunIdentityMarkdownTests
 
         row.Should().Be("| System | `Pay\\|ments` |");
     }
+
+    [Fact]
+    public void Run_identity_section_when_support_run_id_contains_pipe_escapes_table_cell()
+    {
+        StringBuilder sb = new();
+        FirstValueReportRunSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRun
+            {
+                RunId = "run|support",
+                Status = ArchitectureRunStatus.Committed,
+                CreatedUtc = DateTime.UtcNow,
+            },
+            manifest: null,
+            "https://app.example");
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Support run id |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| Support run id | `run\\|support` |");
+    }
+
+    [Fact]
+    public void Run_identity_section_when_request_id_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportRunSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRun
+            {
+                RunId = "run-1",
+                Status = ArchitectureRunStatus.Committed,
+                RequestId = "req`trace",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            manifest: null,
+            "https://app.example");
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Request id |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| Request id | ``req`trace`` |");
+    }
 }
