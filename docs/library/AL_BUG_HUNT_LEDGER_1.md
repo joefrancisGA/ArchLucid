@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a negated pair hid a later affirmative pair in the same priority
+- **last-bug:** 2026-10-30 — `security-first over cost-first` stayed balanced
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Prioritize security-first over cost-first.` resolving balanced because the pair matcher required the dimension token to sit directly against `over`; the optional `-first` position-label suffix now stays inside the pair; regression `BuildRecommendations_prefers_security_first_when_priority_uses_position_label_pair`; Alternatives/ProposedChange/TradeOff tests 115/115. Private beta: when an invited operator writes a declared priority as security-first over cost-first, the security-versus-cost recommendation follows that pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.ExplicitDimensionOverDimensionPattern` — `security-first over cost-first` stayed balanced — **hit 2026-10-30 seed hunt:** pair grammar allows the position-label `-first` suffix on either side; regression `BuildRecommendations_prefers_security_first_when_priority_uses_position_label_pair`.
 
 2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost. Cost over Security.` resolving balanced because a negated earliest pair continued to the next priority string and hid the later affirmative pair; the pair scan now skips a negated left side and keeps the first non-negated pair in that string; regression `BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security`; Alternatives/ProposedChange/TradeOff tests 114/114. Private beta: when an invited operator says not to prefer security over cost and then says cost over security in the same priority, the security-versus-cost recommendation follows the later pair.
 
@@ -5888,11 +5892,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 75
+- **hunts:** 76
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 30
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a negated pair hid a later affirmative pair in the same priority
+- **last-bug:** 2026-10-30 — `security-first over cost-first` stayed balanced
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

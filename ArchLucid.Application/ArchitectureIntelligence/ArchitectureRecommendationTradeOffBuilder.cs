@@ -485,14 +485,21 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         return matches;
     }
 
+    // Position labels are "{dimension}-first" ("security-first over cost-first"). The suffix
+    // sits between the dimension and over/before, so a bare dimension token never matches.
+    private const string ExplicitDimensionToken = "Security|Cost|Reliability";
+
+    private const string ExplicitDimensionFirstSuffix =
+        @"(?:[-\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]first)?";
+
     private static Regex ExplicitDimensionOverDimensionPattern() =>
         new(
-            @"\b(Security|Cost|Reliability)\s+over\s+(Security|Cost|Reliability)\b",
+            $@"\b({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\s+over\s+({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static Regex ExplicitDimensionBeforeDimensionPattern() =>
         new(
-            @"\b(Security|Cost|Reliability)\s+before\s+(Security|Cost|Reliability)\b",
+            $@"\b({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\s+before\s+({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static Regex UnreliabilityNegationPattern() =>
