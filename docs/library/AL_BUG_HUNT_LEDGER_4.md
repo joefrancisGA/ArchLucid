@@ -9173,6 +9173,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-30 seed hunt #854 (dry): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #853; cheap-disproof closed peering JSON string scalar wrapping properties bag where `remoteVirtualNetwork.id` is percent-encoded plain ARM scalar (`EnumerateRemoteVnetIds_reads_remote_when_peering_array_element_is_json_string_scalar_wrapping_peering_object` plus `EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar`), `HasPeeringCollectionEvidence` when flattened `remoteVirtualNetwork.id` on vnet property bag is percent-encoded (`TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar`), `EnumerateRemoteVnetIds` when `remoteVirtualNetwork` is JSON string scalar wrapping reference object with percent-encoded `id` (`EnumerateRemoteVnetIds_reads_remote_when_remote_virtual_network_is_json_string_scalar_wrapping_id_object` plus percent-decode in `NormalizeArmId`), `routes` JSON `nextHopReference` percent-encoded plain IPv6 scalar on nested properties (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_plain_ipv6_scalar`), and Partner destination `resourceUri` percent-encoded plain ARM scalar on top-level destination (`Extract_reads_hybrid_connection_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar` parity on shared `resourceUri` fallback); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2472/2472** (Release); no production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — peering JSON string scalar wrapping properties bag where `remoteVirtualNetwork.id` is percent-encoded plain ARM scalar — **cheap-disproof 2026-10-30 seed hunt #854:** `TryReadRemoteVnetId` string-scalar unwrap + `NormalizeArmId`; regressions above.
+- [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — `HasPeeringCollectionEvidence` when flattened `remoteVirtualNetwork.id` on vnet property bag is percent-encoded — **cheap-disproof 2026-10-30 seed hunt #854:** `TryReadRemoteVnetIdFromProperties`; regression above.
+- [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — `EnumerateRemoteVnetIds` when `remoteVirtualNetwork` is JSON string scalar wrapping reference object with percent-encoded `id` — **cheap-disproof 2026-10-30 seed hunt #854:** string-scalar reference parse + `NormalizeArmId`; regressions above.
+- [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopReference` percent-encoded plain IPv6 scalar on nested properties (not JSON wrapper) — **cheap-disproof 2026-10-30 seed hunt #854:** `TryReadNestedNextHopIpAddressWhenNotArmId`; regression above.
+- [x] (valid-no-repro) `AzureInventoryEventGridDestinationExtractor` — Partner destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — **cheap-disproof 2026-10-30 seed hunt #854:** shared `resourceUri` read after primary keys; regression parity above.
+
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — flattened `remoteVirtualNetwork.id` percent-encoded plain ARM scalar on virtual network property bag — locus: `TryReadRemoteVnetIdFromProperties`; input: encoded dotted property on vnet inventory row; wrong outcome: null or encoded blob id.
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — `remoteVirtualNetwork` JSON blob property with percent-encoded `id` inside serialized reference object — locus: `TryReadRemoteVnetIdFromProperties`; input: encoded id inside blob; wrong outcome: null or encoded blob id.
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — connected peering filter when peering JSON `remoteVirtualNetwork.id` is percent-encoded — locus: `EnumerateConnectedRemoteVnetArmIds`; input: encoded id inside nested peering JSON; wrong outcome: empty connected list or encoded blob id.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — locus: `ResolveNextHopIpAddressScalar`; input: encoded JSON wrapper on `nextHopIpAddress`; wrong outcome: null IP.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — AzureFunction destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — locus: `TryReadString`; input: encoded ARM on `resourceUri`; wrong outcome: null resource id.
+
 2026-10-29 seed hunt #853 (dry): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #655; cheap-disproof closed flattened `remoteVirtualNetwork.id` percent-encoded plain ARM scalar on virtual network property bag (`TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar`), `remoteVirtualNetwork` JSON blob with percent-encoded `id` inside serialized reference object (`TryReadRemoteVnetIdFromProperties_reads_remote_virtual_network_json_blob_when_id_inside_blob_is_percent_encoded_plain_arm_scalar`), connected peering filter when peering JSON `remoteVirtualNetwork.id` is percent-encoded (`EnumerateConnectedRemoteVnetArmIds_reads_connected_peering_when_peering_json_id_is_percent_encoded_plain_arm_scalar`), `routes` JSON `nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv6 (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`, existing regression), and AzureFunction destination top-level `resourceUri` percent-encoded plain ARM scalar (`Extract_reads_azure_function_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2311/2311** (Release); no production change.
 
 - [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — flattened `remoteVirtualNetwork.id` percent-encoded plain ARM scalar on virtual network property bag — **cheap-disproof 2026-10-29 seed hunt #853:** `TryReadRemoteVnetIdFromProperties` + `NormalizeArmId`; regression above.
@@ -9180,12 +9194,6 @@
 - [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — connected peering filter when `remoteVirtualNetwork.id` is percent-encoded inside nested peering JSON — **cheap-disproof 2026-10-29 seed hunt #853:** `EnumerateConnectedRemoteVnetArmIds`; regression above.
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — **cheap-disproof 2026-10-29 seed hunt #853:** `ResolveNextHopIpAddressScalar`; existing regression above.
 - [x] (valid-no-repro) `AzureInventoryEventGridDestinationExtractor` — AzureFunction destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — **cheap-disproof 2026-10-29 seed hunt #853:** `TryReadString` on `resourceUri`; regression above.
-
-- [ ] (candidate) `AzureInventoryVnetPeeringParser` — peering JSON string scalar wrapping properties bag where `remoteVirtualNetwork.id` is percent-encoded plain ARM scalar — locus: `TryReadRemoteVnetId`; input: peering entry as JSON string scalar; wrong outcome: null or encoded blob id.
-- [ ] (candidate) `AzureInventoryVnetPeeringParser` — `HasPeeringCollectionEvidence` when flattened `remoteVirtualNetwork.id` on vnet property bag is percent-encoded — locus: `TryReadRemoteVnetIdFromProperties`; input: encoded dotted property on vnet inventory row; wrong outcome: false peering evidence.
-- [ ] (candidate) `AzureInventoryVnetPeeringParser` — `EnumerateRemoteVnetIds` when `remoteVirtualNetwork` is JSON string scalar wrapping reference object with percent-encoded `id` — locus: peering JSON parse; input: encoded id inside string-wrapped reference; wrong outcome: empty list or encoded blob id.
-- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopReference` percent-encoded plain IPv6 scalar on nested properties (not JSON wrapper) — locus: `TryReadNestedNextHopIpAddressWhenNotArmId`; input: encoded IPv6 on `nextHopReference`; wrong outcome: null IP.
-- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — Partner destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — locus: `TryReadString`; input: encoded ARM on `resourceUri`; wrong outcome: null resource id.
 
 2026-10-28 seed hunt #655 (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #654; `AzureInventoryVnetPeeringParser.NormalizeArmId` passed percent-encoded remote VNet ids through `ArmResourceIdNormalizer` without `Uri.UnescapeDataString`, so peering JSON `remoteVirtualNetwork.id` values like `%2Fsubscriptions%2F...` persisted as encoded blobs and broke VNet peering inventory edges; fixed with bounded percent-decode before normalize; regression `EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed `routes` JSON `nextHop` percent-encoded JSON reference wrapping plain IPv6 (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`), Hybrid Connection top-level `resourceUri` percent-encoded plain ARM scalar (`Extract_reads_hybrid_connection_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`), full HTTP unbracketed IPv6 trailing dot before non-standard port (`TryExtractHost_reads_host_when_full_http_webhook_url_percent_encodes_unbracketed_ipv6_trailing_dot_before_non_standard_port`), Rest linked service `url` with whitespace-only `password` (`Extract_reads_rest_service_host_from_percent_encoded_url_when_password_is_whitespace_only`), and triply percent-encoded dual-key reference where `id` is percent-encoded whitespace (`TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_id_is_percent_encoded_whitespace_from_nested_properties_bag`); seeded five follow-on `(candidate)` rows; 1848 scoped `AzureExtractor` hunt regressions passed. Private beta: invited operators keep VNet peering topology edges when inventory stores percent-encoded remote virtual network ARM ids inside `virtualNetworkPeerings` JSON.
 
@@ -9581,11 +9589,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-28
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-28 — VNet peering JSON percent-encoded remoteVirtualNetwork.id
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-25 thorough hunt (hit): promoted JSON reference `/subscriptions/` guard; non-ARM `{"id":"not-an-arm-id"}` string scalars no longer persist as capture storage ids and leading-`{` strings no longer fall back to raw JSON text; regressions `TryReadScalarString_returns_null_for_json_reference_without_subscription_arm_id` and `TryReadScalarString_returns_null_for_json_string_scalar_without_subscription_arm_id`; cheap-disproof closed capture edge mapper normalization (`MapAssociations` already calls `ArmResourceIdNormalizer.Normalize`), Event Grid webhook userinfo (`TryExtractHost_strips_userinfo_from_webhook_url`), Cosmos Mongo host index parity (`ExtractKnownHosts` already emits `mongo.cosmos.azure.com`), route-table JSON `nextHopArmId` string scalars (`Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_id_object`); seeded five follow-on `(candidate)` rows; 1598 scoped `AzureExtractor` tests passed. Private beta: invited operators do not get spurious Event Hub capture edges to malformed companion reference blobs.
 
@@ -9606,13 +9614,13 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-28 — VNet peering JSON percent-encoded remoteVirtualNetwork.id
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 seed hunt (seed→hit): promoted Application Gateway `backendIPConfigurations`. A NIC-only pool produced no backend target because the resolver required `backendAddresses`. Ip configurations now resolve to the NIC, and address targets stay. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
 
