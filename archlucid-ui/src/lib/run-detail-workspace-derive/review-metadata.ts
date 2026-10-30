@@ -87,7 +87,9 @@ export function deriveSignedReviewRecordIdLabel(manifestId: string | null | unde
     return null;
   }
 
-  return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
+  return manifest.length > 16
+    ? `${manifest.slice(0, 8)}…${manifest.slice(-4)} (shortened for display)`
+    : manifest;
 }
 
 export const RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;

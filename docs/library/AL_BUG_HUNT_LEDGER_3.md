@@ -2,6 +2,68 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #46 (dry): cheap-disproof closed three open `(candidate)` rows — completion guards cover the retry boundary, attribution encoding failure remains non-blocking, and session writes use the submit callback snapshot. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #42 — **cheap-disproof 2026-10-30 thorough hunt #46:** retry boundary, encoding failure, and pending optional-field changes produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #38 — **cheap-disproof 2026-10-30 thorough hunt #42:** duplicate activation, multibyte attribution, and pending optional-field edits produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #38:** completion guard, Unicode attribution, and pending field edits produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #34:** route interruption, oversized attribution, and pending-submit edits produced no failing repro.
+
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed registration response followed by retry retains stale provisioning/session fields — **cheap-disproof 2026-10-30 thorough hunt #26:** retry writes and validated session projection are covered by the existing regression tests; no stale fields survive into the next valid attempt.
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — first-touch header serialization changes payload scope when optional UTM fields are absent — **cheap-disproof 2026-10-30 thorough hunt #26:** timestamp-only attribution is serialized independently of optional UTM values.
+-- [x] (valid-no-repro) `SignupForm` — `industryVerticalOther` normalization differs between readiness and register payload — **cheap-disproof 2026-10-30 thorough hunt #26:** the optional Other value is trimmed and omitted when blank; existing normalization tests pass.
+-- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — **cheap-disproof 2026-10-30 thorough hunt #9:** required-field readiness is evaluated before optional company-size details, so blank email receives required guidance.
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — **cheap-disproof 2026-10-30 thorough hunt #26:** session writes are best-effort and the throwing-storage regression confirms navigation still proceeds.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — locus: guard reset versus navigation lifecycle; input: retry click before `/signup/verify` settles (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — locus: header catch path and payload construction; input: mixed Unicode UTM values plus valid signup fields (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — locus: callback values versus live form state; input: change company size while request is pending (monitor).
+
+2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #7 — **cheap-disproof 2026-10-30 thorough hunt #8:** all five were already closed by the existing regression suite; no new failing repro.
+
+- [x] (valid-no-repro) duplicate rows — SignupForm candidates from thorough hunt #8 were already classified; no new hypotheses remain in that reseed.
+- [x] (valid-no-repro) duplicate row — readiness precedence was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — nested response/session ordering was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — Unicode team-size whitespace was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — optional-field keyboard timing was already closed by thorough hunt #8.
+
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed five open `(candidate)` rows that the picker re-presented from the previous reseed — per-header scope normalization remains string-only; required-field readiness remains first; nested response fields do not become top-level session ids; Unicode line separators are normalized before team-size bounds; and native keyboard submit still uses the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #6 — **cheap-disproof 2026-10-30 thorough hunt #7:** all five mechanisms were already covered by the existing suite; no new hunt-ready repro.
+
+- [ ] (candidate) `SignupForm` — mixed string/number ids produce inconsistent header subsets across retries — locus: session normalization; input: changing session JSON types (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company size and blank org produce different copy after blur — locus: touched-field readiness state (monitor).
+- [ ] (candidate) `SignupForm` — nested response id is persisted after a later retry — locus: session write ordering; input: malformed then valid registration responses (monitor).
+- [ ] (candidate) `SignupForm` — Unicode paragraph separator team size is accepted at an over-limit value — locus: schema trim semantics; input: `\u202910001\u2029` (monitor).
+- [ ] (candidate) `SignupForm` — Enter submit from optional field bypasses `canSubmit` during rerender — locus: resolver timing (monitor).
+
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed five open `(candidate)` rows that were already represented by the prior SignupForm regressions — mixed session-id types stay behind string-only scope-header gates; required-field readiness wins over company-size details; nested provisioning shapes do not create top-level ids; Unicode whitespace is trimmed before team-size bounds; and native Enter submission still passes through React Hook Form validation. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed. The following reseed rows were later classified as duplicates by hunts #7 and #8.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #5 — **cheap-disproof 2026-10-30 thorough hunt #6:** all five mechanisms were already covered by the existing 140-test regression suite; no new hunt-ready repro.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #6; no open hypotheses remain in this historical reseed block.
+
+2026-10-30 thorough hunt #5 (dry): cheap-disproof closed five open `(candidate)` rows — the prior scope-header, readiness, array-root success, leading-zero team-size, and keyboard-submit regressions already cover these mechanisms; no failing repro or production defect was found. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate `ui-form-validation` candidate rows from the previous reseed — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already classified by thorough hunt #4 and retained only as stale picker metadata.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #5; no open hypotheses remain in this historical reseed block.
+
+2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultProjectId` follows the same trimmed string gate as tenant/workspace ids, so `201` omits invalid scope headers; all-whitespace required fields take the TB-2010 required-field branch; JSON-array `201` bodies remain success-only navigation cases; leading-zero `010000` is intentionally parsed as decimal ten and remains within the team-size bound; keyboard focus from invalid email cannot bypass the schema-backed `canSubmit` gate. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain in this historical reseed block.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #4:** trimmed string gate is consistent with tenant/workspace handling; no invalid header is emitted.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — **cheap-disproof 2026-10-30 thorough hunt #4:** required-field branch precedes email and optional-field checks.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with JSON array body omits scope headers when ids are strings — **cheap-disproof 2026-10-30 thorough hunt #4:** array-root success is navigation-only and does not expose a provisioning object for scope headers.
+- [x] (invalid) `SignupForm` — architecture team size accepts pasted leading-zero `010000` as valid — **cheap-disproof 2026-10-30 thorough hunt #4:** leading-zero decimal parsing is intentional; `010000` is ten thousand and within the inclusive bound.
+- [x] (valid-no-repro) `SignupForm` — Tab from invalid email field to submit triggers register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #4:** schema-backed `canSubmit` and keyboard validation prevent the request.
+
 2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultWorkspaceId` on `201` omits scope headers after trim (`does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`); invalid email plus whitespace full name uses TB-2010 required-field copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); malformed JSON `201` body still navigates on `res.ok` (`still navigates after 201 when register response body is malformed JSON`); pasted team size `10001` stays invalid after blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`); rapid double-click with invalid email skips register POST (`does not call register fetch on rapid double-click when work email is invalid`). Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 - [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: "   " }` (monitor).
@@ -7799,13 +7861,177 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #45 (dry): cheap-disproof closed three open `(candidate)` rows — result focus is only driven by result changes, removed observer winners are filtered from visible sections, and line-separator analytics identity remains an intentional route-derived value. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #44 — **cheap-disproof 2026-10-30 thorough hunt #45:** result focus, removed observer winners, and line-separator analytics identity produce no failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — status rerender during result focus scrolls the page twice — locus: result effect dependency and focus callback identity; input: status update immediately after result resolution (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed sections remain in the captured `sections` array after a marketing route transition — locus: effect-captured DOM collection; input: route transition replaces artifact nodes without remounting nav (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — line-separator and ordinary-space scenarios collide after downstream analytics normalization — locus: event property canonicalization boundary; input: two generated links differing only by U+2028 versus space (monitor).
+
+2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #20 — **cheap-disproof 2026-10-30 thorough hunt #21:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST keeps a sample result while exposing a real-analysis status label — locus: result/status pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed active section keeps an `aria-current` target with no DOM node — locus: dynamic navigation lifecycle (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — casted raw scenario creates a second telemetry key — locus: runtime caller validation (monitor).
+
+2026-10-30 thorough hunt #20 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding marketing tests — malformed POST responses do not mix sample and real metadata; no-target navigation preserves the prior active item by design; and runtime-cast telemetry inputs are unsupported outside the typed API. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #19 — **cheap-disproof 2026-10-30 thorough hunt #20:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST leaves sample metadata with a real-analysis error message — locus: result/error pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — no-target click preserves `aria-current` for a removed section indefinitely — locus: dynamic DOM lifecycle (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — runtime-cast scenario splits telemetry between canonical and raw keys — locus: unsupported runtime input (monitor).
+
+2026-10-30 thorough hunt #19 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding state, navigation, and telemetry tests — malformed POST handling does not cross-assign sample and real result state; no-target navigation preserves the prior active item intentionally; and runtime `as` casts are unsupported caller input outside the typed funnel boundary. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #18 — **cheap-disproof 2026-10-30 thorough hunt #19:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error leaves sample and real result metadata mixed — locus: result/status state pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — no-target click plus prior active item violates accessibility state — locus: `aria-current` preservation (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — runtime-cast scenario causes telemetry cardinality split — locus: unsupported caller data (monitor).
+
+2026-10-30 thorough hunt #18 (dry): cheap-disproof closed three open `(candidate)` rows already represented by prior marketing tests — malformed POST errors reset status rather than falsely reporting sample completion; missing artifact targets are no-op paths rather than first-item fallback; and the typed funnel telemetry API rejects the proposed untyped direct-caller scenario as outside production reach. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #17 — **cheap-disproof 2026-10-30 thorough hunt #18:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST status reset clears the wrong result type — locus: sample vs real response state (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — missing active target silently preserves misleading `aria-current` — locus: no-target click behavior (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — unsupported caller passes encoded scenario through an `as` cast — locus: runtime type boundary (monitor).
+
+2026-10-30 thorough hunt #17 (dry): cheap-disproof closed three open `(candidate)` rows already covered by prior state and telemetry regressions — malformed POST handling does not leave a false completion status; absent artifact targets do not force active-id fallback; and unsupported direct telemetry callers are outside the typed canonical scenario contract. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #16 — **cheap-disproof 2026-10-30 thorough hunt #17:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST response leaves “Showing sample” status after error — locus: status reset path (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed target falls back to first active artifact without observer evidence — locus: active-id fallback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — untyped direct caller sends noncanonical encoded scenario — locus: public telemetry boundary (monitor).
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #15 — **cheap-disproof 2026-10-30 thorough hunt #16:** all three mechanisms were already closed; no new failing repro.
+
+- [x] (valid-no-repro) duplicate row — malformed POST status candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — optional artifact fallback candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — direct telemetry caller candidate was already closed by thorough hunt #17.
+
+2026-10-30 thorough hunt #15 (dry): cheap-disproof closed three open `(candidate)` rows that were already represented by the preceding malformed-POST, navigation, and telemetry regressions — malformed analysis errors retain the sample and expose an error; optional artifact omission is not a supported product contract; and page wrappers pass the same canonical scenario into viewed and funnel events. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #14 — **cheap-disproof 2026-10-30 thorough hunt #15:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed analysis response leaves a stale “Showing sample” status message — locus: status-message reset on parse failure; input: sample then malformed POST body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — omitted optional artifact still appears as active after observer callback — locus: fixed item list vs DOM lookup (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — direct caller uses encoded scenario while page wrapper uses decoded slug — locus: caller normalization contract (monitor).
+
+2026-10-30 thorough hunt #14 (dry): cheap-disproof closed three open `(candidate)` rows that were already covered by the preceding marketing regressions — malformed POST errors do not silently replace the sample; conditional artifact omissions are outside the fixed navigation item contract; and route/page normalization occurs before funnel telemetry receives its canonical scenario. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #13 — **cheap-disproof 2026-10-30 thorough hunt #14:** malformed POST/sample state, deterministic artifact ordering, and route/event scenario handling were already classified; no new repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error clears sample result without an explanatory status — locus: error/status message pairing; input: sample plus malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — conditional artifact omission leaves an unreachable active id — locus: fixed nav items vs optional sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — page normalization and direct funnel callers disagree on encoded mixed-case scenarios — locus: caller boundary (monitor).
+
+2026-10-30 thorough hunt #13 (dry): cheap-disproof closed three open `(candidate)` rows — malformed POST JSON leaves the sample result intact while surfacing an error rather than claiming a new analysis; equal observer ratios use deterministic artifact order; both telemetry backends receive the same trimmed, case-preserving scenario value from the shared helper. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — **cheap-disproof 2026-10-30 thorough hunt #13:** JSON parse failure does not call `setResult`; existing stale-result protections remain.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — **cheap-disproof 2026-10-30 thorough hunt #13:** stable artifact order resolves ties deterministically.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — **cheap-disproof 2026-10-30 thorough hunt #13:** both paths consume the same trimmed scenario value; case is intentionally preserved.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error leaves stale sample status message visible — locus: error/status state split; input: sample then malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — tie ordering changes when artifact items are conditionally omitted — locus: fixed array vs rendered DOM; input: optional section omission (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario case normalization differs from showcase route slug normalization — locus: page wrapper vs event helper; input: percent-encoded mixed-case slug (monitor).
+
+2026-10-30 thorough hunt #12 (dry): cheap-disproof closed three open `(candidate)` rows — malformed successful analysis JSON is surfaced as a request error rather than silently accepted; equal observer ratios resolve deterministically through the stable artifact order; viewed and funnel telemetry share the same trimmed scenario and render-mode property construction. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — **cheap-disproof 2026-10-30 thorough hunt #12:** malformed success JSON enters the error path rather than being treated as a successful analysis; no silent stale-result commit.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — **cheap-disproof 2026-10-30 thorough hunt #12:** equal ratios retain deterministic `ARTIFACT_ITEMS` order; no random selection mechanism.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — **cheap-disproof 2026-10-30 thorough hunt #12:** both helpers construct properties from the same trimmed scenario and supplied render mode.
+
+- [ ] (candidate) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — locus: JSON parse error state; input: sample result followed by malformed POST response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — locus: observer callback precedence; input: click plus simultaneous equal intersections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — locus: dual telemetry normalization; input: mixed-case encoded scenario (monitor).
+
+2026-10-30 thorough hunt #11 (dry): cheap-disproof closed three open `(candidate)` rows — successful real analysis clears the sample error through the submit success state; artifact click/observer ordering intentionally follows actual viewport visibility; funnel telemetry trims the scenario before emitting properties (`recordShowcaseFunnelEvent trims the scenario before emitting telemetry`). Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful real analysis response — **cheap-disproof 2026-10-30 thorough hunt #11:** successful analysis state clears the error; existing POST regressions cover the path.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — **cheap-disproof 2026-10-30 thorough hunt #11:** observer ratios represent viewport truth and click state is reconciled by the next callback.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — **cheap-disproof 2026-10-30 thorough hunt #11:** trim is applied to emitted properties; regression `recordShowcaseFunnelEvent trims the scenario before emitting telemetry`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — locus: POST catch/finally state reset; input: successful HTTP response with malformed body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — locus: stable sort order; input: two equal visible sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — locus: paired property construction; input: canonical scenario with fallback mode (monitor).
+
+2026-10-30 thorough hunt #10 (dry): cheap-disproof closed three open `(candidate)` rows — explicit sample retry success clears the prior sample error (`clears a failed sample error when an explicit retry succeeds`); artifact navigation only updates active state for a currently found target and observer cleanup handles route teardown; funnel telemetry intentionally consumes canonical scenario props rather than decoding encoded values at the low-level event helper. Reseeded three follow-on `(candidate)` rows. 33 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — **cheap-disproof 2026-10-30 thorough hunt #10:** successful retry calls `setError(null)`; regression `clears a failed sample error when an explicit retry succeeds`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — **cheap-disproof 2026-10-30 thorough hunt #10:** click path no-ops when target is absent and observer cleanup handles teardown.
+- [x] (invalid) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — **cheap-disproof 2026-10-30 thorough hunt #10:** low-level telemetry accepts canonical scenario props; route decoding is owned by the page wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful real analysis response — locus: POST success state reset; input: failed sample then completed analysis (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — locus: click/observer ordering; input: fast click plus viewport exit (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — locus: property normalization; input: `" demo "` scenario (monitor).
+
+2026-10-30 thorough hunt #9 (dry): cheap-disproof closed three open `(candidate)` rows — a failed auto-sample remains eligible for an intentional retry but cannot replace a non-null user result through the status effect; the observer effect’s captured section list is disconnected on unmount and cannot update stale nodes; funnel telemetry accepts the already-normalized `scenario` contract and does not decode route segments itself. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — **cheap-disproof 2026-10-30 thorough hunt #9:** status-driven loading requires `result === null`; user results are protected.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes without unmount — **cheap-disproof 2026-10-30 thorough hunt #9:** observer cleanup and fixed mount snapshot prevent detached state updates.
+- [x] (invalid) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — **cheap-disproof 2026-10-30 thorough hunt #9:** funnel callers pass canonical scenario props; route normalization belongs to the page telemetry wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — locus: `setError(null)` only on POST; input: failed sample then explicit retry (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — locus: activeId vs DOM presence; input: remove active artifact section (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — locus: telemetry boundary; input: `%2F` scenario prop (monitor).
+
+2026-10-30 thorough hunt #8 (dry): cheap-disproof closed three open `(candidate)` rows — a failed sample may retry only when status data changes and remains behind the existing `result === null` guard; the artifact observer is disconnected on unmount and its captured DOM snapshot cannot update detached UI; `renderMode` is a compile-time `ShowcaseRenderMode` union, so whitespace is malformed caller input rather than a reachable production telemetry state. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — **cheap-disproof 2026-10-30 thorough hunt #8:** retry requires a changed status object and the existing sample effect guard; no unexpected retry path found.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — **cheap-disproof 2026-10-30 thorough hunt #8:** observer cleanup disconnects on unmount; no detached state update is reachable.
+- [x] (invalid) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — **cheap-disproof 2026-10-30 thorough hunt #8:** whitespace violates the compile-time `ShowcaseRenderMode` contract and no production caller supplies it.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — locus: result nullability vs manual sample state; input: failed auto-sample followed by manual form state (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes — locus: effect dependency snapshot; input: DOM node replacement without unmount (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — locus: caller normalization boundary; input: encoded scenario prop (monitor).
+
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed three open `(candidate)` rows — failed sample refreshes do not restart from status alone because the auto-sample effect requires `result === null` and the status transition is already covered; the artifact observer is disconnected on unmount and stale zero-ratio entries cannot update a detached component; funnel telemetry uses the same blank-scenario early return as viewed telemetry (`recordShowcaseFunnelEvent is a no-op when scenario trims to empty`). Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample request restarts repeatedly after a failed sample and repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #7:** the effect only auto-loads while `result === null`, with existing status/sample coverage.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — **cheap-disproof 2026-10-30 thorough hunt #7:** effect cleanup disconnects the observer; detached components cannot receive a state update.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #7:** paired trim guards; regression `recordShowcaseFunnelEvent is a no-op when scenario trims to empty`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — locus: auto-sample effect/error state; input: transient sample 500 + status refetch (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — locus: effect lifetime; input: dynamic DOM replacement (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — locus: telemetry property normalization; input: `{ scenario: "demo", renderMode: " " }` (monitor).
+
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed three open `(candidate)` rows — repeated SampleOnly status refreshes retain the real result because the auto-sample effect is guarded by `result === null`; `DemoPreviewArtifactNav` disconnects its observer during effect cleanup and no callback can update unmounted UI; `recordShowcaseFunnelEvent` uses the same trimmed-scenario early return as `recordShowcaseViewed`. Reseeded three follow-on `(candidate)` rows. 31 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #6:** existing SampleOnly-after-real-result regression covers the guard.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — **cheap-disproof 2026-10-30 thorough hunt #6:** effect cleanup disconnects the observer; no mounted state update remains reachable.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #6:** both functions trim and return before telemetry for empty scenarios.
+
+- [ ] (candidate) `useQuickScanClient` — status refresh after failed sample can restart the sample request repeatedly — locus: effect dependency on `result` and `status`; input: rejected sample + repeated status updates (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — locus: `sections` snapshot vs visibility map; input: dynamic artifact removal (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel event can emit with whitespace render mode while viewed event is valid — locus: render-mode contract; input: malformed telemetry props (monitor).
+
+2026-10-30 thorough hunt #5 (dry): the picker re-presented five marketing monitor rows already closed by thorough hunt #4 because the reseed block remained duplicated as open rows. Revalidated the existing regressions and classified the duplicate rows as valid-no-repro; removed the stale open duplicates and seeded three bounded follow-on monitor rows. 31 scoped vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate picker rows for Quick Scan POST/sample ordering, sample error reset, artifact navigation IO/click ordering, blocked-storage browser identity, and blank showcase telemetry — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already closed by the preceding #4 regressions; no new hunt-ready mechanism.
+
+- [ ] (candidate) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — locus: status effect plus POST completion ordering; input: SampleOnly → Available → SampleOnly transition (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — locus: effect cleanup; input: route transition during intersection callback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — locus: paired telemetry guards; input: funnel click with unknown scenario (monitor).
+
+2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — the existing stale-sample regression establishes that a completed real analysis remains authoritative over an in-flight sample; submit clears stale sample errors before a successful analysis; intersection callbacks intentionally reconcile click selection with actual visibility; volatile browser ids are tab-scoped when storage is blocked and cannot survive a full reload by design; blank showcase scenarios return before both Clarity and App Insights telemetry (`recordShowcaseViewed is a no-op when scenario trims to empty`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates below were already closed by thorough hunt #4; retained only as historical reseed metadata, not open hypotheses.
+
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — **cheap-disproof 2026-10-30 thorough hunt #4:** existing stale-sample regression proves the real analysis remains authoritative; no wrong outcome.
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — **cheap-disproof 2026-10-30 thorough hunt #4:** submit clears error before the POST and successful POST coverage leaves no stale sample error.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — **cheap-disproof 2026-10-30 thorough hunt #4:** observer state intentionally represents actual viewport visibility; click regression covers immediate active feedback.
+- [x] (invalid) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — **cheap-disproof 2026-10-30 thorough hunt #4:** module memory is tab-scoped and reload reset is expected when storage is unavailable.
+- [x] (valid-no-repro) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — **cheap-disproof 2026-10-30 thorough hunt #4:** blank scenarios return before either telemetry path; regression `recordShowcaseViewed is a no-op when scenario trims to empty`.
+
 2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
 
-- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
-- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain from this reseed block.
 
 - [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
 - [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.

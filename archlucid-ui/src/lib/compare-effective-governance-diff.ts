@@ -185,14 +185,14 @@ function parseAtCommitCoverageAssignments(value: unknown): CompareEffectiveCover
       continue;
     }
 
-    const policyPackId = readTrimmedString(item.policyPackId);
+    const policyPackIdRaw = item.policyPackId;
 
-    if (policyPackId === null) {
+    if (policyPackIdRaw !== null && policyPackIdRaw !== undefined && typeof policyPackIdRaw !== "string") {
       continue;
     }
 
     rows.push({
-      policyPackId,
+      policyPackId: typeof policyPackIdRaw === "string" ? policyPackIdRaw : "",
       policyPackVersion:
         typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
       coverageType: typeof item.coverageType === "string" ? item.coverageType : COVERAGE_TYPE_NOT_STORED,
@@ -218,14 +218,14 @@ function parseAtCommitPackAssignments(value: unknown): CompareEffectivePackAssig
       continue;
     }
 
-    const policyPackId = readTrimmedString(item.policyPackId);
+    const policyPackIdRaw = item.policyPackId;
 
-    if (policyPackId === null) {
+    if (policyPackIdRaw !== null && policyPackIdRaw !== undefined && typeof policyPackIdRaw !== "string") {
       continue;
     }
 
     rows.push({
-      policyPackId,
+      policyPackId: typeof policyPackIdRaw === "string" ? policyPackIdRaw : "",
       policyPackVersion:
         typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
       scopeLevel: readTrimmedString(item.scopeLevel) ?? SCOPE_LEVEL_NOT_STORED,

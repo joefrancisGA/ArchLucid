@@ -301,6 +301,48 @@ describe("buildQuickDecisionFindingsCsv", () => {
 
     expect(csv).toContain('"Row break\rhere"');
   });
+
+  it("does not label default human review when status was omitted on the wire (P-03)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-no-review",
+        title: "Gap",
+        recommendation: "Fix.",
+        severityValue: 2,
+        severityStored: true,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        humanReviewStatus: 0,
+        humanReviewStatusStored: false,
+      },
+    ]);
+
+    expect(csv).toContain("Human review status was not stored");
+    expect(csv).not.toContain("No human review required");
+  });
+
+  it("does not label default severity Info when severity was omitted on the wire (P-02)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-no-severity",
+        title: "Gap",
+        recommendation: "Fix.",
+        severityValue: 0,
+        severityStored: false,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ]);
+
+    expect(csv).toContain("Severity was not stored");
+    expect(csv).not.toContain(",Info,");
+  });
 });
 
 describe("buildGovernanceFindingsItsmJsonExportDocument", () => {

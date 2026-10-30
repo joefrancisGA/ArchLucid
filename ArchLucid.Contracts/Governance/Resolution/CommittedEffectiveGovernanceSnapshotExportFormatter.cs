@@ -91,11 +91,19 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             rows.Add(
                 ("Compliance rule keys at commit", snapshot.ComplianceRuleKeyCount.ToString(CultureInfo.InvariantCulture)));
         }
+        else
+        {
+            rows.Add(("Compliance rule keys at commit", "0"));
+        }
 
         if (snapshot.ConflictCount > 0)
         {
             rows.Add(
                 ("Merge conflicts at commit", snapshot.ConflictCount.ToString(CultureInfo.InvariantCulture)));
+        }
+        else
+        {
+            rows.Add(("Merge conflicts at commit", "0"));
         }
 
         return rows;
