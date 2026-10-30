@@ -14,6 +14,7 @@ using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.ProductLine;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Retrieval.Indexing;
@@ -725,6 +726,49 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         count.Should().Be(1,
             "OIDC authority startup probe must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_saml_signing_certificate_startup_warning_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(SamlSigningCertificateStartupWarningHostedService));
+
+        count.Should().Be(1,
+            "SAML signing certificate startup warning must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_leaves_default_product_line_accessor_when_only_capability_catalog_is_pre_registered()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductCapabilityControllerCatalog> injectedCatalog = new();
+        services.AddSingleton(injectedCatalog.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        IProductCapabilityControllerCatalog catalogInstance = injectedCatalog.Object;
+
+        services.Count(static d => d.ServiceType == typeof(IProductCapabilityControllerCatalog)).Should().Be(1);
+        services.Should().ContainSingle(d =>
+            d.ServiceType == typeof(IProductCapabilityControllerCatalog)
+            && ReferenceEquals(d.ImplementationInstance, catalogInstance),
+            "pre-registered capability catalog must be preserved");
+
+        services.Count(static d => d.ServiceType == typeof(IProductLineRequestAccessor)).Should().Be(1);
+        services.Should().ContainSingle(static d =>
+            d.ServiceType == typeof(IProductLineRequestAccessor)
+            && d.ImplementationType == typeof(ProductLineRequestAccessor),
+            "partial test-host overrides register the capability catalog independently from the default product-line accessor");
     }
 
     [Fact]
