@@ -2939,4 +2939,8 @@
 {"at":"2026-10-30T22:38:59.9486646Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:42:17.9912100Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:45:50.1496942Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+<<<<<<< HEAD
 {"at":"2026-10-30T22:50:13.0972423Z","zoneId":"host-composition","outcome":"seed-only","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-30T22:51:00.0186890Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
+>>>>>>> 772fa29881 (Record hunt #1007 hit for host-composition (set 4).)
