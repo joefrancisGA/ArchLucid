@@ -3374,4 +3374,38 @@ public sealed class ProvenanceBuilderTests
 
         graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContributedToArtifact).Should().Be(1);
     }
+
+    [Fact]
+    public void Build_coalesces_duplicate_artifact_rows_when_names_differ_only_by_surrounding_whitespace()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = ArtifactId,
+                    ArtifactType = "report",
+                    Format = "md",
+                    Name = "  overview.md  ",
+                },
+                new SynthesizedArtifact
+                {
+                    ArtifactId = ArtifactId,
+                    ArtifactType = "report",
+                    Format = "md",
+                    Name = "overview.md",
+                },
+            ],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Artifact);
+        graph.Nodes.Single(n => n.Type == ProvenanceNodeType.Artifact).Name.Should().Be("overview.md");
+    }
 }
