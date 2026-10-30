@@ -85,10 +85,10 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         List<string> parts = [$"{prefix}."];
 
         if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } cap)
-            parts.Add($"**Captured UTC:** `{cap.ToString("O", CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Captured UTC:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(cap.ToString("O", CultureInfo.InvariantCulture))}.");
 
         if (snapshot.TenantBaselineManualPrepHoursPerReview is { } manual)
-            parts.Add($"**Manual prep hrs/review:** `{manual.ToString(CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Manual prep hrs/review:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(manual.ToString(CultureInfo.InvariantCulture))}.");
 
         if (BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource)
             is { } noteTrimmed)
