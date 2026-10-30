@@ -7853,13 +7853,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #31 (dry): cheap-disproof closed three open `(candidate)` rows — sample and POST error state is generation-guarded, observer effects are scoped to the mounted catalog, and decoded plus signs remain ordinary route-derived scenario values. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #32 (dry): cheap-disproof closed three open `(candidate)` rows — malformed sample completion cannot replace a newer result, the observer effect owns the fixed artifact catalog for the mounted nav, and encoded slash values are preserved as decoded scenario values by contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #29 — **cheap-disproof 2026-10-30 thorough hunt #31:** out-of-order sample errors, observer rerenders, and decoded route values produce no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #31 — **cheap-disproof 2026-10-30 thorough hunt #32:** malformed sample completion, mounted observer scope, and decoded slash values produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — a failed sample response clears a newer AI result because generation is checked only after JSON parsing — locus: async sample completion ordering; input: slow malformed sample response after a completed POST (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — changing artifact section ids without remounting leaves stale observer subscriptions — locus: effect dependency and observer lifecycle; input: client-side catalog replacement (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — a decoded percent-encoded slash is logged as a different scenario than the route segment — locus: `resolveShowcaseScenarioSlug`; input: showcase `runId` containing `%2F` from a generated link (monitor).
+- [ ] (candidate) `useQuickScanClient` — a failed sample retry clears a new sample result because the generation guard is advanced only at invocation — locus: repeated sample request error ordering; input: failed first sample followed by successful second sample (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer disconnect during unmount allows a queued callback to update detached navigation — locus: cleanup versus queued IntersectionObserver delivery; input: callback delivered after nav unmount (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — encoded Unicode normalization creates distinct scenario keys for canonically equivalent route ids — locus: `decodeURIComponent` without Unicode normalization; input: NFC/NFD-equivalent `runId` encodings (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
