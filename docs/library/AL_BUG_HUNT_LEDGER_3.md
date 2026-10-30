@@ -7893,6 +7893,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses the email input’s type constraint and the handler posts malformed work-email values — **hit 2026-10-30 seed hunt #80:** validate the trimmed address with the browser-compatible email pattern before posting; regression in `MarketingPricingQuotePanel.test.tsx`.
+
 2026-10-30 seed hunt #79 (hit): proved `MarketingPricingQuotePanel` disabled native validation with `noValidate` but did not validate required work email or company fields before POST, so an empty quote request reached the API; added a required-identity guard and `does not submit when required buyer identity fields are empty` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 2/2. Private beta: invited buyers can no longer submit an empty pricing request and instead receive immediate required-field guidance before the quote service is called.
 
 - [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses required browser checks and `onSubmit` posts blank work email/company values — **hit 2026-10-30 seed hunt #79:** guard required identity fields before composing and posting the quote request; regression in `MarketingPricingQuotePanel.test.tsx`.
@@ -8159,11 +8163,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 53
-- **bugs-found:** 47
+- **hunts:** 54
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Pricing quote required identity validation
+- **last-bug:** 2026-10-30 — Pricing quote email format validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
