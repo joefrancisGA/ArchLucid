@@ -39,7 +39,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
         sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
-        sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
+        sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
         sb.AppendLine($"| Audit row basis | {FormatSponsorAuditRowBasis(deltas, proof)} |");

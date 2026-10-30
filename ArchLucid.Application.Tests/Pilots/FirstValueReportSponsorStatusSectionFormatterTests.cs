@@ -156,4 +156,32 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
 
         row.Should().Contain("Hold\\|pending baseline");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_when_roi_claim_gate_lead_line_contains_pipe_escapes_table_cell()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse(),
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold|review baseline",
+                "Hold narrative"));
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("ROI claim gate", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| ROI claim gate | Hold\\|review baseline |");
+    }
 }
