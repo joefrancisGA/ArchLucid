@@ -6024,17 +6024,31 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-30 seed hunt (seed→hit): promoted markdown strikethrough `~~owner~~` RACI labels matching as prose ownership tokens when `unowned` appeared elsewhere; `~` added to ownership label delimiters (parity with `*` emphasis); matrix regression `markdown-strikethrough-owner`; cheap-disproof closed four stale `(candidate)` rows from hunt 2026-10-23 (HTML entity `&lt;owner&gt;` fails end boundary on `&`; regulatory pipe-table ordering invalid because `RequiresHumanReview` precedes `LooksStructured`; negated lifecycle and `to be deployed` scheduling prose lack hunt-ready repro without reopening saturated phrase-boundary class); seeded five mechanism-backed `(candidate)` rows below; **83** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: pasted runbooks with strikethrough RACI role labels no longer invent operational-ownership gaps when legacy capacity is described as unowned elsewhere.
+
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — **hit 2026-10-30 seed hunt:** `~` ownership delimiters; matrix case `markdown-strikethrough-owner`.
+- [x] (invalid) `ContainsDualLifecycleMarkers` — negated lifecycle prose — **cheap-disproof 2026-10-30 seed hunt:** dual-marker detection is intentionally phrase-presence based; negation guard would duplicate saturated lifecycle class without a failing repro.
+- [x] (valid-no-repro) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` — **cheap-disproof 2026-10-30 seed hunt:** bounded match end fails on `&` continuation after `owner` inside the entity token.
+- [x] (invalid) `LooksStructured` — pipe table before GDPR text — **cheap-disproof 2026-10-30 seed hunt:** `Classify` evaluates human-review regulatory markers before structured table heuristics.
+- [x] (invalid) `InferLifecycleScopeForIndex` — `to be deployed` scheduling header — **cheap-disproof 2026-10-30 seed hunt:** no distinct wrong lifecycle scope repro; shares phrase matcher with intentional `to be` target-state boundary (2026-10-23 spaced lifecycle hit).
+
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown single-tilde strike `~owner~` (non-GFM) with separate `unowned` mention — locus: delimiter set now covers paired `~~` but not lone tilde emphasis; input: wiki-style struck RACI labels in workshop notes.
+- [ ] (candidate) `ContainsOwnershipMarker` — possessive `owner's` token paired with `unowned` elsewhere — locus: plural fallback appends `s` but apostrophe-s may still bounded-match `owner` substring; input: prose "the owner's on-call" with DR racks unowned.
+- [ ] (candidate) `InferLifecycleScopeForIndex` — underscore lifecycle shorthand `as_is` / `to_be` section headers — locus: token markers use hyphen forms only; input: snake_case lifecycle headings in pasted Confluence exports.
+- [ ] (candidate) `ComponentLinePattern` — `service: owner-gateway` line paired with `unowned` elsewhere — locus: component regex captures names containing `owner` substring; input: service label plus separate unowned capacity sentence; wrong outcome: ownership gap despite identifier not RACI prose.
+- [ ] (candidate) `ContainsPhraseMarker` — unicode narrow no-break space inside `to\u202Fbe` lifecycle phrase — locus: bounded index uses ordinal spans; input: PDF-export target-state headers; mechanism: lifecycle scope misses target boundary while ambiguous classifier still matches spaced phrase elsewhere.
+
 2026-10-30 thorough hunt (dry): the only hunt-ready row was a doubled checkbox (`- [ ] - [x] (proven-stale)`) for email-domain `owner`. `ContinuesLexicalTokenBefore` already treats `@` as a token continuation, so `ops@owner.example.com` does not start an ownership marker. Existing regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. The inverse, dropping a real owner token that follows `@`, has no architecture-prose citation beyond that email label. No production code changed. Private beta: n/a.
 
 2026-10-23 thorough hunt (hit): proved markdown bold `**owner**` RACI labels still matched as prose ownership tokens when `unowned` appeared elsewhere, falsely emitting Unowned component; fixed by treating `*` as ownership label delimiter (same class as backticks and quotes); matrix regression `markdown-bold-owner`; 82 scoped DifficultyBasedExtractionRouter tests passed. Private beta: architecture-intelligence extraction on pasted runbooks and workshop notes no longer invents operational-ownership gaps from emphasized RACI column headers.
 
 2026-10-23 thorough hunt (hit): promoted spaced lifecycle synonyms `as is` / `to be` (hyphenated forms already recognized); dual-lifecycle transition and ambiguous classification now use bounded phrase markers; regressions `Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope`, `Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose`, and `Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker`; cheap-disproved proven-stale email-domain `owner` picker row; seeded five mechanism-backed `(candidate)` rows below; 81 scoped DifficultyBasedExtractionRouter tests passed.
 
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — locus: ownership delimiter set excludes `~`; input: runbook prose using strikethrough role labels.
-- [ ] (candidate) `ContainsDualLifecycleMarkers` — negated lifecycle prose (`not to be deployed` with separate `as is` section) may still classify ambiguous — locus: phrase markers without negation guard; input: architecture source with explicit negation before `to be`.
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` element text with `unowned` elsewhere — locus: angle-bracket delimiter vs entity encoding; input: pasted HTML architecture notes.
-- [ ] (candidate) `LooksStructured` — markdown pipe tables with regulatory markers may classify `StructuredParse` before human-review signals when table rows precede GDPR text — locus: `Classify` ordering vs `LooksStructured`; input: two-row pipe table plus trailing compliance paragraph.
-- [ ] (candidate) `InferLifecycleScopeForIndex` — spaced `to be` boundary shares phrase matcher with `to be deployed` scheduling prose — locus: target-state boundary index; input: component line after `to be deployed next quarter` header.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — **hit 2026-10-30 seed hunt:** see zone-header close above.
+- [x] (invalid) `ContainsDualLifecycleMarkers` — negated lifecycle prose — **cheap-disproof 2026-10-30 seed hunt:** see zone-header close above.
+- [x] (valid-no-repro) `FindBoundedOwnershipMarkerIndex` — HTML-escaped `&lt;owner&gt;` element text with `unowned` elsewhere — **cheap-disproof 2026-10-30 seed hunt:** see zone-header close above.
+- [x] (invalid) `LooksStructured` — markdown pipe tables with regulatory markers — **cheap-disproof 2026-10-30 seed hunt:** see zone-header close above.
+- [x] (invalid) `InferLifecycleScopeForIndex` — spaced `to be` vs `to be deployed` scheduling prose — **cheap-disproof 2026-10-30 seed hunt:** see zone-header close above.
 
 2026-10-21 thorough hunt (hit, lane C): XML `<owner>` element tags no longer count as prose ownership tokens when `unowned` appears elsewhere; angle brackets added to ownership label delimiters; ownership boundary matrix case `xml-owner-element`; DifficultyBasedExtractionRouter filter 78/78.
 
@@ -6086,13 +6100,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 42
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **hunts:** 43
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-23 — markdown bold `**owner**` false ownership token
+- **last-bug:** 2026-10-30 — markdown strikethrough `~~owner~~` false ownership token
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
