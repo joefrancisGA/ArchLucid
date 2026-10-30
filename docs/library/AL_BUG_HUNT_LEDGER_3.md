@@ -504,14 +504,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-30 thorough hunt #59 (dry): cheap-disproof closed the three queued pagination/verdict candidates — JSON whitespace is insignificant to `System.Text.Json`, case-sensitive `hasmore` is an unsupported payload shape with conservative skip behavior, and offline PASS with a skipped list probe is already covered as intentional fixture replay. The focused `TenantIsolationNegativeTestRunnerTests` suite passed 59/59; no production code changed.
+
 2026-10-29 thorough hunt (hit): promoted `AnyEmbeddedRunListClaimsMorePages` — when manifest `evidence` contained multiple scannable list JSON fragments, first payload with `hasMore:false` blocked SKIP even though a later embedded payload had `hasMore:true`; hasMore inference now scans every `{`/`[` offset; regression `RunOffline_SkipsExcludeRunIdProbeWhenLaterEmbeddedJsonClaimsMorePagesAfterHasMoreFalse`. Cheap-disproof closed UTF-8 BOM on manifest read (`System.Text.Json` accepts BOM-prefixed manifest files; probe `evidence` leading BOM removed by `Trim`) and live `Trim` truncating pagination flags (exclude-run-id probes store `definition.Description` in `Evidence`, not truncated list bodies). 65 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-page fixture evidence with mixed pagination flags stays fail-closed when any embedded capture claims more pages.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — first scannable embedded JSON with `hasMore:false` wins over later truncated payload in same evidence string — **hit 2026-10-29 thorough hunt:** `AnyEmbeddedRunListClaimsMorePages`; regression above.
 - [x] (valid-no-repro) `TenantIsolationNegativeTestOfflineRunner` — UTF-8 BOM prefix on evidence file read path (not artifact write) breaks JSON extraction — **cheap-disproof 2026-10-29 thorough hunt:** manifest `JsonSerializer` reads BOM-prefixed files; per-probe evidence uses `Trim()` before scan.
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — `Trim` on evidence truncates trailing `hasMore` token before offline manifest capture — **cheap-disproof 2026-10-29 thorough hunt:** `ExecuteExcludeRunIdProbeAsync` sets `Evidence = definition.Description`; `Trim(body)` applies only to primary-scope failure copy.
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` string literal `true` with surrounding whitespace in JSON ignored — locus: `RunListClaimsMorePages`; input: `"hasMore": true` with non-canonical spacing (monitor JsonValueKind.True gate).
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — lowercase `hasmore` property in captured list JSON skipped — locus: case-sensitive property name; input: camelCase vs PascalCase in legacy fixtures.
-- [ ] (candidate) `TenantIsolationNegativeTestCommand` — offline mode overall PASS when deny probes pass but list probe inferred SKIP from evidence only — locus: `DeriveOverallVerdict` offline branch; input: mixed probe verdicts with evidence-inferred SKIP.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` string literal `true` with surrounding whitespace in JSON ignored — **cheap-disproof 2026-10-30 thorough hunt #59:** JSON whitespace is insignificant to `System.Text.Json`; `RunListClaimsMorePages` already reads the boolean token.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner` — lowercase `hasmore` property in captured list JSON skipped — **cheap-disproof 2026-10-30 thorough hunt #59:** the reachable API/fixture contract uses camelCase `hasMore`; conservative skip for an unsupported property shape is not a defect.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand` — offline mode overall PASS when deny probes pass but list probe inferred SKIP from evidence only — **cheap-disproof 2026-10-30 thorough hunt #59:** `DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` covers intentional offline fixture replay behavior.
 
 2026-10-29 thorough hunt (hit): promoted `TryExtractRunListJsonFromEvidence` — decorative JSON fragment earlier in manifest `evidence` (e.g. `note: use {"items":[]} shape then {"items":[],"hasMore":true}`) made the first `{`-suffix fail `RunListPayloadIsScannable`, so truncated list pages false-passed; extraction now scans every `{`/`[` start for the first scannable payload before hasMore inference; regression `RunOffline_SkipsExcludeRunIdProbeWhenDecorativeJsonPrecedesTruncatedListEvidence`. Cheap-disproof closed array-only list captures (root array has no `hasMore`; loop already honors `[` prefixes) and json-only artifact writes (`WillWriteMarkdown` false skips markdown path; regression `WriteArtifactsAsync_writes_utf8_without_byte_order_mark`). 64 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-fragment fixture evidence strings no longer false-pass exclude-run-id replay when only the trailing payload claims more pages.
 
@@ -608,9 +610,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — first embedded hasMore:false masked later hasMore:true in evidence
 - **related-pd-tb:** none
@@ -7895,12 +7897,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
-2026-10-30 seed hunt #44 (seed-only): reread reviews inventory counts, run-detail evidence scope, and sponsor explanation ordering; no candidate was promoted to hunt-ready or reproven in this pass. Seeded three bounded candidates below.
-
 2026-10-30 seed hunt #45 (seed-only): cheap-disproof confirmed the empty-evidence-scope candidate is already covered by `RunDetailEvidenceTabPanel.test.tsx` (`uses not-stored intro when findings snapshot was omitted`); retained the two untested candidates below for later repro.
 
 - [ ] (candidate) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
 - [ ] (candidate) `RunDetailSponsorModeExplanationCard` — equal-severity findings sort by `findingOrder - findingOrder`; input: a review-detail finding payload has a missing or non-finite `findingOrder` for two equal-severity open findings; wrong outcome: sponsor talking points retain API/input order instead of deterministic finding order; mechanism: `NaN` comparator result is treated as no ordering; reachability: persisted quick-decision finding payload rendered in sponsor mode.
+
+2026-10-30 seed hunt #44 (seed-only): reread reviews inventory counts, run-detail evidence scope, and sponsor explanation ordering; no candidate was promoted to hunt-ready or reproven in this pass. Seeded three bounded candidates below.
 
 2026-10-30 seed hunt #43 (hit): promoted `RunDetailCreateHomeEvidenceCaptureRegion` — a loaded empty stored-evidence catalog was treated as non-authoritative, so persisted session inventory could restore a deleted evidence row in the review detail; treat the empty catalog as authoritative when no legacy artifacts are available and retain only explicitly pending upload rows; regression `does not restore persisted captured evidence when the loaded catalog is empty`; focused evidence inventory tests passed 12/12. Private beta: invited architects no longer see deleted or absent uploaded evidence reappear in a review’s capture inventory after a detail reload; only server-confirmed or explicitly pending uploads remain visible.
 
