@@ -25,6 +25,7 @@ Labels are **not** attestations. **Template** means legal or owner execution is 
 | Buyer demonstration script | Self-attested | [BUYER_PROOF_DEMO.md](BUYER_PROOF_DEMO.md) | Fixture or synthetic demonstration is **not** customer evidence. |
 | Control-evidence responsibility | Template | [CONTROL_EVIDENCE_RESPONSIBILITY.md](CONTROL_EVIDENCE_RESPONSIBILITY.md) | Duty split for customer control owners and SecureNow; not an attestation. |
 | Framework coverage card | Self-attested | [FRAMEWORK_COVERAGE.md](FRAMEWORK_COVERAGE.md) | Thematic coverage index; not a certification or full framework catalog. |
+| ROI cost input | Template | [ROI_COST_INPUT.md](ROI_COST_INPUT.md) | Assembles annual cost **C** from SKU identifiers and customer operating cost; not a savings result. |
 | In-tenant collection agent (ADR 0103) | Implemented | [../architecture/adrs/0103-securenow-in-tenant-collection-agent.md](../architecture/adrs/0103-securenow-in-tenant-collection-agent.md) | Accepted architecture decision; not proof of a live customer deployment. |
 | In-tenant deployment (ADR 0104) | Implemented | [../architecture/adrs/0104-securenow-in-tenant-deployment.md](../architecture/adrs/0104-securenow-in-tenant-deployment.md) | Accepted architecture decision; not proof of a live customer deployment. |
 | In-tenant Terraform root (engineering) | Self-attested | [../../infra/terraform-securenow-in-tenant/README.md](../../infra/terraform-securenow-in-tenant/README.md) | Engineering description of a customer-operated deployment option; not a deployed tenant attestation. |
