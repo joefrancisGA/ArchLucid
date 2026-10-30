@@ -2804,8 +2804,6 @@
 {"at":"2026-10-30T15:22:10.6378041Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:24:58.4972403Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:28:44.8555558Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-30T15:30:08.5507193Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
-=======
 {"at":"2026-10-30T15:31:26.4021165Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
->>>>>>> 710a42f1a7 (Record hunt #888 dry in AL_BUG_HUNT_RUN_LOG_4.jsonl.)
+{"at":"2026-10-30T15:32:27.5495272Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
