@@ -459,6 +459,51 @@ describe("useQuickScanClient", () => {
     expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
   });
 
+  it("clears a failed sample error when an explicit retry succeeds", async () => {
+    let sampleFetchCount = 0;
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        sampleFetchCount += 1;
+
+        if (sampleFetchCount === 1) {
+          return Promise.resolve({
+            ok: false,
+            json: async () => ({}),
+          });
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => SAMPLE_ANALYSIS,
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toBe("Quick Scan sample could not be loaded.");
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(result.current.error).toBeNull();
+  });
+
   it("does not apply analysis results after cancelSubmit aborts an in-flight POST", async () => {
     let resolvePost: ((value: Response) => void) | undefined;
     let rejectPost: ((reason: unknown) => void) | undefined;

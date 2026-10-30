@@ -7819,6 +7819,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #10 (dry): cheap-disproof closed three open `(candidate)` rows — explicit sample retry success clears the prior sample error (`clears a failed sample error when an explicit retry succeeds`); artifact navigation only updates active state for a currently found target and observer cleanup handles route teardown; funnel telemetry intentionally consumes canonical scenario props rather than decoding encoded values at the low-level event helper. Reseeded three follow-on `(candidate)` rows. 33 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — **cheap-disproof 2026-10-30 thorough hunt #10:** successful retry calls `setError(null)`; regression `clears a failed sample error when an explicit retry succeeds`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — **cheap-disproof 2026-10-30 thorough hunt #10:** click path no-ops when target is absent and observer cleanup handles teardown.
+- [x] (invalid) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — **cheap-disproof 2026-10-30 thorough hunt #10:** low-level telemetry accepts canonical scenario props; route decoding is owned by the page wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful real analysis response — locus: POST success state reset; input: failed sample then completed analysis (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — locus: click/observer ordering; input: fast click plus viewport exit (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — locus: property normalization; input: `" demo "` scenario (monitor).
+
 2026-10-30 thorough hunt #9 (dry): cheap-disproof closed three open `(candidate)` rows — a failed auto-sample remains eligible for an intentional retry but cannot replace a non-null user result through the status effect; the observer effect’s captured section list is disconnected on unmount and cannot update stale nodes; funnel telemetry accepts the already-normalized `scenario` contract and does not decode route segments itself. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — **cheap-disproof 2026-10-30 thorough hunt #9:** status-driven loading requires `result === null`; user results are protected.
