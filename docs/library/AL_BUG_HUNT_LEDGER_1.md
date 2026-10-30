@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities`, which did not treat `principalId` on `azurerm_user_assigned_identity` as a declared principal, so golden case-65 reported that principal missing on both the identity and the role assignment that references it; principal values now count when the node is not a role assignment; regressions `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity` and `Analyze_still_flags_principal_id_when_no_identity_declares_it`; case-65 expected findings drop the two false dangling rows; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1395/1409** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's package includes a user-assigned identity and a role assignment for that same principal, the review no longer says the principal is missing from the package.
+
+- [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on `azurerm_user_assigned_identity` was not a declared principal — **hit 2026-10-30 seed hunt:** role-assignment `principalId` stays a reference; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
+
 2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.HasInternetSource`, which treated any `= *` in an NSG rule blob as an internet source whenever `source_address_prefix` appeared; a simple-terraform `security_rule` body with `source_address_prefix = "10.0.0.0/8"`, `source_port_range = "*"`, and `destination_address_prefix = "*"` was reported as internet-to-22; the internet check now reads the source prefix value; regressions `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`, `ParseRiskyRules_still_detects_internet_source_when_port_and_destination_are_wildcards`, and `ParseRiskyRules_detects_azure_internet_service_tag_with_destination_wildcard`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1393/1407** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port only from a private address range, and the rule still uses the usual any-source-port and any-destination wildcards, the review no longer reports that rule as internet-exposed.
 
 - [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` — **hit 2026-10-30 seed hunt:** only the source prefix value counts as internet; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
@@ -17085,11 +17089,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 61
-- **bugs-found:** 50
+- **hunts:** 62
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — private NSG source flagged as internet because port and destination wildcards matched
+- **last-bug:** 2026-10-30 — user-assigned identity principalId was reported missing from the package
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17196,6 +17200,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on a user-assigned identity was reported missing, including on the identity node itself — **hit 2026-10-30 seed hunt:** that value is a declared principal unless the node is a role assignment; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
 
 - [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` counted as internet-to-22 — **hit 2026-10-30 seed hunt:** internet evidence is the source prefix value; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
 
