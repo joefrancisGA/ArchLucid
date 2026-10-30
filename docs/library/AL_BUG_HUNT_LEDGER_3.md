@@ -7819,6 +7819,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #8 (dry): cheap-disproof closed three open `(candidate)` rows — a failed sample may retry only when status data changes and remains behind the existing `result === null` guard; the artifact observer is disconnected on unmount and its captured DOM snapshot cannot update detached UI; `renderMode` is a compile-time `ShowcaseRenderMode` union, so whitespace is malformed caller input rather than a reachable production telemetry state. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — **cheap-disproof 2026-10-30 thorough hunt #8:** retry requires a changed status object and the existing sample effect guard; no unexpected retry path found.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — **cheap-disproof 2026-10-30 thorough hunt #8:** observer cleanup disconnects on unmount; no detached state update is reachable.
+- [x] (invalid) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — **cheap-disproof 2026-10-30 thorough hunt #8:** whitespace violates the compile-time `ShowcaseRenderMode` contract and no production caller supplies it.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — locus: result nullability vs manual sample state; input: failed auto-sample followed by manual form state (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes — locus: effect dependency snapshot; input: DOM node replacement without unmount (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — locus: caller normalization boundary; input: encoded scenario prop (monitor).
+
 2026-10-30 thorough hunt #7 (dry): cheap-disproof closed three open `(candidate)` rows — failed sample refreshes do not restart from status alone because the auto-sample effect requires `result === null` and the status transition is already covered; the artifact observer is disconnected on unmount and stale zero-ratio entries cannot update a detached component; funnel telemetry uses the same blank-scenario early return as viewed telemetry (`recordShowcaseFunnelEvent is a no-op when scenario trims to empty`). Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — sample request restarts repeatedly after a failed sample and repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #7:** the effect only auto-loads while `result === null`, with existing status/sample coverage.
