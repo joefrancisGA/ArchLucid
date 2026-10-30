@@ -1,3 +1,4 @@
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Findings;
 
@@ -13,6 +14,8 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string PortfolioSignalsNotStored = "Portfolio signals were not stored.";
     internal const string ConfidenceNotStored = "Confidence was not stored.";
     internal const string EvidenceLinkNotStored = "Evidence link was not stored.";
+    internal const string SupportingEvidenceNotListedInPacket =
+        "Supporting evidence ids and rationale were not listed in this packet.";
     internal const string TopDecisionsNotStored = "No decisions were stored for this review.";
     internal const string PricingBasisNoteNotStored = "Pricing basis note was not stored.";
     internal const string CostEvidenceFreshnessNotStored = "Cost evidence freshness was not stored.";
@@ -53,7 +56,11 @@ internal static class SponsorReviewPacketExportHonestyCopy
         ArgumentNullException.ThrowIfNull(finding);
 
         if (!string.IsNullOrWhiteSpace(finding.Message))
-            return finding.Message.Trim();
+        {
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(
+                finding.Message,
+                ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        }
 
         string category = string.IsNullOrWhiteSpace(finding.Category)
             ? "Finding category was not stored."

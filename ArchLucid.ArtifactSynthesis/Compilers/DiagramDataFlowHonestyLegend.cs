@@ -17,6 +17,9 @@ public static class DiagramDataFlowHonestyLegend
     public const string EvidenceFamiliesPrimarySentence =
         "Evidence of possible or declared movement, not observed traffic. Configured dataset read/write labels are pipeline wiring, not observed reads or writes. Authorization may allow access labels are identity authorization, not observed use. Private network path is a DNS-joined private endpoint hop, not usage.";
 
+    public const string ObservedRuntimeLeadingPrimarySentence =
+        "Observed-in-logs edges reflect diagnostic evidence in a bounded time window. Other connectors on this diagram show declared or authorized configuration, not observed traffic.";
+
     public const string AuthorizedAccessBandSentence =
         "Authorization may allow access labels are authorization evidence (Probable band), not observed use.";
 

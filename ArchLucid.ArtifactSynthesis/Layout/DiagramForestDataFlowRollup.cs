@@ -234,8 +234,11 @@ internal static class DiagramForestDataFlowRollup
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(address => address, StringComparer.OrdinalIgnoreCase)
             .ToList();
-        string? rollupHiddenPublicIp = hiddenPublicIpAddresses.Count == 1
-            ? hiddenPublicIpAddresses[0]
+        List<DiagramNode> membersWithHiddenPublicIp = members
+            .Where(member => !string.IsNullOrWhiteSpace(member.HiddenPublicIpAddress))
+            .ToList();
+        string? rollupHiddenPublicIp = membersWithHiddenPublicIp.Count == 1
+            ? membersWithHiddenPublicIp[0].HiddenPublicIpAddress!.Trim()
             : null;
         List<string> privateEndpointNames = members
             .Select(member => member.PrivateEndpointAccessName)

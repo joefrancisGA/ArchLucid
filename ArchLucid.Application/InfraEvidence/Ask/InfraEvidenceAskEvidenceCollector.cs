@@ -16,6 +16,7 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
     IAzureInventorySnapshotRepository snapshotRepository,
     IAuditEvidenceLineageService auditLineageService) : IInfraEvidenceAskEvidenceCollector
 {
+    private const int AskEvidenceRowCap = 50;
     public async Task<InfraEvidenceAskEvidenceBundle> CollectAsync(
         ScopeContext scope,
         InfraEvidenceAskRequest request,
@@ -178,7 +179,7 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
             $"{report.Summary.TotalChanges} changes",
             $"diffId={diffId:D} totalChanges={report.Summary.TotalChanges}");
 
-        foreach (AzureInventoryClassifiedChangeRecord classified in report.Changes.Take(50))
+        foreach (AzureInventoryClassifiedChangeRecord classified in report.Changes.Take(AskEvidenceRowCap))
         {
             AzureInventoryChangeRecord change = classified.Change;
 
@@ -187,6 +188,14 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
                 change.ChangeId.ToString("D"),
                 change.ChangeType.ToString(),
                 $"changeId={change.ChangeId:D} type={change.ChangeType} classification={classified.Classification}");
+        }
+
+        int omittedDriftRows = Math.Max(0, report.Changes.Count - AskEvidenceRowCap);
+
+        if (omittedDriftRows > 0)
+        {
+            bundle.EvidenceLines.Add(
+                $"{omittedDriftRows} more drift change row(s) were not listed in this ask bundle.");
         }
 
         return bundle;
@@ -223,9 +232,19 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
                 string.Equals(row.MatchKind, DiagramInfrastructureMatchKinds.InfrastructureOnly, StringComparison.Ordinal));
         }
 
-        foreach (DiagramInfrastructureCorrespondenceRow row in rows.Take(50))
+        List<DiagramInfrastructureCorrespondenceRow> rowList = rows.ToList();
+
+        foreach (DiagramInfrastructureCorrespondenceRow row in rowList.Take(AskEvidenceRowCap))
         {
             AddDiagramCorrespondence(bundle, row);
+        }
+
+        int omittedRows = Math.Max(0, rowList.Count - AskEvidenceRowCap);
+
+        if (omittedRows > 0)
+        {
+            bundle.EvidenceLines.Add(
+                $"{omittedRows} more diagram correspondence row(s) were not listed in this ask bundle.");
         }
 
         return bundle;
