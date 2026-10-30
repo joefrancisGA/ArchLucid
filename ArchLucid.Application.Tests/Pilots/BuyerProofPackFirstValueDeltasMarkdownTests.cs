@@ -273,6 +273,7 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
         row.Should().Contain(PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored);
         row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
+        row.Should().NotContain("agent results omitted on run detail payload");
     }
 
     [Fact]

@@ -40,7 +40,9 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
 
         if (!deltas.AgentResultsIncludedInDetail)
         {
-            return FindingsTotalSourceAgentResultsOmittedLabel;
+            return IsAgentResultsOmittedEmptySeverity(deltas)
+                ? PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored
+                : FindingsTotalSourceAgentResultsOmittedLabel;
         }
 
         if (IsAgentResultsIncludedEmptySeverity(deltas))
