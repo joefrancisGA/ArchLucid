@@ -11,6 +11,7 @@ import {
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_DRAFT_BANNER,
   WHY_SECURENOW_DRAFT_PITCH,
+  WHY_SECURENOW_REVIEWER_PACK_BODY,
 } from "@/lib/marketing/why-securenow-draft-copy";
 
 const marketingResourcesMenuPath = join(
@@ -49,5 +50,13 @@ describe("Why SecureNow draft (SN-MKT-02)", () => {
     const source = readFileSync(marketingResourcesMenuPath, "utf8");
 
     expect(source).not.toContain('href="/why-securenow"');
+  });
+
+  it("renders the reviewer-pack anchor before the conversation link", () => {
+    render(<WhySecureNowDraftView />);
+
+    const reviewerSection = document.getElementById("reviewer-pack");
+    expect(reviewerSection).not.toBeNull();
+    expect(reviewerSection).toHaveTextContent(WHY_SECURENOW_REVIEWER_PACK_BODY);
   });
 });
