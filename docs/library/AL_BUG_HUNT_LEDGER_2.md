@@ -9151,20 +9151,6 @@
 
 2026-10-20 thorough hunt (hit): application-billing-logic — `TenantCostEstimateService.TryGetEstimateAsync` returned a 0–0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
-- **id:** application-billing-logic
-- **status:** open
-- **impact:** high
-- **aliases:** marketplace billing; checkout mutation; billing application layer
-- **paths:** ArchLucid.Application/Billing/
-- **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — zero-config commercial cost band lacked guidance copy
-- **related-pd-tb:** none
-
 2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
 
 2026-10-11 seed hunt (seed-only): re-read the billing application sources and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No candidate met the same-run failing-repro bar. Seeded five follow-on candidates covering unknown Marketplace plan-id fallback, provider-error detail exposure, invalid checkout quantities, warning-threshold configuration, and blank billing currency.
