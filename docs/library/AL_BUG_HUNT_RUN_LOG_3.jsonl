@@ -2080,3 +2080,4 @@
 {"at":"2026-10-30T20:23:00.5461343Z","zoneId":"ui-help-docs","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
 {"at":"2026-10-30T20:24:54.6496616Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
 {"at":"2026-10-30T20:26:42.8187886Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
+{"at":"2026-10-30T20:28:32.5404384Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
