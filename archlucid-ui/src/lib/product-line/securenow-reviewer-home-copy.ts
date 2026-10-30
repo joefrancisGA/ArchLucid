@@ -24,4 +24,9 @@ export const SECURENOW_REVIEWER_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     label: "Request a conversation",
     summary: "Same intake as the draft page. Not a signup.",
   },
+  {
+    href: "/administration/securenow-accessibility",
+    label: "Accessibility",
+    summary: "Shared WCAG target and how to report a barrier.",
+  },
 ];
