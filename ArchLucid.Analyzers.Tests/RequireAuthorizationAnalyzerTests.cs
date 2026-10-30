@@ -1904,6 +1904,42 @@ namespace N
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Reports_AL0001_on_undecorated_HttpPost_when_sibling_action_has_AllowAnonymous()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class MixedAnonymousController : ControllerBase
+    {
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult AnonymousPost() => Ok();
+
+        [HttpPost]
+        public IActionResult {|#0:UnsecuredPost|}() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("MixedAnonymousController.UnsecuredPost()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 
