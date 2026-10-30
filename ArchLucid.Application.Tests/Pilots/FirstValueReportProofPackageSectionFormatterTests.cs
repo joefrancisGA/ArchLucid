@@ -37,4 +37,30 @@ public sealed class FirstValueReportProofPackageSectionFormatterTests
 
         row.Should().Be("| Buyer-safe redaction profile | tenant\\|segmented |");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_when_roi_confidence_label_contains_pipe_escapes_table_cell()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+                RoiConfidenceLabel = "Strong|tenant",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("ROI evidence confidence", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| ROI evidence confidence | **Strong** — Strong\\|tenant |");
+    }
 }

@@ -102,6 +102,8 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatRoiConfidenceLabel(string? label)
     {
-        return string.IsNullOrWhiteSpace(label) ? "ROI confidence label was not stored." : label.Trim();
+        return string.IsNullOrWhiteSpace(label)
+            ? "ROI confidence label was not stored."
+            : FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(label.Trim());
     }
 }
