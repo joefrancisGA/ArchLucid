@@ -6,6 +6,10 @@ import { collectEvidenceRefSnippets } from "@/lib/findings/finding-evidence-ref-
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
+import {
+  readArchitectureIntelligenceHumanReviewStoredFromWire,
+  readArchitectureIntelligenceSeverityStoredFromWire,
+} from "@/lib/architecture/architecture-intelligence-finding-wire-honesty";
 import { resolveQuickDecisionFindingPresentation } from "@/lib/quick-decision-finding-wire-fields";
 import {
   coerceArchitectureFindingSeverity,
@@ -224,9 +228,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         wireJson = '{"error":"finding_payload_not_json_serializable"}';
       }
 
+      const architectureIntelligenceSeverityStored =
+        readArchitectureIntelligenceSeverityStoredFromWire(wireJson);
+      const architectureIntelligenceHumanReviewStored =
+        readArchitectureIntelligenceHumanReviewStoredFromWire(wireJson);
+
       const severityStored =
-        fr.severity !== null && fr.severity !== undefined
-        && (typeof fr.severity !== "string" || fr.severity.trim().length > 0);
+        architectureIntelligenceSeverityStored !== undefined
+          ? architectureIntelligenceSeverityStored
+          : fr.severity !== null && fr.severity !== undefined
+          && (typeof fr.severity !== "string" || fr.severity.trim().length > 0);
       const severityValue = severityStored ? coerceArchitectureFindingSeverity(fr.severity) : null;
 
       const isMuted = fr.isMuted === true;
@@ -285,8 +296,10 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           : null;
 
       const humanReviewStatusStored =
-        fr.humanReviewStatus !== null && fr.humanReviewStatus !== undefined
-        && (typeof fr.humanReviewStatus !== "string" || fr.humanReviewStatus.trim().length > 0);
+        architectureIntelligenceHumanReviewStored !== undefined
+          ? architectureIntelligenceHumanReviewStored
+          : fr.humanReviewStatus !== null && fr.humanReviewStatus !== undefined
+          && (typeof fr.humanReviewStatus !== "string" || fr.humanReviewStatus.trim().length > 0);
       const humanReviewStatus = humanReviewStatusStored
         ? normalizeFindingHumanReviewStatus(fr.humanReviewStatus)
         : null;

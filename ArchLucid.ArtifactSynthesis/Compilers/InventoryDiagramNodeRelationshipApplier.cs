@@ -334,7 +334,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
         Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
-        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(
+            rules,
+            includeMissingDestinationHonesty: true);
         HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
         bool hadStoredAssociationTarget = false;
 

@@ -28,10 +28,10 @@ import { technologyLedgerBlockedReason } from "@/lib/runs/technology-ledger-bloc
 
 import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
-  technologyLedgerProviderLabel,
+  technologyLedgerProviderDisplayLabel,
   technologyLedgerRoleLabel,
   technologyLedgerSourceLabel,
-  technologyLedgerStatusTag,
+  technologyLedgerStatusDisplayTag,
 } from "@/lib/technology-ledger-labels";
 import { TechnologyBaselineRationaleDialog } from "@/components/reviews/technology-baseline/TechnologyBaselineRationaleDialog";
 import { detectTechnologyLedgerDrift } from "@/lib/vocabulary/detect-technology-ledger-drift";
@@ -439,7 +439,7 @@ export function TechnologyBaselinePanel({
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {entries.map((entry) => {
-              const statusTag = technologyLedgerStatusTag(entry.status);
+              const statusTag = technologyLedgerStatusDisplayTag(entry);
 
               return (
                 <EnterpriseTableRow key={entry.entryId}>
@@ -470,7 +470,7 @@ export function TechnologyBaselinePanel({
                       )}
                     </div>
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{technologyLedgerProviderLabel(entry.providerFamily)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{technologyLedgerProviderDisplayLabel(entry)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <StatusTag kind={statusTag.kind} label={statusTag.label} />
                   </EnterpriseTableCell>

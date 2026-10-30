@@ -537,6 +537,10 @@ export function SecureNowQuestionQueueProvider(
     const usesInferredConnectionConfirm =
       matchedInferredConnection != null
       && (selectedAnswer === "Yes" || selectedAnswer === "No");
+    const dispositionInferredConnection = findInferredConnection(
+      currentQuestion,
+      inferredConnections,
+    );
 
     const mutationEvidenceFingerprint =
       secureNowQuestionDispositionMutationEvidenceFingerprint(currentQuestion.evidenceFingerprint);
@@ -571,10 +575,25 @@ export function SecureNowQuestionQueueProvider(
       return;
     }
 
-    const dispositionInferredConnection = findInferredConnection(
-      currentQuestion,
-      inferredConnections,
-    );
+    const listedSource = currentQuestion.source?.trim() ?? "";
+
+    if (
+      action !== "reopen"
+      && !usesInferredConnectionConfirm
+      && listedSource.length === 0
+      && mutationSource === "InventoryEvidence"
+      && dispositionInferredConnection == null
+    ) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Question source was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
+
     const dispositionMutationSource =
       dispositionInferredConnection != null ? "InferredConnection" : mutationSource!;
     const dispositionMutationScopeKind =
