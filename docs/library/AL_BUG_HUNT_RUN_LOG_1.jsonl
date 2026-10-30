@@ -2830,3 +2830,4 @@
 {"at":"2026-10-29T22:34:50.4588320Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-29T22:45:56.8486241Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"state-machine-gap"}
 {"at":"2026-10-30T08:09:11.1989624Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"other"}
+{"at":"2026-10-30T08:16:08.3548924Z","zoneId":"decisioning","outcome":"dry","productLine":"archlucid-shared"}
