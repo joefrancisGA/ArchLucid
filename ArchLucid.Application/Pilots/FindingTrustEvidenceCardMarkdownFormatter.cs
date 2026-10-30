@@ -44,9 +44,9 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Finding id | `{(string.IsNullOrWhiteSpace(deltas.TopFindingId) ? "Finding id was not stored." : deltas.TopFindingId.Trim())}` |");
+            $"| Finding id | {FormatInlineCodeCell(string.IsNullOrWhiteSpace(deltas.TopFindingId) ? "Finding id was not stored." : deltas.TopFindingId.Trim())} |");
         sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Severity (selected for excerpt) | `{deltas.TopFindingSeverity ?? "Severity was not stored."}` |");
+            $"| Severity (selected for excerpt) | {FormatInlineCodeCell(deltas.TopFindingSeverity ?? "Severity was not stored.")} |");
 
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 
@@ -59,27 +59,27 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Manifest version (chain) | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
+                $"| Manifest version (chain) | {FormatInlineCodeCell(chain.ManifestVersion ?? "Manifest version was not stored.")} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
+                $"| Findings snapshot id | {FormatInlineCodeCell(FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
+                $"| Context snapshot id | {FormatInlineCodeCell(FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
+                $"| Graph snapshot id | {FormatInlineCodeCell(FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
+                $"| Decision trace id | {FormatInlineCodeCell(FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
+                $"| Golden manifest id | {FormatInlineCodeCell(FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored."))} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -114,7 +114,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Confidence class (machine-readable) | `{TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(sufficiency)}` |");
+            $"| Confidence class (machine-readable) | {FormatInlineCodeCell(TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(sufficiency))} |");
 
         if (sufficiency is TopFindingEvidenceSufficiency.Low or TopFindingEvidenceSufficiency.Insufficient)
         {
@@ -161,8 +161,11 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
             ? $"**{readiness}**"
-            : $"**Unrecognized** — persisted value `{value}` is not a known classification.";
+            : $"**Unrecognized** — persisted value {FormatInlineCodeCell(value.Trim())} is not a known classification.";
     }
+
+    private static string FormatInlineCodeCell(string value)
+        => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
 
     private static string FormatProofSendabilityPublishingTier(ProofPackageCompletenessResponse proof)
     {
@@ -176,14 +179,14 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         if (sendability.Length == 0)
         {
-            return $"Proof sendability was not stored. Publishing tier: `{tier}`.";
+            return $"Proof sendability was not stored. Publishing tier: {FormatInlineCodeCell(tier)}.";
         }
 
         if (tier.Length == 0)
         {
-            return $"Proof sendability: `{sendability}`. Publishing tier was not stored.";
+            return $"Proof sendability: {FormatInlineCodeCell(sendability)}. Publishing tier was not stored.";
         }
 
-        return $"`{sendability}` · `{tier}`";
+        return $"{FormatInlineCodeCell(sendability)} · {FormatInlineCodeCell(tier)}";
     }
 }

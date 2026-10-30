@@ -14,7 +14,8 @@ internal static class PilotTopFindingPresentationHonestyCopy
 
         string severity = deltas.TopFindingSeverity ?? SeverityNotStored;
 
-        return FormattableString.Invariant($"Selected finding: `{title}` (severity `{severity}`).");
+        return FormattableString.Invariant(
+            $"Selected finding: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(title)} (severity {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(severity)}).");
     }
 
     internal static string FormatSelectedFindingPlainLine(PilotRunDeltas deltas)
