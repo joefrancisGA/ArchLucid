@@ -61,6 +61,32 @@ public sealed class FirstValueReportProofPackageSectionFormatterTests
             .Single(line => line.Contains("ROI evidence confidence", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| ROI evidence confidence | **Strong** — Strong\\|tenant |");
+        row.Should().Be("| ROI evidence confidence | **Strong** — `Strong\\|tenant` |");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_roi_confidence_label_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+                RoiConfidenceLabel = "Strong`tenant",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("ROI evidence confidence", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``Strong`tenant``");
     }
 }

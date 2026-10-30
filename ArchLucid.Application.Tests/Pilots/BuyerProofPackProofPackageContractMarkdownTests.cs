@@ -89,4 +89,30 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Contain("``tenant`segmented``");
     }
+
+    [Fact]
+    public void Proof_package_section_when_roi_confidence_label_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+                RoiConfidenceLabel = "Strong`tenant",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI evidence confidence |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``Strong`tenant``");
+    }
 }
