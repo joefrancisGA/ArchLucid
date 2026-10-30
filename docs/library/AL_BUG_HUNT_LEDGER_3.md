@@ -7825,6 +7825,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #13 (dry): cheap-disproof closed three open `(candidate)` rows — malformed POST JSON leaves the sample result intact while surfacing an error rather than claiming a new analysis; equal observer ratios use deterministic artifact order; both telemetry backends receive the same trimmed, case-preserving scenario value from the shared helper. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — **cheap-disproof 2026-10-30 thorough hunt #13:** JSON parse failure does not call `setResult`; existing stale-result protections remain.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — **cheap-disproof 2026-10-30 thorough hunt #13:** stable artifact order resolves ties deterministically.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — **cheap-disproof 2026-10-30 thorough hunt #13:** both paths consume the same trimmed scenario value; case is intentionally preserved.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error leaves stale sample status message visible — locus: error/status state split; input: sample then malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — tie ordering changes when artifact items are conditionally omitted — locus: fixed array vs rendered DOM; input: optional section omission (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario case normalization differs from showcase route slug normalization — locus: page wrapper vs event helper; input: percent-encoded mixed-case slug (monitor).
+
 2026-10-30 thorough hunt #12 (dry): cheap-disproof closed three open `(candidate)` rows — malformed successful analysis JSON is surfaced as a request error rather than silently accepted; equal observer ratios resolve deterministically through the stable artifact order; viewed and funnel telemetry share the same trimmed scenario and render-mode property construction. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — **cheap-disproof 2026-10-30 thorough hunt #12:** malformed success JSON enters the error path rather than being treated as a successful analysis; no silent stale-result commit.
