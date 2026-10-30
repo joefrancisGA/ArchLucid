@@ -312,10 +312,16 @@ export function deriveReviewHeaderPresentation(input: {
   };
 }
 export function derivePackageVersionLabel(
-  manifestSummary: ManifestSummary | null,
-  _manifestId?: string | null | undefined,
+  run: Pick<RunSummary, "currentManifestVersion"> | null | undefined,
+  manifestId?: string | null | undefined,
 ): string | null {
-  const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+
+  if (!hasManifest) {
+    return null;
+  }
+
+  const version = run?.currentManifestVersion?.trim() ?? "";
 
   return version.length > 0 ? version : null;
 }
@@ -325,13 +331,19 @@ export function deriveEvidenceCoverageSummary(
 ): EvidenceCoverageSummary {
   const unresolved = filterUnresolvedFindings(findings);
   const totalCount = unresolved.length;
-  const hasFindingsSnapshot = options?.hasFindingsSnapshot !== false;
-
   if (totalCount === 0) {
+    if (options?.hasFindingsSnapshot !== true) {
+      return {
+        linkedCount: 0,
+        totalCount: 0,
+        summaryLine: "Evidence coverage was not stored.",
+      };
+    }
+
     return {
       linkedCount: 0,
       totalCount: 0,
-      summaryLine: hasFindingsSnapshot ? "No open findings" : "Evidence coverage was not stored.",
+      summaryLine: "No open findings",
     };
   }
 

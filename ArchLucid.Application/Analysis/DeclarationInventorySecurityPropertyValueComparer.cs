@@ -8,11 +8,39 @@ internal static class DeclarationInventorySecurityPropertyValueComparer
 {
     internal static string ComparableToken(string logicalName, string value)
     {
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion)
+            return CanonicalMinimumTlsVersion(value);
+
         if (logicalName == DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction
             && TryExtractDefaultActionToken(value, out string token))
             return token;
 
         return value;
+    }
+
+    /// <summary>
+    ///     ARM and azurerm storage emit <c>TLS1_2</c>. Older declarations and App Service
+    ///     <c>minTlsVersion</c> use <c>1.2</c>. Both name the same protocol version.
+    /// </summary>
+    private static string CanonicalMinimumTlsVersion(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        string normalized = value.Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal);
+
+        return normalized switch
+        {
+            "1.0" or "tls1.0" or "tls10" => "1.0",
+            "1.1" or "tls1.1" or "tls11" => "1.1",
+            "1.2" or "tls1.2" or "tls12" => "1.2",
+            "1.3" or "tls1.3" or "tls13" => "1.3",
+            _ => normalized,
+        };
     }
 
     internal static bool ValuesMatch(string declarationValue, string inventoryValue)
@@ -32,37 +60,55 @@ internal static class DeclarationInventorySecurityPropertyValueComparer
 
         string trimmed = value.Trim();
 
-        if (trimmed.Length < 2 || trimmed[0] != '{')
+        if (trimmed.Length < 2 || (trimmed[0] != '{' && trimmed[0] != '['))
             return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Object)
-                return false;
-
-            foreach (JsonProperty property in document.RootElement.EnumerateObject())
+            if (document.RootElement.ValueKind is JsonValueKind.Array)
             {
-                if (property.Value.ValueKind is not JsonValueKind.String)
-                    continue;
+                foreach (JsonElement element in document.RootElement.EnumerateArray())
+                {
+                    if (TryReadDefaultActionProperty(element, out token))
+                        return true;
+                }
 
-                if (!string.Equals(property.Name, "defaultaction", StringComparison.OrdinalIgnoreCase)
-                    && !string.Equals(property.Name, "default_action", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                string? text = property.Value.GetString()?.Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
-                    continue;
-
-                token = text;
-                return true;
+                return false;
             }
+
+            return TryReadDefaultActionProperty(document.RootElement, out token);
         }
         catch (JsonException)
         {
             return false;
+        }
+    }
+
+    private static bool TryReadDefaultActionProperty(JsonElement element, out string token)
+    {
+        token = string.Empty;
+
+        if (element.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (property.Value.ValueKind is not JsonValueKind.String)
+                continue;
+
+            if (!string.Equals(property.Name, "defaultaction", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(property.Name, "default_action", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string? text = property.Value.GetString()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(text))
+                continue;
+
+            token = text;
+            return true;
         }
 
         return false;

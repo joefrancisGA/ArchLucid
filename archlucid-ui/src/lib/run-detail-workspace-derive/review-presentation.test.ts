@@ -116,4 +116,12 @@ describe("deriveEvidenceCoverageSummary", () => {
 
     expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
   });
+
+  it("uses not-stored copy when snapshot flag is omitted and there are no open findings", async () => {
+    const { deriveEvidenceCoverageSummary } = await import("./review-presentation");
+
+    const summary = deriveEvidenceCoverageSummary([]);
+
+    expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
+  });
 });

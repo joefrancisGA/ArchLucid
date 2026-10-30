@@ -21,6 +21,9 @@ internal static class DiagramExecutiveRegionPlanner
     public const string SingleRegionUnlocatedSuffixTemplate =
         "{0} resource(s) had no stored region and are not in region swimlanes.";
 
+    public const string DefaultExecutiveInventoryCaption =
+        "This executive inventory diagram shows resources collected in this snapshot. It is not a complete subscription inventory.";
+
     public static string? BuildSingleRegionCaption(
         IReadOnlyList<GraphNode> topologyNodes,
         IReadOnlyList<DiagramNode> diagramNodes)

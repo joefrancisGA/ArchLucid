@@ -52,7 +52,7 @@ public static class DeclarationInventoryContradictionAnalyzer
             if (!inventoryRowsByResourceId.TryGetValue(normalizedResourceId, out JsonElement inventoryRow))
                 continue;
 
-            if (!inventoryRow.TryGetProperty("properties", out JsonElement inventoryProperties))
+            if (!TryReadPropertiesBag(inventoryRow, out JsonElement inventoryProperties))
                 continue;
 
             string resourceLabel = string.IsNullOrWhiteSpace(node.Label)
@@ -128,6 +128,23 @@ public static class DeclarationInventoryContradictionAnalyzer
         {
             return [];
         }
+    }
+
+    private static bool TryReadPropertiesBag(JsonElement row, out JsonElement properties)
+    {
+        if (row.ValueKind is JsonValueKind.Object)
+        {
+            if (row.TryGetProperty("properties", out properties)
+                && properties.ValueKind is JsonValueKind.Object)
+                return true;
+
+            if (row.TryGetProperty("Properties", out properties)
+                && properties.ValueKind is JsonValueKind.Object)
+                return true;
+        }
+
+        properties = default;
+        return false;
     }
 
     private static string ReadInventoryResourceId(

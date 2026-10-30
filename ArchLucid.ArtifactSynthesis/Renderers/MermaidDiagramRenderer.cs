@@ -32,6 +32,12 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             }
         }
 
+        if (ast.CaptionLines.Count == 0
+            && ast.Title.Contains("(Executive)", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.AppendLine($"    %% {DiagramExecutiveRegionPlanner.DefaultExecutiveInventoryCaption}");
+        }
+
         foreach (DiagramDropGateRow row in ast.DropGateRows)
         {
             sb.AppendLine(
