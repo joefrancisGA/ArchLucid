@@ -7831,6 +7831,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #15 (dry): cheap-disproof closed three open `(candidate)` rows that were already represented by the preceding malformed-POST, navigation, and telemetry regressions — malformed analysis errors retain the sample and expose an error; optional artifact omission is not a supported product contract; and page wrappers pass the same canonical scenario into viewed and funnel events. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #14 — **cheap-disproof 2026-10-30 thorough hunt #15:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed analysis response leaves a stale “Showing sample” status message — locus: status-message reset on parse failure; input: sample then malformed POST body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — omitted optional artifact still appears as active after observer callback — locus: fixed item list vs DOM lookup (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — direct caller uses encoded scenario while page wrapper uses decoded slug — locus: caller normalization contract (monitor).
+
 2026-10-30 thorough hunt #14 (dry): cheap-disproof closed three open `(candidate)` rows that were already covered by the preceding marketing regressions — malformed POST errors do not silently replace the sample; conditional artifact omissions are outside the fixed navigation item contract; and route/page normalization occurs before funnel telemetry receives its canonical scenario. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #13 — **cheap-disproof 2026-10-30 thorough hunt #14:** malformed POST/sample state, deterministic artifact ordering, and route/event scenario handling were already classified; no new repro.
