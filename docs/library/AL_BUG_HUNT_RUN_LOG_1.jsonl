@@ -2870,3 +2870,4 @@
 {"at":"2026-10-30T14:04:27.4121244Z","zoneId":"application-pilots","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T14:08:12.3923924Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T14:10:50.0122474Z","zoneId":"agent-runtime-evaluation","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T14:15:27.6018445Z","zoneId":"agent-runtime-evaluation","outcome":"seed-only","productLine":"archlucid-shared"}

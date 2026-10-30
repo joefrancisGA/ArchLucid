@@ -16856,6 +16856,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-30 seed hunt (seed-only): re-read `AgentCalibratedConfidenceByTaskIdBuilder`, `RunAgentOutputPilotEvidenceAggregator`, `AgentOutputEvaluationRecorder.EvaluateLoop`, `AgentOutputTraceFaithfulnessEvaluator`, and `QualityGateRecordedEvaluationSnapshotFactory` after hunt 57; no new hunt-ready failing repro (aggregator duplicate-calibrated parity covered by pipeline regression; sponsor gate treats `Warned` as block by contract); seeded five mechanism-backed `(candidate)` rows below; scoped **230** `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate persisted `AgentResult` rows with stale low `CalibratedConfidence` — locus: shared `AgentCalibratedConfidenceByTaskIdBuilder` (hunt 57 fix); input: repository returns newest-first rows for the same `taskId`; wrong outcome: sponsor block when latest calibrated confidence clears semantic reject floor; needs focused aggregator regression beyond pipeline coverage.
+- [ ] (candidate) `QualityGateRecordedEvaluationSnapshotFactory.Create` — persisted `SemanticScore` uses blended `OverallSemanticScore` when reject driven only by calibrated confidence — locus: `AgentOutputEvaluationRecorder.EvaluateLoop` snapshot write; input: high heuristic/judge semantic with low `CalibratedConfidence`; mechanism: durable snapshot understates calibrated gate input.
+- [ ] (candidate) `AgentOutputTraceFaithfulnessEvaluator.ApplyAgentResultEvidenceFaithfulness` — PilotStrict rejects when evidence package has no checkable tokens despite top-level citations — locus: `HasCheckableContent` false branch; input: citation-only agent JSON with empty claims/findings; wrong outcome: reject before sponsor can distinguish citation presence from grounding ratio.
+- [ ] (candidate) `AgentOutputTraceCitationGate.MeetsEvidenceRefFloor` — nested finding `evidenceRefs` do not count toward top-level PilotStrict floor — locus: `TryCountTopLevelEvidenceRefs`; input: refs only under `findings[]` while top-level `evidenceRefs` empty; wrong outcome: `evidence_ref_count_below_floor` despite cited findings.
+- [ ] (candidate) `AgentOutputLlmSemanticJudge.PassesEligibilityGatesAsync` — judge budget exhaustion leaves heuristic-only semantic for eligible agent types — locus: `TryPeekWithinBudgetAsync` false path; input: tenant at LLM judge budget cap with PilotStrict semantic floors; mechanism: composite evaluator never blends judge score until budget resets.
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows seeded after hunt 57; no failing repro. Sponsor aggregator shares the repaired `AgentCalibratedConfidenceByTaskIdBuilder` path (hit 2026-10-30 seed hunt). `ClassifyThresholdFailure` returns `semantic` when both structural and published-semantic floors pass but the gate already rejected on calibrated confidence (`AgentOutputQualityGate.cs` final branch); candidate misread structural mis-tag. Public rejection tokens intentionally name published semantic scores; calibrated threshold reject carries `quality_gate_threshold_reject` (2026-10-23 hit). Missing Real-task `findings` leaves citation ratio unevaluated by contract (`PilotStrict_NullCoverageRatio_DoesNotReject`). Prefix trace-id matching is intentional for shortened finding keys (`ResolveTraceForSnapshotFinding_uses_prefix_trace_id_match_before_engine_type_fallback`). Scoped **230** `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate task calibrated map — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** `AgentCalibratedConfidenceByTaskIdBuilder` now selects latest result (hunt 57); aggregator calls the same builder and `TryEvaluateTraceAsync`; regression `TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results`.
@@ -16978,7 +16986,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
