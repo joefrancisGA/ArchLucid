@@ -218,6 +218,15 @@ export function RunDetailArtifactsExportsSection(
   const [reviewExportBusy, setReviewExportBusy] = useState(false);
   const [docxExportBusy, setDocxExportBusy] = useState(false);
   const [requestJsonBusy, setRequestJsonBusy] = useState(false);
+  const activeRunIdRef = useRef(runId);
+  activeRunIdRef.current = runId;
+
+  useEffect(() => {
+    setBundleBusy(false);
+    setReviewExportBusy(false);
+    setDocxExportBusy(false);
+    setRequestJsonBusy(false);
+  }, [runId]);
 
   const onDownloadEvidenceBundle = useCallback(() => {
     if (collateralExportBlockedReason !== null) {
@@ -228,15 +237,21 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = artifactBundleMutationBlockedReason(failure);
 
         showError("Evidence bundle", blocked ?? failure.message);
       })
       .finally(() => {
-        setBundleBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setBundleBusy(false);
+        }
       });
-  }, [collateralExportBlockedReason, manifestId]);
+  }, [collateralExportBlockedReason, manifestId, runId]);
 
   const onDownloadReviewExportZip = useCallback(() => {
     if (collateralExportBlockedReason !== null) {
@@ -247,13 +262,19 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunExportZip(runId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = runExportZipMutationBlockedReason(failure);
 
         showError("Review export", blocked ?? failure.message);
       })
       .finally(() => {
-        setReviewExportBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setReviewExportBusy(false);
+        }
       });
   }, [collateralExportBlockedReason, runId]);
 
@@ -266,13 +287,19 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunPackageExport(runId, "docx")
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = runPackageExportMutationBlockedReason(failure);
 
         showError("Architecture review report", blocked ?? failure.message);
       })
       .finally(() => {
-        setDocxExportBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setDocxExportBusy(false);
+        }
       });
   }, [collateralExportBlockedReason, runId]);
 
@@ -285,15 +312,21 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
+        if (activeRunIdRef.current !== runId) {
+          return;
+        }
+
         const failure = toApiLoadFailure(error);
         const blocked = artifactBundleMutationBlockedReason(failure);
 
         showError("Artifact bundle", blocked ?? failure.message);
       })
       .finally(() => {
-        setBundleBusy(false);
+        if (activeRunIdRef.current === runId) {
+          setBundleBusy(false);
+        }
       });
-  }, [collateralExportBlockedReason, manifestId]);
+  }, [collateralExportBlockedReason, manifestId, runId]);
 
   const exportUrlParams = new URLSearchParams(searchParams.toString());
 

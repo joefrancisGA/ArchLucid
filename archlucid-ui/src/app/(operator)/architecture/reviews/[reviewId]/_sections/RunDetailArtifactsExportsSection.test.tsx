@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -13,6 +13,40 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
+
+const exportHarness = vi.hoisted(() => {
+  const harness: {
+    download: ReturnType<typeof vi.fn>;
+    reject: ((reason?: unknown) => void) | undefined;
+    reset: () => void;
+  } = {
+    download: vi.fn(),
+    reject: undefined,
+    reset: () => {
+      harness.download.mockClear();
+      harness.reject = undefined;
+    },
+  };
+
+  harness.download.mockImplementation(
+    () =>
+      new Promise<void>((_resolve, reject) => {
+        harness.reject = reject;
+      }),
+  );
+
+  return harness;
+});
+
+const showErrorMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/api/downloads-blob-trigger-run-export", () => ({
+  downloadRunExportZip: exportHarness.download,
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: showErrorMock,
+}));
 
 vi.mock("@/components/ExportTrackedAnchor", () => ({
   ExportTrackedAnchor: ({
@@ -309,5 +343,49 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(
       screen.getByText(/Downloads aren't available for this sample review/i),
     ).toBeInTheDocument();
+  });
+
+  it("does not surface a prior review export failure after navigation", async () => {
+    exportHarness.reset();
+    showErrorMock.mockClear();
+
+    const { rerender } = render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Download review export (ZIP)" }));
+    expect(screen.getByRole("button", { name: "Downloading…" })).toBeDisabled();
+
+    rerender(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-2"
+        runId="run-2"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+      />,
+    );
+
+    exportHarness.reject?.(new Error("prior review export failed"));
+
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(showErrorMock).not.toHaveBeenCalled();
   });
 });
