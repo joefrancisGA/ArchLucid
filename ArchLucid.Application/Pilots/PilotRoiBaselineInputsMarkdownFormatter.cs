@@ -35,7 +35,7 @@ public static class PilotRoiBaselineInputsMarkdownFormatter
 
         if (!inputs.ProjectedDollarClaimsSponsorSafe)
         {
-            sb.AppendLine($"> {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(inputs.SponsorSafeFallbackCopy)}");
+            sb.AppendLine($"> {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(inputs.SponsorSafeFallbackCopy)}");
             sb.AppendLine();
         }
     }

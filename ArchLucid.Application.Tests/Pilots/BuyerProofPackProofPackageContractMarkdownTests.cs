@@ -115,4 +115,36 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Contain("``Strong`tenant``");
     }
+
+    [Fact]
+    public void Proof_package_section_when_roi_baseline_inputs_present_wraps_summary_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse
+                {
+                    ReviewCycleHoursBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+                    ArchitectPrepHoursPerReviewBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+                    EvidenceAssemblyEffortBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+                    ArchitectHourlyCostBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+                    ProjectedDollarClaimsSponsorSafe = true,
+                },
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI baseline inputs (per field) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("`review-cycle hours: buyer-provided");
+    }
 }
