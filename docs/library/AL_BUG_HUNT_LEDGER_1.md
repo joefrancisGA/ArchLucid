@@ -16632,11 +16632,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `RoiEvidenceCompletenessMarkdownFormatter` — tenant baseline source note with embedded line breaks or pipes in strong-tier body — locus: `BuildStrongTierBody`; input: `TenantBaselineReviewCycleSource` operator note with `|` or CRLF.
 - (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits `IsSampleRun` caution when only manifest flag set — locus: summary builder; input: sample run with caution on manifest but not echoed in summary table.
 - (candidate) `SponsorDecisionDeltaNoveltyResolver` — novelty markdown table echoes raw evidence-class token without pipe escape — locus: decision-delta novelty section; input: evidence class label containing `|`.
 - (candidate) `PilotValueReportMarkdownFormatter` — semantic support band table cell when unsupported label list includes pipe — locus: sponsor status semantic row; input: unsupported semantic label with `|`.
+- (candidate) `RoiEvidenceCompletenessMarkdownFormatter` — disposition claim line when ROI gate copy includes embedded markdown — locus: `AppendMarkdownSection` with disposition; input: `DispositionLeadLine` with heading injection.
+
+2026-10-30 seed hunt (seed→hit): promoted ROI evidence completeness strong-tier **Source note** echoing tenant baseline provenance without sanitizing operator-entered newlines, allowing forged markdown headings inside first-value ROI sections; `EscapeMarkdownTableCell` on displayed source note; regression `AppendMarkdownSection_when_tenant_source_note_contains_markdown_heading_does_not_emit_extra_heading`; cheap-disproof closed five hunt-75 `(candidate)` rows; seeded five follow-on rows; scoped **48** unit tests passed. Private beta: Sponsor first-value ROI evidence sections no longer render operator baseline notes as injectable markdown structure.
+
+- [x] (proven) `RoiEvidenceCompletenessMarkdownFormatter.BuildStrongTierBody` — tenant baseline source note markdown injection — **hit 2026-10-30 seed hunt (hunt 76):** sanitize source note; regression above. [class:fail-open-validation]
+
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — simulator caveat parity — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** disclosure parity; not table breakage.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — sample-run caution in compact summary — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** `isSampleRun` appears in proof checklist JSON; limitations markdown carries caution banner (2026-10-05 hit).
+- [x] (invalid) `SponsorDecisionDeltaNoveltyResolver` — evidence-class pipe escape — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** labels are fixed product strings, not user tokens.
+- [x] (invalid) `PilotValueReportMarkdownFormatter` — semantic support pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 76):** `FormatSponsorStatusTableCell` already escapes unsupported labels.
+
+- (candidate) `RoiEvidenceCompletenessMarkdownFormatter` — tenant baseline source note with embedded line breaks or pipes in strong-tier body — locus: `BuildStrongTierBody`; input: `TenantBaselineReviewCycleSource` operator note with `|` or CRLF.
 
 2026-10-30 seed hunt (seed-only): re-read ROI evidence completeness, buyer proof ZIP guard scope, board-pack digest cover copy, and pilot value report empty-window governance path after hunt 74 seed-only; cheap-disproof closed five hunt-74 `(candidate)` rows (ROI gate escape consolidation is refactor-only while hunts 70–73 prove table cells; ZIP tamper lens not reachable in single-threaded builder; PDF/deltas LLM caveat parity is disclosure not table breakage; empty-window pending governance intentional per prior dry; sub-week digest ISO label covered by clamp + cover copy); no failing repro met promotion bar; seeded five follow-on rows; scoped **56** unit tests passed. Private beta: n/a.
 
@@ -16849,11 +16860,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 75
-- **bugs-found:** 53
+- **hunts:** 76
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — ROI narrative gate section pipe escape
+- **last-bug:** 2026-10-30 — ROI evidence completeness source note markdown injection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
