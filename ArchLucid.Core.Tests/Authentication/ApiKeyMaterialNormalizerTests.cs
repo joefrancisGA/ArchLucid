@@ -154,4 +154,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u2800").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_combining_grapheme_joiner_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u034Fret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_combining_grapheme_joiner_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u034F").Should().BeEmpty();
+    }
 }

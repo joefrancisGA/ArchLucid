@@ -469,6 +469,21 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u034F"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "combining-grapheme-joiner-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetSnapshot_treats_tab_only_admin_slot_as_unconfigured()
     {
         AdminApiKeySettingsService sut = CreateService(
