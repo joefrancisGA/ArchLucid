@@ -619,6 +619,32 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_infrastructure_declaration_when_name_contains_newline()
+    {
+        Guid runId = Guid.Parse("20202020-2020-2020-2020-202020202020");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "infrastructureDeclarations": [
+                  { "name": "core\nnetwork", "format": "json", "content": "{\"resources\":[]}" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InfrastructureDeclarations.Should().ContainSingle()
+            .Which.Name.Should().Be("core\nnetwork");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -954,6 +980,32 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.Documents.Should().ContainSingle()
             .Which.Name.Should().Be("network diagram");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_name_contains_newline()
+    {
+        Guid runId = Guid.Parse("1f1f1f1f-1f1f-1f1f-1f1f-1f1f1f1f1f1f");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "network\ndiagram", "contentType": "text/plain", "content": "body" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("network\ndiagram");
         back.IsValidForProcessing().Should().BeTrue();
     }
 

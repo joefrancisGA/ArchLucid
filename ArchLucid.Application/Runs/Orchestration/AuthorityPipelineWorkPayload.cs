@@ -168,24 +168,6 @@ public sealed class AuthorityPipelineWorkPayload
             .ToList();
     }
 
-    /// <summary>
-    ///     Document and declaration names are single-line identifiers. Ordinary spaces stay; other
-    ///     whitespace (including newlines) fails.
-    /// </summary>
-    private static bool HasUsableProseReferenceText(string? value)
-    {
-        if (!HasUsableIdentifierText(value))
-            return false;
-
-        foreach (char character in value!.Trim())
-        {
-            if (char.IsWhiteSpace(character) && character != ' ')
-                return false;
-        }
-
-        return true;
-    }
-
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
     {
         if (values is null)
@@ -197,13 +179,13 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableProseReferenceText(document.Name)
+        HasUsableMultilineBodyText(document.Name)
         && HasUsableDocumentContentType(document.ContentType)
         && HasUsableMultilineBodyText(document.Content);
 
     /// <summary>
-    ///     Document and declaration bodies may contain newlines. Reject no-break and other non-ASCII
-    ///     whitespace while keeping ordinary spaces and line breaks.
+    ///     Prose fields and document or declaration names may contain newlines. Reject no-break and other
+    ///     non-ASCII whitespace while keeping ordinary spaces and line breaks.
     /// </summary>
     private static bool HasUsableMultilineBodyText(string? value)
     {
@@ -246,7 +228,7 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableProseReferenceText(declaration.Name)
+        return HasUsableMultilineBodyText(declaration.Name)
                && HasUsableCompactIdentifierText(declaration.Format)
                && HasUsableMultilineBodyText(declaration.Content);
     }
