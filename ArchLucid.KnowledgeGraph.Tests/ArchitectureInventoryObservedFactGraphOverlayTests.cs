@@ -9947,6 +9947,77 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_emits_relationship_edges_when_duplicate_resource_row_sorts_after_canonical_arm_row()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string duplicateArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/SA1";
+        const string peerArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = canonicalArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = peerArmId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = duplicateArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peerArmId,
+                    ToAzureResourceId = duplicateArmId,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Edges.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void Merge_deduplicates_parallel_edges_when_edge_type_differs_only_by_surrounding_whitespace()
     {
         const string NodeA = "node-a";
