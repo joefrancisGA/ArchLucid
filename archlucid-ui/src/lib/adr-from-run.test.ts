@@ -161,10 +161,10 @@ describe("adr-from-run", () => {
         riskPosture: "",
         themeSummaries: [],
         summary: "",
-        keyDrivers: [],
-        riskImplications: [],
-        costImplications: [],
-        complianceImplications: [],
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
         detailedNarrative: "",
         structuredReasoning: null,
         alternativesConsidered: null,
@@ -203,6 +203,8 @@ describe("adr-from-run", () => {
       findings: [],
     });
 
+    expect(missing).toContain("Key drivers were not stored.");
+    expect(storedEmpty).toContain("Key drivers were stored empty.");
     expect(missing).toContain("Structured reasoning was not stored.");
     expect(missing).toContain("Alternatives considered were not stored.");
     expect(missing).toContain("Caveats were not stored.");

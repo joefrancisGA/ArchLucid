@@ -26,4 +26,15 @@ describe("DecisionRegisterDecisionCard (P-10)", () => {
     expect(screen.getByText("Decision rationale was not stored.")).toBeInTheDocument();
     expect(screen.queryByText(/Unknown/)).not.toBeInTheDocument();
   });
+
+  it("labels missing category and empty supporting findings", () => {
+    render(
+      <DecisionRegisterDecisionCard
+        decision={decision({ category: "", supportingFindingIds: [] })}
+      />,
+    );
+
+    expect(screen.getByText("Decision category was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Supporting findings were stored empty.")).toBeInTheDocument();
+  });
 });
