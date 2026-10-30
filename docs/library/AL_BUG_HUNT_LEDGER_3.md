@@ -1013,7 +1013,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 44 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+**Hunts:** 45 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+
+2026-10-30 seed hunt #121 (seed-only): rotation kept `cli-terraform-evidence` after one prior dry hunt; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged after the queued candidates were exhausted. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
 2026-10-30 thorough hunt #120 (dry): rotation kept `cli-terraform-evidence` after two `cli-draft-new` seed-only outcomes. Cheap-disproof closed all five queued candidates: no repository consumer sorts, normalizes, path-validates, or plans from the mixed evidence list; existing composition and extraction tests cover the authoritative ordering and metadata distinction. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
