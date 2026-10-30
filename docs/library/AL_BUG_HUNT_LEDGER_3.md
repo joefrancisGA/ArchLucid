@@ -7893,6 +7893,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #76 (hit): proved a loaded third-party Clarity implementation could throw from consent-approved CTA analytics and interrupt the CTA click handler; guarded analytics calls so failures are swallowed and added `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`. Focused analytics suite passed 8/8. Private beta: invited buyers can now activate hero CTAs even when the loaded analytics provider fails during event recording.
+
 2026-10-30 thorough hunt #75 (hit): proved consent-gated marketing CTA analytics could throw when browser storage access was denied, allowing analytics to escape the click handler; guarded storage lookup and added `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`. The self-demo SSR placeholder candidate was invalid because the client CTA has no no-JavaScript interaction contract. Focused analytics suite passed 7/7. Private beta: invited buyers in storage-restricted browsers can now activate hero CTAs without an analytics exception interrupting the interaction.
 
 2026-10-30 seed hunt #74 (seed-only): re-read `CtaButton`, marketing CTA analytics, self-demo/walkthrough href builders, trust focus scrolling, and pricing CTA focus; no failing repro was promoted. Seeded two bounded candidates for a future thorough hunt.
@@ -8145,8 +8147,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 49
-- **bugs-found:** 43
+- **hunts:** 50
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Signup verification status request generation
@@ -8163,6 +8165,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `recordMarketingHeroCtaClarityEvent` — a failing Clarity implementation interrupts CTA analytics — **hit 2026-10-30 seed hunt #76:** catch analytics provider failures so CTA analytics becomes best-effort; regression `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `recordMarketingHeroCtaClarityEvent` — denied browser storage throws during consent lookup — **hit 2026-10-30 thorough hunt #75:** catch storage access failures and no-op analytics; regression `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `MarketingResourcesMenu` — Escape closes the menu without restoring focus to the trigger — **hit 2026-10-30 thorough hunt #73:** focus the trigger after Escape closes the menu; regression `returns focus to the Resources trigger when Escape closes the menu` in `MarketingResourcesMenu.test.tsx`.
 - [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.

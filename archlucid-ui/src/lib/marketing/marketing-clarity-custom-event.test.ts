@@ -98,4 +98,14 @@ describe("marketing-clarity-custom-event", () => {
     }).not.toThrow();
     expect(clarity).not.toHaveBeenCalled();
   });
+
+  it("does not let a failing Clarity implementation interrupt the CTA", () => {
+    clarity.mockImplementation(() => {
+      throw new Error("Clarity unavailable");
+    });
+
+    expect(() => {
+      recordMarketingCtaWalkthroughClick({ source: "hero" });
+    }).not.toThrow();
+  });
 });
