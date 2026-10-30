@@ -1,5 +1,5 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RunDetailSubmittedArchitectureSection } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSubmittedArchitectureSection";
 
@@ -14,6 +14,19 @@ Governed claims intake.
 | Partner outage | High |`;
 
 describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
   it("renders markdown in the legacy submitted-brief path", () => {
     render(
       <RunDetailSubmittedArchitectureSection
@@ -40,7 +53,7 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getByText("Submitted architecture text was not stored.")).toBeInTheDocument();
+    expect(screen.getAllByText("Submitted architecture text was not stored.")).toHaveLength(2);
 
     rerender(
       <RunDetailSubmittedArchitectureSection
@@ -50,6 +63,46 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getByText("Submitted architecture text was stored empty.")).toBeInTheDocument();
+    expect(screen.getAllByText("Submitted architecture text was stored empty.")).toHaveLength(2);
+  });
+
+  it("keeps the new review copy state when a prior review timer expires", async () => {
+    const { rerender } = render(
+      <RunDetailSubmittedArchitectureSection
+        architectureText="Prior review architecture"
+        runId="run-1"
+        manifestVersion="manifest-1"
+        canEditSource={false}
+        editHref={null}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+      await Promise.resolve();
+    });
+    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+
+    vi.advanceTimersByTime(1000);
+
+    rerender(
+      <RunDetailSubmittedArchitectureSection
+        architectureText="New review architecture"
+        runId="run-2"
+        manifestVersion="manifest-2"
+        canEditSource={false}
+        editHref={null}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Copied" }));
+      await Promise.resolve();
+    });
+    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+
+    vi.advanceTimersByTime(1000);
+
+    expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
   });
 });
