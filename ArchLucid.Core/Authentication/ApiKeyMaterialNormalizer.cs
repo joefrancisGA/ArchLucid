@@ -48,7 +48,9 @@ public static class ApiKeyMaterialNormalizer
         if (category == UnicodeCategory.Format)
             return true;
 
-        if (category == UnicodeCategory.NonSpacingMark)
+        if (category is UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark)
             return true;
 
         if (category == UnicodeCategory.Control)

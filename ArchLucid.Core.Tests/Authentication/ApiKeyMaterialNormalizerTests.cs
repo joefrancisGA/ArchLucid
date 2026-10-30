@@ -184,4 +184,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("sec\u0340ret-admin").Should().Be("secret-admin");
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_enclosing_mark_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u0489ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_enclosing_mark_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u0489").Should().BeEmpty();
+    }
 }
