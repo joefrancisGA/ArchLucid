@@ -25818,15 +25818,23 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: host-composition
 
+2026-10-30 thorough hunt #984 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance`, picker rotated with `-AvoidZoneId` to `host-composition`. Cheap-disproof closed the five queued candidates — local pending remains pending for a generic distributed failure, local completed bytes remain authoritative over distributed pending, the duplicate-manifest discovery candidate is outside the selected composition path, corrupt distributed state does not replace an existing local pending job, and distributed enqueue persistence failure remains intentional fail-fast. The host composition test project built successfully with no errors; no production code changed.
+
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed with generic unknown copy — **cheap-disproof 2026-10-30 thorough hunt #984:** `IsAuthoritativeDistributedTerminalFailure` excludes the generic fallback error and existing queue-state regressions cover the authority guard.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local completed with bytes overridden by distributed pending — **cheap-disproof 2026-10-30 thorough hunt #984:** merge order keeps local completed document bytes; existing `TryPoll_keeps_local_completed_bytes_when_distributed_is_pending` regression covers it.
+- [x] (invalid) `PollingCollectionRunDiscovery.DiscoverAsync` — ingest exception on first duplicate `runId` blocks later manifest — **cheap-disproof 2026-10-30 thorough hunt #984:** discovery is outside the selected `ArchLucid.Host.Composition/` path.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — corrupt distributed payload replaces local pending — **cheap-disproof 2026-10-30 thorough hunt #984:** corrupt distributed state is ignored when a local job exists; existing corrupt-state regressions cover the pending case.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces a failed poll — **cheap-disproof 2026-10-30 thorough hunt #984:** enqueue persistence failure intentionally creates a terminal failed local entry and existing fail-fast regressions cover the behavior.
+
 - **id:** host-composition
 - **status:** open
 - **impact:** medium
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 92
+- **hunts:** 93
 - **bugs-found:** 72
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — local pending ignored distributed completed without bytes
 - **code-changed-since:** no
@@ -25839,11 +25847,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed with authoritative peer error — **cheap-disproof 2026-10-30 thorough hunt #983:** regression above.
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — operation canceled during distributed cache read — **cheap-disproof 2026-10-30 thorough hunt #983:** regression above.
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed failed with generic unknown copy — locus: `IsAuthoritativeDistributedTerminalFailure` guard; input: peer failed with generic operator copy while enqueue replica pending; wrong outcome: hunt #78 authority guard (monitor).
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local completed with bytes overridden by distributed pending — locus: merge order; input: stale local completed bytes while peer still pending; wrong outcome: hunt #77 keep-local-bytes guard (monitor).
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — ingest exception on first duplicate `runId` blocks later manifest — locus: per-manifest catch; input: throw then valid row; wrong outcome: hunt #79 (monitor).
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — corrupt distributed payload with local pending — locus: corrupt read on enqueue replica; input: invalid JSON while local pending; wrong outcome: hunt #72 keep pending vs fail-fast (monitor).
-- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces failed poll — locus: enqueue persist; input: cache write fault on pending; wrong outcome: hunt #971 intentional fail-fast (monitor).
 
 2026-10-30 thorough hunt #979 (dry, rotation): after **4 consecutive low-yield** outcomes on `knowledge-graph-provenance` (dry, dry, dry, dry trailing the run log since the prior `host-composition` hit), picker rotated with **`-AvoidZoneId`** to `host-composition`. Cheap-disproof closed five open `(candidate)` rows reseeded after hunt #976 — invalid local pending not overridden by distributed failed with generic unknown copy (`IsAuthoritativeDistributedTerminalFailure` excludes `UnknownFailedJobErrorMessage`; hunt #78 authority guard), valid-no-repro local completed with bytes not overridden by distributed pending (`TryPoll_keeps_local_completed_bytes_when_distributed_is_pending`; hunt #77 keep-local-bytes guard), valid-no-repro ingest exception on first duplicate `runId` blocks later manifest (`DiscoverAsync_continues_when_ingest_throws_for_one_manifest`, `DiscoverAsync_tries_later_duplicate_runId_after_first_manifest_fails_ingest`; hunt #79 per-manifest catch), valid-no-repro corrupt distributed payload with local pending (`TryPoll_keeps_local_pending_when_distributed_state_is_corrupt`; intentional enqueue-replica behavior vs peer-only fail-fast), valid-no-repro enqueue distributed pending write failure surfaces failed poll (`TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted`; hunt #971 intentional fail-fast); reseeded five `(candidate)` rows; repaired corrupted merge-conflict markers in `AL_BUG_HUNT_LEDGER_4.md` and `AL_BUG_HUNT_RUN_LOG_4.jsonl`; scoped filter **514** `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
