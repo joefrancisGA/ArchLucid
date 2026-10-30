@@ -7857,13 +7857,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #37 (dry): cheap-disproof closed three open `(candidate)` rows — superseded sample failures remain generation-guarded, remount state is intentionally initialized from the catalog, and directional marks are not part of the route slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #39 (dry): cheap-disproof closed three open `(candidate)` rows — capacity state is driven by the current status query, observer selection converges on visible ratios, and zero-width route values are outside the canonical slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #36 — **cheap-disproof 2026-10-30 thorough hunt #37:** superseded sample failures, remount initialization, and directional route input produce no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #37 — **cheap-disproof 2026-10-30 thorough hunt #39:** capacity/error state, observer convergence, and zero-width route input produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — a superseded sample failure changes the capacity banner after a newer request updates status — locus: shared error and capacity state; input: old sample rejection after status query transitions to Busy (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — restored scroll position and observer callback briefly disagree on the active artifact — locus: click/observer state convergence; input: remount at a non-first artifact offset (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — percent-decoded zero-width characters create analytics scenarios visually identical to canonical slugs — locus: route slug normalization; input: encoded zero-width space in `runId` (monitor).
+- [ ] (candidate) `useQuickScanClient` — a status query recovery clears a user-facing sample-load error unexpectedly — locus: status effect and shared error state; input: SampleOnly recovers to Available while sample fetch is failing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — equal intersection ratios choose a different artifact on successive callbacks — locus: stable sort/tie behavior; input: two visible sections report equal ratios in alternating order (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — decoded zero-width joiners survive into App Insights properties — locus: scenario trim versus character filtering; input: encoded ZWJ inside a generated `runId` (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
