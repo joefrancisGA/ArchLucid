@@ -3545,6 +3545,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` leaf fallback binding `module.other.azurerm_app_service.main` to the first child module after a shared leaf was registered; once that leaf maps to more than one topology node it is removed from the unique resolution map, so only an exact module address or the ambiguous fan-out path can use it; regression `MapRelationships_does_not_bind_unmatched_module_address_to_first_shared_leaf`; scoped filter 1014/1014 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal names a Terraform module that is not in the inventory, and other modules declare the same resource address, the merged graph no longer draws that relationship onto the first inventoried module.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — unmatched module prefix resolved through a shared Terraform leaf to the first indexed module — **hit 2026-10-30 seed hunt:** drop the ambiguous leaf from the unique resolution map after alias registration; regression `MapRelationships_does_not_bind_unmatched_module_address_to_first_shared_leaf`. [class:state-machine-gap]
+
 2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins leaf registration when two Terraform child modules share a resource address (`module.hub.azurerm_app_service.main` and `module.spoke.azurerm_app_service.main`); a relationship citing the leaf `azurerm_app_service.main` attached only to the first module. Shared leaves now fan out the way unindexed count roots do, while a full module address still resolves to that module; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`; scoped filter 1013/1013 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal cites a Terraform resource address declared in more than one module, the merged graph keeps a relationship to every inventoried module instance instead of attaching that edge only to the module indexed first.
 
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — shared Terraform leaf across child modules resolved only to the first indexed module — **hit 2026-10-30 seed hunt:** fan out when the same normalized leaf maps to more than one topology node; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`. [class:state-machine-gap]
@@ -3677,11 +3681,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 106
-- **bugs-found:** 75
+- **hunts:** 107
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
+- **last-bug:** 2026-10-30 — unmatched module prefix resolved through a shared Terraform leaf to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3691,11 +3695,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 106
-- **bugs-found:** 75
+- **hunts:** 107
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
+- **last-bug:** 2026-10-30 — unmatched module prefix resolved through a shared Terraform leaf to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3801,11 +3805,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 106
-- **bugs-found:** 75
+- **hunts:** 107
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
+- **last-bug:** 2026-10-30 — unmatched module prefix resolved through a shared Terraform leaf to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

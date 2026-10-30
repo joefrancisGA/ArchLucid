@@ -204,49 +204,54 @@ public static class TopologyProposalRelationshipEdgeMapper
                 node.NodeId);
         }
 
-        if (endpointAliases is null)
-            return endpointKeyToNodeId;
-
-        foreach (KeyValuePair<string, string> alias in endpointAliases)
+        if (endpointAliases is not null)
         {
-            if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
-                continue;
-
-            string trimmedKey = alias.Key.Trim();
-            string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
-
-            if (TryResolveNodeId(
-                    resolvedNodeId,
-                    endpointKeyToNodeId,
-                    unindexedTerraformEndpointIdentities,
-                    indexedTerraformEndpointIdentities,
-                    out string canonicalNodeId))
-                resolvedNodeId = canonicalNodeId;
-
-            if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
+            foreach (KeyValuePair<string, string> alias in endpointAliases)
             {
-                TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
-                    endpointKeyToNodeId,
-                    trimmedKey,
-                    resolvedNodeId);
+                if (string.IsNullOrWhiteSpace(alias.Key) || string.IsNullOrWhiteSpace(alias.Value))
+                    continue;
+
+                string trimmedKey = alias.Key.Trim();
+                string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
+
+                if (TryResolveNodeId(
+                        resolvedNodeId,
+                        endpointKeyToNodeId,
+                        unindexedTerraformEndpointIdentities,
+                        indexedTerraformEndpointIdentities,
+                        out string canonicalNodeId))
+                    resolvedNodeId = canonicalNodeId;
+
+                if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedKey))
+                {
+                    TopologyProposalEndpointArmKeys.AddArmResourceIdResolutionAliases(
+                        endpointKeyToNodeId,
+                        trimmedKey,
+                        resolvedNodeId);
+                }
+                else
+                {
+                    endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+
+                    string canonicalTerraformKey =
+                        TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
+
+                    if (!string.Equals(canonicalTerraformKey, trimmedKey, StringComparison.OrdinalIgnoreCase))
+                        endpointKeyToNodeId.TryAdd(canonicalTerraformKey, resolvedNodeId);
+                }
+
+                string? normalizedSyntheticKey =
+                    TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
+
+                if (normalizedSyntheticKey is not null)
+                    endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
             }
-            else
-            {
-                endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
-
-                string canonicalTerraformKey =
-                    TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
-
-                if (!string.Equals(canonicalTerraformKey, trimmedKey, StringComparison.OrdinalIgnoreCase))
-                    endpointKeyToNodeId.TryAdd(canonicalTerraformKey, resolvedNodeId);
-            }
-
-            string? normalizedSyntheticKey =
-                TopologyProposalRelationshipEndpointIndex.NormalizeSyntheticEndpointReference(trimmedKey);
-
-            if (normalizedSyntheticKey is not null)
-                endpointKeyToNodeId.TryAdd(normalizedSyntheticKey, resolvedNodeId);
         }
+
+        // The shared leaf stays in the ambiguous fan-out map. Leaving it as a unique key
+        // made a different module prefix resolve to whichever module was indexed first.
+        foreach (string sharedLeaf in ambiguousSharedTerraformLeafNodeIds.Keys)
+            endpointKeyToNodeId.Remove(sharedLeaf);
 
         return endpointKeyToNodeId;
     }
