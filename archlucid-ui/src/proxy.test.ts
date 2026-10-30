@@ -78,3 +78,15 @@ describe("proxy demo-run alias redirect", () => {
     );
   });
 });
+
+describe("proxy pathname forwarding", () => {
+  it("forwards x-archlucid-pathname on pass-through for the SecureNow draft route", () => {
+    const request = new NextRequest("http://localhost:3000/why-securenow");
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("x-middleware-request-x-archlucid-pathname")).toBe("/why-securenow");
+    expect(response.headers.get("x-archlucid-pathname")).toBeNull();
+  });
+});
