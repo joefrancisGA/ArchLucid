@@ -7859,13 +7859,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #43 (dry): cheap-disproof closed three open `(candidate)` rows — result state prevents capacity messaging from replacing a completed sample, fixed catalog order resolves equal-ratio entries, and line separators are outside the route slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #44 (dry): cheap-disproof closed three open `(candidate)` rows — result focus and capacity updates are independently scoped, repeated equal-ratio callbacks select the same catalog winner, and line separators remain route-derived telemetry input without a UI contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #41 — **cheap-disproof 2026-10-30 thorough hunt #43:** status/result ordering, observer ties, and line-separator route input produce no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #43 — **cheap-disproof 2026-10-30 thorough hunt #44:** result focus, repeated observer callbacks, and line-separator telemetry input produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — capacity recovery after a sample result changes the result status while focus is moving to results — locus: status effect and result-focus sequencing; input: Available status update during result announcement (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries cause unnecessary active-state rerenders — locus: unconditional `setActiveId` on same winner; input: repeated equal-ratio callbacks (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — decoded line separator affects telemetry property length without affecting visible route copy — locus: scenario serialization; input: encoded U+2028 in a generated `runId` (monitor).
+- [ ] (candidate) `useQuickScanClient` — capacity recovery during result focus causes the result heading to lose focus — locus: status effect rerender versus result focus effect; input: status query update during `focusResults` (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — repeated equal-ratio callbacks write active state after a section has been removed — locus: visible-section selection and DOM membership; input: remove winner between callbacks (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — line separator in scenario changes event grouping despite identical visible route copy — locus: analytics scenario identity; input: encoded U+2028 versus ordinary space in `runId` (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
