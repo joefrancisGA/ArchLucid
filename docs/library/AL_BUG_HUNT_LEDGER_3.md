@@ -2,15 +2,21 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed five open `(candidate)` rows that were already represented by the prior SignupForm regressions — mixed session-id types stay behind string-only scope-header gates; required-field readiness wins over company-size details; nested provisioning shapes do not create top-level ids; Unicode whitespace is trimmed before team-size bounds; and native Enter submission still passes through React Hook Form validation. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #5 — **cheap-disproof 2026-10-30 thorough hunt #6:** all five mechanisms were already covered by the existing 140-test regression suite; no new hunt-ready repro.
+
+- [ ] (candidate) `SignupForm` — mixed session id types partially emit scope headers — locus: per-header normalization; input: one string id plus two numeric ids (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank organization — locus: readiness precedence; input: invalid company size plus blank org (monitor).
+- [ ] (candidate) `SignupForm` — nested provisioning response leaks a child tenant id into session — locus: response object traversal; input: nested `result.tenantId` (monitor).
+- [ ] (candidate) `SignupForm` — Unicode line separator around team size bypasses schema max — locus: whitespace normalization; input: `\u202810001\u2028` (monitor).
+- [ ] (candidate) `SignupForm` — Enter during optional-field validation posts before resolver completion — locus: native submit timing; input: keyboard submit (monitor).
+
 2026-10-30 thorough hunt #5 (dry): cheap-disproof closed five open `(candidate)` rows — the prior scope-header, readiness, array-root success, leading-zero team-size, and keyboard-submit regressions already cover these mechanisms; no failing repro or production defect was found. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate `ui-form-validation` candidate rows from the previous reseed — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already classified by thorough hunt #4 and retained only as stale picker metadata.
 
-- [ ] (candidate) `SignupForm` — registration scope headers preserve a padded id when session storage returns mixed JSON types — locus: registration scope normalization; input: mixed string/number ids (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — company-size validation copy masks blank organization guidance — locus: required-field branch order; input: blank org plus invalid enum (monitor).
-- [ ] (candidate) `SignupForm` — nested provisioning response object is treated as a valid top-level tenant record — locus: response shape parsing; input: `{ result: { tenantId } }` (monitor).
-- [ ] (candidate) `SignupForm` — Unicode whitespace around an over-limit team size bypasses the max gate — locus: schema preprocessing vs payload coercion; input: `\u200310001\u2003` (monitor).
-- [ ] (candidate) `SignupForm` — Enter from the optional industry field bypasses React Hook Form validation — locus: native submit event ordering; input: keyboard submit (monitor).
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #5; no open hypotheses remain in this historical reseed block.
 
 2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultProjectId` follows the same trimmed string gate as tenant/workspace ids, so `201` omits invalid scope headers; all-whitespace required fields take the TB-2010 required-field branch; JSON-array `201` bodies remain success-only navigation cases; leading-zero `010000` is intentionally parsed as decimal ten and remains within the team-size bound; keyboard focus from invalid email cannot bypass the schema-backed `canSubmit` gate. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
