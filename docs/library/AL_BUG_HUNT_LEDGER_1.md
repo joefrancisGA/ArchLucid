@@ -3220,7 +3220,7 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 74
+- **hunts:** 75
 - **last-hunt:** 2026-10-29
 - **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
@@ -16632,11 +16632,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `SponsorRoiGateMarkdownCopy` — consolidate ROI gate string escaping shared across sponsor status, narrative gate, and proof sections — locus: duplicated `EscapeMarkdownTableCell` call sites hunts 70–73; input: single helper for gate copy fields.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — embedded first-value markdown not re-validated after builder-authored deltas JSON mutation — locus: zip assembly; input: tampered deltas between build steps (reachability: guard scope only).
-- (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF delta table omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: `FormatLlmCallCount`; input: simulator run with resolved zero LLM calls.
-- (candidate) `PilotValueReportService.BuildAsync` — governance pending-now on empty window vs sponsor sections still emitted — locus: empty report path; input: inverted window with pending approvals (documented intentional).
-- (candidate) `BoardPackPdfBuilder` — value-report window passed to digest composer when custom override shorter than seven days — locus: digest week clamp; input: sub-week override still labels ISO week in digest markdown header.
+- (candidate) `RoiEvidenceCompletenessMarkdownFormatter` — tenant baseline source note with embedded line breaks or pipes in strong-tier body — locus: `BuildStrongTierBody`; input: `TenantBaselineReviewCycleSource` operator note with `|` or CRLF.
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
+- (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits `IsSampleRun` caution when only manifest flag set — locus: summary builder; input: sample run with caution on manifest but not echoed in summary table.
+- (candidate) `SponsorDecisionDeltaNoveltyResolver` — novelty markdown table echoes raw evidence-class token without pipe escape — locus: decision-delta novelty section; input: evidence class label containing `|`.
+- (candidate) `PilotValueReportMarkdownFormatter` — semantic support band table cell when unsupported label list includes pipe — locus: sponsor status semantic row; input: unsupported semantic label with `|`.
+
+2026-10-30 seed hunt (seed-only): re-read ROI evidence completeness, buyer proof ZIP guard scope, board-pack digest cover copy, and pilot value report empty-window governance path after hunt 74 seed-only; cheap-disproof closed five hunt-74 `(candidate)` rows (ROI gate escape consolidation is refactor-only while hunts 70–73 prove table cells; ZIP tamper lens not reachable in single-threaded builder; PDF/deltas LLM caveat parity is disclosure not table breakage; empty-window pending governance intentional per prior dry; sub-week digest ISO label covered by clamp + cover copy); no failing repro met promotion bar; seeded five follow-on rows; scoped **56** unit tests passed. Private beta: n/a.
+
+- [x] (invalid) `SponsorRoiGateMarkdownCopy` — consolidate escaping helper — **cheap-disproof 2026-10-30 seed hunt (hunt 75):** refactor-only; hunts 70–73 already prove escaping on gate copy table cells.
+- [x] (valid-no-repro) `BuyerProofPackBuilder.TryBuildZipAsync` — post-build tamper lens — **cheap-disproof 2026-10-30 seed hunt (hunt 75):** builder owns deltas JSON in one call; no external mutation between serialize and zip.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 75):** duplicate hunt 74; abbreviated PDF delta table by design.
+- [x] (valid-no-repro) `PilotValueReportService.BuildAsync` — empty window pending governance — **cheap-disproof 2026-10-30 seed hunt (hunt 75):** duplicate prior dry; `BuildAsync_empty_window_returns_zeros` documents intentional pending surfacing.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — sub-week digest ISO label — **cheap-disproof 2026-10-30 seed hunt (hunt 75):** duplicate hunts 57–60; `DigestWeekInsideQuarter` clamp + cover copy document digest vs value window.
 
 2026-10-30 seed hunt (seed-only): paused markdown table-cell pipe instance fixes after hunts 68–73 (`[other]` saturated); re-read sponsor ROI surfaces, buyer proof pack builder, board pack digest clamp, and pilot value report empty-window path; cheap-disproof closed five hunt-73 `(candidate)` rows (cross-surface parity covered by hunts 72–73 formatter tests; sendability/severity pipe lenses duplicate; board digest cross-year covered by `DigestWeekInsideQuarter` theory); no new hunt-ready promotion; seeded five follow-on rows; scoped **49** unit tests passed. Private beta: n/a.
 
@@ -16841,7 +16849,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
