@@ -3246,4 +3246,132 @@ public sealed class ProvenanceBuilderTests
         ProvenanceNode artifactNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Artifact).Subject;
         artifactNode.Metadata["format"].Should().Be("MD");
     }
+
+    [Fact]
+    public void Build_deduplicates_supported_by_edges_when_duplicate_decision_rows_list_padded_supporting_finding_ids_and_findings_use_case_variant_finding_ids()
+    {
+        const string findingId = "find-supported-by-pad";
+        const string decisionId = "dec-supported-by-pad";
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId.ToUpperInvariant(),
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Title",
+                    Rationale = "r",
+                },
+            ],
+        };
+
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = decisionId,
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [$"  {findingId}  "],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = decisionId.ToUpperInvariant(),
+            Category = string.Empty,
+            Title = string.Empty,
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [findingId.ToUpperInvariant()],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [firstRow, secondRow],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.SupportedBy).Should().Be(1);
+    }
+
+    [Fact]
+    public void Build_deduplicates_contributed_to_artifact_when_duplicate_artifact_rows_list_padded_contributing_decision_ids_and_manifest_lists_case_variant_decision_rows()
+    {
+        const string decisionId = "dec-contrib-pad-case";
+
+        ResolvedArchitectureDecision firstDecisionRow = new()
+        {
+            DecisionId = decisionId,
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondDecisionRow = new()
+        {
+            DecisionId = decisionId.ToUpperInvariant(),
+            Category = string.Empty,
+            Title = string.Empty,
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        SynthesizedArtifact firstArtifactRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [$"  {decisionId}  "],
+        };
+
+        SynthesizedArtifact secondArtifactRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [decisionId.ToUpperInvariant()],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [firstDecisionRow, secondDecisionRow],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [firstArtifactRow, secondArtifactRow],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContributedToArtifact).Should().Be(1);
+    }
 }
