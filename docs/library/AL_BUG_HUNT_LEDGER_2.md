@@ -3611,6 +3611,20 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (dry #91): cheap-disproof closed five open `(candidate)` rows from hunt #90 — valid-no-repro rotation audit awaited before `Ok(response)` (~60–71, hunt #81); valid-no-repro inbound header treated as single normalized material while comma splitting applies to config only (#82, `ExtractProvidedApiKey` ~144–157); valid-no-repro `ParseSlot` accepts case/whitespace variants (`AdminApiKeySettingsServiceTests` padded/lowercase slot rotates); valid-no-repro mismatched key fails with generic invalid message after expiry branches (`When_enabled_true_and_invalid_key_returns_failure` ~125); valid-no-repro settings GET returns masker segments only (`GetSnapshot_returns_enabled_and_masked_admin_segments`, `ApiKeyMaterialMasker`); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 11); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateAsync` — audit persisted before HTTP 200 — **cheap-disproof 2026-10-30 thorough hunt #91:** `LogAsync` awaited before `Ok` ~60–71; hunt #81 cancellation ordering.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — header not comma-split — **cheap-disproof 2026-10-30 thorough hunt #91:** intentional; hunt #82 inbound header vs config rotation segments.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.ParseSlot` — case-insensitive Admin/ReadOnly — **cheap-disproof 2026-10-30 thorough hunt #91:** `OrdinalIgnoreCase` parse; regressions padded/`admin`/`readonly` slot tests.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — invalid material after expiry checks — **cheap-disproof 2026-10-30 thorough hunt #91:** regression `When_enabled_true_and_invalid_key_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.Get` — snapshot exposes masked segments only — **cheap-disproof 2026-10-30 thorough hunt #91:** `GetSnapshot` + masker; never returns configured plaintext.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reads `apiKeyOptions.CurrentValue` each authenticate for Key Vault reload — locus: ~49; input: config reload without restart (reachability: hosted API key rotation monitor).
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — response includes one-time `PlaintextKey` separate from masked snapshot GET — locus: ~41–48; input: successful rotate POST (reachability: operator runbook contract).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateAsync` — uses `AdminApiKeyRotationMaterialIssued` audit type on settings rotate route — locus: ~62; input: POST `/admin/settings/api-keys/rotate` (reachability: audit taxonomy monitor).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route emits `ApiKeyRotated` audit type with canonical slot — locus: ~92–94; input: legacy key-id rotate (reachability: deprecated route monitor).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — `Enabled=false` without bypass returns disabled message not invalid-key — locus: ~56–62; input: misconfigured host (reachability: #84 fail-closed monitor).
+
 2026-10-30 thorough hunt (dry #90): cheap-disproof closed five open `(candidate)` rows from hunt #89 — valid-no-repro invalid POST slot throws from `ParseSlot` and returns 400 before audit (same guard as legacy route #89); valid-no-repro absent `X-Api-Key` on enabled host returns missing-header failure (`TryGetValue` ~74–75, `When_enabled_true_and_header_is_blank_returns_missing_failure`); valid-no-repro invalidate replace omits `AppendConfigSuffix` (`AdminApiKeySettingsServiceTests` replace paths assert null suffix); valid-no-repro development bypass synthetic admin carries intentional full admin permission bundle (`BuildSyntheticAdminClaims` ~267–277, regression `When_enabled_false_and_bypass_true_in_development_returns_success_without_header`); valid-no-repro legacy `RotateKeyIdAsync` always rotates with `InvalidatePrevious=true` by design (~85, #84 legacy replace contract); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 10); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateAsync` — invalid POST slot returns 400 before audit — **cheap-disproof 2026-10-30 thorough hunt #90:** `ArgumentException` catch ~55–57; no `LogAsync` on validation failure.
@@ -3619,11 +3633,11 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildSyntheticAdminClaims` — bypass admin permission parity — **cheap-disproof 2026-10-30 thorough hunt #90:** intentional non-Production open access; mirrors configured admin permissions.
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route always invalidates previous — **cheap-disproof 2026-10-30 thorough hunt #90:** hard-coded `InvalidatePrevious = true` ~85; full replace deployment action.
 
-- [ ] (candidate) `AdminApiKeySettingsController.RotateAsync` — persists rotation audit only after service returns and before HTTP 200 — locus: ~60–71; input: successful POST rotate (reachability: audit ordering monitor).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — provided header value is not comma-split during authentication — locus: ~194–219 vs `ExtractProvidedApiKey` ~144–157; input: rotation hosts (reachability: #82 design monitor).
-- [ ] (candidate) `AdminApiKeySettingsService.ParseSlot` — accepts case-insensitive `Admin`/`ReadOnly` route and body values — locus: ~90–98; input: padded or lowercase slot strings (reachability: admin rotate API).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — wrong key material returns generic invalid-key failure after expiry checks — locus: ~125; input: enabled host with mismatched header (reachability: API clients).
-- [ ] (candidate) `AdminApiKeySettingsController.Get` — settings GET returns masked segments only, never plaintext keys — locus: ~35–37; input: admin settings snapshot (reachability: operator UI/API).
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateAsync` — audit persisted before HTTP 200 — **cheap-disproof 2026-10-30 thorough hunt #91:** see hunt #91 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — header not comma-split — **cheap-disproof 2026-10-30 thorough hunt #91:** see hunt #91 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.ParseSlot` — case-insensitive Admin/ReadOnly — **cheap-disproof 2026-10-30 thorough hunt #91:** see hunt #91 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — invalid material after expiry checks — **cheap-disproof 2026-10-30 thorough hunt #91:** see hunt #91 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.Get` — snapshot exposes masked segments only — **cheap-disproof 2026-10-30 thorough hunt #91:** see hunt #91 diary row.
 
 2026-10-30 thorough hunt (dry #89): cheap-disproof closed five open `(candidate)` rows from hunt #88 — valid-no-repro null rotate body rejected at controller before service (`RotateAsync` ~46–47 `BadRequestProblem`); valid-no-repro missing header when `Enabled=true` even with `DevelopmentBypassAll=true` (`TryGetValue` ~74–80, bypass gated on `!enabled` #88); valid-no-repro append suffix leads with comma for zero-downtime rotation (`AdminApiKeySettingsServiceTests.Rotate_without_invalidate_previous_appends_when_slot_is_configured`); valid-no-repro admin vs reader permission claim sets differ by branch design (~90–100 vs ~108–112, reader regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role`); valid-no-repro invalid legacy slot throws from `ParseSlot` and maps to 400 before audit (`RotateKeyIdAsync` ~87–89, service `ArgumentException`); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 9); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
@@ -3749,9 +3763,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
