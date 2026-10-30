@@ -196,4 +196,30 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
         top.Should().ContainSingle();
         top[0].Message.Should().Be("Active high");
     }
+
+    [Fact]
+    public void Create_sets_top_high_critical_remainder_line_when_export_lists_subset()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding { Severity = FindingSeverity.Critical, Message = "One" },
+                        new ArchitectureFinding { Severity = FindingSeverity.Error, Message = "Two" },
+                        new ArchitectureFinding { Severity = FindingSeverity.Error, Message = "Three" },
+                    ],
+                },
+            ],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", ["One"]);
+
+        model.TopHighCriticalRemainderLine.Should().Contain("2 more Critical or Error finding(s)");
+    }
 }

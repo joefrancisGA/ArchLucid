@@ -165,4 +165,10 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public string? TopHighCriticalRemainderLine
+    {
+        get;
+        init;
+    }
+
 }

@@ -22,4 +22,12 @@ public sealed class InfraEvidenceAskCitationHonestyCopyTests
             .Should()
             .Be("Diagram node label was not stored.");
     }
+
+    [Fact]
+    public void RemediationPatternKeyNotStored_is_stable_copy()
+    {
+        InfraEvidenceAskCitationHonestyCopy.RemediationPatternKeyNotStored
+            .Should()
+            .Be("Remediation pattern key was not stored.");
+    }
 }

@@ -260,6 +260,21 @@ describe("InferenceQuestionnairePanel", () => {
     );
   });
 
+  it("shows cap honesty when questionnaire list hits server cap", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: questionnaireResponse.items,
+      totalCount: 120,
+      capReached: true,
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("inference-questionnaire-cap-honesty")).toHaveTextContent(
+      "Showing 1 of 120 proposed questionnaire item(s)",
+    );
+  });
+
   it("keeps skipped questionnaire items out of the current session", async () => {
     render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
 

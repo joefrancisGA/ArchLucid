@@ -25,6 +25,9 @@ internal static class RunSummaryOnePagerHonestyCopy
     internal const string NoCriticalOrErrorFindingTitles =
         "No Critical or Error finding titles were stored for this list.";
 
+    internal const string TopHighCriticalRemainderLine =
+        "more Critical or Error finding(s) were not listed in this top-findings cap.";
+
     internal const string FindingTitleStoredEmpty = "Finding title was stored empty.";
 
     internal const string AgentFindingsNotStored = "Agent findings were not stored.";

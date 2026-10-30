@@ -17,6 +17,7 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
     IAuditEvidenceLineageService auditLineageService) : IInfraEvidenceAskEvidenceCollector
 {
     private const int AskEvidenceRowCap = 50;
+
     public async Task<InfraEvidenceAskEvidenceBundle> CollectAsync(
         ScopeContext scope,
         InfraEvidenceAskRequest request,
@@ -80,7 +81,8 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
 
         CloudResourceEvidenceHubResponse hub = hubResult.Hub;
 
-        bundle.AddCitation(
+        TryAddCitation(
+            bundle,
             InfraEvidenceAskCitationKinds.CloudResourceId,
             cloudResourceId.ToString("D"),
             hub.ExternalResourceId,
@@ -88,12 +90,15 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
 
         if (hub.CurrentConfiguration is not null)
         {
-            bundle.AddCitation(
+            TryAddCitation(
+                bundle,
                 InfraEvidenceAskCitationKinds.SnapshotId,
                 hub.CurrentConfiguration.SnapshotId.ToString("D"),
                 hub.CurrentConfiguration.AzureResourceId,
                 $"snapshotId={hub.CurrentConfiguration.SnapshotId:D} resourceType={hub.CurrentConfiguration.ResourceType}");
         }
+
+        int omittedHubChanges = 0;
 
         foreach (CloudResourceInventoryChangeSummary change in hub.RecentChanges)
         {
@@ -109,53 +114,91 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
                 }
             }
 
-            bundle.AddCitation(
-                InfraEvidenceAskCitationKinds.ChangeId,
-                change.ChangeId.ToString("D"),
-                change.ChangeType,
-                $"changeId={change.ChangeId:D} diffId={change.DiffId:D} type={change.ChangeType} property={change.Property}");
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.ChangeId,
+                    change.ChangeId.ToString("D"),
+                    ResolveChangeTypeLabel(change.ChangeType),
+                    $"changeId={change.ChangeId:D} diffId={change.DiffId:D} type={change.ChangeType} property={change.Property}"))
+            {
+                omittedHubChanges++;
+            }
         }
+
+        AppendOmittedRowLine(bundle, omittedHubChanges, "recent hub change row(s)");
+
+        int omittedOperationalFindings = 0;
 
         foreach (CloudResourceEvidenceFindingHubItem finding in hub.OperationalSecurityFindings.Items)
         {
-            bundle.AddCitation(
-                InfraEvidenceAskCitationKinds.FindingId,
-                finding.Id,
-                finding.Title,
-                $"operationalFinding id={finding.Id} title={finding.Title} stream={finding.StreamKind}");
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.FindingId,
+                    finding.Id,
+                    ResolveFindingTitleLabel(finding.Title),
+                    $"operationalFinding id={finding.Id} title={finding.Title} stream={finding.StreamKind}"))
+            {
+                omittedOperationalFindings++;
+            }
         }
+
+        AppendOmittedRowLine(bundle, omittedOperationalFindings, "operational security finding row(s)");
+
+        int omittedArchitectureFindings = 0;
 
         foreach (CloudResourceEvidenceFindingHubItem finding in hub.ArchitectureReviewFindings.Items)
         {
-            bundle.AddCitation(
-                InfraEvidenceAskCitationKinds.FindingId,
-                finding.Id,
-                finding.Title,
-                $"architectureFinding id={finding.Id} title={finding.Title} stream={finding.StreamKind}");
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.FindingId,
+                    finding.Id,
+                    ResolveFindingTitleLabel(finding.Title),
+                    $"architectureFinding id={finding.Id} title={finding.Title} stream={finding.StreamKind}"))
+            {
+                omittedArchitectureFindings++;
+            }
         }
+
+        AppendOmittedRowLine(bundle, omittedArchitectureFindings, "architecture review finding row(s)");
+
+        int omittedRemediations = 0;
 
         foreach (CloudResourceRemediationHubItem remediation in hub.RemediationInstances.Items)
         {
-            bundle.AddCitation(
-                InfraEvidenceAskCitationKinds.RemediationInstanceId,
-                remediation.InstanceId.ToString("D"),
-                remediation.PatternKey,
-                $"remediation instanceId={remediation.InstanceId:D} patternKey={remediation.PatternKey} status={remediation.Status}");
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.RemediationInstanceId,
+                    remediation.InstanceId.ToString("D"),
+                    ResolveRemediationPatternLabel(remediation.PatternKey),
+                    $"remediation instanceId={remediation.InstanceId:D} patternKey={remediation.PatternKey} status={remediation.Status}"))
+            {
+                omittedRemediations++;
+            }
         }
+
+        AppendOmittedRowLine(bundle, omittedRemediations, "remediation instance row(s)");
 
         if (hub.DiagramCorrespondence is not null)
             AddDiagramCorrespondence(bundle, hub.DiagramCorrespondence);
 
         if (topicKind == InfraEvidenceAskTopicKinds.PatternCoverage)
         {
+            int omittedPatternKeys = 0;
+
             foreach (CloudResourceRemediationHubItem remediation in hub.RemediationInstances.Items)
             {
-                bundle.AddCitation(
-                    InfraEvidenceAskCitationKinds.PatternKey,
-                    remediation.PatternKey,
-                    remediation.Status,
-                    $"patternKey={remediation.PatternKey} status={remediation.Status}");
+                if (!TryAddCitation(
+                        bundle,
+                        InfraEvidenceAskCitationKinds.PatternKey,
+                        remediation.PatternKey,
+                        remediation.Status,
+                        $"patternKey={remediation.PatternKey} status={remediation.Status}"))
+                {
+                    omittedPatternKeys++;
+                }
             }
+
+            AppendOmittedRowLine(bundle, omittedPatternKeys, "pattern coverage row(s)");
         }
 
         return bundle;
@@ -173,30 +216,33 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         if (report is null)
             return bundle;
 
-        bundle.AddCitation(
+        TryAddCitation(
+            bundle,
             InfraEvidenceAskCitationKinds.DiffId,
             diffId.ToString("D"),
             $"{report.Summary.TotalChanges} changes",
             $"diffId={diffId:D} totalChanges={report.Summary.TotalChanges}");
 
-        foreach (AzureInventoryClassifiedChangeRecord classified in report.Changes.Take(AskEvidenceRowCap))
+        int omittedDriftRows = 0;
+
+        foreach (AzureInventoryClassifiedChangeRecord classified in report.Changes)
         {
+            if (bundle.Citations.Count >= AskEvidenceRowCap)
+            {
+                omittedDriftRows++;
+                continue;
+            }
+
             AzureInventoryChangeRecord change = classified.Change;
 
             bundle.AddCitation(
                 InfraEvidenceAskCitationKinds.ChangeId,
                 change.ChangeId.ToString("D"),
-                change.ChangeType.ToString(),
+                ResolveChangeTypeLabel(change.ChangeType.ToString()),
                 $"changeId={change.ChangeId:D} type={change.ChangeType} classification={classified.Classification}");
         }
 
-        int omittedDriftRows = Math.Max(0, report.Changes.Count - AskEvidenceRowCap);
-
-        if (omittedDriftRows > 0)
-        {
-            bundle.EvidenceLines.Add(
-                $"{omittedDriftRows} more drift change row(s) were not listed in this ask bundle.");
-        }
+        AppendOmittedRowLine(bundle, omittedDriftRows, "drift change row(s)");
 
         return bundle;
     }
@@ -233,19 +279,20 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         }
 
         List<DiagramInfrastructureCorrespondenceRow> rowList = rows.ToList();
+        int omittedRows = 0;
 
-        foreach (DiagramInfrastructureCorrespondenceRow row in rowList.Take(AskEvidenceRowCap))
+        foreach (DiagramInfrastructureCorrespondenceRow row in rowList)
         {
+            if (bundle.Citations.Count >= AskEvidenceRowCap)
+            {
+                omittedRows++;
+                continue;
+            }
+
             AddDiagramCorrespondence(bundle, row);
         }
 
-        int omittedRows = Math.Max(0, rowList.Count - AskEvidenceRowCap);
-
-        if (omittedRows > 0)
-        {
-            bundle.EvidenceLines.Add(
-                $"{omittedRows} more diagram correspondence row(s) were not listed in this ask bundle.");
-        }
+        AppendOmittedRowLine(bundle, omittedRows, "diagram correspondence row(s)");
 
         return bundle;
     }
@@ -265,7 +312,8 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         if (snapshot is null)
             return bundle;
 
-        bundle.AddCitation(
+        TryAddCitation(
+            bundle,
             InfraEvidenceAskCitationKinds.SnapshotId,
             snapshot.SnapshotId.ToString("D"),
             snapshot.SubscriptionId,
@@ -273,11 +321,15 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
 
         foreach (string mode in DiagramViewPlanValidator.AllowedMermaidModes)
         {
-            bundle.AddCitation(
-                InfraEvidenceAskCitationKinds.DiagramViewPlan,
-                mode,
-                mode,
-                $"allowedMode={mode}");
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.DiagramViewPlan,
+                    mode,
+                    mode,
+                    $"allowedMode={mode}"))
+            {
+                break;
+            }
         }
 
         if (request.CloudResourceId.HasValue && request.CloudResourceId.Value != Guid.Empty)
@@ -306,7 +358,8 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
                 if (!string.IsNullOrWhiteSpace(externalResourceId))
                 {
                     bundle.EvidenceLines.Add($"outlineSeed={externalResourceId}");
-                    bundle.AddCitation(
+                    TryAddCitation(
+                        bundle,
                         InfraEvidenceAskCitationKinds.CloudResourceId,
                         request.CloudResourceId.Value.ToString("D"),
                         externalResourceId,
@@ -340,7 +393,8 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
             return bundle;
         }
 
-        bundle.AddCitation(
+        TryAddCitation(
+            bundle,
             InfraEvidenceAskCitationKinds.SnapshotId,
             snapshot.SnapshotId.ToString("D"),
             snapshot.SubscriptionId,
@@ -372,26 +426,35 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         if (!lineageResult.Succeeded || lineageResult.Lineage is null)
             return bundle;
 
-        bundle.AddCitation(
+        TryAddCitation(
+            bundle,
             InfraEvidenceAskCitationKinds.AuditLineageControlId,
             request.ControlId.Value.ToString("D"),
             lineageResult.Lineage.ControlTitle,
             $"controlId={request.ControlId.Value:D} chainComplete={lineageResult.Lineage.ChainComplete}");
 
-        foreach (AuditEvidenceLineageRequirementChain chain in lineageResult.Lineage.RequirementChains.Take(25))
+        int omittedAuditRows = 0;
+
+        foreach (AuditEvidenceLineageRequirementChain chain in lineageResult.Lineage.RequirementChains)
         {
-            foreach (AuditEvidenceLineageEvidenceNode evidence in chain.Evidence.Take(10))
+            foreach (AuditEvidenceLineageEvidenceNode evidence in chain.Evidence)
             {
                 if (!evidence.CloudResourceId.HasValue)
                     continue;
 
-                bundle.AddCitation(
-                    InfraEvidenceAskCitationKinds.CloudResourceId,
-                    evidence.CloudResourceId.Value.ToString("D"),
-                    chain.RequirementName,
-                    $"requirement={chain.RequirementName} cloudResourceId={evidence.CloudResourceId.Value:D}");
+                if (!TryAddCitation(
+                        bundle,
+                        InfraEvidenceAskCitationKinds.CloudResourceId,
+                        evidence.CloudResourceId.Value.ToString("D"),
+                        chain.RequirementName,
+                        $"requirement={chain.RequirementName} cloudResourceId={evidence.CloudResourceId.Value:D}"))
+                {
+                    omittedAuditRows++;
+                }
             }
         }
+
+        AppendOmittedRowLine(bundle, omittedAuditRows, "audit lineage evidence row(s)");
 
         return bundle;
     }
@@ -413,5 +476,49 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
             correspondenceId,
             citationTitle,
             $"correspondenceId={correspondenceId} matchKind={row.MatchKind} azureResourceId={row.AzureResourceId}");
+    }
+
+    private static bool TryAddCitation(
+        InfraEvidenceAskEvidenceBundle bundle,
+        string kind,
+        string id,
+        string? label,
+        string evidenceLine)
+    {
+        if (bundle.Citations.Count >= AskEvidenceRowCap)
+            return false;
+
+        bundle.AddCitation(kind, id, label, evidenceLine);
+        return true;
+    }
+
+    private static void AppendOmittedRowLine(InfraEvidenceAskEvidenceBundle bundle, int omittedCount, string rowKind)
+    {
+        if (omittedCount <= 0)
+            return;
+
+        bundle.EvidenceLines.Add(
+            $"{omittedCount} more {rowKind} were not listed in this ask bundle.");
+    }
+
+    private static string ResolveFindingTitleLabel(string? title)
+    {
+        return string.IsNullOrWhiteSpace(title)
+            ? InfraEvidenceAskCitationHonestyCopy.FindingTitleNotStored
+            : title.Trim();
+    }
+
+    private static string ResolveRemediationPatternLabel(string? patternKey)
+    {
+        return string.IsNullOrWhiteSpace(patternKey)
+            ? InfraEvidenceAskCitationHonestyCopy.RemediationPatternKeyNotStored
+            : patternKey.Trim();
+    }
+
+    private static string ResolveChangeTypeLabel(string? changeType)
+    {
+        return string.IsNullOrWhiteSpace(changeType)
+            ? InfraEvidenceAskCitationHonestyCopy.ChangeTypeNotStored
+            : changeType.Trim();
     }
 }

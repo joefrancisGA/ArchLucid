@@ -179,4 +179,37 @@ public sealed class InventoryDiagramRecoveryServicesRelationshipApplierTests
         edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesProtectsLabel());
         edge.ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
     }
+
+    [Fact]
+    public void Apply_uses_derived_fact_when_graph_edge_is_missing()
+    {
+        DiagramAst ast = new()
+        {
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vault",
+                    ToNodeId = "vm",
+                    Label = AzureInventoryRecoveryServices.ReplicateEdgeLabel,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates,
+                },
+            ],
+        };
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.Empty,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        InventoryDiagramRecoveryServicesRelationshipApplier.Apply(
+            ast,
+            graph,
+            new Dictionary<string, string>(StringComparer.Ordinal));
+
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
+    }
 }
