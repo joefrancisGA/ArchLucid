@@ -169,8 +169,8 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
         ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
 
         string content = markdown.ToString();
-        content.Should().Contain("Service type stored as Unknown.");
-        content.Should().Contain("Datastore type stored as Unknown.");
+        content.Should().Contain("Service type was not stored.");
+        content.Should().Contain("Datastore type was not stored.");
         content.Should().NotContain("(Unknown)");
     }
 
@@ -217,7 +217,41 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
         ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
 
         markdown.ToString().Should().Contain("Relationship source id was not stored.");
-        markdown.ToString().Should().Contain("Relationship type stored as Unknown.");
+        markdown.ToString().Should().Contain("Relationship type was not stored.");
+    }
+
+    [Fact]
+    public void Append_labels_empty_topology_and_security_lists_as_stored_empty()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Services = [],
+                Datastores = [],
+            },
+            Security = new SecuritySection { Controls = [] },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        string content = markdown.ToString();
+        content.Should().Contain(ArchitectureManifestNarrativeHonestyCopy.ServicesStoredEmpty);
+        content.Should().Contain(ArchitectureManifestNarrativeHonestyCopy.DatastoresStoredEmpty);
+        content.Should().Contain(ArchitectureManifestNarrativeHonestyCopy.SecurityControlsStoredEmpty);
+    }
+
+    [Fact]
+    public void Append_operational_cost_includes_currency_honesty_when_cost_missing()
+    {
+        ManifestDocument manifest = new();
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        markdown.ToString().Should().Contain("Cost Currency:");
+        markdown.ToString().Should().Contain("Cost currency was not stored.");
     }
 
     [Fact]
@@ -282,6 +316,57 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
         content.Should().Contain("- Resource: Resource was stored empty.");
         content.Should().Contain("Data-flow relationships were stored as an empty list.");
         content.Should().Contain("Topology gaps were stored as an empty list.");
+    }
+
+    [Fact]
+    public void Append_labels_null_topology_services_datastores_and_controls()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Services = null!,
+                Datastores = null!,
+            },
+            Security = new SecuritySection
+            {
+                Controls = null!,
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        string content = markdown.ToString();
+        content.Should().Contain("- Services were not stored.");
+        content.Should().Contain("- Datastores were not stored.");
+        content.Should().Contain("Security controls were not stored.");
+    }
+
+    [Fact]
+    public void Append_appends_relationship_description_honesty_suffix()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Relationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-a",
+                        TargetId = "ds-1",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                        Description = null,
+                    },
+                ],
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        markdown.ToString().Should().Contain("Relationship description was not stored.");
     }
 
     [Fact]

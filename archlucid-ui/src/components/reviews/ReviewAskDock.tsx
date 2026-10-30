@@ -12,6 +12,7 @@ import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHones
 import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  ASK_RETRIEVAL_DEGRADED_LABEL,
   ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
   ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
 } from "@/lib/ask-retrieval-mode-copy";
@@ -369,7 +370,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             ) : retrievalDegraded ? (
               <StatusTag
                 kind="needs-attention"
-                label="Vector search unavailable; using text search instead."
+                label={ASK_RETRIEVAL_DEGRADED_LABEL}
                 data-testid="review-ask-dock-retrieval-degraded"
               />
             ) : (

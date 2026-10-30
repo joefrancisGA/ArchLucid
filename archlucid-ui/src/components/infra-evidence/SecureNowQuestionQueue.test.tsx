@@ -666,7 +666,9 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Question disposition status was not stored" }),
+    );
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
       "Resource name was stored empty.",
@@ -679,7 +681,9 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Question disposition status was not stored" }),
+    );
 
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
   });
@@ -727,7 +731,9 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Status not stored" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Question disposition status was not stored" }),
+    );
 
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-question-answer")).not.toBeInTheDocument();

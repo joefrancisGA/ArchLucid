@@ -32,7 +32,11 @@ export const industryVerticalOptions = [
 
 export const signupFormSchema = z
   .object({
-    adminEmail: z.string().trim().email("Enter a valid email."),
+    adminEmail: z
+      .string()
+      .trim()
+      .max(254, "Work email must be at most 254 characters.")
+      .email("Enter a valid email."),
     adminDisplayName: z
       .string()
       .trim()
@@ -133,6 +137,10 @@ export function deriveSignupFormReadinessMessage(values: SignupFormValues): stri
 
   switch (issuePath) {
     case "adminEmail":
+      if (issueMessage === "Work email must be at most 254 characters.") {
+        return "Enter a work email of at most 254 characters to continue.";
+      }
+
       return "Enter a valid work email to continue.";
     case "adminDisplayName":
       if (issueMessage === "Full name contains unsupported characters.") {

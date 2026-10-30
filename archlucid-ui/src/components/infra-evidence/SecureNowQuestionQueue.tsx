@@ -23,6 +23,7 @@ import {
   secureNowQuestionReviewerClosedDispositionReasonLine,
   secureNowQuestionReviewerReasonTextLine,
   secureNowQuestionReviewerSourceLine,
+  SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   secureNowQuestionReviewerExpirationDisplayLine,
@@ -470,7 +471,14 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           >
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
-                {(["Open", "Answered", "Dismissed", "Status not stored"] as const).map((option) => (
+                {(
+                  [
+                    "Open",
+                    "Answered",
+                    "Dismissed",
+                    SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
+                  ] as const
+                ).map((option) => (
                   <Button
                     key={option}
                     type="button"

@@ -111,8 +111,8 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
       <RunDetailEvidenceScopeHeader
         packageName={props.packageName}
         reviewDateLabel={props.reviewDateLabel}
-        evidenceItemCount={inventoryCount}
-        deliverableCount={props.deliverableCount}
+        evidenceItemCount={hasManifest ? inventoryCount : null}
+        deliverableCount={hasManifest ? props.deliverableCount : null}
         readinessHeadline={scopeReadiness.headline}
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}

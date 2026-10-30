@@ -29,7 +29,11 @@ function sampleFinding(
   };
 }
 
-describe("deriveOverallPostureLabel (P-11)", () => {
+describe("deriveOverallPostureLabel (P-10)", () => {
+  it("does not substitute governance gate when risk posture is missing", () => {
+    expect(deriveOverallPostureLabel(null, "Passed", "Critical")).toBe("Risk posture was not stored.");
+  });
+
   it("does not substitute highest severity when risk posture is missing", () => {
     expect(deriveOverallPostureLabel(null, null, "Critical")).toBe("Risk posture was not stored.");
   });
@@ -67,6 +71,23 @@ describe("deriveReviewNextActionLabel (P-20)", () => {
 
     expect(label).not.toContain("Confirm evidence");
     expect(label).not.toContain("Evidence reference count was not stored");
+  });
+
+  it("uses zero stored refs copy for next action (P-18)", () => {
+    const label = deriveReviewNextActionLabel({
+      recommendedActions: [],
+      primaryConcernFinding: sampleFinding({
+        findingId: "f-1",
+        title: "Public ingress",
+        evidenceRefCount: 0,
+        humanReviewStatus: 1,
+      }),
+      blockingFindingCount: 0,
+      hasFindingsSnapshot: true,
+    });
+
+    expect(label).toContain("No evidence references were stored");
+    expect(label).toContain("Public ingress");
   });
 
   it("uses not-stored copy when primary finding omits evidenceRefCount", () => {
@@ -113,6 +134,14 @@ describe("deriveEvidenceCoverageSummary", () => {
     const { deriveEvidenceCoverageSummary } = await import("./review-presentation");
 
     const summary = deriveEvidenceCoverageSummary([], { hasFindingsSnapshot: false });
+
+    expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
+  });
+
+  it("uses not-stored copy when snapshot flag is omitted and there are no open findings", async () => {
+    const { deriveEvidenceCoverageSummary } = await import("./review-presentation");
+
+    const summary = deriveEvidenceCoverageSummary([]);
 
     expect(summary.summaryLine).toBe("Evidence coverage was not stored.");
   });

@@ -372,6 +372,15 @@ export const GUIDED_INTAKE_REQUEST_FAILED_FALLBACK = "Guided questions request f
 /** Heading for the read-only confirmed-scope recap on the submit step. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING = "Confirmed in-scope items";
 
+/** Heading when the recap includes inferred scope lines from intake. */
+export const GUIDED_INTAKE_CONFIRMED_SCOPE_INFERRED_SUMMARY_HEADING =
+  "Confirmed and inferred in-scope items" as const;
+
+/** Shown on confirm when optional intake fields are still empty before submit. */
+export const GUIDED_INTAKE_CONFIRM_INTENT_NOT_STORED_YET = "Intent was not stored yet." as const;
+export const GUIDED_INTAKE_CONFIRM_OUTCOME_NOT_STORED_YET = "Outcome was not stored yet." as const;
+export const GUIDED_INTAKE_CONFIRM_SYSTEM_NOT_STORED_YET = "System name was not stored yet." as const;
+
 /** Shown on the submit step when no in-scope confirmation lines were stored. */
 export const GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED =
   "Confirmed in-scope items were not stored." as const;

@@ -719,6 +719,630 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByTestId(`webhook-test-result-${subscriptionId}`)).toBeNull();
   });
 
+  it("does not resurrect inline webhook test results when refresh finishes before an in-flight test completes", async () => {
+    const subscriptionId = "sub-test-result-after-refresh-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveTest: ((value: unknown) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.test.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = resolve;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    resolveTest?.({
+      transportSucceeded: true,
+      statusCode: 202,
+      reasonPhrase: "Accepted",
+      responseBodyPreview: '{"ok":true}',
+      responseBodyTruncated: false,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.queryByTestId(`webhook-test-result-${subscriptionId}`)).toBeNull();
+    expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).not.toHaveAttribute("aria-busy", "true");
+  });
+
+  it("does not show connection test toasts when refresh invalidates an in-flight test", async () => {
+    const subscriptionId = "sub-test-toast-after-refresh-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveTest: ((value: unknown) => void) | undefined;
+    let listCallCount = 0;
+
+    vi.mocked(showSuccess).mockClear();
+    vi.mocked(showError).mockClear();
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.test.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = resolve;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    resolveTest?.({
+      transportSucceeded: true,
+      statusCode: 202,
+      reasonPhrase: "Accepted",
+      responseBodyPreview: '{"ok":true}',
+      responseBodyTruncated: false,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(vi.mocked(showSuccess)).not.toHaveBeenCalled();
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+
+  it("does not show connection test error toast when refresh invalidates an in-flight failed test", async () => {
+    const subscriptionId = "sub-test-error-toast-after-refresh-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let rejectTest: ((reason?: unknown) => void) | undefined;
+    let listCallCount = 0;
+
+    vi.mocked(showError).mockClear();
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.test.mockImplementation(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectTest = reject;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    rejectTest?.(new Error("network down"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+    expect(screen.queryByTestId(`webhook-test-result-${subscriptionId}`)).toBeNull();
+  });
+
+  it("clears page failure after manual refresh succeeds following superseded post-create list reload failure", async () => {
+    const subscriptionId = "sub-create-stale-reload-recovery-1";
+    const disabledSubId = "sub-create-stale-reload-recovery-disabled-1";
+    let resolveCreateApi: ((value: unknown) => void) | undefined;
+    let resolveCreateLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    const disabledRow = {
+      routingSubscriptionId: disabledSubId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "Existing hook",
+      channelType: "OnCallWebhook",
+      destination: "https://listener.example/existing",
+      minimumSeverity: "High",
+      isEnabled: false,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    const createdRow = {
+      routingSubscriptionId: subscriptionId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "Signal hook",
+      channelType: "OnCallWebhook",
+      destination: "https://listener.example/webhook",
+      minimumSeverity: "High",
+      isEnabled: true,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([disabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveCreateLoad = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      if (listCallCount === 3) {
+        return new Promise((resolve) => {
+          resolveToggleReload = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return Promise.resolve([disabledRow, createdRow]);
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreateApi = resolve;
+        }),
+    );
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(1));
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${disabledSubId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    resolveCreateApi?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(disabledSubId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(3);
+    });
+
+    resolveToggleReload?.([disabledRow, createdRow]);
+    resolveCreateLoad?.([disabledRow, createdRow]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(
+        /Could not refresh the subscription list after saving/i,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(4));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).not.toHaveTextContent(
+        /Could not refresh the subscription list after saving/i,
+      );
+    });
+    expect(await screen.findByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
+  });
+
+  it("does not leave enable confirmation busy after superseded post-toggle list reload", async () => {
+    const subscriptionId = "sub-enable-busy-after-stale-reload-1";
+    let resolveCreate: ((value: unknown) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let resolveSaveReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    const disabledRow = {
+      routingSubscriptionId: subscriptionId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "PagerDuty alerts",
+      channelType: "OnCallWebhook",
+      destination: "https://example.com/webhooks/archlucid",
+      minimumSeverity: "High",
+      isEnabled: false,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([disabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveToggleReload = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveSaveReload = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    resolveCreate?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    resolveSaveReload?.([disabledRow]);
+    resolveToggleReload?.([{ ...disabledRow, isEnabled: true }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const confirmButton = screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL });
+    expect(confirmButton).not.toHaveAttribute("aria-busy", "true");
+  });
+
+  it("does not show inline test results for subscriptions removed by manual refresh", async () => {
+    const subscriptionId = "sub-test-result-removed-by-refresh-1";
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return Promise.resolve([]);
+    });
+    apiMocks.test.mockResolvedValue({
+      transportSucceeded: true,
+      statusCode: 202,
+      reasonPhrase: "Accepted",
+      responseBodyPreview: '{"ok":true}',
+      responseBodyTruncated: false,
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-test-${subscriptionId}`));
+    expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("HTTP 202");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    expect(screen.queryByTestId(`webhook-test-result-${subscriptionId}`)).toBeNull();
+  });
+
+  it("clears page failure after manual refresh succeeds following a failed refresh", async () => {
+    const subscriptionId = "sub-failure-recovery-refresh-1";
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      if (listCallCount === 2) {
+        return Promise.reject(new Error("refresh failed"));
+      }
+
+      return Promise.resolve([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ]);
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).not.toHaveTextContent(/refresh failed/i);
+    });
+    expect(screen.getByLabelText("Status: 1 active subscription")).toBeInTheDocument();
+  });
+
+  it("shows the prior enabled chip while subscription refresh is in flight", async () => {
+    const subscriptionId = "sub-stale-enabled-chip-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-enabled-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByTestId(`webhook-enabled-${subscriptionId}`)).toHaveTextContent("Enabled");
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`webhook-enabled-${subscriptionId}`)).toHaveTextContent("Disabled");
+    });
+  });
+
+  it("clears disable confirmation error when manual refresh fails", async () => {
+    const subscriptionId = "sub-disable-error-refresh-fail-1";
+
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "PagerDuty alerts",
+          channelType: "OnCallWebhook",
+          destination: "https://example.com/webhooks/archlucid",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+        },
+      ])
+      .mockRejectedValueOnce(new Error("list refresh failed"))
+      .mockRejectedValueOnce(new Error("list refresh failed again"));
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    fireEvent.click(screen.getAllByRole("button", { name: "Disable" }).at(-1)!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("alert-routing-subscription-disable-error")).toHaveTextContent(/list refresh failed/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Disable webhook subscription PagerDuty alerts/i)).not.toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("alert-routing-subscription-disable-error")).toBeNull();
+  });
+
   it("clears webhook test results when manual subscription refresh fails", async () => {
     const subscriptionId = "sub-test-result-clear-on-failed-refresh-1";
     apiMocks.list
@@ -1509,6 +2133,122 @@ describe("WebhooksIntegrationPage", () => {
     expect((screen.getByLabelText(/^Subscription name$/i) as HTMLInputElement).value).toBe("Signal hook");
   });
 
+  it("surfaces save error when retry create conflicts after superseded post-create reload failure", async () => {
+    const subscriptionId = "sub-create-retry-conflict-1";
+    const disabledSubId = "sub-create-retry-conflict-disabled-1";
+    let resolveCreateApi: ((value: unknown) => void) | undefined;
+    let resolveCreateLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+    let createCallCount = 0;
+
+    const disabledRow = {
+      routingSubscriptionId: disabledSubId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "Existing hook",
+      channelType: "OnCallWebhook",
+      destination: "https://listener.example/existing",
+      minimumSeverity: "High",
+      isEnabled: false,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([disabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveCreateLoad = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveToggleReload = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(() => {
+      createCallCount += 1;
+
+      if (createCallCount === 1) {
+        return new Promise((resolve) => {
+          resolveCreateApi = resolve;
+        });
+      }
+
+      return Promise.reject(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
+    });
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(1));
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${disabledSubId}`));
+    resolveCreateApi?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    resolveToggleReload?.([disabledRow]);
+    resolveCreateLoad?.([disabledRow]);
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(
+        /Could not refresh the subscription list after saving/i,
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(/Could not save the subscription/i)).toBeInTheDocument();
+  });
+
+  it("clears webhookEnableId from the URL when manual refresh starts with enable confirm open", async () => {
+    const subscriptionId = "sub-enable-url-after-refresh-1";
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(navigationMocks.getCommittedQuery()).toContain(`webhookEnableId=${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(navigationMocks.getCommittedQuery()).not.toContain("webhookEnableId=");
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 
@@ -2083,6 +2823,184 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByTestId("alert-routing-subscription-disable-error")).toHaveTextContent(
       /Could not refresh the subscription list after updating/i,
     );
+  });
+
+  it("does not leave disable confirmation busy after superseded post-toggle list reload", async () => {
+    const subscriptionId = "sub-disable-busy-after-stale-reload-1";
+    let resolveCreate: ((value: unknown) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let resolveSaveReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    const enabledRow = {
+      routingSubscriptionId: subscriptionId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "PagerDuty alerts",
+      channelType: "OnCallWebhook",
+      destination: "https://example.com/webhooks/archlucid",
+      minimumSeverity: "High",
+      isEnabled: true,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([enabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveToggleReload = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveSaveReload = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    const disableConfirmButton = screen.getAllByRole("button", { name: "Disable" }).at(-1)!;
+    fireEvent.click(disableConfirmButton);
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    resolveCreate?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    resolveSaveReload?.([enabledRow]);
+    resolveToggleReload?.([{ ...enabledRow, isEnabled: false }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(disableConfirmButton).not.toHaveAttribute("aria-busy", "true");
+  });
+
+  it("clears page failure after manual refresh succeeds following create API failure", async () => {
+    const subscriptionId = "sub-create-api-failure-recovery-1";
+    let listCallCount = 0;
+
+    apiMocks.create.mockRejectedValueOnce(new Error("routingSubscriptionId conflict"));
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      return Promise.resolve([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Signal hook",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/webhook",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ]);
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(await screen.findByText(/Could not save the subscription/i)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).not.toHaveTextContent(/Could not save the subscription/i);
+    });
+    expect(await screen.findByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
+  });
+
+  it("clears save failure alert when manual refresh starts before subscription reload completes", async () => {
+    const subscriptionId = "sub-save-failure-cleared-on-refresh-start-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.create.mockRejectedValueOnce(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    expect(await screen.findByText(/Could not save the subscription/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).not.toHaveTextContent(/Could not save the subscription/i);
+    });
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Signal hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/webhook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    expect(await screen.findByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
   });
 
   it("disables webhook toggle buttons while subscription list reload is in flight", async () => {

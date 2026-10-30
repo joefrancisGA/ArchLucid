@@ -9723,6 +9723,763 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_api_key_without_hyphen_colon_delimiter()
+    {
+        const string effectiveValue = "ApiKey: secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_bearer_header_contains_jwt()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_double_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string doubleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string effectiveValue = $"Authorization: Basic {doubleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_authorization_basic_header_has_invalid_base64()
+    {
+        const string effectiveValue = "Authorization: Basic not!!!base64";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_utf8_bom_prefixes_client_secret_property()
+    {
+        const string effectiveValue = "\uFEFF{\"clientSecret\":\"z\"}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_digest_header_contains_response_parameter()
+    {
+        const string effectiveValue = "Authorization: Digest username=\"u\", response=\"deadbeef\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_authorization_bearer_token_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Authorization: Bearer abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_triple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string effectiveValue = $"Authorization: Basic {tripleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_bom_prefixes_json_array_with_password_property()
+    {
+        const string effectiveValue = "\uFEFF[{\"password\":\"x\"}]";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_header_contains_base64_userinfo()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_negotiate_header_contains_spnego_blob()
+    {
+        const string effectiveValue = "Authorization: Negotiate YIIeAYeAABQAAAABAAA=";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_digest_header_uses_response_without_equals()
+    {
+        const string effectiveValue = "Authorization: Digest response=\"abc12345\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_quadruple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string effectiveValue = $"Authorization: Basic {quadrupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_www_authenticate_basic_challenge_has_no_credentials()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=\"x\"";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Set-Cookie: session=abc123456789; HttpOnly";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_ntlm_header_contains_blob()
+    {
+        const string effectiveValue = "Authorization: NTLM TlRMTVNTUAABAAAABlIAA=";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie: s=abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_quintuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string effectiveValue = $"Authorization: Basic {quintupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Cookie: session=longvalue123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_digest_response_value_is_shorter_than_four_characters()
+    {
+        const string effectiveValue = "Authorization: Digest response=\"abc\"";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_jwt_paste_omits_authorization_prefix()
+    {
+        const string effectiveValue = "Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_basic_header_decodes_to_hex_without_userinfo()
+    {
+        string hexOnly = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("636c69656e74736563726574"));
+        string effectiveValue = $"Authorization: Basic {hexOnly}";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_sextuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string sextupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quintupleEncoded));
+        string effectiveValue = $"Authorization: Basic {sextupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session()
+    {
+        const string effectiveValue = "Cookie: a=1; session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Set-Cookie2: session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_septuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string sextupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quintupleEncoded));
+        string septupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sextupleEncoded));
+        string effectiveValue = $"Authorization: Basic {septupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_comma()
+    {
+        const string effectiveValue = "Cookie: a=1, session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_header_uses_lowercase_bearer_scheme()
+    {
+        const string effectiveValue = "authorization: bearer eyJhbGciOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_header_has_extra_whitespace_before_payload()
+    {
+        const string effectiveValue = "Authorization: Basic   dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_exactly_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie: session=12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_octuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string sextupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quintupleEncoded));
+        string septupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sextupleEncoded));
+        string octupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(septupleEncoded));
+        string effectiveValue = $"Authorization: Basic {octupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_followed_by_path_attribute()
+    {
+        const string effectiveValue = "Set-Cookie: session=longsecret123456; Path=/";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_token_is_followed_by_trailing_newline()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret\n";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_tab()
+    {
+        const string effectiveValue = "Cookie: a=1\tsession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie_session_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie: session=1234567";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_embeds_connection_string_password_pair()
+    {
+        const string effectiveValue = """{"note":"Server=x;Password=secret"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_token_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbG\nCiOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_vertical_tab()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Bsession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_contains_client_secret_property()
+    {
+        const string effectiveValue = """[{"ClientSecret":"z"}]""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_bearer_scheme_is_followed_by_whitespace_only()
+    {
+        const string effectiveValue = "Authorization: Bearer    ";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Csession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_contains_url_userinfo()
+    {
+        const string effectiveValue = """{"url":"https://user:pass@host"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Basic\ndXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_lists_theme_before_long_session_attribute()
+    {
+        const string effectiveValue = "Set-Cookie: theme=dark; session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic\ndXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXN\nX";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_id_before_long_session_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: id=1\u000Csession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Digest\nusername=\"u\", response=\"deadbeef\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_has_carriage_return_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Basic\rdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_digest_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Digest\nresponse=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_has_interior_spaces_before_line_wrap()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpw YXN\n";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_negotiate_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Negotiate\nYWRtaW46cGFzcw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_x_before_eight_char_s_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: x=ab\u000Cs=12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_response_parameter_starts_on_following_line()
+    {
+        const string effectiveValue = "Authorization: Digest username=\"u\"\nresponse=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ntlm_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: NTLM\nTlRMTVNTUAABAAA";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_missing_base64_padding_character()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXM";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Bearer\neyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_a_before_long_s_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Cs=123456789";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_negotiate_token_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Negotiate YWRtaW\n46cGFzcw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_bearer_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Bearer\neyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ntlm_token_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: NTLM TlRMTV\nNTUAABAAA";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_bearer_scheme_is_followed_by_tabs_only()
+    {
+        const string effectiveValue = "Authorization: Bearer\t\t";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_z_before_ten_char_s_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: z=1\u000Cs=1234567890";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_uses_tab_separated_base64_chunks()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpw\tYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_ntlm_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: NTLM\nTlRMTVNTUAABAAA";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_header_has_tab_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Digest\tresponse=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_a_before_seven_char_s_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Cs=1234567";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_header_has_carriage_return_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Bearer\reyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_uses_form_feed_separated_base64_chunks()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpw\u000CYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_digest_has_tab_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Digest\tresponse=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_negotiate_header_has_carriage_return_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Negotiate\rYWRtaW46cGFzcw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_q_before_nine_char_r_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: q=1\u000Cr=123456789";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_uses_vertical_tab_separated_base64_chunks()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpw\u000BYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_header_has_form_feed_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Bearer\u000CeyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_negotiate_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Negotiate\nYWRtaW46cGFzcw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_header_has_form_feed_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Digest\u000Cresponse=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_m_before_ten_char_n_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: m=1\u000Cn=1234567890";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ntlm_header_has_form_feed_after_scheme()
+    {
+        const string effectiveValue = "Authorization: NTLM\u000CTlRMTVNTUAABAAA";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_has_newline_after_interior_space()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpw\nYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_contains_trailing_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=\"app\", dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_session_value_is_exactly_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie2: session=12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_token_uses_url_safe_alphabet_without_padding()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbGciOiJIUzI1NiIs.eyJzdWIiOiJ1In0";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_contains_zero_width_space()
+    {
+        const string effectiveValue = "Authorization: Basic dXNl\u200BcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_proxy_authorization_basic_header()
+    {
+        const string effectiveValue = """{"hdr":"Proxy-Authorization: Basic dXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_quotes_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=\"dXNlcjpwYXNz\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_has_byte_order_mark_prefix()
+    {
+        const string effectiveValue = "Authorization: Basic \uFEFFdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie2_session_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie2: session=1234567";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_contains_response_fragment()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest realm=\"app\", response=\"deadbeef0123\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_basic_paste_with_zero_width_space()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNl\u200BcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_single_quotes_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm='dXNlcjpwYXNz'";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_semicolon_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz;other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_has_unquoted_response()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest response=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_basic_paste_with_byte_order_mark()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic \uFEFFdXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_backticks_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=`dXNlcjpwYXNz`";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_closing_parenthesis()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz)";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session()
+    {
+        const string effectiveValue = "Set-Cookie2: a=1; session=12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_response_uses_single_quotes()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest response='deadbeef0123'";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_wraps_basic_header_paste()
+    {
+        const string effectiveValue = """[{"hdr":"Authorization: Basic dXNlcjpwYXNz"}]""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_angle_brackets_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=<dXNlcjpwYXNz>";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_closing_bracket()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz]";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_compound_list_has_eight_character_session()
+    {
+        const string effectiveValue = "Cookie: a=1; session=12345678";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_response_uses_backticks()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest response=`deadbeef0123`";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_nested_json_array_wraps_basic_header_paste()
+    {
+        const string effectiveValue = """{"items":[{"hdr":"Authorization: Basic dXNlcjpwYXNz"}]}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";

@@ -73,6 +73,16 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_executive_mode_uses_default_inventory_caption_when_no_region_caption()
+    {
+        GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
+
+        ast.CaptionLines.Should().Contain(DiagramExecutiveRegionPlanner.DefaultExecutiveInventoryCaption);
+    }
+
+    [Fact]
     public void Compile_executive_mode_synthesizes_peering_from_vnet_property_json()
     {
         GraphSnapshot graph = BuildExecutiveVnetOnlyGraph();

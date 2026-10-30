@@ -134,7 +134,15 @@ public static class ArchitectureMandatedMarkdownSections
             "Resource",
             "Resource was stored empty.");
 
-        if (topology.Services is not null)
+        if (topology.Services is null)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.ServicesNotStored}");
+        }
+        else if (topology.Services.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.ServicesStoredEmpty}");
+        }
+        else
         {
             foreach (ManifestService service in topology.Services)
             {
@@ -149,7 +157,15 @@ public static class ArchitectureMandatedMarkdownSections
             }
         }
 
-        if (topology.Datastores is not null)
+        if (topology.Datastores is null)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.DatastoresNotStored}");
+        }
+        else if (topology.Datastores.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.DatastoresStoredEmpty}");
+        }
+        else
         {
             foreach (ManifestDatastore datastore in topology.Datastores)
             {
@@ -207,7 +223,7 @@ public static class ArchitectureMandatedMarkdownSections
                     ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
                 string relationshipType = FormatRelationshipType(relationship.RelationshipType);
-                lines.Add($"- {sourceId} {relationshipType} {targetId}");
+                lines.Add($"- {sourceId} {relationshipType} {targetId}{FormatRelationshipDescriptionSuffix(relationship.Description)}");
             }
         }
 
@@ -234,7 +250,15 @@ public static class ArchitectureMandatedMarkdownSections
         SecuritySection security = manifest.Security;
         List<string> lines = [];
 
-        if (security.Controls is not null)
+        if (security.Controls is null)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.SecurityControlsNotStored}");
+        }
+        else if (security.Controls.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.SecurityControlsStoredEmpty}");
+        }
+        else
         {
             foreach (SecurityPostureItem control in security.Controls)
             {
@@ -279,6 +303,8 @@ public static class ArchitectureMandatedMarkdownSections
         if (cost is null)
         {
             lines.Add($"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
+            lines.Add(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(null)}");
             lines.Add("- Cost risks were not stored.");
             lines.Add("- Cost notes were not stored.");
         }
@@ -288,6 +314,8 @@ public static class ArchitectureMandatedMarkdownSections
                 cost.MaxMonthlyCost.HasValue
                     ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
                     : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
+            lines.Add(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(cost.CurrencyCode)}");
 
             AppendStoredStringListToLines(
                 lines,
@@ -384,10 +412,10 @@ public static class ArchitectureMandatedMarkdownSections
     }
 
     private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type stored as Unknown." : serviceType.ToString();
+        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
 
     private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type stored as Unknown." : datastoreType.ToString();
+        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
 
     private static string FormatRelationshipType(RelationshipType relationshipType) =>
         relationshipType switch
@@ -404,12 +432,23 @@ public static class ArchitectureMandatedMarkdownSections
                 "has a stored subscription link. Observed consumption was not stored.",
             RelationshipType.AuthenticatesWith =>
                 "has a stored authentication link. Observed sign-in was not stored.",
-            _ when !Enum.IsDefined(relationshipType) =>
-                "Relationship type stored as Unknown.",
+            _ when !Enum.IsDefined(relationshipType) || relationshipType == default =>
+                "Relationship type was not stored.",
             _ when Enum.IsDefined(relationshipType) && relationshipType != default =>
                 $"has a stored {relationshipType} link. Observed action was not stored.",
             _ => "Relationship type was not stored.",
         };
+
+    private static string FormatRelationshipDescriptionSuffix(string? description)
+    {
+        if (description is null)
+            return " — Relationship description was not stored.";
+
+        if (description.Trim().Length == 0)
+            return " — Relationship description was stored empty.";
+
+        return $" — {description.Trim()}";
+    }
 
     private static string FormatComponentName(string? raw, string notStored, string storedEmpty)
     {
