@@ -1766,6 +1766,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-30 thorough hunt #40 (dry): classified the five remaining Webhooks candidates as invalid for this zone because the zone path is exclusively `HelpDocsClient.tsx`; no Webhooks source or test was exercised. The focused HelpDocsClient vitest passed 61/61 and no HelpDocsClient candidates remain open.
+
+- [x] (invalid) `useWebhooksSettingsMutations.confirmDisableSubscription` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsConnectionTest` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `WebhooksSettingsClient` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsLoad.load` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsMutations.submit` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+
 2026-10-30 thorough hunt #39 (dry): cheap-disproof closed the five HelpDocsClient candidates — debounced q sync has canonical one-replace behavior with parameter-order coverage; internal query/hash variants remain visible; filter haystack retains raw external URLs alongside normalized tokens; and Escape updates query state so the pending debounce is cleaned up. The five Webhooks candidates remain queued because they are outside this zone’s `HelpDocsClient.tsx` path. Focused HelpDocsClient vitest passed 61/61; no production code changed.
 
 - [x] (valid-no-repro) `HelpDocsClient` — debounced q sync loops `router.replace` when URL parameter order differs — **cheap-disproof 2026-10-30 thorough hunt #39:** existing parameter-order and unrelated-URL-param regressions show at most one canonical replace.
@@ -1773,11 +1781,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `helpDocLinkHref` / `mergeDocIndex` — internal hash variant is treated as a duplicate of the static path — **cheap-disproof 2026-10-30 thorough hunt #39:** hash deep-link regression keeps the fetched internal variant visible.
 - [x] (valid-no-repro) `normalizeDocIndexUrlForDedupe` — normalized external filter token loses query-only search terms — **cheap-disproof 2026-10-30 thorough hunt #39:** filtering includes the raw URL and query-string regression passes.
 - [x] (valid-no-repro) `HelpDocsClient.clearSearch` — the pending debounce repopulates `q` after Escape — **cheap-disproof 2026-10-30 thorough hunt #39:** Escape clears query state and existing debounce cleanup coverage passes.
-- [ ] (candidate) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable error inline persists when post-disable reload fails with API error — locus: `presentToggleRefreshFailureInDialog`; input: list reject after disable toggle (monitor).
-- [ ] (candidate) `useWebhooksSettingsConnectionTest` — `testingId` cleared in finally even when catch returns early on stale generation — locus: catch/finally ordering; input: reject test after refresh (monitor).
-- [ ] (candidate) `WebhooksSettingsClient` — save failure alert reappears if manual refresh fails after create API error — locus: load catch after refresh; input: save error then failed refresh (monitor).
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — superseded successful response discarded when newer refresh fails — locus: newest-request policy; input: overlapping refresh failure after prior success (monitor).
-- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name guard uses stale rows until reload after failed save — locus: submit duplicate check; input: failed save then rename retry before refresh (monitor).
 
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — dual external hash anchors intentionally both render (`renders two external hash fragment variants on the same vendor path`); leading-whitespace scheme-relative urls still classify as external (`classifies protocol-relative doc-index urls with leading whitespace as external links`); uppercase percent-encoding searchable via haystack lowercasing (`filters rows when the search query matches uppercase percent-encoding in the doc-index url`); static quick link vs external vendor pathname merge keys disjoint (`invalid`); URL `q` refilters after index load (`applies URL q filter to fetched rows after the documentation index finishes loading` + existing active-search test). 62 scoped HelpDocsClient + help-hub-search-url vitest passed; no production code changed. Reseeded five follow-on `(candidate)` rows below.
 
@@ -1821,9 +1824,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
