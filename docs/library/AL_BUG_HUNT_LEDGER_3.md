@@ -2,6 +2,12 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #66 (dry): cheap-disproof closed three open `(candidate)` rows — retry and completion guards remain covered across router transition, first-touch serialization failure remains non-blocking, and the submit callback snapshots company size before the POST/session write. The full SignupForm suite passed 140/140; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — **cheap-disproof 2026-10-30 thorough hunt #66:** the serialization catch leaves the validated payload unchanged and the non-Latin1 attribution regression passes.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — **cheap-disproof 2026-10-30 thorough hunt #66:** the submit callback values snapshot drives both POST payload and session write; no pending-edit mismatch repro.
+
 2026-10-30 thorough hunt #46 (dry): cheap-disproof closed three open `(candidate)` rows — completion guards cover the retry boundary, attribution encoding failure remains non-blocking, and session writes use the submit callback snapshot. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #42 — **cheap-disproof 2026-10-30 thorough hunt #46:** retry boundary, encoding failure, and pending optional-field changes produced no failing repro.
@@ -18,9 +24,9 @@
 -- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — **cheap-disproof 2026-10-30 thorough hunt #9:** required-field readiness is evaluated before optional company-size details, so blank email receives required guidance.
 -- [x] (valid-no-repro) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — **cheap-disproof 2026-10-30 thorough hunt #26:** session writes are best-effort and the throwing-storage regression confirms navigation still proceeds.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — locus: guard reset versus navigation lifecycle; input: retry click before `/signup/verify` settles (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — locus: header catch path and payload construction; input: mixed Unicode UTM values plus valid signup fields (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — locus: callback values versus live form state; input: change company size while request is pending (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — **cheap-disproof 2026-10-30 thorough hunt #66:** the serialization catch leaves the validated payload unchanged and the non-Latin1 attribution regression passes.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — **cheap-disproof 2026-10-30 thorough hunt #66:** the submit callback values snapshot drives both POST payload and session write; no pending-edit mismatch repro.
 
 2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
@@ -314,9 +320,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
