@@ -77,6 +77,19 @@ describe("showcase-telemetry", () => {
     expect(clarity.mock.calls).toContainEqual(["event", "showcase_quick_nav_finding"]);
   });
 
+  it("recordShowcaseFunnelEvent trims the scenario before emitting telemetry", () => {
+    recordShowcaseFunnelEvent("quick_nav_finding", {
+      scenario: " claims-intake-modernization ",
+      renderMode: "api",
+    });
+
+    expect(clarity.mock.calls).toContainEqual([
+      "set",
+      "showcase_scenario",
+      "claims-intake-modernization",
+    ]);
+  });
+
   it("recordShowcaseFunnelEvent is a no-op when scenario trims to empty", () => {
     recordShowcaseFunnelEvent("quick_nav_finding", {
       scenario: " \t ",

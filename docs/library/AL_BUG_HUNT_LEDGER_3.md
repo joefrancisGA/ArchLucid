@@ -7825,6 +7825,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #11 (dry): cheap-disproof closed three open `(candidate)` rows — successful real analysis clears the sample error through the submit success state; artifact click/observer ordering intentionally follows actual viewport visibility; funnel telemetry trims the scenario before emitting properties (`recordShowcaseFunnelEvent trims the scenario before emitting telemetry`). Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful real analysis response — **cheap-disproof 2026-10-30 thorough hunt #11:** successful analysis state clears the error; existing POST regressions cover the path.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — **cheap-disproof 2026-10-30 thorough hunt #11:** observer ratios represent viewport truth and click state is reconciled by the next callback.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — **cheap-disproof 2026-10-30 thorough hunt #11:** trim is applied to emitted properties; regression `recordShowcaseFunnelEvent trims the scenario before emitting telemetry`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — locus: POST catch/finally state reset; input: successful HTTP response with malformed body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — locus: stable sort order; input: two equal visible sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — locus: paired property construction; input: canonical scenario with fallback mode (monitor).
+
 2026-10-30 thorough hunt #10 (dry): cheap-disproof closed three open `(candidate)` rows — explicit sample retry success clears the prior sample error (`clears a failed sample error when an explicit retry succeeds`); artifact navigation only updates active state for a currently found target and observer cleanup handles route teardown; funnel telemetry intentionally consumes canonical scenario props rather than decoding encoded values at the low-level event helper. Reseeded three follow-on `(candidate)` rows. 33 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — **cheap-disproof 2026-10-30 thorough hunt #10:** successful retry calls `setError(null)`; regression `clears a failed sample error when an explicit retry succeeds`.
