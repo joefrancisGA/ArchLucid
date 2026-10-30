@@ -32,7 +32,7 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
             return PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel;
         }
 
-        if (!deltas.AgentResultsIncludedInDetail)
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
         {
             return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
         }

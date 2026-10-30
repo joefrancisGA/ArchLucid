@@ -39,4 +39,22 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
             && deltas.MutedFindingsExcludedCount > 0
             && !HasMaterialFindingWithoutSeverityBuckets(deltas);
     }
+
+    internal static bool IsAgentResultsOmittedEmptySeverity(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.AgentResultsIncludedInDetail)
+        {
+            return false;
+        }
+
+        int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
+
+        return deltas.FindingsBySeverity.Count == 0
+            && unmutedTotal == 0
+            && !HasMaterialFindingWithoutSeverityBuckets(deltas)
+            && !IsMutedOnlyEmptySeverity(deltas)
+            && !IsSnapshotAttestedZeroUnmuted(deltas);
+    }
 }

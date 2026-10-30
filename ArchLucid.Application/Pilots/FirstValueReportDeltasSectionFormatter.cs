@@ -52,13 +52,20 @@ public static class FirstValueReportDeltasSectionFormatter
             else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
             {
                 sb.AppendLine(
-                    "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel})_");
             }
             else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
             {
                 sb.AppendLine(
                     CultureInfo.InvariantCulture,
                     $"_({PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored})_");
             }
             else
             {
