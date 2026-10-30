@@ -16,6 +16,7 @@ import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/reviews",
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({

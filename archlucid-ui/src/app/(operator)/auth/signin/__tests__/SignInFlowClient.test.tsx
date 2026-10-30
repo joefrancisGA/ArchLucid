@@ -23,7 +23,8 @@ vi.mock("@/lib/auth/sign-in-method-options", () => ({
   resolveSignInMethodOptions: resolveOptionsMock,
 }));
 
-vi.mock("@/lib/oidc/session", () => ({
+vi.mock("@/lib/oidc/session", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/oidc/session")>()),
   isLikelySignedIn: isLikelySignedInMock,
   persistTokenResponse: persistTokenMock,
 }));

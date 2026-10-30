@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/product-line/resolve-product-line-id", () => ({
   resolveProductLineIdFromEnv: () => "architecture",
+  resolveProductLineId: () => "architecture",
 }));
 
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";

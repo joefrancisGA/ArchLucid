@@ -6,6 +6,7 @@ const pushMock = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
   usePathname: () => "/governance/audit-evidence",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({

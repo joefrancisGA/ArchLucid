@@ -19,6 +19,7 @@ const validateInvitationToken = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(),
+  usePathname: () => "/auth/invite",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 

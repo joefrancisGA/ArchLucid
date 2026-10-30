@@ -7,6 +7,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("@/lib/product-line/resolve-product-line-id", () => ({
   resolveProductLineIdFromEnv: () => "architecture",
+  resolveProductLineId: () => "architecture",
 }));
 
 vi.mock("@/lib/desk-continuity-preference", () => ({

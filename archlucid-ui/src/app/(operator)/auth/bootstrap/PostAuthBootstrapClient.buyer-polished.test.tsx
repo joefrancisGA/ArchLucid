@@ -19,6 +19,7 @@ const fetchPostAuthBootstrapStatus = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/auth/bootstrap",
 }));
 
 vi.mock("@/lib/auth/post-auth-bootstrap-api", () => ({
