@@ -7813,13 +7813,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #5 (dry): the picker re-presented five marketing monitor rows already closed by thorough hunt #4 because the reseed block remained duplicated as open rows. Revalidated the existing regressions and classified the duplicate rows as valid-no-repro; removed the stale open duplicates and seeded three bounded follow-on monitor rows. 31 scoped vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate picker rows for Quick Scan POST/sample ordering, sample error reset, artifact navigation IO/click ordering, blocked-storage browser identity, and blank showcase telemetry — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already closed by the preceding #4 regressions; no new hunt-ready mechanism.
+
+- [ ] (candidate) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — locus: status effect plus POST completion ordering; input: SampleOnly → Available → SampleOnly transition (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — locus: effect cleanup; input: route transition during intersection callback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — locus: paired telemetry guards; input: funnel click with unknown scenario (monitor).
+
 2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — the existing stale-sample regression establishes that a completed real analysis remains authoritative over an in-flight sample; submit clears stale sample errors before a successful analysis; intersection callbacks intentionally reconcile click selection with actual visibility; volatile browser ids are tab-scoped when storage is blocked and cannot survive a full reload by design; blank showcase scenarios return before both Clarity and App Insights telemetry (`recordShowcaseViewed is a no-op when scenario trims to empty`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
 
-- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
-- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates below were already closed by thorough hunt #4; retained only as historical reseed metadata, not open hypotheses.
 
 - [x] (valid-no-repro) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — **cheap-disproof 2026-10-30 thorough hunt #4:** existing stale-sample regression proves the real analysis remains authoritative; no wrong outcome.
 - [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — **cheap-disproof 2026-10-30 thorough hunt #4:** submit clears error before the POST and successful POST coverage leaves no stale sample error.
@@ -7829,11 +7833,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
 
-- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
-- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain from this reseed block.
 
 - [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
 - [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.
