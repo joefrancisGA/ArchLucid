@@ -2197,7 +2197,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
-**Hunts:** 7 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+**Hunts:** 8 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #98 (seed-only): re-read host-gate normalization, split-host classification, alias matching, and the focused regression suite; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
 2026-10-30 thorough hunt #97 (dry): cheap-disproof closed both queued candidates: a double-encoded slash is not a reachable canonical operator route and is safely left alone, while `URL.host` retains `:8443` and the existing `www.` alias comparison matches `www.archlucid.net:8443`; host-gate vitest passed 23/23. No production code changed.
 
