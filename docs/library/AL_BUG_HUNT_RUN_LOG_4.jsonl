@@ -2932,4 +2932,8 @@
 {"at":"2026-10-30T22:23:10.4421070Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:26:38.4612055Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:27:12.4759536Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+<<<<<<< HEAD
 {"at":"2026-10-30T22:29:59.1150975Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-30T22:32:16.5178718Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
+>>>>>>> 0cc15c8b7b (Preserve host-supplied TimeProvider during application service registration.)

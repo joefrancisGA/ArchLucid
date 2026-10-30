@@ -636,6 +636,31 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_TimeProvider()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        TimeProvider injectedClock = new FixedTimeProvider(new DateTimeOffset(2026, 10, 30, 12, 0, 0, TimeSpan.Zero));
+        services.AddSingleton(injectedClock);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<TimeProvider>().Should().BeSameAs(injectedClock,
+            "composition must not replace a host- or test-supplied TimeProvider with TimeProvider.System");
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_registers_retrieval_indexing_processor_without_outbox_hosted_service()
     {
         IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
