@@ -2972,13 +2972,27 @@
 
 ## Zone: identity-provider-config
 
+2026-10-30 thorough hunt #345 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #344 — cross-protocol optional-field clearing on protocol switch (`ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`, `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`; by design since 2026-08-24), GET issuer length parity on canonical stored rows (`GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`), discover issuer length guard (`DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`), test-login sandbox delegation for blank sample claim entries (intentional `Success:false` via `ResolveRoles`; regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`), and claim-mapping JSON serialization order (`ActivateAsync_persists_claim_mapping_json_with_wizard_property_names`; persisted JSON is not read before serialize). Reseeded five `(candidate)` rows; **117** scoped activation/controller/matrix/test-login tests passed. Private beta: n/a.
+
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — **cheap-disproof 2026-10-30 thorough hunt #345:** regressions above; clearing is intentional on SAML↔OIDC switch.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read returns HTTP 400 when `EnsureIssuerUriFits` throws — **cheap-disproof 2026-10-30 thorough hunt #345:** legacy oversize canonical issuers rejected on GET for parity with activate/discover/test-login; rows that fit at write time canonicalize to the same stored width.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 — **cheap-disproof 2026-10-30 thorough hunt #345:** regression `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard — **cheap-disproof 2026-10-30 thorough hunt #345:** sandbox contract; empty/whitespace sample values yield `Success:false` without HTTP 400 (by design).
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized before optional-field resolution — **cheap-disproof 2026-10-30 thorough hunt #345:** serialization uses request `ClaimMapping` only; `TryGetAsync` resolves metadata/key vault fields, not claim JSON casing.
+
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol OIDC reactivate with omitted `KeyVaultSecretName` preserves stored secret — locus: `ResolveOptionalPersistedField`; input: populated secret + null request field; reachability: SSO wizard step-2 re-save (`use-sso-wizard-page.ts`) (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET skips `EnsureIssuerUriFits` when stored issuer is not canonical HTTP(S) — locus: GET guard ~225–234; input: legacy non-normalized issuer string; reachability: `GET /v1/admin/identity/configuration` reload (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — whitespace-only `SampleClaimValues` entries return `Success:false` without controller-level substantive guard — locus: `SsoWizardTestLoginService.Execute`; input: `[""]` or `["   "]`; reachability: sandbox JWT preview step (monitor).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` preserves stored XML without re-parse when unchanged — locus: `sameProtocol` + `EnsureActivateFields`; input: valid stored XML + null request metadata; reachability: SAML settings re-activate (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return malformed `ClaimMappingJson` verbatim — locus: read path has no schema re-validation; input: corrupt JSON in repository row; reachability: wizard `parsePersistedClaimMappingJson` on reload (monitor).
+
 2026-10-27 seed hunt (seed-only #344): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService`; no hunt-ready promotion after prior OIDC/SAML strip and field-limit hits; seeded five mechanism-backed `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` passed (`RunAnalyzers=false`).
 
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — locus: `sameProtocol` gate ~78–86 and `NormalizeResolvedFieldsForProtocol`; input: reactivate OIDC after stored SAML row with null `MetadataXml` and null `KeyVaultSecretName` in request; reachability: SSO wizard protocol change (`use-sso-wizard-page.ts`).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — locus: GET canonicalization ~225–234; input: persisted issuer that canonicalizes to length at NVARCHAR boundary; reachability: `GET /v1/admin/identity/configuration`.
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — locus: post-discover `EnsureIssuerUriFits` ~75–86; input: discovery document issuer canonicalized beyond 2048 characters; reachability: wizard discover step before activate.
-- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — locus: `TestLogin` ~125–133; input: `sampleClaimValues` containing empty string or whitespace-only entry; reachability: SSO wizard sandbox JWT preview.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — locus: serialize ~73 then `TryGetAsync` ~75; input: claim mapping with property names that differ only by casing from persisted JSON; reachability: activate POST after wizard edit.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -3027,10 +3041,10 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 79
+- **hunts:** 80
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
 - **code-changed-since:** no
