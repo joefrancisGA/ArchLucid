@@ -29,4 +29,7 @@ internal static class FirstValueReportMarkdownFormatting
         string fence = new string('`', maxRun + 1);
         return fence + escaped + fence;
     }
+
+    internal static string FormatGeneratedFromRunAttributionLine(string runId)
+        => FormattableString.Invariant($"*Generated from run {WrapMarkdownInlineCode(runId)}.*");
 }

@@ -78,6 +78,26 @@ public sealed class BuyerProofPackExecutionProvenanceFooterTests
         markdown.Should().Contain("not attested");
     }
 
+    [Fact]
+    public void Execution_provenance_footer_when_deployment_name_contains_pipe_escapes_table_cell()
+    {
+        ExecutionProvenanceFooterRenderer renderer = new();
+        string markdown = renderer.BuildFooterMarkdown(
+            new ExecutionProvenanceFooterInput(
+                PersistedStructuralExecutionMode: StructuralExecutionMode.Real,
+                RealModeFellBackToSimulator: false,
+                PilotAoaiDeploymentSnapshot: null,
+                HostAgentExecutionMode: "Real",
+                HostAzureOpenAiDeploymentName: "gpt|4o",
+                LlmCompletionTraceCount: 2));
+
+        string row = markdown.Split('\n')
+            .Single(line => line.Contains("| Azure OpenAI deployment (when known) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| Azure OpenAI deployment (when known) | `gpt\\|4o` |");
+    }
+
     private static FirstValueReportBuilder CreateFirstValueReportBuilder(
         IRunDetailQueryService query,
         IPilotRunDeltaComputer deltas)

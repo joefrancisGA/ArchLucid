@@ -47,7 +47,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         sb.AppendLine("## Architecture package honesty");
         sb.AppendLine();
         sb.AppendLine(
-            $"> Sponsor KPIs for review `{runId}` are **not** an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.");
+            $"> Sponsor KPIs for review {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(runId)} are **not** an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.");
         sb.AppendLine();
 
         if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))

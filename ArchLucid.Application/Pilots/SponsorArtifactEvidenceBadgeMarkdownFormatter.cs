@@ -42,10 +42,10 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"- **Evidence source:** **{badges.SourceLabel}** (`{badges.SourceToken}`)");
+            $"- **Evidence source:** **{badges.SourceLabel}** ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(badges.SourceToken)})");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"- **Evidence freshness:** **{badges.FreshnessLabel}** (`{badges.FreshnessToken}`)");
+            $"- **Evidence freshness:** **{badges.FreshnessLabel}** ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(badges.FreshnessToken)})");
 
         if (badges.WarnBeforeSponsorSend)
         {
