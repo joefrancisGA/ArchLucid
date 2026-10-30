@@ -284,7 +284,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             });
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
             AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
-            AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
+            AddDeltaRow(table, "Findings by severity", PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
         });
@@ -301,18 +301,6 @@ public sealed class SponsorOnePagerPdfBuilder(
         return deltas.TimeToCommittedManifest is not { } wall
             ? "Time to committed manifest was not stored."
             : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
-    }
-
-    private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
-    {
-        if (!deltas.AgentResultsIncludedInDetail && deltas.FindingsBySeverity.Count == 0 && !deltas.FindingsCountsFromSnapshot)
-        {
-            return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
-        }
-
-        return deltas.FindingsBySeverity.Count == 0
-            ? "No findings were stored on agent results for this run."
-            : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
     }
 
     private static string FormatAuditRows(PilotRunDeltas deltas) =>
