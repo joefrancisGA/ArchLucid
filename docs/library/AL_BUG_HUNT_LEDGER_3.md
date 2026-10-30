@@ -7841,13 +7841,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #16 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding marketing regressions — malformed analysis errors do not retain the sample’s success status; navigation only marks a fixed item active when its DOM target exists; and direct funnel telemetry receives canonical scenarios from supported callers. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #17 (dry): cheap-disproof closed three open `(candidate)` rows already covered by prior state and telemetry regressions — malformed POST handling does not leave a false completion status; absent artifact targets do not force active-id fallback; and unsupported direct telemetry callers are outside the typed canonical scenario contract. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #16 — **cheap-disproof 2026-10-30 thorough hunt #17:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST response leaves “Showing sample” status after error — locus: status reset path (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed target falls back to first active artifact without observer evidence — locus: active-id fallback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — untyped direct caller sends noncanonical encoded scenario — locus: public telemetry boundary (monitor).
 
 - [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #15 — **cheap-disproof 2026-10-30 thorough hunt #16:** all three mechanisms were already closed; no new failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — malformed POST response leaves “Analysis complete” status after sample remains visible — locus: status transition ordering (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — optional artifact target removal causes active state to fall back to the first item unexpectedly — locus: active-id fallback (monitor).
-- [ ] (candidate) `recordShowcaseFunnelEvent` — unsupported direct caller can bypass canonical scenario construction — locus: telemetry API boundary (monitor).
+- [x] (valid-no-repro) duplicate row — malformed POST status candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — optional artifact fallback candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — direct telemetry caller candidate was already closed by thorough hunt #17.
 
 2026-10-30 thorough hunt #15 (dry): cheap-disproof closed three open `(candidate)` rows that were already represented by the preceding malformed-POST, navigation, and telemetry regressions — malformed analysis errors retain the sample and expose an error; optional artifact omission is not a supported product contract; and page wrappers pass the same canonical scenario into viewed and funnel events. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
