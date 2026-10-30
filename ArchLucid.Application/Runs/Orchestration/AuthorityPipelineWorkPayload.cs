@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Persistence.Context;
 using System.Globalization;
 
@@ -179,8 +180,18 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
         HasUsableCompactIdentifierText(document.Name)
-        && HasUsableCompactIdentifierText(document.ContentType)
+        && HasUsableDocumentContentType(document.ContentType)
         && HasUsableIdentifierText(document.Content);
+
+    /// <summary>
+    ///     MIME parameters such as <c>; charset=utf-8</c> contain a space. Judge the type token
+    ///     after the same lookup cut the parser uses, and keep the raw value on the document.
+    /// </summary>
+    private static bool HasUsableDocumentContentType(string? value)
+    {
+        string normalized = SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(value);
+        return HasUsableCompactIdentifierText(normalized);
+    }
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)

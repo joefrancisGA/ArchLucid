@@ -4583,9 +4583,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
+- **last-bug:** 2026-10-30 — a charset parameter dropped the document
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `text/plain; charset=utf-8` being dropped because compact identifier checks treated the MIME parameter space as internal whitespace; content type is now judged after `NormalizeContentTypeForLookup`; regression `Deserialize_keeps_document_when_content_type_has_charset_parameter`; scoped payload JSON tests 40/40. Private beta: when an invited operator's deferred authority run includes a source document whose content type has a charset parameter, that document stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — `text/plain; charset=utf-8` dropped the document — **hit 2026-10-30 seed hunt:** judge the content type after `NormalizeContentTypeForLookup`; regression `Deserialize_keeps_document_when_content_type_has_charset_parameter`.
 
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
@@ -4601,11 +4605,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 47
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
+- **hunts:** 48
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — a charset parameter dropped the document
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
