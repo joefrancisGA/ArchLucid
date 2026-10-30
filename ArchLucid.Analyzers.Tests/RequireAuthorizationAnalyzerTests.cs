@@ -1859,6 +1859,51 @@ namespace N
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_empty_controller_when_default_interface_derived_member_is_allow_anonymous()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedDefault
+    {
+        [Authorize]
+        [HttpPost("x")]
+        System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+        {
+            return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public interface IAnonymousDerived : IAuthorizedDefault
+    {
+        [AllowAnonymous]
+        [HttpPost("x")]
+        new System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+        {
+            return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public sealed class DerivedAnonymousDefaultController : ControllerBase, IAnonymousDerived
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 

@@ -204,6 +204,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                     continue;
                 }
 
+                if (ControllerTypeHasMutatingAuditExclude(exclusionAttribute, controllerType))
+                {
+                    continue;
+                }
+
                 if (SyntaxBodiesReferenceLogAsync(interfaceMethod, cancellationToken))
                 {
                     continue;
@@ -701,6 +706,30 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
                     exclusionAttributeSymbolScoped))
                 return true;
+        }
+
+        return false;
+    }
+
+    private static bool ControllerTypeHasMutatingAuditExclude(
+        INamedTypeSymbol? exclusionAttributeSymbolScoped,
+        INamedTypeSymbol controllerTypeSymbolScoped)
+    {
+        if (exclusionAttributeSymbolScoped is null)
+            return false;
+
+        for (INamedTypeSymbol? typeWalker = controllerTypeSymbolScoped;
+             typeWalker is not null;
+             typeWalker = typeWalker.BaseType)
+        {
+            foreach (AttributeData attributeDataExcluded in typeWalker.GetAttributes())
+            {
+                if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
+                        exclusionAttributeSymbolScoped))
+                {
+                    return true;
+                }
+            }
         }
 
         return false;
