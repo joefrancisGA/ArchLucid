@@ -1013,7 +1013,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 43 · **Bugs found:** 2 · **Consecutive dry hunts:** 16
+**Hunts:** 44 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+
+2026-10-30 thorough hunt #120 (dry): rotation kept `cli-terraform-evidence` after two `cli-draft-new` seed-only outcomes. Cheap-disproof closed all five queued candidates: no repository consumer sorts, normalizes, path-validates, or plans from the mixed evidence list; existing composition and extraction tests cover the authoritative ordering and metadata distinction. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
 2026-10-30 thorough hunt #117 (dry): rotation fired after three `cli-draft-new` seed-only outcomes. Cheap-disproof closed all five queued candidates: collection results are caller-owned, repository consumers do not resolve or parse the citation/annotations as external paths, no Windows path consumer is reachable, and report tests distinguish metadata from executable leaves; `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
@@ -1131,11 +1133,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — locus: collection expression entries ~12–31; input: report/export consumer applies ordinal string sorting to the returned list.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — locus: `AppendLine` sequence around the Terraform section; input: downstream Markdown normalization that collapses section whitespace.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — locus: mixed annotated and plain entries ~12–31; input: leaf counter scans rendered evidence without annotation-aware extraction.
-- [ ] (candidate) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — locus: constant declaration ~6; input: report generation with `repositoryRoot` unavailable and a path validator requiring an on-disk file.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — locus: composition roots preceding `infra/terraform-private`; input: planner derives wave boundaries from raw list positions instead of annotations.
+- [x] (invalid) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — **cheap-disproof 2026-10-30 thorough hunt #120:** no repository report/export consumer sorts this list; the authoritative sequence is asserted directly by existing ordering tests.
+- [x] (invalid) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — **cheap-disproof 2026-10-30 thorough hunt #120:** no downstream Markdown normalizer is reachable in this zone; existing composition tests assert heading, citation, and numbered-root ordering.
+- [x] (invalid) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — **cheap-disproof 2026-10-30 thorough hunt #120:** no repository consumer scans rendered evidence this way; the existing extraction helper and report contract distinguish metadata from sixteen executable leaves.
+- [x] (invalid) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — **cheap-disproof 2026-10-30 thorough hunt #120:** no current path validator consumes this citation; unresolved-root composition intentionally preserves the repository-relative contract.
+- [x] (invalid) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — **cheap-disproof 2026-10-30 thorough hunt #120:** no planner consumes this helper as an execution plan; existing index and first-hosted-leaf regressions cover the list-position distinction.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
 
