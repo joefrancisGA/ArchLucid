@@ -2358,6 +2358,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-30 seed hunt #47 (seed-only): reread the page-client action gates and source-text projection after the prior candidate exhaustion; no candidate was promoted or reproven. Seeded three fresh bounded candidates below.
+
+- [ ] (candidate) `primaryDescriptionFromSources` — attachment-only source context uses the first attached document as the architecture description; input: source-context returns no `architecture-description.txt` row and a non-description attachment first; wrong outcome: the main description textarea is populated with attachment content and reasoning submits the wrong primary source; mechanism: fallback is `sources[0]` when the canonical filename is absent; reachability: persisted product-run source-context payload with attached documents.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy; input: source-context returns a non-empty `sourceTexts` array whose contents trim to empty; wrong outcome: operator sees loaded-intake messaging while the description is empty and analysis cannot proceed; mechanism: product context status uses `sources.length > 0` while description uses trimmed content; reachability: API source-context response with empty document content.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists; input: reasoning endpoint returns a structurally accepted result with no specialist reviews/findings; wrong outcome: checklist advances to complete while the reasoning workspace has no actionable result; mechanism: `analysisComplete` checks only `runState?.kind === "reasoning"`; reachability: architecture-intelligence run API response.
+
 2026-10-30 thorough hunt #46 (dry): cheap-disproof closed five queued candidates — conflict refs reset on the non-conflicting inbound path, reasoning response ids intentionally become the canonical active scope, retry disables the editable description while loading, fixture loading does not mutate the URL tier, and review selection clears interview answers on scope change. The page-client suite executed 57 tests but the worker exceeded the VM heap during teardown; the focused helper suite passed 3/3 and no production code changed.
 
 2026-10-29 thorough hunt (hit): promoted inbound `runId` drop after canonical hydration — removing `runId` while keeping `contextRunId` aligned to the canonical active scope incorrectly wiped hydrated description/priorities because intake reset keyed only on `contextRunId !== previousInbound`; `shouldClearIntakeWhenInboundRunIdDropped` now treats matching `activeRunId` as same scope; regressions `architecture-intelligence-page-helpers.test.ts` and `keeps hydrated intake when inbound runId is removed but contextRunId matches canonical scope`. Cheap-disproof closed invalid-tier reasoning without opening depth select (`reviewTier` state defaults Standard and invalid `tier` is stripped before POST); continue POST with scope switch mid-interview (`actionGenerationRef` stale guard + continue path uses current `activeRunId`). 7 scoped unit tests passed locally; page-client integration on CI. Private beta: operators who drop `runId` from architecture intelligence URLs after canonical scope sync keep hydrated intake instead of an empty form.
@@ -2411,7 +2417,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
