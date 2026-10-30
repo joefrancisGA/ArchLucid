@@ -97,10 +97,10 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         ProofPackageCompletenessResponse proof,
         SponsorRoiClaimDispositionResult roiClaimGate)
     {
-        string label = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
+        string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
         string inputsSummary = proof.RoiBaselineInputs is null
             ? string.Empty
-            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
+            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
 
         if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
             && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
@@ -108,8 +108,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
-            ? FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(roiClaimGate.NarrativeBlock);
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }
