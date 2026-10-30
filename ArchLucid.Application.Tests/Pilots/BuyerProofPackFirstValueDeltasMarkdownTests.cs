@@ -14,6 +14,32 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 {
     [Fact]
+    public void Computed_deltas_table_when_llm_count_zero_resolved_discloses_simulator_caveat()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                FindingsBySeverity = [new KeyValuePair<string, int>("Warning", 1)],
+                LlmCallCount = 0,
+                LlmCallCountResolved = true,
+                AuditRowCountResolved = true,
+                AuditRowCount = 1,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM calls for this run |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("zero may be valid when simulator substitution applies");
+    }
+
+    [Fact]
     public void Computed_deltas_table_when_committed_timestamp_present_wraps_inline_code()
     {
         DateTime committed = new(2026, 3, 1, 12, 0, 0, DateTimeKind.Utc);

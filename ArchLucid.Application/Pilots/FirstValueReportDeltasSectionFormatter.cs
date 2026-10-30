@@ -123,6 +123,12 @@ public static class FirstValueReportDeltasSectionFormatter
         if (!deltas.LlmCallCountResolved)
             return "_(not attested — execution trace query failed)_";
 
+        if (deltas.LlmCallCount == 0)
+        {
+            return
+                "0 _(zero may be valid when simulator substitution applies — see execution mode / quality disposition)_";
+        }
+
         return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
     }
 
