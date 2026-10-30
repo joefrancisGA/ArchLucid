@@ -3917,7 +3917,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 80 · **Bugs found:** 12 · **Consecutive dry hunts:** 12
+**Hunts:** 74 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; none met the hunt-ready bar. `CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync` returns at most one reason (`ArchitectureVersionContentFingerprintVerifier.GetViolations` is a single κ-drift string, and every other branch returns one string), so `architectureVersionPinReasons[0]` cannot drop a second violation. Create-time pins can list a policy-pack failure and an evidence-package failure together, and `createTimePinReasons[0]` still throws, so the commit stays blocked. `QualityRejected` with recorded `Accepted` still blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`). A null second run header skips evidence referential integrity only (hunt #72). Whitespace-only `TaskId` chains with a missing task id (`Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`). Private beta: n/a.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped commit-output-integrity filter passed (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
@@ -3927,11 +3929,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — null `traces` argument throws before mode guard — **cheap-disproof 2026-10-27 seed hunt #80:** `ArgumentNullException`; regression `GetBlockingReasons_throws_when_traces_null`.
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — empty input returns empty list without throwing — **cheap-disproof 2026-10-27 seed hunt #80:** fast path; regression `Select_when_empty_traces_returns_empty_list`.
 
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — throws only `architectureVersionPinReasons[0]` when the arch-version pin evaluator returns multiple violations — locus: `architectureVersionPinReasons[0]` ~141–142; input: commit body with both stale knowledge-model pin and draft-request architecture version mismatch (operators see first failure only).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `createTimePinReasons[0]` surfaces a single create-time pin failure when policy-pack and evidence-package pins both fail — locus: ~162–163; input: Real run header with conflicting pinned policy pack and evidence package ids at finalize.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` on the winning latest-per-task row still blocks — locus: loop ~45–46; input: upsert-drift row after acceptance (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingEvidenceReferentialIntegrityValidator` skipped when the second `GetByIdAsync` returns null even though findings reference evidence rows — locus: ~206–222; input: Guid run id whose header row disappears between create-time pin pass and evidence integrity phase (optional gate skip).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` chains retries on `agent:{AgentType}` like a missing task id — locus: ~55–62; input: traces with `TaskId` `"   "` (`Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`).
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — throws only `architectureVersionPinReasons[0]` when the arch-version pin evaluator returns multiple violations — **cheap-disproof 2026-10-30 thorough hunt:** `ArchitectureVersionContentFingerprintVerifier.GetViolations` returns one κ-drift string or none, and every other `CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync` branch returns a one-element list, so the list never has a second reason to drop.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `createTimePinReasons[0]` surfaces a single create-time pin failure when policy-pack and evidence-package pins both fail — **cheap-disproof 2026-10-30 thorough hunt:** `CommitCreateTimePinIntegrityEvaluator` can collect both `ConflictException` messages, and the service still throws the first, so finalize stays blocked. Pin services throw non-empty messages (`RunPolicyPackPinService.VerifyPinIntegrityOrThrowAsync`, `RunEvidencePackagePinService.VerifyPinIntegrityOrThrowAsync`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` on the winning latest-per-task row still blocks — **cheap-disproof 2026-10-30 thorough hunt:** durable reject flag is independent of the recorded outcome; regression `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks` (extends 2026-10-07 #76).
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingEvidenceReferentialIntegrityValidator` skipped when the second `GetByIdAsync` returns null even though findings reference evidence rows — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of hunt #72; a missing header skips the optional evidence pass only. Quality, provenance, and scorecard gates still run.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` chains retries on `agent:{AgentType}` like a missing task id — **cheap-disproof 2026-10-30 thorough hunt:** same legacy retry key as a missing `TaskId`; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 107 scoped zone tests passed (63 Application + 44 Core).
 
@@ -4051,13 +4053,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 73
+- **hunts:** 74
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-25 seed hunt (seed-only): reseeded commit-output-integrity after #3469 empty-trace fail-closed change; removed stale `GetBlockingReasons_when_empty_traces_returns_empty` test superseded by `GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason`; 88 scoped tests passed; no new hunt-ready rows.
 
