@@ -18,42 +18,6 @@
     ]
   },
   {
-    "findingId": "97d8e408-2fc5-3fdf-d16a-e4bec555b48b",
-    "findingType": "DanglingDeclarationReferenceFinding",
-    "category": "Security",
-    "severity": "Warning",
-    "title": "Resource \u0027checkout_mi\u0027 references identity \u002711111111-2222-3333-4444-555555555555\u0027 that is not declared in this package",
-    "rationale": "Property \u0027principalId\u0027 on \u0027checkout_mi\u0027 references \u002711111111-2222-3333-4444-555555555555\u0027, which is not present in this review package graph.",
-    "relatedNodeIds": [
-      "obj-4c4c4236ed17a9102ac6f7f5685b558e"
-    ],
-    "payloadType": "DanglingDeclarationReferenceFindingPayload",
-    "rulesApplied": [
-      "dangling-declaration-reference"
-    ],
-    "decisionsTaken": [
-      "Referenced token is not resolvable to any node id, label, or resource id on this snapshot."
-    ]
-  },
-  {
-    "findingId": "57a197cf-523b-f504-9969-15e90d7ad5e1",
-    "findingType": "DanglingDeclarationReferenceFinding",
-    "category": "Security",
-    "severity": "Warning",
-    "title": "Resource \u0027mi_sql_contributor\u0027 references identity \u002711111111-2222-3333-4444-555555555555\u0027 that is not declared in this package",
-    "rationale": "Property \u0027principalId\u0027 on \u0027mi_sql_contributor\u0027 references \u002711111111-2222-3333-4444-555555555555\u0027, which is not present in this review package graph.",
-    "relatedNodeIds": [
-      "obj-57da2b6f068301e5884890d3b30ceedc"
-    ],
-    "payloadType": "DanglingDeclarationReferenceFindingPayload",
-    "rulesApplied": [
-      "dangling-declaration-reference"
-    ],
-    "decisionsTaken": [
-      "Referenced token is not resolvable to any node id, label, or resource id on this snapshot."
-    ]
-  },
-  {
     "findingId": "368175ec-25f8-d072-9085-2e129296b222",
     "findingType": "IdentityBlastRadiusFinding",
     "category": "Security",

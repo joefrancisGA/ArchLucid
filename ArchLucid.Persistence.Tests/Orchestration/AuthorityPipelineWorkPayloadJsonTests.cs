@@ -571,6 +571,32 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_document_when_content_type_has_charset_parameter()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "keep", "contentType": "text/plain; charset=utf-8", "content": "diagram source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.ContentType.Should().Be("text/plain; charset=utf-8");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_empty_document_objects()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
@@ -677,6 +703,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
 
         back.Should().NotBeNull();
         back!.ContextIngestionRequest.InlineRequirements.Should().Equal("must use https");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces()
+    {
+        Guid runId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "topologyHints": [
+                  "Prefer outbox or transactional inbox for consistency",
+                  "hint\u00A0with-nbsp"
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.TopologyHints.Should().Equal(
+            "Prefer outbox or transactional inbox for consistency");
         back.IsValidForProcessing().Should().BeTrue();
     }
 
