@@ -2153,6 +2153,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
+
+- [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` without URL-decoding or rewriting it.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` omitted from host-gate handoff — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is explicitly included in the legacy operator prefix list.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — malformed control character decodes into an unsafe redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** decode/URL resolution failure returns the normalized path and the host gate fails open to `next`, not a cross-host redirect.
+
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` percent-encoded operator paths — `/architecture/reviews%20` on the marketing host stayed `next` because `%20` was not decoded before prefix matching (while decoded trailing space already redirected); `decodeURIComponent` before lowercase, slash collapse, and URL resolution; regression `redirects marketing-host operator paths when pathname uses percent-encoded segments`; cheap-disproof closed four sibling `(candidate)` rows (parent `..` resolves correctly for marketing vs operator handoff, workspace-health nested paths already covered, `/` welcome redirect omits empty query, IPv6 Host not reproduced); scoped host-gate vitest 22/22. Private beta: split-site users following percent-encoded operator bookmarks on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
 - [x] (proven) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — **hit 2026-10-29 thorough hunt:** `decodeURIComponent` in `normalizeHostGatePathname`; regression above.
