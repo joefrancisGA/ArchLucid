@@ -24,6 +24,19 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsBySeverityPlainTextForma
     }
 
     [Fact]
+    public void Format_when_severity_label_contains_apostrophe_quotes_and_escapes_label()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsBySeverity = [new KeyValuePair<string, int>("O'Brien", 1)],
+        };
+
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas)
+            .Should()
+            .Be("'O''Brien': 1");
+    }
+
+    [Fact]
     public void Format_when_severity_label_contains_pipe_quotes_label_in_plain_text_join()
     {
         PilotRunDeltas deltas = new()

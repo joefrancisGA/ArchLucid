@@ -37,7 +37,8 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
 
         if (key.Contains('|', StringComparison.Ordinal)
             || key.Contains(',', StringComparison.Ordinal)
-            || key.Contains(':', StringComparison.Ordinal))
+            || key.Contains(':', StringComparison.Ordinal)
+            || key.Contains('\'', StringComparison.Ordinal))
         {
             return $"'{key.Replace("'", "''", StringComparison.Ordinal)}'";
         }

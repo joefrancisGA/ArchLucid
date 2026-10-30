@@ -16632,6 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-30 seed hunt (hunt 118, seed→hit): reseeded `application-pilots` after hunt 117; promoted **Sponsor one-pager PDF** findings-by-severity join leaving apostrophe-containing severity labels unquoted (`O'Brien: 1`), breaking parity with quoted punctuation labels from hunt 117; extend `FormatSeverityLabel` to quote and SQL-escape apostrophes; regression `Format_when_severity_label_contains_apostrophe_quotes_and_escapes_label`; cheap-disproof closed five open `(candidate)` rows — apostrophe PDF join monitor closed this hit, ROI baseline table monitor retained, novelty evidence-class monitor retained, contract bypass monitor only, trace GUID theoretical; scoped **109** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor one-pager PDF severity breakdowns stay readable when severity labels include apostrophes.
+
+- [x] (proven) `PilotRunDeltasFindingsBySeverityPlainTextFormatter.FormatSeverityLabel` — apostrophe in severity label — **hit 2026-10-30 seed hunt (hunt 118):** quote + double apostrophe escape; regression above. [class:other]
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — per-field basis table inline-code wrap — **cheap-disproof 2026-10-30 seed hunt (hunt 118):** basis labels remain closed enum strings; monitor retained.
+- [x] (valid-no-repro) `SponsorDecisionDeltaNoveltyMarkdownFormatter` — novelty evidence class label wrap — **cheap-disproof 2026-10-30 seed hunt (hunt 118):** fixed English labels today; monitor retained.
+- [x] (valid-no-repro) `InferredTrailEntry.FormatMarkdownExportLine` — markdown bypass — **cheap-disproof 2026-10-30 seed hunt (hunt 118):** sponsor markdown uses `FormatInferredTrailExportLine` since hunt 93.
+- [x] (valid-no-repro) `FirstValueReportTraceSectionFormatter` — GUID table pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 118):** duplicate hunt 117; `D` GUID tokens pipe-free.
+
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor if basis labels ever echo tenant text (monitor).
+- (candidate) `SponsorDecisionDeltaNoveltyMarkdownFormatter` — novelty evidence class label without inline-code wrap — locus: novelty section prose; input: label with backtick (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.AppendFindingsSection` — markdown severity table vs PDF plain-text quoting parity for apostrophe labels — locus: computed deltas surfaces; input: monitor.
+- (candidate) `InferredTrailEntry.FormatMarkdownExportLine` — direct contract formatter bypasses export sanitizer — locus: contract unit tests only today; input: monitor.
+- (candidate) `FirstValueReportTraceSectionFormatter` — evidence chain GUID cells when id formatting ever includes pipe — locus: `FormatGuid` table cells; input: n/a GUID (monitor).
+
 2026-10-30 seed hunt (hunt 117, seed→hit): reseeded `application-pilots` after hunt 116; promoted **Sponsor one-pager PDF** findings-by-severity plain-text join echoing severity labels containing `|` without quoting, so `Warn|ing: 2` read as a spurious second segment after the pipe; quote labels that contain `|`, `,`, or `:` before joining pairs; regression `Format_when_severity_label_contains_pipe_quotes_label_in_plain_text_join`; cheap-disproof closed five open `(candidate)` rows — PDF severity pipe monitor closed this hit, ROI baseline table monitor retained, novelty evidence-class monitor retained, contract bypass monitor only, trace GUID theoretical; scoped **108** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor one-pager PDF severity breakdowns stay readable when persisted severity labels include punctuation.
 
 - [x] (proven) `PilotRunDeltasFindingsBySeverityPlainTextFormatter` — pipe in severity label breaks plain-text join — **hit 2026-10-30 seed hunt (hunt 117):** `FormatSeverityLabel` quoting; regression above. [class:other]
