@@ -214,6 +214,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (closeBracketIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBracketIndex).Trim()))
             return true;
 
+        int closeBraceIndex = token.IndexOf('}');
+
+        if (closeBraceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBraceIndex).Trim()))
+            return true;
+
         return TryBasicAuthorizationPayloadFromQuotedSegments(token);
     }
 
@@ -240,6 +245,21 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
                 if (closingAngle >= 0)
                     index += closingAngle + 1;
+
+                continue;
+            }
+
+            if (token[index] == '{')
+            {
+                ReadOnlySpan<char> braceRemainder = token.Slice(index + 1);
+                int closingBrace = braceRemainder.IndexOf('}');
+
+                if (closingBrace > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(braceRemainder.Slice(0, closingBrace)))
+                    return true;
+
+                if (closingBrace >= 0)
+                    index += closingBrace + 1;
 
                 continue;
             }
