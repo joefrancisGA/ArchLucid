@@ -2,7 +2,9 @@
 
 ## Zone: ui-form-validation
 
-2026-10-30 thorough hunt #34 (dry): cheap-disproof closed three open `(candidate)` rows — route transition interruption is outside the successful navigation contract, attribution serialization is best-effort, and React Hook Form captures submitted values for the active request. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #38 (dry): cheap-disproof closed three open `(candidate)` rows — completed-registration guarding is intentional after a successful `201`, long attribution remains best-effort, and submitted callback values are isolated from later form edits. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #38:** completion guard, Unicode attribution, and pending field edits produced no failing repro.
 
 - [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #34:** route interruption, oversized attribution, and pending-submit edits produced no failing repro.
 
@@ -12,9 +14,9 @@
 -- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — **cheap-disproof 2026-10-30 thorough hunt #9:** required-field readiness is evaluated before optional company-size details, so blank email receives required guidance.
 -- [x] (valid-no-repro) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — **cheap-disproof 2026-10-30 thorough hunt #26:** session writes are best-effort and the throwing-storage regression confirms navigation still proceeds.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — a retried registration after a router transition interruption reuses the completed-registration guard — locus: `registerCompletedRef` lifecycle; input: retry after interrupted `/signup/verify` transition (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — attribution serialization of a very long but valid cookie changes the registration request body — locus: cookie/header encoding boundary; input: captured UTM values near the accepted length limit (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — changing required fields during an in-flight request causes the success toast to describe different values than the session snapshot — locus: callback values versus watched values; input: edit email or organization while POST is pending (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — a second submit after a successful `201` but before verify navigation completes bypasses the completion guard — locus: `registerCompletedRef` and `registerInFlightRef` ordering; input: double activation at the navigation boundary (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — a Unicode-heavy but valid attribution cookie changes header encoding across repeated submissions — locus: `serializeFirstTouchHeader` and browser `btoa`; input: mixed multibyte UTM values (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — session persistence uses stale organization data after a controlled field edit during POST — locus: callback snapshot and `sessionStorage` projection; input: edit organization while register is pending (monitor).
 
 2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
