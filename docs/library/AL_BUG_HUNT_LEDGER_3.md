@@ -7891,10 +7891,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 seed hunt #70 (seed-only): re-read pricing trial-nudge focus, FAQ hash navigation, early-access submission, and marketing CTA paths; no additional repro was promoted. Seeded two bounded candidates for the next hunt.
+2026-10-30 thorough hunt #71 (dry): cheap-disproof closed the two seeded candidates — trial-nudge pricing intentionally focuses a collapsed quote section with an explicit “Request quote” trigger, and FAQ panels are independent disclosures rather than a single-open accordion. `MarketingTierPricingSection.test.tsx` and `MarketingFaqPageToc.test.tsx` passed 9/9; no production code changed.
 
-- [ ] (candidate) `TrialNudgePricingQuoteFocus` + `MarketingPricingQuotePanel` — `/pricing?source=trial-nudge` scrolls to the quote section while the panel remains collapsed behind its “Request quote” trigger; locus: trial-nudge focus effect versus quote panel `openOnMount`; input: a buyer follows the trial-upgrade nudge into pricing and expects the sales-led request path to be immediately actionable.
-- [ ] (candidate) `MarketingFaqItemPanel` — changing the FAQ hash from one item id to another leaves the previously hash-forced panel open; locus: one-way `forceOpen` effect and retained local `open` state; input: a buyer navigates between two `/faq#<item-id>` links in the same page session.
+- [x] (valid-no-repro) `TrialNudgePricingQuoteFocus` + `MarketingPricingQuotePanel` — **cheap-disproof 2026-10-30 thorough hunt #71:** the route focuses the quote section while its explicit trigger remains available; no contract requires automatic opening or immediate form exposure.
+- [x] (valid-no-repro) `MarketingFaqItemPanel` — **cheap-disproof 2026-10-30 thorough hunt #71:** each FAQ item owns independent `<details>` state and multiple answers may remain open; hash navigation does not claim accordion exclusivity.
+
+2026-10-30 seed hunt #70 (seed-only): re-read pricing trial-nudge focus, FAQ hash navigation, early-access submission, and marketing CTA paths; no additional repro was promoted. Seeded two bounded candidates for the next hunt.
 
 2026-10-30 seed hunt #69 (hit): proved `useMarketingEarlyAccessSubmit` rendered upstream non-2xx response bodies directly in the public early-access form, so a backend exception could leak internal details to anonymous visitors; replaced the body with generic retry copy and added `does not expose upstream failure details in the early-access error`. Focused early-access hook suite passed 4/4. Private beta: invited buyers requesting evaluation access now see safe recovery copy instead of raw backend exception details when the access service fails.
 
@@ -8128,9 +8130,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 41
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Signup verification status request generation
 - **related-pd-tb:** none
