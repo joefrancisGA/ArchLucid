@@ -2,15 +2,21 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed five open `(candidate)` rows that the picker re-presented from the previous reseed — per-header scope normalization remains string-only; required-field readiness remains first; nested response fields do not become top-level session ids; Unicode line separators are normalized before team-size bounds; and native keyboard submit still uses the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #6 — **cheap-disproof 2026-10-30 thorough hunt #7:** all five mechanisms were already covered by the existing suite; no new hunt-ready repro.
+
+- [ ] (candidate) `SignupForm` — mixed string/number ids produce inconsistent header subsets across retries — locus: session normalization; input: changing session JSON types (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company size and blank org produce different copy after blur — locus: touched-field readiness state (monitor).
+- [ ] (candidate) `SignupForm` — nested response id is persisted after a later retry — locus: session write ordering; input: malformed then valid registration responses (monitor).
+- [ ] (candidate) `SignupForm` — Unicode paragraph separator team size is accepted at an over-limit value — locus: schema trim semantics; input: `\u202910001\u2029` (monitor).
+- [ ] (candidate) `SignupForm` — Enter submit from optional field bypasses `canSubmit` during rerender — locus: resolver timing (monitor).
+
 2026-10-30 thorough hunt #6 (dry): cheap-disproof closed five open `(candidate)` rows that were already represented by the prior SignupForm regressions — mixed session-id types stay behind string-only scope-header gates; required-field readiness wins over company-size details; nested provisioning shapes do not create top-level ids; Unicode whitespace is trimmed before team-size bounds; and native Enter submission still passes through React Hook Form validation. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #5 — **cheap-disproof 2026-10-30 thorough hunt #6:** all five mechanisms were already covered by the existing 140-test regression suite; no new hunt-ready repro.
 
-- [ ] (candidate) `SignupForm` — mixed session id types partially emit scope headers — locus: per-header normalization; input: one string id plus two numeric ids (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank organization — locus: readiness precedence; input: invalid company size plus blank org (monitor).
-- [ ] (candidate) `SignupForm` — nested provisioning response leaks a child tenant id into session — locus: response object traversal; input: nested `result.tenantId` (monitor).
-- [ ] (candidate) `SignupForm` — Unicode line separator around team size bypasses schema max — locus: whitespace normalization; input: `\u202810001\u2028` (monitor).
-- [ ] (candidate) `SignupForm` — Enter during optional-field validation posts before resolver completion — locus: native submit timing; input: keyboard submit (monitor).
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #6; no open hypotheses remain in this historical reseed block.
 
 2026-10-30 thorough hunt #5 (dry): cheap-disproof closed five open `(candidate)` rows — the prior scope-header, readiness, array-root success, leading-zero team-size, and keyboard-submit regressions already cover these mechanisms; no failing repro or production defect was found. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
