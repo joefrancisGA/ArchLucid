@@ -86,7 +86,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         List<string> lines =
         [
             "Architecture package honesty",
-            $"Sponsor KPIs for review {context.RunId.Trim()} are not an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.",
+            $"Sponsor KPIs for review {PilotPlainTextSafeLabelFormatter.FormatLabel(context.RunId.Trim())} are not an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.",
         ];
 
         FeasibilityVerdict? verdict = context.Verdict;
@@ -156,5 +156,5 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         => string.Join(", ", keys.Select(static key => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(key)));
 
     private static string FormatSkippedMustQuestionKeysPlainText(IReadOnlyList<string> keys)
-        => string.Join(", ", keys.Select(static key => FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(key)));
+        => string.Join(", ", keys.Select(static key => PilotPlainTextSafeLabelFormatter.FormatLabel(key)));
 }
