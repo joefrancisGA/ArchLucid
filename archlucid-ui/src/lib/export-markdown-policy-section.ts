@@ -11,6 +11,28 @@ import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdow
 
 export const POLICY_SECTION_NOT_STORED_COPY = "Policy section was not stored." as const;
 
+export const POLICY_PACK_ID_NOT_STORED_COPY = "Policy pack id was not stored." as const;
+
+export const POLICY_PACK_ID_STORED_EMPTY_COPY = "Policy pack id was stored empty." as const;
+
+export function formatAtCommitPolicyPackIdForExport(raw: unknown): string {
+  if (raw === null || raw === undefined) {
+    return POLICY_PACK_ID_NOT_STORED_COPY;
+  }
+
+  if (typeof raw !== "string") {
+    return POLICY_PACK_ID_NOT_STORED_COPY;
+  }
+
+  if (raw.length === 0) {
+    return POLICY_PACK_ID_STORED_EMPTY_COPY;
+  }
+
+  const trimmed = raw.trim();
+
+  return trimmed.length > 0 ? trimmed : POLICY_PACK_ID_STORED_EMPTY_COPY;
+}
+
 export function formatPolicySection(policy: Record<string, unknown> | null, lines: string[]): void {
   if (policy === null) {
     lines.push("## Policy");
@@ -123,11 +145,13 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
 
   for (const row of snapshot.packAssignments) {
     const version = formatAtCommitPolicyPackVersionForExport(row.policyPackVersion);
-    lines.push(`- Pack \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} (${row.scopeLevel})`);
+    const packId = formatAtCommitPolicyPackIdForExport(row.policyPackId);
+    lines.push(`- Pack \`${packId}\`${version.length > 0 ? ` ${version}` : ""} (${row.scopeLevel})`);
   }
 
   for (const row of snapshot.coverageAssignments) {
     const version = formatAtCommitPolicyPackVersionForExport(row.policyPackVersion);
+    const packId = formatAtCommitPolicyPackIdForExport(row.policyPackId);
     const qualityDimension = formatAtCommitQualityDimensionForExport(row.qualityDimension);
     const coverageType = formatAtCommitCoverageTypeForExport(row.coverageType);
     const selectionState = formatAtCommitSelectionStateForExport(row.selectionState);
@@ -136,7 +160,7 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
         ? ` · excluded: ${row.exclusionReason}`
         : "";
     lines.push(
-      `- Coverage \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} · ${qualityDimension} · ${coverageType} · ${selectionState}${exclusion}`,
+      `- Coverage \`${packId}\`${version.length > 0 ? ` ${version}` : ""} · ${qualityDimension} · ${coverageType} · ${selectionState}${exclusion}`,
     );
   }
 
