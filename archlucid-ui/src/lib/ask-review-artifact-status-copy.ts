@@ -119,21 +119,33 @@ export function resolveAskAssistantGroundingCitationMarker(
     return ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER;
   }
 
+  const findingsOmitted = citationRefs.referencedFindings == null;
+  const decisionsOmitted = citationRefs.referencedDecisions == null;
+  const artifactsOmitted = citationRefs.referencedArtifacts == null;
+
+  if (findingsOmitted && decisionsOmitted && artifactsOmitted) {
+    return ASK_CITATION_LISTS_NOT_STORED_MARKER;
+  }
+
+  if (countAskAnswerCitationIds(citationRefs) > 0) {
+    return null;
+  }
+
   const messages: string[] = [];
 
-  if (citationRefs.referencedFindings == null) {
+  if (findingsOmitted) {
     messages.push(ASK_CITATION_FINDINGS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedFindings.length === 0) {
     messages.push(ASK_CITATION_FINDINGS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedDecisions == null) {
+  if (decisionsOmitted) {
     messages.push(ASK_CITATION_DECISIONS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedDecisions.length === 0) {
     messages.push(ASK_CITATION_DECISIONS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedArtifacts == null) {
+  if (artifactsOmitted) {
     messages.push(ASK_CITATION_ARTIFACTS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedArtifacts.length === 0) {
     messages.push(ASK_CITATION_ARTIFACTS_STORED_EMPTY_MARKER);
