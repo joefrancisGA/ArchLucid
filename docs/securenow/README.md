@@ -49,6 +49,7 @@
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
 - [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
 - [Fixture storyboard](FIXTURE_STORYBOARD.md) is a facilitator script for fixture demos. It is not customer traction.
+- [Buyer overview](BUYER_OVERVIEW.md) is an internal draft for a champion. It is not approved buyer communication and not a price sheet.
 - [Marketability prompt index](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) is the paste set for the shipped Home lead, draft page, and storyboard, plus the follow-on security-shell exception, buyer overview, reviewer links, and checker. It is not approved buyer communication.
 - [Scenario chooser](SCENARIO_CHOOSER.md) maps buyer jobs to fixture walkthroughs. It is a fixture index, not customer traction.
 - [Scenario packs](scenario-packs/) are short facilitator instructions per chooser row. They are fixture instructions, not customer evidence.
