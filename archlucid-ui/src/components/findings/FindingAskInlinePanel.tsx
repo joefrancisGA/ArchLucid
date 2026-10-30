@@ -64,9 +64,9 @@ type FindingAskInlinePanelProps = {
 type AskTurn = {
   question: string;
   answer: string | null;
-  referencedFindings: readonly string[];
-  referencedDecisions: readonly string[];
-  referencedArtifacts: readonly string[];
+  referencedFindings: readonly string[] | null;
+  referencedDecisions: readonly string[] | null;
+  referencedArtifacts: readonly string[] | null;
   citationRefsOmitted: boolean;
 };
 
@@ -81,7 +81,11 @@ function buildFindingAskCitedReviewIds(
     ids.add(scopedRunId);
   }
 
-  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+  for (const id of [
+    ...(turn.referencedFindings ?? []),
+    ...(turn.referencedDecisions ?? []),
+    ...(turn.referencedArtifacts ?? []),
+  ]) {
     const trimmed = id.trim();
 
     if (trimmed.length > 0) {
@@ -207,9 +211,9 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         {
           question: trimmed,
           answer: normalizeAskWireAnswerForTurn(response.answer),
-          referencedFindings: citationRefsOmitted ? [] : (response.referencedFindings ?? []),
-          referencedDecisions: citationRefsOmitted ? [] : (response.referencedDecisions ?? []),
-          referencedArtifacts: citationRefsOmitted ? [] : (response.referencedArtifacts ?? []),
+          referencedFindings: citationRefsOmitted ? [] : response.referencedFindings ?? null,
+          referencedDecisions: citationRefsOmitted ? [] : response.referencedDecisions ?? null,
+          referencedArtifacts: citationRefsOmitted ? [] : response.referencedArtifacts ?? null,
           citationRefsOmitted,
         },
       ]);
@@ -297,7 +301,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                 const sourcesHonestyLabel = formatAskCitationListHonestyLabels(
                   findingAskCitationListHonestyLabels(citationRefs),
                 );
-                const citesOpenFinding = turn.referencedFindings.some(
+                const citesOpenFinding = (turn.referencedFindings ?? []).some(
                   (id) => id.trim().length > 0 && id.trim() === props.findingId.trim(),
                 );
 

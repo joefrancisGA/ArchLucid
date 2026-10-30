@@ -51,8 +51,8 @@ public sealed class FirstValueReportMissingValueFormatterTests
             });
 
         string text = markdown.ToString();
-        text.Should().Contain("Related graph node ids were not stored.");
-        text.Should().Contain("Agent execution trace ids were not stored.");
+        text.Should().Contain("Related graph node ids were stored as an empty list.");
+        text.Should().Contain("Agent execution trace ids were stored as an empty list.");
         text.Should().Contain("Gap title");
     }
 

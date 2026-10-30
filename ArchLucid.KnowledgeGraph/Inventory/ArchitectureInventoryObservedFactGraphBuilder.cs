@@ -162,27 +162,30 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
     private static string ResolveLabel(AzureInventoryResourceRecord resource)
     {
-        string armId = resource.AzureResourceId;
+        string armId = resource.AzureResourceId ?? string.Empty;
+        string? armNameSegment = null;
         int lastSlash = armId.LastIndexOf('/');
 
         if (lastSlash >= 0 && lastSlash < armId.Length - 1)
         {
-            string segmentLabel = armId[(lastSlash + 1)..].Trim();
+            string trimmedSegment = armId[(lastSlash + 1)..].Trim();
 
-            if (segmentLabel.Length > 0)
+            if (trimmedSegment.Length > 0)
             {
-                return segmentLabel;
+                armNameSegment = trimmedSegment;
             }
         }
 
-        string resourceTypeLabel = (resource.ResourceType ?? string.Empty).Trim();
-
-        if (resourceTypeLabel.Length > 0)
+        if (InventoryDiagramArmSegmentResourceNames.TryResolveStoredName(
+                armId,
+                armNameSegment,
+                null,
+                out string? storedName))
         {
-            return resourceTypeLabel;
+            return storedName!;
         }
 
-        return armId.Trim();
+        return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
     }
 
     private static void MergeDuplicateResourceRowScalars(

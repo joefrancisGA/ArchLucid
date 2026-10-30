@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
@@ -182,6 +183,19 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
 
         DiagramNodeHumanCaptionFactory.Create(orphaned).CombinedPlainText.Should()
             .Contain("No stored association: no subnet association.");
+    }
+
+    [Fact]
+    public void TryFormatDataFlowTypeCaption_uses_not_stored_for_unmapped_arm_types()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n1",
+            ArmResourceType = "Microsoft.Example/widgetFarms",
+        };
+
+        DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node).Should()
+            .Be(DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption);
     }
 
     [Fact]

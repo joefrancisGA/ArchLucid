@@ -8,18 +8,18 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class PilotSponsorMaterialFindingsHonestyCopyTests
 {
     [Fact]
-    public void FormatRelatedGraphNodeCount_uses_not_stored_when_zero()
+    public void FormatRelatedGraphNodeCount_uses_stored_empty_when_zero()
     {
         PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(0)
             .Should()
-            .Be(PilotSponsorMaterialFindingsHonestyCopy.RelatedGraphNodeIdsNotStored);
+            .Be(PilotSponsorMaterialFindingsHonestyCopy.RelatedGraphNodeIdsStoredEmpty);
     }
 
     [Fact]
-    public void FormatAgentExecutionTraceCount_uses_not_stored_when_zero()
+    public void FormatAgentExecutionTraceCount_uses_stored_empty_when_zero()
     {
         PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(0)
             .Should()
-            .Be(PilotSponsorMaterialFindingsHonestyCopy.AgentExecutionTraceIdsNotStored);
+            .Be(PilotSponsorMaterialFindingsHonestyCopy.AgentExecutionTraceIdsStoredEmpty);
     }
 }

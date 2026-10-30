@@ -40,4 +40,7 @@ public static class DiagramDataFlowHonestyLegend
 
     public const string OmittedDataFlowStagesSentencePrefix =
         "Data flow stages omitted from this snapshot:";
+
+    public const string UnclassifiedArmResourceTypeCaption =
+        "ARM resource type was not stored.";
 }
