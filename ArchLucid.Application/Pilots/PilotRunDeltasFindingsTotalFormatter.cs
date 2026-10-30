@@ -24,18 +24,16 @@ internal static class PilotRunDeltasFindingsTotalFormatter
             return MutedOnlyFindingsTotalLabel;
         }
 
-        if (deltas.FindingsCountsFromSnapshot
-            && deltas.FindingsBySeverity.Count == 0
-            && unmutedTotal == 0
-            && deltas.MutedFindingsExcludedCount == 0)
+        if (deltas.FindingsBySeverity.Count == 0 && unmutedTotal == 0)
         {
-            return SnapshotZeroUnmutedFindingsTotalLabel;
-        }
+            if (deltas.FindingsCountsFromSnapshot
+                && deltas.MutedFindingsExcludedCount == 0
+                && string.IsNullOrWhiteSpace(deltas.TopFindingId)
+                && deltas.SponsorNarrativeFindings.Count == 0)
+            {
+                return SnapshotZeroUnmutedFindingsTotalLabel;
+            }
 
-        if (deltas.FindingsBySeverity.Count == 0
-            && deltas.SponsorNarrativeFindings.Count == 0
-            && string.IsNullOrWhiteSpace(deltas.TopFindingId))
-        {
             return FindingsTotalNotAttestedLabel;
         }
 
