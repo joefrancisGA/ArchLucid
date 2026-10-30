@@ -7819,6 +7819,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #9 (dry): cheap-disproof closed three open `(candidate)` rows — a failed auto-sample remains eligible for an intentional retry but cannot replace a non-null user result through the status effect; the observer effect’s captured section list is disconnected on unmount and cannot update stale nodes; funnel telemetry accepts the already-normalized `scenario` contract and does not decode route segments itself. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — **cheap-disproof 2026-10-30 thorough hunt #9:** status-driven loading requires `result === null`; user results are protected.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes without unmount — **cheap-disproof 2026-10-30 thorough hunt #9:** observer cleanup and fixed mount snapshot prevent detached state updates.
+- [x] (invalid) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — **cheap-disproof 2026-10-30 thorough hunt #9:** funnel callers pass canonical scenario props; route normalization belongs to the page telemetry wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — locus: `setError(null)` only on POST; input: failed sample then explicit retry (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — locus: activeId vs DOM presence; input: remove active artifact section (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — locus: telemetry boundary; input: `%2F` scenario prop (monitor).
+
 2026-10-30 thorough hunt #8 (dry): cheap-disproof closed three open `(candidate)` rows — a failed sample may retry only when status data changes and remains behind the existing `result === null` guard; the artifact observer is disconnected on unmount and its captured DOM snapshot cannot update detached UI; `renderMode` is a compile-time `ShowcaseRenderMode` union, so whitespace is malformed caller input rather than a reachable production telemetry state. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — **cheap-disproof 2026-10-30 thorough hunt #8:** retry requires a changed status object and the existing sample effect guard; no unexpected retry path found.
