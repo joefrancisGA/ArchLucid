@@ -7891,6 +7891,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #67 (hit): proved `MarketingPricingQuotePanel` rendered upstream non-2xx response bodies directly in the anonymous customer-facing error, so a backend exception could expose internal failure details; replaced that body with generic retry copy and added `does not expose upstream failure details in the customer-facing error`. Focused quote-panel test passed 1/1. Private beta: invited buyers requesting pricing now see safe recovery copy instead of raw backend exception details when the quote service fails.
+
 2026-10-30 seed hunt #66 (hit): proved overlapping signup verification status requests committed responses in completion order, so an older background poll could overwrite a newer manual check and send an invitee to onboarding on stale readiness; gated `refreshTrialStatus` by request generation and added `does not let an older background poll override a newer manual check` in `SignupVerifyClient.test.tsx`. Focused SignupVerifyClient tests passed 25/25. Private beta: invited operators who manually recheck verification while polling is in flight now retain the newest verification state instead of being redirected from a stale response.
 
 2026-10-30 thorough hunt #65 (dry): cheap-disproof closed three open `(candidate)` rows — result focus only runs on result changes, the artifact observer intentionally captures the mounted marketing sections, and line-separator telemetry remains a distinct route-derived scenario value. The three focused marketing suites passed 28/28; no production code changed.
@@ -8117,8 +8119,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 40
-- **bugs-found:** 38
+- **hunts:** 41
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Signup verification status request generation
@@ -8135,6 +8137,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `MarketingPricingQuotePanel.onSubmit` — non-2xx quote responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #67:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the customer-facing error` in `MarketingPricingQuotePanel.test.tsx`.
 - [x] (proven) `SignupVerifyClient.refreshTrialStatus` — an older background poll could overwrite a newer manual verification check — **hit 2026-10-30 seed hunt #66:** gate status commits by a monotonically increasing request generation; regression `does not let an older background poll override a newer manual check` in `SignupVerifyClient.test.tsx`.
 - [x] (proven) `ensureSessionId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Session` — **hit 2026-10-15 thorough hunt:** trim + rewrite storage in `quick-scan-session.ts`; regression `ensureSessionId trims whitespace-padded localStorage values before returning them`.
 - [x] (proven) `ensureBrowserId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Browser` — **hit 2026-10-15 thorough hunt:** same normalization path; regression `ensureBrowserId trims whitespace-padded localStorage values before returning them`.

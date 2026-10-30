@@ -1974,3 +1974,4 @@
 {"at":"2026-10-30T14:27:37.3233174Z","zoneId":"ui-marketing-surfaces","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(marketing)/quick-scan/use-quick-scan-client.ts,archlucid-ui/src/app/(marketing)/demo/preview/_sections/DemoPreviewArtifactNav.tsx,archlucid-ui/src/lib/marketing/showcase-telemetry.ts)"]}
 {"at":"2026-10-30T14:30:06.9047199Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/marketing/SignupForm.tsx,archlucid-ui/src/components/marketing/SignupForm.test.tsx)"]}
 {"at":"2026-10-30T14:35:02.6946263Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T14:38:49.0296946Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared"}
