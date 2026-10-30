@@ -391,13 +391,27 @@
 
 ## Zone: host-core-jobs
 
+2026-10-30 thorough hunt #959 (dry): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); cheap-disproof closed five `(candidate)` rows from hunt #955 — valid-no-repro `TryPrepareQueuedJobAsync` cancel during claim (`UPDATE … AND State = N'Pending'` loses when cancel lands first; `ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`), valid-no-repro in-memory `TryGetWorkUnitAsync` on terminal `Failed` rows (tenant access only; execution requires `Pending` claim), invalid invalid-payload `RetryCount + 1` on zero-retry jobs (single-thread prepare snapshot; 2026-10-04 dry), invalid watchdog exhausted stale reset without queue notify (SQL marks `Failed` with exhausted-retry error; poll-visible), invalid durable enqueue notify failure orphan `Pending` (`DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails`); reseeded five `(candidate)` rows; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — concurrent `MarkCanceledAsync` on `Pending` row between claim read and `Running` assignment — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — returns `WorkUnitJson` for terminal `Failed` rows without re-checking `BackgroundJobState` — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid `WorkUnitJson` terminal assigns `RetryCount + 1` from prepare snapshot when `MaxRetries` is zero — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
+- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — exhausted stale reset returns only `Pending` while `Failed` rows skip queue notify — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
+- [x] (invalid) `DurableBackgroundJobQueue.EnqueueAsync` — notify failure after insert leaves orphan `Pending` — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
+
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — duplicate Azure notification for terminal `Failed` row may invoke executor when stale `Running` claim wins before SQL terminal guard — locus: `TryPrepareQueuedJobAsync` vs terminal states; input: redelivered message after terminal failure; wrong outcome: second execution after row already failed.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — receive loop backoff on non-shutdown `OperationCanceledException` may delete in-flight message while row remains `Pending` retry — locus: processor main loop fault handling; input: executor throws cooperative cancel not tied to `stoppingToken`; wrong outcome: lost queue notification with retry scheduled.
+- [ ] (candidate) `InMemoryBackgroundJobQueue.EnqueueAsync` — `OperationCanceledException` during pending-capacity `WaitAsync` after `_info` insert — locus: enqueue cancel cleanup; input: caller cancel at capacity gate; wrong outcome: orphan `Pending` row without channel work item.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification when row already terminal but Azure message still visible — locus: `ShouldAbortRetryNotification`; input: duplicate notification after another worker marked job `Failed`; wrong outcome: spurious retry queue message (monitor; lane C hit covered pre-send abort — verify no regression gap).
+- [ ] (candidate) `AzureBlobBackgroundJobResultBlobAccessor` — partial blob upload before cancel re-read leaves bytes without `ResultBlobName` on canceled row — locus: success-path blob hygiene; input: cancel during upload; wrong outcome: operator download path exposes orphan blob (storage hygiene vs poll contract).
+
 2026-10-30 seed hunt #955 (seed-only): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); re-read `ArchLucid.Host.Core/Jobs/` and `ArchLucid.Host.Core/Hosted/`; cheap-disproof closed four open `(candidate)` rows from lane B — invalid exhausted-retry stale reset (`ResetStaleRunningJobsOlderThanAsync` already marks `Failed` when `RetryCount >= MaxRetries`), invalid in-memory queue-writer-rejected retry terminal (post-log `_info` re-read before `Failed` assignment at lines 274–276), valid-no-repro watchdog leader lease lost mid-batch trailing notify (reclaimed ids wait for next leader pass), valid-no-repro durable capacity-exhausted retry terminal deleting Azure message after `MarkFailedTerminalAsync` (intentional notification cleanup on terminal row); no hunt-ready promotion; reseeded five `(candidate)` rows below; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
-- [ ] (candidate) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — concurrent `MarkCanceledAsync` on `Pending` row between `UPDLOCK` read and `Running` assignment — locus: claim transaction; input: operator cancel during processor prepare; wrong outcome: executor starts after cancel visible in SQL.
-- [ ] (candidate) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — returns `WorkUnitJson` for terminal `Failed` rows without re-checking `BackgroundJobState` — locus: accessor read path; input: tenant access verifier reads work unit after terminal failure; wrong outcome: stale payload treated as runnable.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid `WorkUnitJson` terminal assigns `RetryCount + 1` from prepare snapshot when `MaxRetries` is zero — locus: invalid-payload branch; input: malformed payload on zero-retry job; wrong outcome: poll shows retry count 1 on terminal `Failed`.
-- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — `ResetStaleRunningJobsOlderThanAsync` returns only `Pending` reclaims while exhausted stale rows become `Failed` without operator-visible queue notify — locus: notify batch filter; input: stale `Running` at max retries past threshold; wrong outcome: terminal failure hidden until poll without matching processor error text.
-- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` succeeds then `SendJobIdAsync` throws non-cancel fault after row insert — locus: notify failure terminal; input: transient Azure queue outage on enqueue; wrong outcome: row left `Pending` without terminal `Failed` when notify fails.
+- [x] (valid-no-repro) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — concurrent `MarkCanceledAsync` on `Pending` row between `UPDLOCK` read and `Running` assignment — **cheap-disproof 2026-10-30 thorough hunt #959:** see hunt #959 diary row.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — returns `WorkUnitJson` for terminal `Failed` rows without re-checking `BackgroundJobState` — **cheap-disproof 2026-10-30 thorough hunt #959:** see hunt #959 diary row.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid `WorkUnitJson` terminal assigns `RetryCount + 1` from prepare snapshot when `MaxRetries` is zero — **cheap-disproof 2026-10-30 thorough hunt #959:** see hunt #959 diary row.
+- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — `ResetStaleRunningJobsOlderThanAsync` returns only `Pending` reclaims while exhausted stale rows become `Failed` without operator-visible queue notify — **cheap-disproof 2026-10-30 thorough hunt #959:** see hunt #959 diary row.
+- [x] (invalid) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` succeeds then `SendJobIdAsync` throws non-cancel fault after row insert — **cheap-disproof 2026-10-30 thorough hunt #959:** see hunt #959 diary row.
 
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification sent when row already `Failed`/`Succeeded` — **hit 2026-10-21 seed hunt lane C:** `ShouldAbortRetryNotification`; regression above.
 - [x] (invalid) `BackgroundJobRepository.ResetStaleRunningJobsOlderThanAsync` — `Running` row with `RetryCount == MaxRetries` past threshold should surface `Failed` — **cheap-disproof 2026-10-30 seed hunt #955:** stale reset SQL sets `State = Failed` with exhausted-retry error when retries exhausted; only `Pending` reclaims are returned for queue notify.
@@ -413,9 +427,9 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -505,9 +519,9 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
@@ -21883,11 +21897,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate edge `ProvenanceKind` agreement on second overlay row when base edge provenance kind is whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #957:** regression above.
 - [x] (valid-no-repro) `ProvenanceBuilder` — duplicate graph-node rows with whitespace-only `NodeType` may downgrade populated node types in metadata — **cheap-disproof 2026-10-30 thorough hunt #957:** regression above.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `SourceType` — locus: scalar backfill gate; input: base node with populated source type plus overlay row with conflicting source type (monitor).
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `Category` — locus: scalar backfill gate; input: base node with populated category plus overlay row with conflicting category (monitor).
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph directed edge may backfill disagreeing populated `ReasoningTrace` — locus: scalar backfill gate; input: base edge with populated reasoning trace plus overlay row with conflicting trace (monitor).
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate edge `EdgeId` agreement on second overlay row when base edge id is whitespace-only — locus: trimmed scalar agreement; input: base edge with whitespace-only edge id plus two overlay rows with conflicting ids (monitor).
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate node `Category` agreement on second overlay row when base node category is whitespace-only — locus: trimmed scalar agreement; input: base node with whitespace-only category plus two overlay rows with conflicting categories (monitor).
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `SourceType` — **cheap-disproof 2026-10-30 thorough hunt #958:** see hunt #958 diary row.
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `Category` — **cheap-disproof 2026-10-30 thorough hunt #958:** see hunt #958 diary row.
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph directed edge may backfill disagreeing populated `ReasoningTrace` — **cheap-disproof 2026-10-30 thorough hunt #958:** see hunt #958 diary row.
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate edge `EdgeId` agreement on second overlay row when base edge id is whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #958:** see hunt #958 diary row.
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate node `Category` agreement on second overlay row when base node category is whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #958:** see hunt #958 diary row.
 
 2026-10-30 thorough hunt #956 (dry): cheap-disproof closed five open `(candidate)` rows reseeded after hunt #954 — invalid first-row populated base node `SourceType` overwrite (`Merge_preserves_base_node_source_type_when_first_overlay_row_disagrees_on_source_type`), invalid first-row populated base node `Category` overwrite (`Merge_preserves_base_node_category_when_first_overlay_row_disagrees_on_category`), invalid first-row populated base edge `ReasoningTrace` overwrite (`Merge_preserves_base_edge_reasoning_trace_when_first_overlay_row_disagrees_on_reasoning_trace`), base-graph overlay duplicate edge `EdgeId` agreement when base edge id is whitespace-only (`Merge_throws_when_overlay_duplicate_edges_disagree_on_edge_id_for_base_graph_directed_key_when_base_edge_id_is_whitespace_only`), and base-graph overlay duplicate node `Category` agreement when base node category is whitespace-only (`Merge_throws_when_overlay_duplicate_nodes_disagree_on_category_for_base_graph_node_id_when_base_category_is_whitespace_only`); reseeded five `(candidate)` rows; scoped filter **697** KnowledgeGraph + **179** Provenance tests passed. Private beta: n/a.
 
