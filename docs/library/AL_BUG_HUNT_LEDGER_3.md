@@ -7831,6 +7831,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #14 (dry): cheap-disproof closed three open `(candidate)` rows that were already covered by the preceding marketing regressions — malformed POST errors do not silently replace the sample; conditional artifact omissions are outside the fixed navigation item contract; and route/page normalization occurs before funnel telemetry receives its canonical scenario. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #13 — **cheap-disproof 2026-10-30 thorough hunt #14:** malformed POST/sample state, deterministic artifact ordering, and route/event scenario handling were already classified; no new repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error clears sample result without an explanatory status — locus: error/status message pairing; input: sample plus malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — conditional artifact omission leaves an unreachable active id — locus: fixed nav items vs optional sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — page normalization and direct funnel callers disagree on encoded mixed-case scenarios — locus: caller boundary (monitor).
+
 2026-10-30 thorough hunt #13 (dry): cheap-disproof closed three open `(candidate)` rows — malformed POST JSON leaves the sample result intact while surfacing an error rather than claiming a new analysis; equal observer ratios use deterministic artifact order; both telemetry backends receive the same trimmed, case-preserving scenario value from the shared helper. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — **cheap-disproof 2026-10-30 thorough hunt #13:** JSON parse failure does not call `setResult`; existing stale-result protections remain.
