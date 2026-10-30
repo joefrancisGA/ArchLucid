@@ -1000,6 +1000,9 @@
 2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
+
+2026-10-30 seed hunt #273 (seed-only): re-read `TenantErasureCommandService` and `TenantErasureQuarantineMiddleware`; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 82 scoped `TenantErasure` tests passed (49 Application + 33 Api).
+
 - [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `TenantErasureOffboarded` audit after quarantine restore between pre-audit read and append — **hit 2026-10-21 seed hunt lane C:** immediate pre-append re-read; regression above.
 
 
@@ -1010,6 +1013,12 @@
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects appends audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-reads tenant before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — authenticated caller with `ScopeContext.TenantId == Guid.Empty` bypasses quarantine before `ITenantGetByIdRequestCache` lookup — locus: ~99-104; input: tenant-authenticated request where scope resolver yields empty tenant id on a non-`Skip` path; reachability: platform mis-scope or pre-provisioned tenant routes during active erasure quarantine on a real tenant.
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — concurrent first-time approve may double-append `TenantErasureApproved` platform audits because approve lacks deterministic audit event id — locus: ~377-438 vs offboard `CreateOffboardAuditEventId`; input: parallel admin approve calls before repository CAS exposes `TenantErasureApprovedUtc`.
+- [ ] (candidate) `TenantErasureCommandService.QuarantineDaysBetween` — offboard audit `quarantineDays` rounds fractional `(ErasureEligibleUtc - OffboardedUtc)` while eligibility uses calendar `now.AddDays(QuarantineDays)` — locus: ~54-55 vs ~592-599; input: offboard timestamp near DST or eligible skew producing audit day count unlike configured quarantine days.
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — `/v1/register` skip requires raw path prefix match while erasure lifecycle allowlist uses normalized path only — locus: ~76-77 vs ~59-60; input: offboarded tenant POST to dot-segment or duplicate-slash register URL that normalizes to `/v1/register`.
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — pre-audit re-read treats newly observed `OffboardedUtc` as concurrent offboard race and skips `TenantErasureLegalHoldCleared` audit — locus: ~495-508; input: hold clear interleaved with offboard completion between atomic clear and audit snapshot reads.
 
 - [x] (proven) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` / `Skip` — dot-segment tenant erasure lifecycle paths (`/v1/tenant/erasure/./approve`) did not match `/v1/tenant/erasure` allowlist and returned `403` during quarantine — **hit 2026-10-06 seed hunt:** collapse `.` and `..` segments after duplicate-slash normalization; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`.
 
@@ -1088,10 +1097,10 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 272
+- **hunts:** 273
 - **bugs-found:** 493
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1171,13 +1180,27 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-30 thorough hunt #347 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #354 — record/struct exemption syntax registration (no Persistence `record` carries `[TenantScopeExempt]`; ARCH006 exemption lookup walks containing symbols), `QueryUnbufferedAsync` coverage (2026-10-02 dry hunt / scoped audit export SQL), missing registry additional file fail-open (CI supplies `tenant_scoped_tables.v1.json`), `CommandDefinition` named `commandText` (handled at ~239–241; regression `ARCH006_reports_unscoped_sql_for_command_definition_named_command_argument`), and `GeneratedCodeAnalysisFlags.None` (intentional; no codegen Persistence SQL today); reseeded five `(candidate)` rows; cloud VM analyzer harness span mismatches (2/32 pass) — verification via code review and cited regressions. Private beta: n/a.
+
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption validation on `ClassDeclaration` only, not `record`/`struct` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not monitored — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable registry disables ARCH006 — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL only `command`/`commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — skips generated sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — `RecordDeclarationSyntax` never analyzed for ARCH006b empty justification — locus: `SyntaxKind.ClassDeclaration` only ~71–73; input: blank `[TenantScopeExempt]` on persistence `record` type; reachability: future record repositories with type-level exemptions (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted from monitored invocations — locus: immutable set ~17–36; input: new streaming query against tenant table without scope predicates; reachability: audit export if SQL changes (monitor).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — format/interpolated dynamic SQL may stay ARCH006a-only — locus: unanalyzable path; input: format-built SQL referencing `dbo.Runs`; reachability: dynamic repository helpers (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — `ExecuteAsync(CommandDefinition)` overloads skip invocation SQL extraction — locus: member-access name filter; input: SQL only inside `CommandDefinition` variable; reachability: local command pattern (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — suffix mismatch on additional file path silently disables ARCH006 — locus: `EndsWith("tenant_scoped_tables.v1.json")`; input: misconfigured local analyzer additional file; reachability: contributor Persistence inner loop (monitor).
+
 2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; scoped `TenantScopedQueryScopeBindingAnalyzerTests` on cloud VM: 2/32 passed (`RunAnalyzers=false` — 30 failures are diagnostic line-position mismatches in the harness, not a ledger-promoted defect; no analyzer code changed this run).
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on persistence `record`; reachability: ARCH006b at declaration vs exemption lookup via containing symbols.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — locus: immutable set ~17–36; input: Dapper `QueryUnbufferedAsync` with static SQL; reachability: audit export streaming path (prior cheap-disproof noted scoped SQL in production caller).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — locus: `GetText()` null ~87–90; input: missing additional file in analyzer options; reachability: local Persistence build without registry additional file.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — locus: ~235–241; input: `new CommandDefinition(commandText: sql)` vs positional; reachability: Dapper `CommandDefinition` ctor overload naming.
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — locus: ~47; input: source-generated SQL in Persistence; reachability: future codegen repositories bypassing analyzer.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see hunt #347 diary row.
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
@@ -1185,10 +1208,10 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -2972,13 +2995,27 @@
 
 ## Zone: identity-provider-config
 
+2026-10-30 thorough hunt #345 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #344 — cross-protocol optional-field clearing on protocol switch (`ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`, `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`; by design since 2026-08-24), GET issuer length parity on canonical stored rows (`GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`), discover issuer length guard (`DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`), test-login sandbox delegation for blank sample claim entries (intentional `Success:false` via `ResolveRoles`; regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`), and claim-mapping JSON serialization order (`ActivateAsync_persists_claim_mapping_json_with_wizard_property_names`; persisted JSON is not read before serialize). Reseeded five `(candidate)` rows; **117** scoped activation/controller/matrix/test-login tests passed. Private beta: n/a.
+
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — **cheap-disproof 2026-10-30 thorough hunt #345:** regressions above; clearing is intentional on SAML↔OIDC switch.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read returns HTTP 400 when `EnsureIssuerUriFits` throws — **cheap-disproof 2026-10-30 thorough hunt #345:** legacy oversize canonical issuers rejected on GET for parity with activate/discover/test-login; rows that fit at write time canonicalize to the same stored width.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 — **cheap-disproof 2026-10-30 thorough hunt #345:** regression `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard — **cheap-disproof 2026-10-30 thorough hunt #345:** sandbox contract; empty/whitespace sample values yield `Success:false` without HTTP 400 (by design).
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized before optional-field resolution — **cheap-disproof 2026-10-30 thorough hunt #345:** serialization uses request `ClaimMapping` only; `TryGetAsync` resolves metadata/key vault fields, not claim JSON casing.
+
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol OIDC reactivate with omitted `KeyVaultSecretName` preserves stored secret — locus: `ResolveOptionalPersistedField`; input: populated secret + null request field; reachability: SSO wizard step-2 re-save (`use-sso-wizard-page.ts`) (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET skips `EnsureIssuerUriFits` when stored issuer is not canonical HTTP(S) — locus: GET guard ~225–234; input: legacy non-normalized issuer string; reachability: `GET /v1/admin/identity/configuration` reload (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — whitespace-only `SampleClaimValues` entries return `Success:false` without controller-level substantive guard — locus: `SsoWizardTestLoginService.Execute`; input: `[""]` or `["   "]`; reachability: sandbox JWT preview step (monitor).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` preserves stored XML without re-parse when unchanged — locus: `sameProtocol` + `EnsureActivateFields`; input: valid stored XML + null request metadata; reachability: SAML settings re-activate (monitor).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return malformed `ClaimMappingJson` verbatim — locus: read path has no schema re-validation; input: corrupt JSON in repository row; reachability: wizard `parsePersistedClaimMappingJson` on reload (monitor).
+
 2026-10-27 seed hunt (seed-only #344): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService`; no hunt-ready promotion after prior OIDC/SAML strip and field-limit hits; seeded five mechanism-backed `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` passed (`RunAnalyzers=false`).
 
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — locus: `sameProtocol` gate ~78–86 and `NormalizeResolvedFieldsForProtocol`; input: reactivate OIDC after stored SAML row with null `MetadataXml` and null `KeyVaultSecretName` in request; reachability: SSO wizard protocol change (`use-sso-wizard-page.ts`).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — locus: GET canonicalization ~225–234; input: persisted issuer that canonicalizes to length at NVARCHAR boundary; reachability: `GET /v1/admin/identity/configuration`.
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — locus: post-discover `EnsureIssuerUriFits` ~75–86; input: discovery document issuer canonicalized beyond 2048 characters; reachability: wizard discover step before activate.
-- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — locus: `TestLogin` ~125–133; input: `sampleClaimValues` containing empty string or whitespace-only entry; reachability: SSO wizard sandbox JWT preview.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — locus: serialize ~73 then `TryGetAsync` ~75; input: claim mapping with property names that differ only by casing from persisted JSON; reachability: activate POST after wizard edit.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — **cheap-disproof 2026-10-30 thorough hunt #345:** see hunt #345 diary row.
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -3027,10 +3064,10 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 79
+- **hunts:** 80
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -3264,6 +3301,8 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-10-30 seed hunt #5 (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-27; seeded five follow-on `(candidate)` rows; scoped filter passed (7 Persistence `StripeWalletPaymentIdentifierGuard` tests + 2 Application guard/refill regressions, `RunAnalyzers=false`). Private beta: n/a.
+
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-23 reseed; seeded five follow-on `(candidate)` rows; scoped guard + wallet regression filter passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - **id:** persistence-billing-stripe
@@ -3272,10 +3311,10 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3288,11 +3327,17 @@
 - [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending `PendingRefillCredits` retry credits without re-running guard — **cheap-disproof 2026-10-27 seed hunt #4:** guard runs before initial `ChargeRefillAsync`; pending path credits an already-authorized `PaymentIntentId` only.
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial PUT omits Stripe fields — **cheap-disproof 2026-10-27 seed hunt #4:** `(null, null)` guard skip is intentional; enabling auto-replenish re-validates persisted ids (~77-100); auto-refill re-runs guard before charge (2026-10-21 hit).
 
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.IsPaymentMethodAttachedToCustomerAsync` — compares `paymentMethod.CustomerId` string only and ignores expanded `Customer` object when `CustomerId` is empty on retrieve — locus: ~82; input: Stripe.NET payment method shape after attach (reachability: wallet PUT with valid linked customer).
-- [ ] (candidate) `StripeLinkedCustomerResolver.MetadataMatchesTenant` — accepts only lowercase `tenant_id` metadata key — locus: `TryGetValue("tenant_id")` ~108; input: Stripe dashboard or legacy webhook metadata using different key casing (reachability: billing ledger `sub_`/`cs_` refs).
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — `amountUsd` above `long.MaxValue / 100` truncates or overflows when cast to cents — locus: `(long)decimal.Round(amountUsd * 100m)` ~30; input: misconfigured `RefillIncrementUsd` at host ceiling (reachability: tenant wallet row + auto-refill).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — turning `AutoReplenishEnabled` off does not clear persisted `StripeCustomerId` / `StripePaymentMethodId`, so re-enable without new ids reuses stale storage — locus: update command merge; input: operator disables auto-replenish then re-enables after billing unlink (reachability: `PUT /v1/billing/wallet`).
-- [ ] (candidate) `StripeBillingProvider.CreateCheckoutSessionAsync` — `ClientReferenceId` uses `"D"` GUID while resolver metadata parse accepts any `Guid.TryParse` form — locus: checkout ~44-47 vs resolver ~111; input: cross-check only if ledger stores non-D tenant id strings (reachability: Stripe Customer Portal return).
+- [x] (invalid) `StripeWalletPaymentIdentifierGuard.IsPaymentMethodAttachedToCustomerAsync` — compares `paymentMethod.CustomerId` string only and ignores expanded `Customer` when `CustomerId` is empty — **cheap-disproof 2026-10-30 seed hunt #5:** Stripe attached payment methods populate `CustomerId` on retrieve in this integration; empty or mismatched id fails closed (`return false` ~82-86); no reachable Stripe.NET shape cited in zone files without live API fiction.
+- [x] (invalid) `StripeLinkedCustomerResolver.MetadataMatchesTenant` — accepts only lowercase `tenant_id` metadata key — **cheap-disproof 2026-10-30 seed hunt #5:** `CreateCheckoutSessionAsync` and `SubscriptionData.Metadata` stamp lowercase `tenant_id` exclusively (`StripeBillingProvider.Checkout.cs` ~45-64); alternate dashboard keys are out-of-band for this zone.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — `amountUsd` above `long.MaxValue / 100` truncates when cast to cents — **cheap-disproof 2026-10-30 seed hunt #5:** auto-refill charges `state.RefillIncrementUsd` from `dbo.LlmTenantWalletState` `DECIMAL(10,2)`; unreachable host overflow from configured refill increments.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — disabling auto-replenish leaves persisted Stripe ids for re-enable — **cheap-disproof 2026-10-30 seed hunt #5:** intentional; enabling auto-replenish re-validates persisted ids (~77-100) and auto-refill re-runs guard before charge (2026-10-21 hit).
+- [x] (invalid) `StripeBillingProvider.CreateCheckoutSessionAsync` — `ClientReferenceId` uses `"D"` GUID while resolver accepts any `Guid.TryParse` form — **cheap-disproof 2026-10-30 seed hunt #5:** metadata and checkout both emit `"D"` tenant ids; `Guid.TryParse` accepts equivalent forms so no resolver mismatch for production checkout paths.
+
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard` vs `StripeBillingProvider.CreateCheckoutSessionAsync` — payment-method retrieve uses `Billing:Stripe:SecretKey` while checkout session creation may use `CheckoutSecretKey` when set — locus: guard ~55-58 vs `ResolveCheckoutApiKey`; input: host configures split Stripe accounts (reachability: linked customer from subscription API key A, PM retrieve with key B).
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — `PendingRefillCredits` settlement path credits wallet without re-running `IStripeWalletPaymentIdentifierGuard` — locus: ~58-73; input: processing payment intent enqueued after an earlier guard-passing charge before billing unlink or ledger drift.
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills `StripeCustomerId` from linked resolver after guard allowed null explicit customer — locus: ~103-110; input: OpenAPI `PUT /v1/billing/wallet` with `StripePaymentMethodId` only (reachability: persist linked `cus_` without operator typing customer id).
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — omits `PaymentMethodTypes` / on-session confirmation options so declined off-session charges surface only as Stripe errors — locus: `Confirm=true`, `OffSession=true` ~35-42; input: saved PM requires SCA on off-session refill (reachability: tenant auto-replenish enqueue).
+- [ ] (candidate) `WalletController.PutAsync` — empty decoded row version (`TryDecodeRowVersion` accepts blank) allows wallet PUT without optimistic concurrency token — locus: ~131-137; input: `RowVersionBase64` omitted or whitespace on concurrent admin updates (reachability: `PUT /v1/billing/wallet`).
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
@@ -3566,27 +3611,64 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (dry #84): cheap-disproof closed five open `(candidate)` rows from hunt #83 (dev bypass documented and production-blocked, empty guid scope claims suppressed, legacy rotate replace-by-design, duplicate header first-non-empty including skip-blank/invisible regressions, whitespace-only comma segments ignored); reseeded five follow-on `(candidate)` rows; zone remains **cooling** (`consecutive-dry-hunts` 4); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — `DevelopmentBypassAll` without header — **cheap-disproof 2026-10-30 thorough hunt #84:** explicit non-Production opt-in; regressions `When_enabled_false_and_bypass_true_in_development_returns_success_without_header` and `When_enabled_false_and_bypass_true_in_production_returns_failure`.
+- [x] (invalid) `ApiKeyAuthenticationHandler.BuildApiKeyClaims` — `Guid.Empty` tenant emitted — **cheap-disproof 2026-10-30 thorough hunt #84:** guard skips empty guids; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — always `InvalidatePrevious=true` — **cheap-disproof 2026-10-30 thorough hunt #84:** legacy path issues full replace material; POST rotate supports append via body (`AdminApiKeySettingsServiceTests`).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers first wins — **cheap-disproof 2026-10-30 thorough hunt #84:** intentional; regressions `When_enabled_true_and_duplicate_api_key_headers_use_first_value`, `skip_blank_first_value`, `skip_invisible_only_first_value`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — whitespace-only segment masking — **cheap-disproof 2026-10-30 thorough hunt #84:** empty segments skipped in auth; masker aligns with comma-separated rotation tests (#83 empty segment rows).
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — valid reader key rejected when admin slot configured but non-matching and admin expiry message precedes invalid-key fallback — locus: ordering ~117–125; input: wrong admin-key material with correct reader key and past admin expiry (reachability: dual-slot mis-typed header).
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append on readonly slot with only whitespace `ReadOnlyKey` returns replace — locus: `HasConfiguredKeyMaterial` ~53–62; input: whitespace-only readonly config (reachability: BOM/whitespace regressions #53).
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — `Enabled=false` with valid `X-Api-Key` still fails when bypass false — locus: ~56–62; input: operator enables key in config but leaves `Enabled=false` (reachability: deployment toggle ordering).
+- [ ] (candidate) `AdminApiKeySettingsController.CreateRotationAuditEvent` — audit scope taken from `IScopeContextProvider` not from API key options tenant binding — locus: ~115–116; input: api key options tenant differs from request scope (reachability: misbound host catalog).
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — hex lowercase fold applies only to long ascii-hex segments — locus: `IsAsciiHexKeyMaterial`; input: 31-char hex key with casing mismatch (reachability: short hex rotation keys).
+
+2026-10-30 thorough hunt (dry #83): cheap-disproof closed five open `(candidate)` rows from hunt #82 (slot-level expiry applies to all rotation segments by design, replace response documents config value only, scope claims follow `IOptionsMonitor` reload by design, expired-admin messaging when header matches expired admin key only, empty comma segments ignored in auth and snapshot masking); reseeded five follow-on `(candidate)` rows; zone `consecutive-dry-hunts` reached 3 — status **cooling**; scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — slot-level `AdminKeyExpiresAt` during comma rotation — **cheap-disproof 2026-10-30 thorough hunt #83:** one expiry per slot; operators extend `*ExpiresAt` when appending segments (rotation runbooks); regressions `When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — replace omits `*ExpiresAt` guidance — **cheap-disproof 2026-10-30 thorough hunt #83:** duplicate of hunt #81 append expiry operator procedure; response issues key material paths only.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildApiKeyClaims` — scope ids from options reload — **cheap-disproof 2026-10-30 thorough hunt #83:** intentional Key Vault / config binding; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims` (~1015).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — expired admin message for expired admin key only — **cheap-disproof 2026-10-30 thorough hunt #83:** correct fail-closed path ~117–119; shared-material reader fallback unchanged (`When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`).
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — empty comma segment parity — **cheap-disproof 2026-10-30 thorough hunt #83:** regressions `When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks` and `GetSnapshot_returns_multiple_masked_segments_for_comma_separated_admin_key`.
+
+2026-10-30 thorough hunt (dry #82): cheap-disproof closed five open `(candidate)` rows from hunt #81 (expiry boundary `>=` covered by exactly-now tests, header comma vs config segment split by design, invalidate replace clears multi-segment slot, reader-only deployment regression, test-actor duplicate-header skip regression); reseeded five follow-on `(candidate)` rows; scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — expiry instant `>=` boundary — **cheap-disproof 2026-10-30 thorough hunt #82:** intentional inclusive expiry; regressions `When_admin_key_expiry_is_exactly_now_returns_failure` and `When_read_only_key_expiry_is_exactly_now_returns_failure`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — inbound header comma not split — **cheap-disproof 2026-10-30 thorough hunt #82:** comma splitting is config-side rotation only; header uses first non-empty value as one material string (~144–157, ~194–219).
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — `InvalidatePrevious=true` on multi-segment slot — **cheap-disproof 2026-10-30 thorough hunt #82:** replace returns single `ReplaceConfigValue`; operator replaces entire config value; `AdminApiKeySettingsServiceTests` invalidate paths.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — reader-only with empty admin — **cheap-disproof 2026-10-30 thorough hunt #82:** regression `When_enabled_true_and_valid_reader_key_returns_success_with_reader_role` (no admin key configured).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ApplyTestActorHeaderOverrides` — test actor header normalization — **cheap-disproof 2026-10-30 thorough hunt #82:** regression `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
+
+2026-10-30 thorough hunt (dry #81): cheap-disproof closed ten open `(candidate)` rows (shared admin/reader slot precedence with expired-admin reader fallback, normalizer paste equivalence by design, comma rotation delimiter, append rotation expiry metadata in response, rotation audit ordering before HTTP 200, legacy canonical slot audit, invalid slot 400 before audit, empty-slot reload fail-closed, `DateTimeOffset` expiry comparison); reseeded five follow-on `(candidate)` rows; scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey`/`ReadOnlyKey` grants admin when both valid — **cheap-disproof 2026-10-30 thorough hunt #81:** intentional admin-first overlap; regression `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — same secret both slots admin wins — **cheap-disproof 2026-10-30 thorough hunt #81:** duplicate of overlap semantics row above.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — control/format stripping broadens equivalence — **cheap-disproof 2026-10-30 thorough hunt #81:** intentional paste normalization; regressions `When_admin_key_config_has_embedded_tab_still_authenticates` and Unicode invisible-family tests.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma in literal secret — **cheap-disproof 2026-10-30 thorough hunt #81:** comma delimits rotation segments by design (~190–192); documented zero-downtime rotation.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append response omits new expiry metadata — **cheap-disproof 2026-10-30 thorough hunt #81:** append preserves existing `*ExpiresAt` config; operator updates expiry separately; `AdminApiKeySettingsServiceTests` append/replace coverage.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — cancel between rotate and audit — **cheap-disproof 2026-10-30 thorough hunt #81:** `RotateAsync` awaits audit before `Ok(response)` (~60–71); cancel propagates without returning plaintext to client.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — stale comma segment survives append — **cheap-disproof 2026-10-30 thorough hunt #81:** non-invalidating append intentionally retains prior segments for rotation cutover; `InvalidatePrevious=true` replace path clears slot.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — raw route `keyId` in audit — **cheap-disproof 2026-10-30 thorough hunt #81:** audit uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (#1411).
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — empty normalized slot during reload — **cheap-disproof 2026-10-30 thorough hunt #81:** blank segments ignored; all slots empty yields `Invalid API key` fail-closed (~125).
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — non-UTC expiry offset display — **cheap-disproof 2026-10-30 thorough hunt #81:** handler `IsKeyExpired` compares `DateTimeOffset` instants; snapshot passes bound values; tests use `"O"` round-trip (`AdminApiKeySettingsServiceTests`, handler expiry tests).
+
 2026-10-20 thorough hunt (hit): `api-key-auth` — promoted hunt-ready `ApiKeyMaterialNormalizer` hex casing; uppercase hex in `Authentication:ApiKey:AdminKey` with lowercase `X-Api-Key` failed `ConstantTimeKeyEquals` while rotation issues lowercase hex; `IsAsciiHexKeyMaterial` + lowercase fold for long hex-only segments; regressions `When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates`, `Normalize_lowercases_ascii_hex_key_material`, `Normalize_preserves_case_for_non_hex_key_material`; cheap-disproof closed stale `(candidate)` legacy audit `keyId` row (fixed 2026-10-11); 73 scoped ApiKey auth/settings unit tests passed (2 SQL endpoint tests blocked — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — hex-only key material compared case-sensitively — **hit 2026-10-20 thorough hunt lane B:** uppercase deployment hex with lowercase header rejected valid admin auth; lowercase fold for ascii-hex segments ≥32 chars; `ApiKeyAuthenticationHandlerTests.When_admin_key_config_and_header_differ_only_by_hex_casing_still_authenticates` + `ApiKeyMaterialNormalizerTests`.
 - [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit `keyId` noncanonical — **cheap-disproof 2026-10-20 thorough hunt lane B:** `response.Slot` already written to audit JSON; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` (2026-10-11).
 
-- (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — identical `AdminKey` and `ReadOnlyKey` with both slots non-expired grants admin permissions — locus: admin branch precedes reader; input: misconfigured Key Vault with same material in both slots (may be intentional overlap semantics).
-- (candidate) `AdminApiKeySettingsService.Rotate` — append rotation omits expiry metadata in response — locus: `AdminApiKeyRotateResponse`; input: operator append-rotates without updating `*ExpiresAt` fields.
-- (candidate) `MatchesAnyCommaSeparatedKey` — comma in literal secret cannot authenticate as one value — locus: comma splits config segments; input: operator provisions comma-containing secret (documented rotation delimiter).
-- (candidate) `ApiKeyAuthenticationHandler` — configuration reload to empty normalized slot fails all requests without distinct misconfiguration signal — locus: `CurrentValue` + `MatchesAnyCommaSeparatedKey`; input: transient empty `AdminKey` during reload.
-- (candidate) `AdminApiKeySettingsController` — cancellation between `Rotate` and audit after client disconnect — locus: synchronous rotate then cancellable audit; input: aborted HTTP request (no key returned to client when audit throws).
-
 - **id:** api-key-auth
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 80
+- **hunts:** 84
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3625,21 +3707,21 @@
 
 2026-10-10 seed hunt (seed-only): re-read shared-slot precedence, comma-delimited rotation material, append rotation, cancellation, expiry, and the admin settings routes. Existing coverage establishes shared-key admin precedence with expired-admin read-only fallback; no fresh hunt-ready row met the full reachability and wrong-outcome bar. No production code changed. The focused API test command was blocked before execution by unrelated `IActorContext` compile errors in `TenantTrialControllerTests`.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — if deployment configuration assigns the same material to `AdminKey` and `ReadOnlyKey`, the first matching branch grants the admin permission set rather than rejecting the ambiguous configuration or selecting the least-privileged role — locus: `matchesAdmin` is evaluated before `matchesReader`; input: a Key Vault or app-configuration deployment with identical non-empty values in both slots and an inbound `X-Api-Key` using that material.
-- [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — stripping control/format characters makes a configured key containing such a character authenticate with the visually cleaned inbound value, creating an equivalence class broader than the operator’s exact secret — locus: `RemoveInvisibleKeyMaterialChars` is applied to both config segments and headers; input: an operator-provided `Authentication:ApiKey:AdminKey` value containing a control or format character and a request header from a normal HTTP client.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — a comma in configured key material is always treated as a rotation delimiter, so a deployment that provisions a literal comma-containing secret cannot authenticate that secret as one value — locus: every comma terminates a segment before normalization; input: a Key Vault/app-configuration API key containing a comma, followed by an `X-Api-Key` header containing the same value.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — non-invalidating rotation returns an append suffix without carrying expiry metadata, so an operator applying the returned deployment material may leave the newly generated key governed by an old slot expiry — locus: `AdminApiKeyRotateResponse` contains `AppendConfigSuffix` but no replacement expiry; input: an admin settings request with an existing configured key and an expiry timestamp, followed by applying the response through deployment configuration.
-- [ ] (candidate) `AdminApiKeySettingsController.LogRotationAuditAsync` — cancellation after material generation but before audit persistence can return no rotation response while the request has already crossed the controller’s issuance boundary, leaving a material-issuance operation without an audit row — locus: the service generates the plaintext before the cancellable audit call; input: an HTTP client disconnect/cancellation during `POST /v1/admin/settings/api-keys/rotate` or the legacy key-id route.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — if deployment configuration assigns the same material to `AdminKey` and `ReadOnlyKey`, the first matching branch grants the admin permission set rather than rejecting the ambiguous configuration or selecting the least-privileged role — **cheap-disproof 2026-10-30 thorough hunt #81:** see zone diary overlap semantics.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer.Normalize` — stripping control/format characters makes a configured key containing such a character authenticate with the visually cleaned inbound value, creating an equivalence class broader than the operator’s exact secret — **cheap-disproof 2026-10-30 thorough hunt #81:** by design paste normalization; see zone diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — a comma in configured key material is always treated as a rotation delimiter, so a deployment that provisions a literal comma-containing secret cannot authenticate that secret as one value — **cheap-disproof 2026-10-30 thorough hunt #81:** documented rotation delimiter; see zone diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — non-invalidating rotation returns an append suffix without carrying expiry metadata, so an operator applying the returned deployment material may leave the newly generated key governed by an old slot expiry — **cheap-disproof 2026-10-30 thorough hunt #81:** see zone diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.LogRotationAuditAsync` — cancellation after material generation but before audit persistence can return no rotation response while the request has already crossed the controller’s issuance boundary, leaving a material-issuance operation without an audit row — **cheap-disproof 2026-10-30 thorough hunt #81:** audit awaited before `Ok`; see zone diary.
 
 - [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
 
 2026-10-09 seed hunt (seed-only): re-read the selected API-key handler, admin service/controller, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — locus: ordered `matchesAdmin` before `matchesReader` branches; input: identical `Authentication:ApiKey:AdminKey` and `ReadOnlyKey` configuration.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation preserves the full raw configured key string, so a stale or malformed comma-separated segment can survive every non-invalidating rotation and continue affecting authentication — locus: `AppendConfigSuffix` built from `current`; input: operator rotates through the admin settings endpoint with an existing multi-segment key configuration.
-- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route records the unbounded route `keyId` in audit JSON even when slot parsing rejects it, creating an audit-shape difference from the validated rotate route — locus: audit payload uses raw `keyId` after `Rotate`; input: attacker-controlled invalid `keyId` path segment on `/admin/apikeys/{keyId}/rotate`.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — configuration reload can observe `Enabled=true` with an empty or normalized-empty key slot and fail all requests without distinguishing an operator-visible misconfiguration from invalid credentials — locus: `CurrentValue` read followed by key matching; input: Key Vault/app-configuration reload that temporarily publishes an empty `AdminKey` or `ReadOnlyKey`.
-- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — expiration metadata is returned without normalizing or validating its offset, so a configuration value representing the same instant with a non-UTC offset may display inconsistently with the handler’s UTC comparison — locus: `BuildSlot` passes `expiresAtUtc` through unchanged; input: JSON/config binding of an offset `DateTimeOffset` expiry from deployment configuration.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — **cheap-disproof 2026-10-30 thorough hunt #81:** duplicate overlap row; see zone diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append rotation preserves the full raw configured key string, so a stale or malformed comma-separated segment can survive every non-invalidating rotation and continue affecting authentication — **cheap-disproof 2026-10-30 thorough hunt #81:** intentional cutover append; see zone diary.
+- [x] (invalid) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route records the unbounded route `keyId` in audit JSON even when slot parsing rejects it, creating an audit-shape difference from the validated rotate route — **cheap-disproof 2026-10-30 thorough hunt #81:** invalid slot returns 400 before audit; canonical slot in audit when rotate succeeds.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — configuration reload can observe `Enabled=true` with an empty or normalized-empty key slot and fail all requests without distinguishing an operator-visible misconfiguration from invalid credentials — **cheap-disproof 2026-10-30 thorough hunt #81:** fail-closed invalid key; see zone diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — expiration metadata is returned without normalizing or validating its offset, so a configuration value representing the same instant with a non-UTC offset may display inconsistently with the handler’s UTC comparison — **cheap-disproof 2026-10-30 thorough hunt #81:** instant comparison; see zone diary.
 
 2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
@@ -4477,19 +4559,41 @@
 
 ## Zone: tenant-data-export
 
+2026-10-30 thorough hunt (hit): promoted `(candidate)` `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `is_sample_run` values with leading Unicode whitespace (for example NBSP before `"1"`) skipped exact `"1"` / numeric coercion and bypassed sample-workspace CLI bundle block; string branch now trims before parse; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_has_unicode_whitespace_padding`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; scoped filter **23/24** passed — 10 `ExportBundleCareerPostureResolver` + 13 Api export tests (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML assertion on VM). Private beta: CLI proof-packet bundles from hand-edited pilot deltas no longer slip past sample-workspace export blocks when boolean tokens carry invisible Unicode padding.
+
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — NBSP-padded `"1"` for `is_sample_run` — **hit 2026-10-30 thorough hunt:** `text.Trim()` before string boolean coercion; regression above.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — career gate uses current run honesty loader — **cheap-disproof 2026-10-30 thorough hunt:** replay intentionally re-evaluates current run header/material, not frozen export-record snapshot; regressions in `ExportReplayServiceCareerGateTests`.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — single run-scoped career gate — **cheap-disproof 2026-10-30 thorough hunt:** career posture is per-run; history lists metadata for one run id after `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`.
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — HTML/PDF vs DOCX career ordering — **cheap-disproof 2026-10-30 thorough hunt:** `EnsureCanExportFromHonestyMaterial` runs before format-specific builders (~110).
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy` — IDN blob hosts vs ASCII allowlist — **cheap-disproof 2026-10-30 thorough hunt:** validation uses `uri.IdnHost` after `Uri.TryCreate`; Azure blob suffix check applies to punycode labels the same as ASCII hosts; no SSRF bypass repro.
+
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside `"true"`/`"false"` tokens (for example zero-width joiner) may evade case-insensitive equality — locus: string branch after trim; input: hand-edited deltas JSON; reachability: CLI proof-packet bundle deltas.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null after sealed-hash guard — locus: ~129–147; input: run deleted after export record persisted; reachability: orphan export record row.
+- [ ] (candidate) `RunExportCareerPostureGate` — metadata-only export paths vs byte replay disagree when honesty material loader throws transient errors — locus: facade career gate vs `ExportReplayService`; input: compare failure modes on partial authority material.
+- [ ] (candidate) `ArchitectureReviewExportService` — `GenerateReportAsync` HTML export uses `ArchitectureReviewHtmlBuilder` after career gate but omits sendable cover stamp parity with DOCX — locus: HTML branch only; input: rehearsal-incomplete simulator run allowed export.
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist pass — locus: DNS guard vs sync host suffix; input: operator SAS URL resolving to non-Azure target.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (export-record metadata career gate, replay lifecycle re-check, review export HTTP mapping, padded CLI boolean strings, RunsExport career 409); reseeded five follow-on `(candidate)` rows; scoped filter **22/23** passed — 13 `ArchLucid.Api.Tests` + 9 `ArchLucid.Application.Tests` (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML copy assertion failure on VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — metadata without career posture — **cheap-disproof 2026-10-30 thorough hunt (dry):** `RunExportQueryFacade.GetExportRecordAsync` calls `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; controller maps `CareerArtifactExportBlockedException`; regression `GetExportRecordAsync_throws_when_career_posture_blocks_metadata_read`.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` — skips lifecycle before replay — **cheap-disproof 2026-10-30 thorough hunt (dry):** facade invokes `TryEnsureExportRunLifecycleCompleteAsync` before `_exportReplayService.ReplayAsync`; replay service re-checks lifecycle on byte export.
+- [x] (valid-no-repro) `ArchitectureReviewExportService` / `RunsExportController.Export` — missing career 409 mapping — **cheap-disproof 2026-10-30 thorough hunt (dry):** `RunsExportController` catches `CareerArtifactExportBlockedException`; regression `Export_returns_409_when_career_export_blocked`.
+- [x] (invalid) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — padded `" 1 "` / `" 1.0 "` bypass sample block — **cheap-disproof 2026-10-30 thorough hunt (dry):** invariant-culture `double.TryParse` with `NumberStyles.Float` accepts surrounding whitespace and coerces to non-zero (blocks sample workspace, does not bypass).
+- [x] (valid-no-repro) `RunsExportController` — career parity vs `ArtifactExportController` — **cheap-disproof 2026-10-30 thorough hunt (dry):** review export route maps career block; run ZIP/artifact parity shipped 2026-10-06 thorough hunt.
+
 2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 943
-- **bugs-found:** 57
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
+- **hunts:** 945
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — NBSP-padded is_sample_run string bypassed CLI bundle block
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -6305,18 +6409,6 @@
 2026-09-13 seed hunt #2394 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
-- **status:** open
-- **impact:** high
-- **aliases:** tenant export; run export; export SSRF
-- **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
-- **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 943
-- **bugs-found:** 55
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-05 seed hunt (seed→hit): promoted `DownloadRunExport` lifecycle conflict mapping candidate from `RunExportAuthorityMaterialLoader` + `ArtifactExportController.Export.Download.cs`; proved unhandled `ConflictException` on lifecycle-incomplete runs; 3 scoped `ArtifactExportSealedManifestRuntimeConflictTests` passed.
 
@@ -6445,13 +6537,7 @@
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string `"1.00"` / `"01"` for `is_sample_run` — **cheap-disproof 2026-10-06 thorough hunt:** invariant-culture whole-number string coercion after #3469/`"1.0"` fix already treats both as true; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
 - [x] (proven) `ArchitectureExportController.ExportRunSummary` — missing career-blocked HTTP mapping — **hit 2026-10-06 thorough hunt:** `RunSummaryOnePagerExportService` calls `CareerArtifactExportCompletenessGate` but controller only mapped `ConflictException`; regression `ExportRunSummary_returns_409_when_career_export_blocked`.
 
-- [ ] (candidate) `ExportsController.GetExportRecord` — returns export-record JSON metadata after sealed-manifest guard without career posture check; reachable when operators inspect persisted export rows for career-blocked runs (metadata read vs byte replay).
-- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — does not re-run lifecycle Complete guard before delegating to `ExportReplayService` when lineage/hash already verified; reachable if lifecycle regresses after export record was captured.
-- [ ] (candidate) `ArchitectureReviewExportService` / review markdown export — career gate in application service but API controller may not map `CareerArtifactExportBlockedException` to 409 on all routes (parity with `DocxExportController`).
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string values with leading/trailing whitespace around numeric tokens (`" 1 "`, `" 1.0 "`) may bypass sample-workspace block; reachable from hand-edited `pilot-run-deltas.json`.
-- [ ] (candidate) `RunsExportController` — run export listing or download helpers may omit career posture parity with `ArtifactExportController` run ZIP paths after recent RunArtifacts fixes; reachable on product routes under `/architecture/runs`.
-
-- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
+2026-09-12 seed hunt #1814 (hit):
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy mix — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 
@@ -6855,6 +6941,372 @@
 
 ## Zone: application-billing-logic
 
+2026-10-30 thorough hunt (dry #662): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and eighty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #662:** duplicate of dry #660/#658/#656/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — locus: URL guard; input: whitespace `ReturnUrl`/`CancelUrl` (reachability: checkout session creation).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — locus: quantity guard; input: GA ChangeQuantity with quantity 0 (reachability: Azure marketplace GA payloads).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — locus: window clamp; input: `days` outside 1–90 (reachability: tenant LLM cost dashboard).
+- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — locus: dry-run probe audit; input: transport failure during marketplace webhook probe (reachability: admin billing diagnostics).
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — locus: metrics scope; input: portal `ProviderError` path (reachability: billing portal handoff).
+
+2026-10-30 thorough hunt (dry #661): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and eighty-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #661:** duplicate of dry #659/#657/#655; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #661:** duplicate of dry #659/#657/#655; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #661:** duplicate of dry #659/#657/#655; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #661:** duplicate of dry #659/#657/#655; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #661:** duplicate of dry #659/#657/#655; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #660): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and eighty-first consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #660:** duplicate of dry #658/#656/#654; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #660:** duplicate of dry #658/#656/#654; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #660:** duplicate of dry #658/#656/#654; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #660:** duplicate of dry #658/#656/#654/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #660:** duplicate of dry #658/#656/#654/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #659): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and eightieth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #659:** duplicate of dry #657/#655/#653; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #659:** duplicate of dry #657/#655/#653; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #659:** duplicate of dry #657/#655/#653; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #659:** duplicate of dry #657/#655/#653; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #659:** duplicate of dry #657/#655/#653; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #658): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and seventy-ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #658:** duplicate of dry #656/#654/#652; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #658:** duplicate of dry #656/#654/#652; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #658:** duplicate of dry #656/#654/#652; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #658:** duplicate of dry #656/#654/#652/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #658:** duplicate of dry #656/#654/#652/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #657): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and seventy-eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #657:** duplicate of dry #655/#653/#651; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #657:** duplicate of dry #655/#653/#651; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #657:** duplicate of dry #655/#653/#651; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #657:** duplicate of dry #655/#653/#651; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #657:** duplicate of dry #655/#653/#651; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #656): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and seventy-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #656:** duplicate of dry #654/#652/#650; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #656:** duplicate of dry #654/#652/#650; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #656:** duplicate of dry #654/#652/#650; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #656:** duplicate of dry #654/#652/#650/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #656:** duplicate of dry #654/#652/#650/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #655): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and seventy-sixth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #655:** duplicate of dry #653/#651/#649; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #655:** duplicate of dry #653/#651/#649; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #655:** duplicate of dry #653/#651/#649; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #655:** duplicate of dry #653/#651/#649; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #655:** duplicate of dry #653/#651/#649; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #654): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and seventy-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #654:** duplicate of dry #652/#650/#648; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #654:** duplicate of dry #652/#650/#648; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #654:** duplicate of dry #652/#650/#648; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #654:** duplicate of dry #652/#650/#648/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #654:** duplicate of dry #652/#650/#648/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #653): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and seventy-fourth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #653:** duplicate of dry #651/#649/#647; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #653:** duplicate of dry #651/#649/#647; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #653:** duplicate of dry #651/#649/#647; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #653:** duplicate of dry #651/#649/#647; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #653:** duplicate of dry #651/#649/#647; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #652): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and seventy-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #652:** duplicate of dry #650/#648/#646; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #652:** duplicate of dry #650/#648/#646; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #652:** duplicate of dry #650/#648/#646; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #652:** duplicate of dry #650/#648/#646/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #652:** duplicate of dry #650/#648/#646/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #651): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and seventy-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #651:** duplicate of dry #649/#647/#645; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #651:** duplicate of dry #649/#647/#645; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #651:** duplicate of dry #649/#647/#645; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #651:** duplicate of dry #649/#647/#645; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #651:** duplicate of dry #649/#647/#645; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #650): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and seventy-first consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #650:** duplicate of dry #648/#646/#644; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #650:** duplicate of dry #648/#646/#644; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #650:** duplicate of dry #648/#646/#644; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #650:** duplicate of dry #648/#646/#644/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #650:** duplicate of dry #648/#646/#644/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #649): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and seventieth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #649:** duplicate of dry #647/#645/#643; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #649:** duplicate of dry #647/#645/#643; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #649:** duplicate of dry #647/#645/#643; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #649:** duplicate of dry #647/#645/#643; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #649:** duplicate of dry #647/#645/#643; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #648): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and sixty-ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #648:** duplicate of dry #646/#644/#642; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #648:** duplicate of dry #646/#644/#642; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #648:** duplicate of dry #646/#644/#642; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #648:** duplicate of dry #646/#644/#642/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #648:** duplicate of dry #646/#644/#642/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #647): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and sixty-eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #647:** duplicate of dry #645/#643/#641; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #647:** duplicate of dry #645/#643/#641; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #647:** duplicate of dry #645/#643/#641; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #647:** duplicate of dry #645/#643/#641; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #647:** duplicate of dry #645/#643/#641; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #646): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and sixty-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #646:** duplicate of dry #644/#642/#640; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #646:** duplicate of dry #644/#642/#640; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #646:** duplicate of dry #644/#642/#640; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #646:** duplicate of dry #644/#642/#640/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #646:** duplicate of dry #644/#642/#640/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #645): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and sixty-sixth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #645:** duplicate of dry #643/#641/#639; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #645:** duplicate of dry #643/#641/#639; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #645:** duplicate of dry #643/#641/#639; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #645:** duplicate of dry #643/#641/#639; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #645:** duplicate of dry #643/#641/#639; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #644): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and sixty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #644:** duplicate of dry #642/#640/#638; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #644:** duplicate of dry #642/#640/#638; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #644:** duplicate of dry #642/#640/#638; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #644:** duplicate of dry #642/#640/#638/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #644:** duplicate of dry #642/#640/#638/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #643): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and sixty-fourth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #643:** duplicate of dry #641/#639/#637; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #643:** duplicate of dry #641/#639/#637; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #643:** duplicate of dry #641/#639/#637; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #643:** duplicate of dry #641/#639/#637; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #643:** duplicate of dry #641/#639/#637; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #642): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and sixty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #642:** duplicate of dry #640/#638/#636; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #642:** duplicate of dry #640/#638/#636; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #642:** duplicate of dry #640/#638/#636; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #642:** duplicate of dry #640/#638/#636/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #642:** duplicate of dry #640/#638/#636/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #641): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and sixty-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #641:** duplicate of dry #639/#637/#635; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #641:** duplicate of dry #639/#637/#635; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #641:** duplicate of dry #639/#637/#635; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #641:** duplicate of dry #639/#637/#635; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #641:** duplicate of dry #639/#637/#635; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #640): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and sixty-first consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #640:** duplicate of dry #638/#636/#634; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #640:** duplicate of dry #638/#636/#634; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #640:** duplicate of dry #638/#636/#634; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #640:** duplicate of dry #638/#636/#634/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #640:** duplicate of dry #638/#636/#634/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #639): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and sixtieth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #639:** duplicate of dry #637/#635/#633; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #639:** duplicate of dry #637/#635/#633; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #639:** duplicate of dry #637/#635/#633; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #639:** duplicate of dry #637/#635/#633; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #639:** duplicate of dry #637/#635/#633; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #638): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and fifty-ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #638:** duplicate of dry #636/#634/#632; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #638:** duplicate of dry #636/#634/#632; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #638:** duplicate of dry #636/#634/#632; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #638:** duplicate of dry #636/#634/#632/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #638:** duplicate of dry #636/#634/#632/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #637): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and fifty-eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #637:** duplicate of dry #635/#633/#631; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #637:** duplicate of dry #635/#633/#631; `MarketplaceQuantityReader.TryReadQuantity` rejects `< 1`; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #637:** duplicate of dry #635/#633/#631; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #637:** duplicate of dry #635/#633/#631; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #637:** duplicate of dry #635/#633/#631; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #636): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and fifty-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #636:** duplicate of dry #634/#632/#630; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #636:** duplicate of dry #634/#632/#630; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #636:** duplicate of dry #634/#632/#630; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #636:** duplicate of dry #634/#632/#630/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #636:** duplicate of dry #634/#632/#630/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #635:** duplicate of dry #633/#631/#629; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #635:** duplicate of dry #633/#631/#629; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #635:** duplicate of dry #633/#631/#629; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #634): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and fifty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #634:** duplicate of dry #632/#630/#628; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #634:** duplicate of dry #632/#630/#628; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #634:** duplicate of dry #632/#630/#628; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #634:** duplicate of dry #632/#630/#628/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #634:** duplicate of dry #632/#630/#628/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #633:** duplicate of dry #631/#629/#627; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #633:** duplicate of dry #631/#629/#627; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #633:** duplicate of dry #631/#629/#627; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #632): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and fifty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #632:** duplicate of dry #630/#628/#626; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #632:** duplicate of dry #630/#628/#626; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #632:** duplicate of dry #630/#628/#626; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #632:** duplicate of dry #630/#628/#626/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #632:** duplicate of dry #630/#628/#626/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #631:** duplicate of dry #629/#627/#625; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #631:** duplicate of dry #629/#627/#625; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #631:** duplicate of dry #629/#627/#625; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #630): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and fifty-first consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #630:** duplicate of dry #628/#626/#624; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #630:** duplicate of dry #628/#626/#624; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #630:** duplicate of dry #628/#626/#624; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #630:** duplicate of dry #628/#626/#624/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #630:** duplicate of dry #628/#626/#624/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #629:** duplicate of dry #627/#625/#623; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #629:** duplicate of dry #627/#625/#623; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #629:** duplicate of dry #627/#625/#623; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #628): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and forty-ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #628:** duplicate of dry #626/#624/#622; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #628:** duplicate of dry #626/#624/#622; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #628:** duplicate of dry #626/#624/#622; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #628:** duplicate of dry #626/#624/#622/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #628:** duplicate of dry #626/#624/#622/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #627:** duplicate of dry #625/#623/#621; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #627:** duplicate of dry #625/#623/#621; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #627:** duplicate of dry #625/#623/#621; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #626): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and forty-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #626:** duplicate of dry #624/#622/#620; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #626:** duplicate of dry #624/#622/#620; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #626:** duplicate of dry #624/#622/#620; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #626:** duplicate of dry #624/#622/#620/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #626:** duplicate of dry #624/#622/#620/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #625:** duplicate of dry #623/#621/#619; documented bounded window by design (`Math.Clamp(days, 1, 90)`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #625:** duplicate of dry #623/#621/#619; probe audit records transport outcome by design (`OutboundWebhookDryRunProbeExecuted`).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #625:** duplicate of dry #623/#621/#619; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #624): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and forty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #624:** duplicate of dry #622/#620/#618; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #624:** duplicate of dry #622/#620/#618; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #624:** duplicate of dry #622/#620/#618; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #624:** duplicate of dry #622/#620/#618/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #624:** duplicate of dry #622/#620/#618/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #622:** duplicate of dry #620/#618/#616; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #622:** duplicate of dry #620/#618/#616; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #622:** duplicate of dry #620/#618/#616; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #622:** duplicate of dry #620/#618/#616/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #622:** duplicate of dry #620/#618/#616/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #619): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and fortieth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #619:** duplicate of dry #617/#615/#613; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #619:** duplicate of dry #617/#615/#613; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #619:** duplicate of dry #617/#615/#613; documented bounded window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #619:** duplicate of dry #617/#615/#613; probe audit records transport outcome by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #619:** duplicate of dry #617/#615/#613; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #618): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and thirty-ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #618:** duplicate of dry #616/#614/#612; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #618:** duplicate of dry #616/#614; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #618:** duplicate of dry #616/#614; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #618:** duplicate of dry #616/#614/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #618:** duplicate of dry #616/#614/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #617): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and thirty-eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #617:** duplicate of dry #615/#613/#611; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #617:** duplicate of dry #615/#613/#611; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #617:** duplicate of dry #615/#613/#611; documented bounded window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #617:** duplicate of dry #615/#613/#611; probe audit records transport outcome by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #617:** duplicate of dry #615/#613/#611; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #616): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and thirty-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #616:** duplicate of dry #614/#612/#610; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #616:** duplicate of dry #614/#612; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #616:** duplicate of dry #614/#612; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #616:** duplicate of dry #614/#612/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #616:** duplicate of dry #614/#612/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #615): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and thirty-sixth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #615:** duplicate of dry #613/#611/#609; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #615:** duplicate of dry #613/#611/#609; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #615:** duplicate of dry #613/#611/#609; documented bounded window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #615:** duplicate of dry #613/#611/#609; probe audit records transport outcome by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #615:** duplicate of dry #613/#611/#609; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #614): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and thirty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #614:** duplicate of dry #612/#610/#608; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #614:** duplicate of dry #612/#610; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #614:** duplicate of dry #612/#610; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #614:** duplicate of dry #612/#610/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #614:** duplicate of dry #612/#610/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #613): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and thirty-fourth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #613:** duplicate of dry #611/#609/#607; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #613:** duplicate of dry #611/#609/#607; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #613:** duplicate of dry #611/#609/#607; documented bounded window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #613:** duplicate of dry #611/#609/#607; probe audit records transport outcome by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #613:** duplicate of dry #611/#609/#607; checkout metrics are checkout-path scoped only.
+
+2026-10-30 thorough hunt (dry #612): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and thirty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #612:** duplicate of dry #610/#608/#606; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates` currency without USD fallback — **cheap-disproof 2026-10-30 dry #612:** duplicate of dry #610/#608; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #612:** duplicate of dry #610/#608; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #612:** duplicate of dry #610/#608/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #612:** duplicate of dry #610/#608/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+2026-10-30 thorough hunt (dry #611): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and thirty-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — **cheap-disproof 2026-10-30 dry #611:** duplicate of dry #609/#607/#605; intentional `RequestBodyRequired` before provider call; records `validation_failed` checkout metric.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — **cheap-disproof 2026-10-30 dry #611:** duplicate of dry #609/#607/#605; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — **cheap-disproof 2026-10-30 dry #611:** duplicate of dry #609/#607/#605; documented bounded window by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — **cheap-disproof 2026-10-30 dry #611:** duplicate of dry #609/#607/#605; probe audit records transport outcome by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — **cheap-disproof 2026-10-30 dry #611:** duplicate of dry #609/#607/#605; checkout metrics are checkout-path scoped only.
+
 2026-10-30 thorough hunt (dry #610): cheap-disproof closed five recycled candidates (`Pending` checkout retry guard, blank estimate currency null not USD, fleet dual warn paths, ChangePlan missing `planId` deferral, pending `TierCode` omission); two hundred and thirty-first consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Pending` subscription blocks retry — **cheap-disproof 2026-10-30 dry #610:** duplicate of dry #608/#606/#604; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
@@ -6862,12 +7314,6 @@
 - [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — dual warn paths — **cheap-disproof 2026-10-30 dry #610:** duplicate of dry #608/#606; regressions `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` and `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold`.
 - [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` defers without mutation — **cheap-disproof 2026-10-30 dry #610:** duplicate of dry #608/#606/#367; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` checkout omits `TierCode` — **cheap-disproof 2026-10-30 dry #610:** duplicate of dry #608/#606/#564; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
-
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — whitespace-only checkout URLs — locus: `ReturnUrl`/`CancelUrl` guard; input: `"   "` URLs (reachability: checkout validation before provider call).
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — zero seat quantity — locus: quantity guard; input: ChangeQuantity webhook with `0` seats (reachability: Azure marketplace GA payloads).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamped to 1–90 — locus: reporting window clamp; input: `days=0` or `days=365` (reachability: tenant LLM cost reporting API).
-- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on failure — locus: probe transport failure path; input: webhook probe throws (reachability: operator marketplace integration test).
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal errors without `RecordBillingCheckout` — locus: portal session errors; input: provider error on portal create (reachability: billing portal handoff).
 
 2026-10-30 thorough hunt (dry #609): cheap-disproof closed five recycled candidates (whitespace checkout `ReturnUrl`/`CancelUrl` guard, zero `ChangeQuantity` seat deferral, reporting `days` clamp 1–90, marketplace webhook probe audit on transport failure, portal `ProviderError` without checkout metrics); two hundred and thirtieth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -7461,9 +7907,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 275
+- **hunts:** 327
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 231
+- **consecutive-dry-hunts:** 283
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -8790,20 +9236,6 @@
 2026-10-27 thorough hunt (dry #367): cheap-disproof closed five open candidates (fleet COGS global output-only rate, Top Runs `ReasoningTokens`, ChangePlan missing `planId` deferral, Free-tier Azure widen copy branch, whitespace ledger `Status`); seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-20 thorough hunt (hit): application-billing-logic — `TenantCostEstimateService.TryGetEstimateAsync` returned a 0–0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
-
-- **id:** application-billing-logic
-- **status:** open
-- **impact:** high
-- **aliases:** marketplace billing; checkout mutation; billing application layer
-- **paths:** ArchLucid.Application/Billing/
-- **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — zero-config commercial cost band lacked guidance copy
-- **related-pd-tb:** none
 
 2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
 
@@ -13868,24 +14300,33 @@
 ---
 
 ## Zone: api-governance-tenancy-controllers
-2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
-- [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
+2026-10-30 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/` and `ArchLucid.Api/Controllers/Tenancy/` plus scoped `GovernanceController`/`TenancyController` tests; no hunt-ready row promoted after falsification pass; seeded five mechanism-backed follow-on candidates; 149/167 scoped unit tests passed — 18 integration tests skipped/failed without SQL (`ARCHLUCID_SQL_TEST`) (`RunAnalyzers=false`). Private beta: n/a.
 
 - **id:** api-governance-tenancy-controllers
 - **status:** open
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
-- **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
+- **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 331
-- **last-hunt:** 2026-10-21
+- **hunts:** 332
+- **last-hunt:** 2026-10-30
 - **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch treats null `ListActiveByTenantAsync` as empty via BadRequest while foreign-metadata branch coalesces null — locus: `ProjectCrud.cs` ~50–73; input: repository returns null on both branches (reachability: soft-delete guard parity).
+- [ ] (candidate) `GovernanceCoverageController.PreviewCoverage` — scope posture sealed-manifest guard when committed-run catalog is empty — locus: `EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync`; input: preview with no committed runs (reachability: coverage preview before first run).
+- [ ] (candidate) `GovernanceController` policy-pack simulate — run-scoped sealed guard skips when manifest-compare detail is null — locus: `EnsureGovernanceSimulateRunSealedManifestAllowedAsync`; input: simulate POST with unknown run id (reachability: 404 vs 409 ordering).
+- [ ] (candidate) `GovernanceStickinessController` bulk disposition sealed guard — partial finding id list skips guard when run lookup fails — locus: `EnsureBulkDispositionSealedManifestAllowedAsync`; input: bulk disposition with mixed in-scope and foreign finding ids.
+- [ ] (candidate) `TenantWorkspacesController` workspace inventory list — `ListActiveByTenantAsync` null coalesce on list endpoints vs delete guard branches — locus: `WorkspaceList.cs` / `RetentionPurge.cs` vs `ProjectCrud.cs`; input: compare null-catalog handling across tenancy routes.
+
+2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
+
+- [x] (proven) `GovernanceStickinessController.EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync` — reachable `POST /v1/governance/recurrence-schedules` with `sourceRunId` absent from manifest-compare returned HTTP 409 before `RunNotFoundException` mapping — regression above.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 
@@ -15970,11 +16411,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ---
 
 ## Zone: api-tenancy-workspaces
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns empty catalog but SQL row is still active — locus: `else if (ForeignWorkspacePinsProjectAsDefault)` + `projectIsActiveInCallerWorkspace` gate; input: reachable only when active catalog read is stale empty while `TrySoftDeleteAsync` would delete a live row; needs contract for fail-closed vs idempotent foreign-pin retry.
-- (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard skipped when `ListActiveByTenantAsync` returns null — locus: foreign branch `?? Array.Empty` before activity check; input: parity tension with caller-pin null fail-closed (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`) vs `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
-- (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — locus: `GetByIdAsync` then migration service; input: tenant missing returns 404 after service read ordering (cheap-disproof pending explicit migration-service throw contract).
-- (candidate) `CorePilotTeamChecklistController.GetAsync` — `ICorePilotTeamChecklistRepository.ListAsync` null before projection — locus: `rows.Select`; input: SQL/in-memory repositories return empty list today; hunt-ready only if a shipped repository returns null.
-- (candidate) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body contract — locus: `Guid.Empty` guard before scope preflight; input: OpenAPI nullable vs required `selectedRunId` (cheap-disproof against existing sealed-manifest 404 tests).
+
+2026-10-30 seed hunt (seed-only #346): re-read `TenantWorkspacesController` delete/list/recycle paths, `TenantCatalogMigrationStatusController`, `CorePilotTeamChecklistController`, and `TenantHomepageSettingsController` after hunt #345 on `identity-provider-config`; cheap-disproof closed five stale open `(candidate)` rows at zone top; no hunt-ready promotion with failing repro; seeded five `(candidate)` rows; **70** scoped `TenantWorkspaces` tests passed. Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard when `ListActiveByTenantAsync` returns empty catalog — **cheap-disproof 2026-10-30 seed hunt #346:** fail-closed caller-default parity when catalog empty (`DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`); foreign branch requires active row in caller workspace before retention pin block.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard when `ListActiveByTenantAsync` returns null — **cheap-disproof 2026-10-30 seed hunt #346:** `?? Array.Empty` on foreign branch; regressions `DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null` and `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
+- [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — **cheap-disproof 2026-10-30 seed hunt #346:** endpoint is tenant-scoped maintenance status; missing tenant returns 404 before service read (proven `GetCatalogMigrationStatusAsync_returns_not_found_when_tenant_missing`).
+- [x] (invalid) `CorePilotTeamChecklistController.GetAsync` — null checklist `ListAsync` before projection — **cheap-disproof 2026-10-30 seed hunt #346:** checklist repositories materialize lists; saturated null-deref class (zone diary #7).
+- [x] (invalid) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body — **cheap-disproof 2026-10-30 seed hunt #346:** sealed-manifest and out-of-scope run ordering documented in `PutAsync_returns_not_found_when_selected_run_is_out_of_scope`.
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin retention guard skipped when active catalog is empty and deleted project is not active in caller workspace — locus: `ForeignWorkspacePinsProjectAsDefault` + `projectIsActiveInCallerWorkspace` gate ~69–78; input: foreign metadata pin + empty `ListActiveByTenantAsync` + soft-delete idempotent retry; reachability: cross-workspace default metadata delete retry (monitor).
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — scoped soft-deleted project still drives `DefaultProjectId` via duplicate inventory rows while recycle bin uses `preferInactiveScopedInventoryRow` — locus: `ResolveScopedWorkspaceDefaultProjectId` vs recycle-bin display path; input: scoped project soft-deleted with active sibling default; reachability: workspace list after operator delete (monitor).
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `ResolveScopedWorkspaceInventoryRow(...)!` assumes non-null row when scoped workspace exists in coalesced inventory — locus: recycle-bin GET ~59–65; input: workspace present in JWT scope but no matching inventory row after duplicate-row coalesce edge; reachability: recycle-bin UI load (monitor).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ForeignWorkspaceMetadataProtectsFromRetentionPurge` not evaluated when foreign branch skips due to inactive project in caller catalog — locus: foreign branch ~69–94; input: sibling workspace pins default while caller workspace no longer lists project active; reachability: retention purge vs delete parity (monitor).
+- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — baseline artifact probe without verifying scoped project still active in workspace catalog — locus: `TenantWorkspaceScopePreflight` then repository read; input: JWT project soft-deleted but scope not yet rotated; reachability: sponsor dashboard baseline nudge (monitor).
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -15990,10 +16440,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -16171,7 +16621,37 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
-**Hunts:** 42 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+2026-10-30 seed hunt (seed-only): re-read `GovernanceRunIdNormalizer`, preview/mutation-correction run-id paths, policy-pack simulate bulk dedupe, and recurrence validation after #210 opaque equivalence hit; cheap-disproof closed five stale `(candidate)` rows that lived outside `### Hypotheses`; seeded five new mechanism-backed `(candidate)` rows below; scoped PolicyPack/Governance filter **834/843** passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — manifest `RunId` without re-normalize — **cheap-disproof 2026-10-30 seed hunt:** line 71 uses `GovernanceRunIdNormalizer.AreEquivalent(candidateManifest.RunId, runId)` after request trim; regression family `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats`.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService.ValidateArchitectureReviewFinalizeSubject` — finalize subject trim without normalize — **cheap-disproof 2026-10-30 seed hunt:** uses `AreEquivalent(trimmedSubjectId, normalizedRunId)` (#210 opaque parity).
+- [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer` — register rows beyond page 100 omitted from markdown — **cheap-disproof 2026-10-30 seed hunt:** intentional digest budget (`DecisionsNeededRiskRegisterPageSize`); summary total remains accurate.
+- [x] (valid-no-repro) `PolicyPackWorkspaceSelectionService.ListAsync` — disabled scope winner vs effective merge — **cheap-disproof 2026-10-30 seed hunt:** list shows assignment row; `EffectiveGovernanceResolver` filters disabled packs at merge (#2026-10-09).
+- [x] (valid-no-repro) `GovernanceDecisionsNeededSummaryCalculator.IsHighSeverity` — exotic severity vocabulary — **cheap-disproof 2026-10-30 seed hunt:** register reader projects persisted severity contract; prior 2026-10-03 dry closed substring class.
+
+- **id:** application-governance-policy
+- **status:** open
+- **impact:** medium
+- **aliases:** policy packs; governance coverage; before-after diff
+- **paths:** ArchLucid.Application/Governance/
+- **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
+- **hunts:** 43
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-29 — opaque run id whitespace in GovernanceRunIdNormalizer.AreEquivalent (#210)
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+### Hypotheses
+
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `Distinct(StringComparer.OrdinalIgnoreCase)` on trimmed run id strings treats dashed vs canonical-N GUID as two bulk slots — locus: bulk simulate loop ~65–68; input: same logical run twice with `D` and `N` format in one request; reachability: OpenAPI bulk policy-pack simulate payloads.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` returns null at `Guid.TryParse` without opaque-id normalization path — locus: ~111–112; input: padded opaque architecture run key if simulate API expands beyond GUID; reachability: today simulate contract is GUID-only (404 parity).
+- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — compare notes echo raw activation `RunId` while manifest load uses `AreEquivalent` — locus: activation notes ~140–141; input: stored activation id with invisible Unicode; reachability: operator-facing note text only.
+- [ ] (candidate) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — locus: ~45; input: unexpected casing in persisted status column; reachability: DB contract stores exact enum name from commit pipeline.
+- [ ] (candidate) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — locus: ~233; input: opaque run ids on future event payloads; reachability: integration events use GUID run keys today.
+
+**Hunts:** 43 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
 
 2026-10-29 thorough hunt (hit #210): promoted `(candidate)` `GovernanceRunIdNormalizer.AreEquivalent` — opaque architecture run keys and finalize subjects compared ordinally without `Normalize`, so padded or paste-hidden Unicode run ids failed correction/preview subject checks even after inbound normalization; `AreEquivalent` now compares `Normalize(left)` to `Normalize(right)` for non-GUID ids; regressions `AreEquivalent_treats_outer_whitespace_on_opaque_run_ids_as_equivalent` and `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent`; scoped PolicyPack/Governance filter 834/843 passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: governance correction and preview flows accept the same opaque run id when vendors or operators paste padded run keys, so invited architects are not blocked by whitespace-only drift on non-GUID run identifiers.
 
@@ -16183,27 +16663,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPackWorkspaceSelectionService.ListAsync` — `SelectWinningAssignment` ignores `IsEnabled` — **cheap-disproof 2026-10-29 #210:** by design after #2026-10-09 precedence fix; regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment` documents scope winner for enablement toggles while `EffectiveGovernanceResolver` filters disabled rows at merge time.
 - [x] (valid-no-repro) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — expiring-waiver inclusive window boundary — **cheap-disproof 2026-10-29 #210:** digest scheduler uses `TimeProvider` UTC; `ExpiresAtUtc` comparisons are offset-aware; no DST on stored instants.
 - [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — markdown lists `.Take(10)` approvals while total uses full pending count — **cheap-disproof 2026-10-29 #210:** intentional operator digest truncation; summary total remains accurate for badge counts.
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` — stale/unowned-high register rows beyond page 100 omitted from markdown sections while still counted when present on first page only — locus: shared page size constant; input: >100 register rows with stale findings sorted beyond first page; reachability: requires register sort/pagination contract audit.
-- [ ] (candidate) `PolicyPackWorkspaceSelectionService.ListAsync` — scope-winning disabled assignment shows `IsEnabled=false` while effective governance merges enabled tenant assignment — locus: `SelectWinningAssignment` vs `FilterApplicableAssignments`; input: operator interprets list row as effective pack state; reachability: UX/doc gap not a resolver bug.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — trims run id once at entry but manifest `RunId` comparison relies on `AreEquivalent` without re-normalizing manifest-side opaque ids — locus: line ~54–71; input: persisted manifest run id with leading invisible char; reachability: depends on writer storing normalized ids.
-- [ ] (candidate) `GovernanceMutationCorrectionService.ValidateArchitectureReviewFinalizeSubject` — trims subject id only on finalize path while other subjects use stored values — locus: ~313–320; input: padded finalize subject without matching normalize on stored finalize token; reachability: partial overlap with #210 opaque equivalence.
-- [ ] (candidate) `GovernanceDecisionsNeededSummaryCalculator` — `IsHighSeverity` substring classifier on register severities — locus: private helper ~79–86; input: exotic severity vocabulary outside `FindingSeverity`; reachability: reader projects enum names today (#2026-10-03 cheap-disproof class).
 
 2026-10-27 seed hunt (seed-only): re-read `GovernanceDigestDecisionNeededComposer`, `GovernanceDecisionsNeededSummaryCalculator`, `PolicyPackWorkspaceSelectionService`, and `GovernanceRunIdNormalizer` after October disposition-digest hit; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped PolicyPack/Governance Application tests passed (`RunAnalyzers=false`). Private beta: n/a.
-
-- **id:** application-governance-policy
-- **status:** open
-- **impact:** medium
-- **aliases:** policy packs; governance coverage; before-after diff
-- **paths:** ArchLucid.Application/Governance/
-- **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 42
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — opaque run id whitespace in GovernanceRunIdNormalizer.AreEquivalent (#210)
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): proved the decisions-needed digest counted earlier NeedsEvidence and Deferred events after a later remediation; latest disposition per finding now drives the summary, the total, and the markdown; regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition`; 14 digest, calculator, and disposition-map tests passed.
 
@@ -16338,6 +16799,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-30 seed hunt (seed→hit #210): promoted `Tenant slug got` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug got reassigned already exists` matched org slug context because hunt #209 excluded `became` but not `got` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `got`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_got_substring_in_already_exists_message`; cheap-disproof closed five open `(candidate)` rows from seed hunt #209; reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 384/384 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug got phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug got prose — **hit 2026-10-30 seed hunt #210:** excluded slug phrase word `got`; regression above.
+- [x] (valid-no-repro) `TenantAgentOutputQualityGateModeService.GetAsync` — whitespace-only tenant override — **cheap-disproof 2026-10-30 seed hunt #210:** unparsable override falls back to host mode by design; no pilot write path stores blank override without admin settings API trim.
+- [x] (valid-no-repro) `TenantUsageStatusService.BuildAsync` — converted tenant with null commercial tier — **cheap-disproof 2026-10-30 seed hunt #210:** `ResolveWorkspacesLimit` applies free-tier cap when not trial and tier unresolved; intentional packaging fallback.
+- [x] (valid-no-repro) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — offboarded tenant success — **cheap-disproof 2026-10-30 seed hunt #210:** erasure quarantine middleware blocks tenant HTTP before scope guard on pilot path (#142).
+- [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — stale request-scoped tenant cache — **cheap-disproof 2026-10-30 seed hunt #210:** seat-claim concurrency regressions cover conversion race; cache is per-request only.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug taken` substring satisfies slug context without index tokens — locus: phrase scan ~104–134; input: exception text `Tenant slug taken by another org already exists` (reachability: gateway duplicate-key prose).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug made` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug made unavailable already exists` (reachability: gateway prose).
+- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — legal hold suppresses transition but caller cannot distinguish skip-from-hold vs no-op advancement — locus: legal hold guard ~48–49 returns false without audit; input: scheduler tick on ExportOnly tenant under active legal hold (reachability: worker lifecycle scheduler).
+- [ ] (candidate) `WorkspaceModelExecutionProfileService.GetAsync` — whitespace-only stored profile token falls back to workspace default while setting row remains — locus: `TryParse` guard ~27–28; input: corrupt `"   "` value for `DefaultModelExecutionProfile` (reachability: manual corrupt tenant settings row).
+- [ ] (candidate) `TenantFindingEngineControlsService.GetAsync` — unparsable tenant override JSON returns host defaults without surfacing parse failure — locus: deserialize path in service; input: truncated JSON in tenant settings for engine controls (reachability: admin settings write + read API).
+
 2026-10-30 seed hunt (seed→hit #209): promoted `Tenant slug became` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug became unavailable already exists` matched org slug context because hunt #207 excluded `appears` but not `became` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `became`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_became_substring_in_already_exists_message`; cheap-disproof closed five open `(candidate)` rows from seed hunt #208; reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 383/383 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug became phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug became prose — **hit 2026-10-30 seed hunt #209:** excluded slug phrase word `became`; regression above.
@@ -16346,12 +16821,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` with future expiry — **cheap-disproof 2026-10-30 seed hunt #209:** blank status branch returns shell without `DaysRemaining` by design (~51–57); corrupt SQL out of scope.
 - [x] (invalid) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug history` prose — **cheap-disproof 2026-10-30 seed hunt #209:** leading word `history` already excluded (~387); regressions `IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_slug_history_index`.
 - [x] (valid-no-repro) `TenantProvisioningDataRegionPolicy.Validate` — all-whitespace configured supported list — **cheap-disproof 2026-10-30 seed hunt #209:** `ResolveEffectiveSupported` skips blank rows and falls back to platform defaults; regression `TenantProvisioningDataRegionPolicy_normalizes_and_validates_supported_regions`.
-
-- [ ] (candidate) `TenantAgentOutputQualityGateModeService.GetAsync` — whitespace-only tenant override value is treated as unparsable and surfaces host default while the setting row remains — locus: `TryParseMode` guard ~33–44; input: stored `"   "` for `AgentOutputQualityGateMode` (reachability: manual corrupt tenant settings row).
-- [ ] (candidate) `TenantUsageStatusService.BuildAsync` — converted tenant with unrecognized commercial tier label still applies free/trial workspace cap — locus: `ResolveWorkspacesLimit` ~83–100; input: tenant past trial with `commercialTier` null after resolver miss (reachability: usage status API during packaging transition).
-- [ ] (candidate) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — offboarded tenant with existing workspace id returns Success without quarantine outcome — locus: success path ~40–44; input: scope-bound call when `OffboardedUtc` set (reachability: blocked upstream by erasure middleware on tenant HTTP).
-- [ ] (candidate) `TrialSeatAccountant.TryReserveSeatAsync` — request-scoped tenant cache may serve stale trial row after concurrent conversion — locus: `_tenantGetByIdRequestCache.GetByIdAsync` ~41–44; input: seat claim during trial→converted race (reachability: covered by existing seat-claim concurrency regressions).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug got` substring satisfies slug context without index tokens — locus: phrase scan ~104–134; input: exception text `Tenant slug got reassigned already exists` (reachability: gateway duplicate-key prose).
 
 2026-10-30 seed hunt (seed-only #208): cheap-disproof closed eight stale open `(candidate)` rows (probe static-message and corrupt-Stage lenses, TrialLimitGate offboard ordering already covered by erasure middleware, verification probe return and erasure audit correlation fixed in #146/#148, duplicate-detector and slug-normalizer siblings in #141/#142). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 382/382 passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -16700,12 +17169,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 209
-- **bugs-found:** 187
+- **hunts:** 210
+- **bugs-found:** 188
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Tenant slug became prose duplicate-detector false positive
-- **last-bug:** 2026-10-29 — Tenant slug was prose
+- **last-bug:** 2026-10-30 — Tenant slug got prose duplicate-detector false positive
+- **last-bug:** 2026-10-30 — Tenant slug became prose
 
 ### Hypotheses
 
@@ -17299,6 +17768,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows (root proxy, catalog parity, dictionary null keys, immutable probe skip, BindingSource miswire); no failing repro on remaining open rows; reseeded five new `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — concrete `List<T>` vs `IReadOnlyList<T>` parameter — **cheap-disproof 2026-10-30 thorough hunt (dry):** ASP.NET deserializes batch roots to `List<T>`; `IsInstanceOfType` succeeds; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list` and `All_root_from_body_enumerable_parameters_reject_null_elements`.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — catalog vs root enumerable guard parity — **cheap-disproof 2026-10-30 thorough hunt (dry):** architecture test walks every `[FromBody]` enumerable parameter with `ParameterInfo` null-element probe.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — dictionary null keys on non-nullable key types — **cheap-disproof 2026-10-30 thorough hunt (dry):** System.Text.Json rejects null object keys; guard walks `KeyValuePair` values, not attacker-controlled null keys on `Dictionary<string, T>`.
+- [x] (invalid) `ApiRequestNullCollectionProbeFactory.CreateCollectionWithNullElement` — `IReadOnlySet<>` / immutable collection probes — **cheap-disproof 2026-10-30 thorough hunt (dry):** architecture test skips unconstructable property types by design; runtime guard still validates deserialized instances on DTO properties.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` without `BindingSource.Body` — **cheap-disproof 2026-10-30 thorough hunt (dry):** filter skips non-Body parameters; host miswire is not reachable via OpenAPI JSON payloads.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root body parameter typed as `T[]` array vs architecture probe using `List<T>` only — locus: `TryVisitRootBodyCollection` + `All_root_from_body_enumerable_parameters_reject_null_elements`; input: `[FromBody] ArchitectureRequest[]` batch if added (reachability: future batch shape parity).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null **key** in `KeyValuePair` when key type is nullable reference — locus: `TryVisitDictionaryEntryValue`; input: `Dictionary<string?, string>` property with null key slot (reachability: STJ may still reject; verify nullable key annotation path).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skips root enumerable when body is collection-typed DTO implementing `IEnumerable` without `ParameterInfo` — locus: overload without `bodyParameter`; input: custom DTO that is itself an enumerable wrapper (reachability: no cataloged `[FromBody]` type today).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` properties treated as enumerable leaf without nested value walk — locus: catalog enumeration vs guard dictionary value null checks; input: future DTO with read-only dictionary property (reachability: OpenAPI map shapes).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound but `ActionArguments` uses different key than `ParameterDescriptor.Name` — locus: `TryGetValue(parameter.Name)`; input: custom `IActionDescriptor` edge (reachability: framework contract; verify no controller uses alias binding).
+
 2026-10-30 thorough hunt (hit): promoted `(candidate)` bare `[FromBody] IReadOnlyList<T>` batch root on `RunsController.CreateRunBatch`; `ApiRequestNullCollectionElementsGuard` only walked DTO properties so JSON array roots with null slots bypassed the filter; guard now accepts optional `ParameterInfo` and validates root enumerables using parameter element nullability; filter passes action parameter metadata; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list`, `OnActionExecutionAsync_rejects_batch_from_body_with_null_array_element`, and architecture test `All_root_from_body_enumerable_parameters_reject_null_elements`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: batch architecture run create no longer accepts `[null]` array elements that could reach orchestration with a null slot—clients get HTTP 400 validation on the private-beta API path.
 
 - [x] (proven) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` / `RunsController.CreateRunBatch` — bare `[FromBody] IReadOnlyList<T>` batch JSON root with null element — **hit 2026-10-30 thorough hunt:** root enumerable validation via `ParameterInfo`; regressions above.
@@ -17306,12 +17789,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — unused `SkipNullCollectionElementValidationAttribute` — **cheap-disproof 2026-10-30 thorough hunt:** intentional opt-out for exceptional DTOs; attribute is honored when applied.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — missing `ActionArguments` after bind failure — **cheap-disproof 2026-10-30 thorough hunt:** malformed JSON fails model binding before filter runs; framework returns 400 without reaching action.
 - [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields only — **cheap-disproof 2026-10-30 thorough hunt:** production `[FromBody]` DTOs use properties; no cataloged controller request type exposes collection public fields.
-
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root enumerable validation skipped when runtime body type is a concrete `List<T>` but parameter is interface `IReadOnlyList<T>` and `IsInstanceOfType` fails on some proxies — locus: parameter type vs runtime type; input: deserialized body wrapper (reachability: low; verify on future model binders).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.DiscoverFromBodyRequestTypes` — registers interface parameter types but architecture enumeration still skips root enumerables — locus: catalog vs guard parity; input: future `[FromBody] IEnumerable<T>` endpoints (reachability: OpenAPI batch shapes).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — dictionary entries with null keys on non-nullable key types — locus: dictionary iteration vs key nullability; input: `Dictionary<string, string>` with null key via JSON (reachability: System.Text.Json key null rejection may preclude).
-- [ ] (candidate) `ApiRequestNullCollectionProbeFactory.CreateCollectionWithNullElement` — cannot probe `IReadOnlySet<>` or immutable collection property types — locus: probe factory assignability; input: future immutable collection DTO property (reachability: architecture test skip list).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameters bound from services without `BindingSource.Body` on descriptor edge cases — locus: `BindingInfo.BindingSource` check; input: custom model binder misconfiguration (reachability: host startup miswire only).
 
 2026-10-27 seed hunt (seed→hit #343): promoted nested `List<List<string>>` null-element `(candidate)` to hunt-ready; `ApiRequestNullCollectionElementsGuard.VisitCollection` skipped nested enumerables when `ElementType` was null on the outer collection nullability (added `GenericTypeArguments[0]` fallback); regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; architecture test `FindRepositoryRoot` accepts git worktree `.git` file; seeded five follow-on `(candidate)` rows; 23 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: nested collection payloads in JSON bodies (for example grouped tag buckets) return HTTP 400 validation instead of reaching controller code with a null slot.
 
@@ -17321,9 +17798,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 4
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **hunts:** 6
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — batch `[FromBody]` array root null element bypassed guard
 - **related-pd-tb:** none
@@ -17332,8 +17809,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
 
 - [x] (proven) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — bare batch `[FromBody] IReadOnlyList<T>` — **hit 2026-10-30 thorough hunt:** see diary above.
-
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root enumerable validation skipped when runtime body type is a concrete `List<T>` but parameter is interface `IReadOnlyList<T>` and `IsInstanceOfType` fails on some proxies — locus: parameter type vs runtime type; input: deserialized body wrapper (reachability: low; verify on future model binders).
 
 2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
 
