@@ -14,7 +14,7 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
             return string.Join(
                 ", ",
                 deltas.FindingsBySeverity.Select(static p =>
-                    $"{p.Key}: {p.Value.ToString(CultureInfo.InvariantCulture)}"));
+                    $"{FormatSeverityLabel(p.Key)}: {p.Value.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         if (deltas.FindingsCountsFromSnapshot)
@@ -28,5 +28,20 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
         }
 
         return "No findings were stored on agent results for this run.";
+    }
+
+    private static string FormatSeverityLabel(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+            return "''";
+
+        if (key.Contains('|', StringComparison.Ordinal)
+            || key.Contains(',', StringComparison.Ordinal)
+            || key.Contains(':', StringComparison.Ordinal))
+        {
+            return $"'{key.Replace("'", "''", StringComparison.Ordinal)}'";
+        }
+
+        return key;
     }
 }

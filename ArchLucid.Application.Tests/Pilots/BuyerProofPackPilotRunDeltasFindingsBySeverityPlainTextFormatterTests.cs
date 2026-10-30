@@ -24,6 +24,19 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsBySeverityPlainTextForma
     }
 
     [Fact]
+    public void Format_when_severity_label_contains_pipe_quotes_label_in_plain_text_join()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warn|ing", 2)],
+        };
+
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas)
+            .Should()
+            .Be("'Warn|ing': 2");
+    }
+
+    [Fact]
     public void Format_when_agent_results_omitted_and_not_snapshot_sourced_uses_not_stored_copy()
     {
         PilotRunDeltas deltas = new()
