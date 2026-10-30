@@ -131,6 +131,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Performance reads | [securenow-performance-00-index.md](../../.cursor/prompts/securenow-performance-00-index.md) | **SN-PERF-01–05** shipped; **11**, **13–16** backlog + hold | [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md) |
 | Procurement pack | [securenow-procurement-00-index.md](../../.cursor/prompts/securenow-procurement-00-index.md) | **SN-PROC-01–09** shipped + hold | [`SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md) |
 | Scenario accelerators | [securenow-scenario-00-index.md](../../.cursor/prompts/securenow-scenario-00-index.md) | **SN-ACCEL-01–03** + hold | [`SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) |
+| Compliance readiness | [securenow-compliance-00-index.md](../../.cursor/prompts/securenow-compliance-00-index.md) | **SN-COMP-01–04** + hold | [`SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md) |
 
 ---
 
