@@ -506,6 +506,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-30 seed hunt #62 (seed-only): re-ran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no new mechanism-backed candidate was supported. No production code changed.
+
 2026-10-30 seed hunt #61 (seed-only): re-read the tenant-isolation command/runner after the missing-option-value fix; the 60-test focused suite passed and no additional mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #60 (hit): proved that a value-taking option with no value, such as `--run-id --json`, was silently treated as absent; the command then fell back to offline fixture mode instead of returning a usage error. Added option-value validation and a regression; focused TenantIsolationNegativeTestRunnerTests passed 60/60. Private beta: operators running the tenant-isolation check with a mistyped option now receive a usage error instead of a misleading offline PASS from the fixture.
@@ -618,7 +620,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
