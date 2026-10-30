@@ -16632,11 +16632,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `FirstValueReportBuilder` — sponsor status and ROI narrative gate disagree on escaped ROI gate strings — locus: build order; input: regression asserting both surfaces escape same fixture.
-- (candidate) `FirstValueReportProofPackageSectionFormatter` — proof sendability mirror row wraps API tier tokens without pipe escape — locus: sendability cell; input: `PublishingTier` with `|`.
-- (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row echoes API severity string without pipe escape — locus: severity table; input: malformed severity token with `|`.
-- (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
-- (candidate) `BoardPackPdfBuilder` — digest week label when custom period spans ISO year boundary — locus: cover metadata; input: override window Dec 28–Jan 3.
+- (candidate) `SponsorRoiGateMarkdownCopy` — consolidate ROI gate string escaping shared across sponsor status, narrative gate, and proof sections — locus: duplicated `EscapeMarkdownTableCell` call sites hunts 70–73; input: single helper for gate copy fields.
+- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — embedded first-value markdown not re-validated after builder-authored deltas JSON mutation — locus: zip assembly; input: tampered deltas between build steps (reachability: guard scope only).
+- (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF delta table omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: `FormatLlmCallCount`; input: simulator run with resolved zero LLM calls.
+- (candidate) `PilotValueReportService.BuildAsync` — governance pending-now on empty window vs sponsor sections still emitted — locus: empty report path; input: inverted window with pending approvals (documented intentional).
+- (candidate) `BoardPackPdfBuilder` — value-report window passed to digest composer when custom override shorter than seven days — locus: digest week clamp; input: sub-week override still labels ISO week in digest markdown header.
+
+2026-10-30 seed hunt (seed-only): paused markdown table-cell pipe instance fixes after hunts 68–73 (`[other]` saturated); re-read sponsor ROI surfaces, buyer proof pack builder, board pack digest clamp, and pilot value report empty-window path; cheap-disproof closed five hunt-73 `(candidate)` rows (cross-surface parity covered by hunts 72–73 formatter tests; sendability/severity pipe lenses duplicate; board digest cross-year covered by `DigestWeekInsideQuarter` theory); no new hunt-ready promotion; seeded five follow-on rows; scoped **49** unit tests passed. Private beta: n/a.
+
+- [x] (invalid) `FirstValueReportBuilder` — cross-surface ROI escape regression only — **cheap-disproof 2026-10-30 seed hunt (hunt 74):** test-coverage lens; hunts 72–73 already prove escaping on formatter units.
+- [x] (valid-no-repro) `FirstValueReportProofPackageSectionFormatter` — sendability tier pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 74):** duplicate hunt 73; backtick-wrapped API mirror tokens.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — severity pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 74):** duplicate; closed enum severities only.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 74):** deferred; abbreviated PDF delta table by design until concrete sponsor misread repro.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — digest ISO year boundary — **cheap-disproof 2026-10-30 seed hunt (hunt 74):** duplicate hunt 73; clamp preserves ordered bounds on short cross-year windows.
 
 2026-10-30 seed hunt (seed→hit): promoted ROI narrative gate Markdown section echoing `DispositionLeadLine`, `BasisClassSummary`, and blockquote `NarrativeBlock` without escaping while sponsor-status table escaped lead line in hunt 72; shared `EscapeMarkdownTableCell` on all three strings; regression `AppendMarkdownSection_when_disposition_lead_line_contains_pipe_escapes_copy`; cheap-disproof closed five hunt-72 `(candidate)` rows; seeded five follow-on rows; scoped **44** unit tests passed. Private beta: ROI narrative claim gate sections stay readable when gate copy includes pipe characters.
 
@@ -16833,7 +16841,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 73
+- **hunts:** 74
 - **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
