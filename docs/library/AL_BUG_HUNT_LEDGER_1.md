@@ -16632,6 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+- (candidate) `FirstValueReportBaselineSectionFormatter` — tenant baseline prose fields echoed into markdown without newline sanitization — locus: baseline section append; input: settings-sourced note with embedded `##` heading (monitor).
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — basis label table when resolver emits pipe in future localized copy — locus: markdown table row; input: pipe in basis label token (monitor).
+- (candidate) `SponsorReviewCoverageHonestyMarkdownFormatter` — material-finding title list when title contains pipe — locus: honesty markdown list; input: finding title with `|` (monitor).
+- (candidate) `BuyerProofPackLimitationsMarkdown` — caution banner when demo warning string contains markdown line breaks — locus: limitations builder; input: multi-line demo caution string (monitor).
+- (candidate) `FirstValueReportTraceSectionFormatter` — trace id cell when run label contains pipe — locus: trace table; input: synthetic run label with `|` (monitor).
+
+2026-10-30 seed hunt (hunt 78, seed→hit): reseeded `application-pilots` after hunt 77; promoted review-cycle **Source note** echoing operator baseline provenance without collapsing embedded newlines (sibling to hunt 76 ROI evidence source note); consolidated sanitization in `BaselineReviewCycleSourceMarkers.SanitizeOperatorSourceNoteForDisplay` at display formatting time so review-cycle markdown/DOCX and ROI formatters share one path; regression `Review_cycle_markdown_when_source_note_contains_markdown_heading_does_not_emit_extra_heading`; cheap-disproof closed five open `(candidate)` rows — simulator LLM caveat parity on deltas/PDF rows remains disclosure not table breakage, tampered severity JSON is out-of-scope defense-in-depth, empty-window pending governance is intentional, review-cycle source note proven above; scoped **43** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor first-value review-cycle sections no longer render operator baseline notes as injectable markdown headings.
+
+- [x] (proven) `ValueReportReviewCycleSectionFormatter` / `BaselineReviewCycleSourceMarkers` — tenant baseline source note markdown injection — **hit 2026-10-30 seed hunt (hunt 78):** sanitize at `FormatReviewCycleSourceNoteForDisplay`; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — simulator caveat parity — **cheap-disproof 2026-10-30 seed hunt (hunt 78):** duplicate hunts 76–77; sponsor-status row carries caveat.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity pipe on tampered JSON — **cheap-disproof 2026-10-30 seed hunt (hunt 78):** closed enum severities on pilot path; tamper lens not reachable in builder.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 78):** abbreviated PDF delta table by design.
+- [x] (valid-no-repro) `PilotValueReportService.BuildAsync` — empty window sponsor narrative — **cheap-disproof 2026-10-30 seed hunt (hunt 78):** intentional pending governance (hunt 75/57).
+
 - (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row when JSON severity token contains pipe — locus: compact summary table; input: tampered deltas JSON (defense-in-depth).
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF delta table omits simulator zero-valid caveat — locus: one-pager table; input: simulator run with resolved zero LLM calls.
@@ -16874,11 +16888,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 76
-- **bugs-found:** 54
+- **hunts:** 77
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — ROI evidence completeness source note markdown injection
+- **last-bug:** 2026-10-30 — review-cycle baseline source note markdown injection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
