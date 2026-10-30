@@ -124,7 +124,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           ) : null}
           <StatusTag
             kind="neutral"
-            label={findingEnforcementTierLabel(finding.enforcementTier)}
+            label={findingEnforcementTierLabel(
+              finding.enforcementTierStored === false ? null : finding.enforcementTier,
+            )}
             className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
           />
           {architectWorkspaceChrome ? (

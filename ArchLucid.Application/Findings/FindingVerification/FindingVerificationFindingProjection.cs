@@ -9,17 +9,21 @@ internal static class FindingVerificationFindingProjection
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        AgentType sourceAgent = AgentType.Topology;
+        AgentType sourceAgent = default;
+        bool sourceAgentStored = false;
 
-        if (!string.IsNullOrWhiteSpace(finding.EngineType))
+        if (!string.IsNullOrWhiteSpace(finding.EngineType)
+            && Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType parsedAgent))
         {
-            Enum.TryParse(finding.EngineType, ignoreCase: true, out sourceAgent);
+            sourceAgent = parsedAgent;
+            sourceAgentStored = true;
         }
 
         return new ArchitectureFinding
         {
             FindingId = finding.FindingId,
             SourceAgent = sourceAgent,
+            SourceAgentStored = sourceAgentStored,
             Severity = finding.Severity,
             Category = finding.Category ?? string.Empty,
             Message = finding.Title ?? string.Empty,

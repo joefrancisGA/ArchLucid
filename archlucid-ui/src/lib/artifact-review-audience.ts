@@ -51,7 +51,7 @@ export function sponsorArtifactOpenActionLabel(artifactType: string): string {
     ReferenceArchitectureMarkdown: "Open reference architecture",
   };
 
-  return map[normalizedType] ?? "Open output";
+  return map[normalizedType] ?? "Open artifact (type was not recognized)";
 }
 
 /** Buyer/sponsor table: matching download verb per artifact role. */

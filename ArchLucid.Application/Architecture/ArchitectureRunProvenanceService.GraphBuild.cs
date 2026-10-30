@@ -84,7 +84,7 @@ public sealed partial class ArchitectureRunProvenanceService
                 Id = taskNodeId,
                 Type = ArchitectureLinkageKinds.Nodes.AgentTask,
                 ReferenceId = task.TaskId,
-                Name = task.Objective.Length > 120 ? task.Objective[..120] + "…" : task.Objective,
+                Name = TruncateProvenanceNodeLabel(task.Objective, 120),
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["agentType"] = task.AgentType.ToString(),
@@ -144,7 +144,7 @@ public sealed partial class ArchitectureRunProvenanceService
                     Id = findingNodeId,
                     Type = ArchitectureLinkageKinds.Nodes.ArchitectureFinding,
                     ReferenceId = finding.FindingId,
-                    Name = finding.Message.Length > 160 ? finding.Message[..160] + "…" : finding.Message,
+                    Name = TruncateProvenanceNodeLabel(finding.Message, 160),
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["severity"] = finding.Severity.ToString(),
@@ -297,5 +297,15 @@ public sealed partial class ArchitectureRunProvenanceService
         }
 
         return "System name was not stored.";
+    }
+
+    internal static string TruncateProvenanceNodeLabel(string text, int maxChars)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        if (text.Length <= maxChars)
+            return text;
+
+        return text[..maxChars].TrimEnd() + "… Label shortened; remainder omitted.";
     }
 }

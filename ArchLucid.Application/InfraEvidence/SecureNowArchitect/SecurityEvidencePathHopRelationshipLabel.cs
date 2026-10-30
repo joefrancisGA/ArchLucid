@@ -57,7 +57,7 @@ internal static class SecurityEvidencePathHopRelationshipLabel
 
         if (normalized.Equals(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType, StringComparison.OrdinalIgnoreCase))
         {
-            return "public network exposure";
+            return "Public network hop. Observed traffic was not stored.";
         }
 
         return normalized;

@@ -58,6 +58,13 @@ public sealed class FindingTrustLabelMapper : IFindingTrustLabelMapper
                 "Evidence available; medium confidence — verify independently.");
         }
 
+        if (finding.ConfidenceLevel is null && finding.EvaluationConfidenceScore is null)
+        {
+            return new FindingTrustSummary(
+                FindingTrustLabel.Estimated,
+                "Evidence references are stored; confidence was not stored.");
+        }
+
         return new FindingTrustSummary(FindingTrustLabel.Estimated, "Evidence available; confidence is limited.");
     }
 

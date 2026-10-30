@@ -72,6 +72,10 @@ export function riskPostureBadgeClass(posture: string): string {
     return enterpriseStatusTagClass("needs-attention");
   }
 
+  if (key.includes("not derived") || key.includes("not stored")) {
+    return enterpriseStatusTagClass("neutral");
+  }
+
   return enterpriseStatusTagClass("ready");
 }
 

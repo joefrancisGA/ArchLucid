@@ -28,6 +28,8 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string IssueSeverityNotStored = "Severity was not stored.";
 
+    internal const string IssueSeverityStoredEmpty = "Severity was stored empty.";
+
     internal const string IssueTypeNotStored = "Issue type was not stored.";
 
     internal const string IssueTitleNotStored = "Issue title was not stored.";

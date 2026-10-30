@@ -148,7 +148,7 @@ export function compareLifecycleSourceAgentTrustLaneLabel(sourceAgent: string): 
     case "critic":
       return "Peer challenge (verify before sign-off)";
     default:
-      return sourceAgent.trim().length > 0 ? sourceAgent.trim() : "Unattributed lane";
+      return sourceAgent.trim().length > 0 ? sourceAgent.trim() : "Source agent was not stored.";
   }
 }
 
