@@ -701,9 +701,23 @@
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-28 — AL0003 missed mutating default interface implementation on controller
+- **last-bug:** 2026-10-30 — empty controller AL0001 ignored AllowAnonymous on derived default interface member
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt #857 (hit): proved empty concrete controllers implementing a derived default interface with `[AllowAnonymous]` on the effective mutating member still received type-level AL0001 because authorization scanning never treated default interface API actions as satisfying the empty-controller shell; fixed by `DefaultInterfacePublicApiActionsAreAllAuthorized` before the type-level fallback in `RequireAuthorizationAnalyzer`; cheap-disproof closed mutating-audit exclusion re-exported through a derived interface (`Probe_mutating_audit_excluded_reexported_through_derived_interface`, hunt #856 matrix family), banned generic `List<HttpContext>` inside collection-expression probes (`Reports_banned_type_identifier_in_collection_expression_cast_element_at_call_site` and generic-name coverage), conditional default-interface bodies that log on only one branch (AL0003 still required when any branch lacks audit), and dual default-interface contracts with the same unauthorized signature (single action identity for AL0001); regression `Does_not_report_empty_controller_when_default_interface_derived_member_is_allow_anonymous`; reseeded five `(candidate)` rows; scoped analyzer filter **141/141** (Release, `RunAnalyzers=false`). Private beta: build-time AL0001 no longer flags empty controllers that inherit anonymous default-interface endpoints before they reach the RC35 line.
+
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — interface-level exclusion is ignored when inherited through a second interface — **cheap-disproof 2026-10-30 thorough hunt #857:** exclusion walks `AllInterfaces`; hunt #856 matrix.
+- [x] (proven) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on a derived default interface fails to suppress an authorized base member — **hit 2026-10-30 thorough hunt #857:** regression above.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned generic type argument inside a collection expression is not attributed to the element — **cheap-disproof 2026-10-30 thorough hunt #857:** generic `List<HttpContext>` and cast-element matrix; no miss repro.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — extension `LogAsync` plus a conditional return is treated as unaudited — **cheap-disproof 2026-10-30 thorough hunt #857:** partial-branch bodies remain AL0003-eligible by design.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — duplicate AL0001 when a controller inherits two unauthorized default interface methods with the same signature — **cheap-disproof 2026-10-30 thorough hunt #857:** default-interface action identity dedupes to one AL0001 target.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — class-level `[MutatingAuditExcluded]` does not suppress default interface mutating members on the implementing controller — locus: exclusion attribute inheritance on controller type; input: excluded controller shell implementing a default `[HttpPost]` interface member (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[AllowAnonymous]` on controller does not suppress AL0001 for unauthorized declared actions — locus: type-level attribute precedence; input: controller marked anonymous with one undecorated mutating action (monitor).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `params` array element is missed — locus: parameter symbol walk; input: `void M(params HttpContext[] contexts)` (monitor).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` invoked through a local alias is not recognized — locus: invocation expression shape; input: default interface body assigns `LogAsync` to a delegate then invokes (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — inherited unauthorized action on abstract base is not reported on concrete derived empty controller — locus: referenced-base traversal; input: concrete controller inheriting mutating action from referenced abstract base (monitor).
 
 2026-10-30 thorough hunt #856 (dry): cheap-disproof closed five open `(candidate)` rows — interface-member audit exclusion, authorized default-interface methods, dynamic audit calls, collection `typeof` handling, and explicit unauthorized overrides are covered by the analyzer suite or by conservative existing diagnostics. Reseeded five bounded `(candidate)` rows. 140 scoped analyzer tests passed; no production code changed.
 
@@ -712,12 +726,6 @@
 - [x] (invalid) `MutatingControllerAuditAnalyzer` — dynamic audit invocation is treated as statically proven — **cheap-disproof 2026-10-30 thorough hunt #856:** dynamic invocation is intentionally not statically resolved and remains diagnostic-eligible.
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned `typeof` in a collection expression is missed — **cheap-disproof 2026-10-30 thorough hunt #856:** `typeof` is exempted by the boundary rule and collection cast coverage remains diagnostic.
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — explicit unauthorized override duplicates inherited AL0001 — **cheap-disproof 2026-10-30 thorough hunt #856:** explicit-interface/inherited-action matrix coverage emits the expected single diagnostic.
-
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — interface-level exclusion is ignored when inherited through a second interface — locus: exclusion attribute lookup across interface inheritance; input: excluded default member re-exported by a derived contract (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on a derived default interface fails to suppress an authorized base member — locus: interface authorization precedence; input: derived interface overrides default authorization with anonymous access (monitor).
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned generic type argument inside a collection expression is not attributed to the element — locus: generic/type-of syntax walk; input: `[List<HttpContext>]` (monitor).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — extension `LogAsync` plus a conditional return is treated as unaudited — locus: semantic body traversal across conditional branches; input: default interface body logs only on one branch (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — duplicate AL0001 when a controller inherits two unauthorized default interface methods with the same signature — locus: action identity deduplication; input: two contracts provide the same unauthorized default action (monitor).
 
 2026-10-29 thorough hunt #855 (hit): cheap-disproof closed four hunt #653 follow-on `(candidate)` rows — empty concrete and abstract controllers inheriting unauthorized default-interface mutating members already emit type-level AL0001 (`Reports_type_level_AL0001_when_empty_concrete_controller_inherits_unauthorized_default_interface_mutating_member`, `Reports_type_level_AL0001_on_abstract_controller_inheriting_unauthorized_default_interface_mutating_member`); default-interface bodies calling `LogAsync` via extension are not false-positive AL0003 (`AL0003_is_absent_when_default_interface_implementation_body_calls_LogAsync_via_extension_method`); collection-expression cast elements already surface ARCH001 (`Reports_banned_type_identifier_in_collection_expression_cast_element_at_call_site`); proved `AnalyzeDefaultInterfaceMutatingActions` skipped mutating default interface members from referenced contract assemblies when `DeclaringSyntaxReferences` was empty, so AL0003 never fired on shared unaudited contracts; removed that syntax-presence gate; regression `AL0003_reports_when_controller_inherits_unaudited_mutating_default_interface_from_referenced_assembly`; reseeded five follow-on `(candidate)` rows; scoped analyzer filter **140/140** (Release, `RunAnalyzers=false`). Private beta: no direct invite-path UI change; build-time AL0003 now catches unaudited mutating default endpoints inherited from referenced API contract assemblies before they reach the RC35 line.
 
@@ -753,11 +761,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 40
-- **bugs-found:** 34
+- **hunts:** 41
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — AL0003 skipped mutating default interface members from referenced contract assemblies
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — empty controller AL0001 ignored AllowAnonymous on derived default interface member
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
