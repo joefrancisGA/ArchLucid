@@ -83,6 +83,7 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
                 aria-current={active ? "page" : undefined}
                 onClick={(event) => {
                   event.preventDefault();
+                  window.history.pushState(null, "", `#${category.id}`);
                   document.getElementById(category.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >

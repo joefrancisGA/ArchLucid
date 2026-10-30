@@ -121,10 +121,14 @@ export function ReviewAgentExecutionLogSection({
   }
 
   const sorted = [...results].sort((a, b) => {
-    const ta = a.createdUtc ?? "";
-    const tb = b.createdUtc ?? "";
+    const ta = a.createdUtc ? Date.parse(a.createdUtc) : Number.NEGATIVE_INFINITY;
+    const tb = b.createdUtc ? Date.parse(b.createdUtc) : Number.NEGATIVE_INFINITY;
 
-    return ta.localeCompare(tb);
+    if (!Number.isFinite(ta) || !Number.isFinite(tb)) {
+      return (a.createdUtc ?? "").localeCompare(b.createdUtc ?? "");
+    }
+
+    return ta - tb;
   });
 
   return (

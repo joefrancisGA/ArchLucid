@@ -10,6 +10,7 @@ import {
 } from "@/lib/marketing-custom-policy-pack-authoring";
 
 const MAX_MESSAGE_CHARS = 2000;
+const QUOTE_REQUEST_ERROR_MESSAGE = "We couldn't submit your request. Please try again.";
 
 function buildQuoteMessageBody(
   userMessage: string,
@@ -123,8 +124,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
+        throw new Error(QUOTE_REQUEST_ERROR_MESSAGE);
       }
 
       setDone(true);

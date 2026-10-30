@@ -189,14 +189,16 @@ function pathMatchesPrefix(pathname: string, prefix: string): boolean {
 }
 
 export function isMarketingOnlyPath(pathname: string): boolean {
-  if (pathname === "/welcome" || pathname === "/pricing" || pathname === "/signup") return true;
+  const canonicalPathname = pathname.length > 1 ? pathname.replace(/\/+$/g, "") : pathname;
 
-  if (MARKETING_SITEMAP_PATHNAMES.includes(pathname)) return true;
+  if (canonicalPathname === "/welcome" || canonicalPathname === "/pricing" || canonicalPathname === "/signup") return true;
 
-  if (EXTRA_MARKETING_EXACT_PATHS.includes(pathname)) return true;
+  if (MARKETING_SITEMAP_PATHNAMES.includes(canonicalPathname)) return true;
+
+  if (EXTRA_MARKETING_EXACT_PATHS.includes(canonicalPathname)) return true;
 
   for (const prefix of EXTRA_MARKETING_PREFIXES) {
-    if (pathname.startsWith(prefix)) return true;
+    if (canonicalPathname.startsWith(prefix)) return true;
   }
 
   return false;

@@ -233,6 +233,19 @@ describe("decideHostGateRedirect", () => {
     ).toEqual({ kind: "next" });
   });
 
+  it("redirects app-host marketing paths with a trailing slash to the public origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "app.archlucid.net",
+        pathname: "/pricing/",
+        search: "?utm=1",
+      }),
+    ).toEqual({ kind: "redirect", location: "https://archlucid.net/pricing/?utm=1" });
+  });
+
   it("redirects marketing-host retired bookmark paths to the app origin", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
