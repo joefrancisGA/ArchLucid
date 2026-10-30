@@ -15,7 +15,6 @@ using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs.Orchestration;
-using ArchLucid.Application.SecureNow;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.ExecDigest;

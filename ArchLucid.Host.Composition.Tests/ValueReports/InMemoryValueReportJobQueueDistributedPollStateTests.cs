@@ -944,7 +944,7 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
-    public void TryPoll_keeps_local_pending_when_distributed_completed_has_no_document_bytes()
+    public void TryPoll_prefers_distributed_completed_without_bytes_over_local_pending()
     {
         ServiceCollection services = BuildValueReportJobServices();
         DictionaryPollStateCache pollStateCache = new();
@@ -986,7 +986,7 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
 
         poll.Found.Should().BeTrue();
         poll.Completed.Should().BeFalse();
-        poll.ErrorMessage.Should().BeNull();
+        poll.ErrorMessage.Should().Contain("document is unavailable");
     }
 
     [Fact]
