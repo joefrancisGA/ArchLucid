@@ -1770,6 +1770,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-30 seed hunt #45 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
 2026-10-30 seed hunt #44 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #43 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; the picker requested rotation but no alternate eligible zone was available, and no new mechanism-backed candidate was supported. No production code changed.
@@ -1836,7 +1838,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-29
