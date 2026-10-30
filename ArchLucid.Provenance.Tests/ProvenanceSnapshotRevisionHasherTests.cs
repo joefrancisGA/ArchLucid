@@ -1746,6 +1746,41 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
                 "duplicate artifact rows whose content hashes differ only by casing share one representative fingerprint");
     }
 
+    [Fact]
+    public void Compute_unchanged_when_duplicate_artifact_rows_differ_only_by_contributing_decision_id_casing_with_same_content_hash()
+    {
+        Guid artifactId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["dec-a"],
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = artifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "v1",
+            ContentHash = "hash-v1",
+            ContributingDecisionIds = ["DEC-A"],
+        };
+
+        ProvenanceBuildInput single = CreateInput([firstRow]);
+        ProvenanceBuildInput pair = CreateInput([firstRow, secondRow]);
+
+        ProvenanceSnapshotRevisionHasher.Compute(single, BundleId)
+            .Should().Be(ProvenanceSnapshotRevisionHasher.Compute(pair, BundleId),
+                "contributing decision ids are deduped case-insensitively across duplicate artifact rows");
+    }
+
     private static Finding CreateSampleFinding() =>
         new()
         {
