@@ -3917,7 +3917,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 74 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+**Hunts:** 75 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt (seed-only): re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after hunt 74 dry; no failing repro met the promotion bar (existing TB-2226 latest-per-task, TB-035 attempt authority, and gate-order regressions cover the reachable paths); closed ten stale duplicate open `(candidate)` checkboxes seeded in earlier passes; seeded five mechanism-backed `(candidate)` rows below; scoped picker filter **107** tests passed (63 Application + 44 Core, `RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_semanticSupportBandFinalizeJudge.ApplyAsync` may persist band adjustments before `UnsupportedSemanticSupportFinalizeHoldEvaluator` evaluates the same finding snapshot — locus: ~225–230; input: Real PilotStrict finalize with borderline semantic-support bands; mechanism: hold reasons may not reflect pre-persist evaluation state.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — blocking reasons include raw `TraceId` strings without redaction when traces fail quality gate — locus: reason template ~47–48; input: cross-tenant support export of commit failure text; mechanism: sensitive correlation ids leak in API error surface.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — `QualityPreferenceRank` treats `RecordedQualityGateOutcome` default/unset the same as explicit unevaluated (rank 0) — locus: rank ladder ~34–48; input: duplicate upsert rows where one row omitted outcome serialization; wrong outcome: stale unevaluated row wins tie-break over warned sibling.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — architecture-version pin evaluation uses caller `architectureRequest` while traces load via canonical run id — locus: pin evaluator vs `LoadExecutionTracesByRunIdAsync`; input: mismatched request/version pairing on direct API finalize; mechanism: quality gate sees traces for run A while pin checks request B.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `PilotStrict` empty-trace proof triggers even when structural traces exist but latest-per-task selection returns zero rows after filtering — locus: empty latest list ~32–36; input: malformed trace batch with empty `TaskId` keys collapsing away; needs reachability proof beyond intentional fail-closed.
 
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; none met the hunt-ready bar. `CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync` returns at most one reason (`ArchitectureVersionContentFingerprintVerifier.GetViolations` is a single κ-drift string, and every other branch returns one string), so `architectureVersionPinReasons[0]` cannot drop a second violation. Create-time pins can list a policy-pack failure and an evidence-package failure together, and `createTimePinReasons[0]` still throws, so the commit stays blocked. `QualityRejected` with recorded `Accepted` still blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`). A null second run header skips evidence referential integrity only (hunt #72). Whitespace-only `TaskId` chains with a missing task id (`Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`). Private beta: n/a.
 
@@ -3951,11 +3959,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — multiple latest-per-task rejected traces produce multiple blocking reason strings — **cheap-disproof 2026-10-07 seed hunt #78:** fail-closed per winning trace; regression `GetBlockingReasons_when_multiple_rejected_tasks_return_multiple_reasons`.
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — empty `TaskId` chains retries per `agent:{AgentType}` only — **cheap-disproof 2026-10-07 seed hunt #78:** intentional legacy retry key; regression `Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`.
 
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` bypasses PilotStrict empty-trace fail-closed — locus: options guard ~24–25; input: Real run with zero traces (`GetBlockingReasons_when_gate_disabled_with_empty_traces_returns_empty`).
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Rejected` blocks even when `QualityRejected=false` — locus: loop ~45–46; input: outcome Rejected without durable flag.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — single-trace input bypasses grouping — locus: `traces.Count <= 1` ~18–19; input: `Select_when_single_trace_returns_same_trace`.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — higher `AttemptIndex` wins over newer `CreatedUtc` on superseded retry — locus: `OrderByDescending(AttemptIndex)` ~24; input: existing superseded-rejected vs accepted-retry tests.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `gate disabled` returns empty even with `QualityRejected=true` traces — locus: ~24–25; input: `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`.
+- [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` bypasses PilotStrict empty-trace fail-closed — **cheap-disproof 2026-10-07 seed hunt #79:** see ledger row above.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Rejected` blocks even when `QualityRejected=false` — **cheap-disproof 2026-10-07 seed hunt #79:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — single-trace input bypasses grouping — **cheap-disproof 2026-10-07 seed hunt #79:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — higher `AttemptIndex` wins over newer `CreatedUtc` on superseded retry — **cheap-disproof 2026-10-07 seed hunt #79:** see ledger row above.
+- [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `gate disabled` returns empty even with `QualityRejected=true` traces — **cheap-disproof 2026-10-07 seed hunt #79:** see ledger row above.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetBlockingReasons_when_mixed_mode_returns_empty_even_with_rejected_traces`, `Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks`; 107 scoped zone tests passed (63 Application + 44 Core).
 
@@ -3965,11 +3973,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FinalizeAssumptionGateEvaluator` runs after provenance but before scorecard — **cheap-disproof 2026-10-07 seed hunt #77:** intentional gate map (`CommitOutputIntegrityGateMapArchitectureTests`); existential assumptions block before `_finalizeQualityGate`; `FinalizeAssumptionGateEvaluatorTests`.
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` trim does not normalize Unicode format (NFC/NFD) — **cheap-disproof 2026-10-07 seed hunt #77:** ordinal keys without Unicode normalization; distinct NFD/NFC forms stay separate retry chains; regression `Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks`.
 
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `WarnOnly` mode returns empty even when latest traces are `QualityRejected=true` — locus: options guard ~24–25; input: Real run with durable reject flags (PilotStrict blocking disabled).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — `QualityPreferenceRank` returns 0 for `QualityWarning=true` without recorded outcome — locus: rank ~48; input: tie-break among rank-0 siblings uses `TraceId` (`Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id`).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `UnsupportedSemanticSupportFinalizeHoldEvaluator` uses same `gateOptions` as trace quality gate — locus: ~161 and ~224; input: `PilotStrictHoldOnUnsupportedSemanticSupport` false skips hold while trace gate still PilotStrict.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — multiple latest-per-task rejected traces produce multiple blocking reason strings — locus: foreach ~39–50; input: two tasks each with rejected winning trace.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — empty `TaskId` chains retries per `agent:{AgentType}` only — locus: ~60–62; input: same agent type missing task id collapses attempts (`Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `WarnOnly` mode returns empty even when latest traces are `QualityRejected=true` — **cheap-disproof 2026-10-07 seed hunt #78:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — `QualityPreferenceRank` returns 0 for `QualityWarning=true` without recorded outcome — **cheap-disproof 2026-10-07 seed hunt #78:** see ledger row above.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `UnsupportedSemanticSupportFinalizeHoldEvaluator` uses same `gateOptions` as trace quality gate — **cheap-disproof 2026-10-07 seed hunt #78:** see ledger row above.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — multiple latest-per-task rejected traces produce multiple blocking reason strings — **cheap-disproof 2026-10-07 seed hunt #78:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — empty `TaskId` chains retries per `agent:{AgentType}` only — **cheap-disproof 2026-10-07 seed hunt #78:** see ledger row above.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces`; 105 scoped zone tests passed (62 Application + 43 Core).
 
@@ -3979,11 +3987,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` trace load precedes architecture-version pin failure — **cheap-disproof 2026-10-07 seed hunt #76:** pin mismatch still throws `ConflictException`; extra trace read is perf-only, not integrity bypass.
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Fallback structural mode returns empty reasons here but `StructuralExecutionModeCommitGuard` blocks earlier in service — **cheap-disproof 2026-10-07 seed hunt #76:** TB-2226 Real-only evaluator; regression `GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces`; service path `StructuralExecutionModeCommitGuardTests`.
 
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Mixed` structural mode bypasses evaluator like Simulator — locus: mode guard ~21–22; input: Mixed run with `QualityRejected=true` traces (guard blocks Mixed in service).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — equal `AttemptIndex`, rank, and `CreatedUtc` tie-breaks on `TraceId` ordinal — locus: `ThenByDescending(TraceId)` ~27–28; input: duplicate upsert rows differing only by trace id.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips lifecycle Complete check but still runs Real quality gate — locus: Guid guard ~103–118; input: opaque run id string with Real traces present.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FinalizeAssumptionGateEvaluator` runs after provenance but before scorecard — locus: ~172–198; input: existential assumption unacknowledged blocks before `_finalizeQualityGate`.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` trim does not normalize Unicode format (NFC/NFD) — locus: `Trim()` ~55; input: canonically equivalent task ids in different normalization forms.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Mixed` structural mode bypasses evaluator like Simulator — **cheap-disproof 2026-10-07 seed hunt #77:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — equal `AttemptIndex`, rank, and `CreatedUtc` tie-breaks on `TraceId` ordinal — **cheap-disproof 2026-10-07 seed hunt #77:** see ledger row above.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips lifecycle Complete check but still runs Real quality gate — **cheap-disproof 2026-10-07 seed hunt #77:** see ledger row above.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FinalizeAssumptionGateEvaluator` runs after provenance but before scorecard — **cheap-disproof 2026-10-07 seed hunt #77:** see ledger row above.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` trim does not normalize Unicode format (NFC/NFD) — **cheap-disproof 2026-10-07 seed hunt #77:** see ledger row above.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_task_id_contains_nbsp_does_not_chain_with_ascii_hyphen_task`; 104 scoped zone tests passed (61 Application + 43 Core).
 
@@ -4053,7 +4061,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
