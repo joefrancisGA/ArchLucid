@@ -22,7 +22,9 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
-        IReadOnlyList<GraphNode> graphNodes = graph.Nodes ?? [];
+        IReadOnlyList<GraphNode> graphNodes = (graph.Nodes ?? [])
+            .Where(static node => node is not null)
+            .ToArray();
         IReadOnlyList<Finding> findingRows = findings.Findings ?? [];
         IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions = manifest.Decisions ?? [];
 

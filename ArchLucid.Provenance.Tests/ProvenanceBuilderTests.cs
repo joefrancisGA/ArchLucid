@@ -68,6 +68,32 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_skips_json_null_graph_node_rows()
+    {
+        ProvenanceBuilder sut = new();
+
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot
+            {
+                Nodes =
+                [
+                    null!,
+                    new GraphNode { NodeId = "graph-1", NodeType = "Service", Label = "Service" },
+                ],
+            },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "hash-null-node", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == "graph-1");
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Manifest);
+    }
+
+    [Fact]
     public void Build_succeeds_when_graph_snapshot_projection_has_null_node_list()
     {
         GraphSnapshot graphSnapshot = GraphJsonSerialization.DeserializeSnapshot(
