@@ -506,6 +506,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-30 seed hunt #60 (hit): proved that a value-taking option with no value, such as `--run-id --json`, was silently treated as absent; the command then fell back to offline fixture mode instead of returning a usage error. Added option-value validation and a regression; focused TenantIsolationNegativeTestRunnerTests passed 60/60. Private beta: operators running the tenant-isolation check with a mistyped option now receive a usage error instead of a misleading offline PASS from the fixture.
+
+- [x] (proven) `TenantIsolationNegativeTestOptions` — missing values for `--run-id` and other value-taking options silently fall back to defaults — **hit 2026-10-30 seed hunt #60:** reject a missing value or a following option token before mode selection; regression `Parse_RejectsValueOptionWithoutValue`. Private beta: operators running the tenant-isolation check with a mistyped option now receive a usage error instead of a misleading offline PASS from the fixture.
+
 2026-10-30 thorough hunt #59 (dry): cheap-disproof closed the three queued pagination/verdict candidates — JSON whitespace is insignificant to `System.Text.Json`, case-sensitive `hasmore` is an unsupported payload shape with conservative skip behavior, and offline PASS with a skipped list probe is already covered as intentional fixture replay. The focused `TenantIsolationNegativeTestRunnerTests` suite passed 59/59; no production code changed.
 
 2026-10-29 thorough hunt (hit): promoted `AnyEmbeddedRunListClaimsMorePages` — when manifest `evidence` contained multiple scannable list JSON fragments, first payload with `hasMore:false` blocked SKIP even though a later embedded payload had `hasMore:true`; hasMore inference now scans every `{`/`[` offset; regression `RunOffline_SkipsExcludeRunIdProbeWhenLaterEmbeddedJsonClaimsMorePagesAfterHasMoreFalse`. Cheap-disproof closed UTF-8 BOM on manifest read (`System.Text.Json` accepts BOM-prefixed manifest files; probe `evidence` leading BOM removed by `Trim`) and live `Trim` truncating pagination flags (exclude-run-id probes store `definition.Description` in `Evidence`, not truncated list bodies). 65 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-page fixture evidence with mixed pagination flags stays fail-closed when any embedded capture claims more pages.
@@ -612,11 +616,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 59
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 1
+- **hunts:** 60
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — first embedded hasMore:false masked later hasMore:true in evidence
+- **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

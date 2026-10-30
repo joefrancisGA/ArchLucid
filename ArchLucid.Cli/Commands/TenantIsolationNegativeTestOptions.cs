@@ -24,15 +24,33 @@ internal sealed class TenantIsolationNegativeTestOptions
 
         return new TenantIsolationNegativeTestOptions
         {
-            RunId = CliCommandShared.TryGetOptionValue(args, "--run-id"),
-            AlternateTenantId = CliCommandShared.TryGetOptionValue(args, "--alternate-tenant-id"),
-            AlternateWorkspaceId = CliCommandShared.TryGetOptionValue(args, "--alternate-workspace-id"),
-            AlternateProjectId = CliCommandShared.TryGetOptionValue(args, "--alternate-project-id"),
-            ManifestPath = CliCommandShared.TryGetOptionValue(args, "--manifest"),
-            JsonOutPath = CliCommandShared.TryGetOptionValue(args, "--json-out"),
-            MarkdownOutPath = CliCommandShared.TryGetOptionValue(args, "--markdown-out"),
+            RunId = GetOptionValue(args, "--run-id"),
+            AlternateTenantId = GetOptionValue(args, "--alternate-tenant-id"),
+            AlternateWorkspaceId = GetOptionValue(args, "--alternate-workspace-id"),
+            AlternateProjectId = GetOptionValue(args, "--alternate-project-id"),
+            ManifestPath = GetOptionValue(args, "--manifest"),
+            JsonOutPath = GetOptionValue(args, "--json-out"),
+            MarkdownOutPath = GetOptionValue(args, "--markdown-out"),
             SuppressDefaultArtifacts = args.Any(static arg =>
                 string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
+    }
+
+    private static string? GetOptionValue(IReadOnlyList<string> args, string optionName)
+    {
+        for (int index = 0; index < args.Count; index++)
+        {
+            if (!string.Equals(args[index], optionName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (index == args.Count - 1 || args[index + 1].StartsWith("--", StringComparison.Ordinal))
+            {
+                throw new ArgumentException($"Option '{optionName}' requires a value.", optionName);
+            }
+
+            return args[index + 1];
+        }
+
+        return null;
     }
 }
