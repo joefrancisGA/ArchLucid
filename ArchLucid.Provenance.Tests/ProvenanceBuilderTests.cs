@@ -1996,6 +1996,42 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_preserves_graph_node_category_when_later_case_variant_row_has_whitespace_only_category()
+    {
+        GraphNode firstRow = new()
+        {
+            NodeId = "node-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "API Gateway",
+            Category = GraphTopologyCategories.Compute,
+        };
+
+        GraphNode secondRow = new()
+        {
+            NodeId = "NODE-A",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "API Gateway",
+            Category = "   ",
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [firstRow, secondRow] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes
+            .Should()
+            .ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode)
+            .Which.Metadata["category"].Should().Be(GraphTopologyCategories.Compute);
+    }
+
+    [Fact]
     public void Build_ignores_blank_applied_rule_ids_when_emitting_rule_nodes()
     {
         ProvenanceBuilder sut = new();
