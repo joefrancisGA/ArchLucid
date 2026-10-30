@@ -48,6 +48,9 @@ public sealed class HolisticCriticService(
         if (summary is null)
             throw new InvalidOperationException($"Run '{runId:D}' has no explanation summary in the current scope.");
 
+        int omittedFindingLines = CountOmittedFindingLines(detail.FindingsSnapshot);
+        int omittedThemeSummaries = Math.Max(0, summary.ThemeSummaries.Count - 5);
+
         string userPrompt = BuildUserPrompt(detail, summary, request?.Focus);
         const string systemPrompt =
             "You are a principal enterprise architect providing a holistic, unstructured critique. "
@@ -72,6 +75,8 @@ public sealed class HolisticCriticService(
         {
             Disclaimer = HolisticCriticResponse.DefaultDisclaimer,
             CritiqueMarkdown = shape.CritiqueMarkdown.Trim(),
+            OmittedFindingLinesCount = omittedFindingLines,
+            OmittedThemeSummariesCount = omittedThemeSummaries,
         };
     }
 
@@ -135,6 +140,16 @@ public sealed class HolisticCriticService(
         }
 
         return lines;
+    }
+
+    private static int CountOmittedFindingLines(FindingsSnapshot? snapshot)
+    {
+        if (snapshot?.Findings is null)
+        {
+            return 0;
+        }
+
+        return Math.Max(0, snapshot.Findings.Count - MaxFindingLines);
     }
 
     private sealed class HolisticCriticResponseShape

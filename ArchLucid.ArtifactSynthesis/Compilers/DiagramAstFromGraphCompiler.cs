@@ -356,7 +356,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         {
             ast.CaptionLines =
             [
-                "This view is the first 12 resources in the snapshot. It is not a sponsor summary.",
+                "This view shows the first 12 resources drawn on this diagram from the collected snapshot. It is not a sponsor summary.",
             ];
         }
         else if (mode == DiagramMode.Executive)

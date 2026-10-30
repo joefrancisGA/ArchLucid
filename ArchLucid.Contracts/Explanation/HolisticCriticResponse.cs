@@ -19,4 +19,16 @@ public sealed class HolisticCriticResponse
         get;
         set;
     } = string.Empty;
+
+    public int OmittedFindingLinesCount
+    {
+        get;
+        set;
+    }
+
+    public int OmittedThemeSummariesCount
+    {
+        get;
+        set;
+    }
 }

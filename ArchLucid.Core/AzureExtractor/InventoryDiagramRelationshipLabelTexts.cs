@@ -51,7 +51,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
 
     public const string MultipleHiddenPublicIpAddressesStored =
-        "Multiple public IP addresses were stored on rolled-up members.";
+        "Multiple rolled-up members stored public IP addresses; one member address is not shown for all.";
 
     public const string MultiplePrivateEndpointAccessNamesStored =
         "Multiple private endpoint access names were stored on rolled-up members.";

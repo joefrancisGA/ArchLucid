@@ -6,7 +6,7 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
   it("uses configured-not-action inventory lines for executive mode", () => {
     const lines = resolveInfraEvidenceDiagramReadingLegend("executive");
 
-    expect(lines.boxes).toBe("Azure resources");
+    expect(lines.boxes).toMatch(/ARM resource id order/i);
     expect(lines.connectors).toMatch(/Cross-group applies/);
     expect(lines.evidenceKind).toBe("This view does not prove reachability or runtime use.");
   });
@@ -28,6 +28,24 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
     expect(lines.boxes).toMatch(/what may connect/);
     expect(lines.connectors).toMatch(/not observed traffic/);
     expect(lines.boxes).not.toMatch(/declared path/);
+  });
+
+  it("separates observed-in-logs from declared connectors when both appear (P-11)", () => {
+    const lines = resolveInfraEvidenceDiagramReadingLegend("dataFlow", {
+      dataFlowHasObservedInLogs: true,
+    });
+
+    expect(lines.boxes).toMatch(/observed/i);
+    expect(lines.connectors).toMatch(/Observed-in-logs/i);
+    expect(lines.evidenceKind).toMatch(/observed-in-logs/i);
+  });
+
+  it("surfaces first-twelve drawn caption on executive legend when requested (P-13)", () => {
+    const lines = resolveInfraEvidenceDiagramReadingLegend("executive", {
+      executiveFirstTwelveDrawn: true,
+    });
+
+    expect(lines.scopeNote).toMatch(/first 12 resources drawn on this diagram/i);
   });
 
   it("uses data-architecture inventory caption", () => {
