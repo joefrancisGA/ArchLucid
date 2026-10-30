@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.TryGetRiskyPort`, which treated any isolated admin-port digits in the security_rule body as the destination port, so `destination_port_range = "443"` with `destination_address_prefix = "10.22.0.0/16"` or `priority = 3389` was reported as internet-to-22 or internet-to-3389; the port is now read from `destination_port_range(s)`, `from_port`, and `to_port`; regressions `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`, `ParseRiskyRules_does_not_treat_priority_number_as_admin_destination_port`, and `ParseRiskyRules_detects_admin_port_from_aws_from_port`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1401/1415** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows HTTPS from the internet to a subnet such as 10.22.0.0/16, the review no longer reports that rule as SSH open to the internet.
+
+- [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
+
 2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.SourceAddressPrefixRegex`, which matched only singular `source_address_prefix`, so an azurerm list `source_address_prefixes = ["*"]` or `["Internet"]` on port 22 produced no risky rule; the source check now reads the list form and still ignores a private CIDR in that list; regressions `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`, `ParseRiskyRules_detects_internet_service_tag_in_source_address_prefixes_list`, and `ParseRiskyRules_ignores_private_cidr_in_source_address_prefixes_list`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1398/1412** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port from the internet through `source_address_prefixes`, the review reports that exposure.
 
 - [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on port 22 was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
@@ -17093,11 +17097,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 63
-- **bugs-found:** 52
+- **hunts:** 64
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — source_address_prefixes list wildcard was not an internet source
+- **last-bug:** 2026-10-30 — address octets in an NSG rule were read as admin destination ports
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17204,6 +17208,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
 
 - [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on an admin port was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
 

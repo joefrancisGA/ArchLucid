@@ -2841,3 +2841,4 @@
 {"at":"2026-10-30T09:31:03.6689298Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","defectClass":"other"}
 {"at":"2026-10-30T09:42:22.1959604Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","defectClass":"other"}
 {"at":"2026-10-30T09:47:14.6217894Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","defectClass":"fail-open-validation"}
+{"at":"2026-10-30T09:59:44.4585598Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/SegmentationRuleParser.cs"],"severity":"medium","defectClass":"other"}

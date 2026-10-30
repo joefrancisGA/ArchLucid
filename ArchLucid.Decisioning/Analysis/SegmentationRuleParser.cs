@@ -25,6 +25,15 @@ public static partial class SegmentationRuleParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex SourceAddressPrefixRegex();
 
+    /// <summary>
+    ///     Admin-port digits also appear in addresses (<c>10.22.0.0/16</c>) and priorities.
+    ///     Only destination port fields, including AWS <c>from_port</c> / <c>to_port</c>, count.
+    /// </summary>
+    [GeneratedRegex(
+        @"(?<![A-Za-z0-9_])(?:destination_port_ranges?|from_port|to_port)\s*=\s*(?<value>\[[^\]]*\]|[^\s,;]+)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    private static partial Regex DestinationPortRegex();
+
     public static IReadOnlyList<SegmentationRiskyRule> ParseRiskyRules(IReadOnlyDictionary<string, string> properties)
     {
         ArgumentNullException.ThrowIfNull(properties);
@@ -79,15 +88,44 @@ public static partial class SegmentationRuleParser
 
     private static bool TryGetRiskyPort(string propertyText, out int destinationPort)
     {
-        string normalized = propertyText.ToLowerInvariant();
+        string dequoted = propertyText.ToLowerInvariant()
+            .Replace("\"", string.Empty, StringComparison.Ordinal)
+            .Replace("'", string.Empty, StringComparison.Ordinal);
 
-        foreach (int port in RiskyDestinationPorts)
+        foreach (Match match in DestinationPortRegex().Matches(dequoted))
         {
-            if (ContainsIsolatedPort(normalized, port))
+            if (ValueContainsRiskyPort(match.Groups["value"].Value, out destinationPort))
             {
-                destinationPort = port;
-
                 return true;
+            }
+        }
+
+        destinationPort = 0;
+
+        return false;
+    }
+
+    private static bool ValueContainsRiskyPort(string raw, out int destinationPort)
+    {
+        string value = raw.Trim().TrimEnd(',', ';');
+
+        if (value.Length >= 2 && value[0] == '[' && value[^1] == ']')
+        {
+            value = value[1..^1];
+        }
+
+        foreach (string part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string token = part.Trim().TrimEnd(',', ';');
+
+            foreach (int port in RiskyDestinationPorts)
+            {
+                if (ContainsIsolatedPort(token, port))
+                {
+                    destinationPort = port;
+
+                    return true;
+                }
             }
         }
 

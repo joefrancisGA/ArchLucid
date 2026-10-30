@@ -174,6 +174,63 @@ public sealed class SegmentationRuleParserTests
     }
 
     [Fact]
+    public void ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port()
+    {
+        // azurerm security_rule bodies store the destination prefix beside the port.
+        // 10.22.0.0/16 is a subnet, not destination port 22.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                name                       = "https"
+                priority                   = 100
+                direction                  = "Inbound"
+                access                     = "Allow"
+                protocol                   = "Tcp"
+                source_port_range          = "*"
+                destination_port_range     = "443"
+                source_address_prefix      = "*"
+                destination_address_prefix = "10.22.0.0/16"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_does_not_treat_priority_number_as_admin_destination_port()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                priority                   = 3389
+                direction                  = "Inbound"
+                access                     = "Allow"
+                destination_port_range     = "443"
+                source_address_prefix      = "*"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_admin_port_from_aws_from_port()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                "access = allow cidr_blocks = 0.0.0.0/0 from_port = 22 to_port = 22",
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
     public void ParseRiskyRules_returns_empty_when_no_rules_blob()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
