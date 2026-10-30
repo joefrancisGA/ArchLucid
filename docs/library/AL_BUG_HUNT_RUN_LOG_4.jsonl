@@ -2918,3 +2918,4 @@
 {"at":"2026-10-30T21:28:27.4891992Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/Inventory/ArchitectureInventoryObservedFactGraphBuilder.cs,ArchLucid.KnowledgeGraph.Tests/ArchitectureInventoryObservedFactGraphOverlayTests.cs)"]}
 {"at":"2026-10-30T21:34:20.4181860Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T21:38:51.4718679Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T21:42:18.3576788Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}

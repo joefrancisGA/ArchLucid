@@ -21881,7 +21881,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 185
+- **hunts:** 186
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
@@ -21894,6 +21894,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-30 seed hunt #990 (hit): promoted the persisted-graph null-row candidate from seed hunt #989 and reproduced a `NullReferenceException` in `ProvenanceBuilder.Build` when `GraphSnapshot.Nodes` contained a JSON-null entry. The builder now ignores null graph-node rows before identity indexing; regression `Build_skips_json_null_graph_node_rows`, Provenance 180/180, and KnowledgeGraph 697/697 passed. Private beta: no direct pilot-path change today; this prevents malformed persisted graph evidence from aborting provenance construction before RC35 absorbs the fix.
 
 - [x] (proven) `ProvenanceBuilder.Build` — a persisted graph snapshot containing a null `GraphNode` entry reached `graphNodes.Select(n => NormalizeId(n.NodeId))` and failed before provenance materialization — **hit 2026-10-30 seed hunt #990:** filter null graph-node rows before indexing; regression `Build_skips_json_null_graph_node_rows`.
+
+2026-10-30 seed hunt #991 (seed-only): picker-visible candidate queue was empty because the four null-entry candidates from hunt #989 were missing the ledger `[ ]` marker; corrected the queue format after rereading `ProvenanceBuilder` and its persisted-input tests. No new failing repro was attempted in this seed-only pass.
 
 2026-10-30 seed hunt #988 (hit): cooldown fallback selected `ui-oidc` in the picker output, but the focused graph/provenance run exposed a reachable inventory overlay label defect: an ARM resource with whitespace-only name and type emitted `Resource name was not stored.` instead of its trimmed ARM ID. `ResolveLabel` now preserves the trimmed ARM path only when both metadata fields are empty; the regression and focused KnowledgeGraph/Provenance suite passed 1/1 and 697/697. Private beta: invited operators inspecting sparse Azure inventory evidence now see a stable ARM resource label instead of an unhelpful missing-name placeholder.
 
@@ -24793,10 +24795,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- (candidate) `ProvenanceBuilder.Build` — a persisted findings snapshot containing a null `Finding` entry reaches `findingRows.GroupBy(f => NormalizeId(f.FindingId))` and can fail before finding provenance is emitted; reachability: persisted `FindingsSnapshot` payload.
-- (candidate) `ProvenanceBuilder.Build` — a persisted manifest containing a null decision entry reaches `DistinctDecisionKeys()` and can fail while constructing decision provenance; reachability: persisted `ManifestDocument` payload.
-- (candidate) `ProvenanceBuilder.Build` — a persisted artifact bundle containing a null `SynthesizedArtifact` entry reaches `artifacts.GroupBy(artifact => artifact.ArtifactId)` and can fail before artifact provenance is emitted; reachability: persisted artifact bundle payload.
-- (candidate) `ProvenanceBuilder.Build` — a rule-audit payload with a null element in `AppliedRuleIds` reaches `NormalizeId` via `DistinctAppliedRuleIds` and can fail during rule provenance construction; reachability: persisted `RuleAuditTraceDto` payload.
+- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted findings snapshot containing a null `Finding` entry reaches `findingRows.GroupBy(f => NormalizeId(f.FindingId))` and can fail before finding provenance is emitted; reachability: persisted `FindingsSnapshot` payload.
+- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted manifest containing a null decision entry reaches `DistinctDecisionKeys()` and can fail while constructing decision provenance; reachability: persisted `ManifestDocument` payload.
+- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted artifact bundle containing a null `SynthesizedArtifact` entry reaches `artifacts.GroupBy(artifact => artifact.ArtifactId)` and can fail before artifact provenance is emitted; reachability: persisted artifact bundle payload.
+- [ ] (candidate) `ProvenanceBuilder.Build` — a rule-audit payload with a null element in `AppliedRuleIds` reaches `NormalizeId` via `DistinctAppliedRuleIds` and can fail during rule provenance construction; reachability: persisted `RuleAuditTraceDto` payload.
 
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments` — persisted `CanonicalObject.SourceId` values differing only by case could split one structured diagram into multiple reconstructed documents; **cheap-disproof 2026-10-04 thorough hunt:** `SourceId` is an opaque stable document identifier in the selected reconstruction/merge paths, with no case-insensitive equivalence contract or reachable producer evidence.
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — a persisted `connectedToNodeIds` token whose canonical-object id differs only by case could omit a diagram edge; **cheap-disproof 2026-10-04 thorough hunt:** canonical-object ids are opaque stable identifiers and the selected mapper/reconstructor paths emit and consume the same exact id shape; no reachable case-variant input was established.
