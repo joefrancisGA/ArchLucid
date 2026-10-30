@@ -560,6 +560,8 @@ public sealed class TenantTrialControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         Mock<IBillingTrialConversionGate> gate = new();
         gate
             .Setup(g => g.EnsureManualConversionAllowedAsync(scope.TenantId, It.IsAny<CancellationToken>()))
@@ -578,6 +580,13 @@ public sealed class TenantTrialControllerTests
         IActionResult result = await sut.ConvertTrialAsync(null, CancellationToken.None);
 
         result.Should().BeOfType<NoContentResult>();
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TenantTrialConverted
+                    && e.ActorUserId == "tenant-trial-test-actor"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         tenants.Verify(
             t => t.MarkTrialConvertedAsync(scope.TenantId, null, It.IsAny<CancellationToken>()),
             Times.Once);
@@ -1041,6 +1050,8 @@ public sealed class TenantTrialControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         Mock<IBillingTrialConversionGate> gate = new();
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
@@ -1084,6 +1095,20 @@ public sealed class TenantTrialControllerTests
             CancellationToken.None);
 
         result.Should().BeOfType<NoContentResult>();
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TenantEntraDirectoryBound
+                    && e.ActorUserId == "tenant-trial-test-actor"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TrialLocalIdentityLinkedToEntra
+                    && e.ActorUserId == "tenant-trial-test-actor"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         trialUsers.Verify(
             r => r.TryLinkLocalIdentityToEntraAsync(normalizedEmail, "oid-home", It.IsAny<CancellationToken>()),
             Times.Once);
@@ -1105,7 +1130,7 @@ public sealed class TenantTrialControllerTests
             trialUsers,
             trialAbuseRepository ?? Mock.Of<ISelfServiceTrialAbuseRepository>(),
             schedulerOpts),
-            Mock.Of<IActorContext>())
+            Mock.Of<IActorContext>(context => context.GetActorId() == "tenant-trial-test-actor"))
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

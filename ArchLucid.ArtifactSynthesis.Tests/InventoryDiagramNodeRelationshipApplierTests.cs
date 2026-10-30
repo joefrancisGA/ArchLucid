@@ -36,7 +36,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     {
         string label = InventoryDiagramNodeRelationshipApplier.BuildNsgAttachmentLabel(
             [
-                new AzureInventoryNsgSecurityRule(),
+                new AzureInventoryNsgSecurityRule { Direction = "Inbound" },
             ]);
 
         label.Should().NotContain("Allow");
@@ -45,9 +45,22 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         label.Should().Contain("Protocol was not stored");
         label.Should().Contain("Destination port was not stored");
         label.Should().Contain("Source port was not stored");
-        label.Should().Contain("Direction was not stored");
+        label.Should().Contain("Inbound");
         label.Should().Contain("Access was not stored");
         label.Should().Contain("Effective path enforcement was not evaluated.");
+    }
+
+    [Fact]
+    public void BuildNsgAttachmentLabel_does_not_invent_inbound_rule_from_unclassified_direction()
+    {
+        string label = InventoryDiagramNodeRelationshipApplier.BuildNsgAttachmentLabel(
+        [
+            new AzureInventoryNsgSecurityRule(),
+        ]);
+
+        label.Should().Contain("Inbound rules were not listed on this diagram.");
+        label.Should().Contain("Effective path enforcement was not evaluated.");
+        label.Should().NotContain("NSG Allow");
     }
 
     [Fact]

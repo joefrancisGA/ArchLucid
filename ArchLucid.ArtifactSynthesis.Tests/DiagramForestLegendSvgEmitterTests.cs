@@ -10,6 +10,8 @@ using Xunit;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DiagramForestLegendSvgEmitterTests
 {
     private static readonly XNamespace Svg = "http://www.w3.org/2000/svg";
