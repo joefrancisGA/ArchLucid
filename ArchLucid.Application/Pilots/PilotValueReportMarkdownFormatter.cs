@@ -25,10 +25,10 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Field", "Value");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | `{r.TenantId}` |");
+        sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(r.TenantId.ToString("D"))} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
+            $"| Window (UTC) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(_exportFormatter.FormatIso8601Utc(r.FromUtc))} inclusive → {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(_exportFormatter.FormatIso8601Utc(r.ToUtc))} exclusive |");
         if (RunDetailSampleLoadedNoRows(r))
         {
             sb.AppendLine(
@@ -180,7 +180,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         else
         {
-            sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => $"`{t}`")));
+            sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(t))));
         }
         sb.AppendLine();
 
@@ -216,7 +216,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| `{row.RunId}` | {_exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CreatedUtc)} | {committedCell} | {EscapeCell(row.SystemName)} |");
+                $"| {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(row.RunId)} | {_exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CreatedUtc)} | {committedCell} | {FormatTimelineSystemCell(row.SystemName)} |");
         }
 
         sb.AppendLine();
@@ -261,10 +261,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         return disposition.Replace("|", "\\|", StringComparison.Ordinal);
     }
 
-    private static string EscapeCell(string value)
+    private static string FormatTimelineSystemCell(string? value)
     {
-        return string.IsNullOrEmpty(value)
-            ? "System name was not stored."
-            : value.Replace("|", "\\|", StringComparison.Ordinal);
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(
+            string.IsNullOrEmpty(value) ? "System name was not stored." : value);
     }
 }

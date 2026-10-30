@@ -26,8 +26,8 @@ public static class WhyArchLucidPackBuilder
         body.AppendLine();
         body.AppendLine("## ArchLucid run package (deterministic demo)");
         body.AppendLine();
-        body.AppendLine($"**Run id:** `{source.RunId}`  ");
-        body.AppendLine($"**Project:** `{source.ProjectId}`  ");
+        body.AppendLine($"**Run id:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(source.RunId)}  ");
+        body.AppendLine($"**Project:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(source.ProjectId)}  ");
         body.AppendLine();
         body.AppendLine("### Manifest summary");
         body.AppendLine();
