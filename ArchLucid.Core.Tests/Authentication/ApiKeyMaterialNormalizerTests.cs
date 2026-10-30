@@ -166,4 +166,22 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u034F").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_variation_selector_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\uFE00ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\uFE00").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Normalize_strips_embedded_combining_grave_tone_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u0340ret-admin").Should().Be("secret-admin");
+    }
 }

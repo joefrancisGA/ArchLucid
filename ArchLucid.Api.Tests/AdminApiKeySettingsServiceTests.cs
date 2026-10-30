@@ -484,6 +484,21 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void GetSnapshot_treats_variation_selector_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\uFE00"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "variation-selector-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetSnapshot_treats_tab_only_admin_slot_as_unconfigured()
     {
         AdminApiKeySettingsService sut = CreateService(
