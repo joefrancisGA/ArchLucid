@@ -2514,7 +2514,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 71 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+**Hunts:** 72 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #94 (seed-only): repeated the auth/proxy source review and scoped regression matrix after the prior reseed; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
 2026-10-30 seed hunt #93 (seed-only): re-read proxy forwarding, path canonicalization, host-gate integration, auth routing, body limits, and the current auth/proxy regression coverage; scoped auth/proxy vitest passed 90/90 and no new mechanism-backed candidate was supported. No production code changed.
 
