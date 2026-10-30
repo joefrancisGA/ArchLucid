@@ -2900,4 +2900,9 @@
 {"at":"2026-10-30T19:58:53.0553602Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T20:01:28.1162718Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T20:01:51.3695044Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+<<<<<<< HEAD
 {"at":"2026-10-30T20:05:40.5611140Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-30T20:04:55.7749726Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T20:08:03.2966790Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+>>>>>>> f9167a91d4 (docs(al-bug4): dry hunt #978 knowledge-graph-provenance monitors)
