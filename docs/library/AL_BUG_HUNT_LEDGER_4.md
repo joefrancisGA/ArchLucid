@@ -15612,9 +15612,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — hyphen-delimited Basic challenge segment redaction in config summary
-- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — underscore-delimited Basic challenge segment redaction in config summary
-- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — equals-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-30 — colon-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
