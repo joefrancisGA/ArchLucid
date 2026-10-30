@@ -317,6 +317,59 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_document_when_content_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("1b1b1b1b-1b1b-1b1b-1b1b-1b1b1b1b1b1b");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "diagram", "contentType": "text/plain", "content": "source\u00A0text" },
+                  { "name": "keep", "contentType": "text/plain", "content": "clean source" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Name.Should().Be("keep");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void Deserialize_keeps_document_when_content_contains_newlines()
+    {
+        Guid runId = Guid.Parse("1c1c1c1c-1c1c-1c1c-1c1c-1c1c1c1c1c1c");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "documents": [
+                  { "name": "notes", "contentType": "text/plain", "content": "line one\nline two" }
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Documents.Should().ContainSingle()
+            .Which.Content.Should().Be("line one\nline two");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_constraints_when_entry_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

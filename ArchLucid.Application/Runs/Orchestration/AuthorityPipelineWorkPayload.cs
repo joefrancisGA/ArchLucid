@@ -200,7 +200,29 @@ public sealed class AuthorityPipelineWorkPayload
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
         HasUsableProseReferenceText(document.Name)
         && HasUsableDocumentContentType(document.ContentType)
-        && HasUsableIdentifierText(document.Content);
+        && HasUsableMultilineBodyText(document.Content);
+
+    /// <summary>
+    ///     Document and declaration bodies may contain newlines. Reject no-break and other non-ASCII
+    ///     whitespace while keeping ordinary spaces and line breaks.
+    /// </summary>
+    private static bool HasUsableMultilineBodyText(string? value)
+    {
+        if (!HasUsableIdentifierText(value))
+            return false;
+
+        foreach (char character in value!)
+        {
+            if (character == '\u00A0')
+                return false;
+
+            if (char.IsWhiteSpace(character)
+                && character is not ' ' and not '\n' and not '\r' and not '\t')
+                return false;
+        }
+
+        return true;
+    }
 
     /// <summary>
     ///     MIME parameters such as <c>; charset=utf-8</c> contain a space. Judge the type token
@@ -227,6 +249,6 @@ public sealed class AuthorityPipelineWorkPayload
     {
         return HasUsableProseReferenceText(declaration.Name)
                && HasUsableCompactIdentifierText(declaration.Format)
-               && HasUsableIdentifierText(declaration.Content);
+               && HasUsableMultilineBodyText(declaration.Content);
     }
 }

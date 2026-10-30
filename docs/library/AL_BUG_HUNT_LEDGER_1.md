@@ -4583,9 +4583,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — embedded NBSP in constraints survived materialization
+- **last-bug:** 2026-10-30 — embedded NBSP in document content survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted document and infrastructure declaration bodies keeping an embedded no-break space because only `HasUsableIdentifierText` ran on content; bodies now use `HasUsableMultilineBodyText` so NBSP is rejected while newlines stay; regressions `Deserialize_filters_document_when_content_contains_embedded_nbsp` and `Deserialize_keeps_document_when_content_contains_newlines`; scoped payload JSON tests 46/46. Private beta: when an invited operator's deferred authority run includes a source document or infrastructure declaration body with an embedded no-break space, that entry is dropped on resume like document names.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — embedded NBSP in document content survived materialization — **hit 2026-10-30 seed hunt:** `HasUsableMultilineBodyText`; regressions above.
 
 2026-10-30 seed hunt (seed→hit): promoted a constraint entry with an embedded no-break space surviving `MaterializeReferenceStringList` while policy references already rejected NBSP; inline requirements, constraints, and assumptions now use `HasUsableProseReferenceText`; regression `Deserialize_filters_constraints_when_entry_contains_embedded_nbsp`; scoped payload JSON tests 44/44. Private beta: when an invited operator's deferred authority run includes a constraint, assumption, or inline requirement with an embedded no-break space, that entry is dropped on resume like policy references.
 
@@ -4621,11 +4625,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 52
-- **bugs-found:** 28
+- **hunts:** 53
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — embedded NBSP in constraints survived materialization
+- **last-bug:** 2026-10-30 — embedded NBSP in document content survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
