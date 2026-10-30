@@ -42,6 +42,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
+        sb.AppendLine($"| Audit row basis | {FormatSponsorAuditRowBasis(deltas, proof)} |");
         sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
         sb.AppendLine(
             $"| Semantic support | {FirstValueReportSemanticSupportBandSectionFormatter.FormatSponsorStatusTableCell(detail, deltas)} |");
@@ -73,6 +74,23 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
 
         return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
+    }
+
+    private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
+    {
+        if (!proof.AuditRowCountResolved)
+            return "**Not attested** — audit row count query failed; do not cite an audit row count.";
+
+        if (deltas.AuditRowCount == 0)
+            return "**0** audit row(s) for this run.";
+
+        if (deltas.AuditRowCountTruncated)
+        {
+            return
+                $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}+** audit row(s) for this run (query cap reached — count is at least this many).";
+        }
+
+        return $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}** audit row(s) for this run.";
     }
 
     private static string FormatSponsorRoiBasis(

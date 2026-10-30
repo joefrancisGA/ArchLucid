@@ -61,4 +61,66 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
         markdown.Should().Contain("redaction profile was not stored.");
         markdown.Should().Contain("Finding category was not stored.");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_when_audit_row_count_unresolved_emits_not_attested_audit_basis_row()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse
+            {
+                AuditRowCountResolved = false,
+                LlmCallCountResolved = true,
+            },
+            new PilotRunDeltas { AuditRowCount = 0, AuditRowCountResolved = false },
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain("| Audit row basis | **Not attested**");
+        markdown.Should().NotContain("| Audit row basis | **0**");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_audit_row_count_truncated_discloses_cap_on_first_page()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.Sendable,
+            new ProofPackageCompletenessResponse
+            {
+                AuditRowCountResolved = true,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+            },
+            new PilotRunDeltas
+            {
+                AuditRowCount = 500,
+                AuditRowCountResolved = true,
+                AuditRowCountTruncated = true,
+            },
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Pass,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                true,
+                "Pass",
+                "Pass narrative"));
+
+        sb.ToString().Should().Contain("| Audit row basis | **500+**");
+    }
 }
