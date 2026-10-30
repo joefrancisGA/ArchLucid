@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `AuditExportTruncated` without partial-audit qualifier on same row — locus: Summary table; input: audit cap hit with non-zero recommendation count and loaded run details.
-- (candidate) `PilotValueReportService.BuildAsync` — double `GetRunDetailForRoiAsync` for newest committed run when already loaded into timeline during aggregation loop — locus: freshness resolver vs detail loop; input: large tenant with successful detail loads (perf/consistency lens).
-- (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits audit truncation flag while deltas JSON includes `auditRowCountTruncated` — locus: summary vs deltas parity; input: truncated audit row count on committed run.
-- (candidate) `BoardPackPdfBuilder` — board pack PDF period label when override window spans partial calendar quarter — locus: cover period copy vs `BoardPackQuarterWindow.Resolve`; input: mid-quarter override shorter than full quarter.
-- (candidate) `PilotValueReportMarkdownFormatter` — `EscapeCell` pipe escaping on ROI disposition values containing `\|` sequences — locus: metadata ROI row; input: disposition string with markdown pipe characters.
+- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Governance approvals` when `AuditExportTruncated` and `RunDetailsTruncated` both true — locus: Summary table dual truncation; input: audit cap and run-detail cap with non-zero approval tally.
+- (candidate) `PilotValueReportService.BuildAsync` — `TotalRunsCommitted` uses collected inventory count while timeline excludes runs whose detail fetch returned null — locus: aggregation vs timeline parity; input: mixed successful and failed detail loads under cap.
+- (candidate) `BuyerProofPackDeltasJsonFormatter` — serializes ROI freshness disposition without normalizing whitespace-only strings — locus: deltas JSON export; input: whitespace disposition from upstream resolver.
+- (candidate) `BoardPackPdfBuilder` — PDF header footer still says quarterly board pack when custom override period requested — locus: QuestPDF header chrome vs markdown cover; input: POST board-pack.pdf with override bounds.
+- (candidate) `PilotValueReportMarkdownFormatter` — timeline `System name was not stored empty.` vs `stored empty` inconsistency when service emits stored-empty label — locus: EscapeCell vs `FormatPilotValueReportSystemName`; input: whitespace system name on timeline row.
+
+2026-10-30 seed hunt (seed→hit): promoted board pack cover still labeling `Q{quarter} {year}` and claiming a full quarter window when both override bounds are set; extracted `BoardPackPdfCoverCopy` for custom-period title and intro; regressions in `BoardPackPdfCoverCopyTests`; cheap-disproof closed five hunt-59 `(candidate)` rows; seeded five follow-on rows; scoped **39** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: Sponsors who request a shorter board-pack UTC window see cover copy that matches the requested period instead of calendar-quarter-only labeling.
+
+- [x] (proven) `BoardPackPdfBuilder` — cover title and intro when override window set — **hit 2026-10-30 seed hunt:** custom period title + intro via `BoardPackPdfCoverCopy`; regressions `BoardPackPdfCoverCopyTests`. [class:state-machine-gap]
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `AuditExportTruncated` — **cheap-disproof 2026-10-30 seed hunt (hunt 60):** metadata row discloses truncation; regression `Format_when_audit_export_truncated_discloses_truncation_in_metadata_not_summary_recommendations_row`.
+- [x] (invalid) `PilotValueReportService.BuildAsync` — duplicate newest-run detail fetch — **cheap-disproof 2026-10-30 seed hunt (hunt 60):** second fetch is freshness-only; same query idempotent; perf lens not a defect.
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits `auditRowCountTruncated` — **cheap-disproof 2026-10-30 seed hunt (hunt 60):** intentional; regression `Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary`.
+- [x] (invalid) `PilotValueReportMarkdownFormatter` — ROI disposition pipe escaping — **cheap-disproof 2026-10-30 seed hunt (hunt 60):** `FormatRoiSourceFreshnessDispositionCell` already escapes pipes; correct markdown safety.
+- [x] (valid-no-repro) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-week override misleading ISO label — **cheap-disproof 2026-10-30 seed hunt (hunt 60):** clamp bounds digest week; cover honesty fixed separately on title/intro.
 
 2026-10-30 seed hunt (seed→hit): promoted metadata ROI freshness row reusing `EscapeCell`, which mapped empty disposition to `System name was not stored.`; dedicated `FormatRoiSourceFreshnessDispositionCell` now emits `ROI source freshness disposition was not computed.`; regression `Format_when_roi_source_freshness_disposition_empty_does_not_emit_system_name_placeholder`; cheap-disproof closed five prior `(candidate)` rows from hunt 58; seeded five follow-on rows; scoped **60** unit tests passed. Private beta: Inverted-window and other pilot value reports with unset ROI freshness no longer show the system-name placeholder in the freshness metadata row.
 
@@ -16701,11 +16711,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 59
-- **bugs-found:** 41
+- **hunts:** 60
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — ROI freshness metadata reused system-name empty placeholder
+- **last-bug:** 2026-10-30 — board pack cover mislabeled custom override periods as full calendar quarter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
