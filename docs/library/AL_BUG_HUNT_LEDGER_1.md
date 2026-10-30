@@ -5926,6 +5926,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-30 thorough hunt (dry): the only hunt-ready row was a doubled checkbox (`- [ ] - [x] (proven-stale)`) for email-domain `owner`. `ContinuesLexicalTokenBefore` already treats `@` as a token continuation, so `ops@owner.example.com` does not start an ownership marker. Existing regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. The inverse, dropping a real owner token that follows `@`, has no architecture-prose citation beyond that email label. No production code changed. Private beta: n/a.
+
 2026-10-23 thorough hunt (hit): proved markdown bold `**owner**` RACI labels still matched as prose ownership tokens when `unowned` appeared elsewhere, falsely emitting Unowned component; fixed by treating `*` as ownership label delimiter (same class as backticks and quotes); matrix regression `markdown-bold-owner`; 82 scoped DifficultyBasedExtractionRouter tests passed. Private beta: architecture-intelligence extraction on pasted runbooks and workshop notes no longer invents operational-ownership gaps from emphasized RACI column headers.
 
 2026-10-23 thorough hunt (hit): promoted spaced lifecycle synonyms `as is` / `to be` (hyphenated forms already recognized); dual-lifecycle transition and ambiguous classification now use bounded phrase markers; regressions `Extract_tags_spaced_as_is_and_to_be_elements_with_lifecycle_scope`, `Classify_returns_ambiguous_for_spaced_as_is_and_to_be_prose`, and `Classify_does_not_treat_gas_is_substring_as_spaced_as_is_marker`; cheap-disproved proven-stale email-domain `owner` picker row; seeded five mechanism-backed `(candidate)` rows below; 81 scoped DifficultyBasedExtractionRouter tests passed.
@@ -5986,13 +5988,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — markdown bold `**owner**` false ownership token
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
@@ -6063,7 +6065,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
-- [ ] - [x] (proven-stale) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` via `@` start boundary — **proven 2026-10-20**; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. (supersedes candidate), paired with a separate `unowned` mention, can match `owner` because `@` is accepted as a start boundary and emit a false operational-ownership gap; input originates from architecture source prose containing email addresses.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` via `@` start boundary — **cheap-disproof 2026-10-30 thorough hunt:** doubled open checkbox over the 2026-10-20 proven row. `ContinuesLexicalTokenBefore` includes `@`. Regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
 
 ---
 
