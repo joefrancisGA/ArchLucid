@@ -247,12 +247,17 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsBearerAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int bearerIndex = trimmed.IndexOf("Bearer ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int bearerIndex = trimmed.IndexOf("Bearer".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (bearerIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(bearerIndex + "Bearer ".Length).Trim();
+        ReadOnlySpan<char> afterBearer = trimmed.Slice(bearerIndex + "Bearer".Length);
+
+        if (afterBearer.IsEmpty || !char.IsWhiteSpace(afterBearer[0]))
+            return false;
+
+        ReadOnlySpan<char> token = afterBearer.Trim();
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -344,20 +349,19 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsNtlmAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int ntlmIndex = trimmed.IndexOf("NTLM ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int ntlmIndex = trimmed.IndexOf("NTLM".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (ntlmIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(ntlmIndex + "NTLM ".Length).Trim();
-        int end = 0;
+        ReadOnlySpan<char> afterNtlm = trimmed.Slice(ntlmIndex + "NTLM".Length);
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
+        if (afterNtlm.IsEmpty || !char.IsWhiteSpace(afterNtlm[0]))
+            return false;
 
-        token = token.Slice(0, end);
+        ReadOnlySpan<char> token = afterNtlm.Trim();
 
-        return token.Length >= 8;
+        return CollapsedBearerCredentialLength(token) >= 8;
     }
 
     private static bool ContainsSetCookieHeaderCredentials(ReadOnlySpan<char> trimmed)

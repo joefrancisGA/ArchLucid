@@ -10137,6 +10137,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ntlm_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: NTLM\nTlRMTVNTUAABAAA";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_missing_base64_padding_character()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXM";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Bearer\neyJhbGciOiJIUzI1NiJ9";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_a_before_long_s_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Cs=123456789";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_negotiate_token_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Negotiate YWRtaW\n46cGFzcw==";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
