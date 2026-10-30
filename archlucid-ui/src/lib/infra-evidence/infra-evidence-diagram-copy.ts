@@ -153,6 +153,9 @@ export const INFRA_EVIDENCE_DIAGRAM_NEIGHBOR_ON_VIEW_ISOLATION_DISCLAIMER =
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED =
   "Observed (inventory stored; not live traffic)";
 
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED =
+  "Derived (structural; not observed traffic)";
+
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED = "Inferred";
