@@ -15653,8 +15653,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — hash-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-30 — exclamation-delimited Basic challenge segment redaction in config summary
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — exclamation-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-30 — caret-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-30 — underscore-delimited Basic challenge segment redaction in config summary
 - **last-bug:** 2026-10-30 — equals-delimited Basic challenge segment redaction in config summary
