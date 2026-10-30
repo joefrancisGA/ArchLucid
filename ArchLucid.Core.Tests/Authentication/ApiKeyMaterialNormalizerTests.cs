@@ -209,4 +209,17 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize(char.ConvertFromUtf32(0xE0020)).Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_supplement_embedded_in_key_material()
+    {
+        string withVs = "sec" + char.ConvertFromUtf32(0xE0100) + "ret-admin";
+        ApiKeyMaterialNormalizer.Normalize(withVs).Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_variation_selector_supplement_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize(char.ConvertFromUtf32(0xE0100)).Should().BeEmpty();
+    }
 }

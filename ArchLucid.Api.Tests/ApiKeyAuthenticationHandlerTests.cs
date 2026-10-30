@@ -601,6 +601,50 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_header_has_embedded_language_tag_char_and_config_is_plain_still_authenticates()
+    {
+        string headerKey = "sec" + char.ConvertFromUtf32(0xE0020) + "ret-admin";
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", headerKey);
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_config_has_embedded_variation_selector_supplement_still_authenticates()
+    {
+        string adminKey = "sec" + char.ConvertFromUtf32(0xE0100) + "ret-admin";
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = adminKey
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task When_enabled_true_and_duplicate_api_key_headers_skip_variation_selector_only_first_value()
     {
         DefaultHttpContext http = new();

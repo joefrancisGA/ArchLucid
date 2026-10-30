@@ -47,8 +47,15 @@ public static class ApiKeyMaterialNormalizer
         if (rune.IsBmp)
             return IsInvisibleKeyMaterialBmpChar((char)rune.Value);
 
-        // Supplementary-plane format characters (for example U+E0020 language tag) paste invisibly as UTF-16 surrogate pairs.
-        return Rune.GetUnicodeCategory(rune) == UnicodeCategory.Format;
+        UnicodeCategory supplementaryCategory = Rune.GetUnicodeCategory(rune);
+
+        if (supplementaryCategory is UnicodeCategory.Format
+            or UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark)
+            return true;
+
+        return false;
     }
 
     private static bool IsInvisibleKeyMaterialBmpChar(char character)
