@@ -25,7 +25,8 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered);
+            && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
+            && edge.Label!.StartsWith(InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -47,7 +48,8 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered).Should().Be(2);
+            && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
+            && edge.Label!.StartsWith(InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal)).Should().Be(2);
     }
 
     [Fact]

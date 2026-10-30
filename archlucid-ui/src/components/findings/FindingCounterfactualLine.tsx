@@ -8,6 +8,7 @@ import {
   extractCounterfactualFromQuickDecisionFinding,
   FINDING_COUNTERFACTUAL_NOT_STORED,
   FINDING_COUNTERFACTUAL_STORED_EMPTY,
+  FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE,
   formatFindingCounterfactualPresentation,
 } from "@/lib/findings/finding-counterfactual-line";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -42,7 +43,9 @@ export function FindingCounterfactualLine(props: FindingCounterfactualLineProps)
   const presentation =
     line === null
       ? FINDING_COUNTERFACTUAL_NOT_STORED
-      : formatFindingCounterfactualPresentation(line);
+      : line === FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE
+        ? FINDING_COUNTERFACTUAL_WIRE_NOT_READABLE
+        : formatFindingCounterfactualPresentation(line);
 
   return (
     <p

@@ -63,7 +63,8 @@ public static class ArchitectureMandatedMarkdownSections
             static assumption => $"- {assumption}",
             "Assumptions were not stored.",
             "Assumptions were stored empty.",
-            "Assumption was stored empty.");
+            "Assumption was stored empty.",
+            "Assumption was not stored.");
     }
 
     private static void AppendConstraints(StringBuilder markdown, ManifestDocument manifest)
@@ -111,7 +112,8 @@ public static class ArchitectureMandatedMarkdownSections
             static pattern => $"- Pattern: {pattern}",
             "Architecture patterns were not stored.",
             "Architecture patterns were stored empty.",
-            "Pattern was stored empty.");
+            "Pattern was stored empty.",
+            "Pattern was not stored.");
     }
 
     private static void AppendComponentBreakdown(StringBuilder markdown, ManifestDocument manifest)
@@ -484,7 +486,8 @@ public static class ArchitectureMandatedMarkdownSections
         Func<string, string> formatLine,
         string notStoredFallback,
         string storedEmptyFallback,
-        string whitespaceItemLabel)
+        string whitespaceItemLabel,
+        string nullItemLabel)
     {
         ArgumentNullException.ThrowIfNull(markdown);
         ArgumentNullException.ThrowIfNull(formatLine);
@@ -497,10 +500,13 @@ public static class ArchitectureMandatedMarkdownSections
 
         List<string> lines = [];
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
             if (item is null)
+            {
+                lines.Add(formatLine(nullItemLabel));
                 continue;
+            }
 
             if (item.Length == 0 || item.Trim().Length == 0)
             {

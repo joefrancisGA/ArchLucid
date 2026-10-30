@@ -32,11 +32,15 @@ export type InfraEvidenceDeclaredConnectionDetailPanelProps = {
 };
 
 function formatStoredField(value: string | null | undefined, fieldLabel: string): string {
-  if (value == null || value.trim().length === 0) {
+  if (value == null) {
     return `${fieldLabel} was not stored.`;
   }
 
-  return value;
+  if (value.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return value.trim();
 }
 
 function formatExpiration(value: string | null | undefined): string {

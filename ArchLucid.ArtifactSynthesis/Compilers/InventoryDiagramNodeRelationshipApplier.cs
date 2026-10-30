@@ -246,13 +246,12 @@ internal static class InventoryDiagramNodeRelationshipApplier
                     string? resolvedNextHopName = ast.Nodes
                         .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
                         ?.Label;
-                    string edgeLabel = BuildRouteEdgeLabel(route, resolvedNextHopName);
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = subnetDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, edgeLabel),
-                        ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                        Label = BuildRouteEdgeLabel(route, resolvedNextHopName),
+                        ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryRouteTableRoute,
                     });
                 }
@@ -344,6 +343,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             if (string.IsNullOrWhiteSpace(association.TargetArmId))
             {
+                hadStoredAssociationTarget = true;
                 continue;
             }
 
@@ -367,7 +367,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
             {
                 Reason = hadStoredAssociationTarget
-                    ? "nsg-unattached-off-diagram"
+                    ? associations.Any(association => string.IsNullOrWhiteSpace(association.TargetArmId))
+                        ? "nsg-association-target-id-not-stored"
+                        : "nsg-unattached-off-diagram"
                     : "nsg-unattached",
                 FromNodeId = nsgNode.NodeId,
                 ToNodeId = null,

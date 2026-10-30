@@ -29,7 +29,8 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ArgumentNullException.ThrowIfNull(buyerSafeGate);
 
         List<ArchitectureFinding> materialFindings = CollectMaterialFindings(detail, deltas);
-        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, detail.IsCommitted);
+        int materialFindingTotal = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas).Count;
+        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, materialFindingTotal, detail.IsCommitted);
         string nonObviousRationale = BuildNonObviousRationale(materialFindings, deltas, proof);
         SponsorNoveltyConfidence noveltyConfidence = ResolveNoveltyConfidence(materialFindings, deltas, proof, buyerSafeGate);
         string evidenceClassLabel = ResolveEvidenceClassLabel(proof, buyerSafeGate, deltas);
@@ -52,7 +53,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             .ToList();
     }
 
-    private static string BuildDecisionDeltaSummary(IReadOnlyList<ArchitectureFinding> findings, bool isCommitted)
+    private static string BuildDecisionDeltaSummary(
+        IReadOnlyList<ArchitectureFinding> findings,
+        int materialFindingTotal,
+        bool isCommitted)
     {
         if (!isCommitted)
         {
@@ -79,6 +83,13 @@ public static class SponsorDecisionDeltaNoveltyResolver
             {
                 sb.Append("<br />");
             }
+        }
+
+        if (materialFindingTotal > findings.Count)
+        {
+            sb.Append("<br />");
+            sb.Append(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsRemainderSuffix);
+            sb.Append(CultureInfo.InvariantCulture, $" ({findings.Count} listed; {materialFindingTotal} material findings stored.)");
         }
 
         return sb.ToString();
