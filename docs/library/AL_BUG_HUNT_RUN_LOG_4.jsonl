@@ -2914,3 +2914,4 @@
 {"at":"2026-10-30T20:31:31.1152340Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T20:34:12.0781291Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T20:42:46.8006733Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Composition/)"]}
+{"at":"2026-10-30T20:45:42.4766297Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/)"]}
