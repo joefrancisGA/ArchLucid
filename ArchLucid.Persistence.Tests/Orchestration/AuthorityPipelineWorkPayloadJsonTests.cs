@@ -363,6 +363,29 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_constraints_when_entry_contains_embedded_nbsp()
+    {
+        Guid runId = Guid.Parse("1a1a1a1a-1a1a-1a1a-1a1a-1a1a1a1a1a1a");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "constraints": ["https\u00A0only", "https-only"]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.Constraints.Should().Equal("https-only");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_required_capabilities_when_entry_contains_embedded_combining_mark()
     {
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

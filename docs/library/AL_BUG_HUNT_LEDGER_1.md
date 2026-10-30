@@ -4583,9 +4583,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a spaced infrastructure declaration name was dropped
+- **last-bug:** 2026-10-30 — embedded NBSP in constraints survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted a constraint entry with an embedded no-break space surviving `MaterializeReferenceStringList` while policy references already rejected NBSP; inline requirements, constraints, and assumptions now use `HasUsableProseReferenceText`; regression `Deserialize_filters_constraints_when_entry_contains_embedded_nbsp`; scoped payload JSON tests 44/44. Private beta: when an invited operator's deferred authority run includes a constraint, assumption, or inline requirement with an embedded no-break space, that entry is dropped on resume like policy references.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.MaterializeReferenceStringList` — embedded NBSP in constraints survived materialization — **hit 2026-10-30 seed hunt:** route through `HasUsableProseReferenceText`; regression `Deserialize_filters_constraints_when_entry_contains_embedded_nbsp`.
 
 2026-10-30 seed hunt (seed→hit): promoted `core network` being dropped because infrastructure declaration names still used compact identifier checks; names now use `HasUsableProseReferenceText` and format tokens stay compact; regression `Deserialize_keeps_infrastructure_declaration_when_name_contains_internal_spaces`; scoped payload JSON tests 43/43. Private beta: when an invited operator's deferred authority run includes an infrastructure declaration whose name contains spaces, that declaration stays in the resumed pipeline.
 
@@ -4617,11 +4621,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 51
-- **bugs-found:** 27
+- **hunts:** 52
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — a spaced infrastructure declaration name was dropped
+- **last-bug:** 2026-10-30 — embedded NBSP in constraints survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

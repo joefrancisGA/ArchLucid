@@ -154,7 +154,7 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableIdentifierText(value))
+            .Where(static value => value is not null && HasUsableProseReferenceText(value))
             .ToList();
     }
 
@@ -169,8 +169,9 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     /// <summary>
-    ///     Policy references, topology hints, security baselines, and capability lines are sentences.
-    ///     Ordinary spaces stay. Whitespace other than U+0020 still fails because those consumers only trim the ends.
+    ///     Inline requirements, constraints, assumptions, policy references, topology hints, security baselines,
+    ///     and capability lines are prose. Ordinary spaces stay. Whitespace other than U+0020 still fails because
+    ///     those consumers only trim the ends.
     /// </summary>
     private static bool HasUsableProseReferenceText(string? value)
     {
