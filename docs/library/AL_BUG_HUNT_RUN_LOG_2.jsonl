@@ -2231,3 +2231,4 @@
 {"at":"2026-10-30T22:07:03.0000000Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantOrganizationDuplicateDetector.cs","ArchLucid.Application.Tests/Tenancy/TenantOrganizationDuplicateDetectorTests.cs","docs/library/AL_BUG_HUNT_LEDGER_2.md"]}
 {"at":"2026-10-30T22:13:58.8188266Z","zoneId":"api-key-auth","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:20:46.1325499Z","zoneId":"api-key-auth","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T22:38:28.3480521Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}

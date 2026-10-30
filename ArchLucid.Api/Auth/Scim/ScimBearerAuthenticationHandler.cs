@@ -170,7 +170,7 @@ internal class ScimBearerAuthenticationHandler(
     }
 
     private static IEnumerable<string> SplitAuthorizationCredentialSegments(string headerValue) =>
-        headerValue.Split([',', ';', '|', '\v', '\f', '\0', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        headerValue.Split([',', ';', '|', '\uFF5C', '\v', '\f', '\0', '\n', '\r'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
     private static bool TryReadBearerCredentialSegment(string segment, out string bearerToken)
     {
@@ -185,10 +185,35 @@ internal class ScimBearerAuthenticationHandler(
             return true;
         }
 
-        if (!char.IsWhiteSpace(segment[6]))
-            return false;
+        ReadOnlySpan<char> tail = segment.AsSpan(6);
 
-        bearerToken = segment[6..].Trim();
+        if (char.IsWhiteSpace(tail[0]))
+        {
+            bearerToken = tail.Trim().ToString();
+            return true;
+        }
+
+        if (IsBearerDelimiterOnlyPlaceholder(tail))
+        {
+            bearerToken = string.Empty;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
+    {
+        foreach (char character in tail)
+        {
+            if (character is '|' or '\uFF5C')
+                continue;
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            return false;
+        }
 
         return true;
     }
