@@ -592,6 +592,27 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_roi_source_freshness_disposition_empty_does_not_emit_system_name_placeholder()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(1),
+            TotalRunsCommitted = 0,
+            RoiSourceFreshnessDisposition = string.Empty,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain(
+            "| ROI source freshness disposition | ROI source freshness disposition was not computed. |");
+        markdown.Should().NotContain("| ROI source freshness disposition | System name was not stored. |");
+    }
+
+    [Fact]
     public void Format_labels_empty_agent_types_system_name_and_missing_commit_time()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());

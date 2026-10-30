@@ -78,7 +78,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             $"| Committed-run inventory truncated | {r.CommittedRunsInventoryTruncated} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| ROI source freshness disposition | {EscapeCell(r.RoiSourceFreshnessDisposition)} |");
+            $"| ROI source freshness disposition | {FormatRoiSourceFreshnessDispositionCell(r.RoiSourceFreshnessDisposition)} |");
         sb.AppendLine();
 
         sb.AppendLine("## Summary");
@@ -251,6 +251,14 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             return $"{s / 3600:0.##} h";
 
         return s >= 60 ? $"{s / 60:0.##} min" : $"{s:0.##} s";
+    }
+
+    private static string FormatRoiSourceFreshnessDispositionCell(string disposition)
+    {
+        if (string.IsNullOrEmpty(disposition))
+            return "ROI source freshness disposition was not computed.";
+
+        return disposition.Replace("|", "\\|", StringComparison.Ordinal);
     }
 
     private static string EscapeCell(string value)

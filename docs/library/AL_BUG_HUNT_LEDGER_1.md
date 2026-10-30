@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Policy pack assignments` when `AuditExportTruncated` true without audit-window partial qualifier — locus: Summary table; input: truncated audit export with non-zero policy assignment tally and full run-detail sample.
-- (candidate) `PilotValueReportService.BuildAsync` — `RoiSourceFreshnessDisposition` left empty when latest in-window committed run detail fetch returns null but an older run detail loaded into timeline — locus: post-loop freshness resolver; input: newest run id missing detail, prior run present in `runsForDetails`.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest `demoDataWarning` true while limitations omit demo bullet when `isSampleRun` set without `isDemoTenant` on deltas JSON — locus: caution flag wiring; input: sample-run deltas with demo flag false.
-- (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — override window shorter than seven days where clamped `weekEndUtc` minus `weekStartUtc` is under one day and ExecDigest week label spans misleading calendar days — locus: clamped ISO week inside sub-week override; input: two-day override straddling ISO Monday boundary.
-- (candidate) `PilotValueReportMarkdownFormatter` — metadata `Run-detail cap` when `RunDetailsTruncated` true and timeline non-empty but `TotalRunsCommitted` equals `RunDetailCap` exactly — locus: cap row else branch; input: committed count equals cap with partial timeline rows.
+- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Recommendations generated (audit)` when `AuditExportTruncated` without partial-audit qualifier on same row — locus: Summary table; input: audit cap hit with non-zero recommendation count and loaded run details.
+- (candidate) `PilotValueReportService.BuildAsync` — double `GetRunDetailForRoiAsync` for newest committed run when already loaded into timeline during aggregation loop — locus: freshness resolver vs detail loop; input: large tenant with successful detail loads (perf/consistency lens).
+- (candidate) `BuyerProofPackArtifactSummaryBuilder` — compact summary omits audit truncation flag while deltas JSON includes `auditRowCountTruncated` — locus: summary vs deltas parity; input: truncated audit row count on committed run.
+- (candidate) `BoardPackPdfBuilder` — board pack PDF period label when override window spans partial calendar quarter — locus: cover period copy vs `BoardPackQuarterWindow.Resolve`; input: mid-quarter override shorter than full quarter.
+- (candidate) `PilotValueReportMarkdownFormatter` — `EscapeCell` pipe escaping on ROI disposition values containing `\|` sequences — locus: metadata ROI row; input: disposition string with markdown pipe characters.
+
+2026-10-30 seed hunt (seed→hit): promoted metadata ROI freshness row reusing `EscapeCell`, which mapped empty disposition to `System name was not stored.`; dedicated `FormatRoiSourceFreshnessDispositionCell` now emits `ROI source freshness disposition was not computed.`; regression `Format_when_roi_source_freshness_disposition_empty_does_not_emit_system_name_placeholder`; cheap-disproof closed five prior `(candidate)` rows from hunt 58; seeded five follow-on rows; scoped **60** unit tests passed. Private beta: Inverted-window and other pilot value reports with unset ROI freshness no longer show the system-name placeholder in the freshness metadata row.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `ROI source freshness disposition` when empty — **hit 2026-10-30 seed hunt:** wrong `EscapeCell` placeholder; regression `Format_when_roi_source_freshness_disposition_empty_does_not_emit_system_name_placeholder`. [class:other]
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — Summary `Policy pack assignments` when `AuditExportTruncated` — **cheap-disproof 2026-10-30 seed hunt (hunt 59):** audit-window totals by design; saturated sibling of governance/recommendation rows.
+- [x] (invalid) `PilotValueReportService.BuildAsync` — empty freshness when latest detail null — **cheap-disproof 2026-10-30 seed hunt (hunt 59):** `PilotValueReportRoiFreshnessResolver` returns `PASS` for null detail, not empty string; empty only on `EmptyReport`.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — `isSampleRun` without demo limitations bullet — **cheap-disproof 2026-10-30 seed hunt (hunt 59):** shared `demoDataWarning`/`cautionWarning` drives limitations markdown.
+- [x] (valid-no-repro) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-week override ISO clamp — **cheap-disproof 2026-10-30 seed hunt (hunt 59):** positive-span clamp preserves ordered week bounds; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — run-detail cap when `TotalRunsCommitted` equals cap — **cheap-disproof 2026-10-30 seed hunt (hunt 59):** `RunDetailsTruncated` false when count equals cap; cap row `(truncated: false)` is accurate.
 
 2026-10-30 seed hunt (seed→hit): promoted metadata `Run-detail cap` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false still emitted `(truncated: False)` without admitting zero detail loads; aligned cap row with partial-sample honesty; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five follow-on `(candidate)` rows; scoped **59** `BuyerProofPack`/`BoardPack`/`PilotValueReportMarkdownFormatter` unit tests passed. Private beta: Pilot value report exports no longer imply the run-detail cap was unused when every in-window committed run failed to load for detail—sponsors see explicit zero-loaded wording on the cap row.
 
@@ -16691,11 +16701,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 58
-- **bugs-found:** 40
+- **hunts:** 59
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — pilot value report run-detail cap row when zero detail loads
+- **last-bug:** 2026-10-30 — ROI freshness metadata reused system-name empty placeholder
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
