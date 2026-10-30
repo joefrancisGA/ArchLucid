@@ -315,15 +315,8 @@ public sealed class SponsorOnePagerPdfBuilder(
             : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
     }
 
-    private static string FormatAuditRows(PilotRunDeltas deltas)
-    {
-        if (!deltas.AuditRowCountResolved)
-            return "Audit row count was not attested.";
-
-        if (deltas.AuditRowCount == 0)
-            return "0";
-        return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatAuditRows(PilotRunDeltas deltas) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatPlainText(deltas);
 
     private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
         PilotRunDeltasLlmCallCountFormatter.FormatPlainText(deltas);

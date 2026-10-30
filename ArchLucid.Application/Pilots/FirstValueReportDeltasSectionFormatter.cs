@@ -106,17 +106,8 @@ public static class FirstValueReportDeltasSectionFormatter
             : $"**{wall:c}** (committed {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.ManifestCommittedUtc?.ToString("O", CultureInfo.InvariantCulture) ?? "Committed time was not stored.")})";
     }
 
-    private static string FormatAuditRowCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.AuditRowCountResolved)
-            return "Audit row count was not attested.";
-
-        if (deltas.AuditRowCount == 0)
-            return "0";
-        return deltas.AuditRowCountTruncated
-            ? $"{deltas.AuditRowCount}+ _(query cap reached — exact count is at least this many)_"
-            : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
 
     private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
         PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
