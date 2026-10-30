@@ -2,6 +2,11 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #83 (dry): cheap-disproof closed both seeded post-commit candidates — existing regressions cover success-toast and router-transition failures after committed registration, and intentionally retain the disabled “Creating” state to prevent duplicate signup requests. Full SignupForm suite passed 140/140; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when navigation throws after successful register` and `keeps Creating label on the submit button after successful register until navigation` cover the committed-registration boundary; no new failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when success toast throws after successful register` covers the toast failure; no new failing repro.
+
 2026-10-30 seed hunt #82 (seed-only): re-read `SignupForm`, `signupFormSchema`, and the 140-test SignupForm suite; existing regressions cover validation gates, retry guards, response parsing, attribution, storage failures, and keyboard submission. No new hunt-ready row was promoted; seeded two bounded post-commit navigation candidates.
 
 - [ ] (candidate) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state; input: a valid signup receives `200`/`201` and `router.push` rejects after the tenant is created.
@@ -325,9 +330,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
