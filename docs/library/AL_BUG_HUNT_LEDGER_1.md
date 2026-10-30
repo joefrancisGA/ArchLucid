@@ -16997,6 +16997,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `RequirementRedundancyParser.GeoRedundancyRegex` whole-word `grs`, which does not match Azure SKUs `RAGRS`, `GZRS`, or `RA-GZRS`, so a locally redundant account linked to that requirement produced no SKU-tier gap; the geo pattern now includes those abbreviations; regressions `TryParse_detects_azure_geo_sku_abbreviations` and `AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1389/1403** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when a pilot requirement says the store must use RAGRS or GZRS and the linked account is locally redundant, the review flags that single-region SKU.
+
+- [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
+
 2026-10-29 seed hunt (seed→hit): promoted `IdentityPathAnalyzer` visit state that keyed only on node id, so a Key Vault Secrets User assignment linked before Contributor marked the vault visited and dropped the write path; visit identity is now the node plus the write role carried in; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1385/1399** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when a pilot machine identity has both a key-vault reader role and Contributor on the same vault, the blast-radius path still names Contributor. Cheap-disproof closed two open `(candidate)` rows (`networking` product-prefix is the documented five-letter rule; `non private endpoint` is already rejected by `ContainsStandalonePhrase`).
 
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** `TokenContainsKeyword` documents that a keyword of five letters or more may prefix a longer product token, and names `network` in `networking` as that rule.
@@ -17011,10 +17017,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `invulnerability` vs `vulnerab` — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement` (2026-10-16).
 - [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** `RequestConstraintTokenMatcher.ImmediateSuffixIndicatesNegation` treats `is optional` suffix as negation before `TextAffirmsPrivateEndpoint` affirms.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — serverless scope with `non-network` constraint still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; theme path does not scan bare `network` keyword.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
-- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
-- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
 
 2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
@@ -17054,11 +17057,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 57
-- **bugs-found:** 47
+- **hunts:** 58
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — reader role assignment hid a Contributor blast-radius path to the same key vault
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — RAGRS and GZRS requirement text skipped the single-region SKU gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17165,6 +17168,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `RequirementRedundancyParser.GeoRedundancyRegex` — `RAGRS`, `GZRS`, and `RA-GZRS` requirement text did not count as geo redundancy, so an LRS datastore produced no SKU-tier finding — **hit 2026-10-30 seed hunt:** geo pattern includes those abbreviations; regressions `TryParse_detects_azure_geo_sku_abbreviations` and `AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku`. [class:other]
 
 - [x] (proven) `IdentityPathAnalyzer` — Key Vault Secrets User assignment linked before Contributor hid the write path to the same vault — **hit 2026-10-29 seed hunt:** visit identity is node id plus the carried write role; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`. [class:state-machine-gap]
 
