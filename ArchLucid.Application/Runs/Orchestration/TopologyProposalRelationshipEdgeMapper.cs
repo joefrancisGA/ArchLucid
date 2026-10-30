@@ -125,12 +125,29 @@ public static class TopologyProposalRelationshipEdgeMapper
             if (terraformEndpointIdentity is null)
                 continue;
 
+            bool dataSourceAddress = IsTerraformDataSourceAddress(canonicalSourceId);
+
+            if (dataSourceAddress
+                && !string.IsNullOrWhiteSpace(node.NodeId)
+                && endpointKeyToNodeId.TryGetValue(terraformEndpointIdentity, out string? leafOwner)
+                && string.Equals(leafOwner, node.NodeId, StringComparison.Ordinal)
+                && !string.Equals(canonicalSourceId, terraformEndpointIdentity, StringComparison.OrdinalIgnoreCase))
+            {
+                // A data source leaf is azurerm_<type>.<name> after the data mode segment is dropped.
+                // That key is the managed resource address and must stay available for the managed node.
+                endpointKeyToNodeId.Remove(terraformEndpointIdentity);
+            }
+
+            string sharedLeafKey = dataSourceAddress
+                ? "data." + terraformEndpointIdentity
+                : terraformEndpointIdentity;
+
             if (!string.IsNullOrWhiteSpace(node.NodeId))
             {
-                if (!sharedLeafNodeIds.TryGetValue(terraformEndpointIdentity, out List<string>? leafNodes))
+                if (!sharedLeafNodeIds.TryGetValue(sharedLeafKey, out List<string>? leafNodes))
                 {
                     leafNodes = [];
-                    sharedLeafNodeIds[terraformEndpointIdentity] = leafNodes;
+                    sharedLeafNodeIds[sharedLeafKey] = leafNodes;
                 }
 
                 if (!leafNodes.Contains(node.NodeId))
@@ -505,5 +522,56 @@ public static class TopologyProposalRelationshipEdgeMapper
         return ambiguousIndexedTerraformEndpointIdentities.Contains(withoutInstanceKey)
             ? withoutInstanceKey
             : null;
+    }
+
+    /// <summary>
+    ///     Terraform data sources are <c>data.&lt;type&gt;.&lt;name&gt;</c>, including inside a module
+    ///     (<c>module.network.data.azurerm_app_service.main</c>). A module whose name is <c>data</c>
+    ///     (<c>module.data.azurerm_app_service.main</c>) is a managed resource.
+    /// </summary>
+    private static bool IsTerraformDataSourceAddress(string terraformAddress)
+    {
+        string? leaf =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(terraformAddress);
+
+        if (leaf is null
+            || !terraformAddress.EndsWith(leaf, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        int typeIndex = terraformAddress.Length - leaf.Length;
+        const string dataPrefix = "data.";
+
+        if (typeIndex < dataPrefix.Length)
+            return false;
+
+        if (!terraformAddress.AsSpan(typeIndex - dataPrefix.Length, dataPrefix.Length)
+                .Equals(dataPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        int dataSegmentStart = typeIndex - dataPrefix.Length;
+
+        if (dataSegmentStart == 0)
+            return true;
+
+        if (terraformAddress[dataSegmentStart - 1] != '.')
+            return false;
+
+        int previousEnd = dataSegmentStart - 1;
+        int dotBeforePrevious = previousEnd == 0
+            ? -1
+            : terraformAddress.LastIndexOf('.', previousEnd - 1);
+        int previousStart = dotBeforePrevious + 1;
+        int previousLength = previousEnd - previousStart;
+
+        if (previousLength <= 0)
+            return true;
+
+        ReadOnlySpan<char> previous = terraformAddress.AsSpan(previousStart, previousLength);
+
+        return !previous.Equals("module", StringComparison.OrdinalIgnoreCase);
     }
 }
