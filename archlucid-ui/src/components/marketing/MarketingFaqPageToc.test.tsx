@@ -32,4 +32,10 @@ describe("MarketingFaqPageToc", () => {
     expect(window.location.hash).toBe("#security-trust");
     expect(scrollIntoView).toHaveBeenCalled();
   });
+
+  it("marks the active category as the current in-page location", () => {
+    render(<MarketingFaqPageToc categories={categories} />);
+
+    expect(screen.getByRole("link", { name: "Security and trust" })).toHaveAttribute("aria-current", "location");
+  });
 });

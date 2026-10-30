@@ -7893,6 +7893,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #78 (hit): proved the marketing FAQ TOC announced its active in-page section with `aria-current="page"` instead of the `location` value used by the equivalent privacy-policy TOC, causing assistive technology to describe a section location as the current page; changed the active value to `location` and added `marks the active category as the current in-page location` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC suite passed 2/2. Private beta: invited buyers using screen readers can now distinguish the active FAQ section as an in-page location instead of hearing it announced as the current page.
+
+- [x] (proven) `MarketingFaqPageToc` — the active FAQ category link uses `aria-current="page"` for in-page navigation, unlike the privacy TOC’s `aria-current="location"` contract — **hit 2026-10-30 seed hunt #78:** use the `location` value and cover the active category announcement in `MarketingFaqPageToc.test.tsx`.
+
 2026-10-30 seed hunt #77 (hit): proved the bottom “Open another illustrative sample” link scrolled to the sample section without selecting the sample path, leaving the section visually de-emphasized after the click; wired the link through the existing sample-path selector and added `selects the sample path when the bottom sample link is activated` in `get-started.test.tsx`. Focused get-started suite passed 9/9. Private beta: invited buyers who follow the lower-page sample CTA now see the sample path selected instead of landing on a visually muted section that still presents the trial path as active.
 
 - [x] (proven) `GetStartedPageClient` — the lower “Open another illustrative sample” link scrolls to `#choose-sample` without selecting the sample path, so the destination remains visually de-emphasized — **hit 2026-10-30 seed hunt #77:** call `selectSamplePath` from the link and cover the selected-state transition in `get-started.test.tsx`.
@@ -8151,11 +8155,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 51
-- **bugs-found:** 45
+- **hunts:** 52
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Get-started sample path selection
+- **last-bug:** 2026-10-30 — FAQ TOC current-location semantics
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
