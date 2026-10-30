@@ -2869,3 +2869,4 @@
 {"at":"2026-10-30T17:32:57.2442042Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T17:34:13.8123615Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T17:35:29.7464946Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T17:38:34.7765985Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared"}
