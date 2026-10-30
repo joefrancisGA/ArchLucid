@@ -200,7 +200,9 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = responderLabel.Trim();
 
-        return trimmed.Length > 0 ? $" — {trimmed}" : " — Responder was stored empty.";
+        return trimmed.Length > 0
+            ? $" — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
+            : " — Responder was stored empty.";
     }
 
     internal static string FormatAssertedTrailQuestionIdSuffix(string? questionId)
@@ -212,7 +214,9 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = questionId.Trim();
 
-        return trimmed.Length > 0 ? $" — Question id: {trimmed}" : " — Question id was stored empty.";
+        return trimmed.Length > 0
+            ? $" — Question id: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
+            : " — Question id was stored empty.";
     }
 
     internal static string FormatAssertedTrailRecordedUtcSuffix(DateTime? recordedUtc)

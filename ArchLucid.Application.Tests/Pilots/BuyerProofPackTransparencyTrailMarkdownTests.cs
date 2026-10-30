@@ -73,4 +73,30 @@ public sealed class BuyerProofPackTransparencyTrailMarkdownTests
         markdown.Should().Contain("`Ship -evil`");
         markdown.Split('\n').Should().NotContain("- evil");
     }
+
+    [Fact]
+    public void Transparency_trail_when_asserted_responder_label_contains_newline_does_not_emit_extra_bullet()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted =
+            [
+                new AssertedTrailEntry
+                {
+                    Key = "businessOutcome",
+                    Value = "Ship",
+                    ResponderLabel = "Room\n-evil",
+                },
+            ],
+            Inferred = [],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("`Room -evil`");
+        markdown.Split('\n').Should().NotContain("- evil");
+    }
 }
