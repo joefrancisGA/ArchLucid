@@ -366,4 +366,68 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
         row.Split('|').Should().HaveCountGreaterThan(3);
         row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
     }
+
+    [Fact]
+    public void Computed_deltas_table_when_muted_only_empty_severity_findings_source_aligns_with_muted_total_copy()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsBySeverity = [],
+            MutedFindingsExcludedCount = 2,
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            LlmCallCountResolved = true,
+            LlmCallCount = 0,
+            AuditRowCountResolved = true,
+            AuditRowCount = 0,
+        };
+
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        string mutedCopy = PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel;
+        row.Should().Contain(mutedCopy);
+        row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
+        row.Should().NotContain("; muted findings excluded");
+    }
+
+    [Fact]
+    public void Computed_deltas_table_when_muted_only_and_agent_omitted_findings_source_still_uses_muted_total_copy()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                AgentResultsIncludedInDetail = false,
+                FindingsCountsFromSnapshot = false,
+                FindingsBySeverity = [],
+                MutedFindingsExcludedCount = 1,
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel);
+        row.Should().NotContain(FindingsTotalSourceAgentResultsOmittedLabel);
+    }
+
+    private static string FindingsTotalSourceAgentResultsOmittedLabel =>
+        PilotRunDeltasFindingsEmptySeverityHonesty.FindingsTotalSourceAgentResultsOmittedLabel;
 }

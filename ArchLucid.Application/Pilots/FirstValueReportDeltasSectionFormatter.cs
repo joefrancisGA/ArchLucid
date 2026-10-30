@@ -146,6 +146,11 @@ public static class FirstValueReportDeltasSectionFormatter
     {
         string list = PilotRunDeltasFindingsEmptySeverityHonesty.ResolveFindingsTotalSourceList(deltas);
 
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+        {
+            return list;
+        }
+
         return deltas.MutedFindingsExcludedCount > 0
             ? $"{list}; muted findings excluded"
             : list;

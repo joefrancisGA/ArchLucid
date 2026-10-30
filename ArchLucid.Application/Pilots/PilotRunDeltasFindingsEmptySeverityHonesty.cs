@@ -23,6 +23,11 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
             return FindingsBySeverityNotAttestedLabel;
         }
 
+        if (IsMutedOnlyEmptySeverity(deltas))
+        {
+            return PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel;
+        }
+
         if (deltas.FindingsCountsFromSnapshot)
         {
             return "`FindingsSnapshot.Findings` (unmuted only)";
