@@ -1013,7 +1013,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 51 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+**Hunts:** 52 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+
+2026-10-30 seed hunt #128 (seed-only): rotation fired after eight low-yield `cli-terraform-evidence` outcomes but no alternate Set 3 zone was eligible; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed. Seeded two fresh reachable `(candidate)` rows for the generated deployment-evidence report’s mixed metadata/leaf presentation.
+
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the numbered Terraform summary presents metadata-only composition and pilot entries beside executable leaf roots without an explicit entry-kind marker, so an operator following the report may attempt to apply a non-apply root; locus: the `foreach` that numbers every `DefaultApplyOrderRoots()` line in the Terraform section; input: a `deployment-evidence` report consumed as the operator’s apply checklist.
+- [ ] (candidate) `DefaultApplyOrderRoots` — the static evidence list carries orchestration meaning only in prose annotations while plain leaf lines are indistinguishable from paths that require a legacy or hosted execution mode, so a report consumer that preserves only the path text can lose the required mode distinction; locus: annotated orchestrator/composition/pilot entries mixed with plain leaves; input: generated Markdown normalized by a deployment-review export/import step.
 
 2026-10-30 seed hunt #127 (seed-only): rotation fired after seven low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
