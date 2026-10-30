@@ -1962,3 +1962,4 @@
 {"at":"2026-10-30T13:51:21.4871825Z","zoneId":"ui-review-detail-workspace","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T13:53:23.5548558Z","zoneId":"ui-review-detail-workspace","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T13:55:23.7648910Z","zoneId":"ui-review-detail-workspace","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T13:58:25.4312748Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}

@@ -2153,6 +2153,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-30 seed hunt #56 (hit): promoted `isMarketingOnlyPath` trailing-slash handling — app-host `/pricing/` was not classified as marketing-only because exact-path checks required no trailing slash, so split-site users could remain on the app host instead of reaching the public pricing page; compare marketing paths after removing trailing slashes while preserving the original redirect location; regression `redirects app-host marketing paths with a trailing slash to the public origin`; host-gate vitest 23/23. Private beta: invited buyers opening a trailing-slash pricing URL on the app host now reach the public pricing page instead of an operator-host route that can render the wrong shell.
+
+- [x] (proven) `isMarketingOnlyPath` — app-host `/pricing/` bypasses the public marketing handoff — **hit 2026-10-30 seed hunt:** compare exact marketing paths using a trailing-slash-free canonical pathname; regression above.
+- [ ] (candidate) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — locus: one `decodeURIComponent` pass before URL pathname resolution; input: public-host operator bookmark containing a double-encoded slash segment.
+- [ ] (candidate) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — locus: alias comparison after `URL.host` normalization; input: configured `https://archlucid.net:8443` and request Host `www.archlucid.net:8443`.
+
 2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
 
 - [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` without URL-decoding or rewriting it.
@@ -2168,10 +2174,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
 
 - [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
-- [ ] (candidate) `decideHostGateRedirect` — `+` in query preserved on operator redirect — locus: `pathAndQuery`; input: marketing host operator path with `search: '?q=a+b'`.
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — locus: legacy prefix list; input: compare `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs host-gate list.
-- [ ] (candidate) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — locus: `isMarketingOnlyPath`; input: app host `/pricing/` exact.
-- [ ] (candidate) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — locus: decode guard; input: malformed `%00` segment (fail closed to `next`).
+- [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` unchanged.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is already in the legacy operator prefix list.
+- [x] (proven) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — **hit 2026-10-30 seed hunt #56:** see zone-header note above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — **cheap-disproof 2026-10-30 thorough hunt #52:** malformed decoding falls through to `next`, not a cross-host redirect.
 
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` dot-segment paths — `/./architecture/reviews` on the marketing host stayed `next` because slash collapse left `/./` segments that failed operator prefix matching; resolve pathname with `URL` after lowercase and slash collapse; regression `redirects marketing-host operator paths when pathname includes a dot segment`; cheap-disproof closed four sibling `(candidate)` rows (`/signup/` prefix funnel by design, bare `/api` non-proxy stays on marketing host, `/SHOWCASE` query already preserved via lowercase normalize, IDN Host pairing not reproduced on this boundary); scoped host-gate vitest 21/21. Private beta: split-site users opening operator bookmarks with `/./` path noise on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
