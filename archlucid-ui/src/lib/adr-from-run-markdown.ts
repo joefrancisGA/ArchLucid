@@ -180,7 +180,7 @@ export function buildMadrMarkdownFromRun(
               && f.semanticSupportBand !== undefined
               && f.semanticSupportBand.trim().length > 0
                 ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion?.trim() || "Scorer version was not stored."})`
-                : "";
+                : "\n- **Semantic support:** Semantic support was not stored.";
 
             return `### ${i + 1}. [${f.severityLabel}] ${formatAdrExportFindingTitle(f.title)}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
@@ -201,11 +201,13 @@ export function buildMadrMarkdownFromRun(
           "",
         ].join("\n");
 
-  const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
+  const decisionDrivers = exp?.keyDrivers ?? null;
   const keyDriversSection =
-    decisionDrivers.length > 0
-      ? `## Key drivers\n\n${bulletBlock(decisionDrivers)}`
-      : "## Key drivers\n\n_Key drivers were not stored._\n";
+    decisionDrivers === null
+      ? "## Key drivers\n\n_Key drivers were not stored._\n"
+      : decisionDrivers.length === 0
+        ? "## Key drivers\n\n_Key drivers were stored empty._\n"
+        : `## Key drivers\n\n${bulletBlock(decisionDrivers)}`;
 
   function consequenceListSection(
     heading: string,

@@ -113,6 +113,21 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(screen.queryByRole("link", { name: "Sandbox" })).not.toBeInTheDocument();
   });
 
+  it("shows subscription name omission when only subscription id is stored", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot({ subscriptionName: "", subscriptionId: "0966098b-4d6c-4f09-af1b-965bc2a2ad1d" })],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    const link = await screen.findByRole("link", { name: "Subscription name was not stored." });
+
+    expect(link).toHaveAttribute("href", "/integrations/cloud-connections");
+  });
+
   it("links a failed capture to cloud connections with the blocked description", async () => {
     snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
       items: [snapshot({ captureStatus: "Failed" })],

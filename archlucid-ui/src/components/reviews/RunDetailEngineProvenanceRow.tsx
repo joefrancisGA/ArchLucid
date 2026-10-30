@@ -154,6 +154,8 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
         {provenance.taskEvaluationSnapshotsAtSelection === null
         || provenance.taskEvaluationSnapshotsAtSelection === undefined ? (
           <ProvenanceField label="Task evaluations" value="Task evaluations were not stored." />
+        ) : provenance.taskEvaluationSnapshotsAtSelection.length === 0 ? (
+          <ProvenanceField label="Task evaluations" value="Task evaluations were stored empty." />
         ) : (
           provenance.taskEvaluationSnapshotsAtSelection.map((evaluation) => (
             <ProvenanceField

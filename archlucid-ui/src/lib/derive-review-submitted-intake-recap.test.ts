@@ -45,6 +45,16 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
     ]);
   });
 
+  it("labels generated brief without business outcome marker", () => {
+    const recap = deriveReviewSubmittedIntakeRecap({ description: GENERATED_BRIEF });
+
+    expect(recap?.fields).toEqual(
+      expect.arrayContaining([
+        { label: "Business Outcome", value: "Business outcome was not stored." },
+      ]),
+    );
+  });
+
   it("notes when a recap field preview is truncated (P-20)", () => {
     const longBrief = "z".repeat(500);
     const recap = deriveReviewSubmittedIntakeRecap({
