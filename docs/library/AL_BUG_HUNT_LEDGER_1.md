@@ -4583,15 +4583,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a spaced topology hint was dropped
+- **last-bug:** 2026-10-30 — a spaced document name was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt (hit): promoted the open candidate where `network diagram` was dropped because document names still used compact identifier checks; names now use the same U+0020 allowance as prose reference lines and still reject a no-break space; regression `Deserialize_keeps_document_when_name_contains_internal_spaces`; scoped payload JSON tests 42/42. Private beta: when an invited operator's deferred authority run includes a source document whose name contains spaces, that document stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — a document name with an internal space was dropped — **hit 2026-10-30 thorough hunt:** `HasUsableProseReferenceText` on document names; regression `Deserialize_keeps_document_when_name_contains_internal_spaces`.
 
 2026-10-30 seed hunt (seed→hit): promoted `Prefer outbox or transactional inbox for consistency` being dropped because path-reference materialization rejected ordinary spaces; policy references, topology hints, security baselines, and capability lines now keep U+0020 and still reject a no-break space; regression `Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces`; scoped payload JSON tests 41/41. Private beta: when an invited operator's deferred authority run includes a topology hint, policy reference, security baseline, or required capability written with spaces, that entry stays in the resumed pipeline.
 
 - [x] (proven) `AuthorityPipelineWorkPayload.MaterializePathReferenceStringList` — a topology hint with internal spaces was dropped — **hit 2026-10-30 seed hunt:** `HasUsableProseReferenceText` keeps U+0020; regression `Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces`.
-
-- [ ] (candidate) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — a document name with an internal space is dropped. Input: name `network diagram` with content type `text/plain`.
 
 2026-10-30 seed hunt (seed→hit): promoted `text/plain; charset=utf-8` being dropped because compact identifier checks treated the MIME parameter space as internal whitespace; content type is now judged after `NormalizeContentTypeForLookup`; regression `Deserialize_keeps_document_when_content_type_has_charset_parameter`; scoped payload JSON tests 40/40. Private beta: when an invited operator's deferred authority run includes a source document whose content type has a charset parameter, that document stays in the resumed pipeline.
 
@@ -4611,11 +4613,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 49
-- **bugs-found:** 25
+- **hunts:** 50
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — a spaced topology hint was dropped
+- **last-bug:** 2026-10-30 — a spaced document name was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

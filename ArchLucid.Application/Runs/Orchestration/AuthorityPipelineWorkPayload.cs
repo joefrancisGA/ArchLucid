@@ -197,7 +197,7 @@ public sealed class AuthorityPipelineWorkPayload
     }
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
-        HasUsableCompactIdentifierText(document.Name)
+        HasUsableProseReferenceText(document.Name)
         && HasUsableDocumentContentType(document.ContentType)
         && HasUsableIdentifierText(document.Content);
 
