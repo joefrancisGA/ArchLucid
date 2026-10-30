@@ -2097,6 +2097,92 @@ namespace N
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_AL0001_on_undecorated_action_when_type_level_Authorize_Roles_applies_even_with_anonymous_sibling()
+    {
+        string aspNetCoreStubsWithRoles = AspNetCoreStubs.Replace(
+            """
+    public class AuthorizeAttribute : System.Attribute
+    {
+    }
+""",
+            """
+    public class AuthorizeAttribute : System.Attribute
+    {
+        public string? Roles { get; set; }
+    }
+""",
+            StringComparison.Ordinal);
+
+        const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize(Roles = "Admin")]
+    public sealed class MixedRoleAndAnonymousController : ControllerBase
+    {
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult AnonymousPost() => Ok();
+
+        [HttpPost]
+        public IActionResult UnsecuredPost() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = aspNetCoreStubsWithRoles + testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_action_when_derived_declares_NonAction_property()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SharedUnauthenticatedGetController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class DerivedWithNonActionPropertyController : SharedUnauthenticatedGetController
+    {
+        [NonAction]
+        public string RouteHint => "probe";
+    }
+}
+""";
+
+        DiagnosticResult expectedOnAbstract = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(39, 27, 39, 61)
+            .WithArguments("SharedUnauthenticatedGetController");
+
+        DiagnosticResult expectedOnDerived = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(45, 25, 45, 63)
+            .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnAbstract, expectedOnDerived },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 
