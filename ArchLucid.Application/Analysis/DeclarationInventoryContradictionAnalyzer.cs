@@ -52,7 +52,7 @@ public static class DeclarationInventoryContradictionAnalyzer
             if (!inventoryRowsByResourceId.TryGetValue(normalizedResourceId, out JsonElement inventoryRow))
                 continue;
 
-            if (!inventoryRow.TryGetProperty("properties", out JsonElement inventoryProperties))
+            if (!TryReadPropertiesBag(inventoryRow, out JsonElement inventoryProperties))
                 continue;
 
             string resourceLabel = string.IsNullOrWhiteSpace(node.Label)
@@ -77,7 +77,9 @@ public static class DeclarationInventoryContradictionAnalyzer
                     || string.IsNullOrWhiteSpace(inventoryValue))
                     continue;
 
-                if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(declarationValue, inventoryValue))
+                if (DeclarationInventorySecurityPropertyValueComparer.ValuesMatch(
+                        DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, declarationValue),
+                        DeclarationInventorySecurityPropertyValueComparer.ComparableToken(logicalName, inventoryValue)))
                     continue;
 
                 if (!DeclarationInventorySecurityPropertyInventoryReader.TryResolveSecurityTheme(
@@ -89,7 +91,7 @@ public static class DeclarationInventoryContradictionAnalyzer
                     new DeclarationInventoryContradictionMismatch(
                         node.NodeId,
                         resourceLabel,
-                        ReadInventoryResourceId(inventoryRow, topologyResourceId),
+                        ReadInventoryResourceId(inventoryRow, topologyResourceId, cloudProvider),
                         declarationKey!,
                         declarationValue,
                         inventoryValue,
@@ -108,15 +110,11 @@ public static class DeclarationInventoryContradictionAnalyzer
         try
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return [];
-
             Dictionary<string, JsonElement> rows = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(document.RootElement))
             {
-                string? resourceId = ReadInventoryResourceId(row, null);
+                string? resourceId = TryReadInventoryRowResourceId(row, cloudProvider);
 
                 if (string.IsNullOrWhiteSpace(resourceId))
                     continue;
@@ -132,26 +130,42 @@ public static class DeclarationInventoryContradictionAnalyzer
         }
     }
 
-    private static string ReadInventoryResourceId(JsonElement row, string? fallback)
+    private static bool TryReadPropertiesBag(JsonElement row, out JsonElement properties)
     {
-        if (row.TryGetProperty("resourceId", out JsonElement resourceIdElement))
+        if (row.ValueKind is JsonValueKind.Object)
         {
-            string? resourceId = resourceIdElement.GetString()?.Trim();
+            if (row.TryGetProperty("properties", out properties)
+                && properties.ValueKind is JsonValueKind.Object)
+                return true;
 
-            if (!string.IsNullOrWhiteSpace(resourceId))
-                return resourceId;
+            if (row.TryGetProperty("Properties", out properties)
+                && properties.ValueKind is JsonValueKind.Object)
+                return true;
         }
 
-        if (row.TryGetProperty("name", out JsonElement nameElement))
-        {
-            string? name = nameElement.GetString()?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(name))
-                return name;
-        }
-
-        return fallback ?? string.Empty;
+        properties = default;
+        return false;
     }
+
+    private static string ReadInventoryResourceId(
+        JsonElement row,
+        string? fallback,
+        InventoryTopologyCloudProvider cloudProvider) =>
+        TryReadInventoryRowResourceId(row, cloudProvider) ?? fallback ?? string.Empty;
+
+    private static string? TryReadInventoryRowResourceId(
+        JsonElement row,
+        InventoryTopologyCloudProvider cloudProvider) =>
+        cloudProvider switch
+        {
+            InventoryTopologyCloudProvider.Azure =>
+                GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            InventoryTopologyCloudProvider.Aws =>
+                GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            InventoryTopologyCloudProvider.Gcp =>
+                GraphGcpInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            _ => throw new ArgumentOutOfRangeException(nameof(cloudProvider), cloudProvider, null),
+        };
 
     private static string? TryReadTopologyResourceId(GraphNode node, InventoryTopologyCloudProvider cloudProvider) =>
         cloudProvider switch

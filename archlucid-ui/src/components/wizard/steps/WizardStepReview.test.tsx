@@ -119,6 +119,16 @@ describe("WizardStepReview", () => {
     expect(await screen.findByText("Evidence-only (no cloud target)")).toBeInTheDocument();
   });
 
+  it("shows stored custom cloud provider labels including Other", async () => {
+    render(
+      <DirtyFieldWizardFormProvider values={{ cloudProvider: "Other" }} dirtyFields={["cloudProvider"]}>
+        <WizardStepReview />
+      </DirtyFieldWizardFormProvider>,
+    );
+
+    expect(await screen.findByText("Other")).toBeInTheDocument();
+  });
+
   it("labels blank identity draft fields as not stored", () => {
     render(
       <DirectWizardFormProvider

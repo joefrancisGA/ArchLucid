@@ -180,6 +180,12 @@ public sealed class EndToEndReplayComparisonService(
         return result;
     }
 
+    private static void AddIfChanged(List<string> target, string fieldName, string? left, string? right)
+    {
+        if (!string.Equals(left, right, StringComparison.OrdinalIgnoreCase))
+            target.Add(fieldName);
+    }
+
     private static void AddIfChanged<T>(List<string> target, string fieldName, T left, T right)
     {
         if (!EqualityComparer<T>.Default.Equals(left, right))

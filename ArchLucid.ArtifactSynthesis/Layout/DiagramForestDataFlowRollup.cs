@@ -303,7 +303,12 @@ internal static class DiagramForestDataFlowRollup
 
         if (distinct.Count == 0)
         {
-            return [];
+            return
+            [
+                new DiagramNsgInboundRuleChip(
+                    "NSG inbound rules were not stored on rolled-up members.",
+                    IsRisky: false),
+            ];
         }
 
         List<DiagramNsgInboundRuleChip> chips = distinct.Take(maxVisibleChips).ToList();

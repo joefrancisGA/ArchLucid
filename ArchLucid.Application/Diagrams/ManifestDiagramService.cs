@@ -216,17 +216,28 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         List<string> trustLabels = BuildTrustBoundaryLabels(semantics);
         List<string> requirementLabels = BuildRequirementLabels(manifest, semantics);
         List<string> decisionLabels = BuildDecisionLabels(manifest, semantics);
+        int totalOverlayLabels =
+            actorLabels.Count + trustLabels.Count + requirementLabels.Count + decisionLabels.Count;
 
         int maxNodes = Math.Max(0, options.SemanticOverlayMaxNodes);
         int emitted = 0;
 
-        if (actorLabels.Count == 0 && trustLabels.Count == 0 && requirementLabels.Count == 0 && decisionLabels.Count == 0)
+        if (totalOverlayLabels == 0)
             return;
 
         emitted = AppendSemanticSubgraph(sb, "actors", "Actors", actorLabels, "actor", usedNodeIds, emitted, maxNodes, RenderActorNode, null);
         emitted = AppendSemanticSubgraph(sb, "trust_boundaries", "Trust boundaries", trustLabels, "trust", usedNodeIds, emitted, maxNodes, RenderTrustNode, null);
         emitted = AppendSemanticSubgraph(sb, "requirements", "Requirements", requirementLabels, "req", usedNodeIds, emitted, maxNodes, RenderRequirementNode, null);
         emitted = AppendSemanticSubgraph(sb, "decisions", "Decisions", decisionLabels, "dec", usedNodeIds, emitted, maxNodes, RenderDecisionNode, null);
+
+        int omittedOverlayLabels = totalOverlayLabels - emitted;
+
+        if (omittedOverlayLabels > 0 && maxNodes > 0)
+        {
+            string remainderNodeId = EnsureUnique(SanitizeId("overlay_remainder"), usedNodeIds);
+            sb.AppendLine(
+                $"    {remainderNodeId}[[\"+ {omittedOverlayLabels} more semantic overlay labels were not drawn on this diagram.\"]]");
+        }
 
         sb.AppendLine();
     }
@@ -249,7 +260,9 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     private static string FormatActorDiagramLabel(ActorDescriptor actor, string displayLabel)
     {
         string originClause = actor.Origin == ActorOrigin.Inferred
-            ? $"Inferred actor axes (confidence {actor.Confidence})."
+            ? actor.Confidence is > 0 and < 100
+                ? $"Inferred actor axes (confidence {actor.Confidence})."
+                : "Inferred actor axes (confidence was not stored)."
             : "Operator-asserted actor axes.";
 
         return $"{displayLabel} · {actor.Kind} · {actor.TrustOrigin} · {actor.Contract} · {originClause}";

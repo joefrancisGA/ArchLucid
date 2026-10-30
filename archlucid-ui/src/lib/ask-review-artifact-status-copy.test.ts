@@ -17,11 +17,32 @@ describe("resolveAskAssistantGroundingCitationMarker", () => {
     );
     expect(
       resolveAskAssistantGroundingCitationMarker("Answer text", {
+        referencedFindings: null,
+        referencedDecisions: null,
+        referencedArtifacts: null,
+      }),
+    ).toContain("were not stored");
+    expect(
+      resolveAskAssistantGroundingCitationMarker("Answer text", {
+        referencedFindings: [],
+        referencedDecisions: null,
+        referencedArtifacts: null,
+      }),
+    ).toContain("Cited findings were stored empty");
+    expect(
+      resolveAskAssistantGroundingCitationMarker("Answer text", {
         referencedFindings: [],
         referencedDecisions: [],
         referencedArtifacts: [],
       }),
-    ).toBe(ASK_REVIEW_UNCITED_RESPONSE_MARKER);
+    ).toContain("stored empty");
+    expect(
+      resolveAskAssistantGroundingCitationMarker("Answer text", {
+        referencedFindings: [],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      }),
+    ).not.toBe(ASK_REVIEW_UNCITED_RESPONSE_MARKER);
     expect(
       resolveAskAssistantGroundingCitationMarker("Answer text", {
         referencedFindings: null,

@@ -12,6 +12,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramStoredHiddenPathShortcutApplier
 {
+    internal const string ShortcutLabelPrefix = "Shortcut: ";
+
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
@@ -323,10 +325,15 @@ internal static class DiagramStoredHiddenPathShortcutApplier
 
         if (string.IsNullOrWhiteSpace(label))
         {
-            return "Path label was not stored.";
+            return ShortcutLabelPrefix + "Path label was not stored.";
         }
 
-        return label;
+        if (label.StartsWith(ShortcutLabelPrefix, StringComparison.Ordinal))
+        {
+            return label;
+        }
+
+        return ShortcutLabelPrefix + label;
     }
 
     private static bool IsStoredEvidenceEdge(GraphEdge edge)

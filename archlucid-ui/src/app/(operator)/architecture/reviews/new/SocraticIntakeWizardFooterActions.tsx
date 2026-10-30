@@ -17,6 +17,7 @@ import {
 
 export type SocraticIntakeWizardFooterActionsProps = {
   readonly handledClarificationCount: number;
+  readonly skippedClarificationCount?: number;
   readonly totalRequiredClarifications: number;
   readonly allClarificationsHandled: boolean;
   readonly canReviewAnswers: boolean;
@@ -43,7 +44,8 @@ export function SocraticIntakeWizardFooterActions(
             data-testid="socratic-clarifications-answered-counter"
           >
             {guidedIntakeClarificationsAnsweredCounter(
-              props.handledClarificationCount,
+              Math.max(0, props.handledClarificationCount - (props.skippedClarificationCount ?? 0)),
+              props.skippedClarificationCount ?? 0,
               props.totalRequiredClarifications,
             )}
           </p>

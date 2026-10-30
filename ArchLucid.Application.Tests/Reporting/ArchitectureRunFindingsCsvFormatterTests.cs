@@ -153,7 +153,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Warning.,cat,");
-        csv.Should().Contain(",muted,noise,0.5,Trust label was not stored.,Trust label reason was not stored.,");
+        csv.Should().Contain(",muted,noise,Stored confidence score: 0.5,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);
@@ -334,7 +334,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdStoredEmptyLabel);
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
     }
 
     [Fact]
@@ -456,6 +456,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_prefixes_stored_estimated_usd_savings()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-savings",
+            Severity = FindingSeverity.Warning,
+            Category = "cost",
+            Message = "msg",
+            EstimatedUsdSavings = 1250.5m,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(
+            ArchitectureRunFindingsCsvFormatter.EstimatedUsdSavingsExportPrefix + "1250.5");
+    }
+
+    [Fact]
     public void BuildCsvContent_labels_muted_findings_without_mute_reason()
     {
         ArchitectureFinding finding = new()
@@ -498,6 +524,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
             AgentType = AgentType.Compliance,
             Findings = [finding],
         };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TaskIdStoredEmptyLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_null_result_and_task_ids_use_not_stored_labels()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-ids",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        result.ResultId = null!;
+        result.TaskId = null!;
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 

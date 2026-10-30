@@ -228,6 +228,9 @@ export function RootCauseClusterDispositionStrip(
     }
   }
 
+  const visibleClusters = clusters.slice(0, 4);
+  const remainingClusterCount = Math.max(0, clusters.length - visibleClusters.length);
+
   return (
     <section
       className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -262,7 +265,7 @@ export function RootCauseClusterDispositionStrip(
         />
       </div>
       <ul className="m-0 mt-3 list-none space-y-2 p-0">
-        {clusters.slice(0, 4).map((cluster) => (
+        {visibleClusters.map((cluster) => (
           <li
             key={cluster.key}
             className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
@@ -299,6 +302,11 @@ export function RootCauseClusterDispositionStrip(
             </span>
           </li>
         ))}
+        {remainingClusterCount > 0 ? (
+          <li className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            + {remainingClusterCount} more cluster{remainingClusterCount === 1 ? "" : "s"} were stored.
+          </li>
+        ) : null}
       </ul>
       {inlineErrorMessage !== null ? (
         <OperatorMutationInlineError className="mt-2" message={inlineErrorMessage} />

@@ -123,6 +123,8 @@ The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --reb
 
 **Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
 
+When using **`/al-bug1`**–**`/al-bug4`**, run **`scripts/agent/al-bug-zone-rotation.ps1 -Set <N> -PreviewPick -SkipGitPicker`** (or the set skill’s equivalent) **before** hunting when the user did not pass a hint. Rotation avoids the default zone after **three** consecutive **dry**, **seed-only**, or **held-for-triage** outcomes on the same zone in that set’s run log; the picker then receives **`-AvoidZoneId`**. User hints disable avoidance.
+
 ```powershell
 .\scripts\agent\al-bug-pick-zone.ps1 -Preview
 ```
@@ -136,6 +138,7 @@ Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hun
 Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
+- Open **`(candidate)`** rows prepended under **`## Zone: <id>`** (after the newest hunt diary line, before the next dated hunt note) are merged into picker JSON the same as open rows under **`### Hypotheses`**. Keep that header queue current after each hit.
 - If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro. This includes previously hunted zones whose stored hypotheses are all closed: read the source again and generate fresh mechanism-backed hypotheses; do not record a mechanical dry hunt.
 - **Announce the kind immediately** after the picker table (the picker also prints a Kind banner). Copy one of:
   - `This /al-bug run is a **seed hunt** for zone \`<zoneId>\`. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.`
@@ -424,6 +427,7 @@ Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rol
 - `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` through `AL_BUG_HUNT_RUN_LOG_4.jsonl` — per-set outcome logs
 - `scripts/agent/al-bug-zone-sets.json` — set membership, branch, ledger, and run log
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
+- `scripts/agent/al-bug-zone-rotation.ps1` — low-yield streak detection and `-AvoidZoneId` for set hunts
 - `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
 - `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, and pull `bugsmash`
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper (default `bugsmash`)

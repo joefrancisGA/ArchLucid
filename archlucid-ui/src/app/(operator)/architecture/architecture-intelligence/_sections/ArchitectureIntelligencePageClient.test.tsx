@@ -11,6 +11,9 @@ function okJsonFetchResponse(body: unknown): Response {
 }
 
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
+const searchParamsToString = vi.fn(() => searchParamsString);
+let searchParamsString = "";
+const routerReplace = vi.fn();
 
 function stubProductContextFetch(runId: string, content: string): void {
   vi.stubGlobal(
@@ -95,13 +98,23 @@ vi.mock("next/navigation", async (importOriginal) => {
       get: searchParamsGet,
       getAll: vi.fn(() => []),
       has: vi.fn(() => false),
-      toString: vi.fn(() => ""),
+      toString: searchParamsToString,
       entries: vi.fn(),
       forEach: vi.fn(),
       keys: vi.fn(),
       values: vi.fn(),
       [Symbol.iterator]: vi.fn(),
     }),
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: vi.fn(),
+        replace: routerReplace,
+        bfcacheId: null,
+      }) as unknown as ReturnType<typeof import("next/navigation")["useRouter"]>,
   });
 });
 
@@ -122,6 +135,9 @@ vi.mock("./ArchitectureIntelligenceNextReviewFooterClient", () => ({
 describe("ArchitectureIntelligencePageClient", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
+    searchParamsString = "";
+    searchParamsToString.mockImplementation(() => searchParamsString);
+    routerReplace.mockReset();
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -2557,6 +2573,68 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
   });
 
+  it("keeps hydrated intake when inbound runId is removed but contextRunId matches canonical scope", async () => {
+    const inboundRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const canonicalRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return inboundRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: canonicalRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Canonical architecture intake.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(canonicalRunId);
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("Canonical architecture intake.");
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return canonicalRunId;
+      }
+
+      return null;
+    });
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("Canonical architecture intake.");
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(canonicalRunId);
+  });
+
   it("hydrates review tier from URL tier search param", () => {
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "tier") {
@@ -3066,9 +3144,12 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
   });
   it("keeps contextRunId scope banner when reasoning response omits runId", async () => {
+    const contextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let reasoningPostBody: Record<string, unknown> | undefined;
+
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "contextRunId") {
-        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        return contextRunId;
       }
 
       return null;
@@ -3081,6 +3162,8 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          reasoningPostBody = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+
           return okJsonFetchResponse({
             model: { elements: [] },
             specialistReviews: [{ findings: [] }],
@@ -3105,9 +3188,79 @@ describe("ArchitectureIntelligencePageClient", () => {
       expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
-      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    expect(reasoningPostBody).toMatchObject({ runId: contextRunId });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(contextRunId);
+  });
+
+  it("keeps contextRunId scope banner when continue response omits runId", async () => {
+    const contextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return contextRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse({
+            runId: contextRunId,
+            model: { elements: [] },
+            specialistReviews: [{ findings: [] }],
+            recommendations: [],
+            mustNotFailViolations: [],
+            interview: {
+              framingQuestions: [
+                {
+                  questionId: "scope-clarification",
+                  prompt: "What is the blast radius for this change?",
+                },
+              ],
+              evidenceDrivenQuestions: [],
+            },
+          });
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/runs/") && url.includes("/continue")) {
+          return okJsonFetchResponse({
+            model: { elements: [] },
+            specialistReviews: [{ findings: [] }],
+            recommendations: [],
+            mustNotFailViolations: [],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
     );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture scoped to context review A." },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-interview-scope-clarification")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-resubmit-answers"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(contextRunId);
   });
 
   it("clears reasoning results when contextRunId switches to another review", async () => {
@@ -3352,6 +3505,81 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, cost");
+  });
+
+  it("syncs contextRunId in the URL when product source context returns a canonical run id", async () => {
+    const inboundRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const canonicalRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    searchParamsString = `runId=${inboundRunId}&from=reviews`;
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return inboundRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: canonicalRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Canonical run scope.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(canonicalRunId);
+    });
+
+    expect(routerReplace).toHaveBeenCalledWith(
+      expect.stringContaining(`contextRunId=${encodeURIComponent(canonicalRunId)}`),
+      { scroll: false },
+    );
+  });
+
+  it("removes invalid tier search param from the URL while defaulting analysis depth", async () => {
+    searchParamsString = "tier=NotARealTier";
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "tier") {
+        return "NotARealTier";
+      }
+
+      return null;
+    });
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith(
+        expect.not.stringContaining("tier=NotARealTier"),
+        { scroll: false },
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+      "Balanced (recommended)",
+    );
   });
 });
 

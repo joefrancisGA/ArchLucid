@@ -445,9 +445,14 @@ describe("run-detail-workspace-derive", () => {
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
-  it("does not invent package version from manifest id", () => {
+  it("does not invent package version from manifest id or policy rule set version", () => {
     expect(derivePackageVersionLabel(null, "9026d565-0000-0000-0000-0000000099e8")).toBeNull();
-    expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
+    expect(
+      derivePackageVersionLabel({ currentManifestVersion: "3.0.1" } as RunSummary, "manifest-1"),
+    ).toBe("3.0.1");
+    expect(
+      derivePackageVersionLabel({ currentManifestVersion: "" } as RunSummary, "manifest-1"),
+    ).toBeNull();
   });
 
   it("selects not-finalized metadata absent reasons when no manifest exists", () => {

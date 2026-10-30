@@ -141,7 +141,10 @@ export function FindingInspectWhyMattersSection({
   const findingTitleOmitted = findingTitle === "Finding title was not stored";
 
   const whyHeading =
-    findingTitle.trim().length > 0 && findingTitle !== "Finding detail" && !findingTitleOmitted
+    whyThisMattersNarrative &&
+    findingTitle.trim().length > 0 &&
+    findingTitle !== "Finding detail" &&
+    !findingTitleOmitted
       ? `Why ${findingTitle} matters`
       : "Why this matters";
 

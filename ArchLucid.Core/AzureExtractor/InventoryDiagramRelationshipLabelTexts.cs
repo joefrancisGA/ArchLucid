@@ -107,6 +107,12 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string NetworkConnectionConfiguredNotObservedLabel =
         "Network connection is configured. Observed traffic was not stored.";
 
+    public const string AccessConnectorExternalTargetConfiguredLabel =
+        "Access connector cites an external target. An observed connection was not stored.";
+
+    public const string LogicAppWorkflowActionConfiguredLabel =
+        "Logic App action is configured. An observed run was not stored.";
+
     public const string PrivateNetworkPathNotObservedLabel =
         "Private network path. This is not observed traffic.";
 

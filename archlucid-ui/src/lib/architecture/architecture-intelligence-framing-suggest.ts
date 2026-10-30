@@ -1,6 +1,6 @@
 import type { ArchitectureIntelligenceFramingQuestion } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import type { FramingSuggestContext } from "@/lib/architecture/framing-suggest-corpus";
-import { inferFramingAnswer } from "@/lib/architecture/framing-suggest-infer";
+import { inferFramingAnswer, acceptSuggestedAnswer } from "@/lib/architecture/framing-suggest-infer";
 
 export type { FramingSuggestContext } from "@/lib/architecture/framing-suggest-corpus";
 
@@ -15,7 +15,11 @@ export function suggestFramingAnswersFromOverview(
     const inferred = inferFramingAnswer(question, context);
 
     if (inferred !== null && inferred.trim().length > 0) {
-      suggestions[question.questionId] = inferred.trim();
+      const accepted = acceptSuggestedAnswer(inferred);
+
+      if (accepted !== null) {
+        suggestions[question.questionId] = accepted;
+      }
     }
   }
 

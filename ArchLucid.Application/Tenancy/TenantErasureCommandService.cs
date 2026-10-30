@@ -636,11 +636,11 @@ public sealed class TenantErasureCommandService(
             {
                 EventId = eventId ?? Guid.NewGuid(),
                 EventType = eventType,
-                ActorUserId = actorUserId,
-                ActorUserName = actorUserName,
+                ActorUserId = actorUserId.Trim(),
+                ActorUserName = actorUserName.Trim(),
                 SubjectTenantId = subjectTenantId,
                 DataJson = JsonSerializer.Serialize(data),
-                CorrelationId = correlationId
+                CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
             },
             cancellationToken);
     }

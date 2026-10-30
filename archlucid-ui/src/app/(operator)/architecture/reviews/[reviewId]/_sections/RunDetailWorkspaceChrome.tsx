@@ -494,7 +494,7 @@ export function RunDetailWorkspaceSummaryStrip(
         </div>
         {props.materialSeverityLine !== null && props.materialSeverityLine !== undefined ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Material severity (critical and high)</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">Material severity (critical, error, warning)</dt>
             <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {props.materialSeverityLine}
               <span className="ml-1 font-normal text-neutral-500 dark:text-neutral-400">

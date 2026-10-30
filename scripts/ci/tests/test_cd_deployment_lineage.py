@@ -18,6 +18,7 @@ from cd_deployment_lineage import (
     build_tag_image_ref,
     format_lineage_summary_markdown,
     require_digest,
+    require_non_empty,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -39,6 +40,13 @@ class TestCdDeploymentLineage(unittest.TestCase):
                     build_result="success", deploy_result="success",
                     verify_result="success", smoke_result="success",
                 )
+
+    def test_lineage_fields_reject_raw_controls_including_boundary_whitespace(self) -> None:
+        for value in ("release\nforged", "release\rforged",
+                      "release\tforged", "release\x00forged",
+                      "\nrelease", "release\n", "\trelease"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "control characters"):
+                require_non_empty("build_id", value)
 
     def test_require_digest_accepts_sha256(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

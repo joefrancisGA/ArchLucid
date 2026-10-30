@@ -119,7 +119,7 @@ describe("run-detail-decision-delta", () => {
       1,
     );
 
-    expect(row.severityLabel).toBe("High");
+    expect(row.severityLabel).toBe("Error");
     expect(row.policyRuleId).toBe("sec-base-010");
     expect(row.evidenceAnchorHint).toContain("storageAccount.bicep");
     expect(row.trustChipSet.label).toBe("Deterministic rule");
@@ -157,11 +157,25 @@ describe("run-detail-decision-delta", () => {
     expect(row.evidenceAnchorHint).toBeNull();
   });
 
-  it("truncates long decision delta messages", () => {
+  it("truncates long decision delta messages with continuation honesty", () => {
     const long = "a".repeat(200);
     const truncated = truncateDecisionDeltaMessage(long);
 
-    expect(truncated.length).toBeLessThanOrEqual(180);
-    expect(truncated.endsWith("…")).toBe(true);
+    expect(truncated.length).toBeLessThanOrEqual(180 + 80);
+    expect(truncated).toContain("Full finding title was stored");
+  });
+
+  it("reports omitted open findings beyond the severity-sort cap", () => {
+    const findings: QuickDecisionFinding[] = [
+      makeFinding({ findingId: "a", severityValue: 3 }),
+      makeFinding({ findingId: "b", severityValue: 2 }),
+      makeFinding({ findingId: "c", severityValue: 1 }),
+      makeFinding({ findingId: "d", severityValue: 0 }),
+    ];
+
+    const view = resolveRunDetailDecisionDeltaView(findings, true);
+
+    expect(view?.rows).toHaveLength(3);
+    expect(view?.omittedOpenFindingCount).toBe(1);
   });
 });

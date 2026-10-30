@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -14,8 +15,15 @@ public static partial class SponsorReviewPacketComposer
     {
         GoldenManifest? manifest = detail.Manifest;
 
+        sb.AppendLine("## Manifest summary");
+        sb.AppendLine();
+
         if (manifest is null)
+        {
+            sb.AppendLine($"- **Manifest:** {SponsorReviewPacketExportHonestyCopy.ManifestNotStored}");
+            sb.AppendLine();
             return;
+        }
 
         ArchitectureRun? run = detail.Run;
         string manifestVersion = manifest.Metadata?.ManifestVersion?.Trim() is { Length: > 0 } storedManifestVersion
@@ -24,10 +32,12 @@ public static partial class SponsorReviewPacketComposer
         string runId = run?.RunId?.Trim() is { Length: > 0 } storedRunId
             ? storedRunId
             : "Review ID was not stored.";
-        string statusLabel = run is null ? "Review status was not stored." : run.Status.ToString();
+        string statusLabel = run is null
+            ? "Review status was not stored."
+            : run.Status == ArchitectureRunStatus.Committed
+                ? "Committed"
+                : run.Status.ToString();
 
-        sb.AppendLine("## Manifest summary");
-        sb.AppendLine();
         string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
         sb.AppendLine($"- **System:** {systemName}");
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");

@@ -56,6 +56,10 @@ internal static class ExportRecordDiffResultNormalizer
         "DeterminismIterations",
         "CompareManifestVersion",
         "CompareRunId",
+        "ReviewBoardWhitelabelFirmDisplayName",
+        "ReviewBoardWhitelabelClientEngagementTitle",
+        "ReviewBoardWhitelabelLogoBlobReference",
+        "ReviewBoardWhitelabelFooterAttribution",
     };
 
     internal static void NormalizeDisplayAnchors(ExportRecordDiffResult diff)

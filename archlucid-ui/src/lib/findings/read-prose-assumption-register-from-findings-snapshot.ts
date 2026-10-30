@@ -1,3 +1,8 @@
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
+
 export type ProseAssumptionDisposition = "contradicted" | "consistent" | "notVerifiable";
 
 export const PROSE_ASSUMPTION_ROW_NOT_STORED_IN_FULL = "An assumption row was not stored in full." as const;
@@ -130,7 +135,11 @@ function truncateProseAssumptionStatement(statement: string): string {
     return statement;
   }
 
-  return `${statement.slice(0, PROSE_ASSUMPTION_STATEMENT_MAX_LENGTH - 1).trimEnd()}…`;
+  return formatStoredTextPreview(
+    statement,
+    PROSE_ASSUMPTION_STATEMENT_MAX_LENGTH,
+    STORED_TEXT_PREVIEW_CONTINUATION.proseAssumptionStatement,
+  );
 }
 
 export function formatProseAssumptionRegisterLabels(

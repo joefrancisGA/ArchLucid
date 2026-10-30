@@ -33,6 +33,7 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import { isGovernanceQueueFindingIdSelected } from "@/lib/governance/governance-findings-queue-selection";
 
 import {
   formatGovernanceQueueRecordKind,
@@ -104,7 +105,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             type="checkbox"
             className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
             aria-label={`Select finding: ${row.title}`}
-            checked={selectedFindingIds?.has(row.findingId) ?? false}
+            checked={isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId)}
             onChange={() => {
               onToggleRow?.(row.findingId);
             }}

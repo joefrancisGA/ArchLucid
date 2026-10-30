@@ -472,7 +472,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         }
     }
 
-    private static string? TryReadInventoryResourceId(JsonElement row)
+    internal static string? TryReadInventoryResourceId(JsonElement row)
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,

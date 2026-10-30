@@ -2,6 +2,62 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultWorkspaceId` on `201` omits scope headers after trim (`does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`); invalid email plus whitespace full name uses TB-2010 required-field copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); malformed JSON `201` body still navigates on `res.ok` (`still navigates after 201 when register response body is malformed JSON`); pasted team size `10001` stays invalid after blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`); rapid double-click with invalid email skips register POST (`does not call register fetch on rapid double-click when work email is invalid`). Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: "   " }` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — locus: trim branch; input: `"   "` email, name, org (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON array body still omits scope headers when ids are strings — locus: session spread; input: `[{ tenantId: "<guid>", … }]` (monitor).
+- [ ] (candidate) `SignupForm` — architecture team size field accepts pasted leading-zero `010000` as valid — locus: parseInt vs schema; input: paste `010000` (monitor).
+- [ ] (candidate) `SignupForm` — Tab from invalid email field to submit triggers register `fetch` — locus: focus order vs canSubmit; input: keyboard navigation (monitor).
+
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only string `tenantId` on `201` omits scope headers after trim (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); invalid email plus whitespace org uses TB-2010 required-field copy before email branch (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`); success-path body read failure still navigates on `201` (`still navigates after 201 when register response body read throws`); team size `10001` blocked in UI without register POST (`keeps submit disabled when optional architecture team size exceeds 10000`, `does not call register fetch when optional architecture team size exceeds 10000`); keyboard submit on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`). Reseeded five follow-on `(candidate)` rows. 136 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultWorkspaceId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #3:** trim gate; regression `does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name prefers email copy over required-field copy — **cheap-disproof 2026-10-30 thorough hunt #3:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON `201` body after successful `res.text()` still navigates — **cheap-disproof 2026-10-30 thorough hunt #3:** `res.ok` success path; regression `still navigates after 201 when register response body is malformed JSON`.
+- [x] (valid-no-repro) `SignupForm` — paste of `10001` into team size then blur re-enables submit — **cheap-disproof 2026-10-30 thorough hunt #3:** schema max blocks submit after blur; regression `keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`.
+- [x] (valid-no-repro) `SignupForm` — double-click submit with invalid email fires register `fetch` once — **cheap-disproof 2026-10-30 thorough hunt #3:** disabled submit gate; regression `does not call register fetch on rapid double-click when work email is invalid`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — numeric `defaultProjectId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultProjectId is stored as a JSON number`); non-OK body read failure uses HTTP status fallback (`shows generic submit error when register response body read throws on a non-ok response`); whitespace-only full name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`); optional team size `10000` included from UI at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`, builder regressions); scientific notation `1e2` serializes to whole `100` by design (`serializes scientific notation optional architecture team size when it parses to a whole number`). Reseeded five follow-on `(candidate)` rows. 132 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — **cheap-disproof 2026-10-30 thorough hunt #2:** trim gate; regression `does not emit registration scope headers when tenantId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — **cheap-disproof 2026-10-30 thorough hunt #2:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional success path; regression `still navigates after 201 when register response body read throws`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — **cheap-disproof 2026-10-30 thorough hunt #2:** schema max blocks submit; regressions `keeps submit disabled when optional architecture team size exceeds 10000` and `does not call register fetch when optional architecture team size exceeds 10000`.
+- [x] (valid-no-repro) `SignupForm` — keyboard submit with invalid email calls register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #2:** `canSubmit` gate; regression `shows inline validation on keyboard submit without calling fetch`.
+
+2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five header-queue `(candidate)` rows — numeric `defaultWorkspaceId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`); empty `503` body uses status fallback (`shows synthetic message when register error response body is empty`); second `submit` while in-flight blocked (`does not fire a second register request when the form is submitted again while in flight`); `%` in work-email local part unreachable before verify (`invalid` on double-encode candidate); whitespace-only organization name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`). Reseeded five follow-on `(candidate)` rows. 128 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt:** string gate on project id; regression `does not emit registration scope headers when defaultProjectId is stored as a JSON number`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — **cheap-disproof 2026-10-30 thorough hunt:** empty body + status fallback; regression `shows generic submit error when register response body read throws on a non-ok response`.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — **cheap-disproof 2026-10-30 thorough hunt:** TB-2010 trim branch; regression `deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`.
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size `10000` included in register POST from UI — **cheap-disproof 2026-10-30 thorough hunt:** upper bound inclusive; regression `includes optional architecture team size 10000 in register POST body from the UI`.
+- [x] (invalid) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — **cheap-disproof 2026-10-30 thorough hunt:** `1e2` parses to whole `100`; regressions `serializes scientific notation optional architecture team size when it parses to a whole number` and `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`.
+
+2026-10-29 seed hunt (hit): promoted misleading signup readiness for overlong work email after `.max(254)` on `adminEmail` — `deriveSignupFormReadinessMessage` still returned generic invalid-email copy; now maps schema max message to TB-2010-style guidance; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`. Cheap-disproof closed four sibling `(candidate)` rows — numeric JSON `tenantId` on `201` intentionally omits scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); non-OK empty `{}` uses raw-body contract (`shows raw response text when register returns an empty JSON object on error`); post-`409` rename retry allowed by existing in-flight/`registerCompletedRef` regressions; IDN work emails blocked at zod `.email()` (invalid-email regressions). Reseeded five follow-on `(candidate)` rows. 126 scoped SignupForm vitest tests passed. Private beta: invited evaluation signup now shows the 254-character work-email limit in readiness copy instead of a misleading “valid email” hint.
+
+2026-10-29 thorough hunt (hit): promoted overlong work email accepted client-side — `signupFormSchema` had no maximum on `adminEmail` while other identity fields cap at 200; added `.max(254)` aligned with sign-in email bounds; regression `signupFormSchema rejects admin email longer than 254 characters`. Cheap-disproof closed four sibling `(candidate)` rows — missing `tenantId` on `201` intentional verify path (`persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`); array-root success JSON unreachable API contract (`does not persist top-level tenantId when register response body is a JSON array of objects`); numeric/object `detail` uses raw body contract (`shows raw response text when register returns numeric JSON detail`, existing array-detail test); fixed `409` toast by design (`shows fixed duplicate organization toast when register returns 409 with HTML body`). Reseeded five follow-on `(candidate)` rows. 123 scoped SignupForm vitest tests passed. Private beta: evaluation signup no longer posts RFC-overlong work emails that fail only after a server round trip.
+
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; regressions `shows synthetic message when HTTP 502 register response body is empty`, `shows raw response text when ProblemDetails JSON omits string detail`, `still posts register when first-touch cookie has only capturedUtc without UTM fields`, and `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`; reaffirmed array-root `201` navigation via `still navigates after 201 when register response body is a JSON array`; seeded five follow-on `(candidate)` rows; 119 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (proven) `signupFormSchema` — no maximum length on `adminEmail` before submit — **hit 2026-10-29 thorough hunt:** `.max(254)` on work email; regression above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` missing `tenantId` still navigates — **cheap-disproof 2026-10-29 thorough hunt:** verify flow + session best-effort; regression `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`.
+- [x] (invalid) `SignupForm` `onSubmit` — array-shaped success JSON omits top-level `tenantId` — **cheap-disproof 2026-10-29 thorough hunt:** unreachable API object shape; regression `does not persist top-level tenantId when register response body is a JSON array of objects`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric or object `detail` on errors — **cheap-disproof 2026-10-29 thorough hunt:** explicit raw-text contract; regressions `shows raw response text when server detail is not a string` and `shows raw response text when register returns numeric JSON detail`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` with HTML body skips server detail — **cheap-disproof 2026-10-29 thorough hunt:** fixed duplicate-org toast by design; regression `shows fixed duplicate organization toast when register returns 409 with HTML body`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with `tenantId` as JSON number still spreads into session storage — **cheap-disproof 2026-10-29 seed hunt:** numeric ids stored but `registrationScopeHeaders` requires string tenant id; regression `does not emit registration scope headers when tenantId is stored as a JSON number`.
+- [x] (proven) `deriveSignupFormReadinessMessage` — overlong work email surfaces generic readiness instead of max-length copy — **hit 2026-10-29 seed hunt:** readiness maps `.max(254)` schema message; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK empty JSON `{}` shows status-only toast — **cheap-disproof 2026-10-29 seed hunt:** raw response text contract; regression `shows raw response text when register returns an empty JSON object on error`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — success after `409` retry in same session blocked by `registerCompletedRef` — **cheap-disproof 2026-10-29 seed hunt:** retry allowed after non-ok; regressions `still allows register retry after duplicate organization conflict` and `allows register retry after a non-ok register response`.
+- [x] (valid-no-repro) `signupFormSchema` — internationalized domain work emails pass zod `.email()` but fail downstream — **cheap-disproof 2026-10-29 seed hunt:** zod rejects IDN before submit; inline invalid-email regressions.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultWorkspaceId` omits registration scope headers — **cheap-disproof 2026-10-29 seed hunt #2:** string gate on workspace id; regression `does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `503` with empty body surfaces generic status-only toast — **cheap-disproof 2026-10-29 seed hunt #2:** status fallback; regression `shows synthetic message when register error response body is empty`.
+- [x] (valid-no-repro) `SignupForm` — repeated Enter key while `Creating…` disabled fires a second register POST — **cheap-disproof 2026-10-29 seed hunt #2:** in-flight gate; regression `does not fire a second register request when the form is submitted again while in flight`.
+- [x] (invalid) `SignupForm` `onSubmit` — verify redirect double-encodes `%` in work-email local part — **cheap-disproof 2026-10-29 seed hunt #2:** `%` local-part addresses fail zod `.email()` before submit; plus-address/subdomain encode-once regressions cover reachable paths.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only organization name after trim surfaces generic required-field copy — **cheap-disproof 2026-10-29 seed hunt #2:** TB-2010 trim branch; regression `deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`.
+
+2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five fresh promotion attempts (work-email bidi/Cf blocked by zod `.email()`; post-success navigation throw intentionally leaves `Creating…` latched; funnel telemetry ordered before `router.push`; non-string JSON `detail` on registration errors matches ProblemDetails string contract; `NaN`/`Infinity` optional team size blocked by schema). Seeded five follow-on `(candidate)` rows; 115 scoped SignupForm vitest tests passed; no production or test code changed.
+
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `200 OK` register response still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #9:** `res.ok` gate; regression `navigates to verify on HTTP 200 when register response is ok`.
@@ -196,11 +252,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 57
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — Other-industry specification accepted control and bidi-format characters
+- **hunts:** 65
+- **bugs-found:** 14
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -346,14 +402,43 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-29 thorough hunt (hit): promoted `AnyEmbeddedRunListClaimsMorePages` — when manifest `evidence` contained multiple scannable list JSON fragments, first payload with `hasMore:false` blocked SKIP even though a later embedded payload had `hasMore:true`; hasMore inference now scans every `{`/`[` offset; regression `RunOffline_SkipsExcludeRunIdProbeWhenLaterEmbeddedJsonClaimsMorePagesAfterHasMoreFalse`. Cheap-disproof closed UTF-8 BOM on manifest read (`System.Text.Json` accepts BOM-prefixed manifest files; probe `evidence` leading BOM removed by `Trim`) and live `Trim` truncating pagination flags (exclude-run-id probes store `definition.Description` in `Evidence`, not truncated list bodies). 65 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-page fixture evidence with mixed pagination flags stays fail-closed when any embedded capture claims more pages.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — first scannable embedded JSON with `hasMore:false` wins over later truncated payload in same evidence string — **hit 2026-10-29 thorough hunt:** `AnyEmbeddedRunListClaimsMorePages`; regression above.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestOfflineRunner` — UTF-8 BOM prefix on evidence file read path (not artifact write) breaks JSON extraction — **cheap-disproof 2026-10-29 thorough hunt:** manifest `JsonSerializer` reads BOM-prefixed files; per-probe evidence uses `Trim()` before scan.
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — `Trim` on evidence truncates trailing `hasMore` token before offline manifest capture — **cheap-disproof 2026-10-29 thorough hunt:** `ExecuteExcludeRunIdProbeAsync` sets `Evidence = definition.Description`; `Trim(body)` applies only to primary-scope failure copy.
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` string literal `true` with surrounding whitespace in JSON ignored — locus: `RunListClaimsMorePages`; input: `"hasMore": true` with non-canonical spacing (monitor JsonValueKind.True gate).
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — lowercase `hasmore` property in captured list JSON skipped — locus: case-sensitive property name; input: camelCase vs PascalCase in legacy fixtures.
+- [ ] (candidate) `TenantIsolationNegativeTestCommand` — offline mode overall PASS when deny probes pass but list probe inferred SKIP from evidence only — locus: `DeriveOverallVerdict` offline branch; input: mixed probe verdicts with evidence-inferred SKIP.
+
+2026-10-29 thorough hunt (hit): promoted `TryExtractRunListJsonFromEvidence` — decorative JSON fragment earlier in manifest `evidence` (e.g. `note: use {"items":[]} shape then {"items":[],"hasMore":true}`) made the first `{`-suffix fail `RunListPayloadIsScannable`, so truncated list pages false-passed; extraction now scans every `{`/`[` start for the first scannable payload before hasMore inference; regression `RunOffline_SkipsExcludeRunIdProbeWhenDecorativeJsonPrecedesTruncatedListEvidence`. Cheap-disproof closed array-only list captures (root array has no `hasMore`; loop already honors `[` prefixes) and json-only artifact writes (`WillWriteMarkdown` false skips markdown path; regression `WriteArtifactsAsync_writes_utf8_without_byte_order_mark`). 64 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-fragment fixture evidence strings no longer false-pass exclude-run-id replay when only the trailing payload claims more pages.
+
+2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner.TryExtractRunListJsonFromEvidence` — prose-prefixed manifest `evidence` (e.g. `Captured body: {…}`) skipped hasMore inference because whole string failed `RunListPayloadIsScannable`; embedded JSON suffix now parsed before `RunListClaimsMorePages`; regression `RunOffline_SkipsExcludeRunIdProbeWhenProsePrefixedEvidenceJsonClaimsMorePagesWithoutFlag`. Promoted `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — JSON/markdown outputs used `Encoding.UTF8` with BOM unlike other CLI artifact writers; now `UTF8Encoding(false)`; regression `WriteArtifactsAsync_writes_utf8_without_byte_order_mark`. Cheap-disproof closed maxPages pagination cap (`RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList` returns ScanIncomplete SKIP). 63 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: offline fixture replay and pilot artifact files stay consistent with fail-closed list truncation and BOM-free evidence exports.
+
+2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner` — exclude-run-id replay false-passed when captured list JSON in manifest `evidence` contained `hasMore: true` without `nextCursor` but neither `runListClaimsMorePages` nor scan-incomplete outcome copy was present; offline replay now infers truncated list pages via `TryInferRunListClaimsMorePagesFromEvidence`; regression `RunOffline_SkipsExcludeRunIdProbeWhenEvidenceJsonClaimsMorePagesWithoutFlag`; 56 scoped `TenantIsolationNegativeTestRunnerTests` passed. Cheap-disproof closed primary/alternate client swap (cross-tenant probes always use `alternateClient`) and markdown correlation omission (correlation id is a separate markdown column, not truncated with observed outcome). Private beta: legacy tenant-isolation fixture manifests that embed captured list JSON in evidence no longer false-pass on truncated pagination.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` in evidence JSON ignored without `runListClaimsMorePages` — **hit 2026-10-29 thorough hunt:** `TryInferRunListClaimsMorePagesFromEvidence`; regression above.
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — primary-scope probe uses alternate headers on primary client — **cheap-disproof 2026-10-29 thorough hunt:** `ProbePrimaryRunVisibilityAsync` uses `primaryClient`; cross-tenant catalog probes use `alternateClient` only.
+- [x] (invalid) `TenantIsolationNegativeTestCommand.BuildMarkdown` — correlation ids dropped when observed outcome truncates — **cheap-disproof 2026-10-29 thorough hunt:** markdown table uses `probe.CorrelationId` column; `Trim` applies to failure evidence text only.
+
+2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner` — exclude-run-id manifest replay false-passed when `runListClaimsMorePages` was true but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` without scan-incomplete copy (live list scan already SKIPs via `RunListClaimsMorePages`); offline replay now honors optional manifest `runListClaimsMorePages` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListClaimsMorePages`; 55 scoped `TenantIsolationNegativeTestRunnerTests` passed. Cheap-disproof closed manifest `verdict` override (intentional observed-only replay), deny 408/429 vs list SKIP asymmetry (fail-closed deny contract), Skip/Fail both → `OperationFailed` (pilot non-pass exit), and explicit artifact paths without `GetFullPath` (operator-supplied outputs). Private beta: offline tenant-isolation fixture replay no longer false-passes truncated run-list pages that claimed more results without a continuation cursor.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — `runListClaimsMorePages` manifest signal ignored on exclude replay — **hit 2026-10-29 thorough hunt:** optional `runListClaimsMorePages` → SKIP; regression above.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestManifestProbe.Verdict` — stored manifest verdict ignored — **cheap-disproof 2026-10-29 thorough hunt:** intentional; regression `RunOffline_IgnoresManifestPassVerdictWhenObservedStatusIsUnexpectedSuccess`.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestLiveRunner` — deny 408/429 Fail vs list exclusion Skip — **cheap-disproof 2026-10-29 thorough hunt:** `EvaluateDenyStatus_Treats429AsFailNotSkip` and live list skip regressions document fail-closed deny vs unverifiable list scan.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand.RunAsync` — overall Skip and Fail both exit `OperationFailed` — **cheap-disproof 2026-10-29 thorough hunt:** non-`Pass` overall verdict maps to operation failed for pilot CI; Skip is not success.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestOutputPaths.Resolve` — explicit out paths skip default artifact dir normalization — **cheap-disproof 2026-10-29 thorough hunt:** explicit `--json-out` / `--markdown-out` are operator-controlled like other CLI write targets; default paths remain under `artifacts/tenant-isolation-negative-test/`.
+
+2026-10-29 seed hunt (seed-only): re-read `TenantIsolationNegativeTestCommand.WriteArtifactsAsync`, offline manifest replay (`TenantIsolationNegativeTestOfflineRunner`), live list scan/pagination (`TenantIsolationNegativeTestLiveRunner`), and `DeriveOverallVerdict`; cheap-disproved stale filename-only artifact candidates (shared `EnsureArtifactParentDirectoryExists` covers markdown parity) and offline overall PASS when a cross-tenant probe SKIPped (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` documents intentional fixture replay); no new hunt-ready row met failing-repro bar; seeded five bounded candidates below; scoped `TenantIsolationNegativeTest*` vitest 59/59; no production code changed.
+
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--json-out` — **cheap-disproof 2026-10-29 seed hunt:** fixed 2026-10-21; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`.
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--markdown-out` — **cheap-disproof 2026-10-29 seed hunt:** same `EnsureArtifactParentDirectoryExists` guard as JSON path.
+
 2026-10-21 seed hunt (seed→hit, lane C): lock `cli-tenant-isolation` verified on origin (`40b4314fa0`); promoted `WriteArtifactsAsync` — `--json-out report.json` (filename only) made `Path.GetDirectoryName` return empty and `Directory.CreateDirectory("")` fail before writing tenant-isolation evidence; skip directory creation when no parent path; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`; 59 scoped `TenantIsolationNegativeTest` tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected tenant-isolation command/runner facade, artifact output handling, offline/live verdict delegation, and focused tests. Existing filename-only artifact candidates and replay verdict contracts were not duplicated; no fresh reachable wrong-outcome mechanism met the promotion bar. The focused `TenantIsolationNegativeTestRunnerTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
-
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--markdown-out report.md` filename-only output path may diverge from JSON artifact handling when no directory component exists; verify the documented relative-file input and expected artifact success contract before promotion.
 
 2026-10-12 seed hunt (seed-only): reread the selected command/runner and focused test inventory, then examined the existing filename-only `--json-out` / `--markdown-out` candidates. The input is documented and the write branch is source-backed, but the same-run repro could not reach test discovery because of the existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no candidate was promoted and no temporary regression was retained. No production code changed.
 
@@ -421,11 +506,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 51
-- **bugs-found:** 25
+- **hunts:** 58
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — filename-only --json-out artifact paths threw on CreateDirectory
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — first embedded hasMore:false masked later hasMore:true in evidence
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1051,19 +1136,67 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 thorough hunt (hit): promoted url-driven `compareRuns` sync — after browser back narrowed committed `compareRuns`, the `urlCompareRunsRaw` effect restored two ids from lagging `useSearchParams` and resurrected the second compare checkbox while the inspector stayed open; effect now prefers committed compare ids when they disagree with router params; regression `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids`. Cheap-disproof closed `runsListFilterOpen` stale write (`invalid`, unreachable branch); `clearFilterText` vs debounce (`valid-no-repro`, regression `does not restore q= after Escape clears the filter before the debounce completes`); buyer card + compare deep link (`valid-no-repro`, regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`); pagination zero-match Next (`valid-no-repro`, regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). 67 scoped `RunsListClient` vitest passed. Private beta: backing out of a two-review compare selection no longer re-checks the dismissed review while compare query params are still catching up.
+
+- [x] (proven) `useRunsList` `urlCompareRunsRaw` effect — popstate-narrowed compare restored from lagging router — **hit 2026-10-29 thorough hunt:** prefer committed compare when serialized ids differ; regression above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — stale committed search on disclosure write — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` `clearFilterText` — debounced `q=` races immediate clear — **cheap-disproof 2026-10-29 thorough hunt:** Escape/clear path cancels debounce timer; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (valid-no-repro) `useRunsList` buyer card layout — compare deep link leaves ids without bar — **cheap-disproof 2026-10-29 thorough hunt:** URL compare cleared when bar hidden; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListClient` pagination Next — zero-match filter omits debounced `q=` on Next href — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges live filter text; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+
+- [ ] (candidate) `useRunsList` soft navigation — `compareRuns` removed via `useSearchParams` without popstate may leave row checkboxes checked until props refresh — locus: urlCompareRunsRaw effect; input: applyRouterHref clears compare only (extend soft-nav compare test).
+- [ ] (candidate) `useRunsList` popstate inspector handler — may close inspector when committed still has id but compare param removed in same back step — locus: popstate inspector ~450; input: combined back navigation harness.
+- [ ] (candidate) `RunsListClient` filter input — clearing text with delete/backspace only relies on debounce without immediate URL clear — locus: onChange vs clearFilterText; input: delete-to-empty then advance timers (monitor intentional debounce-only clear).
+- [ ] (candidate) `useRunsList` third-compare rotation — replacement notice may persist when popstate restores two compare ids from lagging router — locus: compare notice + url effect; input: extend popstate notice test with lagging router two-id param.
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — monitor `useSearchParams` write parity when disclosure UX reopens — locus: client ~115; input: invalid until branch reachable.
+
+2026-10-29 thorough hunt (hit): promoted `resolveInspectorRunIdForUrlSync` — after Escape cleared committed `inspectorRunId`, toggling compare still passed stale `useSearchParams` inspector id into `syncCompareInspectorToUrl` and rewrote the URL; helper now prefers committed inspector, then treats stale router-only id as closed; regression `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`. Cheap-disproof closed panel close lag (`stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`); popstate vs url-driven open (`valid-no-repro`, regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`); debounced `q=` dropping `inspectorRunId` (`preserves inspectorRunId in debounced q= sync when filter text is typed`); disclosure `useSearchParams` monitor (`invalid`, branch unreachable). 66 scoped `RunsListClient` vitest passed. Private beta: closing the runs-list inspector then selecting compare no longer resurrects a dismissed inspector deep link in the URL while router params lag.
+
+- [x] (proven) `resolveInspectorRunIdForUrlSync` — compare toggle after Escape resurrected stale router `inspectorRunId` in URL sync — **hit 2026-10-29 thorough hunt:** committed-first + closed-when-committed-empty; regression above.
+- [x] (valid-no-repro) `RunsListClient` close button — panel close lag reopens inspector — **cheap-disproof 2026-10-29 thorough hunt:** same close path as Escape; regression `stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`.
+- [x] (valid-no-repro) `useRunsList` popstate inspector sync — disagrees with url effect after soft row open — **cheap-disproof 2026-10-29 thorough hunt:** committed inspector wins; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — needs `useSearchParams` base — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` debounced `q=` — typing filter drops `inspectorRunId` — **cheap-disproof 2026-10-29 thorough hunt:** disclosure-only writer preserves params; regression `preserves inspectorRunId in debounced q= sync when filter text is typed`.
+
+- [ ] (candidate) `useRunsList` popstate compare sync — may rewrite `inspectorRunId` when compare clears on back navigation — locus: popstate compare handler ~367; input: popstate clears compare while inspector intentionally open (monitor URL parity).
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — stale `readWindowLocationSearch` on write if disclosure UX reopens — locus: client ~115; input: design monitor (invalid until branch reachable).
+- [ ] (candidate) `useRunsList` `clearFilterText` — immediate clear may race debounced `q=` timer scheduled before clear — locus: clear + debounce; input: type, clear via button not Escape (extend clear tests).
+- [ ] (candidate) `useRunsList` buyer card shell activate — compare deep link + card layout may leave compare ids in state without bar — locus: showCompareSelection; input: deep link then card click (monitor selection bar).
+- [ ] (candidate) `RunsListClient` pagination — Next link when `filteredSorted` empty may still expose page 2 without `q=` in committed search — locus: empty filter table + Next href; input: zero-match filter after debounced q= landed (extend pagination tests).
+
+2026-10-29 thorough hunt (hit): promoted inspector close vs lagging `useSearchParams` — Escape (or close button) cleared committed `inspectorRunId` via `syncCompareInspectorToUrl` but the url-driven selection effect reopened the docked preview on rerender while `useSearchParams` still carried stale `inspectorRunId`; effect now treats empty committed inspector with non-empty router param as closed; regressions `clears inspectorRunId from committed URL when Escape closes the inspector while useSearchParams still lags` and `stays closed after Escape when useSearchParams still lags inspectorRunId until rerender`. Cheap-disproof closed `runsListFilterOpen` write path (`invalid`, unreachable disclosure branch); debounced `q=` after unrelated param navigation (`debounced q= sync keeps pending filter text after unrelated sort= URL navigation`); Previous pagination pending filter (`preserves pending text filter in the Previous pagination link on page 2 before q= debounce completes`); buyer compare bar flash (`valid-no-repro`, compare clears same pass as card layout, existing buyer compare URL test). 63 scoped `RunsListClient` vitest passed. Private beta: invited operators can dismiss the runs-list inspector with Escape without it snapping back open while the address bar query is still catching up.
+
+- [x] (proven) `useRunsList` url-driven selection — Escape close reopened inspector when router `inspectorRunId` lagged cleared committed search — **hit 2026-10-29 thorough hunt:** empty committed + stale router param keeps inspector closed; regressions above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure writes merge stale committed search — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355); monitor `useSearchParams` if UX changes.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` — `routerSearchString` change drops pending filter — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect uses latest router base + `filterText`; regression `debounced q= sync keeps pending filter text after unrelated sort= URL navigation`.
+- [x] (valid-no-repro) `useRunsList` buyer scope transition — compare bar flash with deep-linked `compareRuns` — **cheap-disproof 2026-10-29 thorough hunt:** compare chrome hidden on card layout; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListClient` pagination Previous — page 2 link omits pending `q=` — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges pending filter; regression `preserves pending text filter in the Previous pagination link on page 2 before q= debounce completes`.
+
+2026-10-29 thorough hunt (hit): promoted compare-clear URL sync — `setCompareSelection([])` when buyer package cards hide compare UI called `syncCompareInspectorToUrl` with `selectedRun` still null on the first effect pass, dropping deep-linked `inspectorRunId` while clearing stale `compareRuns`; `resolveInspectorRunIdForUrlSync` now falls back to router/committed inspector params; regression `buyer-polished: preserves inspectorRunId when compareRuns is cleared for hidden compare UI`. Cheap-disproof closed debounced `q=` vs Escape (`does not restore q= after Escape clears the filter before the debounce completes`); `runsListFilterOpen` disclosure write path (`invalid`, unreachable UX branch); pagination cursor with zero client matches (`keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`); Escape/debounce duplicate (`valid-no-repro`, same regression). 59 scoped `RunsListClient` vitest passed. Private beta: buyer card layout deep links that open the inspector plus stale compare selection no longer strip `inspectorRunId` when compare chrome is cleared.
+
+- [x] (proven) `useRunsList` `showCompareSelection` effect — clearing compare on card layout dropped `inspectorRunId` before selection state committed — **hit 2026-10-29 thorough hunt:** `resolveInspectorRunIdForUrlSync`; regression above.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` sync — Escape before debounce restores typed `q=` — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `filterText` clear; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure toggle merges stale committed search — **cheap-disproof 2026-10-29 thorough hunt:** `<details>` branch unreachable when `buyerPolished && totalCount <= 1` hides filters entirely (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` pagination `nextHref` — zero client matches drops `nextCursor` — **cheap-disproof 2026-10-29 thorough hunt:** server pagination independent of client filter; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+- [x] (valid-no-repro) `RunsListClient` filter Escape — debounced timer repopulates cleared `q=` — **cheap-disproof 2026-10-29 thorough hunt:** same Escape/debounce regression as above.
+
+2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — `syncCompareInspectorToUrl`, debounced `q=` sync, and `clearFilterText` built hrefs from `readWindowLocationSearch()`, so row activation after soft navigation merged stale list query keys into `inspectorRunId` commits; write paths now use `searchParams.toString()` with pending filter merge via `runsListEffectiveSearchFromSearch`; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`; 56 scoped `RunsListClient` vitest passed. Private beta: opening the docked inspector on the reviews list no longer re-attaches stale toolbar query params after in-app navigation.
+
+- [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
+
 - **id:** ui-runs-list
 - **status:** open
 - **impact:** low
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 34
-- **last-hunt:** 2026-10-10
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
+- **hunts:** 38
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1177,6 +1310,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [ ] (candidate) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — locus: stale guard vs success; input: reopen form mid-flight edge (monitor).
+- [ ] (candidate) `workEmail` — plus-address local part with spaces trimmed only at payload — locus: `.trim()` on whole address; input: `"ops +tag @example.com"` (monitor).
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — locus: generic error; input: name with `\u000b` (monitor).
+- [ ] (candidate) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — locus: counter vs dismiss; input: cancel then resubmit (monitor).
+- [ ] (candidate) `technicalDetail` — HTML-like strings escaped only by React text node — locus: JSX interpolation; input: angle-bracket detail (monitor).
+
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `onSubmit` — parses JSON `message` on non-409 failures — **cheap-disproof 2026-10-30 thorough hunt:** generic copy by design; regression `does not parse JSON message field on non-409 API failures`.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — **cheap-disproof 2026-10-30 thorough hunt:** generation guard; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (valid-no-repro) `websiteUrl` honeypot — peripheral spaces posted without trim — **cheap-disproof 2026-10-30 thorough hunt:** server-side trim contract; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (valid-no-repro) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — **cheap-disproof 2026-10-30 thorough hunt:** silent early return intentional; regressions `does not surface a submit error when a second submit is blocked while the first POST is still in flight` and `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
+- [x] (invalid) `technicalDetail` — padded detail string renders with leading newline artifact — **cheap-disproof 2026-10-30 thorough hunt:** detail still visible; regression `renders technical detail when the prop begins with a leading newline`.
+
 **Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -1187,11 +1336,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) success path — honeypot `websiteUrl` not cleared in state — **cheap-disproof 2026-10-15 seed hunt:** success view unmounts form; regression `omits the access request form from the DOM on the success view after a filled honeypot posts`.
 - [x] (valid-no-repro) try-again link enabled during submit — **cheap-disproof 2026-10-15 seed hunt:** intentional escape hatch; regression `keeps try again navigation enabled while submit is in flight`.
 
-- [ ] (candidate) `workEmail` — peripheral spaces posted without client trim — locus: `JSON.stringify({ workEmail: form.workEmail })`; input: `" jordan@fabrikam.com "` in harness.
-- [ ] (candidate) `onSubmit` — HTTP 200 with `{ error }` JSON still treated as success — locus: only `response.ok`; input: 200 + error envelope body.
-- [ ] (candidate) `errorMessage` — generic submit error survives request-access toggle-close — locus: toggle calls `dismissAccessRequestForm` without `setErrorMessage(null)`; input: failed POST then collapse via toggle.
-- [ ] (candidate) `fetch` — access-request POST omits explicit `credentials` — locus: `fetch("/api/access-requests", { method: "POST", … })`; input: same-origin cookie expectations for operator session.
-- [ ] (candidate) `note` — note trimmed to `null` when value is only `\n` and spaces — locus: `form.note.trim() === ""`; input: multiline whitespace-only note bypassing guard.
+- [x] (invalid) `workEmail` — peripheral spaces posted without client trim — **cheap-disproof 2026-10-29 thorough hunt:** payload uses `.trim()`; regression `trims peripheral spaces on workEmail in the POST body`.
+- [x] (invalid) `onSubmit` — HTTP `200` with `{ error }` JSON still treated as success — **cheap-disproof 2026-10-29 thorough hunt:** API returns `502` for `send_failed`; unreachable `200` envelope; regression `shows success when the API returns HTTP 200 with a JSON error body`.
+- [x] (valid-no-repro) `errorMessage` — generic submit error survives request-access toggle-close — **cheap-disproof 2026-10-29 thorough hunt:** intentional retain on reopen; regression `retains a prior submit error when the request form is toggled closed without cancel`.
+- [x] (valid-no-repro) `fetch` — access-request POST omits explicit `credentials` — **cheap-disproof 2026-10-29 thorough hunt:** same-origin default sends cookies; no prod change required.
+- [x] (valid-no-repro) `note` — note trimmed to `null` when value is only `\n` and spaces — **cheap-disproof 2026-10-29 thorough hunt:** optional empty normalization; regressions `sends whitespace-only optional fields as null` and `sends multiline whitespace-only optional note as null`.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `trims peripheral spaces on cloudPlatformFocus in the POST body`, `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`, `clears duplicate submit error when cancel closes the form`, plus reaffirmed `shows generic submit error when the API returns rate limited` and `omits request access control on the success view`; reseeded five follow-on `(candidate)` rows; 93 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -1400,10 +1549,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 32
+- **hunts:** 34
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1450,28 +1599,71 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — dual external hash anchors intentionally both render (`renders two external hash fragment variants on the same vendor path`); leading-whitespace scheme-relative urls still classify as external (`classifies protocol-relative doc-index urls with leading whitespace as external links`); uppercase percent-encoding searchable via haystack lowercasing (`filters rows when the search query matches uppercase percent-encoding in the doc-index url`); static quick link vs external vendor pathname merge keys disjoint (`invalid`); URL `q` refilters after index load (`applies URL q filter to fetched rows after the documentation index finishes loading` + existing active-search test). 62 scoped HelpDocsClient + help-hub-search-url vitest passed; no production code changed. Reseeded five follow-on `(candidate)` rows below.
+
+- [x] (valid-no-repro) `mergeDocIndex` — two external hash variants on same merge key — **cheap-disproof 2026-10-29 thorough hunt:** both deep-link suffix rows render; regression `renders two external hash fragment variants on the same vendor path`.
+- [x] (valid-no-repro) `helpDocLinkHref` / `linkProps` — leading tab on scheme-relative url skips noreferrer — **cheap-disproof 2026-10-29 thorough hunt:** `trim()` before external check; regression `classifies protocol-relative doc-index urls with leading whitespace as external links`.
+- [x] (valid-no-repro) `HelpDocsClient` filter — uppercase hex percent escapes not searchable — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw url + lowercased normalized token; regression `filters rows when the search query matches uppercase percent-encoding in the doc-index url`.
+- [x] (invalid) `mergeDocIndex` — static quick link blocks unrelated external vendor row — **cheap-disproof 2026-10-29 thorough hunt:** merge keys for `/help/troubleshooting` vs `https://…` cannot collide.
+- [x] (valid-no-repro) `indexQuery.isPending` — URL `q` fails to refilter after fetch — **cheap-disproof 2026-10-29 thorough hunt:** `mergedEntries` memo recomputes; regressions `applies URL q filter to fetched rows after the documentation index finishes loading` and `shows fetched index matches for an active search after the index load completes`.
+
+- [ ] (candidate) `HelpDocsClient` — `replaceIfHrefChanged` not used for debounced q sync may loop `router.replace` when param order differs — locus: debounce effect ~245; input: help hub with `tab=` + `q=` permutations (monitor replace count).
+- [ ] (candidate) `mergeDocIndex` — fetched https base row dropped when static quick link shares pathname without scheme — locus: static `/architecture/reviews` vs fetched `/architecture/reviews?tab=` (monitor internal deep link only).
+- [ ] (candidate) `helpDocLinkHref` — internal url with only hash differs from static path but merge treats as duplicate without suffix check on static rows — locus: static seed claimedUrls; input: static `/help/troubleshooting` vs fetched `/help/troubleshooting#symptom` (monitor hash on internal).
+- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — external url filter token loses query string so search cannot match version param on normalized token alone — locus: haystack normalizedUrl; input: rely on raw url only for `%3D` tokens (monitor dual haystack contract).
+- [ ] (candidate) `HelpDocsClient.clearSearch` — debounced timer repopulates `q` after Escape when operator typed during same tick — locus: clearSearch + debounce race; input: type + Escape within 250ms with fake timers (extend Escape tests).
+
+2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` merge-order gap — when doc-index listed an external hash or scheme-relative `#` variant before the https base row, the base link was dropped because normalized-path dedupe fired without checking for an already-merged deep-link variant; `mergedIncludesDeepLinkVariantForKey` now keeps the base outbound row; regression `renders the base external url when doc-index lists a hash variant before the https row`. Cheap-disproof closed scheme-relative/hash suffix parse parity (same `docIndexFetchedUrlHasDeepLinkSuffix` URL parse as prior external hash hit); HelpProductGuide debounce (outside zone `paths`); bare `#` fragment guard (`parsed.hash.length > 0`); category order flash (display-only sort); empty index warning (intentional static fallback). 58 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: help hub vendor links stay complete regardless of doc-index row order when both anchor and base urls are present.
+
+- [x] (proven) `docIndexMergeDedupeKey` / `mergeDocIndex` — hash variant before https base dropped base row — **hit 2026-10-29 thorough hunt:** `mergedIncludesDeepLinkVariantForKey`; regression above.
+- [x] (invalid) `HelpProductGuide` — topic search debounce pathname compare — **cheap-disproof 2026-10-29 thorough hunt:** locus outside zone `paths` (`HelpDocsClient.tsx` only).
+- [x] (valid-no-repro) `mergeDocIndex` — bare `#` on external url — **cheap-disproof 2026-10-29 thorough hunt:** empty hash fails `parsed.hash.length > 0`; generator unlikely to emit.
+- [x] (valid-no-repro) `helpDocCategoriesForDisplay` — unknown category order flash on filter clear — **cheap-disproof 2026-10-29 thorough hunt:** stable sort; empty sections not rendered.
+- [x] (valid-no-repro) `useHelpDocsIndexQuery` — empty index warning without refetch hint — **cheap-disproof 2026-10-29 thorough hunt:** static quick links intentional fallback; warning copy documents empty response.
+
+2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows whose url differed only by a `#` fragment were dropped when the base vendor url was already merged because external urls always returned `false` for deep-link suffix; external hash fragments now bypass normalized-path dedupe (query-only duplicates still collapse); regression `renders fetched external doc links when only a hash fragment differs on the same https url`. Cheap-disproof closed parse/read trim monitor candidate (`parseHelpHubSearchQuery` trim shipped prior hunt); debounced `window.location` compare (`replaceIfHrefChanged` pattern documented, existing param-order tests); trailing-slash filter token (`filters entries when the search query ends with a trailing slash on the url path token`); Escape vs debounce (`clears the search box when Escape is pressed` + effect cleanup). 57 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: vendor documentation entries in the help hub can surface separate in-page anchor links without losing the base outbound url row.
+
+- [x] (proven) `mergeDocIndex` — fetched external https row with only `#` deduped against base vendor url — **hit 2026-10-29 thorough hunt:** hash-aware `docIndexFetchedUrlHasDeepLinkSuffix`; regression above.
+- [x] (invalid) `helpHubSearchHrefFromSearch` — read/write trim mismatch for padded `q` — **cheap-disproof 2026-10-29 thorough hunt:** closed by prior `parseHelpHubSearchQuery` trim hit.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location` vs `usePathname` href compare — **cheap-disproof 2026-10-29 thorough hunt:** canonical help path; at most one replace; monitor `replaceIfHrefChanged` for future refactor.
+- [x] (valid-no-repro) `normalizeHelpHubFilterQuery` — trailing slash strip hides path matches — **cheap-disproof 2026-10-29 thorough hunt:** regression `filters entries when the search query ends with a trailing slash on the url path token`.
+- [x] (valid-no-repro) `HelpDocsClient.clearSearch` — debounced timer rewrites cleared q — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `query` change; regression `clears the search box when Escape is pressed`.
+
+2026-10-29 thorough hunt (hit): promoted `parseHelpHubSearchQuery` — padded `?q=` deep links showed leading/trailing spaces in the search box while `normalizeHelpHubFilterQuery` trimmed for filtering, so shared help links looked broken until the operator edited the field; parse now trims inbound `q` to match debounced URL sync; regressions `trims inbound q URL parameter when initializing the search box` and `help-hub-search-url.test.ts`. Cheap-disproof closed scheme-relative href vs merge dedupe (`preserves query strings on external documentation link href` + `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`); debounced pathname equality (`preserves non-q URL parameters when debounced search sync updates q`, `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged`); static hash vs fetched deep link (`renders fetched doc-index deep links when only a hash fragment differs`); external url query filter (`filters external documentation when the query matches a query param on the vendor url` — haystack includes raw `e.url`). 56 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: operators opening help hub links with padded search params see the same filter text the hub applies immediately.
+
+- [x] (proven) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses trim — **hit 2026-10-29 thorough hunt:** `parseHelpHubSearchQuery` trims; regressions above.
+- [x] (invalid) `helpDocLinkHref` — scheme-relative external urls normalized for href differently from https duplicate merge key — **cheap-disproof 2026-10-29 thorough hunt:** href preserves raw url; merge key normalization is dedupe-only by design.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location.pathname`+`search` equality misses href built with different param ordering — **cheap-disproof 2026-10-29 thorough hunt:** at most one canonicalizing replace; unrelated param tests above.
+- [x] (valid-no-repro) `mergeDocIndex` — static row url with hash suffix prevents fetched deep link on same path without hash — **cheap-disproof 2026-10-29 thorough hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` allows fetched `#`/`?` variants; regression `renders fetched doc-index deep links when only a hash fragment differs`.
+- [x] (valid-no-repro) `normalizeDocIndexUrlForDedupe` — filter haystack deduped url token misses external url query search — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw `e.url`; regression `filters external documentation when the query matches a query param on the vendor url`.
+
+2026-10-29 seed hunt (seed→hit): re-read `HelpDocsClient`, merge/dedupe helpers, and help index query hook after set-3 CLI churn; promoted `helpDocLinkHref` — external https doc-index rows routed through `normalizeDocIndexUrlForDedupe`, stripping query/hash on `Link` href while internal relative urls already preserved suffixes; external href now uses trimmed raw url (merge dedupe unchanged); regression `preserves query strings on external documentation link href`; cheap-disproof closed stale duplicate ledger `(candidate)` rows (deep-link merge, refetchOnMount, double-space filter covered by prior regressions); seeded five follow-on `(candidate)` rows below; 53 scoped `HelpDocsClient` vitest passed. Private beta: operators opening vendor documentation links from the help hub land on the intended versioned or tracked URL.
+
+- [x] (proven) `helpDocLinkHref` — external https doc-index urls stripped query/hash on navigation href — **hit 2026-10-29 seed hunt (seed→hit):** return trimmed url for all schemes; regression above.
+
 - **id:** ui-help-docs
 - **status:** open
 - **impact:** low
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 33
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-15 — help hub internal link href stripped query/hash
+- **hunts:** 38
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
 - [x] (proven) `HelpDocsClient` link `href` — `normalizeDocIndexUrlForDedupe` stripped query and hash on relative doc-index urls before navigation — **hit 2026-10-15 seed hunt (seed→hit):** `helpDocLinkHref` preserves relative `?` / `#` while merge dedupe unchanged; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`.
-- [x] (proven) `mergeDocIndex` — fetched rows whose url differs from a static quick link only by query/hash never render — **hit 2026-10-21 lane C:** `docIndexFetchedUrlHasDeepLinkSuffix`; regressions `renders fetched doc-index deep links when only query/hash differs`. (dedupe key strips search), so deep links such as `/architecture/reviews?tab=active` cannot surface even when titles differ — locus: `docIndexMergeDedupeKey` + static `claimedUrls`; input: doc-index row with query suffix on an existing static path; wrong outcome: operator loses the deep-link card entirely; reachability: shipped `public/doc-index.json` and static `HELP_DOCS_STATIC_ENTRIES`.
-- [x] (valid-no-repro) `helpDocLinkHref` — percent-encoded path segments on relative urls are not decoded for navigation while dedupe decodes (`%2F` vs `/`) — locus: relative branch returns raw `trimmed`; input: `/help/%65ncoded-topic`; wrong outcome: Next.js `Link` href may not match decoded route; reachability: doc-index generator and merge tests.
-- [x] (valid-no-repro) `HelpDocsClient` list item `key` — `${cat}-${row.title}-${row.url}` collides when two rows share category/title but differ only by normalized-url merge collapse — locus: React key on `<li>`; input: duplicate titles after merge with distinct raw urls; wrong outcome: React reconciliation warning or wrong row updates; reachability: merged static+fetched index rendering.
-- [x] (valid-no-repro) `normalizeHelpHubFilterQuery` — interior spaces in multi-word queries are not collapsed, so `policy  packs` misses `Policy packs` rows whose haystack has a single space — locus: filter haystack `includes` check; input: double-space typo in search box; wrong outcome: false empty results; reachability: help hub search input.
-- [x] (valid-no-repro) `useHelpDocsIndexQuery` — `refetchOnMount: 'always'` only when cached data is `[]`, not when cached data is `undefined` after gc — locus: TanStack `refetchOnMount` callback; input: remount after gc eviction with prior successful non-empty index; wrong outcome: stale index until manual navigation; reachability: operator help route remount within `gcTime`.
+- [x] (proven) `mergeDocIndex` — fetched rows whose url differs from a static quick link only by query/hash never render — **hit 2026-10-21 lane C:** `docIndexFetchedUrlHasDeepLinkSuffix`; regressions `renders fetched doc-index deep links when only query/hash differs`.
+- [x] (proven) `helpDocLinkHref` — external https doc-index urls stripped query/hash on navigation href — **hit 2026-10-29 seed hunt (seed→hit):** return trimmed url; regression `preserves query strings on external documentation link href`.
+- [x] (valid-no-repro) `helpDocLinkHref` — percent-encoded path segments on relative urls are not decoded for navigation while dedupe decodes (`%2F` vs `/`) — **cheap-disproof 2026-10-29 seed hunt:** relative branch returns raw `trimmed`; dedupe decoding is merge-only.
+- [x] (valid-no-repro) `HelpDocsClient` list item `key` — `${cat}-${row.title}-${row.url}` collides when two rows share category/title but differ only by normalized-url merge collapse — **cheap-disproof 2026-10-29 seed hunt:** merge prevents duplicate normalized paths from coexisting in rendered list.
+- [x] (valid-no-repro) `normalizeHelpHubFilterQuery` — interior spaces in multi-word queries are not collapsed — **cheap-disproof 2026-10-29 seed hunt:** intentional; filter uses substring `includes` on haystack.
+- [x] (valid-no-repro) `useHelpDocsIndexQuery` — `refetchOnMount: 'always'` only when cached data is `[]` — **cheap-disproof 2026-10-29 seed hunt:** callback returns `true` for undefined data (default refetch) and `always` for empty arrays.
 
 2026-10-15 seed hunt (seed→hit): promoted internal link `href` stripping query/hash via dedupe normalizer; `helpDocLinkHref`; 51 scoped `HelpDocsClient` vitest tests passed.
 
@@ -1479,28 +1671,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved scheme-relative vs https dedupe and empty doc-index cache remount gaps; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
 
-- **id:** ui-help-docs
-- **status:** open
-- **impact:** low
-- **aliases:** help docs; help client
-- **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
-- **test-filter:** HelpDocsClient
-- **hunts:** 33
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-15 — help hub internal link href stripped query/hash
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-### Hypotheses
-
-- [x] (proven) `HelpDocsClient` link `href` — `normalizeDocIndexUrlForDedupe` stripped query and hash on relative doc-index urls before navigation — **hit 2026-10-15 seed hunt (seed→hit):** `helpDocLinkHref` preserves relative `?` / `#` while merge dedupe unchanged; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`.
-- [ ] (candidate) `mergeDocIndex` — fetched rows whose url differs from a static quick link only by query/hash never render (dedupe key strips search), so deep links such as `/architecture/reviews?tab=active` cannot surface even when titles differ — locus: `docIndexMergeDedupeKey` + static `claimedUrls`; input: doc-index row with query suffix on an existing static path; wrong outcome: operator loses the deep-link card entirely; reachability: shipped `public/doc-index.json` and static `HELP_DOCS_STATIC_ENTRIES`.
-- [ ] (candidate) `helpDocLinkHref` — percent-encoded path segments on relative urls are not decoded for navigation while dedupe decodes (`%2F` vs `/`) — locus: relative branch returns raw `trimmed`; input: `/help/%65ncoded-topic`; wrong outcome: Next.js `Link` href may not match decoded route; reachability: doc-index generator and merge tests.
-- [ ] (candidate) `HelpDocsClient` list item `key` — `${cat}-${row.title}-${row.url}` collides when two rows share category/title but differ only by normalized-url merge collapse — locus: React key on `<li>`; input: duplicate titles after merge with distinct raw urls; wrong outcome: React reconciliation warning or wrong row updates; reachability: merged static+fetched index rendering.
-- [ ] (candidate) `normalizeHelpHubFilterQuery` — interior spaces in multi-word queries are not collapsed, so `policy  packs` misses `Policy packs` rows whose haystack has a single space — locus: filter haystack `includes` check; input: double-space typo in search box; wrong outcome: false empty results; reachability: help hub search input.
-- [ ] (candidate) `useHelpDocsIndexQuery` — `refetchOnMount: 'always'` only when cached data is `[]`, not when cached data is `undefined` after gc — locus: TanStack `refetchOnMount` callback; input: remount after gc eviction with prior successful non-empty index; wrong outcome: stale index until manual navigation; reachability: operator help route remount within `gcTime`.
 2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
@@ -1611,6 +1781,111 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook, including loading/failure gates, scope resets, Continue-last navigation, checklist completion, and existing regressions; no additional hunt-ready defect survived cheap-disproof. Seeded two concrete follow-up candidates; 59 focused webhook tests passed.
 
+2026-10-29 seed hunt (hit): promoted delivery-contract disclosure vs lagging router params — local `useEffect`/`useState` and `searchParams`-based writes could keep the panel open from stale `webhooksDeliveryContractOpen` or resurrect cleared `webhookEnableId` when opening the contract after a lagging enable cancel; delivery open state now derives from committed search and contract URL writes use `readWindowLocationSearch`; regressions `keeps delivery contract disclosure closed after dismiss when useSearchParams still lags open param` and `does not resurrect webhookEnableId when opening delivery contract after enable cancel with lagging router params`. Reseeded five `(candidate)` rows. 65 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook delivery help and open it after dismissing enable confirmation without stale query params reopening dialogs or disclosures.
+
+2026-10-29 seed hunt (seed-only): re-read webhook refresh/load/mutations/create-form paths; cheap-disproof closed five open `(candidate)` rows — refresh after never-loaded list keeps `webhookEnableId` (`keeps webhookEnableId when manual refresh fails after the subscription list never loaded`); cross-disclosure lag write uses committed search (`does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`); triple-load overlap guarded by existing `loadRequestRef` newest-response policy; connection-test toast after scope switch guarded by existing generation check (`clears in-flight webhook test state when operator scope switches workspaces`); popstate disable-cancel same committed toggle resolver as prior hits (`valid-no-repro`). Reseeded five follow-on `(candidate)` rows. 67 scoped `page.test.tsx` vitest passed; no production code changed.
+
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — failed refresh clears inline test results at refresh start (`clears webhook test results when manual subscription refresh fails`); dual toggle lag covered by committed-search resolver (`valid-no-repro`, monitor); consecutive refresh failures still surface latest error (`shows refresh failure` tests); create blocked while `loading` during refresh via `isSavingRef` / duplicate check on stale rows (`valid-no-repro`, intentional); continue-last shows stored disabled subscription when id matches row (`valid-no-repro`, resolver returns stored match). Reseeded five follow-on `(candidate)` rows. 71 scoped `page.test.tsx` vitest passed; no production code changed.
+
+2026-10-29 seed hunt (hit): promoted `executeToggle` reload superseded without recorded API failure — overlapping subscription loads could return `false` from `load()` without setting `lastLoadFailureRef`, leaving enable confirmation open with no inline error; `presentToggleRefreshFailureInDialog` now shows a fallback operator message when refresh fails without a stored failure; regression `shows enable dialog error when post-toggle list reload is superseded without API failure`. Reseeded five `(candidate)` rows. 72 scoped `page.test.tsx` vitest passed. Private beta: invited operators enabling a webhook after overlapping saves/refreshes see a clear retry message instead of a stuck confirmation dialog with no feedback.
+
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — disable superseded reload covered by shared `presentToggleRefreshFailureInDialog` fallback (`shows disable dialog error when post-toggle list reload is superseded without API failure`); enable checklist gated by `subscriptionsLoaded = !loading` during refresh (`does not mark enable step done while manual subscription refresh is in flight`); toggle blocked during reload is intentional (`disables webhook toggle buttons while subscription list reload is in flight`); initial load failure then refresh success populates rows (`shows subscription rows after manual refresh succeeds following initial load failure`); save success callout after successful refresh is intentional UX (`keeps save success callout visible after successful manual refresh`). Reseeded five follow-on `(candidate)` rows. 77 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [x] (valid-no-repro) `WebhooksSettingsClient` — enable checklist stale `activeSubscriptionCount` during refresh — **cheap-disproof 2026-10-29 seed hunt:** `subscriptionsLoaded = !loading` clears enable step during in-flight refresh; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.presentToggleRefreshFailureInDialog` — disable confirm silent on superseded reload — **cheap-disproof 2026-10-29 seed hunt:** shared fallback from enable hit; regression `shows disable dialog error when post-toggle list reload is superseded without API failure`.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — Disable during `loading` — **cheap-disproof 2026-10-29 seed hunt:** `disabled={loading}` intentional guard; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — initial failure then refresh success leaves empty `items` — **cheap-disproof 2026-10-29 seed hunt:** success path sets rows; regression above.
+- [x] (valid-no-repro) `WebhooksCreateSubscriptionForm` — save success through successful refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional; regression above.
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — post-create list API failure surfaces via `presentSaveRefreshFailureAfterCreate` (`does not show save success when list refresh fails after create` / `preserves create form values when list refresh fails after create`); configuration status uses loading copy during refresh (`shows loading configuration status instead of stale active count during subscription refresh`); refresh clears pending enable by design (`closes enable confirmation when manual refresh starts while confirm was open`); test button intentionally not gated on list `loading` (`allows webhook test while subscription list reload is in flight`); scope switch during toggle reload resets mutation state (`does not keep enable confirmation open after scope switch during toggle reload`). Reseeded five follow-on `(candidate)` rows. 82 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — post-create reload failure with recorded API error — **cheap-disproof 2026-10-29 seed hunt:** `presentSaveRefreshFailureAfterCreate` + existing create refresh failure tests.
+- [x] (valid-no-repro) `WebhooksSettingsClient.configurationStatusBlock` — stale active count during refresh — **cheap-disproof 2026-10-29 seed hunt:** loading branch shows “Loading configuration status…”; regression above.
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — refresh clears open enable confirm — **cheap-disproof 2026-10-29 seed hunt:** intentional pending reset at refresh start; regression above.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — test during list loading — **cheap-disproof 2026-10-29 seed hunt:** intentional; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.executeToggle` — scope generation mismatch after toggle — **cheap-disproof 2026-10-29 seed hunt:** scope change resets mutations; regression above.
+2026-10-29 seed hunt (hit): promoted stale inline webhook test result resurrected after refresh when an in-flight connection test completed — `refreshSubscriptions` cleared `testResults` at refresh start but completion handlers still wrote results for the pre-refresh generation; `useWebhooksSettingsConnectionTest` now bumps `testGenerationRef` on reset and ignores stale completions; regression `does not resurrect inline webhook test results when refresh finishes before an in-flight test completes`. Cheap-disproof closed four sibling `(candidate)` rows (disable superseded during save mirrors existing disable stale-reload test; failed-then-success refresh save gating via `blocks create when manual refresh fails`; continue-last focus on refresh fail via `hides continue-last viewed row when manual refresh fails`; delivery-contract lag monitor under saturated state-machine-gap). Reseeded five `(candidate)` rows. 83 scoped `page.test.tsx` vitest passed. Private beta: invited operators who refresh during a webhook connection test no longer see misleading inline test outcomes tied to pre-refresh inventory.
+
+- [x] (proven) `useWebhooksSettingsConnectionTest` — inline test result after refresh mid-test — **hit 2026-10-29 seed hunt:** test generation guard on reset; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — focus when refresh fails — **cheap-disproof 2026-10-29 seed hunt:** continue-last hidden on refresh failure; existing regression.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable superseded during save — **cheap-disproof 2026-10-29 seed hunt:** `shows disable dialog error when post-toggle list reload is superseded without API failure`.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — save blocked after failed refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional until successful reload; `blocks create when manual refresh fails after subscriptions loaded`.
+- [x] (valid-no-repro) `WebhooksCreateSubscriptionForm` — delivery contract vs save with router lag — **cheap-disproof 2026-10-29 seed hunt:** saturated `[state-machine-gap]`; existing committed-search disclosure regressions.
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — stale test completion skips toasts via generation guard (`does not show connection test toasts when refresh invalidates an in-flight test`); successful reload after failed refresh clears page failure once refresh control is idle (`clears page failure after manual refresh succeeds following a failed refresh`); duplicate-name after superseded create failure relies on server-side conflict on retry (`valid-no-repro`, local rows intentionally stale until reload); enabled chip reflects last loaded rows until refresh completes (`shows the prior enabled chip while subscription refresh is in flight`, monitor); refresh resets disable dialog errors by design (`clears disable confirmation error when manual refresh fails`). Reseeded five follow-on `(candidate)` rows. 87 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest` — stale completion toasts — **cheap-disproof 2026-10-29 seed hunt:** generation guard returns before toast presenters; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — failure alert after successful refresh — **cheap-disproof 2026-10-29 seed hunt:** `load()` clears failure on success; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — duplicate-name guard after superseded post-create failure — **cheap-disproof 2026-10-29 seed hunt:** stale rows until reload; retry hits API duplicate handling.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — stale enabled chip during refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional until load completes; regression above (monitor).
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — clears disable error on failed refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional pending/error reset at refresh start; regression above.
+2026-10-29 seed hunt (hit): promoted webhook test button stuck busy when refresh invalidates an in-flight test — stale completions skipped `setTestingId(null)` in `finally` when `testGenerationRef` advanced, leaving `aria-busy` true despite cleared results; `finally` now clears busy state for the same scope regardless of test generation; regression `does not resurrect inline webhook test results when refresh finishes before an in-flight test completes` (aria-busy assertion). Cheap-disproof closed four sibling `(candidate)` rows — recovery refresh clears failure alert (`clears page failure after manual refresh succeeds following a failed refresh`); retry create conflict surfaces save error (`surfaces save error when retry create conflicts after superseded post-create reload failure`); refresh clears enable URL param (`clears webhookEnableId from the URL when manual refresh starts with enable confirm open`); overlapping list failure precedence (`valid-no-repro`, existing refresh failure tests). Reseeded five `(candidate)` rows. 89 scoped `page.test.tsx` vitest passed. Private beta: invited operators who refresh during a webhook connection test are not left with a stuck “Send test event” busy state.
+
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — stale test error toast guarded like success path (`does not show connection test error toast when refresh invalidates an in-flight failed test`); superseded post-create page failure clears on next successful manual refresh (`clears page failure after manual refresh succeeds following superseded post-create list reload failure`); enable confirm not left busy after superseded toggle reload (`does not leave enable confirmation busy after superseded post-toggle list reload`; refresh during in-flight enable blocked by `RefreshButton` busy while list loading); inline test results cleared when refresh drops subscription row (`does not show inline test results for subscriptions removed by manual refresh`); save success callout after successful refresh intentional (`keeps save success callout visible after successful manual refresh`). Reseeded five follow-on `(candidate)` rows. 93 scoped `page.test.tsx` vitest passed; no production code changed.
+
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — disable confirm not left busy after superseded toggle reload (`does not leave disable confirmation busy after superseded post-toggle list reload`); stale test catch inline results guarded with toast test (`valid-no-repro`, regression `does not show connection test error toast when refresh invalidates an in-flight failed test`); create API failure clears after successful manual refresh (`clears page failure after manual refresh succeeds following create API failure`); load preamble clears save failure when refresh starts (`clears save failure alert when manual refresh starts before subscription reload completes`; intentional); recovery refresh gated on `RefreshButton` busy while list loading (`valid-no-repro`, wait-until-enabled pattern in recovery tests). Reseeded five follow-on `(candidate)` rows. 96 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmDisableSubscription` — disableBusy after superseded reload — **cheap-disproof 2026-10-29 seed hunt:** busy cleared in finally; regression `does not leave disable confirmation busy after superseded post-toggle list reload`.
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest` — stale catch writes inline testResults — **cheap-disproof 2026-10-29 seed hunt:** generation guard before `setTestResults`; regression `does not show connection test error toast when refresh invalidates an in-flight failed test`.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — create API failure through recovery refresh — **cheap-disproof 2026-10-29 seed hunt:** successful `load()` clears failure; regression `clears page failure after manual refresh succeeds following create API failure`.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — load start clears mutation failure during overlap — **cheap-disproof 2026-10-29 seed hunt:** intentional refresh preamble; regression `clears save failure alert when manual refresh starts before subscription reload completes`.
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — recovery refresh blocked while loading — **cheap-disproof 2026-10-29 seed hunt:** `RefreshButton` disabled when `loading`; wait-until-enabled in recovery refresh tests.
+- [ ] (candidate) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable error inline persists when post-disable reload fails with API error — locus: `presentToggleRefreshFailureInDialog`; input: list reject after disable toggle (monitor).
+- [ ] (candidate) `useWebhooksSettingsConnectionTest` — `testingId` cleared in finally even when catch returns early on stale generation — locus: catch/finally ordering; input: reject test after refresh (monitor).
+- [ ] (candidate) `WebhooksSettingsClient` — save failure alert reappears if manual refresh fails after create API error — locus: load catch after refresh; input: save error then failed refresh (monitor).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — superseded successful response discarded when newer refresh fails — locus: newest-request policy; input: overlapping refresh failure after prior success (monitor).
+- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name guard uses stale rows until reload after failed save — locus: submit duplicate check; input: failed save then rename retry before refresh (monitor).
+
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest` — stale test catch calls error toast after refresh — **cheap-disproof 2026-10-29 seed hunt:** catch generation guard matches try; regression `does not show connection test error toast when refresh invalidates an in-flight failed test`.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — superseded create failure persists through recovery refresh — **cheap-disproof 2026-10-29 seed hunt:** successful `load()` clears failure; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmEnableSubscription` — enableBusy stuck after refresh during confirm — **cheap-disproof 2026-10-29 seed hunt:** refresh disabled while list loading; superseded reload clears busy; regression `does not leave enable confirmation busy after superseded post-toggle list reload`.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — orphan test result row after refresh shrinks list — **cheap-disproof 2026-10-29 seed hunt:** refresh resets connection test state; table renders results only for current rows; regression above.
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — save success callout after successful refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional UX; regression `keeps save success callout visible after successful manual refresh`.
+
+- [x] (proven) `useWebhooksSettingsConnectionTest` — `testingId` stuck after refresh invalidates in-flight test — **hit 2026-10-29 seed hunt:** scope-scoped `finally` clears busy state; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — correlation id after recovery refresh — **cheap-disproof 2026-10-29 seed hunt:** failure cleared on successful reload; `clears page failure after manual refresh succeeds following a failed refresh`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — server duplicate on retry after superseded failure — **cheap-disproof 2026-10-29 seed hunt:** create catch formats conflict; regression `surfaces save error when retry create conflicts after superseded post-create reload failure`.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — overlapping rejected loads — **cheap-disproof 2026-10-29 seed hunt:** newest failure wins; existing refresh failure assertions.
+- [x] (valid-no-repro) `WebhooksContinueLastViewedRow` — enable URL vs refresh — **cheap-disproof 2026-10-29 seed hunt:** refresh clears pending and URL param; regression above.
+
+2026-10-29 seed hunt (hit): promoted silent save after successful create when post-create `load()` is superseded — overlapping enable-toggle reload could complete first so create’s reload returned `false` without `getLastLoadFailure`, leaving filled form and no success or error while create already succeeded; `presentSaveRefreshFailureAfterCreate` surfaces page-level failure with fallback copy; regression `surfaces page failure when create succeeds but post-create list reload is superseded`. Reseeded five `(candidate)` rows. 78 scoped `page.test.tsx` vitest passed. Private beta: invited operators who save a webhook while another list reload finishes see an explicit refresh-and-verify message instead of a silent partial save.
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` — create success leaves form values when overlapping toggle confirm reload fails — **hit 2026-10-29 seed hunt:** post-create superseded reload; regression above.
+
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — failed refresh left inline test results — **cheap-disproof 2026-10-29 seed hunt:** connection test reset at refresh start; regression `clears webhook test results when manual subscription refresh fails`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.onToggle` — disable confirm with lagging enable id — **cheap-disproof 2026-10-29 seed hunt:** committed toggle resolver; monitor dual-id URLs.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — double refresh failure flash — **cheap-disproof 2026-10-29 seed hunt:** second failure replaces first; existing refresh failure assertions.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — duplicate name check during in-flight refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional stale-row guard until reload completes.
+- [x] (valid-no-repro) `WebhooksContinueLastViewedRow` — stored disabled id hides continue-last — **cheap-disproof 2026-10-29 seed hunt:** stored id match returns target even when disabled; product copy “Continue last viewed”.
+
+2026-10-29 seed hunt (hit): promoted stale inline webhook test results after manual refresh — successful connection test left “Latest test result” in client state while subscription inventory was reloaded; `refreshSubscriptions` now resets connection-test state at refresh start; regression `clears webhook test results when manual subscription refresh succeeds`. Reseeded five `(candidate)` rows. 70 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see outdated inline test outcomes after refreshing the subscription list.
+
+2026-10-29 seed hunt (hit): promoted save-success callout vs failed manual refresh — after a successful save, a failed subscription refresh left “Subscription saved.” visible alongside the refresh failure and unavailable inventory state; `refreshSubscriptions` now clears `saveSuccessMessage` when reload fails; regression `clears save success callout when manual refresh fails after a successful save`. Cheap-disproof closed configuration-status candidate (`valid-no-repro`, refresh failure already shows unavailable status tag via `hides stale subscription count subtitle when manual refresh fails` / status test). Reseeded five `(candidate)` rows. 69 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see a save-success banner when subscription inventory refresh fails and the page is in an unavailable state.
+
+- [x] (proven) `WebhooksSettingsClient` — `testResults` map stale after refresh — **hit 2026-10-29 seed hunt:** see stale inline test results hit above.
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — save success callout remained visible when subscription list refresh failed after save — **hit 2026-10-29 seed hunt:** clear success message on failed `refreshSubscriptions`; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — configuration status tag vs stale rows during refresh failure — **cheap-disproof 2026-10-29 seed hunt:** `hasLoadedSuccessfully` false shows unavailable status; existing refresh-failure status/subtitle tests.
+
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — continue-last scroll during in-flight refresh — **cheap-disproof 2026-10-29 seed hunt:** regression `focuses continue-last test button while manual subscription refresh is in flight`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — `isSavingRef` latched after scope switch during create — **cheap-disproof 2026-10-29 seed hunt:** `resetMutationState` on scope change; existing `does not show save success in a new workspace when create completes after scope switch`.
+- [x] (invalid) `WebhooksCreateSubscriptionForm` — `showAlertSeverityFilter` vs URL back on eventTypes — **cheap-disproof 2026-10-29 seed hunt:** webhooks create form has no URL-backed eventTypes; severity follows `useWatch` only.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — stale subtitle on refresh failure — **cheap-disproof 2026-10-29 seed hunt:** regression `hides stale subscription count subtitle when manual refresh fails`.
+- [x] (valid-no-repro) `WebhooksContinueLastViewedRow` — continue-last targets row filtered out by channel filter — **cheap-disproof 2026-10-29 seed hunt:** `resolveContinueLastWebhookSubscription` receives filtered `webhookRows`; non-webhook channels never enter pool.
+
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — manual refresh with deep-link `webhookEnableId` may drop id on failed load — **cheap-disproof 2026-10-29 seed hunt:** regression `keeps webhookEnableId when manual refresh fails after the subscription list never loaded`.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — triple overlapping list responses may apply stale rows — **cheap-disproof 2026-10-29 seed hunt:** `loadRequestRef` newest-response guard; extend overlap covered by existing create+refresh test.
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest.onTestWebhook` — toast may fire in new workspace when scope switches mid-request — **cheap-disproof 2026-10-29 seed hunt:** generation guard + existing scope-switch in-flight test.
+- [x] (valid-no-repro) `WebhooksCreateSubscriptionForm` — opening technical event disclosure after delivery contract close with lag may merge stale delivery param — **cheap-disproof 2026-10-29 seed hunt:** regression `does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect — back navigation may reopen disable confirm when committed cleared but router still carries `webhookDisableId` — **cheap-disproof 2026-10-29 seed hunt:** same committed toggle resolver as enable/disable cancel hits; no separate popstate repro attempted (monitor history navigation).
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — delivery contract disclosure and URL writes vs lagging `webhooksDeliveryContractOpen` / stale toggle params — **hit 2026-10-29 seed hunt:** `resolveWebhooksDeliveryContractOpenForUrlSync` + committed-search writes; regressions above.
+
+2026-10-29 seed hunt (hit): promoted technical-event-name disclosure vs lagging `useSearchParams` — dismiss cleared committed `webhooksTechnicalEventNameEventId` but `<details open>` stayed bound to stale router param; create form now resolves event id from committed search for open state and URL writes; regression `keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id`. Cheap-disproof closed disable-cancel lag candidate (`valid-no-repro`, shared toggle resolver from prior hit); added regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`. Reseeded five `(candidate)` rows. 63 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook event technical-name help without it snapping back open while App Router query catches up.
+
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect — disable confirmation cancel vs lagging `webhookDisableId` — **cheap-disproof 2026-10-29 seed hunt:** shared committed-search toggle resolver from enable-cancel hit; regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`.
+- [x] (proven) `WebhooksCreateSubscriptionForm` — technical event name disclosure stayed open after dismiss when `webhooksTechnicalEventNameEventId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhooksTechnicalEventNameEventIdForUrlSync`; regression above.
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — enable confirmation reopened after Cancel when `webhookEnableId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhookToggleIdForUrlSync` prefers committed toggle ids; regression `stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId`.
+
 ## Zone: ui-webhooks-settings
 
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
@@ -1621,11 +1896,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 46
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
+- **hunts:** 63
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — webhook test busy stuck after refresh during in-flight test
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1816,15 +2091,59 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` percent-encoded operator paths — `/architecture/reviews%20` on the marketing host stayed `next` because `%20` was not decoded before prefix matching (while decoded trailing space already redirected); `decodeURIComponent` before lowercase, slash collapse, and URL resolution; regression `redirects marketing-host operator paths when pathname uses percent-encoded segments`; cheap-disproof closed four sibling `(candidate)` rows (parent `..` resolves correctly for marketing vs operator handoff, workspace-health nested paths already covered, `/` welcome redirect omits empty query, IPv6 Host not reproduced); scoped host-gate vitest 22/22. Private beta: split-site users following percent-encoded operator bookmarks on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — **hit 2026-10-29 thorough hunt:** `decodeURIComponent` in `normalizeHostGatePathname`; regression above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — parent-segment (`/../`) escape after URL resolution — **cheap-disproof 2026-10-29 thorough hunt:** `/architecture/../welcome` resolves to marketing `/welcome` and correctly stays on public host; `/welcome/../architecture/reviews` redirects to app origin.
+- [x] (invalid) `isOperatorPath` — `WORKSPACE_HEALTH_PATH` exact vs nested subpaths — **cheap-disproof 2026-10-29 thorough hunt:** `/insights/workspace-health` and nested paths already redirect from marketing host.
+- [x] (invalid) `decideHostGateRedirect` — empty `search` on `/` → `/welcome` — **cheap-disproof 2026-10-29 thorough hunt:** empty search yields `https://archlucid.net/welcome` without stray `?`.
+- [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
+
+- [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
+- [ ] (candidate) `decideHostGateRedirect` — `+` in query preserved on operator redirect — locus: `pathAndQuery`; input: marketing host operator path with `search: '?q=a+b'`.
+- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — locus: legacy prefix list; input: compare `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs host-gate list.
+- [ ] (candidate) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — locus: `isMarketingOnlyPath`; input: app host `/pricing/` exact.
+- [ ] (candidate) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — locus: decode guard; input: malformed `%00` segment (fail closed to `next`).
+
+2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` dot-segment paths — `/./architecture/reviews` on the marketing host stayed `next` because slash collapse left `/./` segments that failed operator prefix matching; resolve pathname with `URL` after lowercase and slash collapse; regression `redirects marketing-host operator paths when pathname includes a dot segment`; cheap-disproof closed four sibling `(candidate)` rows (`/signup/` prefix funnel by design, bare `/api` non-proxy stays on marketing host, `/SHOWCASE` query already preserved via lowercase normalize, IDN Host pairing not reproduced on this boundary); scoped host-gate vitest 21/21. Private beta: split-site users opening operator bookmarks with `/./` path noise on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — **hit 2026-10-29 thorough hunt:** URL pathname resolution in `normalizeHostGatePathname`; regression above.
+- [x] (invalid) `isMarketingOnlyPath` — `/signup/verify/extra` on app host — **cheap-disproof 2026-10-29 thorough hunt:** `/signup/` marketing prefix intentionally covers nested verify paths; app host redirects to public origin.
+- [x] (invalid) `decideHostGateRedirect` — marketing-host `/api` without trailing slash — **cheap-disproof 2026-10-29 thorough hunt:** only `/api/proxy/…` must stay on marketing host; bare `/api` is not operator and correctly stays `next`.
+- [x] (invalid) `decideHostGateRedirect` — `search` preserved on mixed-case `/SHOWCASE` — **cheap-disproof 2026-10-29 thorough hunt:** lowercase normalize + existing regression; `?utm=1` preserved on redirect.
+- [x] (invalid) `hostsMatch` — IDN Host vs punycode origin — **cheap-disproof 2026-10-29 thorough hunt:** no configured-origin / Host fixture in repo reproduces mismatch; defer unless pilot reports IDN split-host config.
+
+2026-10-29 thorough hunt (hit): promoted `EXTRA_MARKETING_PREFIXES` bare `/showcase` funnel root — only `/showcase/` nested paths were marketing-only, so `app.archlucid.net/showcase` stayed `next` on the operator host instead of redirecting to the public origin; add `/showcase` to `EXTRA_MARKETING_EXACT_PATHS`; regressions `redirects app-host bare showcase funnel root to the public origin` and classifier assert on `/showcase`; cheap-disproof closed four sibling `(candidate)` rows (operator trailing slash already matches prefix, `/signup/` via `/signup/` marketing prefix, unknown-host fail-open by design, backslash paths not reachable); scoped host-gate vitest 20/20. Private beta: split-site pilots opening the showcase funnel root on the app host are sent to the public marketing origin instead of operator-shell 404 chrome.
+
+- [x] (proven) `EXTRA_MARKETING_PREFIXES` — `/showcase` without trailing slash not treated as marketing funnel — **hit 2026-10-29 thorough hunt:** `/showcase` in `EXTRA_MARKETING_EXACT_PATHS`; regressions above.
+- [x] (invalid) `normalizeHostGatePathname` — trailing slash on operator prefix (`/architecture/reviews/`) — **cheap-disproof 2026-10-29 thorough hunt:** `pathMatchesPrefix` treats `/architecture/reviews/` as under `/architecture/reviews`; marketing host redirects to app origin.
+- [x] (invalid) `decideHostGateRedirect` — app-host `/signup/` trailing slash marketing handoff — **cheap-disproof 2026-10-29 thorough hunt:** `EXTRA_MARKETING_PREFIXES` includes `/signup/`; app host already redirects `/signup/`.
+- [x] (valid-no-repro) `decideHostGateRedirect` — unknown third host serves operator paths without redirect — **cheap-disproof 2026-10-29 thorough hunt:** unmatched Host returns `{ kind: "next" }` intentionally so CDN or preview hosts are not forced to app origin.
+- [x] (invalid) `decideHostGateRedirect` — backslash-normalized Windows-style pathname segments — **cheap-disproof 2026-10-29 thorough hunt:** Next middleware supplies forward-slash pathnames; backslash segments are not reachable inputs here.
+
+2026-10-29 seed hunt (seed→hit): promoted `decideHostGateRedirect` duplicate-leading-slash pathname — `//architecture/reviews` on the marketing host stayed `next` because prefix classifiers never matched the doubled slash; collapse repeated `/` segments in `normalizeHostGatePathname` before marketing/operator checks; regression `redirects marketing-host operator paths when pathname has a duplicate leading slash`; cheap-disproof closed four open `(candidate)` rows (showcase casing via existing lowercase normalize, `/` query variants, `:443` host pair, percent-encoded segment); scoped host-gate vitest 19/19. Private beta: split-site users following mistyped `//` bookmark URLs on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname bypasses operator prefix match — **hit 2026-10-29 seed hunt:** slash collapse in `normalizeHostGatePathname`; regression above.
+- [x] (invalid) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — **cheap-disproof 2026-10-29 seed hunt:** `decideHostGateRedirect` lowercases before `isMarketingOnlyPath`; `/Showcase/demo` on app host redirects like `/welcome` casing case.
+- [x] (invalid) `decideHostGateRedirect` — marketing-host root redirect drops uncommon query on `/` → `/welcome` — **cheap-disproof 2026-10-29 seed hunt:** `/` branch passes `input.search` through unchanged; empty search already covered.
+- [x] (invalid) `decideHostGateRedirect` — public origin `:443` vs Host without port — **cheap-disproof 2026-10-29 seed hunt:** `URL.host` omits default HTTPS port; configured origins and Host header normalize to the same host string in production-style pairs.
+- [x] (invalid) `decideHostGateRedirect` — percent-encoded pathname in legacy bookmark segment — **cheap-disproof 2026-10-29 seed hunt:** middleware supplies decoded pathnames; `%2Freviews` is not a reachable classifier input on this boundary.
+
+2026-10-29 thorough hunt (hit): promoted `decideHostGateRedirect` case-sensitive pathname classification — mixed-case marketing paths on the app host (e.g. `/Welcome`) stayed `next` instead of redirecting to the public origin, and mixed-case operator paths on the marketing host stayed on marketing chrome; normalize pathname to lowercase before split-host classifiers and redirect targets; regressions `redirects app-host marketing paths when pathname casing differs from canonical marketing routes` and `redirects marketing-host operator paths when pathname casing differs from canonical operator routes`; cheap-disproof closed five open `(candidate)` rows (shim prefix audit, Host header case, get-started funnel, www query matrix, `/auth` slash edge); scoped host-gate vitest 18/18. Private beta: split-site hosting forwards mistyped-casing bookmarks to the correct origin instead of leaving users on the wrong host’s 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — case-sensitive pathname breaks marketing/operator handoff — **hit 2026-10-29 thorough hunt:** `normalizeHostGatePathname` lowercases before `isMarketingOnlyPath` / `isOperatorPath`; redirect `pathAndQuery` uses normalized pathname; regressions above.
+
 2026-10-25 seed hunt (seed→hit): promoted split-host marketing requests for legacy `/quick-start` bookmark staying `next` instead of redirecting to the app origin — `LEGACY_QUICK_START_PATH` was in retired redirect shims but missing from `LEGACY_OPERATOR_PATH_PREFIXES`; added prefix import; regressions `treats legacy bookmark paths as operator paths` and `redirects marketing-host legacy quick-start bookmark to the app origin`; scoped host-gate vitest 16/16. Private beta: invited users opening `/quick-start` on the public marketing host are forwarded to the app origin under split-site hosting instead of seeing marketing 404 chrome.
 
 - [x] (proven) `LEGACY_OPERATOR_PATH_PREFIXES` — `/quick-start` omitted from split-host operator handoff — **hit 2026-10-25 seed hunt:** import `LEGACY_QUICK_START_PATH`; `host-gate.test.ts` classifier + redirect regressions.
 
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — locus: prefix list; input: no shim path left marketing-only on split host.
-- [ ] (candidate) `decideHostGateRedirect` — uppercase Host header normalization — locus: `normalizeRequestHost`; input: mixed-case host still matches configured origins.
-- [ ] (candidate) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — locus: funnel paths; input: split-host app host should not treat canonical get-started as marketing-only incorrectly.
-- [ ] (candidate) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — locus: `hostsMatch`; input: matrix test for www marketing host.
-- [ ] (candidate) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — locus: classifier; input: `/auth` without trailing slash still operator.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — **cheap-disproof 2026-10-29 thorough hunt:** every `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` entry is already classified as operator; canonicalize exports covered by prior lane-C prefix alignment.
+- [x] (invalid) `decideHostGateRedirect` — uppercase Host header normalization — **cheap-disproof 2026-10-29 thorough hunt:** `normalizeRequestHost` already lowercases Host; mixed-case `ArchLucid.NET` redirects operator paths.
+- [x] (invalid) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — **cheap-disproof 2026-10-29 thorough hunt:** `/get-started` is marketing-only by design; app host correctly redirects to public origin.
+- [x] (invalid) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — **cheap-disproof 2026-10-29 thorough hunt:** `www.archlucid.net` + `/dashboard?x=1` redirects with query intact.
+- [x] (invalid) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — **cheap-disproof 2026-10-29 thorough hunt:** `/auth` matches `/auth/` prefix rule; `/auth/signin` already regression-covered.
+
+- [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — **hit 2026-10-29 seed hunt:** see zone-header note above.
 
 - **id:** ui-host-gate
 - **status:** open
@@ -1832,11 +2151,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — `/quick-start` legacy bookmark missing from split-host operator prefixes
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1858,6 +2177,43 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-29 thorough hunt (hit): promoted inbound `runId` drop after canonical hydration — removing `runId` while keeping `contextRunId` aligned to the canonical active scope incorrectly wiped hydrated description/priorities because intake reset keyed only on `contextRunId !== previousInbound`; `shouldClearIntakeWhenInboundRunIdDropped` now treats matching `activeRunId` as same scope; regressions `architecture-intelligence-page-helpers.test.ts` and `keeps hydrated intake when inbound runId is removed but contextRunId matches canonical scope`. Cheap-disproof closed invalid-tier reasoning without opening depth select (`reviewTier` state defaults Standard and invalid `tier` is stripped before POST); continue POST with scope switch mid-interview (`actionGenerationRef` stale guard + continue path uses current `activeRunId`). 7 scoped unit tests passed locally; page-client integration on CI. Private beta: operators who drop `runId` from architecture intelligence URLs after canonical scope sync keep hydrated intake instead of an empty form.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` removed while `contextRunId` matches canonical active scope after hydration — **hit 2026-10-29 thorough hunt:** `shouldClearIntakeWhenInboundRunIdDropped`; helper + page-client regressions above.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — analysis depth select shows Standard while URL still carries bogus `tier` until operator opens select — **cheap-disproof 2026-10-29 thorough hunt:** invalid tier strip effect + `reviewTier` state; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST uses stale run id after scope switch mid-interview — **cheap-disproof 2026-10-29 thorough hunt:** `invalidateInFlightActions` on context switch; regressions `clears reasoning results when contextRunId switches` and `keeps contextRunId scope banner when continue response omits runId`.
+
+- [ ] (candidate) `useArchitectureIntelligenceProductContext` — `clearedInboundContextConflictRef` never resets when inbound `runId` changes without remount — locus: conflict strip ref ~296–305; input: navigate A|B conflict then replace inbound id in-place (monitor one-shot strip).
+- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning response `runId` overwrites `contextRunId`-only URL scope with a third id — locus: `setActiveRunId` after run POST ~99–103; input: freeform `contextRunId` scope then run returns different `runId` (monitor banner vs URL sync).
+- [ ] (candidate) `useArchitectureIntelligenceProductContext.retryProductContextLoad` — reload nonce replays hydration while operator edited description mid-load — locus: `productContextReloadNonce` + hydration effect ~335–386; input: edit textarea during failed-then-retry product context fetch.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — golden fixture load after invalid `tier` strip reintroduces bogus tier in share link — locus: fixture action vs tier strip ref; input: `tier=Typo` deep link then load golden fixture without changing depth select.
+- [ ] (candidate) `useArchitectureIntelligenceProductContext.onSelectReview` — picking a review while `contextRunId`-only scope leaves interview answers from prior freeform run — locus: `onSelectReview` + `setInterviewAnswers`; input: reasoning interview answers then pick-review strip selection without clearing answers.
+
+2026-10-29 thorough hunt (hit): promoted conflicting `runId`/`contextRunId` deep links — when both search params disagreed, `contextRunId` scope could override inbound product hydration and leave a stale scope param in the URL; inbound `runId` is now authoritative, stale `contextRunId` is stripped via `router.replace`, and the `contextRunId` effect skips conflicting values; regression `strips stale contextRunId from the URL when inbound runId disagrees` supported by `architecture-intelligence-url-sync.test.ts` (contextRunId clear href helper). Promoted invalid `tier` query values — UI defaulted analysis depth to Standard while the URL kept a bogus `tier=` token until the operator changed depth; invalid tiers are now stripped from the URL once; regressions `removes invalid tier search param from the URL while defaulting analysis depth` (page client) and tier helper unit tests in `architecture-intelligence-url-sync.test.ts`. Cheap-disproof closed reasoning POST proxy-scope candidate — `postJson` always merges operator scope headers and `buildRequest` includes `activeRunId` from `contextRunId` scope; extended `keeps contextRunId scope banner when reasoning response omits runId` to assert request body `runId`. 4 URL-sync unit tests verified locally; full ArchitectureIntelligence page-client suite on CI. Private beta: architecture intelligence deep links no longer disagree between inbound review scope, URL params, and analysis depth after manual URL edits.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — **hit 2026-10-29 thorough hunt:** inbound `runId` wins; stale `contextRunId` removed from URL; conflicting context effect skipped.
+- [x] (proven) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — **hit 2026-10-29 thorough hunt:** strip invalid `tier` search param; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
+- [x] (invalid) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — **cheap-disproof 2026-10-29 thorough hunt:** `mergeRegistrationScopeForProxy` on every POST; body includes `runId`; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+
+2026-10-29 thorough hunt (dry): cheap-disproof closed three mis-seeded `(candidate)` rows — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection` are review-detail loci under `archlucid-ui/src/app/(operator)/architecture/reviews/`, outside this zone's `paths` (`ArchitectureIntelligencePageClient` tree); no `readWindowLocationSearch` write locus exists under `architecture-intelligence/_sections`. Re-read product-context and page-client URL scope boundaries; 58 scoped ArchitectureIntelligence page-client tests passed. Reseeded three zone-local `(candidate)` rows below. Operator-route disclosure URL candidates remain queued under `ui-operator-routes`.
+
+- [x] (invalid) `RunDetailSubmittedArchitectureSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+- [x] (invalid) `RunDetailAuthorityChainSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+- [x] (invalid) `FindingInspectWhyMattersSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+
+2026-10-29 thorough hunt (hit): promoted `useArchitectureIntelligenceProductContext` hydration — when product source-context returns a canonical `runId` different from the inbound `runId` search param, hydration updated local scope only and left a stale `contextRunId`/scope URL; hydration now calls `setActiveRunIdWithUrl` only when API and inbound ids differ; regression `syncs contextRunId in the URL when product source context returns a canonical run id`; `onSelectReview` clears stale `contextRunId` when writing `runId`; 58 scoped ArchitectureIntelligence page-client tests passed. Cheap-disproof closed analyze-always-publish (intentional analyze path), failure-panel scope banner (documented recovery contract), publish stale guard (existing `actionGenerationRef`), and pick-review strip unreachable with stale `contextRunId` (strip hidden when scope already set). Private beta: architecture intelligence deep links keep URL scope aligned with canonical product run ids after intake hydration.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression above.
+- [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` param when picking review — **hit 2026-10-29 thorough hunt:** delete `contextRunId` when setting `runId`.
+- [x] (invalid) `useArchitectureIntelligenceActions.analyzeThisReview` — analyze forces publish toggle before POST — **cheap-disproof 2026-10-29 thorough hunt:** analyze path intentionally passes `publish: true` to run reasoning for product publish workflow.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — scope banner during `productContextLoadFailed` — **cheap-disproof 2026-10-29 thorough hunt:** intentional recovery contract; regression `does not show next-review footer when product context load failure panel is visible` keeps banner visible.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` while pick strip open — **cheap-disproof 2026-10-29 thorough hunt:** strip renders only when `activeRunId` empty; `contextRunId`-only scope hides strip before pick.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.publishRun` — publish without stale guard on scope switch — **cheap-disproof 2026-10-29 thorough hunt:** `isStaleActionGeneration` before `setRunState` matches proven reasoning/continue guards.
+
+2026-10-29 seed hunt (seed→hit): re-read page client and action hooks; promoted `continueWithAnswers` — continue POST with omitted `runId` passed `undefined ?? activeRunId` but an empty string `runId` cleared `activeRunId` via `setActiveRunIdWithUrl`, dropping the scope banner for `contextRunId` deep links while results remained; fixed by only updating active run when continue response includes a non-empty trimmed id (mirrors reasoning run POST guard); regression `keeps contextRunId scope banner when continue response omits runId`; 57 scoped ArchitectureIntelligence page-client tests passed. Seeded five follow-on `(candidate)` rows below. Private beta: architecture intelligence interview resubmit no longer clears the deep-linked review scope when the continue API omits run id.
+
+- [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — empty or omitted continue `runId` cleared deep-linked scope — **hit 2026-10-29 seed hunt:** non-empty trimmed id gate; regression above.
+
 2026-10-21 thorough hunt (hit, lane D): proved `runReasoningWithOptions` cleared `activeRunId` when the run POST omitted `runId`, removing the scope banner for `contextRunId` deep links while reasoning results remained; fixed by skipping `setActiveRunId` unless the response includes a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`; 56 scoped ArchitectureIntelligence page-client tests passed.
 
 2026-10-11 seed hunt (seed→hit): re-read `ArchitectureIntelligencePageClient` and both focused page-client suites; proved that a source-context refetch failure hid prior reasoning results but left the Publish to findings/advisory button enabled. Added `productContextLoadFailed` to the publish gate; regression `does not show reasoning results when product context load failure panel is visible` now also asserts the publish button is disabled. The focused suites passed 55/55.
@@ -1872,13 +2228,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 40
-- **bugs-found:** 27
+- **hunts:** 45
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — omitted run POST `runId` cleared deep-linked review scope
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — inbound runId drop cleared canonical-scoped intake
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
 
@@ -1893,6 +2249,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+- [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST without usable `runId` cleared deep-linked scope while results remained — **hit 2026-10-29 seed hunt:** same non-empty trimmed id gate; regression `keeps contextRunId scope banner when continue response omits runId`.
+- [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression `syncs contextRunId in the URL when product source context returns a canonical run id`.
+- [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` when setting `runId` — **hit 2026-10-29 thorough hunt:** delete `contextRunId` on pick.
+- [x] (invalid) `useArchitectureIntelligenceActions.analyzeThisReview` — analyze forces publish toggle before POST — **cheap-disproof 2026-10-29 thorough hunt:** intentional analyze publish workflow.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — scope banner during `productContextLoadFailed` — **cheap-disproof 2026-10-29 thorough hunt:** documented recovery contract; existing failure-state regression.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` with pick strip — **cheap-disproof 2026-10-29 thorough hunt:** strip hidden when scope already set via `contextRunId`.
+- [x] (valid-no-repro) `useArchitectureIntelligenceActions.publishRun` — missing stale guard on scope switch — **cheap-disproof 2026-10-29 thorough hunt:** `isStaleActionGeneration` on completion.
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
 - [x] (proven) `ArchitectureIntelligencePageClient` analysis checklist during source-context failure — a reachable source-context 503 hid the reasoning workspace but `analysisComplete` still read `runState.kind === "reasoning"`, so “Start analysis” displayed Done; fixed by requiring `showReasoningWorkspace`; regression `does not show reasoning results when product context load failure panel is visible` asserts In progress.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — **cheap-disproof 2026-10-11 thorough hunt:** the failure panel explicitly restores freeform intake and golden-fixture recovery, so run/golden controls remain available for operator-supplied replacement input; existing failure-state coverage exercises the recovery form.
@@ -5768,16 +6131,227 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): re-read governance approval JSON after prior workflow `Status` null fix; promoted `GovernanceApprovalRequest` explicit JSON `null` on required string fields (`RunId`, `ManifestVersion`, `RequestedBy`, environment labels) bypassing `= string.Empty` / environment defaults; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault` on backing-field setters; `ApprovalRequestId` regen when null or empty; regression `Deserialize_null_run_id_yields_empty_string_not_null`; scoped GovernanceApprovalRequest deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: governance approval JSON with null run or environment fields deserializes to legacy empty/default strings so promotion workflow UI and SQL MERGE paths do not null-reference when replaying stored requests.
+
+- [x] (proven) `GovernanceApprovalRequest.RunId` / `ManifestVersion` / `RequestedBy` / environment strings — explicit JSON `null` on required promotion strings — **hit 2026-10-29 seed hunt:** `CoalesceRequired` / `CoalesceStringDefault`; regression above.
+- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on advisory recommendation title despite `= null!` initializer — locus: auto-property setter; input: persisted recommendation row JSON with `"title": null`; reachability: workflow persistence round-trip.
+- [ ] (candidate) `PolicyPack.Name` / `Description` — explicit JSON `null` on policy pack display fields — locus: auto-property setters; input: policy pack API JSON with null name; reachability: governance policy pack import.
+- [ ] (candidate) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline or trigger summary — locus: auto-property setters; input: alert notification payload with null title; reachability: alert delivery webhook JSON.
+- [ ] (candidate) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` should mint a new id when absent — locus: `ApprovalRequestId` setter; input: `"approvalRequestId": null` on create payload (verify regen vs empty).
+- [ ] (candidate) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on integration health summary status — locus: `init` only property with `= string.Empty`; input: ITSM health probe JSON with null status; reachability: integrations settings health card.
+
+2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
+
+- [x] (proven) `RecommendationRecord.Status` / `AlertRecord.Status` / `PolicyPack.Status` / `GovernanceApprovalRequest.Status` — explicit JSON `null` on workflow status strings — **hit 2026-10-29 seed hunt:** `CoalesceStringDefault`; regressions above.
+- [x] (invalid) `GoldenManifestCreateTimePinCommitment` positional pin lists — **cheap-disproof 2026-10-29 seed hunt:** unchanged — not deserialized as whole DTO.
+
+2026-10-29 seed hunt (seed→hit): promoted `RecommendationRecord` supporting JSON columns explicit JSON `null` bypassing `= "[]"` initializers on `SupportingFindingIdsJson`, `SupportingDecisionIdsJson`, `SupportingArtifactIdsJson`, and `SourceEvidenceLinksJson`; `ContractCollectionDefaults.CoalesceJsonArrayLiteral` on all four setters; regression `Deserialize_null_supporting_json_columns_yields_empty_array_literals_not_null`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, `PolicyPackStatus`, and `GovernanceApprovalStatus` numeric-zero rows (architecture/agent task enums use defined-ordinal converters that throw; alert/policy/governance status are string constants not enums); scoped RecommendationRecord deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: advisory recommendation JSON with null supporting-id columns deserializes to `[]` literals so workflow persistence and evidence link composition do not null-reference before SQL ISJSON constraints.
+
+- [x] (proven) `RecommendationRecord` supporting JSON columns — explicit JSON `null` on persisted JSON-array strings — **hit 2026-10-29 seed hunt:** `CoalesceJsonArrayLiteral`; regression above.
+- [x] (invalid) `ArchitectureRunStatus` / `AgentTaskStatus` numeric zero — **cheap-disproof 2026-10-29 seed hunt:** `ArchitectureRunStatusJsonConverter` / `AgentTaskStatusJsonConverter` reject undefined ordinals.
+- [x] (invalid) `AlertStatus` / `PolicyPackStatus` / `GovernanceApprovalStatus` — **cheap-disproof 2026-10-29 seed hunt:** static string constants, not JSON enums.
+
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Status` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Available` default; consolidated enum-zero handling into `ContractCollectionDefaults.CoalesceInvalidEnumZero` and migrated findings snapshot, coverage summary, and synthesized artifact status setters; regression `Deserialize_explicit_zero_status_yields_available_not_invalid_zero`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, and `PolicyPackStatus` for this run (deferred — same helper applies when those DTOs get regressions); scoped artifact bundle + prior enum regression tests 11/11; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with legacy numeric zero status deserializes to Available so export and bundle readers do not treat persisted bundles as an unnamed enum zero.
+
+- [x] (proven) `ArtifactBundle.Status` — explicit JSON `0` on bundle lifecycle status — **hit 2026-10-29 seed hunt:** `CoalesceInvalidEnumZero`; regression above.
+- [x] (invalid) `ArchitectureRunStatus` / `AgentTaskStatus` / `AlertStatus` / `PolicyPackStatus` numeric zero — **cheap-disproof 2026-10-29 seed hunt:** shared helper landed; promotion deferred until a scoped deserialization repro exists per type.
+
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Status` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Generated` default; `ContractCollectionDefaults.CoalesceSynthesizedArtifactGenerationStatus` on setter; regression `Deserialize_explicit_zero_status_yields_generated_not_invalid_zero`; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (not deserialized as whole DTO — pins parsed via `RunHeaderPinDeserializer`), `AgentResultEvidenceFaithfulnessReport.UnsupportedIds` (in-process checker output only), `AlertEvaluationOutcome` lists (persistence service return, no contract JSON surface), `AzureDevOpsManifestDeltaRequest.Findings` (integration in-process request), and `FindingsSnapshot.GenerationStatus` null token (throws on deserialize — no silent wrong enum); scoped SynthesizedArtifact deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact bundle JSON with legacy numeric zero status deserializes to Generated so artifact export and provenance readers do not treat rows as an unnamed enum zero.
+
+- [x] (proven) `SynthesizedArtifact.Status` — explicit JSON `0` on artifact generation status — **hit 2026-10-29 seed hunt:** `CoalesceSynthesizedArtifactGenerationStatus`; regression above.
+- [x] (invalid) `GoldenManifestCreateTimePinCommitment` positional pin lists — **cheap-disproof 2026-10-29 seed hunt:** built from pin JSON arrays in Application, not whole-record deserialize.
+- [x] (invalid) `AgentResultEvidenceFaithfulnessReport.UnsupportedIds` — **cheap-disproof 2026-10-29 seed hunt:** not persisted or API-deserialized.
+- [x] (invalid) `AlertEvaluationOutcome` lists — **cheap-disproof 2026-10-29 seed hunt:** in-process alert service result.
+- [x] (invalid) `AzureDevOpsManifestDeltaRequest.Findings` — **cheap-disproof 2026-10-29 seed hunt:** constructed in integration handler, not JSON DTO.
+- [x] (invalid) `FindingsSnapshot.GenerationStatus` null JSON — **cheap-disproof 2026-10-29 seed hunt:** explicit null throws; numeric zero already coalesced prior run.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingsSnapshot.GenerationStatus` and `RunFindingCoverageSummary.GenerationStatus` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Complete` default; `ContractCollectionDefaults.CoalesceFindingsSnapshotGenerationStatus` on setter/`init`; regressions `Deserialize_explicit_zero_generation_status_yields_complete_not_invalid_zero` on both DTOs plus `Deserialize_omitted_generation_status_yields_complete_not_invalid_zero` on coverage summary; cheap-disproof closed `(candidate)` `SynthesizedArtifactGenerationStatus` (omitted status keeps `Generated` initializer; explicit null throws on deserialize) and `CrossReviewFindingSourceCoverage` object-initializer path (sets already coalesce on `init`); scoped FindingsSnapshot + RunFindingCoverageSummary deserialization tests 5/5; reseeded five follow-on `(candidate)` rows below. Private beta: findings snapshot and run coverage summary JSON with legacy numeric `0` generation status deserializes to `Complete` so operator run health surfaces do not treat sealed snapshots as unnamed enum zero.
+
+- [x] (proven) `FindingsSnapshot.GenerationStatus` / `RunFindingCoverageSummary.GenerationStatus` — explicit JSON `0` on generation status enum — **hit 2026-10-29 seed hunt:** `CoalesceFindingsSnapshotGenerationStatus`; regressions above.
+- [x] (invalid) `SynthesizedArtifactGenerationStatus` omitted/null JSON — **cheap-disproof 2026-10-29 seed hunt:** property initializer holds for omitted; null token throws.
+- [x] (invalid) `CrossReviewFindingSourceCoverage` object initializer vs JSON — **cheap-disproof 2026-10-29 seed hunt:** `init` coalesce already on agent-type sets.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingRecordMetadataPage.Items` explicit JSON `null` on findings keyset metadata page JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_items_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult.Citations` / `UpstreamResultFingerprints` (existing `AgentResultDeserializationTests.Deserialize_null_collection_properties_yields_empty_lists_not_null`); scoped FindingRecordMetadataPage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: findings keyset metadata page JSON with null items deserializes to an empty list so run findings list stages and API clients do not null-reference when a page has no rows.
+
+- [x] (proven) `FindingRecordMetadataPage.Items` — explicit JSON `null` on keyset metadata page list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `AgentResult.Citations` / `UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** existing agent result null-collection regression.
+
+2026-10-29 seed hunt (seed→hit): promoted `CrossReviewFindingSourceCoverage.PriorAgentTypes` and `CurrentAgentTypes` explicit JSON `null` on cross-review source coverage JSON despite `HashSet` initializers; empty-set defaults on `init`; regression `Deserialize_null_agent_type_sets_yields_empty_sets_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult` nested lists (existing `AgentResultDeserializationTests`), `AlertRecord` collections (no list/dictionary properties), `CoveragePreviewRequest` (API model under `ArchLucid.Api`, not `ArchLucid.Contracts`); scoped CrossReviewFindingSourceCoverage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: cross-review finding source coverage JSON with null agent-type sets deserializes to empty sets so TB-2194 reduced-coverage logic does not null-reference when comparing prior vs current reviews.
+
+- [x] (proven) `CrossReviewFindingSourceCoverage.PriorAgentTypes` / `CurrentAgentTypes` — explicit JSON `null` on cross-review coverage sets — **hit 2026-10-29 seed hunt:** empty set defaults on `init`; regression above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** scalar alert row DTO only.
+- [x] (invalid) `CoveragePreviewRequest` API model lists — **cheap-disproof 2026-10-29 seed hunt:** lives outside `ArchLucid.Contracts` zone paths.
+
+2026-10-29 seed hunt (seed→hit): promoted `InsightDensityCurationSummary.HeldCheckLedgerEntries`, `ProseAssumptionRegisterEntries`, and `ProseAssumptionHeldCheckAsks` explicit JSON `null` on findings snapshot curation JSON despite nullable list types; `ContractCollectionDefaults.CoalesceReadOnly` on all three setters; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `CompositeAlertEvaluationResult` (in-process result type — not findings/API JSON surface), `ValueReportSnapshot` (builder-constructed positional record, not JSON DTO path); scoped InsightDensityCurationSummary deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: insight-density curation JSON with null list fields deserializes to empty lists so findings emit and export honesty paths do not null-reference when replaying snapshot curation blocks.
+
+- [x] (proven) `InsightDensityCurationSummary` list properties — explicit JSON `null` on curation summary lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regression above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** persistence service return type, not OpenAPI JSON contract.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** sponsor DOCX builder record, not deserialized API DTO.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingExplainabilityEvidenceRecord.EvidenceRefs` and `AlternativePathsConsidered` explicit JSON `null` on explainability evidence JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `CoveragePreviewInput.UserOverrides` (nullable by design — only mapped from API request with null-conditional), `PilotReportCard` list properties (already `CoalesceReadOnly` on `FindingsBySeverity`); scoped FindingExplainabilityEvidenceRecord deserialization + existing round-trip test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: finding explainability evidence JSON with null list fields deserializes to empty lists so decisioning narrative builders do not null-reference when replaying slim evidence rows.
+
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — explicit JSON `null` on explainability evidence record — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** nullable optional overrides; API mapper uses null-conditional.
+- [x] (invalid) `PilotReportCard` response lists — **cheap-disproof 2026-10-29 seed hunt:** `FindingsBySeverity` already coalesced.
+
+2026-10-29 seed hunt (seed→hit): promoted `RephraseClarificationAnswersResponse.RephrasedAnswers` and `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` explicit JSON `null` on clarification rephrase and pilot snapshot API JSON despite dictionary initializers; empty dictionary defaults on setters; regressions `Deserialize_null_rephrased_answers_yields_empty_dictionary_not_null` and `Deserialize_null_findings_produced_by_severity_yields_empty_dictionary_not_null`; scoped RephraseClarificationAnswersResponse + WhyArchLucidSnapshotResponse deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: clarification rephrase and why-archlucid snapshot JSON with null answer/severity maps deserializes to empty dictionaries so operator intake and demo proof pages do not null-reference when maps are omitted.
+
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on rephrase response — **hit 2026-10-29 seed hunt:** empty dictionary on setter; regression above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — explicit JSON `null` on pilot snapshot severity map — **hit 2026-10-29 seed hunt:** empty ordinal dictionary on setter; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `ComplianceDriftTrendPoint.ChangesByType` explicit JSON `null` on compliance drift trend JSON despite dictionary initializer; non-null empty default on `init`; regression `Deserialize_null_changes_by_type_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` rows `ItsmFindingCorrelationsBatchResponse.Findings` (already `CoalesceReadOnly` on setter), `WorkingWorkspaceContinuityValues` / DTO lists (regression since IH-066), `CoveragePreviewAssignment` and `RunCoverageAcknowledgementEntry` (no collection properties); scoped ComplianceDriftTrendPoint deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: compliance drift trend JSON with null change-type buckets deserializes to an empty map so governance trend charts do not null-reference when a bucket has no typed changes.
+
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — explicit JSON `null` on drift trend point — **hit 2026-10-29 seed hunt:** empty dictionary default on `init`; regression above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** `CoalesceReadOnly` on setter already present.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** `WorkingWorkspaceContinuityDtoDeserializationTests` covers null lists.
+
+2026-10-29 seed hunt (seed→hit): promoted `RunAcknowledgedCoverageDocument.Entries` explicit JSON `null` on persisted run coverage acknowledgement JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Entries` setter; regression `Deserialize_null_entries_on_acknowledged_coverage_document_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` (`CoalesceReadOnly` on `init` since 2026-10-15 integrations pass); scoped CoverageAssignments deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: acknowledged coverage document JSON with null entries deserializes to an empty list so execute gates and audit readers do not null-reference when replaying operator acknowledgements.
+
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on acknowledged coverage document — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** already coalesced on `init`.
+
+2026-10-29 seed hunt (seed→hit): promoted `CoveragePreviewResult.Assignments` and `CoverageSummary.Assignments` explicit JSON `null` on governance coverage API JSON despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on both setters; regressions `Deserialize_null_assignments_on_preview_result_yields_empty_list_not_null` and `Deserialize_null_assignments_on_summary_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` rows `ArtifactDescriptor.Tags` (no `Tags` on `ArtifactDescriptor`), `ExportManifestDescriptor` (type not in repo), and `ArtifactBundle` nested trace list round-trip (already covered by `SynthesisTrace` list coalesce + bundle trace default); scoped CoverageAssignments deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: coverage preview and summary JSON with null assignments deserializes to empty lists so governance UI does not null-reference when rendering assignment tables.
+
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — explicit JSON `null` on coverage assignment lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regressions above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** `ArtifactDescriptor` has no tag list property.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** no matching contract type in repository.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** `SynthesisTrace` list coalesce landed prior run.
+
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Trace` explicit JSON `null` on bundle persistence JSON despite `new()` trace initializer; non-null default via `value ?? new SynthesisTrace()` on `Trace` setter; promoted `SynthesisTrace.GeneratorsUsed`, `SourceDecisionIds`, and `Notes` explicit JSON `null` with `ContractCollectionDefaults.Coalesce` on setters; regressions `Deserialize_null_trace_yields_empty_trace_not_null` and `Deserialize_null_generator_lists_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` (no such contract type in repo) and misnamed `SynthesisTrace.GeneratorIds` (property is `GeneratorsUsed`); scoped artifact bundle + synthesis trace deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle and synthesis trace JSON with null nested trace or list fields deserializes to empty defaults so synthesis read paths do not null-reference.
+
+- [x] (proven) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace — **hit 2026-10-29 seed hunt:** non-null default on setter; bundle regression above.
+- [x] (proven) `SynthesisTrace.GeneratorsUsed` / `SourceDecisionIds` / `Notes` — explicit JSON `null` on trace list fields — **hit 2026-10-29 seed hunt:** `Coalesce` on setters; trace regression above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** no `ProductLearningImprovementPlanThemeRecord` type under `ArchLucid.Contracts`.
+
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Metadata` explicit JSON `null` on artifact persistence JSON despite `new()` dictionary initializer; `ContractCollectionDefaults.CoalesceDictionary` on `Metadata` setter; regression `Deserialize_null_metadata_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` `HeldCheckSecondPassResult.EngineTypes` (`UnblockedEngineTypes` already uses `CoalesceReadOnly` on `init`); scoped SynthesizedArtifact deserialization test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact JSON with null metadata deserializes to an empty dictionary so packaging and descriptor mappers do not null-reference when reading optional tags.
+
+- [x] (proven) `SynthesizedArtifact.Metadata` — explicit JSON `null` on artifact metadata dictionary — **hit 2026-10-29 seed hunt:** `CoalesceDictionary` on setter; regression above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** property is `UnblockedEngineTypes` with existing `CoalesceReadOnly`.
+
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Artifacts` explicit JSON `null` on artifact bundle persistence JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Artifacts` setter; regression `Deserialize_null_artifacts_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `RealAgentFailureTriageCatalogResponse.Entries` (no such contract type — triage catalog is application static `RealAgentFailureTriageCatalog`, not a JSON DTO); scoped ArtifactBundle deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with null artifacts deserializes to an empty list so export and query paths do not null-reference when a bundle has no synthesized rows yet.
+
+- [x] (proven) `ArtifactBundle.Artifacts` — explicit JSON `null` on bundle artifact list — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+- [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** no `RealAgentFailureTriageCatalogResponse` in `ArchLucid.Contracts`; catalog lives in `ArchLucid.Application/Runs/RealAgentFailureTriageCatalog.cs`.
+
+2026-10-29 seed hunt (seed→hit): promoted `ProductLearningImprovementPlanRecord.ActionSteps` explicit JSON `null` on improvement plan persistence/API JSON despite `= []` init default; `ContractCollectionDefaults.CoalesceReadOnly` on `ActionSteps` `init`; regression `Deserialize_null_action_steps_yields_empty_list_not_null`; scoped ProductLearningImprovementPlanRecord deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: product-learning improvement plan JSON with null action steps deserializes to an empty list so planning UI and SQL round-trip do not null-reference when a plan has no bounded actions yet.
+
+- [x] (proven) `ProductLearningImprovementPlanRecord.ActionSteps` — explicit JSON `null` on improvement plan record JSON — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `ActionSteps` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.ContributingDecisionIds` explicit JSON `null` on persisted synthesized artifact JSON despite `= []` field initializer; `ContractCollectionDefaults.Coalesce` on `ContributingDecisionIds` setter; regression `Deserialize_null_contributing_decision_ids_yields_empty_list_not_null`; scoped SynthesizedArtifact deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with null contributing decision ids deserializes to an empty list so provenance builders and UI do not null-reference when linking decisions.
+
+- [x] (proven) `SynthesizedArtifact.ContributingDecisionIds` — explicit JSON `null` on synthesized artifact JSON — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `AdminQuickScanBudgetSnapshotResponse.RecentUsage` explicit JSON `null` on admin Quick Scan budget snapshot responses; `ContractCollectionDefaults.CoalesceReadOnly` on `RecentUsage` `init`; regression `Deserialize_null_recent_usage_yields_empty_list_not_null`; scoped AdminQuickScanBudgetSnapshotResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: admin Quick Scan budget JSON with null `recentUsage` deserializes to an empty list so operator budget dashboards do not null-reference when usage history is omitted.
+
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `RecentUsage` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `PromptVariantStatsResponse.Variants` explicit JSON `null` on prompt A/B stats API responses; `ContractCollectionDefaults.CoalesceReadOnly` on `Variants` `init`; regression `Deserialize_null_variants_yields_empty_list_not_null`; scoped PromptVariantStatsResponse deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: prompt variant stats JSON with null `variants` deserializes to an empty list so operator analytics views do not null-reference when no variants were sampled.
+
+- [x] (proven) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Variants` `init`; regression above.
+
+2026-10-29 seed hunt (seed→hit): re-read real-agent triage catalog contract lists; promoted `RealAgentFailureTriageEntry` explicit JSON `null` on `FailureClasses`, `OperatorNextSteps`, and `RelatedDocPaths`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; scoped RealAgentFailureTriageEntry deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: real-agent failure triage catalog JSON with null list fields deserializes to empty lists so operator triage UI does not null-reference when a scenario omits optional copy.
+
+- [x] (proven) `RealAgentFailureTriageEntry.FailureClasses` / `OperatorNextSteps` / `RelatedDocPaths` — explicit JSON `null` on triage catalog entry lists — **hit 2026-10-29 seed hunt:** consolidated `CoalesceReadOnly`; regression above.
+
+2026-10-29 seed hunt (seed→hit): re-read open `(candidate)` rows on required init-only API list DTOs; promoted `TenantItsmConnectorConnectionsListResponse.Connections` explicit JSON `null` leaving `Connections` null on ITSM connector list responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_connections_yields_empty_list_not_null`; scoped ITSM list deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: ITSM connector list JSON with `"connections": null` deserializes to an empty list so integrations settings UI does not null-reference when no connectors are returned.
+
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Connections` `init`; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `RecordBulkFindingDispositionRequest.FindingIds` and `RecordBulkFindingDispositionResponse.UpdatedFindingIds` explicit JSON `null` on governance bulk disposition request/response bodies; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `Deserialize_null_finding_ids_yields_empty_list_not_null` and `Deserialize_null_updated_finding_ids_yields_empty_list_not_null`; scoped RecordBulkFindingDisposition deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: bulk finding disposition API JSON with null id lists deserializes to empty lists so governance UI and clients do not null-reference when applying or reviewing bulk updates.
+
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `FindingIds` `init`; regression above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — explicit JSON `null` on bulk disposition response — **hit 2026-10-29 thorough hunt:** same fix pattern; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `FindingVerificationReportResponse.Results` explicit JSON `null` leaving `Results` null on ADR 0062 verification report responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_results_yields_empty_list_not_null`; cheap-disproof closed five stale `(candidate)` rows (clarification delta lists, inference questionnaire items, buyer run summary lists — already regression-covered); scoped Contracts-filtered vitest 1061 tests (1060 passed, 1 unrelated baseline failure in `RunAgentLlmCostEstimateDtoDeserializationTests`). Private beta: finding verification report JSON with `"results": null` deserializes to an empty list so operator surfaces do not null-reference when rendering an empty verification matrix.
+
+- [x] (proven) `FindingVerificationReportResponse.Results` — explicit JSON `null` on verification report response — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `Results` `init`; regression `FindingVerificationReportResponseDeserializationTests`.
+
 - **id:** archlucid-contracts
 - **status:** open
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
+- **hunts:** 241
+- **bugs-found:** 355
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — governance approval RunId/ManifestVersion null JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** `Coalesce` on setter; nested regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** same nested delta regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `init`; regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** regression `Deserialize_null_summary_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
+
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RealAgentFailureTriageEntry` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `PromptVariantStatsResponse.Variants` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesizedArtifact.ContributingDecisionIds` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ProductLearningImprovementPlanRecord.ActionSteps` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ArtifactBundle.Artifacts` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesizedArtifact.Metadata` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ArtifactBundle.Trace` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesisTrace` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `CoveragePreviewResult.Assignments` / `CoverageSummary.Assignments` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — **hit 2026-10-29 seed hunt:** see zone hunt note above (ledger candidate misnamed `Assignments`).
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewAssignment` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on row DTO.
+- [x] (invalid) `RunCoverageAcknowledgementEntry` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on entry DTO.
+- [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `PilotReportCard` response list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `InsightDensityCurationSummary` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `CrossReviewFindingSourceCoverage` agent-type sets — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewRequest` API model list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `FindingRecordMetadataPage.Items` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.Citations` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult.UpstreamResultFingerprints` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `FindingsSnapshot.GenerationStatus` / `RunFindingCoverageSummary.GenerationStatus` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `SynthesizedArtifactGenerationStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CrossReviewFindingSourceCoverage` object initializer vs JSON — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesizedArtifact.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `GoldenManifestCreateTimePinCommitment` positional pin lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResultEvidenceFaithfulnessReport.UnsupportedIds` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertEvaluationOutcome` evaluated/newly persisted lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AzureDevOpsManifestDeltaRequest.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `FindingsSnapshot.GenerationStatus` null JSON token — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RecommendationRecord` supporting JSON columns — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArchitectureRunStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentTaskStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `PolicyPackStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `GovernanceApprovalStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `RecommendationRecord.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `AlertRecord.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `PolicyPack.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `GovernanceApprovalRequest.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on required advisory headline string.
+- [ ] (candidate) `AlertRecord.Title` — explicit JSON `null` on alert headline string.
+- [ ] (candidate) `PolicyPack.Name` — explicit JSON `null` on policy pack name string.
+- [ ] (candidate) `GovernanceApprovalRequest.RunId` — explicit JSON `null` on approval run id string.
+- [ ] (candidate) `GoldenManifestCreateTimePinCommitment` positional pin lists — whole-record JSON round-trip if introduced.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5825,18 +6399,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-21 seed hunt (seed→hit): promoted `SpecialistReviewFinding.Rationale` explicit JSON `null` on specialist review finding JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_rationale_yields_empty_string_not_null`; SpecialistReviewFinding deserialization tests 4/4.
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 216 · **Bugs found:** 330 · **Consecutive dry hunts:** 0
+**Hunts:** 234 · **Bugs found:** 348 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
@@ -5895,11 +6469,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 215 · **Bugs found:** 329 · **Consecutive dry hunts:** 0
@@ -5964,11 +6538,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 214 · **Bugs found:** 328 · **Consecutive dry hunts:** 0
@@ -6861,11 +7435,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
@@ -7100,19 +7674,46 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-29 thorough hunt (hit): promoted `RunDetailProvenanceSummaryCard` — identifiers disclosure href writes used `readWindowLocationSearch()`, so expanding Identifiers after soft navigation merged stale review-detail query keys; `syncIdentifiersOpenToUrl` now uses `searchParams.toString()`; regression `writes provenance identifiers disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailProvenanceSummaryCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `PlanningBridgePanel` stale URL write (no disclosure href write locus in panel) and `OperatorBillingWalletPanel` save-confirm href (already uses `searchParams.toString()`). Private beta: invited operators expanding provenance identifiers no longer inherit stale query params after in-app navigation on review detail.
+
+- [x] (proven) `RunDetailProvenanceSummaryCard` — identifiers disclosure write merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
+- [x] (invalid) `PlanningBridgePanel` — planning materialize follow-up URL writes use stale window search — **cheap-disproof 2026-10-29 thorough hunt:** no matching disclosure or href write using `readWindowLocationSearch` in planning bridge panel.
+- [x] (valid-no-repro) `OperatorBillingWalletPanel` — wallet settings disclosure or save path merges stale scope query — **cheap-disproof 2026-10-29 thorough hunt:** save-confirm href already built from `searchParams.toString()`.
+- [ ] (candidate) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — locus: review detail submitted architecture section; input: soft navigation then expand submitted architecture disclosure.
+- [ ] (candidate) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — locus: review detail authority chain section; input: soft navigation then expand authority chain disclosure.
+- [ ] (candidate) `FindingInspectWhyMattersSection` — finding inspect why-matters disclosure href writes use `readWindowLocationSearch()` — locus: review detail finding inspect panel; input: soft navigation then expand why-it-matters disclosure.
+
+2026-10-29 thorough hunt (hit): promoted `RunDetailLastFailureCard` — technical details disclosure href writes used `readWindowLocationSearch()`, so expanding Technical details after soft navigation merged stale review-detail query keys; writes now use `searchParams.toString()`; regression `writes technical details disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailLastFailureCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `ReviewsHubDisclosuresClient` popstate-only race (prior hit added `useSearchParams` reconciliation + url-sync regression) and `RemediationPatternsClient` stale write (no `readWindowLocationSearch` write locus under operator remediation patterns in current tree). Private beta: invited operators expanding last-failure technical details no longer inherit stale query params after in-app navigation on review detail.
+
+- [x] (proven) `RunDetailLastFailureCard` — last-failure technical details disclosure merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
+- [x] (valid-no-repro) `ReviewsHubDisclosuresClient` — popstate-only disclosure read misses soft `useSearchParams` updates — **cheap-disproof 2026-10-29 thorough hunt:** `disclosureFromSearchParams` effect + prior url-sync regression; popstate remains Back/Forward supplement only.
+- [x] (invalid) `RemediationPatternsClient` — registry filter href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-29 thorough hunt:** no matching write locus under `archlucid-ui/src/app/(operator)/` remediation patterns client in current tree.
+
+2026-10-29 seed hunt (seed→hit): promoted `ReviewsHubInventoryRowActions` — row overflow menu URL writes used `readWindowLocationSearch()`, so opening More actions after soft navigation merged stale reviews-list query keys; `syncOpenOverflowRunIdToUrl` now uses `searchParams.toString()` with `useSearchParams` reconciliation; regression `writes row overflow disclosure from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubInventoryRowActions.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators opening a review row overflow menu no longer inherit stale toolbar query params after in-app navigation.
+
+- [x] (proven) `ReviewsHubInventoryRowActions` — row overflow disclosure href merged stale hub filter query after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + url param effect; regression above.
+
+2026-10-29 seed hunt (seed→hit): reseeded after 491 commits; promoted `ReviewsHubDisclosuresClient` — hub analytics/guidance disclosure href writes used `readWindowLocationSearch()`, so after soft navigation expanding Samples or delta panels could merge stale reviews-list toolbar query keys; base href writes and `useSearchParams` reconciliation for disclosure flags; regression `writes reviews hub disclosure state from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubDisclosuresClient.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators toggling reviews hub guidance panels no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `ReviewsHubDisclosuresClient` — disclosure href writes used stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + searchParams effect; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `ReviewsHubReviewInventory` — inventory filter and clear-filter href writes used `readWindowLocationSearch()`, so after soft navigation choosing Finalized or clearing filters could merge stale reviews-list toolbar query keys; `selectInventoryFilter` / `clearInventoryFilters` now use `searchParams.toString()`; regression `writes inventory filter from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubReviewInventory.url-sync.test.tsx` 1/1. Private beta: invited operators filtering the reviews inventory no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `ReviewsHubReviewInventory` — inventory filter chip href built from stale `window.location.search` after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for filter/clear writes; regression above.
+
 - **id:** ui-operator-routes
 - **status:** open
 - **impact:** medium
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 33
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 27
+- **hunts:** 38
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — policy pack selection URL kept stale version-diff params when switching `packId`
+- **last-bug:** 2026-10-29 — provenance identifiers disclosure merged stale query after soft navigation
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
@@ -7198,6 +7799,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
+
+- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
+- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
+- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+
+- [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — scrollToSection sets active before smooth scroll completes — **cheap-disproof 2026-10-30 thorough hunt #3:** intentional immediate highlight; regression `marks the clicked artifact nav button active when scrollIntoView runs`.
+- [x] (invalid) `ensureSessionId` — server render returns literal `server` for both helpers — **cheap-disproof 2026-10-30 thorough hunt #3:** shared SSR placeholder by design; regression `returns server placeholders when window is unavailable during SSR`.
+- [x] (invalid) `ShowcasePageTelemetry` — distinct malformed `%` slugs share one analytics scenario string — **cheap-disproof 2026-10-30 thorough hunt #3:** invalid `%` prefixes stay distinct; regression `maps distinct invalid percent-encoding run ids to distinct analytics scenarios`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — overlapping `showSampleResult` may issue parallel sample fetches but applies only the latest generation and one telemetry event (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles` asserts duplicate fetch count); invalid `%` run segments keep trimmed slug for telemetry by design (`resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`); missing artifact nav target leaves prior `aria-current` unchanged (`keeps aria-current on the prior section when a nav click targets a removed section`); volatile browser id stable per tab when storage throws (`reuses the same volatile browser id when localStorage writes fail`; separate from session id by design); distinct blank run ids share `unknown` analytics bucket intentionally (`maps distinct whitespace-only run ids to the same unknown analytics scenario`). Reseeded five follow-on `(candidate)` rows. 24 scoped marketing vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — third rapid activation after first fetch settles starts a fresh sample load — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional refresh + telemetry; regression `applies the latest sample when showSampleResult runs again after an earlier sample fetch completes`.
+- [x] (valid-no-repro) `loadSampleResult` — sample fetch omits abort signal so stale responses still parse — **cheap-disproof 2026-10-30 thorough hunt #2:** generation guard discards superseded JSON; regression `does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — intersection observer keeps active id for removed DOM node until another section intersects — **cheap-disproof 2026-10-30 thorough hunt #2:** ratio zero callbacks move highlight; regression `moves aria-current when the observer reports the prior active section left the viewport`.
+- [x] (invalid) `ensureSessionId` / `ensureBrowserId` — volatile ids differ from each other in private mode — **cheap-disproof 2026-10-30 thorough hunt #2:** separate session vs browser caches are intentional; regression `issues distinct volatile session and browser ids when localStorage is unavailable`.
+- [x] (valid-no-repro) `ShowcasePageTelemetry` — malformed `%` run id records showcase_viewed with raw trimmed slug — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional slug fallback path; regression `records showcase_viewed with the trimmed slug when percent-encoding in the run id is invalid`.
+
+2026-10-29 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows — overlapping `showSampleResult` guarded by `sampleRequestGenerationRef` and single telemetry (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`); blank showcase run ids map to `unknown` and still record viewed (`resolveShowcaseScenarioSlug maps blank run ids to unknown`, `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`); missing artifact section nav click no-ops safely (`does not throw when artifact section is removed before nav click`; buyer body always mounts sections); volatile Quick Scan session id stable per tab when storage throws (`reuses the same volatile session id when localStorage writes fail`; no capacity messaging change by design). Reseeded five follow-on `(candidate)` rows. 20 scoped marketing vitest tests in touched suites passed; no production code changed.
+
 2026-10-11 seed hunt (seed-only): re-read Quick Scan browser/session identity helpers, sample loading and submit lifecycle, showcase telemetry, and the demo artifact body; no fresh row met the same-run hunt-ready bar. Seeded five bounded candidates for whitespace-padded browser identifiers, overlapping sample-result requests, status-transition sample overwrite, duplicate showcase-view telemetry on render-mode changes, and missing optional artifact sections. Three focused artifact-navigation suites passed 6/6; no production or regression code changed.
 
 2026-10-11 seed hunt (seed→hit): `DemoPreviewArtifactNav` selected the active artifact from only the latest `IntersectionObserver` entries, so a later callback containing a less-visible section could override the actually most-visible section. Persisted intersection ratios per section and selected from the full known visibility state; regression `keeps the most visible section active when a later observer callback reports only another section`; three focused artifact-navigation suites passed 6/6.
@@ -7228,10 +7853,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 34
+- **hunts:** 38
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7252,10 +7877,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ShowcasePageTelemetry` — `renderMode` transition records duplicate `showcase_viewed` — **hit 2026-10-15 thorough hunt:** once-per-`runId` ref; regression `records showcase_viewed once per run even when renderMode changes`.
 - [x] (invalid) `DemoPreviewArtifactNav` — nav buttons when optional artifact section absent — **cheap-disproof 2026-10-15 thorough hunt:** buyer `DemoPreviewMarketingBody` always renders the five artifact sections with fixed ids paired to `ARTIFACT_ITEMS`; engineering body omits the nav entirely.
 - [x] (proven) `useQuickScanClient.onSubmit` — in-flight sample could overwrite completed AI analysis — **hit 2026-10-21 thorough hunt lane C:** bump `sampleRequestGenerationRef` when POST starts; regression `does not let a stale sample response overwrite a completed AI analysis`.
-- [ ] (candidate) `QuickScanWorkspaceSection` — capacity-state sample CTA and manual “View sample” can invoke `showSampleResult` twice before the first fetch settles; input: double activation on SampleOnly; wrong outcome: duplicate telemetry or flickering status copy; reachability: workspace section handlers calling `client.showSampleResult`.
-- [ ] (candidate) `recordShowcaseViewed` — empty scenario slug after `resolveShowcaseScenarioSlug` skips all telemetry silently; input: malformed showcase `runId` route segment; wrong outcome: marketing funnel under-reports visits without a failed-state signal; reachability: `ShowcasePageTelemetry` mount on `/showcase/[runId]`.
-- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — click no-ops when target id missing without aria feedback; input: DOM mutation removing a section after mount; wrong outcome: keyboard/screen-reader users get no scroll or focus change; reachability: `scrollToSection` early return when `getElementById` is null.
-- [ ] (candidate) `ensureSessionId` volatile fallback — private-mode `localStorage` throw uses per-tab volatile id without surfacing storage loss to capacity messaging; input: `localStorage.setItem` throws after read; wrong outcome: session identity resets every navigation without operator-visible hint; reachability: `quick-scan-session.ts` catch branch + marketing POST headers.
+- [x] (valid-no-repro) `QuickScanWorkspaceSection` — double sample activation before fetch settles — **cheap-disproof 2026-10-29 thorough hunt:** `sampleRequestGenerationRef` + single telemetry; regression `records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`.
+- [x] (invalid) `recordShowcaseViewed` — empty scenario slug skips telemetry — **cheap-disproof 2026-10-29 thorough hunt:** `resolveShowcaseScenarioSlug` maps blank run ids to `unknown`; regressions `resolveShowcaseScenarioSlug maps blank run ids to unknown` and `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing target without feedback — **cheap-disproof 2026-10-29 thorough hunt:** intentional no-op when section absent; regression `does not throw when artifact section is removed before nav click`.
+- [x] (valid-no-repro) `ensureSessionId` volatile fallback without operator hint — **cheap-disproof 2026-10-29 thorough hunt:** volatile id stable within tab; regression `reuses the same volatile session id when localStorage writes fail`.
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — **cheap-disproof 2026-10-30 thorough hunt:** latest generation wins; regression asserts two sample fetches with one telemetry event in `records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`.
+- [x] (valid-no-repro) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — **cheap-disproof 2026-10-30 thorough hunt:** intentional slug fallback; regression `resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — **cheap-disproof 2026-10-30 thorough hunt:** no-op scroll preserves prior active id; regression `keeps aria-current on the prior section when a nav click targets a removed section`.
+- [x] (valid-no-repro) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — **cheap-disproof 2026-10-30 thorough hunt:** separate volatile caches are intentional; regression `reuses the same volatile browser id when localStorage writes fail`.
+- [x] (invalid) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — **cheap-disproof 2026-10-30 thorough hunt:** whitespace-only run ids intentionally collapse to `unknown`; regression `maps distinct whitespace-only run ids to the same unknown analytics scenario`.
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
@@ -8077,6 +8707,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+
+2026-10-29 seed hunt (seed→hit): promoted `RunDetailRunGovernanceDispositionActions` — opening Approve/Reject/Request remediation confirm wrote `runDispDecision` from `readWindowLocationSearch()`, so after cross-review soft navigation the confirm dialog could merge stale findings-toolbar query keys from the lagging address bar; base href writes on `useSearchParams`; regression `writes governance disposition confirm from useSearchParams when window.location.search lags after soft navigation`; governance disposition url-sync vitest 2/2. Private beta: invited architects recording run-level governance disposition no longer inherit stale review query params when opening the confirm dialog after in-app navigation.
+
+- [x] (proven) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` / stale toolbar on confirm write — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for confirm href writes; regression above.
+- [ ] (candidate) `RunDetailRunGovernanceDispositionActions` — governance disposition confirm dialog stays open when `runId` changes before `runDispDecision` clears from `useSearchParams` — locus: `RunDetailRunGovernanceDispositionActions.tsx`; input: cross-review navigation with confirm param on prior run while ledger/disposition fetch pending.
+- [ ] (candidate) `TechnologyBaselinePanel` — `techEntryId` rationale dialog stays open when `runId` changes after soft navigation drops `techEntryId` from the router query — locus: `technology-baseline/TechnologyBaselinePanel.tsx`; input: cross-review navigation with rationale deep link cleared on next review before baseline reload.
+- [ ] (candidate) `RunDetailFirstScreenProofStatus` — proof details `<details>` stays open when `runDetailFirstScreenProofOpen` cleared on soft navigation without `popstate` — locus: first-screen proof status; input: Link removes proof open param while address bar lags.
+- [ ] (candidate) `ReviewWorkspaceMoreTabsMenu` — More sections popover stays open when `reviewMoreTabsOpen` cleared on soft navigation without `popstate` — locus: more-tabs menu; input: client navigation clears open flag before popover unmounts.
+- [ ] (candidate) `RunDetailRunExplanationCollapsible` — nested assessment narrative disclosure open state not reset when `runId` changes with stale `runAssessmentNarrativeOpen` in component state — locus: run explanation collapsible; input: cross-review soft navigation before explanation payload loads.
+
+2026-10-29 thorough hunt (hit): promoted `TechnologyBaselinePanel` — cross-review navigation reset ledger rows on `runId` change but left `technologyBaselineEvidenceRefEntryId` disclosure state tied to the prior review, so after soft navigation dropped the evidence-ref query the next run's matching `entryId` could still render with `<details open>`; reset evidence-ref disclosure state when `runId` changes (skip initial mount); regression `does not keep evidence ref disclosure open from a prior run while the next run is still loading`; technology baseline url-sync vitest 5/5. Private beta: invited architects switching reviews no longer keep the prior review's technology evidence ref panel expanded when the next baseline loads without that deep link.
+
+- [x] (proven) `TechnologyBaselinePanel` — evidence ref disclosure stays open from prior-run ledger rows when `runId` changes before fetch completes — **hit 2026-10-29 thorough hunt:** reset evidence-ref disclosure state on `runId` change; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `TechnologyBaselinePanel` — cross-review soft navigation left prior-run ledger rows in state while the next `runId` fetch was still in flight, so a matching `techEntryId` in the URL could reopen the rationale dialog for the wrong technology row; clear entries and rationale dialog state when `runId` changes before reload; regression `does not open the rationale dialog from a prior run ledger while the next run is still loading`; technology baseline url-sync vitest 4/4. Private beta: invited architects switching between reviews no longer see the prior review's technology rationale dialog flash open while the next baseline loads.
+
+- [x] (proven) `TechnologyBaselinePanel` — rationale dialog opens from `techEntryId` before baseline rows hydrate after soft navigation — **hit 2026-10-29 thorough hunt:** reset ledger state on `runId` change; regression above.
+
+2026-10-29 thorough hunt (hit): promoted `RunDetailArtifactsExportsSection` — deliverables disclosure and export link params used `readWindowLocationSearch()` on write, so after soft navigation expanding Manifest deliverables could merge stale review-package toolbar query keys; base href writes and export param reads on `useSearchParams`; regression `writes deliverables disclosure from useSearchParams when window.location.search lags after soft navigation`; artifacts exports url-sync vitest 2/2. Private beta: invited architects opening deliverables on the review package tab no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for disclosure writes and export URL params; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingInspectEvidenceSection` — citation disclosure and diagram preview href writes used `readWindowLocationSearch()`, so after soft navigation opening View technical citation could merge stale toolbar query keys from the prior address bar; base href writes on `useSearchParams`; regression `writes evidence citation disclosure from useSearchParams when window.location.search lags after soft navigation`; finding inspect evidence url-sync vitest 2/2. Private beta: invited architects opening evidence citations on finding inspect no longer inherit stale review query params after in-app navigation between findings or reviews.
+
+- [x] (proven) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for disclosure writes; regression above.
+- [x] (proven) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — **hit 2026-10-29 thorough hunt:** see zone-header note above.
+
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailFindingsWorkspace` — `setClassificationBand` built hrefs from `readWindowLocationSearch()`, so after soft navigation changing a classification band chip could write the prior review's findings toolbar query when setting `findingsBand`; base href writes on `useSearchParams`; regression `writes classification band from useSearchParams when window.location.search lags after soft navigation`; findings workspace url-sync vitest 3/3.
 
 - [x] (proven) `RunDetailFindingsWorkspace` — stale toolbar params on classification band write after soft navigation — **hit 2026-10-21 seed hunt:** `reviewFindingsClassificationBandHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -8095,7 +8752,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RunDetailDetailedOutcomeCardsDisclosure` — outcome cards disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for `runDetailOutcomeCardsOpen` writes; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation.
 
-- (candidate) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — locus: `findings/[findingId]/FindingInspectEvidenceSection.tsx`; input: soft navigation between findings then open citation disclosure.
+- [x] (proven) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — **hit 2026-10-29 seed hunt:** see zone-header note above.
+
 - (candidate) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailArtifactsExportsSection.tsx`; input: soft navigation after changing review tab then open deliverables disclosure.
 
 2026-10-21 seed hunt (seed→hit): promoted `ReviewAgentExecutionLogSection` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding the agent execution log could write the prior review's findings toolbar query onto the next review when setting `runAgentExecutionLogOpen=1`; base href writes on `useSearchParams`; regression `opens agent execution log from useSearchParams when window.location.search lags after soft navigation`; agent execution log url-sync vitest 2/2.
@@ -8189,7 +8847,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-16 seed hunt (seed→hit): promoted `RunDetailLastFailureCard` `runLastFailureTechOpen` soft-navigation sync; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunDetailLastFailureCard` — `runLastFailureTechOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile technical details disclosure from `useSearchParams`; regression `follows runLastFailureTechOpen query changes without a popstate event`
-- [ ] (candidate) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — locus: governance disposition actions; input: soft navigation with disposition confirm query.
+- [x] (proven) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — **hit 2026-10-29 seed hunt:** see zone-header note above.
 - [ ] (candidate) `RunFindingExplainabilityTable` — explainability row expansion query sync only on `popstate` — locus: finding explainability table; input: soft navigation sets explainability open param.
 - [ ] (candidate) `RunExplanationSection` — provenance disclosure `runExplanationProvenanceOpen` sync only on `popstate` — locus: run explanation section; input: soft navigation with provenance open query on overview tab.
 - [x] (valid-no-repro) `use-review-detail-workspace-tabs` — **cheap-disproof 2026-10-21 seed hunt:** reconciles `reviewTab` from `useSearchParams`; regression `follows reviewTab query changes without a popstate event`.
@@ -8383,7 +9041,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-16 seed hunt (seed→hit): promoted `RunDetailLastFailureCard` `runLastFailureTechOpen` soft-navigation sync; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `RunDetailLastFailureCard` — `runLastFailureTechOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile technical details disclosure from `useSearchParams`; regression `follows runLastFailureTechOpen query changes without a popstate event`
-- [ ] (candidate) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — locus: governance disposition actions; input: soft navigation with disposition confirm query.
+- [x] (proven) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — **hit 2026-10-29 seed hunt:** see zone-header note above.
 - [ ] (candidate) `RunFindingExplainabilityTable` — explainability row expansion query sync only on `popstate` — locus: finding explainability table; input: soft navigation sets explainability open param.
 - [ ] (candidate) `RunExplanationSection` — provenance disclosure `runExplanationProvenanceOpen` sync only on `popstate` — locus: run explanation section; input: soft navigation with provenance open query on overview tab.
 - [ ] (candidate) `use-review-detail-workspace-tabs` — active workspace tab from URL sync only on `popstate` — locus: review detail tab strip; input: `router.push` changes `reviewTab` without back/forward.
@@ -8589,11 +9247,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 40
-- **bugs-found:** 31
+- **hunts:** 42
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — Sponsor briefing collapsible ignored on soft navigation
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — Technology baseline rationale dialog from prior run during cross-review load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
@@ -8748,6 +9406,25 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+
+2026-10-29 seed hunt (seed→hit): promoted open `(candidate)` `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes used `readWindowLocationSearch()`, so after soft navigation disabling focused pilot mode merged stale query keys from the address bar; `syncPilotTogglesToUrl` now uses `searchParams.toString()`; regression `writes pilot toggle from useSearchParams when window.location.search lags after soft navigation`; `use-new-run-wizard-client.pilot-url.test.ts` 2/2. Seeded five follow-on `(candidate)` rows below. Private beta: full guided wizard pilot toggles no longer resurrect stale toolbar params after in-app navigation on `/architecture/reviews/new`.
+
+- [x] (proven) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes merged stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for toggle writes; regression above.
+- [ ] (candidate) `useNewRunWizardMode.persistWizardMode` — embedded path-switcher mount persists full mode via `readWindowLocationSearch()` — locus: `use-new-run-wizard-mode.ts` `persistWizardMode`; input: soft navigation clears wizard query then embedded detailed wizard auto-pins `mode=full`.
+- [ ] (candidate) `useNewRunWizardSteps.goToStep` — wizard step href writes use `readWindowLocationSearch()` on write — locus: `use-new-run-wizard-steps.ts`; input: soft navigation on reviews/new then stepper advances a slide.
+- [ ] (candidate) `useGuidedIntakeWizard.setStep` — guided intake step href writes use `readWindowLocationSearch()` on write — locus: `use-guided-intake-wizard.ts`; input: soft navigation clears intake params then operator moves to clarifications step.
+- [ ] (candidate) `FirstPilotIntakeFields` — standards selection disclosure href writes use `readWindowLocationSearch()` — locus: quick-start standards panel; input: soft navigation then expand standards picker.
+- [ ] (candidate) `SimplifiedPilotWizard` — advanced config disclosure href writes use `readWindowLocationSearch()` — locus: simplified pilot chrome; input: soft navigation then open advanced configuration disclosure.
+
+2026-10-29 thorough hunt (hit): promoted `useFirstPilotIntakeWizard.setScopeGateOpen` — scope gate URL writes were gated on `scopeGateOpenRef` matching resolved, so after soft navigation or popstate synced the ref ahead of React state, closing or confirming the gate skipped `commitHrefIfChanged` and left stale `scopeGate=` in the address bar; shared `resolveScopeGateOpenTransition` syncs URL when React `current` differs from resolved (also applied to `useGuidedIntakeBriefForm`); regressions `still syncs URL when ref already matches resolved but React state lags after external URL sync` and `clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state`; `scope-gate-open-setter.test.ts` 2/2; first-pilot scope gate URL sync 2/2. Private beta: quick start and guided intake scope confirmation clears the scope gate query param even when the URL ref updated before the panel caught up.
+
+- [x] (proven) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — **hit 2026-10-29 thorough hunt:** `resolveScopeGateOpenTransition` uses `current !== resolved`; regressions above.
+
+2026-10-29 thorough hunt (hit): promoted `NewRunWizardTemplateRestore` — accepted browser session restore called `setStepIndex` with the saved index without clamping, so an out-of-range step from an older wizard rail could leave navigation state past the current step list; clamp restored index with `clampWizardStepIndex` against the active step definition count; regressions `restores saved template form values wholesale via reset` and `clamps restored step index to the current wizard definition length`; `NewRunWizardTemplateRestore.test.ts` 2/2. Cheap-disproof closed picker template-restore vs query-prefill ordering (`data-wizard-ready` marks shell mount; restore is explicit accept) and guided-intake `popstate` vs `useSearchParams` intakeStep sync (prior regressions; no dual-listener flaky repro). Private beta: invited operators resuming a saved full guided wizard land on a valid step even when their browser snapshot used an older step count.
+
+- [x] (proven) `NewRunWizardTemplateRestore` — stale browser snapshot restores step index without clamping to current wizard definition — **hit 2026-10-29 thorough hunt:** `wizardStepCount` + `clampWizardStepIndex` on restore; regression `clamps restored step index to the current wizard definition length`.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — **superseded hit 2026-10-29 thorough hunt:** `resolveScopeGateOpenTransition`; regressions in `scope-gate-open-setter.test.ts` and first-pilot scope gate URL sync.
+
 2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeWizard` **example template prefill clobbering session restore** — `?template=` example prefill ran in a later effect than wizard session auto-restore, so a saved quick-start title/brief could be overwritten by the example copy on the same mount; mark example prefill applied when restoring and skip example prefill when title/brief already have text; regression `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`; 11/11 `use-first-pilot-intake-wizard` tests. Cheap-disproof closed recheck pending-upload asymmetry (markResumed clears recheck chrome; parity with submit throw path) and scope-gate ref/state URL monitor. Private beta: quick start with both an example template deeplink and an auto-resumed session keeps the operator’s saved review title and brief.
 
 2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeWizard` **rerun auto-submit guard** — `rerunAutoSubmitStartedRef` was one-shot for the mount, so changing `priorRunId` in place without remounting skipped the eligible auto-submit path for the second rerun deeplink; track auto-submit per `priorRunId` instead; regression `auto-submits again when priorRunId changes without remounting the wizard`; 1/1 rerun auto-submit test. Cheap-disproof closed picker template-restore vs query-prefill and guided-intake popstate race (prior passes). Private beta: guided intake rerun deeplinks each trigger auto-submit when clarifications are complete, not only the first prior run id seen in the session.
@@ -8774,9 +9451,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 - [x] (proven) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — **hit 2026-10-26 thorough hunt:** restore marks example prefill applied; skip when title/brief populated; regression template+auto-restore fixture.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — **cheap-disproof 2026-10-26 thorough hunt:** `markResumed` clears recheck UI; upload throw matches submitRun await semantics; monitor.
-- [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — **cheap-disproof 2026-10-26 thorough hunt:** prior hit; regression lock retained.
-- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits.
-- [x] (proven) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — **hit 2026-10-26 thorough hunt:** per-`priorRunId` guard; regression priorRunId swap fixture.
+- [x] (proven) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes merged stale query after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()`; regression `writes pilot toggle from useSearchParams when window.location.search lags after soft navigation`.
+- [ ] (candidate) `useNewRunWizardMode.persistWizardMode` — mode URL write on embedded mount uses stale window search — locus: `use-new-run-wizard-mode.ts`; input: path switcher embed pins full mode after soft navigation.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / query-prefill ordering — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; automation readiness vs restore unchanged.
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` popstate race — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; no new repro.
 
@@ -8786,10 +9462,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
-- **code-changed-since:** yes
+- **last-bug:** 2026-10-29 — new-run wizard pilot toggle merged stale query after soft navigation
+- **code-changed-since:** no
 
-**Hunts:** 68 · **Bugs found:** 39 · **Consecutive dry hunts:** 0
+**Hunts:** 71 · **Bugs found:** 42 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8868,7 +9544,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `useFirstPilotIntakeSubmit` — failure persisting coverage acknowledgement occurs after the review is created but leaves the created run undiscoverable by the submit flow — locus: `use-first-pilot-intake-submit.ts` ~126–140; input: successful `createArchitectureRun` followed by a rejected `persistSessionRunCoverageAcknowledgement`.
 - [ ] (candidate) `useGuidedIntakeDraftSubmit` — deferred document upload failure is reduced to a warning after the session is cleared and navigation begins — locus: `use-guided-intake-draft-submit.ts` ~52–100; input: admitted guided intake with pending evidence and a rejected post-submit document upload.
 - [ ] (candidate) `useGuidedIntakePriorRunPrefill` — a rejected prior-package load has no rejection handler and can produce an unhandled promise while the optional rerun prefill silently fails — locus: `use-guided-intake-prior-run-prefill.ts` ~108–122; input: reachable `rerun=` guided-intake deep link whose prior-package request rejects.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — a stale browser snapshot restores a step index without clamping it to the current wizard definition — locus: `NewRunWizardTemplateRestore.ts` ~43–52; input: saved full-wizard session from an older step sequence restored after the current wizard has fewer steps.
+- [x] (proven) `NewRunWizardTemplateRestore` — stale browser snapshot restores step index without clamping to current wizard definition — **hit 2026-10-29 thorough hunt:** see zone-header note; regression `clamps restored step index to the current wizard definition length`.
 - [ ] (candidate) `ReviewsNewPathSwitcher` — `suppressAcceleratorStartIntent` remains true after a Quick Start click and can hide a later accelerator deeplink in the same mount — locus: `ReviewsNewPathSwitcher.tsx` ~82–93 and `selectPath`; input: select Quick Start, then navigate to a URL with a valid `accelerator=` query without remounting.
 - [ ] (candidate) `useNewRunWizardMode` — removing a URL `mode=` after a same-mounted client navigation leaves the one-shot mode choice latched and prevents the committed-manifest probe from re-evaluating — locus: `use-new-run-wizard-mode.ts` ~54–150; input: navigate from `mode=full` to a URL without `mode` before the first-run probe resolves.
 - [ ] (candidate) `useGuidedIntakeWizard.handleSessionRestore` — clarification hydration is launched without a rejection handler after a saved draft is restored — locus: `use-guided-intake-wizard.ts` ~219–222; input: restore a session at confirm with a draft id whose `getDraftQuestions` request rejects.
@@ -8924,11 +9600,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 63
-- **bugs-found:** 34
+- **hunts:** 64
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — revised-clone quick start prefilled wrong inherited title from in-flight prior run summary
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — template session restore clamped out-of-range step index
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8961,8 +9637,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — document-only pending files replaced while a mixed inventory+document upload is in flight can still be cleared when the inventory leg of a stale upload succeeds — **cheap-disproof 2026-10-25 thorough hunt:** `setPendingDocumentFiles` bumps upload generation and regression `does not upload documents cleared while inventory upload is in flight` covers the mixed-upload path.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.uploadPendingEvidence` — post-create evidence upload is invoked after `setRunId` without resetting `evidenceUploadState` from a prior failed quick-start attempt on the same mount — **cheap-disproof 2026-10-25 thorough hunt:** `uploadPendingEvidence` sets `"uploading"` at entry and full-wizard create requires `runId === null` until submit, so the proposed step-1 failure before step-2 create is not reachable on one mount.
 - [x] (valid-no-repro) `useFirstPilotIntakeWizard` — semantic summary counts from a prior `rerun=` request can display after the query changes because the fetch effect lacks a generation guard — **cheap-disproof 2026-10-25 thorough hunt:** effect cleanup plus regressions `ignores stale prior-run semantic counts when rerun= changes before the first fetch resolves` and `clears inherited semantic summary immediately when rerun= changes after prior counts loaded`.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — restored wizard step index is applied before query-prefill effects finish, so automation that snapshots `data-wizard-ready` may read pre-prefill policy fields — locus: template restore vs `useNewRunWizardQueryPrefill` ordering; input: saved session plus `policyPackId` deeplink on same mount.
-- [ ] (candidate) `useGuidedIntakeWizard.setStep` — browser `popstate` updates to `intakeStep` can race the Next `useSearchParams` sync effect and briefly render the wrong slide with current draft answers — locus: dual URL listeners in `use-guided-intake-wizard.ts`; input: Back/Forward across clarifications while a draft restore is hydrating.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` — restored wizard step index before query-prefill effects finish / `data-wizard-ready` automation — **cheap-disproof 2026-10-29 thorough hunt:** readiness is mount signal; template restore requires explicit accept; policy deeplink one-shot unchanged.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — popstate races `useSearchParams` intakeStep sync — **cheap-disproof 2026-10-29 thorough hunt:** both listeners call `goToStep` with clamp; no failing repro beyond prior intake-step URL tests.
 
 - [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — restoring a saved guided-intake draft can apply persisted view state before current `path`/`intakeStep` URL state finishes synchronizing — **cheap-disproof 2026-10-16 thorough hunt:** session restore rewinds confirm bookmarks and URL sync rewrites `intakeStep` before hydration; regressions in `use-guided-intake-wizard.session-restore.test.ts` and `use-guided-intake-wizard.intake-step-url.test.ts`.
 
@@ -9098,6 +9774,16 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `GovernanceFindingsList.resolveFindingRunId` and `useGovernanceFindingTriage.openForRow` matched padded register `findingId` strings with strict equality, so Alt+1–3 keyboard disposition could not resolve `runId` from focused cards with padded `data-finding-id`; shared `resolveGovernanceFindingRunIdFromDisplayedRows`, trim-aware `openForRow`, and normalized ids in `FindingKeyboardTriageHost`; regressions in `governance-findings-queue-presentation.run-id.test.ts` and `use-governance-finding-triage.test.ts`; cheap-disproof closed three sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators can apply keyboard finding dispositions from the governance findings queue when register rows retain padded finding ids.
+
+2026-10-29 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` cleared `focusedFinding` before URL hydration opened the triage panel and compared raw `activeRow.findingId` to trimmed URL tokens, breaking deep-linked triage on padded register rows; gate URL sync until hydration opens the panel and compare trimmed ids; regressions in `use-governance-finding-triage-with-cursor.test.tsx`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators opening governance findings triage from a `focusedFinding` link keep the panel and URL cursor when register rows retain padded finding ids.
+
+2026-10-29 thorough hunt (hit): `resolveContinueLastGovernanceFinding` compared recent-view finding ids to raw `row.findingId`, so padded register rows missed the recent match and the queue fell back to the wrong “oldest open” finding; extended trimmed-id matching to triage `focusedFinding` hydration, keyboard card focus, and `extractGovernanceFindingIds`; regressions `matches recent view when queue row findingId retains padding` and `focuses finding cards when data-finding-id retains padding`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 15 scoped vitest tests passed. Private beta: Invited operators resuming triage on the governance findings queue land on the finding they last viewed instead of a different open row when register data retained padded finding ids.
+
+2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueClient.availableFindingIds` built a set from raw `row.findingId` while URL bulk tokens and dedupe keys use trimmed ids, so deep-linked `bulkFindings` selections dropped and row checkboxes stayed unchecked when a register row retained padding; shared `governanceFindingsQueueAvailableFindingIdSet`, `normalizeGovernanceQueueFindingId`, and `isGovernanceQueueFindingIdSelected` at the selection boundary; regressions in `governance-findings-queue-selection.test.ts`, `governance-findings-queue-desk-url.test.ts`, and bulk-actions hook tests; cheap-disproof closed four remaining `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 21 scoped governance selection vitest tests passed. Private beta: Invited operators on the governance findings queue keep bulk-selection and checkbox state aligned with `bulkFindings` URLs when upstream register rows include padded finding ids.
+
+2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueResultsSection` rendered `PolicyPackAssignFromReviewStrip` when `scopedRunId` was whitespace-only because the guard checked raw string length instead of `scopedRunFilterActive`; align with scope banner and gate on active review scope; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped ResultsSection vitest passed. Private beta: Invited operators on the governance findings queue no longer see a policy-pack assignment strip tied to a blank review id when review scope is not actually selected.
+
 2026-10-25 seed hunt (seed→hit): operational and buyer-polished queue rows treated whitespace-only `category` as a policy-area fallback (`row.category &&`) while policy-rule chrome already required trim; shared `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`; operational-row cells 3/3. Reseeded five follow-on `(candidate)` rows.
 
 2026-10-25 thorough hunt (hit): `dedupeGovernanceFindingRows` keyed on raw `runId`/`findingId` so padded and trimmed identities duplicated actionable rows after mixed register/trace merges; trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`. Review column links encoded padded `runId` while inspect links trimmed; shared `governanceFindingQueueRowReviewHref`; regression `uses a trimmed run id in the review column link when the row carries padding`; row-mappers 12/12, operational-row 2/2, bulk-actions 6/6. Cheap-disproof closed remediation-factory `findingId` padding (parse trims), assigned-to-me framework-control display (`coerceComplianceRuleKey`), and grouped row remount keys (mappers normalize run ids).
@@ -9116,11 +9802,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 62
-- **bugs-found:** 41
+- **hunts:** 67
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — whitespace-only category showed policy-area fallback on queue rows
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — keyboard disposition could not resolve runId for padded finding ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9130,11 +9816,36 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims, so any pre-dedupe padded row could remount and drop focus when grouping toggles — locus: `GovernanceFindingsQueueTableBody` / virtualized body keys; input: render padded rows before dedupe in a future loader path.
-- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership uses raw `row.findingId` without trim, so a padded finding id on a row could miss URL-restored `bulkFindings` selections — locus: `availableFindingIds` memo; input: row with `findingId: " finding-1 "` and URL `bulkFindings=finding-1`.
-- [ ] (candidate) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present and skips omission copy, unlike status/severity guards — locus: `governanceQueueTitleLabel`; input: finding row with `title: "   "`.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row when it sorts before findings if density filters hide all earlier finding rows — locus: triage target resolver after density filter; input: mixed queue with decision at index 0 and filtered-out low-density findings above the first visible finding.
-- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive`, so whitespace-only scoped run ids could render a strip with an empty review id — locus: policy-pack strip guard; input: `scopedRunId` of three spaces with scope filter inactive.
+- [x] (valid-no-repro) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims — **cheap-disproof 2026-10-29 thorough hunt:** queue rows pass through `dedupeGovernanceFindingRows` before render; hypothetical pre-dedupe loader path is not reachable in the current fetch pipeline.
+- [x] (proven) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership used raw `row.findingId` without trim — **hit 2026-10-29 thorough hunt (second pass):** shared trimmed available-id set and checkbox matching; see proven row above under Hypotheses.
+- [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueTitleLabel` already uses `row.title.trim().length > 0` before omission copy.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row — **cheap-disproof 2026-10-29 thorough hunt:** `resolveFirstFindingTriageTarget` uses `displayedRows.find((candidate) => candidate.recordKind === "finding")`.
+- [x] (proven) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive` — **hit 2026-10-29 thorough hunt:** gate on `scopedRunFilterActive`; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`.
+
+- [x] (proven) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership used raw `row.findingId` without trim while URL bulk tokens use trimmed ids — **hit 2026-10-29 thorough hunt:** `governanceFindingsQueueAvailableFindingIdSet` + `isGovernanceQueueFindingIdSelected`; regressions `stores trimmed finding ids when register rows retain padding` and `matches bulkFindings to trimmed ids when register rows retain padding`.
+- [x] (valid-no-repro) `GovernanceFindingsQueueResultsSection` — `FindingsTriageFirstFindingStrip` renders when `firstFindingTriageTarget` references a finding hidden by register filter but still present in `displayedRows` — **cheap-disproof 2026-10-29 thorough hunt:** `firstFindingTriageTarget` resolves from `displayedRows` after register/NL/job filters (`use-governance-findings-queue-synopsis.ts`).
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — `PickReviewBeforeTriageStrip` vs inactive `scopedRunFilterActive` when URL carries whitespace `runId` — **cheap-disproof 2026-10-29 thorough hunt:** strip intentionally shown when review scope is inactive (`!scopedRunFilterActive`), matching scope banner semantics.
+- [x] (invalid) `useGovernanceFindingsQueueBulkActions` — bulk URL restore keeps padded ids that dedupe collapsed visually but remain in `rows` length — **cheap-disproof 2026-10-29 thorough hunt:** dedupe runs before rows reach the client; hypothetical pre-dedupe duplicate length is test-harness-only, not reachable in fetch pipeline.
+- [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — severity omission copy path when `severity` is whitespace-only — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueSeverityCell` already treats `row.severity.trim().length === 0` as omitted.
+
+- [x] (proven) `resolveContinueLastFindingTarget` / `resolveContinueLastGovernanceFinding` — recent-view finding id match used raw `row.findingId` — **hit 2026-10-29 thorough hunt:** `normalizeGovernanceQueueFindingId` on compare; regression `matches recent view when queue row findingId retains padding`.
+- [x] (proven) `extractGovernanceFindingIds` — ITSM prefetch and triage helpers consumed raw ids while URL tokens trim — **hit 2026-10-29 thorough hunt (same pass):** trim in `extractGovernanceFindingIds`; `governanceQueueRowFindingIdEquals` for triage URL hydration.
+- [x] (proven) `governance-findings-queue-keyboard-focus` — card focus queried raw `data-finding-id` only — **hit 2026-10-29 thorough hunt (same pass):** `queryGovernanceFindingCardElement`; regression `focuses finding cards when data-finding-id retains padding`.
+- [x] (valid-no-repro) `GovernanceAssignedToMePathInspectSection` — path inspect vs padded `data-finding-id` — **cheap-disproof 2026-10-29 thorough hunt:** trimmed `availableFindingIds`; keyboard focus helper finds padded DOM ids.
+- [x] (invalid) `GovernanceFindingsQueueMobileCard` — mobile bulk select bypasses checkbox helper — **cheap-disproof 2026-10-29 thorough hunt:** no mobile bulk checkbox path (desktop table only).
+- [x] (invalid) `governanceFindingsClearReviewScopeHref` — scope clear preserves stale `bulkFindings` — **cheap-disproof 2026-10-29 thorough hunt:** deletes `bulkFindings` by design (`clears stale bulk selection params tied to the scoped review`).
+
+- [x] (proven) `useGovernanceFindingTriageWithCursor` — URL sync cleared `focusedFinding` before hydration opened triage and compared raw row ids — **hit 2026-10-29 thorough hunt:** hydration gate + trimmed compare; regressions in `use-governance-finding-triage-with-cursor.test.tsx`.
+- [x] (proven) `GovernanceFindingsList` mobile triage — same hook backs mobile `openTriageRow` — **hit 2026-10-29 thorough hunt (same pass):** shared cursor hook fix.
+- [x] (valid-no-repro) `resolveFirstFindingTriageTarget` — nested `focusedFinding` href emission — **cheap-disproof 2026-10-29 thorough hunt:** `governanceFindingInspectHref` trims before `params.set`.
+- [x] (valid-no-repro) `governanceFindingInspectHref` — inspect href vs recent-view trim — **cheap-disproof 2026-10-29 thorough hunt:** href builder trims finding ids.
+- [x] (invalid) `WorkbenchFindingSelectionSync` — raw `data-finding-id` compare — **cheap-disproof 2026-10-29 thorough hunt:** review workbench only, outside governance findings queue surfaces.
+
+- [ ] (candidate) `useGovernanceFindingTriage` — `openForRow` indexes rows with raw `findingId` equality — locus: triage panel row lookup; input: padded vs trimmed duplicate ids before dedupe in harness.
+- [ ] (candidate) `FindingKeyboardTriageHost` — Alt+J/K walks `[data-finding-id]` without trim parity vs normalized bulk selection — locus: keyboard triage vs bulkFindings; input: padded card with trimmed selection.
+- [ ] (candidate) `parseGovernanceFindingTriageFocusedFindingIdFromSearch` — whitespace-only `focusedFinding` param skips hydration while panel state stale — locus: `%20`-only focusedFinding URL; input: `focusedFinding=%20%20`.
+- [ ] (candidate) `GovernanceFindingTriagePanel` — disposition actions use raw `activeRow.findingId` while API clients trim — locus: in-panel disposition POST; input: padded active row.
+- [ ] (candidate) `usePrefetchItsmFindingCorrelations` — prefetch list trimmed but bulk ITSM callbacks pass raw row ids — locus: ITSM chip vs padded selection; input: bulk ITSM on padded row.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
@@ -11442,6 +12153,18 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
+
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
+
+2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — **cheap-disproof 2026-10-30 thorough hunt #2:** catalog TOC excludes claim heading; policy regression `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`.
+- [x] (invalid) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — **cheap-disproof 2026-10-30 thorough hunt #2:** empty claim still renders callout shell; regression `still renders an empty claim callout shell when claim prop is an empty string on a visible slug`.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — **cheap-disproof 2026-10-30 thorough hunt #2:** registry scan found zero help topics with header claim missing omit coverage.
+
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
@@ -11450,13 +12173,17 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 38
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-09 — residual help catchall TOC kept a claim heading with no anchor
+- **hunts:** 42
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-29 thorough hunt (dry): re-promoted the three open `(candidate)` rows after the Connect AWS TOC hit — automated scan found zero live `stripSlug`/`slug` values that omit only through an unmapped legacy alias; every `resolveGuideHeadingsForStrip` call uses a slug consistent with `shouldOmitClaimDisciplineBand`; visible-band orientation strips trace non-empty claim props through `resolveClaimDisciplineForStrip` (undefined passthrough is intentional for omitted slugs and tested). No hunt-ready repro; 29 scoped `claim-discipline-policy` tests passed; no production code changed.
+
+2026-10-29 thorough hunt (hit): promoted `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — operator TOC kept `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` omits the bottom orientation band and `ConnectAwsSecurelyHelpClaimDisciplineStrip` renders header copy without that anchor, so scroll-spy linked to a missing target; pass filtered headings via `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions `drops connect AWS claim TOC row when cloud-connections-aws omits the orientation band` and `omits orphan claim-discipline TOC link while header strip owns the band`; 30 scoped tests passed.
 
 2026-10-12 thorough hunt (dry): cheap-disproved the four retained policy candidates: all legacy aliases and visible omit slugs are static and covered, live omitted-guide heading ids align with their callers, and undefined claims intentionally suppress the optional band. No hunt-ready row remained for a failing repro; the focused policy suite passed 28/28 and no production or regression code changed.
 
@@ -11505,10 +12232,11 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `resolveStripSlugForOmitPolicy` exact alias lookup — a live `EvidenceOrientationClaimCallout` caller can pass a newly retained legacy strip slug that is not mapped to its canonical omitted registry slug, leaving a duplicate claim band reachable; verify against current strip props and registry entries before promoting.
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — a live help guide whose header owns claim discipline can pass its registry slug without an omit-set entry, leaving its orientation strip visible; compare current guide/header composition against the set before promoting.
+- [x] (valid-no-repro) `resolveStripSlugForOmitPolicy` exact alias lookup — live legacy strip slugs unmapped to canonical omitted registry slugs — **cheap-disproof 2026-10-30 thorough hunt:** automated orientation `slug` scan found zero alias gaps; regressions `omits legacy orientation strip slug aliases that differ from registry help-topic slugs` and connect/cloud alias cases.
+- [x] (proven) `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — TOC listed `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` is omitted and the header claim strip has no matching anchor — **hit 2026-10-29 thorough hunt:** `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions in `HelpConnectAwsSecurelyGuideView.test.tsx` and `claim-discipline-policy.test.ts`
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — live help guide whose header owns claim discipline passes registry slug without omit-set entry — **cheap-disproof 2026-10-30 thorough hunt:** non-omitted help slugs (e.g. `help-governance-infrastructure-drift`) intentionally render sole claim via orientation strip; regression `passes governance infrastructure drift help claim through for visible-band orientation slug`.
 - [x] (proven) `resolveGuideHeadingsForStrip` / `HelpPreferencesGuideView` — preferences TOC kept claim heading link while `help-preferences` omits bottom band and header strip lacks anchor — **hit 2026-10-21 thorough hunt lane C:** filtered `guideHeadings`; regression in `HelpPreferencesGuideView.test.tsx`.
-- [ ] (candidate) `resolveClaimDisciplineForStrip` undefined claim passthrough — a live visible-band caller can receive an empty or undefined claim from a guide-specific evidence constant and silently render no claim band; trace the actual claim props before promoting.
+- [x] (valid-no-repro) `resolveClaimDisciplineForStrip` undefined claim passthrough — visible-band caller receives empty or undefined claim and silently renders no claim band — **cheap-disproof 2026-10-30 thorough hunt:** intentional for sources-only visible strips; regression `allows undefined claim passthrough on visible slugs when callers omit copy`.
 
 - [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 
@@ -12658,13 +13386,19 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 15
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — dependency-neighborhood seed picker clobbered executive catalog rows with stale visible-outline hydration
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — dependency seed catalog ignored Show never-show after catalog cache early-return
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` early-return left `seedCandidateNodes` stale when `includeNeverShow` toggled after the executive catalog was cached; dedicated effect refilters cached `seedCatalogOutline` for the current snapshot whenever `includeNeverShow` changes; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who turn on Show never-show components while choosing a dependency-neighborhood starting resource see metric alerts and other filtered inventory rows in the seed picker without reloading the snapshot.
+
+2026-10-29 thorough hunt (hit): soft URL `snapshotId` changes left `selectedSnapshotId` on the prior snapshot until a full snapshots refetch finished, so dependency-neighborhood seed catalog state stayed paired with the old id; resync `selectedSnapshotId` from `urlSnapshotId` once snapshots are loaded (mirroring mode URL sync); regression `refreshes dependency seed catalog when the URL snapshot id changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who use browser back/forward or bookmarked snapshot links on infra diagrams while picking a dependency-neighborhood starting resource get that URL snapshot's executive catalog instead of stale seeds from the prior snapshot.
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` treated any non-empty `seedCatalogOutline` as fresh and skipped refetch on snapshot change while async executive catalog responses could still apply to the wrong snapshot id; pair catalog state with `seedCatalogSnapshotId`, bail stale async completions with `selectedSnapshotIdRef`, and clear both on snapshot change; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood and seed-catalog workbench vitest passed. Private beta: Invited operators who change the infra diagrams snapshot while dependency neighborhood awaits a starting resource see that snapshot's executive catalog in the seed picker instead of stale resources from the prior snapshot.
 
 2026-10-25 thorough hunt (hit): `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stops visible-outline seed hydration while dependency neighborhood awaits a starting resource (fixes executive catalog seeds replaced by stale executive canvas nodes after mode switch); regressions `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource` and `keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-seed, seed-catalog, strip-overflow, and workbench vitest passed. Private beta: Invited operators switching to dependency neighborhood before choosing a starting resource keep the full executive catalog in the seed picker instead of a truncated list copied from the previous diagram view.
 
@@ -12711,11 +13445,29 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — **cheap-disproof 2026-10-25 thorough hunt:** legend rows derive from filtered outline props; observed swatches are layout-level accents independent of family chip filtering.
 - [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — **cheap-disproof 2026-10-25 thorough hunt:** workbench parses `displayMermaidSource` for `mermaidOutline` after strip + display normalization on every render response.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — locus: `loadSeedCatalog` effect; input: rapid snapshot picker change while dependency neighborhood awaits seed.
-- [ ] (candidate) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — locus: helper guard; input: selected-resources awaiting multi-select with partial render visible.
-- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — locus: catalog effect filter; input: executive catalog containing SQL database never-show rows.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — locus: outline panel state; input: operator selects edge then catalog reload replaces outline nodes.
-- [ ] (candidate) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — locus: display normalization order; input: mixed-case executive edge labels in catalog mermaid.
+- [x] (proven) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — **hit 2026-10-29 thorough hunt:** `seedCatalogSnapshotId` + `selectedSnapshotIdRef` guard `loadSeedCatalog`; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`.
+- [x] (valid-no-repro) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — **cheap-disproof 2026-10-29 thorough hunt:** helper returns false for `selectedResources` with empty `appliedSeedNodeId`; covered by regression `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource`.
+- [x] (valid-no-repro) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — **cheap-disproof 2026-10-29 thorough hunt:** catalog effect applies `filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow)` before `setSeedCandidateNodes`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — **cheap-disproof 2026-10-29 thorough hunt:** outline panel already clears selected edges when `outline` changes; regression `clears a selected edge detail panel when the outline changes`.
+- [x] (valid-no-repro) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — **cheap-disproof 2026-10-29 thorough hunt:** intentional display parity for picker labels matching canvas; seed catalog resolver applies normalization before parse by design.
+
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter change clears snapshot selection but leaves dependency-neighborhood seed catalog paired to the prior snapshot id — **cheap-disproof 2026-10-29 thorough hunt:** `applySubscriptionFilterChange` clears `selectedSnapshotId` when the snapshot falls outside the filter, which triggers the existing seed-catalog reset effect on `[selectedSnapshotId]`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — toggling Show never-show components while catalog load is in flight applies filtered nodes to the wrong snapshot — **cheap-disproof 2026-10-29 thorough hunt:** `includeNeverShow` only refilters the same snapshot's parsed outline via `filterInfraEvidenceMermaidOutline`; `seedCatalogSnapshotId` pairing prevents cross-snapshot application after the 2026-10-29 picker hit.
+- [x] (proven) `DiagramsWorkbenchClient` — soft URL navigation updates `urlSnapshotId` without clearing seed catalog when mode stays dependency neighborhood — **hit 2026-10-29 thorough hunt:** resync selected snapshot from URL when snapshots are loaded; regression `refreshes dependency seed catalog when the URL snapshot id changes`.
+- [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render returns before executive catalog fetch completes and seed picker briefly lists visible-outline nodes — **cheap-disproof 2026-10-29 thorough hunt:** `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stays false while dependency neighborhood awaits a seed, so render responses cannot hydrate the picker.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — applied seed from URL survives snapshot change and blocks catalog refresh while picker still shows prior snapshot seeds — **cheap-disproof 2026-10-29 thorough hunt:** with a deep-linked applied seed the workbench leaves catalog-awaiting mode (`dependencyNeighborhoodAwaitingSeed` false), so the stale-catalog picker path does not apply; snapshot picker changes still clear render state via `handleSnapshotChange`.
+
+- [x] (proven) `DiagramsWorkbenchClient` — toggling Show never-show while awaiting seed skips refiltering seed candidates when catalog early-return fires — **hit 2026-10-29 thorough hunt:** refilter effect on cached `seedCatalogOutline`; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked `seedNodeId` on snapshot A leaves applied seed after URL snapshot moves to B without clearing the param — **cheap-disproof 2026-10-29 thorough hunt:** with an applied seed the workbench exits catalog-awaiting mode; neighborhood render uses the seed against the current `selectedSnapshotId`, not the stale catalog picker list.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter confirm dialog applies filter without clearing seed catalog when selection survives filter — **cheap-disproof 2026-10-29 thorough hunt:** confirm path calls `applySubscriptionFilterChange`, which clears mode/render when the filter changes and resets catalog via `selectedSnapshotId` when the snapshot drops out of the filter.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadSnapshots` refetch after URL snapshot change races URL resync effect and briefly restores prior catalog — **cheap-disproof 2026-10-29 thorough hunt:** URL resync sets `selectedSnapshotId` immediately when snapshots are already loaded; catalog clear tracks selection id and `seedCatalogSnapshotId` pairing from the same-day hits.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — seed catalog reload replaces outline nodes but leaves selected inventory edge from prior catalog parse — **cheap-disproof 2026-10-29 thorough hunt:** dependency-neighborhood seed pick uses catalog outline for the picker only; `selectedInventoryEdge` clears when `familyFilteredOutline` changes from render, not catalog cache.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — clearing applied seed after snapshot change does not remove deep-linked `seedNodeId` from the URL — locus: snapshot change + URL seed param; input: applied neighborhood render after soft-nav snapshot without seed param update.
+- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog refilter effect runs while `loadingSeedCatalog` true and flashes empty picker options — locus: refilter vs load race; input: slow catalog fetch then rapid never-show toggle.
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change to ALL resets mode and leaves dependency-neighborhood URL mode out of sync with cleared picker state — locus: `applySubscriptionFilterChange` ALL branch; input: filter to ALL while awaiting seed.
+- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — SQL master database rows appear in seed catalog when never-show off but collapse report omits them — locus: never-show name heuristic vs catalog parse; input: executive catalog with master DB node.
+- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog refetch after snapshot change ignores `includeNeverShow` until refilter effect runs — locus: load + refilter ordering; input: deep-linked includeNeverShow=1 on snapshot change.
 
 - **id:** infra-evidence-diagrams
 - **status:** open

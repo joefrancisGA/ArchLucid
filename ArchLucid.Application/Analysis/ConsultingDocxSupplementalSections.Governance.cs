@@ -158,9 +158,19 @@ internal static partial class ConsultingDocxSupplementalSections
     {
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Explainability and Execution Review", 1);
 
+        if (report.ExecutionTraces is null)
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Execution traces were not stored for this run.",
+                "BodyText");
+
+            return;
+        }
+
         if (report.ExecutionTraces.Count == 0)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available for this run.",
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                "Execution traces were stored as an empty list for this run.",
                 "BodyText");
 
             return;

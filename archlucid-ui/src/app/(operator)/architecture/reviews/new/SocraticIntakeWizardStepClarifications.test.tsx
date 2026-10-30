@@ -41,6 +41,7 @@ const baseProps = {
   isSubmitBlocked: false,
   suggestAnswersFromEvidence: vi.fn(),
   markQuestionEdited: vi.fn(),
+  droppedClarificationExtractSummary: null,
   saveAndContinue: vi.fn(),
   skipQuestion: vi.fn().mockResolvedValue(undefined),
   reviewAnswers: vi.fn().mockResolvedValue(undefined),
@@ -64,5 +65,18 @@ describe("SocraticIntakeWizardStepClarifications", () => {
     render(<SocraticIntakeWizardStepClarifications {...baseProps} isCreateArchitectureFlow />);
 
     expect(screen.getByText(new RegExp(GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION))).toBeInTheDocument();
+  });
+
+  it("surfaces dropped clarification extract honesty (P-11)", () => {
+    render(
+      <SocraticIntakeWizardStepClarifications
+        {...baseProps}
+        droppedClarificationExtractSummary="2 clarification extracts were dropped — An extract was dropped because it did not pass the readability gate."
+      />,
+    );
+
+    expect(screen.getByTestId("guided-intake-dropped-clarification-extracts")).toHaveTextContent(
+      "2 clarification extracts were dropped",
+    );
   });
 });

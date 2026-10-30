@@ -19,7 +19,7 @@ public sealed class DecisionConfidenceSourceMapperTests
     [InlineData(DecisionConfidenceSource.RuleEngine, BuyerDecisionConfidenceSource.EvidenceBacked)]
     [InlineData(DecisionConfidenceSource.LlmAgent, BuyerDecisionConfidenceSource.ModelAssisted)]
     [InlineData(DecisionConfidenceSource.Unknown, BuyerDecisionConfidenceSource.Unknown)]
-    [InlineData(DecisionConfidenceSource.NotComputed, BuyerDecisionConfidenceSource.Unknown)]
+    [InlineData(DecisionConfidenceSource.NotComputed, BuyerDecisionConfidenceSource.NotComputed)]
     public void ToBuyerLabel_maps_internal_sources(DecisionConfidenceSource source, string expected)
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel(source).Should().Be(expected);

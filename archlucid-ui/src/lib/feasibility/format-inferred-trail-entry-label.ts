@@ -19,6 +19,10 @@ function formatInferredTrailConfidence(confidence: number | null | undefined): s
     return `confidence ${confidence}`;
   }
 
+  if (typeof confidence === "number" && Number.isFinite(confidence) && confidence === 0) {
+    return "Confidence 0 is outside the stored 1–100 scale.";
+  }
+
   return INFERRED_TRAIL_CONFIDENCE_NOT_STORED;
 }
 

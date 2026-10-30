@@ -51,7 +51,11 @@ internal static class DiagramEdgeLabelHumanizer
         {
             return HasEvidenceCurrencyPrefix(label)
                 || label.Contains('↔', StringComparison.Ordinal)
-                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase);
+                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
+                    StringComparison.Ordinal);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
@@ -128,6 +132,15 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
             return string.Equals(label, DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryWorkflowAction, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel,
+                    StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(label);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
@@ -638,6 +651,13 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "API connection name was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryWorkflowAction, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel;
 
             return true;
         }

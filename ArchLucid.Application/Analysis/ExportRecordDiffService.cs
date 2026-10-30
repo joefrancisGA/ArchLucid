@@ -120,6 +120,14 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         AddIfChangedTrimmed(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
         AddIfChangedTrimmed(diff.ChangedValues, "Audience", left.Audience, right.Audience);
+        AddIfChangedTrimmed(diff.ChangedValues, "ReviewBoardWhitelabelFirmDisplayName",
+            left.ReviewBoardWhitelabelFirmDisplayName, right.ReviewBoardWhitelabelFirmDisplayName);
+        AddIfChangedTrimmed(diff.ChangedValues, "ReviewBoardWhitelabelClientEngagementTitle",
+            left.ReviewBoardWhitelabelClientEngagementTitle, right.ReviewBoardWhitelabelClientEngagementTitle);
+        AddIfChangedTrimmed(diff.ChangedValues, "ReviewBoardWhitelabelLogoBlobReference",
+            left.ReviewBoardWhitelabelLogoBlobReference, right.ReviewBoardWhitelabelLogoBlobReference);
+        AddIfChangedTrimmed(diff.ChangedValues, "ReviewBoardWhitelabelFooterAttribution",
+            left.ReviewBoardWhitelabelFooterAttribution, right.ReviewBoardWhitelabelFooterAttribution);
 
         AddIfChanged(diff.ChangedFlags, "ExternalDelivery", left.ExternalDelivery, right.ExternalDelivery);
         AddIfChanged(diff.ChangedFlags, "ExecutiveFriendly", left.ExecutiveFriendly, right.ExecutiveFriendly);

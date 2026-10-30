@@ -39,7 +39,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine($"### Iteration {iteration.IterationNumber}");
                 sb.AppendLine();
                 sb.AppendLine(
-                    $"- Replay Run ID: {DeterminismExportHonestyCopy.FormatReplayRunId(iteration.ReplayRunId)}");
+                    $"- Replay Run ID: {FormatMarkdownListText(DeterminismExportHonestyCopy.FormatReplayRunId(iteration.ReplayRunId))}");
                 sb.AppendLine(
                     $"- Matches Baseline Agent Results: {DeterminismExportHonestyCopy.FormatAgentResultsMatch(iteration.MatchesBaselineAgentResults)}");
                 sb.AppendLine(
@@ -49,14 +49,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     sb.AppendLine("- Agent Drift Warnings:");
                     sb.AppendLine(string.Join(Environment.NewLine,
-                        iteration.AgentDriftWarnings.Select(static warning => $"  - {warning}")));
+                        iteration.AgentDriftWarnings.Select(static warning => $"  - {FormatMarkdownListText(warning)}")));
                 }
 
                 if (iteration.ManifestDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Manifest Drift Warnings:");
                     sb.AppendLine(string.Join(Environment.NewLine,
-                        iteration.ManifestDriftWarnings.Select(static warning => $"  - {warning}")));
+                        iteration.ManifestDriftWarnings.Select(static warning => $"  - {FormatMarkdownListText(warning)}")));
                 }
 
                 sb.AppendLine();
@@ -153,7 +153,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
         sb.AppendLine(string.Join(
             Environment.NewLine,
-            items.Select(static item => $"- {ArchitectureEvidenceRequestExport.FormatDiffListEntry(item)}")));
+            items.Select(static item => $"- {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatDiffListEntry(item))}")));
 
         sb.AppendLine();
     }

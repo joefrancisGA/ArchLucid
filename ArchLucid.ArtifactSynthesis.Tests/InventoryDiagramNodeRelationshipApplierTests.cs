@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -116,14 +117,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Edges.Should().ContainSingle(edge =>
-            !edge.IsLayoutOnly
-            && (edge.Label.StartsWith("Configured", StringComparison.Ordinal)
-                || edge.Label.Contains("IPsec", StringComparison.Ordinal)
-                || string.Equals(
-                    edge.Label,
-                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
-                    StringComparison.Ordinal)));
+        DiagramEdge edge = ast.Edges.Should().ContainSingle(e => !e.IsLayoutOnly).Subject;
+        edge.Label.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
     }
 
     [Fact]

@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { ASK_RETRIEVAL_MODE_NOT_STORED_LABEL, ASK_RETRIEVAL_NOT_DEGRADED_LABEL } from "@/lib/ask-retrieval-mode-copy";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   askReviewArtifactStatusCopy,
@@ -180,6 +181,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const indexedFindingIds = useMemo((): ReadonlySet<string> => {
+    return new Set(citedFindingBandIndex.map((entry) => entry.findingId.trim().toLowerCase()));
+  }, [citedFindingBandIndex]);
   const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
     const scoped = runId.trim();
 
@@ -227,7 +231,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         {retrievalDegraded === null ? (
           <StatusTag
             kind="neutral"
-            label="Retrieval mode was not stored."
+            label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
             data-testid="ask-retrieval-mode-not-stored-badge"
           />
         ) : retrievalDegraded ? (
@@ -243,7 +247,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ) : (
           <StatusTag
             kind="neutral"
-            label="Vector search was used for retrieval."
+            label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
             data-testid="ask-retrieval-full-badge"
           />
         )}
@@ -294,8 +298,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               : null;
           const assistantCitationSourceLinks =
             buyerPolishedShell && assistantCitationRefs !== null
-              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
-              : (askAssistantGroundingLinks ?? []);
+              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs, { indexedFindingIds })
+              : buyerPolishedShell
+                ? undefined
+                : (askAssistantGroundingLinks ?? []);
           const citedReviewIds = collectCitedReviewIdsFromAskAnswerRefs(runId, assistantCitationRefs);
 
           return (
@@ -349,7 +355,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
                     groundingLinks={
-                      assistantCitationSourceLinks.length > 0 ? assistantCitationSourceLinks : undefined
+                      assistantCitationSourceLinks !== undefined && assistantCitationSourceLinks.length > 0
+                        ? assistantCitationSourceLinks
+                        : undefined
                     }
                     citedReviewIds={citedReviewIds}
                   />

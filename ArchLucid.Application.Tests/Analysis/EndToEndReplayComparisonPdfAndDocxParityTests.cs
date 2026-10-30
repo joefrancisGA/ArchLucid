@@ -249,6 +249,113 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         text.Should().Contain("Fuzzy matches are possible");
     }
 
+    [SkippableFact]
+    public async Task CompareQuality_GeneratePdf_includes_finding_lifecycle_counts()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = 5,
+                PreviouslyIdentifiedStillPresentCount = 3,
+                ConfirmedResolvedCount = 2,
+                UnverifiedResolvedCount = 1,
+                AbsenceNotInformativeCount = 4,
+                HonestyNote = "absence is not a clean bill",
+            },
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        // PdfPig keeps Helvetica fi/ti ligatures as single characters, so assert the intact fragments.
+        text.Should().Contain("recorded decision: 2");
+        text.Should().Contain("present: 3");
+        text.Should().Contain("Finding lifecycle honesty: absence is not a clean bill");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Minimal summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedClaims = ["keep private endpoints\u0001 and 🔒 regional failover"],
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("keep private endpoints and 🔒 regional failover");
+        text.Should().NotContain("\u0001");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GenerateDocx_includes_finding_correlation_and_lifecycle_counts()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Minimal summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 2,
+                FuzzyMatchCount = 1,
+                UnmatchedLeftCount = 4,
+                UnmatchedRightCount = 3,
+                HonestyNote = "Fuzzy matches are possible, not proven equivalence.",
+            },
+            FindingLifecycle = new CrossReviewFindingLifecycleSummary
+            {
+                NewlyIdentifiedCount = 5,
+                HonestyNote = "absence is not a clean bill",
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Finding correlation method: PolicyRuleAndFingerprint");
+        text.Should().Contain("Unmatched left findings: 4");
+        text.Should().Contain("Unmatched right findings: 3");
+        text.Should().Contain("Fuzzy matches are possible, not proven equivalence.");
+        text.Should().Contain("Newly identified findings: 5");
+        text.Should().Contain("Finding lifecycle honesty: absence is not a clean bill");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream ms = new(docxBytes);

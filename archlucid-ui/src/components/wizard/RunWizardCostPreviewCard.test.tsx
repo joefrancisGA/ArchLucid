@@ -139,6 +139,35 @@ describe("RunWizardCostPreviewCard", () => {
     });
   });
 
+  it("omits Azure OpenAI from headline when deployment name was not stored (P-20)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: 0.1,
+          estimatedCostUsdLow: 0.05,
+          estimatedCostUsdHigh: 0.1,
+          estimatedCostBasis: "Starter run = 4 parallel agents.",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: null,
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent(
+        "Estimated agent execution cost for this review:",
+      );
+    });
+
+    expect(screen.getByTestId("run-cost-preview-headline").textContent).not.toContain("Azure OpenAI");
+  });
+
   it("labels stored-empty deployment name", async () => {
     vi.stubGlobal(
       "fetch",
