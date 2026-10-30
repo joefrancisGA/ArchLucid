@@ -34,4 +34,12 @@ describe("MarketingPricingQuotePanel", () => {
     });
     expect(screen.getByRole("alert")).not.toHaveTextContent("System.InvalidOperationException");
   });
+
+  it("does not submit when required buyer identity fields are empty", () => {
+    render(<MarketingPricingQuotePanel openOnMount />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit quote request" }));
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

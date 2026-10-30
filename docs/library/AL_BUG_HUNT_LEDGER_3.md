@@ -7893,6 +7893,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #79 (hit): proved `MarketingPricingQuotePanel` disabled native validation with `noValidate` but did not validate required work email or company fields before POST, so an empty quote request reached the API; added a required-identity guard and `does not submit when required buyer identity fields are empty` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 2/2. Private beta: invited buyers can no longer submit an empty pricing request and instead receive immediate required-field guidance before the quote service is called.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses required browser checks and `onSubmit` posts blank work email/company values — **hit 2026-10-30 seed hunt #79:** guard required identity fields before composing and posting the quote request; regression in `MarketingPricingQuotePanel.test.tsx`.
+
 2026-10-30 seed hunt #78 (hit): proved the marketing FAQ TOC announced its active in-page section with `aria-current="page"` instead of the `location` value used by the equivalent privacy-policy TOC, causing assistive technology to describe a section location as the current page; changed the active value to `location` and added `marks the active category as the current in-page location` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC suite passed 2/2. Private beta: invited buyers using screen readers can now distinguish the active FAQ section as an in-page location instead of hearing it announced as the current page.
 
 - [x] (proven) `MarketingFaqPageToc` — the active FAQ category link uses `aria-current="page"` for in-page navigation, unlike the privacy TOC’s `aria-current="location"` contract — **hit 2026-10-30 seed hunt #78:** use the `location` value and cover the active category announcement in `MarketingFaqPageToc.test.tsx`.
@@ -8155,11 +8159,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 52
-- **bugs-found:** 46
+- **hunts:** 53
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — FAQ TOC current-location semantics
+- **last-bug:** 2026-10-30 — Pricing quote required identity validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
