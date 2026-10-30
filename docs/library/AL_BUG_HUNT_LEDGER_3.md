@@ -2,13 +2,19 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #5 (dry): cheap-disproof closed five open `(candidate)` rows — the prior scope-header, readiness, array-root success, leading-zero team-size, and keyboard-submit regressions already cover these mechanisms; no failing repro or production defect was found. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate `ui-form-validation` candidate rows from the previous reseed — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already classified by thorough hunt #4 and retained only as stale picker metadata.
+
+- [ ] (candidate) `SignupForm` — registration scope headers preserve a padded id when session storage returns mixed JSON types — locus: registration scope normalization; input: mixed string/number ids (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — company-size validation copy masks blank organization guidance — locus: required-field branch order; input: blank org plus invalid enum (monitor).
+- [ ] (candidate) `SignupForm` — nested provisioning response object is treated as a valid top-level tenant record — locus: response shape parsing; input: `{ result: { tenantId } }` (monitor).
+- [ ] (candidate) `SignupForm` — Unicode whitespace around an over-limit team size bypasses the max gate — locus: schema preprocessing vs payload coercion; input: `\u200310001\u2003` (monitor).
+- [ ] (candidate) `SignupForm` — Enter from the optional industry field bypasses React Hook Form validation — locus: native submit event ordering; input: keyboard submit (monitor).
+
 2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultProjectId` follows the same trimmed string gate as tenant/workspace ids, so `201` omits invalid scope headers; all-whitespace required fields take the TB-2010 required-field branch; JSON-array `201` bodies remain success-only navigation cases; leading-zero `010000` is intentionally parsed as decimal ten and remains within the team-size bound; keyboard focus from invalid email cannot bypass the schema-backed `canSubmit` gate. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
-- [ ] (candidate) `SignupForm` — registration scope headers include a whitespace-padded project id after response JSON normalization — locus: session persistence vs header shaping; input: padded `defaultProjectId` (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — optional company size error masks required organization guidance — locus: readiness branch order; input: blank org + invalid company size (monitor TB-2010).
-- [ ] (candidate) `SignupForm` — `201` body with nested array/object shape persists a misleading tenant id — locus: response parser shape guard; input: malformed provisioning JSON (monitor).
-- [ ] (candidate) `SignupForm` — pasted decimal team size with surrounding Unicode whitespace bypasses max validation — locus: trim and Number coercion; input: `\u200310001\u2003` (monitor).
-- [ ] (candidate) `SignupForm` — pressing Enter from optional industry field submits before async validation settles — locus: react-hook-form submit timing; input: keyboard submit (monitor).
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain in this historical reseed block.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #4:** trimmed string gate is consistent with tenant/workspace handling; no invalid header is emitted.
 - [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — **cheap-disproof 2026-10-30 thorough hunt #4:** required-field branch precedes email and optional-field checks.
