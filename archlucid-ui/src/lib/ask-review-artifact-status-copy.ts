@@ -121,19 +121,19 @@ export function resolveAskAssistantGroundingCitationMarker(
 
   const messages: string[] = [];
 
-  if (citationRefs.referencedFindings === null) {
+  if (citationRefs.referencedFindings === null || citationRefs.referencedFindings === undefined) {
     messages.push(ASK_CITATION_FINDINGS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedFindings.length === 0) {
     messages.push(ASK_CITATION_FINDINGS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedDecisions === null) {
+  if (citationRefs.referencedDecisions === null || citationRefs.referencedDecisions === undefined) {
     messages.push(ASK_CITATION_DECISIONS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedDecisions.length === 0) {
     messages.push(ASK_CITATION_DECISIONS_STORED_EMPTY_MARKER);
   }
 
-  if (citationRefs.referencedArtifacts === null) {
+  if (citationRefs.referencedArtifacts === null || citationRefs.referencedArtifacts === undefined) {
     messages.push(ASK_CITATION_ARTIFACTS_NOT_STORED_MARKER);
   } else if (citationRefs.referencedArtifacts.length === 0) {
     messages.push(ASK_CITATION_ARTIFACTS_STORED_EMPTY_MARKER);

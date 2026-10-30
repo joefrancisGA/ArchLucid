@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWizardPresetIdFromDeeplink } from "@/lib/wizard-preset-deeplink";
 import {
   resolveWizardPresetLabel,
+  isWizardFormFieldDirty,
   resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   WIZARD_STARTER_PRESET_FIELD_COPY,
@@ -196,16 +197,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     formValues,
   };
 
-  const constraintsDirty =
-    Array.isArray(formState.dirtyFields.constraints)
-    && formState.dirtyFields.constraints.some(Boolean)
-      ? true
-      : formState.dirtyFields.constraints === true;
-  const capabilitiesDirty =
-    Array.isArray(formState.dirtyFields.requiredCapabilities)
-    && formState.dirtyFields.requiredCapabilities.some(Boolean)
-      ? true
-      : formState.dirtyFields.requiredCapabilities === true;
+  const constraintsDirty = isWizardFormFieldDirty(formState.dirtyFields.constraints);
+  const capabilitiesDirty = isWizardFormFieldDirty(formState.dirtyFields.requiredCapabilities);
 
   const briefDisplay = recapStarterScalarLabel(description, "Brief was not stored yet.", {
     ...recapPresetContext,
@@ -369,28 +362,29 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             }
 
             return constraintsNonEmpty.length > 0 ? (
-            <>
-              {constraintsPreview.preview}
-              {constraintsPreview.clipped ? (
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  {" "}
-                  Preview only; the full constraints list is on the Constraints step.
-                </span>
-              ) : null}
-              {hasBlankConstraintEntry ? (
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  {" "}
-                  (one constraint entry was stored empty)
-                </span>
-              ) : null}
-            </>
-          ) : hasBlankConstraintEntry ? (
-            <span className="text-neutral-600 dark:text-neutral-400">A constraint entry was stored empty.</span>
-          ) : hasConstraintsArray ? (
-            <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
-          ) : (
-            <span className="text-neutral-600 dark:text-neutral-400">Constraints were not stored yet.</span>
-          )}
+              <>
+                {constraintsPreview.preview}
+                {constraintsPreview.clipped ? (
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {" "}
+                    Preview only; the full constraints list is on the Constraints step.
+                  </span>
+                ) : null}
+                {hasBlankConstraintEntry ? (
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {" "}
+                    (one constraint entry was stored empty)
+                  </span>
+                ) : null}
+              </>
+            ) : hasBlankConstraintEntry ? (
+              <span className="text-neutral-600 dark:text-neutral-400">A constraint entry was stored empty.</span>
+            ) : hasConstraintsArray ? (
+              <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
+            ) : (
+              <span className="text-neutral-600 dark:text-neutral-400">Constraints were not stored yet.</span>
+            );
+          })()}
         </span>
       ) : null}
     </div>

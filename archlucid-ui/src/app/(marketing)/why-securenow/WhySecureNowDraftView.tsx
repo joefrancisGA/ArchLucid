@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export function WhySecureNowDraftView(): React.JSX.Element {
   return (
     <MarketingPageShell variant="reading" data-testid="why-securenow-draft-page">
-      <div className={cn(MARKETING_LAYOUT.sectionY, "space-y-8")}>
+      <div className={cn(MARKETING_LAYOUT.sectionStack, "space-y-8")}>
         <p
           className={cn(MARKETING_TYPOGRAPHY.lead, "text-amber-900 dark:text-amber-200")}
           data-testid="why-securenow-draft-banner"

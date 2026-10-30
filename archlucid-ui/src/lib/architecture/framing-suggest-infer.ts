@@ -1,4 +1,5 @@
 import type { ArchitectureIntelligenceFramingQuestion } from "@/lib/architecture/architecture-intelligence-framing-interview";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import {
   buildInferenceCorpus,
   extractLineValue,
