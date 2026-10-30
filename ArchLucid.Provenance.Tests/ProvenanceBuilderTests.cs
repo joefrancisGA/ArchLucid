@@ -2604,4 +2604,168 @@ public sealed class ProvenanceBuilderTests
 
         graph.Nodes.Where(n => n.Type == ProvenanceNodeType.Decision).Should().ContainSingle();
     }
+
+    [Fact]
+    public void Build_skips_null_finding_manifest_artifact_and_applied_rule_entries_in_persisted_collections()
+    {
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    null!,
+                    new Finding
+                    {
+                        FindingId = "finding-ok",
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Ok",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions =
+                [
+                    null!,
+                    new ResolvedArchitectureDecision
+                    {
+                        DecisionId = "dec-ok",
+                        Category = "c",
+                        Title = "Decision",
+                        SelectedOption = "opt",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(
+                new RuleAuditTracePayload { AppliedRuleIds = [null!, "rule-ok"] }),
+            Artifacts =
+            [
+                null!,
+                new SynthesizedArtifact
+                {
+                    ArtifactId = ArtifactId,
+                    ArtifactType = "report",
+                    Format = "md",
+                    Name = "Artifact",
+                },
+            ],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Finding);
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Decision);
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Artifact);
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Rule);
+    }
+
+    [Fact]
+    public void Build_skips_null_supporting_finding_id_entries_when_wiring_supported_by_edges()
+    {
+        const string findingId = "finding-supported";
+        const string decisionId = "decision-supported";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Finding",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions =
+                [
+                    new ResolvedArchitectureDecision
+                    {
+                        DecisionId = decisionId,
+                        Category = "c",
+                        Title = "Decision",
+                        SelectedOption = "opt",
+                        Rationale = "r",
+                        SupportingFindingIds = [null!, findingId],
+                    },
+                ],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.SupportedBy)
+            .Should()
+            .ContainSingle();
+    }
+
+    [Fact]
+    public void Build_skips_null_contributing_decision_id_entries_when_wiring_contributed_to_artifact_edges()
+    {
+        const string decisionId = "decision-contrib";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions =
+                [
+                    new ResolvedArchitectureDecision
+                    {
+                        DecisionId = decisionId,
+                        Category = "c",
+                        Title = "Decision",
+                        SelectedOption = "opt",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts =
+            [
+                new SynthesizedArtifact
+                {
+                    ArtifactId = ArtifactId,
+                    ArtifactType = "report",
+                    Format = "md",
+                    Name = "Artifact",
+                    ContributingDecisionIds = [null!, decisionId],
+                },
+            ],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.ContributedToArtifact)
+            .Should()
+            .ContainSingle();
+    }
 }

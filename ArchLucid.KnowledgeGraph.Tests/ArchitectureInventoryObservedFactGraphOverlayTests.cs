@@ -10726,6 +10726,38 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             [GraphEdgeTypes.ConnectsTo, GraphEdgeTypes.ContainsResource]);
     }
 
+    [Fact]
+    public void Merge_skips_overlay_edges_when_endpoint_node_ids_normalize_to_empty()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "orphan-blank-endpoints",
+                    FromNodeId = "   ",
+                    ToNodeId = "a",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().BeEmpty();
+    }
+
     private static AzureInventorySnapshotDetailReadModel CreateSnapshotFixture()
     {
         return new AzureInventorySnapshotDetailReadModel

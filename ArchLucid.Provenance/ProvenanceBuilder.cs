@@ -133,8 +133,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             foreach (string fk in decisionGroup
-                         .SelectMany(d => d.SupportingFindingIds)
+                         .SelectMany(d => d.SupportingFindingIds ?? [])
+                         .Where(static id => id is not null)
                          .Select(NormalizeId)
+                         .Where(static id => id.Length > 0)
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .Select(fId => $"finding:{fId}"))
             {
@@ -161,6 +163,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                          .SelectMany(f => f.RelatedNodeIds ?? [])
                          .Where(static id => id is not null)
                          .Select(NormalizeId)
+                         .Where(static id => id.Length > 0)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
 
             {
@@ -211,8 +214,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             IEnumerable<string> contributingDecisionIds = artifactGroup
-                .SelectMany(static artifact => artifact.ContributingDecisionIds)
+                .SelectMany(static artifact => artifact.ContributingDecisionIds ?? [])
+                .Where(static id => id is not null)
                 .Select(NormalizeId)
+                .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
             foreach (string dId in contributingDecisionIds)
