@@ -148,7 +148,7 @@ public static class SendableExportCoverComposer
         string trimmed = reviewRecordStatus.Trim();
 
         return trimmed.Length > 0
-            ? $"- **Review record status:** {trimmed}"
+            ? $"- **Review record status:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
             : "- **Review record status:** Review record status was stored empty.";
     }
 
