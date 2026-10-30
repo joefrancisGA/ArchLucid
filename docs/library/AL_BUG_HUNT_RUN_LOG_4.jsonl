@@ -2817,3 +2817,4 @@
 {"at":"2026-10-30T16:03:10.4129846Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:06:39.7631801Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:09:05.5885788Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T16:10:39.0206832Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}

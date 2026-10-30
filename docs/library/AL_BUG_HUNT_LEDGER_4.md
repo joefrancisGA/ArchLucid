@@ -702,6 +702,10 @@
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
 
+2026-10-30 thorough hunt #872 (hit): proved `RequireAuthorizationAnalyzer` returned early when a controller declared any authorized public API action without scanning inherited default-interface mutating members, leaving unauthorized default `[HttpPost]` endpoints off AL0001; added `HasUnauthorizedDefaultInterfaceApiAction` and emit type-level AL0001 before the authorized-declared-action exit; regression `Reports_AL0001_when_controller_declares_authorized_action_but_inherits_unauthorized_default_interface_mutating_member`; cheap-disproof locked default-interface `[MutatingAuditExcluded]`, `[Authorize]` on default members, `typeof` in collection elements, and concrete-service default-interface `LogAsync` paths via new regression tests; scoped analyzer filter **182/182** (Debug, `RunAnalyzers=false`). Private beta: build-time AL0001 on the RC35 line catches controllers that expose authorized declared actions alongside unauthorized inherited default-interface mutating endpoints.
+
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — authorized declared actions skipped unauthorized default-interface AL0001 — **hit 2026-10-30 thorough hunt #872:** `HasUnauthorizedDefaultInterfaceApiAction`; regression above. [class:fail-open-validation]
+
 2026-10-30 thorough hunt #871 (hit): proved `RequireAuthorizationAnalyzer.ExplicitInterfaceImplementationHasAuthorization` treated type-level `[AllowAnonymous]` on a implemented interface as satisfying AL0001 for explicit interface implementations (while public implicit implementations still honor interface-level anonymous via `MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces`); fixed by honoring interface-level `[Authorize]` only in the explicit-interface authorization path; regression `Reports_inherited_unauthorized_explicit_interface_when_interface_has_type_level_AllowAnonymous`. Proved `MutatingControllerAuditAnalyzer` treated `LogAsync` inside locals invoked only from `catch` filters as reachable audit proof; fixed by excluding catch-filter invocations from local reachability and direct catch-filter `LogAsync` proof; regressions `AL0003_reports_when_LogAsync_runs_only_from_catch_filter_local` and `AL0003_reports_when_default_interface_LogAsync_runs_only_from_catch_filter`. Cheap-disproof closed three sibling `(candidate)` rows — mutually recursive uncalled locals still report AL0003 (`AL0003_reports_when_mutually_recursive_locals_with_LogAsync_are_never_invoked_from_entry`), `params HttpContext[]` reports ARCH001 (`Reports_params_HttpContext_array_parameter`), and primary-constructor-only derived controllers still report inherited AL0001 (`Reports_inherited_unauthorized_action_when_derived_uses_primary_constructor_only`); reseeded five `(candidate)` rows; scoped analyzer filter **177/177** (Debug). Private beta: explicit interface API actions on the RC35 line no longer inherit a blanket pass from `[AllowAnonymous]` on the interface type alone, and mutating actions cannot satisfy AL0003 with audit logging reachable only through exception catch filters.
 
 - [x] (proven) `RequireAuthorizationAnalyzer` — `[AllowAnonymous]` on interface implemented by controller suppresses AL0001 for inherited explicit interface actions — **hit 2026-10-30 thorough hunt #871:** regression above (explicit-interface path only).
@@ -842,11 +846,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 46
-- **bugs-found:** 40
+- **hunts:** 47
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — interface AllowAnonymous + catch-filter LogAsync audit gaps
+- **last-bug:** 2026-10-30 — AL0001 missed unauthorized default-interface actions when declared actions were authorized
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
