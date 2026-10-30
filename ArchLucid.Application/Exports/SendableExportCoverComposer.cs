@@ -119,7 +119,8 @@ public static class SendableExportCoverComposer
 
         if (id.Length > 0 && version.Length > 0)
         {
-            return $"{id} @ {version}";
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
         List<string> parts = [];
