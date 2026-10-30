@@ -652,6 +652,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_commercial_packaging
 
+      - name: SecureNow marketability
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_marketability.py
+
+      - name: SecureNow marketability unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_marketability
+
       - name: Starter proof pack validation unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_starter_proof_packs.py"
