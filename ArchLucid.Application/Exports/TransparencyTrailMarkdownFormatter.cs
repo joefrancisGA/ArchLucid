@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 
@@ -243,6 +244,8 @@ public static class TransparencyTrailMarkdownFormatter
     {
         string trimmed = questionKey?.Trim() ?? string.Empty;
 
-        return trimmed.Length > 0 ? trimmed : SkippedQuestionKeyNotStoredLabel;
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : SkippedQuestionKeyNotStoredLabel;
     }
 }
