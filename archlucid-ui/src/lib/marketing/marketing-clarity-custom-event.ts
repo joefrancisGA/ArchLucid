@@ -19,7 +19,11 @@ function recordMarketingHeroCtaClarityEvent(
 ): void {
   if (typeof window === "undefined") return;
 
-  if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted") return;
+  try {
+    if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted") return;
+  } catch {
+    return;
+  }
 
   const clarity: ClarityApi | undefined = (window as Window & { clarity?: ClarityApi }).clarity;
 
