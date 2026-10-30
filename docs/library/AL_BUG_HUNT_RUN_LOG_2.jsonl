@@ -2214,3 +2214,4 @@
 {"at":"2026-10-30T19:39:08.1792817Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T19:43:20.5991630Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T19:47:39.4996354Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T20:00:25.8477951Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}

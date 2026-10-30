@@ -323,6 +323,31 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_when_find_first_tenant_claim_unparseable()
+    {
+        Guid steeredTenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        DefaultHttpContext http = new();
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tenant_id", "not-a-guid"));
+        identity.AddClaim(new Claim("tenant_id", steeredTenantId.ToString("D")));
+        http.User = new ClaimsPrincipal(identity);
+        http.Request.Headers["x-tenant-id"] = steeredTenantId.ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult validateResult =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        validateResult.IsValid.Should().BeTrue(
+            "FindFirst tenant_id is unparseable so claim/header disagreement is not evaluated");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult headerOnlyResult =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Bearer");
+
+        headerOnlyResult.IsValid.Should().BeFalse();
+        headerOnlyResult.FailureMessage.Should().Contain("x-tenant-id");
+    }
+
+    [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme()
     {
         DefaultHttpContext http = new();
