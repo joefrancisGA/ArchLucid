@@ -7893,6 +7893,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #77 (hit): proved the bottom “Open another illustrative sample” link scrolled to the sample section without selecting the sample path, leaving the section visually de-emphasized after the click; wired the link through the existing sample-path selector and added `selects the sample path when the bottom sample link is activated` in `get-started.test.tsx`. Focused get-started suite passed 9/9. Private beta: invited buyers who follow the lower-page sample CTA now see the sample path selected instead of landing on a visually muted section that still presents the trial path as active.
+
+- [x] (proven) `GetStartedPageClient` — the lower “Open another illustrative sample” link scrolls to `#choose-sample` without selecting the sample path, so the destination remains visually de-emphasized — **hit 2026-10-30 seed hunt #77:** call `selectSamplePath` from the link and cover the selected-state transition in `get-started.test.tsx`.
+
 2026-10-30 seed hunt #76 (hit): proved a loaded third-party Clarity implementation could throw from consent-approved CTA analytics and interrupt the CTA click handler; guarded analytics calls so failures are swallowed and added `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`. Focused analytics suite passed 8/8. Private beta: invited buyers can now activate hero CTAs even when the loaded analytics provider fails during event recording.
 
 2026-10-30 thorough hunt #75 (hit): proved consent-gated marketing CTA analytics could throw when browser storage access was denied, allowing analytics to escape the click handler; guarded storage lookup and added `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`. The self-demo SSR placeholder candidate was invalid because the client CTA has no no-JavaScript interaction contract. Focused analytics suite passed 7/7. Private beta: invited buyers in storage-restricted browsers can now activate hero CTAs without an analytics exception interrupting the interaction.
@@ -8147,11 +8151,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 50
-- **bugs-found:** 44
+- **hunts:** 51
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Signup verification status request generation
+- **last-bug:** 2026-10-30 — Get-started sample path selection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
