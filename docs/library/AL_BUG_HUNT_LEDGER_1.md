@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` visit set that keyed only on node id, so a private-endpoint arrival at a datastore dropped a later public path to the same store; visit identity is now the node plus whether that arrival already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1390/1404** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's architecture has both a private-endpoint route and a public route to the same datastore, the review still reports the public route.
+
+- [x] (proven) `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` — private-endpoint arrival consumed the datastore node — **hit 2026-10-30 seed hunt:** visit key includes whether the path already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`.
+
 2026-10-30 thorough hunt (dry): three open `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all three. `expectation.topologyCategories.add` and `expectation.requirementThemes.add` are an additive floor (`docs/library/POLICY_PACK_EXPECTATION_FACET.md`); union after the serverless/negation heuristics is the pack extra, not a reverted omission. `ResolveExpectedThemes` still adds `network-isolation` when the Network pillar remains, and a requirement whose text says `network` is classified into that theme, so the keyword-list difference does not leave the theme missing. Existing tests passed 3/3 (`RunAnalyzers=false`): `Topology_resolver_unions_identity_extra_and_keeps_default_pillars`, `ResolveExpectedCategories_WhenServerlessScope_OmitsNetworkUnlessPrivateNetworkingMentioned`, `ResolveExpectedThemes_WhenConstraintSaysNoPrivateLinkRequired_DoesNotAddNetworkIsolationTheme`. No production code changed.
 
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — **cheap-disproof 2026-10-30 thorough hunt:** `expectation.topologyCategories.add` is an additive floor; union after heuristic removal is the documented pack extra.
@@ -17077,11 +17081,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 59
-- **bugs-found:** 48
-- **consecutive-dry-hunts:** 1
+- **hunts:** 60
+- **bugs-found:** 49
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — RAGRS and GZRS requirement text skipped the single-region SKU gap
+- **last-bug:** 2026-10-30 — private-endpoint arrival hid the public path to the same datastore
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
