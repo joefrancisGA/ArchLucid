@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `FirstValueReportProofPackageSectionFormatter.FormatRoiConfidenceLabel` — ROI confidence label pipe not escaped in proof contract table — locus: ROI evidence confidence row; input: stored label containing `|`.
+- (candidate) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorRoiBasis` — ROI basis status row echoes confidence label without pipe escape — locus: sponsor status ROI row; input: `RoiConfidenceLabel` with `|`.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row echoes API severity string without pipe escape — locus: severity table; input: malformed severity token with `|`.
-- (candidate) `BoardPackPdfCoverCopy.BuildTitle` — custom period title when override spans year boundary — locus: title formatter; input: Dec–Jan override window.
+- (candidate) `FirstValueReportProofPackageSectionFormatter` — proof sendability cell echoes API tokens without pipe escape — locus: sendability mirror row; input: tier string with `|`.
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
-- (candidate) `PilotValueReportMarkdownFormatter` — metadata ROI disposition row when profile and disposition both contain table metacharacters — locus: freshness metadata; input: combined pipe/newline in disposition.
+- (candidate) `PilotValueReportMarkdownFormatter` — metadata ROI disposition row when disposition contains table metacharacters beyond pipe — locus: freshness metadata; input: newline in disposition token.
+
+2026-10-30 seed hunt (seed→hit): promoted proof contract ROI evidence row echoing `RoiConfidenceLabel` without pipe escaping on the same table hunt 69 fixed for redaction profile; `FormatRoiConfidenceLabel` now uses `EscapeMarkdownTableCell`; regression `AppendMarkdownSection_when_roi_confidence_label_contains_pipe_escapes_table_cell`; cheap-disproof closed five hunt-69 `(candidate)` rows; seeded five follow-on rows; scoped **44** unit tests passed. Private beta: First-value proof-contract ROI confidence rows stay readable when stored confidence labels include pipe characters.
+
+- [x] (proven) `FirstValueReportProofPackageSectionFormatter.FormatRoiConfidenceLabel` — ROI label pipe escaping — **hit 2026-10-30 seed hunt (hunt 70):** `EscapeMarkdownTableCell` on label; regression above.
+
+- [x] (valid-no-repro) `FirstValueReportProofPackageSectionFormatter.FormatRoiConfidenceLabel` — duplicate lens — **cheap-disproof 2026-10-30 seed hunt (hunt 70):** same as proven row above.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — severity pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 70):** severity tokens are closed enum names on pilot path; no reachability for arbitrary `|` severity today.
+- [x] (valid-no-repro) `BoardPackPdfCoverCopy.BuildTitle` — year boundary — **cheap-disproof 2026-10-30 seed hunt (hunt 70):** duplicate hunt 69; custom title uses explicit UTC bounds.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 70):** duplicate; abbreviated PDF delta table by design.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata disposition metacharacters — **cheap-disproof 2026-10-30 seed hunt (hunt 70):** `FormatRoiSourceFreshnessDispositionCell` already escapes pipes; newline disposition not observed on resolver path today.
 
 2026-10-30 seed hunt (seed→hit): promoted buyer-safe proof contract table echoing `BuyerSafeRedactionProfile` without pipe escaping while sponsor-status and buyer ZIP compact summary already escaped the same tenant field; `EscapeMarkdownTableCell` on redaction profile row; regression `AppendMarkdownSection_when_redaction_profile_contains_pipe_escapes_table_cell`; cheap-disproof closed five hunt-68 `(candidate)` rows; seeded five follow-on rows; scoped **43** unit tests passed. Private beta: First-value report proof-contract tables stay readable when tenant redaction profile names include pipe characters.
 
@@ -16793,11 +16803,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 69
-- **bugs-found:** 49
+- **hunts:** 70
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — proof contract redaction profile pipe escape
+- **last-bug:** 2026-10-30 — proof contract ROI confidence label pipe escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
