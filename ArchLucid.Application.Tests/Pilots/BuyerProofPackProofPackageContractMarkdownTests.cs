@@ -37,7 +37,61 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
             .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| Proof sendability (API mirror) | `Send\\|able` · `Partial` · **Strong** |");
+        row.Should().Be("| Proof sendability (API mirror) | `Send\\|able` · `Partial` · `Strong` |");
+    }
+
+    [Fact]
+    public void Proof_package_section_when_evidence_completeness_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                ProofSendability = "Sendable",
+                PublishingTier = "Partial",
+                EvidenceCompleteness = "Strong`mirror",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``Strong`mirror``");
+    }
+
+    [Fact]
+    public void Proof_package_section_when_evidence_completeness_contains_pipe_wraps_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                ProofSendability = "Sendable",
+                PublishingTier = "Partial",
+                EvidenceCompleteness = "Strong|partial",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("`Strong\\|partial`");
     }
 
     [Fact]
