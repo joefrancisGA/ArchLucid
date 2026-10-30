@@ -68,6 +68,25 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_when_tenant_source_note_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5m,
+            capturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            tenantSourceNote: "baseline_settings: captured\n\n## Forged ROI attestation");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition: null);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged ROI attestation");
+        markdown.Should().Contain("captured");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_includes_section_heading()
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
