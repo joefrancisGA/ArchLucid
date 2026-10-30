@@ -50,6 +50,8 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
 
+    public const string PublicIpAddressStoredEmpty = "Public IP address was stored empty.";
+
     public const string MultipleHiddenPublicIpAddressesStored =
         "Multiple public IP addresses were stored on rolled-up members.";
 
@@ -62,6 +64,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string PrivateEndpointConnectionStatusNotStored =
         "Private endpoint connection status was not stored.";
 
+    public const string PrivateEndpointConnectionStatusStoredEmpty =
+        "Private endpoint connection status was stored empty.";
+
     public static string FormatHiddenPublicIpCaption(string? ipAddress, bool multipleStoredAddresses = false)
     {
         if (multipleStoredAddresses)
@@ -69,9 +74,14 @@ public static class InventoryDiagramRelationshipLabelTexts
             return $"{PublicExposureCaption} {MultipleHiddenPublicIpAddressesStored}";
         }
 
-        if (string.IsNullOrWhiteSpace(ipAddress))
+        if (ipAddress is null)
         {
             return $"{PublicExposureCaption} {PublicIpAddressNotStored}";
+        }
+
+        if (ipAddress.Length == 0 || string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return $"{PublicExposureCaption} {PublicIpAddressStoredEmpty}";
         }
 
         return $"{PublicExposureCaption} {ipAddress.Trim()}";
@@ -79,9 +89,14 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public static string FormatPrivateEndpointConnectionLabel(string? connectionStatus)
     {
-        if (string.IsNullOrWhiteSpace(connectionStatus))
+        if (connectionStatus is null)
         {
             return PrivateEndpointConnectionStatusNotStored;
+        }
+
+        if (connectionStatus.Length == 0 || string.IsNullOrWhiteSpace(connectionStatus))
+        {
+            return PrivateEndpointConnectionStatusStoredEmpty;
         }
 
         string status = connectionStatus.Trim();

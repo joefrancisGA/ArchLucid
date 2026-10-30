@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER } from "@/lib/evidence-readable-text";
 import { QUICK_START_EVIDENCE_UPLOAD_DESCRIPTION } from "@/lib/evidence-upload-accepted-formats";
 import { FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER, FIRST_PILOT_MIN_BRIEF_CHARS } from "@/lib/first-pilot-intake";
+import { deriveQuickStartFilenameClassHonestyNotices } from "@/lib/first-pilot-analyzable-evidence";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import {
@@ -81,6 +82,10 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   const extractionProgress = wizard.evidenceExtractionProgress;
   const showExtractionCard = extractionProgress.phase !== "idle";
   const cardIsOutOfView = useElementOutOfView(extractionCardRef, showExtractionCard);
+  const quickStartFilenameHonestyNotices = useMemo(
+    () => deriveQuickStartFilenameClassHonestyNotices(wizard.evidenceFileNames),
+    [wizard.evidenceFileNames],
+  );
 
   const syncStandardsSelectionOpenToUrl = useCallback(
     (open: boolean) => {
@@ -206,6 +211,17 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
             wizard.setClientValidationMessage(null);
           }}
         />
+
+        {quickStartFilenameHonestyNotices.length > 0 ? (
+          <ul
+            className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-filename-class-honesty"
+          >
+            {quickStartFilenameHonestyNotices.map((notice) => (
+              <li key={notice}>{notice}</li>
+            ))}
+          </ul>
+        ) : null}
 
         {showExtractionCard ? (
           <EvidenceExtractionProgressCard

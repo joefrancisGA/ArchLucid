@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveQuickStartEvidencePresenceFromFileNames,
+  deriveQuickStartFilenameClassHonestyNotices,
   describeQuickStartAnalyzableEvidenceGap,
   hasQuickStartAnalyzableEvidenceClass,
   needsQuickStartLimitedEvidenceAcknowledgment,
@@ -82,5 +83,11 @@ describe("first-pilot-analyzable-evidence (TB-2296)", () => {
         limitedEvidenceAnalysisAcknowledged: false,
       }),
     ).toMatch(/analyzable architecture evidence/i);
+  });
+
+  it("deriveQuickStartFilenameClassHonestyNotices surfaces filename-only class hints", () => {
+    expect(deriveQuickStartFilenameClassHonestyNotices(["prod-inventory.zip"])).toEqual([
+      "prod-inventory.zip filename suggests cloud inventory; that class was not read from file contents.",
+    ]);
   });
 });

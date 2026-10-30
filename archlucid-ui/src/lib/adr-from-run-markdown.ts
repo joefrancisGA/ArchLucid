@@ -163,8 +163,10 @@ export function buildMadrMarkdownFromRun(
 
   const findingsSection =
     input.findings.length === 0
-      ? "_Findings were not included in this export._\n"
-      : input.findings
+      ? input.omittedMutedFindingCount !== undefined && input.omittedMutedFindingCount > 0
+        ? "_Muted findings were stored on this review and are not included in this ADR export._\n"
+        : "_Findings were not included in this export._\n"
+      : `${input.findings
           .map((f, i) => {
             const rec = formatFindingRecommendationLine(f.recommendation);
             const excerpt =
@@ -184,7 +186,15 @@ export function buildMadrMarkdownFromRun(
 
             return `### ${i + 1}. [${f.severityLabel}] ${formatAdrExportFindingTitle(f.title)}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
-          .join("\n");
+          .join("\n")}${
+          input.omittedCappedFindingCount !== undefined && input.omittedCappedFindingCount > 0
+            ? `\n_${input.omittedCappedFindingCount} more finding${
+                input.omittedCappedFindingCount === 1 ? " was" : "s were"
+              } stored on this review and ${
+                input.omittedCappedFindingCount === 1 ? "is" : "are"
+              } not listed in this ADR export._\n`
+            : ""
+        }`;
 
   const findingProvenanceSection =
     input.findings.length === 0

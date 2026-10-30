@@ -82,6 +82,14 @@ describe("buildQuickDecisionFindingEvidenceLinks", () => {
     expect(links.viewEvidenceHref).toBeNull();
   });
 
+  it("preserves stored zero evidence ref count separately from omitted count", () => {
+    const links = buildQuickDecisionFindingEvidenceLinks("run-42", finding({ evidenceRefCount: 0 }));
+
+    expect(links.evidenceRefCount).toBe(0);
+    expect(links.graphHref).toBeNull();
+    expect(links.viewEvidenceHref).toBeNull();
+  });
+
   it("prefers the graph evidence trail when the finding cites evidence refs", () => {
     const links = buildQuickDecisionFindingEvidenceLinks("run-42", finding({ evidenceRefCount: 2 }));
 

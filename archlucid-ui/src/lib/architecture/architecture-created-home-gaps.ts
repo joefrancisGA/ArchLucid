@@ -105,22 +105,33 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
 
   if (
     input.gapAssertion.peopleAndSystems &&
-    input.peopleAndSystems.length === 0 &&
-    (input.architectureName.trim().length === 0 ||
-      input.architectureName.trim().toLowerCase() === "untitled architecture")
+    input.peopleAndSystems.length === 0
   ) {
+    const hasStoredSystemName =
+      normalizedArchitectureName.length > 0
+      && normalizedArchitectureName.toLowerCase() !== "untitled architecture"
+      && normalizedArchitectureName !== UNTITLED_ARCHITECTURE_LABEL;
+
     items.push({
       id: "people-systems",
-      label: "People and systems not listed on this page yet",
+      label: hasStoredSystemName
+        ? "People and systems list was stored empty on this page"
+        : "People and systems not listed on this page yet",
       href: clarifyHref,
       category: "clarification",
       source,
     });
   }
 
-  const artifactBundleKnown = input.artifactBundleKnown !== false;
-
-  if (artifactBundleKnown && !input.hasArtifacts) {
+  if (input.artifactBundleKnown === false) {
+    items.push({
+      id: "artifact-bundle-unknown",
+      label: "Artifact bundle was not loaded on this page — upload status on this review is unknown",
+      href: buildCreateHomeReviewTabHref(input.runId, "evidence"),
+      category: "evidence",
+      source,
+    });
+  } else if (!input.hasArtifacts) {
     items.push({
       id: "diagram",
       label: "No diagram or evidence artifact listed on this review yet",

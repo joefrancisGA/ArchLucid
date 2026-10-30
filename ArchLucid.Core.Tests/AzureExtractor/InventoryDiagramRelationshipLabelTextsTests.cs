@@ -30,12 +30,30 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
     }
 
     [Fact]
-    public void FormatPrivateEndpointConnectionLabel_blank_status_uses_not_stored_sentence()
+    public void FormatPrivateEndpointConnectionLabel_blank_status_uses_stored_empty_sentence()
     {
         InventoryDiagramRelationshipLabelTexts
             .FormatPrivateEndpointConnectionLabel("   ")
             .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusStoredEmpty);
+    }
+
+    [Fact]
+    public void FormatPrivateEndpointConnectionLabel_null_status_uses_not_stored_sentence()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPrivateEndpointConnectionLabel(null)
+            .Should()
             .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored);
+    }
+
+    [Fact]
+    public void FormatPrivateEndpointConnectionLabel_empty_string_uses_stored_empty_sentence()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPrivateEndpointConnectionLabel(string.Empty)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusStoredEmpty);
     }
 
     [Fact]
@@ -68,5 +86,10 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
             .FormatHiddenPublicIpCaption(null)
             .Should()
             .Contain(InventoryDiagramRelationshipLabelTexts.PublicIpAddressNotStored);
+
+        InventoryDiagramRelationshipLabelTexts
+            .FormatHiddenPublicIpCaption(string.Empty)
+            .Should()
+            .Contain(InventoryDiagramRelationshipLabelTexts.PublicIpAddressStoredEmpty);
     }
 }

@@ -248,11 +248,7 @@ export function buildQuickDecisionFindingsCsv(
             : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
       semanticSupportBand,
-      finding.semanticSupportBand !== null
-        && finding.semanticSupportBand !== undefined
-        && finding.semanticSupportBand.length > 0
-        ? resolveFindingSemanticSupportBandScorerVersion(finding)
-        : "Semantic support band scorer version was not stored",
+      resolveFindingSemanticSupportBandScorerVersion(finding),
       finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
       escapeCsvCell(recordStatus),
