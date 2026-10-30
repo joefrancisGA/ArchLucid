@@ -27174,20 +27174,28 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
+
+2026-10-30 thorough hunt #963 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#961–#962 dry plus run-log streak), picker rotated with **`-AvoidZoneId`** to `chatops-delivery`. Cheap-disproof closed three open `(candidate)` rows — invalid `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` blank `findingId` headline inflation (`AuthorityCommittedPipelineFinalizer.BuildAuthorityRunCompletedFindingLinks` filters whitespace ids before publishing; canonical `findings` array length matches link rows; handler `Count` matches producer array), valid-no-repro all-enabled-target misconfigured webhook URI silent complete (`HandleAsync_completes_when_enabled_target_uses_non_https_webhook_url`; hunt #1369 family), valid-no-repro Slack `AdaptMessageForTarget` title escape gap (`ChatOpsIncomingWebhookBodies.ForSlack` escapes `message.Title` via `ChatOpsSlackMrkdwnEscaper`; authority-run titles are numeric finding-count headlines without `SeverityLabel`); reseeded five `(candidate)` rows; scoped filter **17** AuthorityRunCommitted/Completed ChatOps tests passed. Private beta: n/a.
+
+- [x] (invalid) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `FindingCount` uses `payload.Findings?.Count` without filtering blank `findingId` rows — **cheap-disproof 2026-10-30 thorough hunt #963:** regression above.
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — all enabled targets misconfigured (invalid HTTPS URI) completes without throw — **cheap-disproof 2026-10-30 thorough hunt #963:** regression above.
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` — Slack path relies on downstream `ChatOpsIncomingWebhookBodies.ForSlack` to escape `Title` while hook only pre-escapes `Body` — **cheap-disproof 2026-10-30 thorough hunt #963:** regression above.
+
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — both Slack and Teams authority-run notifications disabled completes integration handling without delivery attempt or fail-closed signal — locus: dual `DeliverIfEnabledAsync` early return when `enabled` is false; input: `ChatOpsIncomingWebhooksOptions` with both `*NotifyOnAuthorityRunCompleted` flags false after operator disables alerts; mechanism: Service Bus message completes while ops assumes ChatOps fan-out remains enabled.
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — deserializes `tenantId`/`runId` without rejecting `Guid.Empty` before calling `NotifyAsync` — locus: notice mapping after JSON deserialize; input: replayed Service Bus payload with zeroed tenant or run identifiers; mechanism: webhook telemetry and headline reference empty correlation context.
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — whitespace-only `Description` on notice is replaced with generic success copy while `FindingCount` still reflects payload — locus: `string.IsNullOrWhiteSpace(detail)` default branch; input: integration payload with `description: "   "` and non-zero `findings` array length; mechanism: ChatOps body understates a findings-heavy run (monitor).
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — Slack delivery succeeds while Teams target skipped for invalid URI does not surface Teams misconfiguration in thrown error — locus: partial success branch when `slackSucceeded && !teamsAttempted`; input: Slack HTTPS webhook valid, Teams enabled with blank URI; mechanism: operators lose Teams notifications without retry or explicit failure (monitor).
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `Findings` list elements deserialized but only array length contributes to notice (link/severity fields ignored) — locus: handler maps `FindingCount` without forwarding link DTOs to hook; input: canonical payload whose `findings` rows include deep links not reflected in ChatOps body; mechanism: future hook enhancement gap vs integration contract (monitor).
 
 2026-09-13 seed hunt #2264 (seed-only): reseeded chatops-delivery with `-Hint webhook`; no new hunt-ready rows.
 
-
-- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `FindingCount` uses `payload.Findings?.Count` without filtering blank `findingId` rows — locus: notice mapping before `NotifyAsync`; input: Service Bus JSON `findings` array containing `null` or `{ "findingId": "" }` elements; mechanism: ChatOps headline overstates finding count vs deep links (publisher `BuildAuthorityRunCompletedFindingLinks` omits blank ids).
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — all enabled targets misconfigured (invalid HTTPS URI) completes without throw — locus: `DeliverIfEnabledAsync` returns before `markAttempted`; input: `SlackNotifyOnAuthorityRunCompleted=true` with blank/HTTP webhook URI and Teams disabled; mechanism: integration event acked while operators expect Slack notification (ops misconfiguration class).
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` — Slack path relies on downstream `ChatOpsIncomingWebhookBodies.ForSlack` to escape `Title` while hook only pre-escapes `Body` — locus: Slack branch of `AdaptMessageForTarget`; input: future `SeverityLabel` or custom title sources with mrkdwn metacharacters; mechanism: zone-local regression if delivery ever bypasses `ForSlack` title escape.
 
 ### Hypotheses
 
