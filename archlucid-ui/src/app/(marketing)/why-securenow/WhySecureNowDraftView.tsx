@@ -13,6 +13,8 @@ import {
   WHY_SECURENOW_DRAFT_STEPS,
   WHY_SECURENOW_REVIEWER_PACK_BODY,
   WHY_SECURENOW_REVIEWER_PACK_HEADING,
+  WHY_SECURENOW_PILOT_DECISION_BODY,
+  WHY_SECURENOW_PILOT_DECISION_HEADING,
 } from "@/lib/marketing/why-securenow-draft-copy";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +75,17 @@ export function WhySecureNowDraftView(): React.JSX.Element {
             {WHY_SECURENOW_REVIEWER_PACK_HEADING}
           </h2>
           <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_REVIEWER_PACK_BODY}</p>
+        </section>
+
+        <section
+          id="pilot-decision"
+          className="space-y-2"
+          aria-labelledby="why-securenow-pilot-decision-heading"
+        >
+          <h2 id="why-securenow-pilot-decision-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+            {WHY_SECURENOW_PILOT_DECISION_HEADING}
+          </h2>
+          <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_PILOT_DECISION_BODY}</p>
         </section>
 
         <p className={MARKETING_TYPOGRAPHY.body}>

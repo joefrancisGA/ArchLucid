@@ -17,8 +17,8 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
     summary: "Use the template and fill guide; customer outcomes remain uncollected until a real pilot.",
   },
   {
-    href: "/why-securenow#pilot-decision",
+    href: "/administration/securenow-pilot-decision",
     label: "Pilot decision path",
-    summary: "Keep scope, external change ownership, verification status, and follow-ups explicit.",
+    summary: "Prepare the human proceed, extend, or stop disposition with owners and follow-ups.",
   },
 ];
