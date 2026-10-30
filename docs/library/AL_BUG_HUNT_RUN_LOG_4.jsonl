@@ -2935,8 +2935,6 @@
 {"at":"2026-10-30T22:29:59.1150975Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:32:16.5178718Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:35:58.9028021Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-30T22:37:16.4083058Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
-=======
 {"at":"2026-10-30T22:38:59.9486646Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
->>>>>>> 1189c25431 (Record hunt #1004 dry outcome in AL_BUG_HUNT_RUN_LOG_4.)
+{"at":"2026-10-30T22:42:17.9912100Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
