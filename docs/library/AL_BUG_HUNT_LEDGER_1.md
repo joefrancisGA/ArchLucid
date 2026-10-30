@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorRoiBasis` — ROI basis status row echoes confidence label without pipe escape — locus: sponsor status ROI row; input: `RoiConfidenceLabel` with `|`.
+- (candidate) `FirstValueReportSponsorStatusSectionFormatter` — ROI claim gate lead line omits pipe escape — locus: `DispositionLeadLine` row; input: lead line containing `|`.
+- (candidate) `FirstValueReportProofPackageSectionFormatter` — proof sendability mirror row wraps API tier tokens without pipe escape — locus: sendability cell; input: `PublishingTier` with `|`.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row echoes API severity string without pipe escape — locus: severity table; input: malformed severity token with `|`.
-- (candidate) `FirstValueReportProofPackageSectionFormatter` — proof sendability cell echoes API tokens without pipe escape — locus: sendability mirror row; input: tier string with `|`.
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
-- (candidate) `PilotValueReportMarkdownFormatter` — metadata ROI disposition row when disposition contains table metacharacters beyond pipe — locus: freshness metadata; input: newline in disposition token.
+- (candidate) `SponsorRoiNarrativeGateMarkdownFormatter` — narrative gate block echoes disposition copy without table-cell escape — locus: ROI narrative section; input: narrative with `|`.
+
+2026-10-30 seed hunt (seed→hit): promoted sponsor first-page ROI basis row inlining `SponsorRoiClaimDispositionResult.NarrativeBlock` without pipe escaping when baseline fallback copy absent (confidence label path already escaped); `EscapeMarkdownTableCell` on narrative fallback; regression `AppendMarkdownSection_when_roi_narrative_block_contains_pipe_escapes_roi_basis_row`; cheap-disproof closed five hunt-70 `(candidate)` rows; seeded five follow-on rows; scoped **46** unit tests passed. Private beta: Sponsor first-page ROI basis rows stay readable when ROI gate narrative copy includes pipe characters.
+
+- [x] (proven) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorRoiBasis` — narrative block pipe escaping — **hit 2026-10-30 seed hunt (hunt 71):** escape `NarrativeBlock` fallback; regression above.
+
+- [x] (valid-no-repro) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorRoiBasis` — confidence label pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 71):** label already wrapped with `EscapeMarkdownTableCell` before hunt 70 proof-contract fix.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — severity pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 71):** duplicate hunt 70; closed enum severities only.
+- [x] (valid-no-repro) `FirstValueReportProofPackageSectionFormatter` — sendability tier pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 71):** tokens wrapped in backticks; no repro on pilot path today.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 71):** duplicate; abbreviated PDF delta table by design.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — disposition newline — **cheap-disproof 2026-10-30 seed hunt (hunt 71):** duplicate hunt 70; resolver emits normalized tokens.
 
 2026-10-30 seed hunt (seed→hit): promoted proof contract ROI evidence row echoing `RoiConfidenceLabel` without pipe escaping on the same table hunt 69 fixed for redaction profile; `FormatRoiConfidenceLabel` now uses `EscapeMarkdownTableCell`; regression `AppendMarkdownSection_when_roi_confidence_label_contains_pipe_escapes_table_cell`; cheap-disproof closed five hunt-69 `(candidate)` rows; seeded five follow-on rows; scoped **44** unit tests passed. Private beta: First-value proof-contract ROI confidence rows stay readable when stored confidence labels include pipe characters.
 
@@ -16803,11 +16813,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 70
-- **bugs-found:** 50
+- **hunts:** 71
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — proof contract ROI confidence label pipe escape
+- **last-bug:** 2026-10-30 — sponsor ROI basis narrative pipe escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
