@@ -2,7 +2,7 @@
 
 ## Zone: ui-form-validation
 
-2026-10-30 thorough hunt #26 (dry): cheap-disproof closed five open `(candidate)` rows — retry after non-OK registration is covered, empty provisioning data is persisted without inventing ids, switching away from `Other` clears the field, required organization guidance precedes team-size detail, and malformed attribution is best-effort. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #30 (dry): cheap-disproof closed three open `(candidate)` rows — normal registration completion uses the submitted callback values, attribution remains best-effort within its cookie/header contract, and navigation errors are outside the successful route contract. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
 -- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed registration response followed by retry retains stale provisioning/session fields — **cheap-disproof 2026-10-30 thorough hunt #26:** retry writes and validated session projection are covered by the existing regression tests; no stale fields survive into the next valid attempt.
 -- [x] (valid-no-repro) `SignupForm` `onSubmit` — first-touch header serialization changes payload scope when optional UTM fields are absent — **cheap-disproof 2026-10-30 thorough hunt #26:** timestamp-only attribution is serialized independently of optional UTM values.
@@ -10,9 +10,9 @@
 -- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — **cheap-disproof 2026-10-30 thorough hunt #9:** required-field readiness is evaluated before optional company-size details, so blank email receives required guidance.
 -- [x] (valid-no-repro) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — **cheap-disproof 2026-10-30 thorough hunt #26:** session writes are best-effort and the throwing-storage regression confirms navigation still proceeds.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — a successful register response followed by a router navigation exception leaves the form permanently non-retryable — locus: `registerCompletedRef` set before `router.push`; input: router push rejects after `201` (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — a valid first-touch cookie whose serialized header exceeds browser/server limits causes registration to fail rather than omit attribution — locus: attribution header size; input: maximum-length captured UTM values (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — repeated success responses write different session snapshots when optional fields are changed between submit and navigation — locus: watched form values versus submitted callback values; input: edit optional fields at the response boundary (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — an aborted router transition after `201` leaves the form permanently non-retryable — locus: `registerCompletedRef` set before `router.push`; input: route transition is interrupted after success (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — a browser rejects an oversized first-touch header and the form does not retry without attribution — locus: attribution header construction; input: captured UTM values at browser header-size limits (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — a second submit uses stale optional values after a response-boundary edit — locus: React Hook Form submit snapshot; input: edit optional fields while the first request is pending (monitor).
 
 2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
 
