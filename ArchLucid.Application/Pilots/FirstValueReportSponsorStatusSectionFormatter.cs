@@ -139,7 +139,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             ? SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle(finding)
             : TruncateSponsorFinding(finding.Message);
 
-        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(message)}";
+        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message)}";
     }
 
     private static string FormatSponsorFindingSeverityLabel(ArchitectureFinding finding)
