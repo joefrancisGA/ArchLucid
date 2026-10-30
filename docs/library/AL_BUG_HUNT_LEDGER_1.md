@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `SponsorRoiNarrativeGateMarkdownFormatter` — basis class summary omits pipe escape in narrative gate section — locus: evidence confidence line; input: `BasisClassSummary` with `|`.
+- (candidate) `FirstValueReportBuilder` — sponsor status and ROI narrative gate disagree on escaped ROI gate strings — locus: build order; input: regression asserting both surfaces escape same fixture.
 - (candidate) `FirstValueReportProofPackageSectionFormatter` — proof sendability mirror row wraps API tier tokens without pipe escape — locus: sendability cell; input: `PublishingTier` with `|`.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder` — findings-by-severity row echoes API severity string without pipe escape — locus: severity table; input: malformed severity token with `|`.
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
 - (candidate) `BoardPackPdfBuilder` — digest week label when custom period spans ISO year boundary — locus: cover metadata; input: override window Dec 28–Jan 3.
+
+2026-10-30 seed hunt (seed→hit): promoted ROI narrative gate Markdown section echoing `DispositionLeadLine`, `BasisClassSummary`, and blockquote `NarrativeBlock` without escaping while sponsor-status table escaped lead line in hunt 72; shared `EscapeMarkdownTableCell` on all three strings; regression `AppendMarkdownSection_when_disposition_lead_line_contains_pipe_escapes_copy`; cheap-disproof closed five hunt-72 `(candidate)` rows; seeded five follow-on rows; scoped **44** unit tests passed. Private beta: ROI narrative claim gate sections stay readable when gate copy includes pipe characters.
+
+- [x] (proven) `SponsorRoiNarrativeGateMarkdownFormatter` — ROI gate copy pipe escaping — **hit 2026-10-30 seed hunt (hunt 73):** escape disposition, basis class, and narrative block; regression above. [class:other]
+
+- [x] (valid-no-repro) `SponsorRoiNarrativeGateMarkdownFormatter` — basis class only — **cheap-disproof 2026-10-30 seed hunt (hunt 73):** fixed with disposition and narrative in same hit.
+- [x] (valid-no-repro) `FirstValueReportProofPackageSectionFormatter` — sendability tier pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 73):** duplicate; backtick-wrapped tokens.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — severity pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 73):** duplicate; closed enum severities only.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 73):** duplicate; abbreviated PDF delta table by design.
+- [x] (valid-no-repro) `BoardPackPdfBuilder` — digest ISO year boundary — **cheap-disproof 2026-10-30 seed hunt (hunt 73):** `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window` clamps cross-year short windows.
 
 2026-10-30 seed hunt (seed→hit): promoted sponsor first-page ROI claim gate row inlining `DispositionLeadLine` without pipe escaping (sibling ROI basis narrative fixed hunt 71); `EscapeMarkdownTableCell` on lead line cell; regression `AppendMarkdownSection_when_roi_claim_gate_lead_line_contains_pipe_escapes_table_cell`; cheap-disproof closed five hunt-71 `(candidate)` rows; seeded five follow-on rows; scoped **47** unit tests passed. Private beta: Sponsor first-page ROI claim gate rows stay readable when gate lead copy includes pipe characters.
 
@@ -16823,11 +16833,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 72
-- **bugs-found:** 52
+- **hunts:** 73
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — sponsor ROI claim gate lead line pipe escape
+- **last-bug:** 2026-10-30 — ROI narrative gate section pipe escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
