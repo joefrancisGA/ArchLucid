@@ -52,6 +52,9 @@
 - [Scenario packs](scenario-packs/) are short facilitator instructions per chooser row. They are fixture instructions, not customer evidence.
 - [Control-evidence responsibility](CONTROL_EVIDENCE_RESPONSIBILITY.md) splits customer disposition from SecureNow evidence lineage. It is not a certification.
 - [Framework coverage](FRAMEWORK_COVERAGE.md) indexes thematic mappings and their limits. It is not a certification.
+- [Pilot measurement log](PILOT_MEASUREMENT_LOG.md) is a blank timing instrument for comparable investigations. It is not a savings claim.
+- [ROI cost input](ROI_COST_INPUT.md) assembles annual cost **C** from SKU identifiers and a blank operating cost. It is a cost input, not a savings claim.
+- [ROI fixture worksheet](ROI_FIXTURE_WORKSHEET.md) shows fixture arithmetic on made-up inputs. It is not a customer result.
 - [Ten-lane commercial engineering workpack](../go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md) provides offline evidence preparation, a synthetic buyer demo and blocker reports. This work is not customer traction.
 - [Procurement prompt index](../architecture/SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md) is the paste set for the SecureNow evidence pack and the follow-on schedule, subprocessors delta, crosswalk, and quote cover. It is not an approved offer.
 - [Scenario accelerator prompt index](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) is the paste set for a fixture chooser and short packs. It is not customer evidence.
