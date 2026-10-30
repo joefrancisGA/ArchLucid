@@ -96,7 +96,7 @@ public sealed class FirstValueReportDeltasSectionFormatterTests
         FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
 
         string markdown = sb.ToString();
-        markdown.Should().Contain(PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel);
+        markdown.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel);
         markdown.Should().NotContain("| Findings (total) | 0 |");
     }
 

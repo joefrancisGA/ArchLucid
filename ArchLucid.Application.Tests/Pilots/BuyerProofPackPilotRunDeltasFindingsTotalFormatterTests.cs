@@ -118,4 +118,18 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsTotalFormatterTests
             .Should()
             .Be(PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
     }
+
+    [Fact]
+    public void FormatFindingsTotal_when_agent_results_included_empty_severity_aligns_with_by_severity_plain_text()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsBySeverity = [],
+        };
+
+        PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas)
+            .Should()
+            .Be(PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
+    }
 }

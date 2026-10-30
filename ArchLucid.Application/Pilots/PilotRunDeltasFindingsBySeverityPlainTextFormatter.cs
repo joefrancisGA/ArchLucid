@@ -37,7 +37,12 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
             return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
         }
 
-        return "No findings were stored on agent results for this run.";
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+        {
+            return PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+        }
+
+        return PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel;
     }
 
 }

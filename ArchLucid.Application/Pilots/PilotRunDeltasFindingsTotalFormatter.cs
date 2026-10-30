@@ -41,6 +41,11 @@ internal static class PilotRunDeltasFindingsTotalFormatter
                 return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
             }
 
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+            {
+                return PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+            }
+
             return FindingsTotalNotAttestedLabel;
         }
 

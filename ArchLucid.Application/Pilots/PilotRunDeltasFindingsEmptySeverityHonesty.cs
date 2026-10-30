@@ -8,6 +8,9 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
     internal const string SnapshotZeroUnmutedFindingsPlainLabel =
         "0 unmuted findings in snapshot (no severity rows materialized).";
 
+    internal const string AgentResultsIncludedEmptySeverityPlainLabel =
+        "No findings were stored on agent results for this run.";
+
     internal static bool HasMaterialFindingWithoutSeverityBuckets(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);
@@ -45,6 +48,24 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
         ArgumentNullException.ThrowIfNull(deltas);
 
         if (deltas.AgentResultsIncludedInDetail)
+        {
+            return false;
+        }
+
+        int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
+
+        return deltas.FindingsBySeverity.Count == 0
+            && unmutedTotal == 0
+            && !HasMaterialFindingWithoutSeverityBuckets(deltas)
+            && !IsMutedOnlyEmptySeverity(deltas)
+            && !IsSnapshotAttestedZeroUnmuted(deltas);
+    }
+
+    internal static bool IsAgentResultsIncludedEmptySeverity(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (!deltas.AgentResultsIncludedInDetail)
         {
             return false;
         }

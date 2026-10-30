@@ -67,9 +67,17 @@ public static class FirstValueReportDeltasSectionFormatter
                     CultureInfo.InvariantCulture,
                     $"_({PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored})_");
             }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel})_");
+            }
             else
             {
-                sb.AppendLine("_(No unmuted findings were stored for this run.)_");
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel})_");
             }
 
             sb.AppendLine();

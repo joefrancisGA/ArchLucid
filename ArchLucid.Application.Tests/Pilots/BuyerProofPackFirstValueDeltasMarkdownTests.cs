@@ -224,4 +224,25 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
         sb.ToString().Should().Contain(PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored);
         sb.ToString().Should().NotContain("No unmuted findings were stored for this run.");
     }
+
+    [Fact]
+    public void Findings_by_severity_section_when_agent_results_included_empty_severity_aligns_with_total_and_pdf_copy()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsBySeverity = [],
+        };
+
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
+
+        string md = sb.ToString();
+        md.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel);
+        md.Should().NotContain(PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel);
+
+        PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas)
+            .Should()
+            .Be(PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
+    }
 }
