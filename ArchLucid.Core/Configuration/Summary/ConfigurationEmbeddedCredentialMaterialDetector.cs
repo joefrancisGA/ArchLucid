@@ -224,6 +224,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (formFeedIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, formFeedIndex).Trim()))
             return true;
 
+        int carriageReturnIndex = token.IndexOf('\r');
+
+        if (carriageReturnIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, carriageReturnIndex).Trim()))
+            return true;
+
         int quoteIndex = token.IndexOf('"');
 
         if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
