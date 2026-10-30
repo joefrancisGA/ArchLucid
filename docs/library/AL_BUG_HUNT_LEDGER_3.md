@@ -1013,7 +1013,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 49 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+**Hunts:** 50 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+
+2026-10-30 seed hunt #126 (seed-only): rotation fired after six low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
 2026-10-30 seed hunt #125 (seed-only): rotation fired after five low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
