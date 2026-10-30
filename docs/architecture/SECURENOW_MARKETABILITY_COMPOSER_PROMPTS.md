@@ -3,7 +3,7 @@
 
 # SecureNow marketability — Composer prompts
 
-**Created:** 2026-10-29 · **Updated:** 2026-10-30 · **Status:** SN-MKT-01–03 shipped. SN-MKT-04–07 not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-29 · **Updated:** 2026-10-30 · **Status:** SN-MKT-01–07 shipped on trunk (04–07 via follow-on PRs). **Audience:** Composer 2.5 slow (`composer-2.5`)
 
 Marketability scored **36** on the 2026-10-29 desk review and **50** after SN-MKT-01–03 landed on trunk. Differentiability is **74**. The first three prompts put the buyer job on the Security section of Home, in an unlisted draft page, and in a fixture storyboard.
 
