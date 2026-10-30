@@ -7849,6 +7849,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #20 — **cheap-disproof 2026-10-30 thorough hunt #21:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST keeps a sample result while exposing a real-analysis status label — locus: result/status pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed active section keeps an `aria-current` target with no DOM node — locus: dynamic navigation lifecycle (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — casted raw scenario creates a second telemetry key — locus: runtime caller validation (monitor).
+
 2026-10-30 thorough hunt #20 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding marketing tests — malformed POST responses do not mix sample and real metadata; no-target navigation preserves the prior active item by design; and runtime-cast telemetry inputs are unsupported outside the typed API. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #19 — **cheap-disproof 2026-10-30 thorough hunt #20:** all three mechanisms remain covered; no new failing repro.
