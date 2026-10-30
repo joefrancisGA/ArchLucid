@@ -91,10 +91,10 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 declaredPriorities,
                 firstDimension,
                 secondDimension,
-                out bool explicitPrefersFirstDimension))
+                out DeclaredPairChoice pairChoice))
         {
-            prefersFirst = explicitPrefersFirstDimension;
-            prefersSecond = !explicitPrefersFirstDimension;
+            prefersFirst = pairChoice == DeclaredPairChoice.PreferFirst;
+            prefersSecond = pairChoice == DeclaredPairChoice.PreferSecond;
         }
         else
         {
@@ -261,14 +261,21 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             @"\bprice\s+of\s+(?:security|reliability|operations|compliance)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private enum DeclaredPairChoice
+    {
+        Unresolved,
+        PreferFirst,
+        PreferSecond,
+        Balanced,
+    }
+
     private static bool TryResolveDeclaredPairPrecedence(
         IReadOnlyList<string> declaredPriorities,
         QualityDimension firstDimension,
         QualityDimension secondDimension,
-        out bool prefersFirstDimension)
+        out DeclaredPairChoice pairChoice)
     {
-        prefersFirstDimension = false;
-        bool found = false;
+        pairChoice = DeclaredPairChoice.Unresolved;
         string firstToken = firstDimension.ToString();
         string secondToken = secondDimension.ToString();
 
@@ -277,43 +284,53 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (string.IsNullOrWhiteSpace(priority))
                 continue;
 
-            bool matchedThisPriority = false;
+            DeclaredPairChoice? thisPriority = ResolvePairChoiceInPriority(
+                priority,
+                firstToken,
+                secondToken);
 
-            foreach (Match match in ExplicitDimensionPairMatches(priority))
-            {
-                string left = match.Groups[1].Value;
-                string right = match.Groups[2].Value;
-
-                // A negated pair is not a preference. Keep scanning this string so a later
-                // affirmative pair, such as "Cost over Security" after "Do not prefer Security over Cost",
-                // can still resolve the trade-off.
-                if (IsNegatedDimensionMention(priority, left))
-                    continue;
-
-                if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
-                    && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
-                {
-                    prefersFirstDimension = true;
-                    found = true;
-                    matchedThisPriority = true;
-                    break;
-                }
-
-                if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
-                    && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
-                {
-                    prefersFirstDimension = false;
-                    found = true;
-                    matchedThisPriority = true;
-                    break;
-                }
-            }
-
-            if (matchedThisPriority)
-                continue;
+            if (thisPriority is not null)
+                pairChoice = thisPriority.Value;
         }
 
-        return found;
+        return pairChoice != DeclaredPairChoice.Unresolved;
+    }
+
+    // Later priority strings overwrite earlier ones. A string whose only relevant pair is negated
+    // clears an earlier preference so "Security over Cost" then "Do not prefer Security over Cost"
+    // stays balanced. Inside one string, the first non-negated relevant pair still wins.
+    private static DeclaredPairChoice? ResolvePairChoiceInPriority(
+        string priority,
+        string firstToken,
+        string secondToken)
+    {
+        bool sawNegatedRelevantPair = false;
+
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+        {
+            string left = match.Groups[1].Value;
+            string right = match.Groups[2].Value;
+
+            bool prefersFirst = left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase);
+            bool prefersSecond = left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase);
+
+            if (!prefersFirst && !prefersSecond)
+                continue;
+
+            if (IsNegatedDimensionMention(priority, left))
+            {
+                sawNegatedRelevantPair = true;
+                continue;
+            }
+
+            return prefersFirst
+                ? DeclaredPairChoice.PreferFirst
+                : DeclaredPairChoice.PreferSecond;
+        }
+
+        return sawNegatedRelevantPair ? DeclaredPairChoice.Balanced : null;
     }
 
     private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority)

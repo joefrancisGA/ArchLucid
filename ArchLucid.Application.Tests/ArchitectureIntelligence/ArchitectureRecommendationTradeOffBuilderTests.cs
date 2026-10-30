@@ -562,6 +562,32 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_balances_security_and_cost_when_later_priority_negates_security_over_cost()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Security over Cost", "Do not prefer Security over Cost"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Be(
+            "Balance Security and Cost with explicit human approval.");
+    }
+
+    [Fact]
     public void BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security()
     {
         ArchitectureRecommendationEngine sut = new();
