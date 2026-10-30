@@ -700,7 +700,21 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 0
+
+2026-10-30 thorough hunt #869 (hit): proved `MutatingControllerAuditAnalyzer` treated `LogAsync` inside a local function that the mutating action never invokes as audit proof for default-interface members and declared `[HttpPost]` actions; fixed by requiring reachable `LogAsync` invocations (excluding uncalled local functions) in `SyntaxBodiesReferenceLogAsync` / `SemanticBodiesInvokeAuditLogAsync`; regressions `AL0003_reports_when_default_interface_defines_local_function_with_LogAsync_but_never_calls_it` and `AL0003_reports_when_HttpPost_body_defines_uncalled_local_function_that_logs`. Cheap-disproof closed four sibling `(candidate)` rows — abstract-base `[MutatingAuditExcluded]` still suppresses nested default-interface AL0003 (`Mutating_audit_excluded_on_abstract_base_controller_suppresses_AL0003_for_nested_default_interface_derived`), type-level `[AllowAnonymous]` still short-circuits AL0001 before per-action role decoration is evaluated (`Does_not_report_AL0001_for_role_decorated_action_when_controller_has_type_level_AllowAnonymous`), `scoped ref HttpContext` parameters report ARCH001 (`Reports_scoped_HttpContext_parameter`), and `[NonAction]` explicit interface implementations do not suppress inherited-action AL0001 (`Reports_inherited_unauthorized_action_when_derived_has_NonAction_explicit_interface_implementation`); reseeded five `(candidate)` rows; scoped analyzer filter **167/167** (Debug). Private beta: mutating API controllers and default-interface POST members on the RC35 line again require a reachable `LogAsync` call — dead local functions that only define audit logging no longer satisfy AL0003.
+
+- [x] (proven) `MutatingControllerAuditAnalyzer` — default interface body invokes LogAsync inside a local function without outer call suppresses AL0003 — **hit 2026-10-30 thorough hunt #869:** regressions above.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `[MutatingAuditExcluded]` on a base controller type does not suppress AL0003 for default-interface members on derived nested controller — **cheap-disproof 2026-10-30 thorough hunt #869:** regression above.
+- [x] (invalid) `RequireAuthorizationAnalyzer` — `[Authorize(Roles = "x")]` on action is ignored when controller has type-level `[AllowAnonymous]` — **cheap-disproof 2026-10-30 thorough hunt #869:** type-level anonymous gate exits before action scan; regression above.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type in `scoped` parameter modifier is missed — **cheap-disproof 2026-10-30 thorough hunt #869:** `scoped ref HttpContext` reports ARCH001; regression above.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[NonAction]` on explicit interface implementation suppresses AL0001 on inherited controller actions — **cheap-disproof 2026-10-30 thorough hunt #869:** regression above.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside a local function that is only invoked from a nested local function still suppresses AL0003 — locus: local-function reachability walk; input: outer POST calls inner local that calls logging local (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level `[AllowAnonymous]` on a base controller suppresses AL0001 on derived when derived adds `[Authorize]` on a new action only — locus: inheritance of anonymous gate; input: anonymous abstract base with authorized POST on derived (monitor).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `in` parameter modifier is missed — locus: parameter type walk; input: `void M(in HttpContext context)` (monitor).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — default interface body uses `await using` with LogAsync only in disposal path suppresses AL0003 — locus: async disposal audit proof; input: default-interface POST with audit log in `await using` dispose (monitor).
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[NonAction]` on parameterless constructor suppresses inherited-action scan when constructor is not an action — locus: declared-member gate vs inherited scan; input: derived with `[NonAction]` ctor and inherited `[HttpGet]` (monitor).
 
 2026-10-30 thorough hunt #868 (dry): cheap-disproof closed five open `(candidate)` rows — outer `[MutatingAuditExcluded]` shells with a file-level type alias still suppress nested default-interface AL0003 (`Mutating_audit_excluded_on_type_alias_outer_shell_suppresses_AL0003_for_nested_default_interface_controller`), type-level `[Authorize(Roles = "x")]` intentionally satisfies AL0001 for undecorated actions even when a sibling carries `[AllowAnonymous]` (`Does_not_report_AL0001_on_undecorated_action_when_type_level_Authorize_Roles_applies_even_with_anonymous_sibling`), `ref HttpContext` parameters report ARCH001 (`Reports_ref_HttpContext_parameter`), default-interface bodies that return before any LogAsync invocation remain AL0003-eligible (`AL0003_reports_when_default_interface_body_returns_before_any_LogAsync_invocation`), and `[NonAction]` properties do not suppress inherited-action AL0001 (`Reports_inherited_unauthorized_action_when_derived_declares_NonAction_property`); reseeded five `(candidate)` rows; scoped analyzer filter **161/161** (Release, `RunAnalyzers=false`). Private beta: no product change.
 
@@ -709,12 +723,6 @@
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — banned type in `ref` parameter modifier is missed — **cheap-disproof 2026-10-30 thorough hunt #868:** regression above.
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — default interface body returns before LogAsync call still suppresses AL0003 — **cheap-disproof 2026-10-30 thorough hunt #868:** AL0003 still required; regression above.
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — `[NonAction]` on property accessor suppresses inherited-action scan — **cheap-disproof 2026-10-30 thorough hunt #868:** regression above.
-
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `[MutatingAuditExcluded]` on a base controller type does not suppress AL0003 for default-interface members on derived nested controller — locus: exclusion inheritance vs default-interface scan; input: excluded abstract base with nested derived default-interface implementer (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[Authorize(Roles = "x")]` on action is ignored when controller has type-level `[AllowAnonymous]` — locus: type-level anonymous gate; input: type-level anonymous with role-decorated POST action (monitor).
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `scoped` parameter modifier is missed — locus: parameter type walk; input: `void M(scoped HttpContext context)` (monitor).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — default interface body invokes LogAsync inside a local function without outer call suppresses AL0003 — locus: audit proof traversal; input: default interface defines local function that logs but POST body never calls it (monitor).
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — `[NonAction]` on explicit interface implementation suppresses AL0001 on inherited controller actions — locus: declared-action gate; input: derived controller with `[NonAction]` explicit impl helper and inherited `[HttpGet]` (monitor).
 
 2026-10-30 thorough hunt #867 (dry): cheap-disproof closed five open `(candidate)` rows — file-scoped outer `[MutatingAuditExcluded]` shells suppress nested default-interface AL0003 when the probe lives in a separate compilation unit (`Mutating_audit_excluded_on_file_scoped_outer_shell_suppresses_AL0003_for_nested_default_interface_controller`), type-level `[Authorize(Roles = "x")]` satisfies AL0001 for undecorated actions (`Does_not_report_AL0001_for_undecorated_action_when_controller_has_type_level_Authorize_Roles`), `out HttpContext` parameters report ARCH001 (`Reports_out_HttpContext_parameter`), default-interface bodies that only assign a LogAsync method group without invoking remain AL0003-eligible (`AL0003_reports_when_default_interface_body_assigns_LogAsync_without_invoking`), and static `[NonAction]` helpers do not suppress inherited-action AL0001 (`Reports_inherited_unauthorized_action_when_derived_declares_static_NonAction_helper`); reseeded five `(candidate)` rows; scoped analyzer filter **156/156** (Release, `RunAnalyzers=false`). Private beta: no product change.
 
@@ -818,11 +826,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 43
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 1
+- **hunts:** 44
+- **bugs-found:** 37
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — class-level MutatingAuditExcluded ignored for default interface AL0003
+- **last-bug:** 2026-10-30 — uncalled local-function LogAsync satisfied AL0003 audit proof
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).

@@ -468,6 +468,68 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         yield return arrowClauseScoped.Expression;
     }
 
+    private static bool LocalFunctionIsInvokedFromContainingMethod(
+        LocalFunctionStatementSyntax localFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        string localFunctionName = localFunctionStatementSyntax.Identifier.Text;
+
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (ReferenceEquals(
+                    invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>(),
+                    localFunctionStatementSyntax))
+            {
+                continue;
+            }
+
+            if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+                identifierNameSyntax.Identifier.Text == localFunctionName)
+            {
+                return true;
+            }
+
+            if (invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool LogAsyncMemberAccessCountsForAuditProof(
+        MemberAccessExpressionSyntax memberAccessExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
+            return false;
+
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (enclosingLocalFunction is null)
+            return true;
+
+        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+    }
+
+    private static bool AuditLogAsyncInvocationCountsForAuditProof(
+        InvocationExpressionSyntax invocationExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (enclosingLocalFunction is null)
+            return true;
+
+        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+    }
+
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
     {
         return attributeSimpleNameScoped is HttpPostAttributeShortName
@@ -772,10 +834,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                              .DescendantNodesAndSelf()
                              .OfType<InvocationExpressionSyntax>())
                 {
-                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax
-                        {
-                            Name.Identifier.Text: "LogAsync"
-                        })
+                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                        LogAsyncMemberAccessCountsForAuditProof(memberAccessExpressionSyntax, methodAnchorSyntax))
                     {
                         return true;
                     }
@@ -806,7 +866,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
             if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
                     .DescendantNodesAndSelf()
-                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped => InvocationMatchesAuditInterfaceSemantic(
+                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped =>
+                    AuditLogAsyncInvocationCountsForAuditProof(invocationSyntaxScoped, methodAnchorSyntax) &&
+                    InvocationMatchesAuditInterfaceSemantic(
                     semanticModelScoped,
                     auditInterfaceDeclaredTypeSymbolScoped,
                     invocationSyntaxScoped,
