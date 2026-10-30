@@ -25994,6 +25994,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: host-composition
 
+2026-10-30 thorough hunt #1003 (dry, rotation): the concurrent `#1002` `TimeProvider` hit landed while this run was in progress; this follow-up preserved that production fix and did not alter the refreshed candidate queue. Against the picker snapshot, cheap-disproof found no additional failing repro across storage-provider resolution, storage aliases, schema-validation registration, clock registration, or Service Bus offload composition. The scoped composition filter exited 0; no production code changed. Private beta: n/a.
+
 2026-10-30 thorough hunt #1002 (hit, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (dry, seed-only, seed-only; run log). Picker rotated with **`-AvoidZoneId`** to `host-composition`. Promoted `(candidate)` host/test `TimeProvider` override shadowing — `AddArchLucidApplicationServices` now uses `TryAddSingleton(TimeProvider.System)` so a caller-supplied clock registered before composition is preserved (matches Api rate-limiting registration); regression `AddArchLucidApplicationServices_preserves_pre_registered_TimeProvider`. Cheap-disproof closed four sibling `(candidate)` rows — **invalid** reloadable configuration changing `ArchLucid:StorageProvider` between diagnostics reset selection and `AddArchLucidStorage` within one synchronous `AddPlatformCapability` pass (single registration snapshot; monitor-only); **valid-no-repro** coordinator vs storage legacy alias mismatch (`ArchLucidOptions.EffectiveIsInMemory` / `EffectiveIsSql` shared by `RegisterCoordinatorRepositories` and `AddArchLucidStorage`; `StorageProviderRegistrationParityTests.AddArchLucidStorage_InMemory_and_Sql_register_same_service_types_except_allowlisted`); **invalid** duplicate `ISchemaValidationService` on shipped startup path (coordinator module registers once; double extension call is theoretical); **invalid** Service Bus integration-event offload leaving handler singletons registered (intentional — `ServiceBusIntegrationEventsArchLucidJob` resolves handlers; only `AzureServiceBusIntegrationEventConsumer` is gated — `AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_registers_job_not_consumer`). Reseeded five `(candidate)` rows; scoped filter **516** `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` tests passed (`RunAnalyzers=false`). Private beta: Test hosts and integration harnesses that inject a deterministic `TimeProvider` before composition keep that clock for expiration, rotation, and scheduling services instead of silently resolving wall-clock time.
 
 - [x] (proven) `ServiceCollectionExtensions.AddArchLucidApplicationServices` — pre-registered `TimeProvider` shadowed by unconditional `TimeProvider.System` — **hit 2026-10-30 thorough hunt #1002:** `TryAddSingleton(TimeProvider.System)`; regression `AddArchLucidApplicationServices_preserves_pre_registered_TimeProvider`.
@@ -26043,9 +26045,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 96
+- **hunts:** 97
 - **bugs-found:** 74
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — pre-registered TimeProvider shadowed by composition default
 - **code-changed-since:** yes
