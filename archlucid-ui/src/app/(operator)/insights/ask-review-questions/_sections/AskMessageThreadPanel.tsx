@@ -355,7 +355,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     buyerPolishedLinks={buyerPolishedShell}
                     content={message.content}
                     groundingLinks={
-                      (assistantCitationSourceLinks?.length ?? 0) > 0
+                      assistantCitationSourceLinks !== undefined && assistantCitationSourceLinks.length > 0
                         ? assistantCitationSourceLinks
                         : undefined
                     }

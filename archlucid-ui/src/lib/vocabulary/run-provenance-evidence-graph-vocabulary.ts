@@ -57,7 +57,7 @@ export const RUN_PROVENANCE_EVIDENCE_GRAPH_GRAPH_LINK: RunProvenanceEvidenceGrap
   id: "evidence-graph",
   label: "Evidence graph",
   href: EVIDENCE_GRAPH_PATH,
-  whenToUse: "Explore provenance and evidence trails across architecture packages.",
+  whenToUse: "Explore evidence trails and linkage across architecture packages — not a pipeline completion timestamp.",
 };
 
 /** Pairwise model for package provenance ↔ Evidence graph (reviews hub fallback). */

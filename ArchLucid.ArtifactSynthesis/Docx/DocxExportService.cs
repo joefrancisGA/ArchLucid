@@ -474,7 +474,7 @@ public sealed partial class DocxExportService(
 
         if (improvementPlan.Recommendations.Count == 0)
         {
-            WordDocumentBuilder.AddBodyText(body, "No recommended improvements were recorded.");
+            WordDocumentBuilder.AddBodyText(body, DocxExportManifestPostureHonesty.RecommendedImprovementsGeneratedEmptyExportLabel);
         }
         else
         {
