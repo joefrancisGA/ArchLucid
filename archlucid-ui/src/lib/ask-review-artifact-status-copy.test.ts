@@ -67,6 +67,13 @@ describe("resolveAskAssistantGroundingCitationMarker", () => {
         referencedDecisions: [],
         referencedArtifacts: [],
       }),
+    ).toBe("Cited decisions were stored empty. Cited artifacts were stored empty.");
+    expect(
+      resolveAskAssistantGroundingCitationMarker("Answer text", {
+        referencedFindings: ["finding-1"],
+        referencedDecisions: ["decision-1"],
+        referencedArtifacts: ["artifact-1"],
+      }),
     ).toBeNull();
   });
 });

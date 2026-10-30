@@ -40,7 +40,9 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getByText("Submitted architecture text was not stored.")).toBeInTheDocument();
+    const omitted = screen.getByTestId("submitted-architecture-empty");
+    expect(within(omitted).getAllByText("Submitted architecture text was not stored.").length).toBeGreaterThan(0);
+    expect(within(omitted).queryByText("Submitted architecture text was stored empty.")).not.toBeInTheDocument();
 
     rerender(
       <RunDetailSubmittedArchitectureSection
@@ -50,6 +52,8 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getByText("Submitted architecture text was stored empty.")).toBeInTheDocument();
+    const storedEmpty = screen.getByTestId("submitted-architecture-empty");
+    expect(within(storedEmpty).getAllByText("Submitted architecture text was stored empty.").length).toBeGreaterThan(0);
+    expect(within(storedEmpty).queryByText("Submitted architecture text was not stored.")).not.toBeInTheDocument();
   });
 });

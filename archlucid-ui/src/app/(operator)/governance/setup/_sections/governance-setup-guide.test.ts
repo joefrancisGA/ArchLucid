@@ -19,6 +19,7 @@ describe("governance-setup-guide-steps", () => {
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[0]?.tracked).toBe(true);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[1]?.tracked).toBe(false);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[2]?.tracked).toBe(true);
+    expect(GOVERNANCE_SETUP_GUIDE_STEPS[3]?.tracked).toBe(true);
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionLabel).toBe("Open workspace health");
     expect(GOVERNANCE_SETUP_GUIDE_STEPS[4]?.primaryActionHref).toBe(GOVERNANCE_WORKSPACE_HEALTH_HREF);
   });
@@ -34,10 +35,10 @@ describe("governance-setup-guide-steps", () => {
     ]);
 
     expect(summary.completedCount).toBe(1);
-    expect(summary.totalCount).toBe(2);
-    expect(summary.untrackedCount).toBe(3);
+    expect(summary.totalCount).toBe(3);
+    expect(summary.untrackedCount).toBe(2);
     expect(summary.firstIncompleteIndex).toBe(2);
-    expect(summary.progressFraction).toBeCloseTo(0.5);
+    expect(summary.progressFraction).toBeCloseTo(1 / 3);
     expect(summary.nextStepTitle).toBe("Configure alert ownership");
     expect(summary.isComplete).toBe(false);
   });
@@ -47,14 +48,30 @@ describe("governance-setup-guide-steps", () => {
       "complete",
       "not-started",
       "complete",
+      "complete",
+      "not-started",
+    ]);
+
+    expect(summary.completedCount).toBe(3);
+    expect(summary.totalCount).toBe(3);
+    expect(summary.isComplete).toBe(true);
+    expect(summary.firstIncompleteIndex).toBeNull();
+  });
+
+  it("does not report governance setup complete before approval expectations are configured", () => {
+    const summary = summarizeGovernanceSetupProgress([
+      "complete",
+      "not-started",
+      "complete",
       "not-started",
       "not-started",
     ]);
 
+    expect(summary.totalCount).toBe(3);
     expect(summary.completedCount).toBe(2);
-    expect(summary.totalCount).toBe(2);
-    expect(summary.isComplete).toBe(true);
-    expect(summary.firstIncompleteIndex).toBeNull();
+    expect(summary.firstIncompleteIndex).toBe(3);
+    expect(summary.nextStepTitle).toBe("Define approval expectations");
+    expect(summary.isComplete).toBe(false);
   });
 
   it("maps foundation indicators to checklist completion", () => {

@@ -4252,9 +4252,10 @@ jobs:
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 65
-    # All four shards are required; sharding reduces per-process heap pressure
-    # without excluding failing assertions from the non-deploying RC38 gate.
+    timeout-minutes: 90
+    # All four required check names remain. Two sequential Vitest processes per check
+    # cover disjoint eighths of the full test-file set, releasing Node heap between halves.
+    # Both halves always run and either failure fails the original required gate.
     strategy:
       fail-fast: false
       matrix:
@@ -4278,7 +4279,21 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=12288
         run: |
           npm ci
-          npm run test:vitest-single-worker -- --shard="${{ matrix.shard }}"
+          shard_label="${{ matrix.shard }}"
+          shard_index="${shard_label%/*}"
+          case "${shard_label}" in
+            1/4|2/4|3/4|4/4) ;;
+            *) echo "::error::Unexpected Vitest shard ${shard_label}"; exit 1 ;;
+          esac
+          failed=0
+          for shard_in_pair in "$((2 * shard_index - 1))" "$((2 * shard_index))"; do
+            echo "::group::Vitest shard ${shard_in_pair}/8"
+            if ! npm run test:vitest-single-worker -- --shard="${shard_in_pair}/8"; then
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "${failed}"
 
       - name: Generate npm SBOM (CycloneDX)
         if: matrix.shard == '1/4'
