@@ -16922,6 +16922,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-costing
 
+2026-10-30 seed hunt #951 (seed-only): rotation avoided `knowledge-graph-provenance` after three consecutive low-yield outcomes (dry, seed-only, dry); re-read `ArchLucid.Core/Costing/` and cheap-disproof closed five `(candidate)` rows from hunt #695 — invalid illustrative `ScaleByQuantity` vs live `Math.Max(1, quantity)` mismatch for normalized zero quantity (both paths bill one unit-month), invalid GCP `"1 h"` hourly unit token (allow-list uses `h`/`hr`/`hours` only; unsupported catalog shape not a same-run promotion), invalid spaced-slash week UOM `10 / weks` (`ContainsSpacedSlashWeksToken` accepts keep-list meter), invalid `ResolveSoleCloudFamily` Unknown+Azure blend (`RuntimePlatformCloudFamily` maps Unknown-class platforms to Azure so sole-family stays Azure), invalid nano-only GCP tier rate (`TryReadTieredRateUsd` already sums `units + nanos/1e9`); no hunt-ready promotion; reseeded five `(candidate)` rows at zone header; scoped Costing filter **289** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`); no production change. Private beta: n/a.
+
 2026-10-28 seed hunt #695 (seed-only): re-read `ArchLucid.Core/Costing/` and focused Costing tests; no row met the same-run promotion bar; seeded five `(candidate)` rows below; scoped Costing filter 289 passed with 6 expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`); no production change.
 
 2026-10-12 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
@@ -18775,19 +18777,25 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 952
+- **hunts:** 953
 - **bugs-found:** 227
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-28
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-10 — live pricing cancellation was swallowed as illustrative fallback
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
-- [ ] (candidate) `IllustrativeInfrastructureCostFallback.ScaleByQuantity` — manifest nodes with `Quantity` 0 from `NormalizeQuantity` — locus: `ScaleByQuantity` returns full unit USD when `quantity < 1`; input: `InfrastructureCostQueryNode` built from golden topology with `InstanceCount` 0 or negative; wrong outcome: illustrative monthly line disagrees with live probe path that clamps via `Math.Max(1, quantity)`; reachability: manifest `InstanceCount` fields on review topology exports.
-- [ ] (candidate) `GcpSkuPricingParser.IsHourlyUsageUnit` — GCP catalog `usageUnit` token `"1 h"` — locus: hourly unit string allow-list; input: Cloud Billing Catalog SKU JSON with spaced hour usage unit; wrong outcome: hourly tier skipped and GCP live probe returns null; reachability: Google Cloud Billing Catalog `pricingExpression.usageUnit`.
-- [ ] (candidate) `AzureRetailPricesSkuMatchers.ContainsSpacedSlashWeksToken` — keep-list week UOM `10 / weks` — locus: spaced-slash week matcher; input: Azure Retail Prices `unitOfMeasure` per `docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`; wrong outcome: `LooksLikeConsumptionUsd` rejects valid week meter; reachability: Azure Retail Prices API meter rows.
-- [ ] (candidate) `InfrastructureCostSummaryNotes.ResolveSoleCloudFamily` — blend totals mixing `RuntimePlatform.Unknown` with one cloud-specific row — locus: sole-family scan over `InfrastructureCostLine.Platform`; input: estimate totals with a single Azure billable row plus an Unknown placeholder row; wrong outcome: generic multi-cloud summary note instead of Azure-specific copy; reachability: infrastructure cost artifact lines from manifest/extractor node builders.
-- [ ] (candidate) `GcpSkuPricingParser.TryReadTieredRateUsd` — first tier with zero `units` and positive `nanos` only — locus: tiered rate loop break on `hourlyUsd > 0`; input: Billing Catalog tier JSON with fractional nano-only unit price; wrong outcome: hourly rate treated as zero and SKU skipped; reachability: GCP SKU `tieredRates` entries in catalog responses.
+- [x] (invalid) `IllustrativeInfrastructureCostFallback.ScaleByQuantity` — manifest nodes with `Quantity` 0 from `NormalizeQuantity` — **cheap-disproof 2026-10-30 seed hunt #951:** normalized zero quantity matches live `Math.Max(1, quantity)` billing on unit-month price.
+- [x] (invalid) `GcpSkuPricingParser.IsHourlyUsageUnit` — GCP catalog `usageUnit` token `"1 h"` — **cheap-disproof 2026-10-30 seed hunt #951:** spaced `"1 h"` is outside the explicit hourly token allow-list by design.
+- [x] (invalid) `AzureRetailPricesSkuMatchers.ContainsSpacedSlashWeksToken` — keep-list week UOM `10 / weks` — **cheap-disproof 2026-10-30 seed hunt #951:** matcher accepts ` / weks` keep-list meter.
+- [x] (invalid) `InfrastructureCostSummaryNotes.ResolveSoleCloudFamily` — blend totals mixing `RuntimePlatform.Unknown` with one cloud-specific row — **cheap-disproof 2026-10-30 seed hunt #951:** Unknown-class platforms resolve to Azure in `RuntimePlatformCloudFamily`.
+- [x] (invalid) `GcpSkuPricingParser.TryReadTieredRateUsd` — first tier with zero `units` and positive `nanos` only — **cheap-disproof 2026-10-30 seed hunt #951:** nano-only tiers produce positive `hourlyUsd` via `nanos/1e9`.
+
+- [ ] (candidate) `GcpSkuPricingParser.IsHourlyUsageUnit` — catalog `usageUnit` `"HOUR"` all-caps — locus: hourly unit string allow-list; input: Cloud Billing Catalog SKU JSON with uppercase HOUR usage unit; wrong outcome: hourly tier skipped and GCP live probe returns null; reachability: Google Cloud Billing Catalog `pricingExpression.usageUnit`.
+- [ ] (candidate) `AzureRetailPricesSkuMatchers.ContainsSpacedSlashWekToken` — keep-list week UOM `10 / wek` — locus: spaced-slash week matcher; input: Azure Retail Prices `unitOfMeasure` per `docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`; wrong outcome: `LooksLikeConsumptionUsd` rejects valid week meter; reachability: Azure Retail Prices API meter rows.
+- [ ] (candidate) `InfrastructureCostSummaryNotes.ResolveSoleCloudFamily` — blend with one AWS row and one GCP row — locus: sole-family scan over `InfrastructureCostLine.Platform`; input: estimate totals with exactly one AWS and one GCP billable line; wrong outcome: cloud-specific summary note instead of generic multi-cloud copy; reachability: multi-cloud manifest topology exports.
+- [ ] (candidate) `GcpSkuPricingParser.TryReadTieredRateUsd` — tier with positive `units` and negative `nanos` netting below zero — locus: tiered rate sum without lower bound; input: Billing Catalog tier JSON with fractional nano debt; wrong outcome: negative hourly rate accepted or SKU mispriced; reachability: malformed GCP SKU `tieredRates` entries.
+- [ ] (candidate) `ManifestInfrastructureCostNodes.NormalizeQuantity` — manifest `InstanceCount` negative — locus: quantity normalization; input: topology export with negative instance count; wrong outcome: live probe multiplies by raw negative quantity instead of normalized zero sentinel; reachability: manifest service/datastore `InstanceCount` fields.
 
 2026-09-13 seed hunt #2387 (seed-only): reseeded core-costing with `-Hint core costing Azure UOM`; no new hunt-ready rows.
 
