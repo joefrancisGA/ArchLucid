@@ -204,6 +204,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
             return true;
 
+        int closeParenIndex = token.IndexOf(')');
+
+        if (closeParenIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeParenIndex).Trim()))
+            return true;
+
         return TryBasicAuthorizationPayloadFromQuotedSegments(token);
     }
 
@@ -221,7 +226,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             char quote = token[index];
 
-            if (quote is not '"' and not '\'')
+            if (quote is not '"' and not '\'' and not '`')
                 continue;
 
             ReadOnlySpan<char> remainder = token.Slice(index + 1);
