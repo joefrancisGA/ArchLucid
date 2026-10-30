@@ -2,10 +2,11 @@ using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Core.ProductLine;
+using ArchLucid.Core.ProductCapability;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Composition.Startup;
@@ -13,6 +14,7 @@ using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Persistence.Coordination.Retrieval;
@@ -653,6 +655,58 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         provider.GetRequiredService<IProductLineRequestAccessor>().Should().BeSameAs(injectedAccessor.Object,
             "composition must not replace a test or host-supplied product-line accessor registered before AddArchLucidApplicationServices");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_IProductCapabilityControllerCatalog()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductCapabilityControllerCatalog> injectedCatalog = new();
+        services.AddSingleton(injectedCatalog.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductCapabilityControllerCatalog>().Should().BeSameAs(injectedCatalog.Object,
+            "composition must not replace a test or host-supplied capability catalog registered before AddArchLucidApplicationServices");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_startup_migration_health_state_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d => d.ServiceType == typeof(StartupMigrationHealthState));
+
+        count.Should().Be(1,
+            "startup migration health state must not register duplicate singleton descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_integration_event_publisher_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d => d.ServiceType == typeof(IIntegrationEventPublisher));
+
+        count.Should().Be(1,
+            "integration event publishing must not register duplicate IIntegrationEventPublisher factory descriptors on the shipped composition path");
     }
 
     [Fact]
