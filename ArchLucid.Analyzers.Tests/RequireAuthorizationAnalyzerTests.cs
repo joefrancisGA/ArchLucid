@@ -2273,6 +2273,41 @@ namespace N
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_derived_controller_when_base_has_type_level_AllowAnonymous_even_with_new_Authorize_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [AllowAnonymous]
+    public abstract class AnonymousBaseController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class DerivedWithAuthorizedPostController : AnonymousBaseController
+    {
+        [Authorize]
+        [HttpPost]
+        public IActionResult AuthorizedPost() => Ok();
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 

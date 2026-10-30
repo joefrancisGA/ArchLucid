@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 using Microsoft.CodeAnalysis;
@@ -472,7 +473,54 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         LocalFunctionStatementSyntax localFunctionStatementSyntax,
         MethodDeclarationSyntax containingMethodDeclarationSyntax)
     {
-        string localFunctionName = localFunctionStatementSyntax.Identifier.Text;
+        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
+    }
+
+    private static bool IsLocalFunctionReachableFromMethodEntry(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        ImmutableArray<LocalFunctionStatementSyntax> localFunctionsInMethod =
+            containingMethodDeclarationSyntax.DescendantNodes().OfType<LocalFunctionStatementSyntax>().ToImmutableArray();
+
+        if (localFunctionsInMethod.IsDefaultOrEmpty)
+            return false;
+
+        var reachableLocalFunctions = new HashSet<LocalFunctionStatementSyntax>();
+
+        bool addedReachableLocalFunction;
+        do
+        {
+            addedReachableLocalFunction = false;
+
+            foreach (LocalFunctionStatementSyntax localFunctionStatementSyntax in localFunctionsInMethod)
+            {
+                if (reachableLocalFunctions.Contains(localFunctionStatementSyntax))
+                    continue;
+
+                if (!IsLocalFunctionInvokedFromReachableScope(
+                        localFunctionStatementSyntax,
+                        containingMethodDeclarationSyntax,
+                        reachableLocalFunctions))
+                {
+                    continue;
+                }
+
+                reachableLocalFunctions.Add(localFunctionStatementSyntax);
+                addedReachableLocalFunction = true;
+            }
+        }
+        while (addedReachableLocalFunction);
+
+        return reachableLocalFunctions.Contains(targetLocalFunctionStatementSyntax);
+    }
+
+    private static bool IsLocalFunctionInvokedFromReachableScope(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions)
+    {
+        string localFunctionName = targetLocalFunctionStatementSyntax.Identifier.Text;
 
         foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
                      .DescendantNodes()
@@ -480,25 +528,39 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         {
             if (ReferenceEquals(
                     invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>(),
-                    localFunctionStatementSyntax))
+                    targetLocalFunctionStatementSyntax))
             {
                 continue;
             }
 
-            if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
-                identifierNameSyntax.Identifier.Text == localFunctionName)
-            {
-                return true;
-            }
+            if (!InvocationTargetsLocalFunctionName(invocationSyntax, localFunctionName))
+                continue;
 
-            if (invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
-                memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName)
+            LocalFunctionStatementSyntax? callerLocalFunctionStatementSyntax =
+                invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+            if (callerLocalFunctionStatementSyntax is null ||
+                reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static bool InvocationTargetsLocalFunctionName(
+        InvocationExpressionSyntax invocationSyntax,
+        string localFunctionName)
+    {
+        if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+            identifierNameSyntax.Identifier.Text == localFunctionName)
+        {
+            return true;
+        }
+
+        return invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+               memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
     }
 
     private static bool LogAsyncMemberAccessCountsForAuditProof(
