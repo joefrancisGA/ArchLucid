@@ -30,4 +30,18 @@ describe("MarketingResourcesMenu", () => {
 
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
+
+  it("returns focus to the Resources trigger when Escape closes the menu", () => {
+    render(<MarketingResourcesMenu seeItLinked />);
+
+    const trigger = screen.getByRole("button", { name: /resources/i });
+    fireEvent.click(trigger);
+
+    const menuItem = screen.getByRole("menuitem", { name: SEE_IT_PAGE_TITLE });
+    menuItem.focus();
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(document.activeElement).toBe(trigger);
+  });
 });

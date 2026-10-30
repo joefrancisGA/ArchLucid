@@ -7893,6 +7893,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #73 (hit): proved Escape closed `MarketingResourcesMenu` without restoring focus, leaving keyboard users on the removed menu item; added a trigger ref and return focus on Escape with regression `returns focus to the Resources trigger when Escape closes the menu`. Focused menu suite passed 3/3. Private beta: invited buyers using keyboard navigation can now dismiss Resources and continue from the visible trigger instead of losing focus in the closed menu.
+
 2026-10-30 seed hunt #72 (seed-only): re-read public header/menu, privacy TOC, FAQ chrome, and trust-navigation paths; no hunt-ready row was proven. Seeded one bounded keyboard-navigation candidate.
 
 - [ ] (candidate) `MarketingResourcesMenu` — Escape or outside-focus closure removes the open menu while leaving focus on a removed menu item; locus: `setOpen(false)` close handlers without restoring focus to the Resources trigger; input: a keyboard user opens Resources, focuses a menu item, and presses Escape or tabs outside.
@@ -8136,9 +8138,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 46
-- **bugs-found:** 41
-- **consecutive-dry-hunts:** 1
+- **hunts:** 47
+- **bugs-found:** 42
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Signup verification status request generation
 - **related-pd-tb:** none
@@ -8154,6 +8156,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `MarketingResourcesMenu` — Escape closes the menu without restoring focus to the trigger — **hit 2026-10-30 thorough hunt #73:** focus the trigger after Escape closes the menu; regression `returns focus to the Resources trigger when Escape closes the menu` in `MarketingResourcesMenu.test.tsx`.
 - [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.
 - [x] (proven) `MarketingFaqPageToc` category links — smooth-scroll interception drops the destination hash — **hit 2026-10-30 seed hunt #68:** write the category fragment with `history.pushState` before scrolling; regression `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`.
 - [x] (proven) `MarketingPricingQuotePanel.onSubmit` — non-2xx quote responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #67:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the customer-facing error` in `MarketingPricingQuotePanel.test.tsx`.
