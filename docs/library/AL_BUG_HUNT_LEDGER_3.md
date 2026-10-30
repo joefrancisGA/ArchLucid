@@ -741,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 51 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 52 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 seed hunt #112 (seed-only): repeated the DraftNew command source review and focused CLI tests after the prior seed-only pass; `DraftNewCommandCoreTests` passed 73/73 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
 2026-10-30 seed hunt #111 (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; repeated the DraftNew command source review and focused CLI tests, which passed 73/73 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
 
