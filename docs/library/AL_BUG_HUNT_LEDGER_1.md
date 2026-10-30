@@ -16738,11 +16738,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 62
-- **bugs-found:** 43
+- **hunts:** 63
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — board pack PDF header still quarterly on custom period
+- **last-bug:** 2026-10-30 — buyer-safe gate misread unresolved audit count as zero rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
