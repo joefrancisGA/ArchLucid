@@ -28,7 +28,7 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| --- | --- | --- |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine(
-            $"| Findings (total) | {FormatFindingsTotal(deltas)} | {FormatFindingsTotalSource(deltas)} |");
+            $"| Findings (total) | {PilotRunDeltasFindingsTotalFormatter.FormatMarkdownTableCell(deltas)} | {FormatFindingsTotalSource(deltas)} |");
         sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
         sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.CountFilteredAsync(RunId)` |");
         sb.AppendLine();
@@ -47,6 +47,18 @@ public static class FirstValueReportDeltasSectionFormatter
             {
                 sb.AppendLine(
                     "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel})_");
             }
             else
             {

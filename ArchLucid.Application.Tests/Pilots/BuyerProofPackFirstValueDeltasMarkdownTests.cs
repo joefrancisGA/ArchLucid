@@ -116,4 +116,63 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
         row.Should().Be("| ``Warn`ing`` | 1 |");
     }
+
+    [Fact]
+    public void Findings_by_severity_section_when_top_finding_without_buckets_does_not_claim_no_unmuted_stored()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsBySeverity = [],
+                TopFindingId = "f-1",
+            });
+
+        string md = sb.ToString();
+        md.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+        md.Should().NotContain("No unmuted findings were stored for this run.");
+    }
+
+    [Fact]
+    public void Findings_by_severity_section_when_snapshot_attests_empty_uses_snapshot_copy()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsCountsFromSnapshot = true,
+                FindingsBySeverity = [],
+            });
+
+        sb.ToString().Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel);
+    }
+
+    [Fact]
+    public void Computed_deltas_table_when_findings_total_honesty_label_wraps_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                FindingsBySeverity = [],
+                TopFindingId = "f-1",
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain($"`{PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel}`");
+    }
 }

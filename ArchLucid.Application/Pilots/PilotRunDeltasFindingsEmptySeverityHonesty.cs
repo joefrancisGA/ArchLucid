@@ -5,6 +5,9 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
 {
     internal const string FindingsBySeverityNotAttestedLabel = "Findings by severity was not attested.";
 
+    internal const string SnapshotZeroUnmutedFindingsPlainLabel =
+        "0 unmuted findings in snapshot (no severity rows materialized).";
+
     internal static bool HasMaterialFindingWithoutSeverityBuckets(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);

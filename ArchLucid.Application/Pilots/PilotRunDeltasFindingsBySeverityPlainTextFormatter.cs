@@ -24,7 +24,7 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
 
         if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
         {
-            return "0 unmuted findings in snapshot (no severity rows materialized).";
+            return PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel;
         }
 
         if (!deltas.AgentResultsIncludedInDetail)

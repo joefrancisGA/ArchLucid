@@ -36,4 +36,15 @@ internal static class PilotRunDeltasFindingsTotalFormatter
 
         return unmutedTotal.ToString(CultureInfo.InvariantCulture);
     }
+
+    internal static string FormatMarkdownTableCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        string value = FormatFindingsTotal(deltas);
+
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+            ? value
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
+    }
 }
