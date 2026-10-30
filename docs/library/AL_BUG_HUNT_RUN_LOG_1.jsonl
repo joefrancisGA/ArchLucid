@@ -2868,3 +2868,4 @@
 {"at":"2026-10-30T13:51:52.6754425Z","zoneId":"capabilities-cost-mcp","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T14:00:17.1281295Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T14:04:27.4121244Z","zoneId":"application-pilots","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T14:08:12.3923924Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}

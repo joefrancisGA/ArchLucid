@@ -13,11 +13,14 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
 
         Dictionary<string, double?> map = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (AgentResult result in agentResults)
+        foreach (IGrouping<string, AgentResult> group in agentResults.GroupBy(
+                     static result => result.TaskId,
+                     StringComparer.OrdinalIgnoreCase))
         {
+            AgentResult? latest = AgentResultLatestForTaskSelector.Select(group.ToList(), group.Key);
 
-            if (result.CalibratedConfidence is { } calibrated)
-                map[result.TaskId] = calibrated;
+            if (latest?.CalibratedConfidence is { } calibrated)
+                map[group.Key] = calibrated;
         }
 
         return map;

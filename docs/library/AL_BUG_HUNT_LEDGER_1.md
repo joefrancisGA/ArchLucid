@@ -16856,6 +16856,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-30 seed hunt (seed→hit): promoted `AgentCalibratedConfidenceByTaskIdBuilder.Build` last-write-wins on repository enumeration order for duplicate `taskId` rows instead of the latest result by `CreatedUtc`; a retried task could keep a stale low calibrated confidence and reject evaluation, block sponsor evidence, or skew finding-confidence enrichment after the retry passed; build the lookup with `AgentResultLatestForTaskSelector` (parity with structural execution mode, hunt 2026-10-10); regression `TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results`; seeded five follow-on `(candidate)` rows below; **230** scoped `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: PilotStrict quality evaluation and finding-confidence enrichment on retried agent tasks use the latest calibrated confidence, not an older attempt on the same task id.
+
+- [x] (proven) `AgentCalibratedConfidenceByTaskIdBuilder.Build` — stale calibrated confidence when duplicate task results are not listed oldest-first — **hit 2026-10-30 seed hunt:** latest-result selector when building task-id map; regression above.
+
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — sponsor block still keyed off shared calibrated map for duplicate task retries — locus: `AgentCalibratedConfidenceByTaskIdBuilder.Build`; input: two persisted results same `taskId` where only the latest should clear sponsor evidence; verify aggregator regression mirrors recorder/confidence pipeline.
+- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated-only semantic reject with high `OverallSemanticScore` — locus: `ClassifyThresholdFailure` uses published semantic score only; input: reject driven by calibrated confidence below floor while blended semantic score passes; wrong outcome: telemetry category `structural` instead of `semantic`.
+- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — `pilot_semantic_score_below_floor` when calibrated reject already applied — locus: PilotStrict block compares `OverallSemanticScore` to floor; input: low calibrated confidence with high blended semantic score; mechanism: misleading public token alongside `quality_gate_threshold_reject`.
+- [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator.Apply` — Real task without `findings` property skips LP-04 ratio — locus: `TryParseFindings` false early return; input: Real-mode trace with citations but no findings key; wrong outcome: `PilotStrictMinCitationCoverageRatio` gate skipped (`FindingCitationCoverageRatio` null).
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — 32-character prefix ties distinct trace ids — locus: prefix compare in `ResolveTraceForSnapshotFinding`; input: two traces sharing a 32-char prefix with different suffixes mapped to the wrong finding trace.
+
 2026-10-30 thorough hunt (dry): five open follow-on `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks stayed inside the saturated `[state-machine-gap]` summary-token class. Eighteen duplicate `(candidate)` rows still open under `### Hypotheses` were the 2026-10-22 closes left unchecked; those copies are ticked with the same disposition. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated reject with a high raw semantic score — **cheap-disproof 2026-10-30 thorough hunt:** when neither raw floor fails the ladder returns semantic; when structural completeness also fails it returns structural, the same category as counting a calibrated semantic failure.
@@ -16966,11 +16976,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 56
-- **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
+- **hunts:** 57
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-23 — rejection summary omitted calibrated-confidence threshold token
+- **last-bug:** 2026-10-30 — stale calibrated confidence on duplicate task results
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
