@@ -335,4 +335,35 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
         row.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
         row.Should().NotContain("FindingsSnapshot.Findings");
     }
+
+    [Fact]
+    public void Computed_deltas_table_when_agent_results_included_empty_severity_findings_source_aligns_with_value_copy()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                AgentResultsIncludedInDetail = true,
+                FindingsCountsFromSnapshot = false,
+                FindingsBySeverity = [],
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        string plain = PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+        row.Should().Contain(plain);
+        row.Split('|').Should().HaveCountGreaterThan(3);
+        row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
+    }
 }

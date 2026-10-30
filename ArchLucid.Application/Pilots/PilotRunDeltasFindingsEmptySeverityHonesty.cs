@@ -33,6 +33,11 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
             return FindingsTotalSourceAgentResultsOmittedLabel;
         }
 
+        if (IsAgentResultsIncludedEmptySeverity(deltas))
+        {
+            return AgentResultsIncludedEmptySeverityPlainLabel;
+        }
+
         return "`ArchitectureRunDetail.Results[*].Findings` (unmuted only)";
     }
 
