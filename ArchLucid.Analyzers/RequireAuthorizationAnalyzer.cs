@@ -482,7 +482,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
             INamedTypeSymbol iface = interfaceMethod.ContainingType;
 
-            if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+            if (SymbolHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute: null))
             {
                 return true;
             }

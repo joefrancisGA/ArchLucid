@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 using Microsoft.CodeAnalysis;
@@ -468,6 +469,138 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
         yield return arrowClauseScoped.Expression;
     }
 
+    private static bool LocalFunctionIsInvokedFromContainingMethod(
+        LocalFunctionStatementSyntax localFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        return IsLocalFunctionReachableFromMethodEntry(localFunctionStatementSyntax, containingMethodDeclarationSyntax);
+    }
+
+    private static bool IsLocalFunctionReachableFromMethodEntry(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        ImmutableArray<LocalFunctionStatementSyntax> localFunctionsInMethod =
+            containingMethodDeclarationSyntax.DescendantNodes().OfType<LocalFunctionStatementSyntax>().ToImmutableArray();
+
+        if (localFunctionsInMethod.IsDefaultOrEmpty)
+            return false;
+
+        var reachableLocalFunctions = new HashSet<LocalFunctionStatementSyntax>();
+
+        bool addedReachableLocalFunction;
+        do
+        {
+            addedReachableLocalFunction = false;
+
+            foreach (LocalFunctionStatementSyntax localFunctionStatementSyntax in localFunctionsInMethod)
+            {
+                if (reachableLocalFunctions.Contains(localFunctionStatementSyntax))
+                    continue;
+
+                if (!IsLocalFunctionInvokedFromReachableScope(
+                        localFunctionStatementSyntax,
+                        containingMethodDeclarationSyntax,
+                        reachableLocalFunctions))
+                {
+                    continue;
+                }
+
+                reachableLocalFunctions.Add(localFunctionStatementSyntax);
+                addedReachableLocalFunction = true;
+            }
+        }
+        while (addedReachableLocalFunction);
+
+        return reachableLocalFunctions.Contains(targetLocalFunctionStatementSyntax);
+    }
+
+    private static bool IsLocalFunctionInvokedFromReachableScope(
+        LocalFunctionStatementSyntax targetLocalFunctionStatementSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        HashSet<LocalFunctionStatementSyntax> reachableLocalFunctions)
+    {
+        string localFunctionName = targetLocalFunctionStatementSyntax.Identifier.Text;
+
+        foreach (InvocationExpressionSyntax invocationSyntax in containingMethodDeclarationSyntax
+                     .DescendantNodes()
+                     .OfType<InvocationExpressionSyntax>())
+        {
+            if (ReferenceEquals(
+                    invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>(),
+                    targetLocalFunctionStatementSyntax))
+            {
+                continue;
+            }
+
+            if (!InvocationTargetsLocalFunctionName(invocationSyntax, localFunctionName))
+                continue;
+
+            LocalFunctionStatementSyntax? callerLocalFunctionStatementSyntax =
+                invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+            if (callerLocalFunctionStatementSyntax is null)
+            {
+                if (invocationSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+                    continue;
+
+                return true;
+            }
+
+            if (reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool InvocationTargetsLocalFunctionName(
+        InvocationExpressionSyntax invocationSyntax,
+        string localFunctionName)
+    {
+        if (invocationSyntax.Expression is IdentifierNameSyntax identifierNameSyntax &&
+            identifierNameSyntax.Identifier.Text == localFunctionName)
+        {
+            return true;
+        }
+
+        return invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+               memberAccessExpressionSyntax.Name.Identifier.Text == localFunctionName;
+    }
+
+    private static bool LogAsyncMemberAccessCountsForAuditProof(
+        MemberAccessExpressionSyntax memberAccessExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
+            return false;
+
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (enclosingLocalFunction is null)
+        {
+            return memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+        }
+
+        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+    }
+
+    private static bool AuditLogAsyncInvocationCountsForAuditProof(
+        InvocationExpressionSyntax invocationExpressionSyntax,
+        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+    {
+        LocalFunctionStatementSyntax? enclosingLocalFunction =
+            invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (enclosingLocalFunction is null)
+        {
+            return invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+        }
+
+        return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+    }
+
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
     {
         return attributeSimpleNameScoped is HttpPostAttributeShortName
@@ -732,6 +865,25 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             }
         }
 
+        for (INamedTypeSymbol? containingTypeWalker = controllerTypeSymbolScoped.ContainingType;
+             containingTypeWalker is not null;
+             containingTypeWalker = containingTypeWalker.ContainingType)
+        {
+            for (INamedTypeSymbol? inheritWalker = containingTypeWalker;
+                 inheritWalker is not null;
+                 inheritWalker = inheritWalker.BaseType)
+            {
+                foreach (AttributeData owningTypeExcluded in inheritWalker.GetAttributes())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(owningTypeExcluded.AttributeClass,
+                            exclusionAttributeSymbolScoped))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
 
@@ -753,10 +905,8 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                              .DescendantNodesAndSelf()
                              .OfType<InvocationExpressionSyntax>())
                 {
-                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax
-                        {
-                            Name.Identifier.Text: "LogAsync"
-                        })
+                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
+                        LogAsyncMemberAccessCountsForAuditProof(memberAccessExpressionSyntax, methodAnchorSyntax))
                     {
                         return true;
                     }
@@ -787,7 +937,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
             if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
                     .DescendantNodesAndSelf()
-                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped => InvocationMatchesAuditInterfaceSemantic(
+                    .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped =>
+                    AuditLogAsyncInvocationCountsForAuditProof(invocationSyntaxScoped, methodAnchorSyntax) &&
+                    InvocationMatchesAuditInterfaceSemantic(
                     semanticModelScoped,
                     auditInterfaceDeclaredTypeSymbolScoped,
                     invocationSyntaxScoped,
