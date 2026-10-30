@@ -7748,6 +7748,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #64 (seed-only): re-read operator reviews-list sorting/selection, architecture-intelligence next-review context, and operator scope boundaries; no newly promoted hunt-ready row produced a failing repro. Seeded three bounded follow-on candidates below.
+
+- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — locus: `loadRuns` callback has an empty dependency list while reading current scope headers; input: switch tenant scope while architecture intelligence remains mounted; wrong outcome: the footer links to another tenant’s next review.
+- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — locus: one-shot async `loadRuns` has no active scope identity guard; input: switch tenant while the initial list request is pending; wrong outcome: the new scope displays a stale next-review footer.
+- [ ] (candidate) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — locus: `new Date(...).getTime()` comparator; input: operator reviews list contains a reachable row with an invalid or omitted timestamp; wrong outcome: sort order is not deterministic and newest/oldest navigation can select the wrong review.
+
 2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
 
 - [x] (valid-no-repro) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
