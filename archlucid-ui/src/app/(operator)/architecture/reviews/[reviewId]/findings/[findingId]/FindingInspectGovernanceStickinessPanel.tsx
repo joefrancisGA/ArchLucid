@@ -201,6 +201,7 @@ export function FindingInspectGovernanceStickinessPanel(
         runId={stickiness.runId}
         canMutate={stickiness.canMutate}
         history={stickiness.history}
+        dispositionHistoryLoading={stickiness.dispositionHistoryLoading}
         activeWaiver={stickiness.activeWaiver}
         assignedToUserId={stickiness.assignedToUserId}
         setAssignedToUserId={stickiness.setAssignedToUserId}

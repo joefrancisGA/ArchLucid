@@ -23,6 +23,20 @@ export const CITING_FINDING_COUNT_NOT_STORED_FOR_ARCHITECTURE_BRIEF =
 
 export const RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED = "Source name was not stored." as const;
 
+export const RUN_DETAIL_EVIDENCE_SOURCE_NAME_STORED_EMPTY = "Source name was stored empty." as const;
+
+export function formatRunDetailEvidenceSourceNameDisplay(sourceName: string): string {
+  if (sourceName === RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED) {
+    return sourceName;
+  }
+
+  if (sourceName.trim().length === 0) {
+    return RUN_DETAIL_EVIDENCE_SOURCE_NAME_STORED_EMPTY;
+  }
+
+  return sourceName.trim();
+}
+
 export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
 
 export type RunDetailEvidenceInventoryItem = {

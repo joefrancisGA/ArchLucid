@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { QuickDecisionFinding } from ".././quick-decision-summary-derive";
 
 import {
+  FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY,
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
@@ -80,6 +82,11 @@ describe("findings-what-if-analysis", () => {
   it("hasFindingsWhatIfAnalysisContent is true with a baseline or projected savings", () => {
     expect(hasFindingsWhatIfAnalysisContent([], 10000)).toBe(true);
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":1200}')], null)).toBe(true);
+  });
+
+  it("exports projected cost off and nothing-selected copy", () => {
+    expect(FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY).toMatch(/what-if mode/i);
+    expect(FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY).toMatch(/Select findings/i);
   });
 
   it("rollupWhatIfSelectedProjectedSavingsUsd does not treat omitted impact as zero", () => {

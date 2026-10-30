@@ -9,6 +9,17 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class ManifestInfrastructureCostNodesTerraformSkuTests
 {
     [Fact]
+    public void FromTerraformResourceRows_uses_not_stored_label_when_display_name_blank()
+    {
+        List<InfrastructureCostQueryNode> nodes = ManifestInfrastructureCostNodes.FromTerraformResourceRows([
+            new TerraformInfrastructureCostResourceRow(" ", "aws_instance", "us-east-1"),
+        ]);
+
+        nodes.Should().ContainSingle().Subject.DisplayName
+            .Should().Be(ManifestInfrastructureCostNodes.TerraformResourceNameNotStoredLabel);
+    }
+
+    [Fact]
     public void FromTerraformResourceRows_maps_available_row_fields_only()
     {
         List<InfrastructureCostQueryNode> nodes = ManifestInfrastructureCostNodes.FromTerraformResourceRows([

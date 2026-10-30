@@ -4,6 +4,8 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { ReactNode } from "react";
 
 import {
+  REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING,
+  REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING,
   REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
   listPresenterAssertedAnswerEntries,
   presenterTrailAllowsFinalize,
@@ -120,6 +122,30 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
     expect(answerDraftQuestion).toHaveBeenCalledWith("draft-hex", "latency", "No", {
       presenterCapture: true,
       responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
+    });
+  });
+
+  it("uses loading heading instead of ready to finalize while draft questions load", () => {
+    getDraftQuestions.mockImplementation(
+      () =>
+        new Promise(() => {
+          /* never resolves */
+        }),
+    );
+
+    const { result } = renderHook(() => useReviewPresenterElicitation("draft-hex"), { wrapper });
+
+    expect(result.current.title).toBe(REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING);
+    expect(result.current.title).not.toBe("Ready to finalize");
+  });
+
+  it("uses failed heading when draft questions cannot load", async () => {
+    getDraftQuestions.mockRejectedValue(new Error("network"));
+
+    const { result } = renderHook(() => useReviewPresenterElicitation("draft-hex"), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.title).toBe(REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING);
     });
   });
 });

@@ -747,11 +747,29 @@ export function RunExplanationSection({
               )}
             </dd>
             <dt>Prompt template</dt>
-            <dd className="m-0">{prov.promptTemplateId ?? "Prompt template was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptTemplateId,
+                "Prompt template was not stored.",
+                "Prompt template was stored empty.",
+              )}
+            </dd>
             <dt>Prompt version</dt>
-            <dd className="m-0">{prov.promptTemplateVersion ?? "Prompt version was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptTemplateVersion,
+                "Prompt version was not stored.",
+                "Prompt version was stored empty.",
+              )}
+            </dd>
             <dt>Content hash</dt>
-            <dd className="m-0">{prov.promptContentHash ?? "Content hash was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptContentHash,
+                "Content hash was not stored.",
+                "Content hash was stored empty.",
+              )}
+            </dd>
           </dl>
         </details>
       ) : (
