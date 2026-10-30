@@ -430,4 +430,32 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
     private static string FindingsTotalSourceAgentResultsOmittedLabel =>
         PilotRunDeltasFindingsEmptySeverityHonesty.FindingsTotalSourceAgentResultsOmittedLabel;
+
+    [Fact]
+    public void Computed_deltas_table_when_snapshot_sourced_zero_unmuted_findings_source_aligns_with_total_copy()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsCountsFromSnapshot = true,
+                FindingsBySeverity = [],
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasFindingsTotalFormatter.SnapshotZeroUnmutedFindingsTotalLabel);
+        row.Should().NotContain("`FindingsSnapshot.Findings` (unmuted only)");
+    }
 }
