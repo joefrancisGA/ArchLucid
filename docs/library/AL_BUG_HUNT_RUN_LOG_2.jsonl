@@ -2164,3 +2164,4 @@
 {"at":"2026-10-30T15:46:39.5067233Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:49:55.3185414Z","zoneId":"tenant-scoped-analyzer","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T15:55:41.8029965Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T15:59:59.4673117Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
