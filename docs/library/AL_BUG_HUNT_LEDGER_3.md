@@ -1310,13 +1310,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [ ] (candidate) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — locus: stale guard vs success; input: reopen form mid-flight edge (monitor).
+- [ ] (candidate) `workEmail` — plus-address local part with spaces trimmed only at payload — locus: `.trim()` on whole address; input: `"ops +tag @example.com"` (monitor).
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — locus: generic error; input: name with `\u000b` (monitor).
+- [ ] (candidate) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — locus: counter vs dismiss; input: cancel then resubmit (monitor).
+- [ ] (candidate) `technicalDetail` — HTML-like strings escaped only by React text node — locus: JSX interpolation; input: angle-bracket detail (monitor).
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
 
-- [ ] (candidate) `onSubmit` — parses JSON `message` on non-409 failures — locus: generic error branch; input: `502` with `{ message: "…" }`; wrong outcome: surfaces server text; reachability: `POST /api/access-requests` validation errors use `message` on `400` only.
-- [ ] (candidate) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — locus: stale response guard; input: toggle-close mid-flight then late `204`; wrong outcome: success flash; reachability: dismiss invalidates generation.
-- [ ] (candidate) `websiteUrl` honeypot — peripheral spaces posted without trim — locus: raw honeypot in JSON body; input: `"  https://spam.example  "`; wrong outcome: server miss; reachability: server `trimOptional` on honeypot.
-- [ ] (candidate) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — locus: silent early return; input: double submit before first fetch settles; wrong outcome: hidden failure; reachability: in-flight guard.
-- [ ] (candidate) `technicalDetail` — padded detail string renders with leading newline artifact — locus: `{technicalDetail}` JSX; input: `"\\nSign-in blocked"`; wrong outcome: blank helper block; reachability: OIDC error passthrough.
+- [x] (valid-no-repro) `onSubmit` — parses JSON `message` on non-409 failures — **cheap-disproof 2026-10-30 thorough hunt:** generic copy by design; regression `does not parse JSON message field on non-409 API failures`.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — **cheap-disproof 2026-10-30 thorough hunt:** generation guard; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (valid-no-repro) `websiteUrl` honeypot — peripheral spaces posted without trim — **cheap-disproof 2026-10-30 thorough hunt:** server-side trim contract; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (valid-no-repro) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — **cheap-disproof 2026-10-30 thorough hunt:** silent early return intentional; regressions `does not surface a submit error when a second submit is blocked while the first POST is still in flight` and `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
+- [x] (invalid) `technicalDetail` — padded detail string renders with leading newline artifact — **cheap-disproof 2026-10-30 thorough hunt:** detail still visible; regression `renders technical detail when the prop begins with a leading newline`.
 
 **Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
@@ -1541,10 +1549,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
