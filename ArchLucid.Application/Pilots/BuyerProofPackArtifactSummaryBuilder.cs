@@ -114,7 +114,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
 
     private static string SummarizeJsonElement(JsonElement element) => element.ValueKind switch
     {
-        JsonValueKind.String => "`" + FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(element.GetString() ?? string.Empty) + "`",
+        JsonValueKind.String => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(element.GetString() ?? string.Empty),
         JsonValueKind.Number => element.GetRawText(),
         JsonValueKind.True => "`true`",
         JsonValueKind.False => "`false`",
