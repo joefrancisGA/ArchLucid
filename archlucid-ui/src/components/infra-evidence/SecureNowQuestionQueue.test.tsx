@@ -638,7 +638,29 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
-    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Scope: This resource group. Scope kind was not stored; inferred from pack prompt."),
+    ).toBeInTheDocument();
+  });
+
+  it("labels pack answer choices with stored codes for reviewer clarity", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription workload?",
+        answerCodes: ["Register", "Keep"],
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByRole("button", { name: "Register (Register)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Keep (Keep)" })).toBeInTheDocument();
   });
 
   it("labels policy pack source and subscription scope in details", async () => {
@@ -794,8 +816,8 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was stored empty.");
-    expect(screen.getByText("Resource type was not stored")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent("Reason was not stored");
+    expect(screen.getByText("Resource type was stored empty.")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent("Reason was stored empty.");
     expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
   });
 
@@ -2561,7 +2583,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    fireEvent.click(screen.getByRole("button", { name: "Register (Register)" }));
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
@@ -2594,7 +2616,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    fireEvent.click(screen.getByRole("button", { name: "Register (Register)" }));
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
@@ -2667,7 +2689,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+    fireEvent.click(screen.getByRole("button", { name: "Register (Register)" }));
     fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {

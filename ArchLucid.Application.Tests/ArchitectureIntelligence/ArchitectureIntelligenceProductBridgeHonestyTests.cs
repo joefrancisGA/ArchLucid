@@ -87,6 +87,26 @@ public sealed class ArchitectureIntelligenceProductBridgeHonestyTests
     }
 
     [Fact]
+    public void ToFindings_open_disposition_does_not_store_not_required_human_review()
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "finding-open",
+            Dimension = QualityDimension.Security,
+            Title = "Title",
+            Rationale = "Rationale",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+            GovernanceDisposition = GovernanceDisposition.Open,
+        };
+
+        Finding mapped = ArchitectureIntelligenceProductBridge.ToFindings([finding]).Single();
+
+        mapped.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.NotRequired);
+        mapped.Properties["architectureIntelligence.humanReviewStatusStored"].Should().Be(bool.FalseString);
+    }
+
+    [Fact]
     public void Embed_leaves_blank_policy_rule_id_unset()
     {
         Finding finding = new()

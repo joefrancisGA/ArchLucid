@@ -1,10 +1,15 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type {
   CloudProviderFamily,
+  TechnologyLedgerEntry,
   TechnologyLedgerRole,
   TechnologyLedgerSource,
   TechnologyLedgerStatus,
 } from "@/types/technology-ledger";
+
+export const TECHNOLOGY_LEDGER_PROVIDER_NOT_CHOSEN_LABEL = "Provider was not chosen." as const;
+
+export const TECHNOLOGY_LEDGER_CHOSEN_NONE_STATUS_LABEL = "Not chosen" as const;
 
 export function technologyLedgerRoleLabel(role: TechnologyLedgerRole): string {
   switch (role) {
@@ -31,6 +36,12 @@ export function technologyLedgerRoleLabel(role: TechnologyLedgerRole): string {
   }
 }
 
+export function technologyLedgerIsChosenWithoutProvider(
+  entry: Pick<TechnologyLedgerEntry, "status" | "providerFamily">,
+): boolean {
+  return entry.status === "Chosen" && entry.providerFamily === "None";
+}
+
 export function technologyLedgerProviderLabel(provider: CloudProviderFamily): string {
   switch (provider) {
     case "None":
@@ -48,6 +59,16 @@ export function technologyLedgerProviderLabel(provider: CloudProviderFamily): st
   }
 }
 
+export function technologyLedgerProviderDisplayLabel(
+  entry: Pick<TechnologyLedgerEntry, "status" | "providerFamily">,
+): string {
+  if (technologyLedgerIsChosenWithoutProvider(entry)) {
+    return TECHNOLOGY_LEDGER_PROVIDER_NOT_CHOSEN_LABEL;
+  }
+
+  return technologyLedgerProviderLabel(entry.providerFamily);
+}
+
 export function technologyLedgerStatusLabel(status: TechnologyLedgerStatus): string {
   switch (status) {
     case "Chosen":
@@ -63,6 +84,19 @@ export function technologyLedgerStatusLabel(status: TechnologyLedgerStatus): str
       return exhaustive;
     }
   }
+}
+
+export function technologyLedgerStatusDisplayTag(
+  entry: Pick<TechnologyLedgerEntry, "status" | "providerFamily">,
+): {
+  kind: EnterpriseStatusKind;
+  label: string;
+} {
+  if (technologyLedgerIsChosenWithoutProvider(entry)) {
+    return { kind: "needs-attention", label: TECHNOLOGY_LEDGER_CHOSEN_NONE_STATUS_LABEL };
+  }
+
+  return technologyLedgerStatusTag(entry.status);
 }
 
 export function technologyLedgerStatusTag(status: TechnologyLedgerStatus): {

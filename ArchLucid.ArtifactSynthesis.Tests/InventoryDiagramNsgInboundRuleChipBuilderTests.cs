@@ -142,4 +142,26 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
         chips.Should().HaveCount(2);
         chips[^1].Text.Should().Be("Priority was not stored for 1 inbound rules.");
     }
+
+    [Fact]
+    public void BuildVisibleChips_does_not_count_blank_direction_as_outbound()
+    {
+        AzureInventoryNsgSecurityRule blankDirection = new()
+        {
+            Protocol = "TCP",
+            DestinationPortRange = "443",
+            Direction = " ",
+            Access = "Allow",
+            Priority = "100",
+            SourceAddressPrefix = "10.0.0.0/24",
+        };
+
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips =
+            InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips([blankDirection]);
+
+        chips.Should().ContainSingle(chip =>
+            chip.Text.Contains("Direction was not stored for 1 security rules.", StringComparison.Ordinal));
+        chips.Should().NotContain(chip =>
+            chip.Text.Contains("outbound rules were not listed", StringComparison.Ordinal));
+    }
 }
