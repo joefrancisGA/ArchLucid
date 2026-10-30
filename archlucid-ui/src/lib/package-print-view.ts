@@ -83,6 +83,7 @@ export type PackagePrintStatusLabel =
   | "Awaiting approval"
   | "Finalized"
   | "Finalized. Governance warnings were stored."
+  | "Finalized. No governance warnings were stored."
   | "Finalized. Governance warning flags were not stored."
   | "Review status was not stored."
   | "Archived";
@@ -159,7 +160,7 @@ export type PackagePrintPresentation = {
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
   readonly semanticSupportBandStampLine?: string | null;
-  readonly semanticSupportFindingsSnapshotPresent?: boolean;
+  readonly semanticSupportFindingsSnapshotPresent?: boolean | undefined;
   readonly semanticSupportDecisionGradeCount?: number | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
@@ -186,6 +187,26 @@ export function packagePrintPipelineStageFlagsOmitted(summary: RunSummary): bool
   );
 }
 
+/** Resolves whether a findings snapshot is present without treating unknown flags as absent. */
+export function resolvePackagePrintFindingsSnapshotPresent(
+  summary: RunSummary,
+  buyerFindingsSnapshot: unknown | undefined,
+): boolean | undefined {
+  if (buyerFindingsSnapshot != null) {
+    return true;
+  }
+
+  if (summary.hasFindingsSnapshot === true) {
+    return true;
+  }
+
+  if (summary.hasFindingsSnapshot === false) {
+    return false;
+  }
+
+  return undefined;
+}
+
 function finiteCount(value: number | null | undefined): number | null {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return null;
@@ -206,7 +227,7 @@ export function resolvePackagePrintStatusLabel(summary: RunSummary): PackagePrin
     }
 
     if (summary.hasGovernanceWarnings === false) {
-      return "Finalized";
+      return "Finalized. No governance warnings were stored.";
     }
 
     return "Finalized. Governance warning flags were not stored.";
@@ -245,6 +266,7 @@ export function resolvePackagePrintStatusKind(status: PackagePrintStatusLabel): 
       return "needs-attention";
     case "Finalized":
     case "Finalized. Governance warnings were stored.":
+    case "Finalized. No governance warnings were stored.":
     case "Finalized. Governance warning flags were not stored.":
       return "approved";
     case "Archived":
@@ -273,6 +295,8 @@ export function buildPackagePrintFindingsSummary(summary: RunSummary): string {
 
   if (warnings !== null && warnings > 0) {
     parts.push(`${warnings} warning${warnings === 1 ? "" : "s"}`);
+  } else if (summary.hasGovernanceWarnings === false) {
+    parts.push("No governance warning flags were stored.");
   } else if (warnings === 0) {
     parts.push("0 warnings were stored.");
   } else if (warnings === null) {
@@ -419,7 +443,7 @@ export function buildPackagePrintPresentation(
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
     readonly semanticSupportBandStampLine?: string | null;
-    readonly semanticSupportFindingsSnapshotPresent?: boolean;
+    readonly semanticSupportFindingsSnapshotPresent?: boolean | undefined;
     readonly semanticSupportDecisionGradeCount?: number | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
@@ -469,7 +493,7 @@ export function buildPackagePrintPresentation(
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
     semanticSupportBandStampLine: options?.semanticSupportBandStampLine ?? null,
-    semanticSupportFindingsSnapshotPresent: options?.semanticSupportFindingsSnapshotPresent ?? false,
+    semanticSupportFindingsSnapshotPresent: options?.semanticSupportFindingsSnapshotPresent,
     semanticSupportDecisionGradeCount: options?.semanticSupportDecisionGradeCount ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,

@@ -39,46 +39,47 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Requirements Coverage");
 
-        if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
-
-            sb.AppendLine("Requirements were not stored.");
-
-        else
-        {
-            foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-                sb.AppendLine(FormatRequirementLine("Covered", item));
-
-            foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-                sb.AppendLine(FormatRequirementLine("Uncovered", item));
-        }
+        ManifestPostureListHonesty.AppendRequirementsCoverageSection(sb, manifest.Requirements);
 
         sb.AppendLine();
 
         sb.AppendLine("## Topology Posture");
 
-        foreach (string pattern in manifest.Topology.SelectedPatterns)
+        if (manifest.Topology is null)
         {
-            sb.AppendLine(
-                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+            sb.AppendLine(ManifestPostureListHonesty.TopologySectionNotStored);
         }
-
-        if (manifest.Topology.Resources.Count > 0)
+        else
         {
-            foreach (string resource in manifest.Topology.Resources)
+            TopologySection topology = manifest.Topology;
+            int topologyWritten = 0;
+
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.SelectedPatterns,
+                "Selected patterns were not stored.",
+                "Selected patterns were stored as an empty list.",
+                "Pattern");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Resources,
+                "Resources were not stored.",
+                "Resources were stored as an empty list.",
+                "Resource");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Gaps,
+                "Topology gaps were not stored.",
+                "Topology gaps were stored as an empty list.",
+                "Gap");
+
+            if (topologyWritten == 0
+                && topology.SelectedPatterns is not null
+                && topology.Resources is not null
+                && topology.Gaps is not null)
             {
-                sb.AppendLine(
-                    $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+                sb.AppendLine(ManifestPostureListHonesty.TopologyPostureStoredEmpty);
             }
-        }
-        else if (manifest.Topology.SelectedPatterns.Count == 0 && manifest.Topology.Gaps.Count == 0)
-        {
-            sb.AppendLine("No concrete topology resources were recorded in the manifest.");
-        }
-
-        foreach (string gap in manifest.Topology.Gaps)
-        {
-            sb.AppendLine(
-                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
         }
 
         sb.AppendLine();
@@ -119,34 +120,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Compliance Posture");
 
-        if (manifest.Compliance.Controls.Count == 0)
-
-            sb.AppendLine("No compliance posture items were recorded.");
-
-        else
-
-            foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-            {
-                string controlId = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-                    control.ControlId,
-                    ArchitectureManifestNarrativeHonestyCopy.ControlIdNotStored);
-                string controlName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-                    control.ControlName,
-                    ArchitectureManifestNarrativeHonestyCopy.ControlNameNotStored);
-                string appliesTo = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    control.AppliesToCategory,
-                    "Applies-to category was not stored.",
-                    "Applies-to category was stored empty.");
-                string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    control.Status,
-                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
-                    ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
-                sb.AppendLine($"- {controlId} {controlName} [{appliesTo}]: {status}");
-            }
-
-        foreach (string gap in manifest.Compliance.Gaps)
-            sb.AppendLine(
-                $"- Compliance Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Compliance gap was not stored.", "Compliance gap was stored empty.")}");
+        ManifestPostureListHonesty.AppendCompliancePostureSection(sb, manifest.Compliance, referenceStyle: false);
 
         sb.AppendLine();
 
@@ -157,7 +131,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         if (manifest.Cost is not null)
         {
             sb.AppendLine(
-                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(costSection.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(costSection.CurrencyCode)}");
         }
 
         if (manifest.Cost is null)

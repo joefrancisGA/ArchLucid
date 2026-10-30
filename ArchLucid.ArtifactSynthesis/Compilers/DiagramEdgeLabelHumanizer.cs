@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
@@ -51,7 +52,11 @@ internal static class DiagramEdgeLabelHumanizer
         {
             return HasEvidenceCurrencyPrefix(label)
                 || label.Contains('↔', StringComparison.Ordinal)
-                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase);
+                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
+                    StringComparison.Ordinal);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
@@ -130,6 +135,15 @@ internal static class DiagramEdgeLabelHumanizer
             return string.Equals(label, DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel, StringComparison.OrdinalIgnoreCase);
         }
 
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryWorkflowAction, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel,
+                    StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(label);
+        }
+
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
             || GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string diagnosticBase, out _)
                 && string.Equals(
@@ -158,6 +172,16 @@ internal static class DiagramEdgeLabelHumanizer
         string? inferenceSource = null,
         IReadOnlyDictionary<string, string>? properties = null)
     {
+        if (properties != null
+            && properties.TryGetValue(
+                InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey,
+                out string? collapsedFlag)
+            && string.Equals(collapsedFlag, "true", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(edgeType, GraphEdgeTypes.RelatesTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgeLabel;
+        }
+
         if (string.Equals(
                 inferenceSource,
                 GraphEdgeInferenceSources.HumanDeclaredConnection,
@@ -638,6 +662,13 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "API connection name was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryWorkflowAction, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel;
 
             return true;
         }

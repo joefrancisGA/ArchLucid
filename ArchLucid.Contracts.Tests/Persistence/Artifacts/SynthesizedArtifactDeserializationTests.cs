@@ -59,4 +59,29 @@ public sealed class SynthesizedArtifactDeserializationTests
         artifact.Should().NotBeNull();
         artifact!.Metadata.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_explicit_zero_status_yields_generated_not_invalid_zero()
+    {
+        const string json = """
+            {
+              "artifactId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "runId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "manifestId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "createdUtc": "2026-10-29T12:00:00Z",
+              "artifactType": "inventory",
+              "name": "inventory.json",
+              "format": "json",
+              "content": "{}",
+              "contentHash": "abc",
+              "status": 0
+            }
+            """;
+
+        SynthesizedArtifact? artifact =
+            JsonSerializer.Deserialize<SynthesizedArtifact>(json, ContractJson.CamelCaseCompact);
+
+        artifact.Should().NotBeNull();
+        artifact!.Status.Should().Be(SynthesizedArtifactGenerationStatus.Generated);
+    }
 }

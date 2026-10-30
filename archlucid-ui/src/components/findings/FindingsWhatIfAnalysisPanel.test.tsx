@@ -75,6 +75,41 @@ describe("FindingsWhatIfAnalysisPanel", () => {
     expect(screen.getByText(/\$0 projected impact stored/)).toBeInTheDocument();
   });
 
+  it("leads positive savings with Projected savings prefix (P-14)", () => {
+    render(<FindingsWhatIfAnalysisPanel findings={dummyFindings} baselineAnnualCostUsd={10000} />);
+
+    fireEvent.click(screen.getByLabelText("Enable what-if analysis"));
+
+    expect(screen.getByText(/Projected savings:/)).toBeInTheDocument();
+  });
+
+  it("adds illustrative copy on zero projected impact when pricing is illustrative (P-13)", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f0",
+        title: "Zero impact",
+        recommendation: "No savings",
+        severityValue: 1,
+        findingOrder: 0,
+        aiReasoning: { wireJson: '{"projectedImpactUsd":0}', reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+      },
+    ];
+
+    render(
+      <FindingsWhatIfAnalysisPanel
+        findings={findings}
+        baselineAnnualCostUsd={10000}
+        isIllustrativePricing={true}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("Enable what-if analysis"));
+
+    expect(screen.getByText(/Projected savings are illustrative/)).toBeInTheDocument();
+  });
+
   it("shows baseline omission copy when savings exist without a baseline (P-03)", () => {
     render(<FindingsWhatIfAnalysisPanel findings={dummyFindings} baselineAnnualCostUsd={null} />);
 

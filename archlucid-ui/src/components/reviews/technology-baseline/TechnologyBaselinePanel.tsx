@@ -109,6 +109,7 @@ export function TechnologyBaselinePanel({
     correlationId: string | null;
   } | null>(null);
   const [rationaleDialogEntry, setRationaleDialogEntryState] = useState<TechnologyLedgerEntry | null>(null);
+  const previousRunIdRef = useRef(runId);
 
   const syncTechEntryToUrl = useCallback(
     (entryId: string | null) => {
@@ -224,9 +225,16 @@ export function TechnologyBaselinePanel({
   }, [runId, usedStaticDemoRun]);
 
   useEffect(() => {
+    if (previousRunIdRef.current === runId) {
+      return;
+    }
+
+    previousRunIdRef.current = runId;
     setEntries([]);
     setRationaleDialogEntryState(null);
     setLoadFailure(null);
+    openEvidenceRefEntryIdRef.current = "";
+    setOpenEvidenceRefEntryIdState("");
   }, [runId]);
 
   useEffect(() => {

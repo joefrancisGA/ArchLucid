@@ -23,6 +23,12 @@ describe("FindingEvidenceGraphOutline", () => {
     expect(view.getByText("Yes")).toBeTruthy();
   });
 
+  it("matches examined ids case-insensitively", () => {
+    const view = render(<FindingEvidenceGraphOutline graph={graph} graphNodeIdsExamined={["N1"]} />);
+
+    expect(view.getByText("Yes")).toBeTruthy();
+  });
+
   it("labels empty graph node list explicitly", () => {
     const emptyGraph: GraphViewModel = {
       nodeCount: 0,

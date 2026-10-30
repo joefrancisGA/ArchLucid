@@ -30,6 +30,7 @@ import {
   buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
+  resolvePackagePrintFindingsSnapshotPresent,
   resolvePackagePrintSemanticSupportBandStampLine,
 } from "@/lib/package-print-view";
 import { countDecisionGradeSemanticSupportBands } from "@/lib/findings/semantic-support-band-stamp";
@@ -164,34 +165,41 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
   const semanticSupportPrintContext = useMemo(() => {
-    if (summaryQuery.data === undefined || coverageHonestyQuery.data === undefined) {
+    if (summaryQuery.data === undefined) {
       return {
-        findingsSnapshotPresent: false,
-        decisionGradeCount: null,
+        findingsSnapshotPresent: undefined as boolean | undefined,
+        decisionGradeCount: null as number | null,
       };
     }
 
-    const buyerSummary = coverageHonestyQuery.data.buyerSummary as
-      | (Record<string, unknown> & { findingsSnapshot?: unknown })
-      | undefined;
-    const findingsSnapshotPresent = buyerSummary?.findingsSnapshot != null;
+    const buyerSummary =
+      coverageHonestyQuery.data === undefined
+        ? undefined
+        : (coverageHonestyQuery.data.buyerSummary as
+            | (Record<string, unknown> & { findingsSnapshot?: unknown })
+            | undefined);
 
-    if (!findingsSnapshotPresent) {
+    const findingsSnapshotPresent = resolvePackagePrintFindingsSnapshotPresent(
+      summaryQuery.data,
+      buyerSummary?.findingsSnapshot,
+    );
+
+    if (findingsSnapshotPresent !== true || buyerSummary?.findingsSnapshot == null) {
       return {
-        findingsSnapshotPresent: false,
+        findingsSnapshotPresent,
         decisionGradeCount: null,
       };
     }
 
     const pseudoDetail = {
-      findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
+      findingsSnapshot: buyerSummary.findingsSnapshot ?? null,
       run: { runId: summaryQuery.data.runId },
       results: [],
     } as unknown as RunDetail;
     const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
 
     return {
-      findingsSnapshotPresent: true,
+      findingsSnapshotPresent: true as const,
       decisionGradeCount: countDecisionGradeSemanticSupportBands(findings).decisionGradeTotal,
     };
   }, [coverageHonestyQuery.data, summaryQuery.data]);

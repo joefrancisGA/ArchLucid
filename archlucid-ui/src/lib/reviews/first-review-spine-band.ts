@@ -1,4 +1,4 @@
-import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasibility-verdict-display";
+import { feasibilityVerdictStoredKindLabel, feasibilityVerdictTone } from "@/lib/feasibility-verdict-display";
 import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import {
   countFindingsByClassificationBand,
@@ -152,7 +152,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
 
     return {
       gateOutcomeLabel:
-        feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored",
+        feasibilityVerdict !== null ? feasibilityVerdictStoredKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored",
       gateOutcomeTone: feasibilityVerdict !== null ? feasibilityVerdictTone(feasibilityVerdict.kind) : "warning",
       gateOutcomeDetail: FIRST_REVIEW_SPINE_FINDINGS_SNAPSHOT_NOT_STORED,
       executionModeLabel:
@@ -196,7 +196,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
   }
 
   const gateOutcomeLabel =
-    feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored";
+    feasibilityVerdict !== null ? feasibilityVerdictStoredKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored";
   const gateOutcomeTone =
     feasibilityVerdict !== null ? feasibilityVerdictTone(feasibilityVerdict.kind) : "warning";
   const gateOutcomeDetail =

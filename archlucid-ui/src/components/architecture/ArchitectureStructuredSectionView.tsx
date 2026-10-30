@@ -178,6 +178,14 @@ export function ArchitectureStructuredSectionView(
           <ArchitectureStructuredNarrative markdown={section.narrativeMarkdown} />
         ) : null}
 
+        {hasEntities && !hasNarrative ? (
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {section.narrativeMarkdown === null || section.narrativeMarkdown === undefined
+              ? ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED
+              : ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY}
+          </p>
+        ) : null}
+
         {hasEntities ? (
           <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2" data-testid="architecture-structured-entity-list">
             {entities.map((entity) => (

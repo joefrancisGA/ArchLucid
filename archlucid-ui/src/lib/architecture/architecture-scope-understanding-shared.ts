@@ -114,6 +114,9 @@ export function scopeConfirmedSummaryMessage(lineCount: number): string {
 
 /** Preview length for the read-only context row. Display-only: the excerpt is never merged into the brief. */
 export const SCOPE_CONTEXT_PREVIEW_MAX_LENGTH = 180;
+
+export const SCOPE_CONTEXT_PREVIEW_TRUNCATION_NOTE =
+  "(Full architecture overview was stored.)" as const;
 export const SCOPE_ITEM_MIN_LENGTH = 3;
 export const SCOPE_ITEM_MAX_LENGTH = 8000;
 

@@ -79,9 +79,11 @@ public static class DataFlowTrustBoundaryPathAnalyzer
         List<DataFlowTrustBoundaryPath> paths)
     {
         Queue<(string NodeId, int HopCount, List<string> PathNodeIds)> queue = new();
+        // A private-endpoint arrival must not consume the datastore. A later path that
+        // never crosses a trust boundary still has to be reported.
         HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase)
         {
-            actor.NodeId,
+            VisitKey(actor.NodeId, pathBlocked: false),
         };
 
         queue.Enqueue((actor.NodeId, 0, [actor.NodeId]));
@@ -95,7 +97,7 @@ public static class DataFlowTrustBoundaryPathAnalyzer
                 continue;
             }
 
-            if (!nodesById.TryGetValue(nodeId, out GraphNode? currentNode))
+            if (!nodesById.ContainsKey(nodeId))
             {
                 continue;
             }
@@ -107,22 +109,22 @@ public static class DataFlowTrustBoundaryPathAnalyzer
 
             foreach (string neighborId in neighbors)
             {
-                if (visited.Contains(neighborId))
-                {
-                    continue;
-                }
-
                 if (!nodesById.TryGetValue(neighborId, out GraphNode? neighbor))
                 {
                     continue;
                 }
 
-                visited.Add(neighborId);
                 List<string> nextPath = [.. pathNodeIds, neighborId];
+                bool pathBlocked = PathCrossesTrustBoundary(nextPath, nodesById);
+
+                if (!visited.Add(VisitKey(neighborId, pathBlocked)))
+                {
+                    continue;
+                }
+
                 int nextHopCount = hopCount + 1;
 
-                if (SegmentationSemanticsPathAnalyzer.IsSensitiveTarget(neighbor)
-                    && !PathCrossesTrustBoundary(nextPath, nodesById))
+                if (SegmentationSemanticsPathAnalyzer.IsSensitiveTarget(neighbor) && !pathBlocked)
                 {
                     paths.Add(new DataFlowTrustBoundaryPath(
                         actor.NodeId,
@@ -137,6 +139,9 @@ public static class DataFlowTrustBoundaryPathAnalyzer
             }
         }
     }
+
+    private static string VisitKey(string nodeId, bool pathBlocked) =>
+        string.Concat(nodeId, "\u001f", pathBlocked ? "1" : "0");
 
     private static bool PathCrossesTrustBoundary(
         IReadOnlyList<string> pathNodeIds,

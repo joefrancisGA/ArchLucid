@@ -129,6 +129,8 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Engineer-to-analyst handoff, gaps 4–5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–10** shipped + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
 | Performance reads | [securenow-performance-00-index.md](../../.cursor/prompts/securenow-performance-00-index.md) | **SN-PERF-01–05** shipped; **11**, **13–16** backlog + hold | [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md) |
+| Procurement pack | [securenow-procurement-00-index.md](../../.cursor/prompts/securenow-procurement-00-index.md) | **SN-PROC-01–09** shipped + hold | [`SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md) |
+| Scenario accelerators | [securenow-scenario-00-index.md](../../.cursor/prompts/securenow-scenario-00-index.md) | **SN-ACCEL-01–03** + hold | [`SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) |
 
 ---
 

@@ -24,7 +24,19 @@ const DRIFT_HREF = "/infrastructure/snapshots-drift";
 function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
   const subscriptions = [...new Set(
     snapshots
-      .map((row) => row.subscriptionName?.trim() || row.subscriptionId?.trim() || "")
+      .map((row) => {
+        const name = row.subscriptionName?.trim();
+
+        if (name !== undefined && name.length > 0) {
+          return name;
+        }
+
+        if (row.subscriptionId?.trim()) {
+          return "Subscription name was not stored.";
+        }
+
+        return "";
+      })
       .filter((value) => value.length > 0),
   )];
 

@@ -8,6 +8,10 @@ import {
   formatRunDetailCriticalFindingCountDisplay,
   formatRunDetailHighFindingCountDisplay,
 } from "@/lib/reviews/run-detail-sponsor-finding-count-display";
+import {
+  RUN_DETAIL_PIPELINE_COMPLETED_LABEL,
+  RUN_DETAIL_PIPELINE_COMPLETED_NOT_STORED,
+} from "@/lib/reviews/run-detail-pipeline-completed-copy";
 import { cn } from "@/lib/utils";
 
 export type RunDetailSponsorReportProps = {
@@ -25,7 +29,7 @@ export type RunDetailSponsorReportProps = {
 
 function severityTagKind(
   severity: string,
-): "critical" | "high" | "medium" | "low" {
+): "critical" | "high" | "medium" | "low" | null {
   if (severity === "Critical") {
     return "critical";
   }
@@ -38,7 +42,11 @@ function severityTagKind(
     return "medium";
   }
 
-  return "low";
+  if (severity === "Low") {
+    return "low";
+  }
+
+  return null;
 }
 
 /** Single board-ready sponsor report — authoritative metrics for the overview. */
@@ -47,6 +55,8 @@ export function RunDetailSponsorReport(
 ): React.JSX.Element {
   const lastEvaluatedLabel =
     props.lastEvaluatedUtc !== null ? formatInstantForLocale(props.lastEvaluatedUtc) : null;
+  const severityKind =
+    props.highestSeverity !== null ? severityTagKind(props.highestSeverity) : null;
 
   return (
     <section
@@ -71,13 +81,13 @@ export function RunDetailSponsorReport(
             {props.overallPosture}
           </dd>
         </div>
-        {props.highestSeverity !== null ? (
+        {props.highestSeverity !== null && severityKind !== null ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Highest finding severity</dt>
             <dd className="m-0 mt-0.5">
               <SeverityTag
                 severity={props.highestSeverity}
-                kind={severityTagKind(props.highestSeverity)}
+                kind={severityKind}
                 label={props.highestSeverity}
               />
             </dd>
@@ -137,13 +147,15 @@ export function RunDetailSponsorReport(
         )}
         {lastEvaluatedLabel !== null ? (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">{RUN_DETAIL_PIPELINE_COMPLETED_LABEL}</dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{lastEvaluatedLabel}</dd>
           </div>
         ) : (
           <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Last evaluated time was not stored.</dd>
+            <dt className="text-neutral-500 dark:text-neutral-400">{RUN_DETAIL_PIPELINE_COMPLETED_LABEL}</dt>
+            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+              {RUN_DETAIL_PIPELINE_COMPLETED_NOT_STORED}
+            </dd>
           </div>
         )}
       </dl>

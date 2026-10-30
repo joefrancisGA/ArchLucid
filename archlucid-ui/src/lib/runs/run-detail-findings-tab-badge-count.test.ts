@@ -48,9 +48,9 @@ describe("resolveRunDetailFindingsTabBadgeCount", () => {
     expect(resolveRunDetailFindingsTabCountHonestyLabel(null, [baseFinding()])).toBeNull();
   });
 
-  it("reports findings reviewed when explanation count is deferred but detail snapshot has triage-visible findings", () => {
+  it("reports findings reviewed only when detail snapshot has triage-visible findings", () => {
     expect(resolveRunDetailFindingsReviewed(null, [baseFinding()])).toBe(true);
-    expect((null ?? 0) > 0).toBe(false);
+    expect(resolveRunDetailFindingsReviewed(5, [])).toBe(false);
   });
 });
 

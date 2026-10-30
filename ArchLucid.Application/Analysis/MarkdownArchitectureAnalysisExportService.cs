@@ -35,7 +35,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
             sb.AppendLine(string.Join(
                 Environment.NewLine,
                 report.Warnings.Select(static warning =>
-                    $"- {(string.IsNullOrWhiteSpace(warning) ? "Warning text was stored empty." : warning.Trim())}")));
+                    $"- {(string.IsNullOrWhiteSpace(warning) ? "Warning text was stored empty." : FormatMarkdownListText(warning))}")));
             sb.AppendLine();
         }
 
@@ -49,8 +49,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
     private static string FormatCurrentManifestVersion(string? manifestVersion) =>
         string.IsNullOrWhiteSpace(manifestVersion)
             ? ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy
-            : manifestVersion.Trim();
+            : FormatMarkdownListText(manifestVersion);
 
     private static string FormatDeterminismRunId(string? runId, string notStoredCopy) =>
-        string.IsNullOrWhiteSpace(runId) ? notStoredCopy : runId.Trim();
+        string.IsNullOrWhiteSpace(runId) ? notStoredCopy : FormatMarkdownListText(runId);
 }

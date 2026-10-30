@@ -1184,6 +1184,197 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address()
+    {
+        // Terraform child modules reuse resource labels. terraform show JSON addresses are
+        // module.hub.azurerm_app_service.main and module.spoke.azurerm_app_service.main.
+        // Agents cite the leaf azurerm_app_service.main, the same address count-index fan-out already accepts.
+        const string sharedLeaf = "azurerm_app_service.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "hub-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "hub-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.hub." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "spoke-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "spoke-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.spoke." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                },
+                new ManifestRelationship
+                {
+                    SourceId = "module.spoke." + sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Where(e => e.FromNodeId == "hub-api" && e.ToNodeId == "ds-1" && e.EdgeType == GraphEdgeTypes.ConnectsTo)
+            .Should().ContainSingle();
+        edges.Where(e => e.FromNodeId == "spoke-api" && e.ToNodeId == "ds-1" && e.EdgeType == GraphEdgeTypes.ConnectsTo)
+            .Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void MapRelationships_does_not_bind_unmatched_module_address_to_first_shared_leaf()
+    {
+        // terraform show addresses for module count/for_each keep the module prefix.
+        // A prefix that matches neither inventoried module must not inherit the first module's leaf.
+        const string sharedLeaf = "azurerm_app_service.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "hub-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "hub-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.hub." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "spoke-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "spoke-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.spoke." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "module.other." + sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                },
+                new ManifestRelationship
+                {
+                    SourceId = "module.hub." + sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Where(e => e.FromNodeId == "hub-api" && e.ToNodeId == "ds-1").Should().ContainSingle();
+        edges.Should().NotContain(e => e.FromNodeId == "spoke-api");
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first()
+    {
+        // terraform show JSON addresses a data source as module.network.data.azurerm_app_service.main.
+        // The managed resource address is azurerm_app_service.main. Leaf parsing drops the data mode,
+        // so the data source can occupy that managed address when it is indexed first.
+        const string managedAddress = "azurerm_app_service.main";
+        const string dataAddress = "module.network.data." + managedAddress;
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "data-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "data-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = dataAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "managed-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "managed-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = managedAddress,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = managedAddress,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                },
+                new ManifestRelationship
+                {
+                    SourceId = dataAddress,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Where(e => e.FromNodeId == "managed-api" && e.ToNodeId == "ds-1").Should().ContainSingle();
+        edges.Where(e => e.FromNodeId == "data-api" && e.ToNodeId == "ds-1").Should().ContainSingle();
+    }
+
+    [Fact]
     public void MapRelationships_resolves_unindexed_root_when_graph_has_single_indexed_instance_with_quoted_key_in_source_id()
     {
         const string rootTerraformAddress = "azurerm_app_service.main";
@@ -8789,6 +8980,54 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
             nodes,
             [relationship],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_unquoted_for_each_endpoint_when_declared_alias_key_uses_quoted_instance_key()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "app",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = "inventory-vm-primary",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceId = "inventory-sql",
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["azurerm_linux_virtual_machine.app[\"primary\"]"] = "svc-1",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_linux_virtual_machine.app[primary]",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
             endpointAliases);
 
         edges.Should().ContainSingle(e =>

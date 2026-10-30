@@ -39,7 +39,7 @@ public static class DecisionConfidenceSourceMapper
             DecisionConfidenceSource.Calibrated => BuyerDecisionConfidenceSource.EvidenceBacked,
             DecisionConfidenceSource.LlmAgent => BuyerDecisionConfidenceSource.ModelAssisted,
             DecisionConfidenceSource.Unknown => BuyerDecisionConfidenceSource.Unknown,
-            DecisionConfidenceSource.NotComputed => BuyerDecisionConfidenceSource.Unknown,
+            DecisionConfidenceSource.NotComputed => BuyerDecisionConfidenceSource.NotComputed,
             _ => BuyerDecisionConfidenceSource.Unknown,
         };
     }

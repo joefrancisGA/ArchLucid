@@ -20,6 +20,7 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import type { ActorSet } from "@/types/draft-intake";
+import { resolveScopeGateOpenTransition } from "@/lib/architecture/scope-gate-open-setter";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 
 import { MIN_INTENT_CHARS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
@@ -74,9 +75,9 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
       setScopeGateOpenState((current) => {
-        const resolved = typeof next === "function" ? next(current) : next;
+        const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (scopeGateOpenRef.current !== resolved) {
+        if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
           commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
             notify: false,
@@ -217,20 +218,22 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   );
 
   const guidedIntakeEvidencePresence = useMemo(() => {
-    if (evidenceFiles.length > 0) {
-      return deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name));
-    }
+    const fromFiles =
+      evidenceFiles.length > 0
+        ? deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name))
+        : deriveEvidencePresenceFromFileNames([]);
 
-    const base = deriveEvidencePresenceFromFileNames([]);
     const typedBriefReady =
       freeTextIntent.trim().length >= MIN_INTENT_CHARS
       || businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+    const typedBriefPartial =
+      freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0;
 
-    if (typedBriefReady) {
-      return { ...base, hasArchitectureBrief: true };
+    if (typedBriefReady || (evidenceFiles.length > 0 && typedBriefPartial)) {
+      return { ...fromFiles, hasArchitectureBrief: true };
     }
 
-    return base;
+    return fromFiles;
   }, [businessOutcome, evidenceFiles, freeTextIntent]);
 
   /** Brief text as the server should store it: confirmed scope bullets merged into the prose. */

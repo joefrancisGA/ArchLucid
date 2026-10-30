@@ -21,11 +21,11 @@ public sealed class ArchitectureAnalysisReport
         set;
     }
 
-    public List<AgentExecutionTrace> ExecutionTraces
+    public List<AgentExecutionTrace>? ExecutionTraces
     {
         get;
         set;
-    } = [];
+    }
 
     public GoldenManifest? Manifest
     {

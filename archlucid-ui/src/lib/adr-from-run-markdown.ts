@@ -6,6 +6,10 @@ import {
   NARRATIVE_CAP,
   type AdrGeneratorRunInput,
 } from "./adr-from-run-slices";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 function truncatePlain(text: string, maxChars: number): string {
   const t = text.trim();
@@ -18,7 +22,7 @@ function truncatePlain(text: string, maxChars: number): string {
     return t;
   }
 
-  return `${t.slice(0, Math.max(0, maxChars - 1))}…`;
+  return formatStoredTextPreview(t, maxChars, STORED_TEXT_PREVIEW_CONTINUATION.adrNarrative);
 }
 
 function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string {
@@ -136,6 +140,8 @@ export function buildMadrMarkdownFromRun(
 
     if (exp.summary.length > 0) {
       narrativePieces.push(`_Summary:_ ${exp.summary}`);
+    } else {
+      narrativePieces.push("Summary was stored empty.");
     }
 
     if (exp.detailedNarrative.length > 0) {
@@ -174,7 +180,7 @@ export function buildMadrMarkdownFromRun(
               && f.semanticSupportBand !== undefined
               && f.semanticSupportBand.trim().length > 0
                 ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion?.trim() || "Scorer version was not stored."})`
-                : "";
+                : "\n- **Semantic support:** Semantic support was not stored.";
 
             return `### ${i + 1}. [${f.severityLabel}] ${formatAdrExportFindingTitle(f.title)}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
@@ -195,11 +201,13 @@ export function buildMadrMarkdownFromRun(
           "",
         ].join("\n");
 
-  const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
+  const decisionDrivers = exp?.keyDrivers ?? null;
   const keyDriversSection =
-    decisionDrivers.length > 0
-      ? `## Key drivers\n\n${bulletBlock(decisionDrivers)}`
-      : "## Key drivers\n\n_Key drivers were not stored._\n";
+    decisionDrivers === null
+      ? "## Key drivers\n\n_Key drivers were not stored._\n"
+      : decisionDrivers.length === 0
+        ? "## Key drivers\n\n_Key drivers were stored empty._\n"
+        : `## Key drivers\n\n${bulletBlock(decisionDrivers)}`;
 
   function consequenceListSection(
     heading: string,

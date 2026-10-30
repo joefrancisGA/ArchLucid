@@ -68,7 +68,7 @@ export function deriveReviewNextActionLabel(input: {
       if (evidenceRefCount > 0) {
         // Evidence is linked — do not invent a missing-evidence next action.
       } else {
-        return `Confirm evidence and remediation ownership for ${primaryFindingTitleForCopy(primary.title)}`;
+        return `No evidence references were stored for ${primaryFindingTitleForCopy(primary.title)}.`;
       }
     }
   }
@@ -100,6 +100,23 @@ export function deriveReviewNextActionLabel(input: {
   }
 
   return "No immediate actions required — monitor findings and evidence coverage.";
+}
+
+export function deriveReviewDoThisNextRecommendedActionCountLabel(input: {
+  readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
+  readonly hasFindingsSnapshot?: boolean;
+}): string {
+  if (input.hasFindingsSnapshot === false) {
+    return "Do-this-next action count was not stored.";
+  }
+
+  const count = input.recommendedActions.length;
+
+  if (count === 0) {
+    return "No do-this-next actions are listed for this review.";
+  }
+
+  return `${count} do-this-next ${count === 1 ? "action is" : "actions are"} listed.`;
 }
 export function deriveReviewStatusSummary(input: {
   readonly reviewOutcome: string;
@@ -295,10 +312,16 @@ export function deriveReviewHeaderPresentation(input: {
   };
 }
 export function derivePackageVersionLabel(
-  manifestSummary: ManifestSummary | null,
-  _manifestId?: string | null | undefined,
+  run: Pick<RunSummary, "currentManifestVersion"> | null | undefined,
+  manifestId?: string | null | undefined,
 ): string | null {
-  const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+
+  if (!hasManifest) {
+    return null;
+  }
+
+  const version = run?.currentManifestVersion?.trim() ?? "";
 
   return version.length > 0 ? version : null;
 }
@@ -308,13 +331,19 @@ export function deriveEvidenceCoverageSummary(
 ): EvidenceCoverageSummary {
   const unresolved = filterUnresolvedFindings(findings);
   const totalCount = unresolved.length;
-  const hasFindingsSnapshot = options?.hasFindingsSnapshot !== false;
-
   if (totalCount === 0) {
+    if (options?.hasFindingsSnapshot !== true) {
+      return {
+        linkedCount: 0,
+        totalCount: 0,
+        summaryLine: "Evidence coverage was not stored.",
+      };
+    }
+
     return {
       linkedCount: 0,
       totalCount: 0,
-      summaryLine: hasFindingsSnapshot ? "No open findings" : "Evidence coverage was not stored.",
+      summaryLine: "No open findings",
     };
   }
 
@@ -354,19 +383,13 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
 }
 export function deriveOverallPostureLabel(
   riskPosture: string | null | undefined,
-  governanceGateLabel: string | null | undefined,
-  highestSeverity: string | null,
+  _governanceGateLabel: string | null | undefined,
+  _highestSeverity: string | null,
 ): string {
   const posture = riskPosture?.trim() ?? "";
 
   if (posture.length > 0) {
     return posture;
-  }
-
-  const gate = governanceGateLabel?.trim() ?? "";
-
-  if (gate.length > 0) {
-    return gate;
   }
 
   return "Risk posture was not stored.";

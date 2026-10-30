@@ -11,6 +11,10 @@ import type {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { stripInlineMarkdownFromReviewText } from "@/lib/review-display-title";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
@@ -28,7 +32,7 @@ const ARCHITECTURE_SUMMARY_DOCUMENT_NOT_STORED =
   "Submitted architecture document was not stored." as const;
 
 const ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER =
-  "Evidence items listed above were stored on this review." as const;
+  "Count is submitted intake evidence on this review, not Azure inventory resources." as const;
 
 const ARCHITECTURE_ENTITY_LABELS_NOT_STORED = "Entity labels were not stored." as const;
 
@@ -62,7 +66,11 @@ function clampPreviewLine(line: string): string {
     return stripped;
   }
 
-  return `${stripped.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`;
+  return formatStoredTextPreview(
+    stripped,
+    PREVIEW_LINE_MAX_CHARS,
+    STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection,
+  );
 }
 
 function previewLines(text: string): readonly string[] {
@@ -88,7 +96,9 @@ function previewLines(text: string): readonly string[] {
       break;
     }
 
-    chunks.push(`${remaining.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`);
+    chunks.push(
+      formatStoredTextPreview(remaining, PREVIEW_LINE_MAX_CHARS, STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection),
+    );
     remaining = remaining.slice(PREVIEW_LINE_MAX_CHARS - 3);
   }
 
@@ -162,17 +172,36 @@ const ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY: Readonly<
   "systems-and-services": "Major systems were not stored.",
 };
 
+const ARCHITECTURE_SUMMARY_SECTION_STORED_EMPTY_COPY: Readonly<
+  Record<"sponsor-report" | "business-outcome" | "scope" | "systems-and-services", string>
+> = {
+  "sponsor-report": "Purpose was stored empty.",
+  "business-outcome": "Business outcome was stored empty.",
+  scope: "Scope was stored empty.",
+  "systems-and-services": "Major systems were stored empty.",
+};
+
 function architectureSummarySectionBody(
   section: ArchitectureStructuredSection | undefined,
   omissionCopy: string,
+  storedEmptyCopy: string,
 ): string {
   if (section === undefined) {
     return omissionCopy;
   }
 
+  const narrative = section.narrativeMarkdown?.trim() ?? "";
+  const entityLabels = (section.entities ?? [])
+    .map((entity) => stripInlineMarkdownFromReviewText(entity.label))
+    .filter((label) => label.length > 0);
+
+  if (narrative.length === 0 && entityLabels.length === 0) {
+    return storedEmptyCopy;
+  }
+
   const summary = sectionSummary(section);
 
-  return summary.length > 0 ? summary : omissionCopy;
+  return summary.length > 0 ? summary : storedEmptyCopy;
 }
 
 function findSection(
@@ -246,7 +275,7 @@ export function RunDetailArchitectureSummaryCard(
           </div>
         ) : null}
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Submitted source documents</dt>
           {props.evidenceCount > 0 ? (
             <>
               <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
@@ -275,6 +304,7 @@ export function RunDetailArchitectureSummaryCard(
                 {architectureSummarySectionBody(
                   purposeSection,
                   ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["sponsor-report"],
+                  ARCHITECTURE_SUMMARY_SECTION_STORED_EMPTY_COPY["sponsor-report"],
                 )}
               </dd>
             </div>
@@ -289,6 +319,7 @@ export function RunDetailArchitectureSummaryCard(
                 {architectureSummarySectionBody(
                   outcomeSection,
                   ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["business-outcome"],
+                  ARCHITECTURE_SUMMARY_SECTION_STORED_EMPTY_COPY["business-outcome"],
                 )}
               </dd>
             </div>
@@ -300,7 +331,7 @@ export function RunDetailArchitectureSummaryCard(
                 ) : null}
               </dt>
               <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
-                {architectureSummarySectionBody(scopeSection, ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY.scope)}
+                {architectureSummarySectionBody(scopeSection, ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY.scope, ARCHITECTURE_SUMMARY_SECTION_STORED_EMPTY_COPY.scope)}
               </dd>
             </div>
             <div>
@@ -314,6 +345,7 @@ export function RunDetailArchitectureSummaryCard(
                 {architectureSummarySectionBody(
                   domainsSection,
                   ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["systems-and-services"],
+                  ARCHITECTURE_SUMMARY_SECTION_STORED_EMPTY_COPY["systems-and-services"],
                 )}
               </dd>
             </div>

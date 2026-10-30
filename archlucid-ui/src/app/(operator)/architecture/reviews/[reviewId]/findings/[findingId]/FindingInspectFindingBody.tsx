@@ -22,6 +22,7 @@ import { FindingSemanticSupportBandInspectSection } from "@/components/findings/
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -107,7 +108,8 @@ export function FindingInspectFindingBody({
     findingId: decodedFindingId,
     title: decodedFindingId,
     recommendation: payload.reasoningSummary ?? "",
-    severityValue: 0,
+    severityValue:
+      payload.severityStored === false ? null : coerceArchitectureFindingSeverity(payload.severity),
     findingOrder: 0,
     aiReasoning: { wireJson: "{}", reasoningTrace: "" },
     isMuted: false,
@@ -143,7 +145,9 @@ export function FindingInspectFindingBody({
       ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {modelProvenance.origin}
-        {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}
+        {modelProvenance.grounding === "Not applicable"
+          ? " · Grounding is not applicable for this finding."
+          : ` · ${modelProvenance.grounding}`}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
       {modelProvenance.trustLabelReason !== null ? (

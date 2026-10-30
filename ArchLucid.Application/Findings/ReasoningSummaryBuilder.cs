@@ -16,6 +16,9 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
 
     internal const string EvidenceExcerptNotStoredCopy = "Evidence excerpt was not stored.";
 
+    internal const string EvidenceExcerptTruncatedForSummaryCopy =
+        "Evidence excerpt was truncated for this summary.";
+
     internal const string RiskCategoryNotStoredCopy = "Risk category was not stored.";
 
     internal const string SeverityNotStoredCopy = "Severity was not stored.";
@@ -97,9 +100,13 @@ public sealed class ReasoningSummaryBuilder : IReasoningSummaryBuilder
         if (excerpt.Length <= MaxEvidenceSummaryChars)
             return excerpt;
 
-        StringBuilder b = new(MaxEvidenceSummaryChars + 1);
+        StringBuilder b = new(MaxEvidenceSummaryChars + EvidenceExcerptTruncatedForSummaryCopy.Length + 4);
         b.Append(excerpt.AsSpan(0, MaxEvidenceSummaryChars - 1));
         b.Append('…');
+        b.Append(' ');
+        b.Append('(');
+        b.Append(EvidenceExcerptTruncatedForSummaryCopy);
+        b.Append(')');
 
         return b.ToString();
     }

@@ -67,7 +67,7 @@ describe("buildArchitectureDiagramModel", () => {
     );
 
     expect(model.nodes.filter((node) => node.label === "Claims API")).toHaveLength(1);
-    expect(model.nodes.filter((node) => node.label === "Node label was not stored.")).toHaveLength(1);
+    expect(model.nodes.filter((node) => node.label === "Node label was stored empty.")).toHaveLength(1);
     expect(model.skippedUnlabeledEntityCount).toBe(1);
   });
 
@@ -298,6 +298,38 @@ describe("buildArchitectureDiagramModel", () => {
     expect(model.edges[0]?.label).not.toBe("Relationship was not stored");
   });
 
+  it("keeps narrative prose out of unmatched data flows when no arrow is stored (P-06)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [{ label: "Billing API", detail: null, provenance: "asserted" }],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: "Batch files land nightly without a stored hop list.",
+            entities: [],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Billing API",
+      },
+      "Payments",
+    );
+
+    expect(model.unmatchedDataFlows).toEqual([]);
+    expect(model.diagramHonestyNotes).toContain(
+      "Data flow narrative line was not matched to diagram components: Batch files land nightly without a stored hop list.",
+    );
+  });
+
   it("materializes pipe-delimited data flows when detail includes a description column", () => {
     const model = buildArchitectureDiagramModel(
       {
@@ -340,5 +372,43 @@ describe("buildArchitectureDiagramModel", () => {
         label: "TLS 1.2",
       }),
     ]);
+  });
+
+  it("dedupes identical flow edges from entity and narrative parsing (P-03)", () => {
+    const model = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [
+              { label: "Gateway", detail: null, provenance: "asserted" },
+              { label: "API", detail: null, provenance: "asserted" },
+            ],
+            provenance: "asserted",
+          },
+          {
+            key: "data-flows",
+            title: "Data flows",
+            narrativeMarkdown: "Gateway -> API (HTTPS)",
+            entities: [
+              {
+                label: "Gateway -> API",
+                detail: "HTTPS",
+                provenance: "asserted",
+              },
+            ],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "Gateway -> API",
+      },
+      "Payments",
+    );
+
+    expect(model.edges).toHaveLength(1);
   });
 });

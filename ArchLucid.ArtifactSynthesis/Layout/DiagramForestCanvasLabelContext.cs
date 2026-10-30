@@ -101,6 +101,11 @@ public sealed class DiagramForestCanvasLabelContext
                     $"Click to list the {node.DataFlowRollupMemberIds.Count} resources in this rollup.";
             }
         }
+        else if (node.IsCollapsedResourceGroupTail)
+        {
+            dataFlowRollupInvitationLine =
+                DiagramForestCollapsedSingletonTailLabels.BuildCollapsedSingletonTailInvitationLine(node);
+        }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines;
 
@@ -204,12 +209,17 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Factories {string.Join(", ", ordered)}";
         }
 
-        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalTargetHostsLine(IReadOnlyList<string> targetHosts)
     {
         List<string> ordered = OrderDistinctTrimmed(targetHosts);
+
+        if (ordered.Count == 0)
+        {
+            return "Linked service host was stored empty.";
+        }
 
         if (ordered.Count == 1)
         {
@@ -221,12 +231,17 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Hosts {string.Join(", ", ordered)}";
         }
 
-        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalIntegrationRuntimesLine(IReadOnlyList<string> integrationRuntimes)
     {
         List<string> ordered = OrderDistinctTrimmed(integrationRuntimes);
+
+        if (ordered.Count == 0)
+        {
+            return "Integration runtime was stored empty.";
+        }
 
         if (ordered.Count == 1)
         {
@@ -238,7 +253,7 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Runtimes {string.Join(", ", ordered)}";
         }
 
-        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatStoredExternalScalarLine(

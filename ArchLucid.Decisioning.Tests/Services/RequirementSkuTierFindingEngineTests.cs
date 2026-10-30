@@ -101,6 +101,23 @@ public sealed class RequirementSkuTierFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku()
+    {
+        GraphSnapshot graph = BuildFixture(
+            sku: "Standard_LRS",
+            includeZoneRedundantText: false,
+            requirementText: "Payment storage must use RAGRS.");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("geo-redundant");
+        finding.Title.Should().Contain("Standard_LRS");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_premium_zrs_sku()
     {
         GraphSnapshot graph = BuildFixture(sku: "Premium_ZRS", includeZoneRedundantText: true);
@@ -136,7 +153,8 @@ public sealed class RequirementSkuTierFindingEngineTests
     private static GraphSnapshot BuildFixture(
         string? sku,
         bool includeZoneRedundantText,
-        string? sqlArmResourceId = null)
+        string? sqlArmResourceId = null,
+        string? requirementText = null)
     {
         GraphNode requirement = new()
         {
@@ -145,9 +163,10 @@ public sealed class RequirementSkuTierFindingEngineTests
             Label = "Payment SQL",
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                ["text"] = includeZoneRedundantText
-                    ? "Payment SQL must be zone-redundant."
-                    : "Payment SQL must be resilient.",
+                ["text"] = requirementText
+                    ?? (includeZoneRedundantText
+                        ? "Payment SQL must be zone-redundant."
+                        : "Payment SQL must be resilient."),
             },
         };
 

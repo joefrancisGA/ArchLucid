@@ -1026,7 +1026,7 @@ export interface components {
             determinism?: null | components["schemas"]["DeterminismCheckResult"];
             diagram?: null | string;
             evidence?: null | components["schemas"]["AgentEvidencePackage"];
-            executionTraces?: components["schemas"]["AgentExecutionTrace"][];
+            executionTraces?: null | components["schemas"]["AgentExecutionTrace"][];
             manifest?: null | components["schemas"]["GoldenManifest"];
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
             run?: components["schemas"]["ArchitectureRun"];
@@ -4704,6 +4704,7 @@ export interface components {
             findingId?: string;
             hasActiveWaiver?: boolean;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
@@ -4733,6 +4734,7 @@ export interface components {
             runId?: string;
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
+            severityStored?: boolean;
             trackedExternally?: boolean;
             treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;

@@ -3541,7 +3541,10 @@
             "items": {
               "$ref": "#/components/schemas/AgentExecutionTrace"
             },
-            "type": "array"
+            "type": [
+              "null",
+              "array"
+            ]
           },
           "manifest": {
             "anyOf": [
@@ -16366,6 +16369,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isMuted": {
             "type": "boolean"
           },
@@ -16513,6 +16519,9 @@
           },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "severityStored": {
+            "type": "boolean"
           },
           "trackedExternally": {
             "type": "boolean"

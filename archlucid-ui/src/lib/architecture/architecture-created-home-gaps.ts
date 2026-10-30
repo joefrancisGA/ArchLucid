@@ -26,6 +26,20 @@ const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_OUTCOME_CHARS = 10;
 const MAX_MISSING_ITEMS = 6;
 
+function capMissingItems(items: readonly ArchitectureMissingItem[]): {
+  readonly items: readonly ArchitectureMissingItem[];
+  readonly omittedCount: number;
+} {
+  if (items.length <= MAX_MISSING_ITEMS) {
+    return { items, omittedCount: 0 };
+  }
+
+  return {
+    items: items.slice(0, MAX_MISSING_ITEMS),
+    omittedCount: items.length - MAX_MISSING_ITEMS,
+  };
+}
+
 function buildGapSource(
   input: BuildArchitectureCreatedHomeModelInput,
   options?: { readonly heuristicDerived?: boolean },
@@ -126,22 +140,31 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
     });
   }
 
-  return items.slice(0, MAX_MISSING_ITEMS);
+  return items;
 }
 
-export function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
+export function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): readonly ArchitectureMissingItem[] {
+  return buildMissingItemsWithOmitted(input).items;
+}
+
+export function buildMissingItemsWithOmitted(input: BuildArchitectureCreatedHomeModelInput): {
+  readonly items: readonly ArchitectureMissingItem[];
+  readonly omittedCount: number;
+} {
   const findingsQuestions = input.findingsDerivedQuestions ?? [];
 
   if (findingsQuestions.length > 0) {
-    return buildFindingsDerivedClarificationGaps({
-      runId: input.runId,
-      questions: findingsQuestions,
-      clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
-      gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
-    }).slice(0, MAX_MISSING_ITEMS);
+    return capMissingItems(
+      buildFindingsDerivedClarificationGaps({
+        runId: input.runId,
+        questions: findingsQuestions,
+        clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
+        gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
+      }),
+    );
   }
 
-  return buildHeuristicMissingItems(input);
+  return capMissingItems(buildHeuristicMissingItems(input));
 }
 
 export function partitionMissingItems(items: readonly ArchitectureMissingItem[]): {

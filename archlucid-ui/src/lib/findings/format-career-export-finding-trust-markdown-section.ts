@@ -11,7 +11,16 @@ export function formatCareerExportFindingTrustMarkdownSection(
   );
 
   if (exportable.length === 0) {
-    return "";
+    if (findings.length === 0) {
+      return "";
+    }
+
+    return [
+      "## Finding trust labels",
+      "",
+      "No exportable findings on this snapshot — muted or checklist-only rows were omitted.",
+      "",
+    ].join("\n");
   }
 
   lines.push("## Finding trust labels");

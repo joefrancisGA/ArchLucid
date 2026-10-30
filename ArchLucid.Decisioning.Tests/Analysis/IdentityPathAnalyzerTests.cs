@@ -88,6 +88,37 @@ public sealed class IdentityPathAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first()
+    {
+        // A machine identity can hold both a read role and Contributor on the same key vault.
+        // The reader assignment is linked first, so a node-only visited set reaches the vault
+        // with no write role and then drops the Contributor path.
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                BuildMachineActor("actor-checkout", "checkout-func"),
+                BuildReadOnlyRole("role-reader"),
+                BuildContributorRole("role-contrib"),
+                BuildKeyVault("kv-pay-prod", "Pay prod key vault"),
+            ],
+            Edges =
+            [
+                BuildEdge("actor-checkout", "role-reader"),
+                BuildEdge("role-reader", "kv-pay-prod"),
+                BuildEdge("actor-checkout", "role-contrib"),
+                BuildEdge("role-contrib", "kv-pay-prod"),
+            ],
+        };
+
+        IdentityPathAnalyzer.Analyze(graph)
+            .Should()
+            .ContainSingle()
+            .Which.RoleName.Should()
+            .Be("Contributor");
+    }
+
+    [Fact]
     public void Analyze_null_graph_nodes_does_not_throw()
     {
         GraphSnapshot graph = new() { Nodes = null!, Edges = null! };
@@ -172,6 +203,21 @@ public sealed class IdentityPathAnalyzerTests
             {
                 ["terraformType"] = "azurerm_role_assignment",
                 ["roleName"] = "Contributor",
+            },
+        };
+    }
+
+    private static GraphNode BuildReadOnlyRole(string nodeId)
+    {
+        return new GraphNode
+        {
+            NodeId = nodeId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "checkout-reader-kv",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_role_assignment",
+                ["roleName"] = "Key Vault Secrets User",
             },
         };
     }

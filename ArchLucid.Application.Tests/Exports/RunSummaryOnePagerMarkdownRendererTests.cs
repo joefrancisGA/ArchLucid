@@ -57,7 +57,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("- Missing CMK");
         markdown.Should().Contain("- Open ingress");
         markdown.Should().Contain("- Stale DR plan");
-        markdown.Should().Contain("generated with AI assistance");
+        markdown.Should().Contain("sealed snapshot copy");
         markdown.Should().Contain("Deterministic findings (sealed)");
         markdown.Should().Contain("Agent findings (advisory)");
     }

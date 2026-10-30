@@ -87,7 +87,9 @@ export function deriveSignedReviewRecordIdLabel(manifestId: string | null | unde
     return null;
   }
 
-  return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
+  return manifest.length > 16
+    ? `${manifest.slice(0, 8)}…${manifest.slice(-4)} (shortened for display)`
+    : manifest;
 }
 
 export const RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
@@ -237,31 +239,19 @@ export function deriveLastEvaluatedLabel(
     return completedUtc;
   }
 
-  const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
-
-  if (manifestUtc.length > 0) {
-    return manifestUtc;
-  }
-
   return null;
 }
 export function deriveFinalizedAtUtc(
   run: RunDetail["run"],
-  manifestSummary: ManifestSummary | null,
+  _manifestSummary: ManifestSummary | null,
   manifestId: string | null | undefined,
 ): string | null {
   const hasManifest = (manifestId ?? "").trim().length > 0;
   const completedUtc = run.completedUtc?.trim() ?? "";
 
-  if (completedUtc.length > 0 && hasManifest) {
-    return completedUtc;
-  }
-
   if (!hasManifest) {
     return null;
   }
 
-  const manifestUtc = manifestSummary?.createdUtc?.trim() ?? "";
-
-  return manifestUtc.length > 0 ? manifestUtc : null;
+  return completedUtc.length > 0 ? completedUtc : null;
 }

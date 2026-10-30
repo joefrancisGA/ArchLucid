@@ -65,7 +65,15 @@ export type InfraEvidencePngReadingStripInput = {
   readonly dependencyNeighborhoodSeedId?: string | null;
   readonly dependencyNeighborhoodSeedDisplayName?: string | null;
   readonly layoutSvg?: string | null;
+  readonly executiveOverflowStripped?: boolean;
+  readonly includePrivateEndpointNodes?: boolean;
 };
+
+const EXECUTIVE_OVERFLOW_PNG_READING_LINE =
+  "Executive overflow rollups and unresolved policy outlines stay in Mermaid but are not painted on this PNG." as const;
+
+const PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE =
+  "Private endpoint links show inventory reachability for all stored connection statuses — not observed traffic." as const;
 
 function pngSnapshotLabelLine(snapshotLabel: string | null | undefined): string {
   const trimmed = snapshotLabel?.trim() ?? "";
@@ -192,6 +200,10 @@ export function buildInfraEvidencePngReadingStripLines(
     input.mode === "data"
   ) {
     lines.push(INVENTORY_STRUCTURE_MODE_READING_SENTENCE);
+
+    if (input.mode === "executive" && input.executiveOverflowStripped === true) {
+      lines.push(EXECUTIVE_OVERFLOW_PNG_READING_LINE);
+    }
   } else {
     const inventoryModeLine = resolveInventoryStructureModeReadingLine(input.mode);
 
@@ -230,6 +242,10 @@ export function buildInfraEvidencePngReadingStripLines(
     if (hasInfraEvidenceUnclassifiedDiagramEdges(input.outline, null)) {
       lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE);
     }
+  }
+
+  if (input.includePrivateEndpointNodes === true) {
+    lines.push(PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE);
   }
 
   if (input.completenessWarnings.length > 0) {

@@ -169,7 +169,13 @@ class WorkpackTests(unittest.TestCase):
                 "We guarantee ROI for all customers.\nDo not say guaranteed breach prevention.")
             for path in ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
                          "docs/securenow/BUYER_PROOF_DEMO.md",
-                         "docs/securenow/CONTROLLED_PILOT_OFFER.md"]:
+                         "docs/securenow/BUYER_SECURITY_ONE_PAGER.md",
+                         "docs/securenow/CONTROLLED_PILOT_OFFER.md",
+                         "docs/securenow/DATA_PROCESSING_SCHEDULE.md",
+                         "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md",
+                         "docs/securenow/QUESTIONNAIRE_CROSSWALK.md",
+                         "docs/securenow/QUOTE_COVER.md",
+                         "docs/securenow/SUBPROCESSORS_DELTA.md"]:
                 (root/path).write_text("Evidence must be reviewed.")
             scan = claims(root)
             self.assertEqual("REVIEW_NEEDED", scan["status"])
