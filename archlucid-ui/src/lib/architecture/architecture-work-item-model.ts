@@ -14,9 +14,10 @@ export type ArchitectureWorkItemFindingLine = {
 export type ArchitectureWorkItemPreview = {
   readonly title: string;
   readonly description: string;
-  readonly priority: string;
+  readonly highestFindingSeverity: string;
   readonly owner: string;
   readonly findingsIncluded: readonly ArchitectureWorkItemFindingLine[];
+  readonly findingsOmittedCount: number;
   readonly sourceArchitectureLink: string;
 };
 
@@ -37,13 +38,13 @@ function architectureReviewUrl(siteOrigin: string, runId: string): string {
   return `${origin}/architecture/reviews/${encodeURIComponent(runId)}`;
 }
 
-function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): string {
+function deriveHighestFindingSeverity(findings: readonly QuickDecisionFinding[]): string {
   const knownSeverities = findings
     .map((finding) => finding.severityValue)
     .filter((severity): severity is number => severity !== null);
 
   if (knownSeverities.length === 0) {
-    return "Priority was not stored.";
+    return "Severity was not stored.";
   }
 
   const highest = Math.max(...knownSeverities);
@@ -63,16 +64,35 @@ function resolveArchitectureWorkItemOwnerLabel(ownerLabel: string | null): strin
   return ownerLabel.trim();
 }
 
-function mapFindingLines(findings: readonly QuickDecisionFinding[]): ArchitectureWorkItemFindingLine[] {
+function sliceFindingsForPreview(findings: readonly QuickDecisionFinding[]): {
+  readonly included: readonly QuickDecisionFinding[];
+  readonly omittedCount: number;
+} {
   const sorted = [...findings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue));
+  const included = sorted.slice(0, MAX_FINDING_LINES);
 
-  return sorted.slice(0, MAX_FINDING_LINES).map((finding) => ({
-    findingId: finding.findingId,
-    title:
-      finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
-    severityLabel: severityBadgeLabel(finding.severityValue),
-    recommendedAction: formatQuickDecisionRecommendedAction(finding.recommendation),
-  }));
+  return {
+    included,
+    omittedCount: Math.max(0, sorted.length - included.length),
+  };
+}
+
+function mapFindingLines(findings: readonly QuickDecisionFinding[]): {
+  readonly lines: ArchitectureWorkItemFindingLine[];
+  readonly omittedCount: number;
+} {
+  const { included, omittedCount } = sliceFindingsForPreview(findings);
+
+  return {
+    omittedCount,
+    lines: included.map((finding) => ({
+      findingId: finding.findingId,
+      title:
+        finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
+      severityLabel: severityBadgeLabel(finding.severityValue),
+      recommendedAction: formatQuickDecisionRecommendedAction(finding.recommendation),
+    })),
+  };
 }
 
 export function pickNativeCreateFindingId(findings: readonly QuickDecisionFinding[]): string | null {
@@ -100,25 +120,43 @@ export function buildArchitectureWorkItemPreview(
       ? `Draft architecture work item — ${architectureName}`
       : "Draft architecture work item — architecture name was not stored.";
 
+  const mappedFindings = mapFindingLines(input.findings);
+
   return {
     title,
     description,
-    priority: deriveArchitecturePriority(input.findings),
+    highestFindingSeverity: deriveHighestFindingSeverity(input.findings),
     owner: resolveArchitectureWorkItemOwnerLabel(input.ownerLabel),
-    findingsIncluded: mapFindingLines(input.findings),
+    findingsIncluded: mappedFindings.lines,
+    findingsOmittedCount: mappedFindings.omittedCount,
     sourceArchitectureLink: architectureReviewUrl(input.siteOrigin, input.runId),
   };
 }
 
-function formatFindingsForClipboard(findings: readonly ArchitectureWorkItemFindingLine[]): string[] {
+function formatFindingsCapRemainderLine(omittedCount: number): string | null {
+  if (omittedCount <= 0) {
+    return null;
+  }
+
+  return `${omittedCount} additional finding${omittedCount === 1 ? "" : "s"} were not included in this preview.`;
+}
+
+function formatFindingsForClipboard(
+  findings: readonly ArchitectureWorkItemFindingLine[],
+  omittedCount: number,
+): string[] {
   if (findings.length === 0) {
     return ["Findings were not stored."];
   }
 
-  return findings.map(
+  const lines = findings.map(
     (finding, index) =>
       `${index + 1}. [${finding.severityLabel}] ${finding.title} (${finding.findingId})\n   ${finding.recommendedAction}`,
   );
+
+  const remainder = formatFindingsCapRemainderLine(omittedCount);
+
+  return remainder !== null ? [...lines, remainder] : lines;
 }
 
 export function clipboardFormatForItsmProvider(provider: "Jira" | "ServiceNow"): WorkItemClipboardFormat {
@@ -133,13 +171,13 @@ export function buildArchitectureWorkItemClipboardBody(
   format: WorkItemClipboardFormat,
   preview: ArchitectureWorkItemPreview,
 ): string {
-  const findingLines = formatFindingsForClipboard(preview.findingsIncluded);
+  const findingLines = formatFindingsForClipboard(preview.findingsIncluded, preview.findingsOmittedCount);
 
   if (format === "jiraWiki") {
     return [
       `h2. ${preview.title}`,
       "",
-      `*Severity (highest finding):* ${preview.priority}`,
+      `*Severity (highest finding):* ${preview.highestFindingSeverity}`,
       `*Priority:* Priority was not stored.`,
       `*Owner:* ${preview.owner}`,
       "",
@@ -161,7 +199,7 @@ export function buildArchitectureWorkItemClipboardBody(
       "Description:",
       preview.description,
       "",
-      `Severity (highest finding): ${preview.priority}`,
+      `Severity (highest finding): ${preview.highestFindingSeverity}`,
       "Priority: Priority was not stored.",
       `Owner: ${preview.owner}`,
       "",
@@ -175,7 +213,7 @@ export function buildArchitectureWorkItemClipboardBody(
   return [
     `## ${preview.title}`,
     "",
-    `**Severity (highest finding):** ${preview.priority}`,
+    `**Severity (highest finding):** ${preview.highestFindingSeverity}`,
     "**Priority:** Priority was not stored.",
     `**Owner:** ${preview.owner}`,
     "",

@@ -53,6 +53,17 @@ describe("architecture-inventory-snapshot-freshness (AS-052)", () => {
     ).toBeNull();
   });
 
+  it("states within-window capture date on career export when bound and fresh (P-09)", () => {
+    const markdown = formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
+      "2026-09-08T12:00:00.000Z",
+      now,
+      true,
+    );
+
+    expect(markdown).toContain("within the freshness window");
+    expect(markdown).toContain("2026-09-08");
+  });
+
   it("states missing capture time for a bound export", () => {
     expect(
       formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(

@@ -56,6 +56,10 @@ export function AskCitedFindingsSemanticSupportBandFootnote(
         </p>
         {weakestBand !== null && !bandResolution.hasMissingStoredBand ? (
           <StatusTag kind={semanticSupportBandStatusTagKind(weakestBand)} label={weakestBand} />
+        ) : bandResolution.hasMissingStoredBand ? (
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Semantic support band was not stored
+          </span>
         ) : null}
       </div>
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{footnote}</p>
