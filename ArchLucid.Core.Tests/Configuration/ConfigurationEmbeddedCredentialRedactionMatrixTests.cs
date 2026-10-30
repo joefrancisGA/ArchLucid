@@ -10599,6 +10599,111 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_question_mark_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz?other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_slash_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz/other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_colon_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz:other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_uses_backslash_separated_base64_chunk()
+    {
+        const string effectiveValue = @"Authorization: Basic dXNlcjpwYXNz\other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_underscore_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz_other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_plus_sign_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz+other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_hyphen_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz-other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_tilde_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz~other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_caret_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz^other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_exclamation_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz!other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_at_sign_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz@other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_hash_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz#other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_dollar_sign_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz$other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_asterisk_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz*other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_backtick_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz`other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_cookie2_compound_list_has_eight_character_session()
     {
         const string effectiveValue = "Cookie2: a=1; session=12345678";
@@ -10837,6 +10942,20 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_shift_out_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%0E"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_data_link_escape_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%10"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_form_feed_on_basic_paste()
     {
         const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%0C"}""";
@@ -10861,6 +10980,48 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_backspace_on_basic_paste()
     {
         const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%08"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_escape_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%1B"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_unit_separator_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%1F"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_delete_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%7F"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_enq_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%05"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_ack_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%06"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_bell_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%07"}""";
         AssertRedacts(effectiveValue);
     }
 
@@ -10987,6 +11148,132 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_vertical_tab_separated_realm()
     {
         const string effectiveValue = "WWW-Authenticate: Basic realm=app\vdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_form_feed_separated_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app\fdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_carriage_return_separated_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app\rdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_line_feed_separated_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app\ndXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_backslash_separated_realm()
+    {
+        const string effectiveValue = @"WWW-Authenticate: Basic realm=app\dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_colon_separated_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app:dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_equals_separated_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app=dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_slash_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app/dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_underscore_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app_dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_plus_sign_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app+dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_hyphen_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app-dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_tilde_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app~dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_caret_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app^dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_exclamation_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app!dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_at_sign_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app@dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_hash_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app#dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_dollar_sign_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app$dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_asterisk_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app*dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_percent_sign_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app%dXNlcjpwYXNz";
         AssertRedacts(effectiveValue);
     }
 
@@ -11222,6 +11509,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_path_and_domain()
+    {
+        const string effectiveValue = "Set-Cookie2: a=1; session=12345678; Path=/; Domain=example.com";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_unquoted_contains_base64_userinfo()
     {
         const string effectiveValue = "Proxy-Authorization: Basic realm=dXNlcjpwYXNz";
@@ -11257,6 +11551,34 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_empty_angle_brackets_then_space_separated_base64()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic realm=<> dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_empty_braces_then_space_separated_base64()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic realm={} dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_empty_square_brackets_then_space_separated_base64()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic realm=[] dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_empty_parentheses_then_space_separated_base64()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic realm=() dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_open_bracket_on_basic_paste()
     {
         const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%5B"}""";
@@ -11274,6 +11596,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     public void Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_domain()
     {
         const string effectiveValue = "Set-Cookie: a=1; session=12345678; Domain=example.com";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_path_and_domain()
+    {
+        const string effectiveValue = "Set-Cookie: a=1; session=12345678; Path=/; Domain=example.com";
         AssertRedacts(effectiveValue);
     }
 

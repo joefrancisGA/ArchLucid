@@ -178,7 +178,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string tokenText = token.ToString();
 
-        foreach (string segment in tokenText.Split(',', ';', '\t', '\v', '|', '&', ' '))
+        foreach (string segment in tokenText.Split(',', ';', '\t', '\v', '\f', '\r', '\n', '|', '&', '\\', ':', '=', '_', '-', '~', '^', '!', '#', '$', '*', '%', ' '))
         {
             if (segment.Length == 0)
                 continue;
@@ -205,6 +205,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         int pipeIndex = token.IndexOf('|');
 
         if (pipeIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, pipeIndex).Trim()))
+            return true;
+
+        int slashIndex = token.IndexOf('/');
+
+        if (slashIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, slashIndex).Trim()))
             return true;
 
         int ampersandIndex = token.IndexOf('&');
