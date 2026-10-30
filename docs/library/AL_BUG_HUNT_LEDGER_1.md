@@ -16443,13 +16443,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+2026-10-30 thorough hunt (dry): five open `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks did not meet the hunt-ready bar. `GovernanceApprovals`, `GovernanceRejections`, and `ComparisonOrDriftDetections` are audit-export counts (`PilotValueReportService` lines 125–128), so an empty detail timeline does not zero them. The metadata count cell prefers the detail-sample qualifier, and `| Committed-run inventory truncated |` still prints the inventory flag. `bool.TryParse("true ")` returns true, so the padded string does not suppress the demo warning. A positive window that contains its midpoint keeps `weekEndUtc` after `weekStartUtc` after the digest clamp. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — locus: metadata precedence between inventory and detail-sample qualifiers; input: truncated inventory with zero detail rows; wrong outcome: only one qualifier shown.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — locus: approvals/rejections without scope note; input: empty timeline with tenant-wide audit totals; wrong outcome: mixed scope without footnote.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — locus: Summary audit row; input: positive drift count with empty timeline; wrong outcome: appears run-scoped without audit-scope note.
-- [ ] (candidate) `BuyerProofPackCommitGuard` — non-canonical boolean strings for `isDemoTenant` — locus: `TryParseJsonBoolean`; input: `"true "` padded JSON; wrong outcome: false demo warning on pack build.
-- [ ] (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-day override window — locus: digest clamp; input: 12-hour board-pack window; wrong outcome: `weekEndUtc` not after `weekStartUtc`.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** count cell shows the detail-sample qualifier; `| Committed-run inventory truncated |` still discloses the keyset stop. Combining both phrases on the count cell is a `[state-machine-gap]` sibling of the 2026-10-23 qualifier.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** approvals and rejections are audit-window totals (`PilotValueReportService` 125–126), not detail-sample zeros. An extra `(audit)` label is a saturated `[state-machine-gap]` sibling.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** audit-window total stays on the summary row; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+- [x] (invalid) `BuyerProofPackCommitGuard.TryParseJsonBoolean` — `"true "` padded string — **cheap-disproof 2026-10-30 thorough hunt:** `bool.TryParse("true ")` returns true, so the demo caution stays on. `PilotRunDeltas.IsDemoTenant` serializes as a JSON boolean, not a padded string.
+- [x] (valid-no-repro) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — 12-hour override window — **cheap-disproof 2026-10-30 thorough hunt:** clamp keeps the ISO week inside a positive window that contains the midpoint, so `weekEndUtc` stays after `weekStartUtc`; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
 - [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** detail-sample qualifier on metadata row; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
 - [x] (valid-no-repro) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — **cheap-disproof 2026-10-23 seed hunt:** severities rollup only on successful detail loads; formatter not-computed path for summary findings.
@@ -16480,13 +16482,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — metadata committed-runs count without detail-load qualifier
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
