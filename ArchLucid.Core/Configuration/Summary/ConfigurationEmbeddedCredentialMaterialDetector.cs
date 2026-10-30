@@ -204,6 +204,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (pipeIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, pipeIndex).Trim()))
             return true;
 
+        int ampersandIndex = token.IndexOf('&');
+
+        if (ampersandIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, ampersandIndex).Trim()))
+            return true;
+
         int quoteIndex = token.IndexOf('"');
 
         if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
@@ -265,6 +270,21 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
                 if (closingSquare >= 0)
                     index += closingSquare + 1;
+
+                continue;
+            }
+
+            if (token[index] == '(')
+            {
+                ReadOnlySpan<char> parenRemainder = token.Slice(index + 1);
+                int closingParen = parenRemainder.IndexOf(')');
+
+                if (closingParen > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(parenRemainder.Slice(0, closingParen)))
+                    return true;
+
+                if (closingParen >= 0)
+                    index += closingParen + 1;
 
                 continue;
             }
