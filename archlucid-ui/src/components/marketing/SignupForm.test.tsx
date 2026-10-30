@@ -181,6 +181,16 @@ describe("SignupForm", () => {
     expect(message).toBe("Enter work email, full name, and organization to continue.");
   });
 
+  it("deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "   ",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
+  });
+
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
     const message = deriveSignupFormReadinessMessage({
       adminEmail: "not-an-email",
@@ -1762,6 +1772,69 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not emit registration scope headers when defaultProjectId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: 1,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows generic submit error when register response body read throws on a non-ok response", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 503,
+        text: () => Promise.reject(new Error("stream read failed")),
+      })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Request failed (503)");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("keeps Creating label on the submit button after successful register until navigation", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
@@ -2604,6 +2677,39 @@ describe("SignupForm", () => {
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.architectureTeamSize).toBe(12);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("includes optional architecture team size 10000 in register POST body from the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "10000" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.architectureTeamSize).toBe(10_000);
 
     vi.unstubAllGlobals();
   });

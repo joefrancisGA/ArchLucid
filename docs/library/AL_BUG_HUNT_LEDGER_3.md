@@ -2,13 +2,21 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — numeric `defaultProjectId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultProjectId is stored as a JSON number`); non-OK body read failure uses HTTP status fallback (`shows generic submit error when register response body read throws on a non-ok response`); whitespace-only full name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`); optional team size `10000` included from UI at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`, builder regressions); scientific notation `1e2` serializes to whole `100` by design (`serializes scientific notation optional architecture team size when it parses to a whole number`). Reseeded five follow-on `(candidate)` rows. 132 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "   ", defaultWorkspaceId: "<guid>", defaultProjectId: "<guid>" }` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — locus: issue ordering; input: invalid email + `"   "` org (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — locus: success-path body read catch; input: mocked stream failure on `201` (monitor).
+- [ ] (candidate) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — locus: schema max vs builder; input: bypass validation with `10001` (monitor).
+- [ ] (candidate) `SignupForm` — keyboard submit with invalid email calls register `fetch` — locus: keyboard vs click paths; input: Enter on invalid email (monitor).
+
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five header-queue `(candidate)` rows — numeric `defaultWorkspaceId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`); empty `503` body uses status fallback (`shows synthetic message when register error response body is empty`); second `submit` while in-flight blocked (`does not fire a second register request when the form is submitted again while in flight`); `%` in work-email local part unreachable before verify (`invalid` on double-encode candidate); whitespace-only organization name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`). Reseeded five follow-on `(candidate)` rows. 128 scoped SignupForm vitest tests passed; no production code changed.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` string gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: 1 }` (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — locus: body read catch; input: mocked stream failure on error response (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — locus: readiness trim branch; input: `"   "` display name with valid email/org (monitor TB-2010).
-- [ ] (candidate) `SignupForm` — optional architecture team size `10000` included in register POST from UI — locus: upper bound inclusive; input: team size 10000 selected in optional field (monitor).
-- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — locus: Number/isInteger gate; input: `"1e2"` (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt:** string gate on project id; regression `does not emit registration scope headers when defaultProjectId is stored as a JSON number`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — **cheap-disproof 2026-10-30 thorough hunt:** empty body + status fallback; regression `shows generic submit error when register response body read throws on a non-ok response`.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — **cheap-disproof 2026-10-30 thorough hunt:** TB-2010 trim branch; regression `deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`.
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size `10000` included in register POST from UI — **cheap-disproof 2026-10-30 thorough hunt:** upper bound inclusive; regression `includes optional architecture team size 10000 in register POST body from the UI`.
+- [x] (invalid) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — **cheap-disproof 2026-10-30 thorough hunt:** `1e2` parses to whole `100`; regressions `serializes scientific notation optional architecture team size when it parses to a whole number` and `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`.
 
 2026-10-29 seed hunt (hit): promoted misleading signup readiness for overlong work email after `.max(254)` on `adminEmail` — `deriveSignupFormReadinessMessage` still returned generic invalid-email copy; now maps schema max message to TB-2010-style guidance; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`. Cheap-disproof closed four sibling `(candidate)` rows — numeric JSON `tenantId` on `201` intentionally omits scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); non-OK empty `{}` uses raw-body contract (`shows raw response text when register returns an empty JSON object on error`); post-`409` rename retry allowed by existing in-flight/`registerCompletedRef` regressions; IDN work emails blocked at zod `.email()` (invalid-email regressions). Reseeded five follow-on `(candidate)` rows. 126 scoped SignupForm vitest tests passed. Private beta: invited evaluation signup now shows the 254-character work-email limit in readiness copy instead of a misleading “valid email” hint.
 
@@ -228,10 +236,10 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
