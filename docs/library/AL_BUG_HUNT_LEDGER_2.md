@@ -17305,6 +17305,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-30 seed hunt (seed→hit #211): promoted `Tenant slug taken` and `Tenant slug made` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #210); gateway copy such as `Tenant slug taken by another org already exists` matched org slug context because hunt #210 excluded `got` but not `taken` or `made` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `taken` and `made`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_taken_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_made_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #210; reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter **386/386** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug taken or Tenant slug made phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug taken prose — **hit 2026-10-30 seed hunt #211:** excluded slug phrase word `taken`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug made prose — **hit 2026-10-30 seed hunt #211:** excluded slug phrase word `made`; regression above.
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — legal hold suppresses transition without distinguishable skip reason — **cheap-disproof 2026-10-30 seed hunt #211:** active legal hold intentionally returns `false` without advancing; worker polls again after hold expires; no operator-facing mis-route.
+- [x] (valid-no-repro) `WorkspaceModelExecutionProfileService.GetAsync` — whitespace-only stored profile token — **cheap-disproof 2026-10-30 seed hunt #211:** unparsable token falls back to workspace default by design; corrupt row requires direct SQL tampering out of pilot scope.
+- [x] (invalid) `TenantFindingEngineControlsService.GetAsync` — unparsable tenant override JSON — **cheap-disproof 2026-10-30 seed hunt #211:** host defaults on deserialize failure match admin settings fail-open contract; parse errors are not surfaced to tenant readers by design.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug given` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug given to another team already exists` (reachability: gateway duplicate-key prose).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug turned` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug turned inactive already exists` (reachability: gateway prose).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeAsync` — acknowledgment while verification probe still failing may advance stage without re-running probe — locus: acknowledge vs verification ordering; input: operator acknowledge after transient probe failure (reachability: migration maintenance UI).
+- [ ] (candidate) `TenantSuspendCommandService.TrySuspendAsync` — correlation id with surrounding whitespace duplicated on compensating unsuspend audit — locus: audit envelope trim parity; input: padded correlation on suspend path (reachability: admin suspend API).
+- [ ] (candidate) `TenantDeletionService.TryScheduleDeletionAsync` — trial tenant with future `TrialExpiresUtc` may skip deletion scheduling guard — locus: trial vs deletion eligibility; input: converted tenant edge on deletion request (reachability: admin deletion flow).
+
 2026-10-30 seed hunt (seed→hit #210): promoted `Tenant slug got` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug got reassigned already exists` matched org slug context because hunt #209 excluded `became` but not `got` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `got`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_got_substring_in_already_exists_message`; cheap-disproof closed five open `(candidate)` rows from seed hunt #209; reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 384/384 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug got phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug got prose — **hit 2026-10-30 seed hunt #210:** excluded slug phrase word `got`; regression above.
@@ -17313,11 +17327,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkspaceScopeGuard.RequireTenantAndWorkspaceAsync` — offboarded tenant success — **cheap-disproof 2026-10-30 seed hunt #210:** erasure quarantine middleware blocks tenant HTTP before scope guard on pilot path (#142).
 - [x] (valid-no-repro) `TrialSeatAccountant.TryReserveSeatAsync` — stale request-scoped tenant cache — **cheap-disproof 2026-10-30 seed hunt #210:** seat-claim concurrency regressions cover conversion race; cache is per-request only.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug taken` substring satisfies slug context without index tokens — locus: phrase scan ~104–134; input: exception text `Tenant slug taken by another org already exists` (reachability: gateway duplicate-key prose).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug made` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug made unavailable already exists` (reachability: gateway prose).
-- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — legal hold suppresses transition but caller cannot distinguish skip-from-hold vs no-op advancement — locus: legal hold guard ~48–49 returns false without audit; input: scheduler tick on ExportOnly tenant under active legal hold (reachability: worker lifecycle scheduler).
-- [ ] (candidate) `WorkspaceModelExecutionProfileService.GetAsync` — whitespace-only stored profile token falls back to workspace default while setting row remains — locus: `TryParse` guard ~27–28; input: corrupt `"   "` value for `DefaultModelExecutionProfile` (reachability: manual corrupt tenant settings row).
-- [ ] (candidate) `TenantFindingEngineControlsService.GetAsync` — unparsable tenant override JSON returns host defaults without surfacing parse failure — locus: deserialize path in service; input: truncated JSON in tenant settings for engine controls (reachability: admin settings write + read API).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — Tenant slug taken prose — **hit 2026-10-30 seed hunt #211** (see hunt note above).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — Tenant slug made prose — **hit 2026-10-30 seed hunt #211** (see hunt note above).
+- [x] (valid-no-repro) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — legal hold suppresses transition — **cheap-disproof 2026-10-30 seed hunt #211** (see hunt note above).
+- [x] (valid-no-repro) `WorkspaceModelExecutionProfileService.GetAsync` — whitespace-only stored profile token — **cheap-disproof 2026-10-30 seed hunt #211** (see hunt note above).
+- [x] (invalid) `TenantFindingEngineControlsService.GetAsync` — unparsable tenant override JSON — **cheap-disproof 2026-10-30 seed hunt #211** (see hunt note above).
 
 2026-10-30 seed hunt (seed→hit #209): promoted `Tenant slug became` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug became unavailable already exists` matched org slug context because hunt #207 excluded `appears` but not `became` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `became`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_became_substring_in_already_exists_message`; cheap-disproof closed five open `(candidate)` rows from seed hunt #208; reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 383/383 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug became phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
@@ -17675,12 +17689,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 210
-- **bugs-found:** 188
+- **hunts:** 211
+- **bugs-found:** 189
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Tenant slug got prose duplicate-detector false positive
-- **last-bug:** 2026-10-30 — Tenant slug became prose
+- **last-bug:** 2026-10-30 — Tenant slug taken/made prose duplicate-detector false positive
 
 ### Hypotheses
 
