@@ -277,12 +277,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (string.IsNullOrWhiteSpace(priority))
                 continue;
 
-            Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+            Match? match = FirstExplicitDimensionPairMatch(priority);
 
-            if (!match.Success)
-                match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
-
-            if (!match.Success)
+            if (match is not { Success: true })
                 continue;
 
             string left = match.Groups[1].Value;
@@ -335,12 +332,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     {
         prefersDimension = false;
 
-        Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+        Match? match = FirstExplicitDimensionPairMatch(priority);
 
-        if (!match.Success)
-            match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
-
-        if (!match.Success)
+        if (match is not { Success: true })
             return false;
 
         string left = match.Groups[1].Value;
@@ -456,6 +450,24 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         return new Regex(
             $@"\b{Regex.Escape(dimensionToken)}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    // A later "over" must not hide an earlier "before" in the same priority string.
+    private static Match? FirstExplicitDimensionPairMatch(string priority)
+    {
+        Match over = ExplicitDimensionOverDimensionPattern().Match(priority);
+        Match before = ExplicitDimensionBeforeDimensionPattern().Match(priority);
+
+        if (over.Success && before.Success)
+            return over.Index <= before.Index ? over : before;
+
+        if (over.Success)
+            return over;
+
+        if (before.Success)
+            return before;
+
+        return null;
     }
 
     private static Regex ExplicitDimensionOverDimensionPattern() =>

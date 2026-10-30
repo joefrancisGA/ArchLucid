@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — alphabetical priority sort reversed the later explicit pair
+- **last-bug:** 2026-10-30 — a later `over` hid an earlier `before` in the same priority
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Security before Cost, Cost over Security` resolving cost-first because `over` was searched before `before`; the earliest explicit pair in the string now wins; regression `BuildRecommendations_prefers_security_first_when_before_clause_precedes_over_clause`; Alternatives/ProposedChange/TradeOff tests 112/112. Private beta: when an invited operator writes security before cost and then cost over security in the same priority, the security-versus-cost recommendation follows the earlier clause.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — a later `over` hid an earlier `before` — **hit 2026-10-30 seed hunt:** `FirstExplicitDimensionPairMatch` keeps the earliest pair; regression `BuildRecommendations_prefers_security_first_when_before_clause_precedes_over_clause`.
 
 2026-10-30 seed hunt (seed→hit): promoted closed-loop `ClosedLoopDeclaredPrioritiesNormalizer` alphabetical sort so `Security over Cost` then `Cost over Security` resolved security-first; normalization now keeps encounter order for `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_keeps_later_explicit_pair_after_declared_priority_normalization`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests 123/123. Private beta: when an invited operator lists security over cost and then cost over security, the security-versus-cost recommendation follows the later bullet.
 
@@ -5876,11 +5880,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 72
+- **hunts:** 73
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 27
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — alphabetical priority sort reversed the later explicit pair
+- **last-bug:** 2026-10-30 — a later `over` hid an earlier `before` in the same priority
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
