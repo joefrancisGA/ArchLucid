@@ -75,13 +75,19 @@ export function isTechnicalAuditRunIdentifier(runId: string): boolean {
     return false;
   }
 
-  const label = buyerFacingReviewLinkLabelFromRunId(trimmed);
-
-  if (label !== trimmed) {
-    return false;
+  // Opaque run identifiers are metadata, not a buyer-facing review title.
+  // Classify GUIDs explicitly, including those without separators.
+  if (
+    /^[0-9a-f]{32}$/i.test(trimmed) ||
+    /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(trimmed)
+  ) {
+    return true;
   }
 
-  return true;
+  const label = buyerFacingReviewLinkLabelFromRunId(trimmed).trim();
+
+  // The fallback label embeds the original ID; it is not a human title.
+  return label === trimmed || label.includes(`Review id: ${trimmed}`);
 }
 
 /** Human review label for audit scope chips and titles; null when only a technical id is known. */

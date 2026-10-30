@@ -78,6 +78,13 @@ describe("isTechnicalAuditRunIdentifier", () => {
 
   it("treats uuid-like ids as technical", () => {
     expect(isTechnicalAuditRunIdentifier("c85c9b3ff2ab4d1e9f0a1234567890ab")).toBe(true);
+    expect(isTechnicalAuditRunIdentifier("c85c9b3f-f2ab-4d1e-9f0a-1234567890ab")).toBe(true);
+  });
+
+  it("does not mistake unresolved ID-bearing labels for review titles", () => {
+    expect(isTechnicalAuditRunIdentifier("opaque-run-id")).toBe(true);
+    expect(buyerFacingAuditTrailScopeLabel("opaque-run-id")).toBeNull();
+    expect(formatAuditTrailPageTitle("opaque-run-id")).toBe("Audit trail");
   });
 });
 
