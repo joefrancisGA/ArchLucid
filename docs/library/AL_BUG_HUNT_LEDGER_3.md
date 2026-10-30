@@ -7885,6 +7885,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #65 (dry): cheap-disproof closed three open `(candidate)` rows — result focus only runs on result changes, the artifact observer intentionally captures the mounted marketing sections, and line-separator telemetry remains a distinct route-derived scenario value. The three focused marketing suites passed 28/28; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — status rerender during result focus scrolls the page twice — **cheap-disproof 2026-10-30 thorough hunt #65:** `focusResults` is stable and the result effect depends on `result`, not status; existing Quick Scan tests passed.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — removed sections remain in the captured `sections` array after a marketing route transition — **cheap-disproof 2026-10-30 thorough hunt #65:** the nav mounts with the static artifact body and its observer cleanup is covered; no reachable in-place route replacement repro.
+- [x] (valid-no-repro) `recordShowcaseViewed` — line-separator and ordinary-space scenarios collide after downstream analytics normalization — **cheap-disproof 2026-10-30 thorough hunt #65:** telemetry trims but does not normalize line separators, so distinct route-derived scenarios remain distinct; existing telemetry tests passed.
+
 2026-10-30 thorough hunt #45 (dry): cheap-disproof closed three open `(candidate)` rows — result focus is only driven by result changes, removed observer winners are filtered from visible sections, and line-separator analytics identity remains an intentional route-derived value. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) marketing candidate rows from thorough hunt #44 — **cheap-disproof 2026-10-30 thorough hunt #45:** result focus, removed observer winners, and line-separator analytics identity produce no failing repro.
@@ -8103,9 +8109,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none
