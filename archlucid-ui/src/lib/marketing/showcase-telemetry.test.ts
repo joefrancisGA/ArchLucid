@@ -39,6 +39,21 @@ describe("showcase-telemetry", () => {
     expect(resolveShowcaseScenarioSlug("   ")).toBe("unknown");
   });
 
+  it("resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid", () => {
+    expect(resolveShowcaseScenarioSlug("claims%")).toBe("claims%");
+  });
+
+  it("maps distinct whitespace-only run ids to the same unknown analytics scenario", () => {
+    expect(resolveShowcaseScenarioSlug("\t")).toBe("unknown");
+    expect(resolveShowcaseScenarioSlug("\n")).toBe("unknown");
+  });
+
+  it("maps distinct invalid percent-encoding run ids to distinct analytics scenarios", () => {
+    expect(resolveShowcaseScenarioSlug("claims%")).toBe("claims%");
+    expect(resolveShowcaseScenarioSlug("billing%")).toBe("billing%");
+    expect(resolveShowcaseScenarioSlug("claims%")).not.toBe(resolveShowcaseScenarioSlug("billing%"));
+  });
+
   it("recordShowcaseViewed is a no-op when scenario trims to empty", () => {
     recordShowcaseViewed({ scenario: "   ", renderMode: "static" });
 

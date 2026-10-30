@@ -2,13 +2,37 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultWorkspaceId` on `201` omits scope headers after trim (`does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`); invalid email plus whitespace full name uses TB-2010 required-field copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); malformed JSON `201` body still navigates on `res.ok` (`still navigates after 201 when register response body is malformed JSON`); pasted team size `10001` stays invalid after blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`); rapid double-click with invalid email skips register POST (`does not call register fetch on rapid double-click when work email is invalid`). Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: "   " }` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — locus: trim branch; input: `"   "` email, name, org (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON array body still omits scope headers when ids are strings — locus: session spread; input: `[{ tenantId: "<guid>", … }]` (monitor).
+- [ ] (candidate) `SignupForm` — architecture team size field accepts pasted leading-zero `010000` as valid — locus: parseInt vs schema; input: paste `010000` (monitor).
+- [ ] (candidate) `SignupForm` — Tab from invalid email field to submit triggers register `fetch` — locus: focus order vs canSubmit; input: keyboard navigation (monitor).
+
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only string `tenantId` on `201` omits scope headers after trim (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); invalid email plus whitespace org uses TB-2010 required-field copy before email branch (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`); success-path body read failure still navigates on `201` (`still navigates after 201 when register response body read throws`); team size `10001` blocked in UI without register POST (`keeps submit disabled when optional architecture team size exceeds 10000`, `does not call register fetch when optional architecture team size exceeds 10000`); keyboard submit on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`). Reseeded five follow-on `(candidate)` rows. 136 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultWorkspaceId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #3:** trim gate; regression `does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name prefers email copy over required-field copy — **cheap-disproof 2026-10-30 thorough hunt #3:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON `201` body after successful `res.text()` still navigates — **cheap-disproof 2026-10-30 thorough hunt #3:** `res.ok` success path; regression `still navigates after 201 when register response body is malformed JSON`.
+- [x] (valid-no-repro) `SignupForm` — paste of `10001` into team size then blur re-enables submit — **cheap-disproof 2026-10-30 thorough hunt #3:** schema max blocks submit after blur; regression `keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`.
+- [x] (valid-no-repro) `SignupForm` — double-click submit with invalid email fires register `fetch` once — **cheap-disproof 2026-10-30 thorough hunt #3:** disabled submit gate; regression `does not call register fetch on rapid double-click when work email is invalid`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — numeric `defaultProjectId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultProjectId is stored as a JSON number`); non-OK body read failure uses HTTP status fallback (`shows generic submit error when register response body read throws on a non-ok response`); whitespace-only full name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`); optional team size `10000` included from UI at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`, builder regressions); scientific notation `1e2` serializes to whole `100` by design (`serializes scientific notation optional architecture team size when it parses to a whole number`). Reseeded five follow-on `(candidate)` rows. 132 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — **cheap-disproof 2026-10-30 thorough hunt #2:** trim gate; regression `does not emit registration scope headers when tenantId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — **cheap-disproof 2026-10-30 thorough hunt #2:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional success path; regression `still navigates after 201 when register response body read throws`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — **cheap-disproof 2026-10-30 thorough hunt #2:** schema max blocks submit; regressions `keeps submit disabled when optional architecture team size exceeds 10000` and `does not call register fetch when optional architecture team size exceeds 10000`.
+- [x] (valid-no-repro) `SignupForm` — keyboard submit with invalid email calls register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #2:** `canSubmit` gate; regression `shows inline validation on keyboard submit without calling fetch`.
+
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five header-queue `(candidate)` rows — numeric `defaultWorkspaceId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`); empty `503` body uses status fallback (`shows synthetic message when register error response body is empty`); second `submit` while in-flight blocked (`does not fire a second register request when the form is submitted again while in flight`); `%` in work-email local part unreachable before verify (`invalid` on double-encode candidate); whitespace-only organization name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`). Reseeded five follow-on `(candidate)` rows. 128 scoped SignupForm vitest tests passed; no production code changed.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` string gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: 1 }` (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — locus: body read catch; input: mocked stream failure on error response (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — locus: readiness trim branch; input: `"   "` display name with valid email/org (monitor TB-2010).
-- [ ] (candidate) `SignupForm` — optional architecture team size `10000` included in register POST from UI — locus: upper bound inclusive; input: team size 10000 selected in optional field (monitor).
-- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — locus: Number/isInteger gate; input: `"1e2"` (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt:** string gate on project id; regression `does not emit registration scope headers when defaultProjectId is stored as a JSON number`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — **cheap-disproof 2026-10-30 thorough hunt:** empty body + status fallback; regression `shows generic submit error when register response body read throws on a non-ok response`.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — **cheap-disproof 2026-10-30 thorough hunt:** TB-2010 trim branch; regression `deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`.
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size `10000` included in register POST from UI — **cheap-disproof 2026-10-30 thorough hunt:** upper bound inclusive; regression `includes optional architecture team size 10000 in register POST body from the UI`.
+- [x] (invalid) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — **cheap-disproof 2026-10-30 thorough hunt:** `1e2` parses to whole `100`; regressions `serializes scientific notation optional architecture team size when it parses to a whole number` and `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`.
 
 2026-10-29 seed hunt (hit): promoted misleading signup readiness for overlong work email after `.max(254)` on `adminEmail` — `deriveSignupFormReadinessMessage` still returned generic invalid-email copy; now maps schema max message to TB-2010-style guidance; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`. Cheap-disproof closed four sibling `(candidate)` rows — numeric JSON `tenantId` on `201` intentionally omits scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); non-OK empty `{}` uses raw-body contract (`shows raw response text when register returns an empty JSON object on error`); post-`409` rename retry allowed by existing in-flight/`registerCompletedRef` regressions; IDN work emails blocked at zod `.email()` (invalid-email regressions). Reseeded five follow-on `(candidate)` rows. 126 scoped SignupForm vitest tests passed. Private beta: invited evaluation signup now shows the 254-character work-email limit in readiness copy instead of a misleading “valid email” hint.
 
@@ -228,10 +252,10 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 62
+- **hunts:** 65
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -1286,13 +1310,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [ ] (candidate) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — locus: stale guard vs success; input: reopen form mid-flight edge (monitor).
+- [ ] (candidate) `workEmail` — plus-address local part with spaces trimmed only at payload — locus: `.trim()` on whole address; input: `"ops +tag @example.com"` (monitor).
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — locus: generic error; input: name with `\u000b` (monitor).
+- [ ] (candidate) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — locus: counter vs dismiss; input: cancel then resubmit (monitor).
+- [ ] (candidate) `technicalDetail` — HTML-like strings escaped only by React text node — locus: JSX interpolation; input: angle-bracket detail (monitor).
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
 
-- [ ] (candidate) `onSubmit` — parses JSON `message` on non-409 failures — locus: generic error branch; input: `502` with `{ message: "…" }`; wrong outcome: surfaces server text; reachability: `POST /api/access-requests` validation errors use `message` on `400` only.
-- [ ] (candidate) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — locus: stale response guard; input: toggle-close mid-flight then late `204`; wrong outcome: success flash; reachability: dismiss invalidates generation.
-- [ ] (candidate) `websiteUrl` honeypot — peripheral spaces posted without trim — locus: raw honeypot in JSON body; input: `"  https://spam.example  "`; wrong outcome: server miss; reachability: server `trimOptional` on honeypot.
-- [ ] (candidate) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — locus: silent early return; input: double submit before first fetch settles; wrong outcome: hidden failure; reachability: in-flight guard.
-- [ ] (candidate) `technicalDetail` — padded detail string renders with leading newline artifact — locus: `{technicalDetail}` JSX; input: `"\\nSign-in blocked"`; wrong outcome: blank helper block; reachability: OIDC error passthrough.
+- [x] (valid-no-repro) `onSubmit` — parses JSON `message` on non-409 failures — **cheap-disproof 2026-10-30 thorough hunt:** generic copy by design; regression `does not parse JSON message field on non-409 API failures`.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — **cheap-disproof 2026-10-30 thorough hunt:** generation guard; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (valid-no-repro) `websiteUrl` honeypot — peripheral spaces posted without trim — **cheap-disproof 2026-10-30 thorough hunt:** server-side trim contract; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (valid-no-repro) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — **cheap-disproof 2026-10-30 thorough hunt:** silent early return intentional; regressions `does not surface a submit error when a second submit is blocked while the first POST is still in flight` and `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
+- [x] (invalid) `technicalDetail` — padded detail string renders with leading newline artifact — **cheap-disproof 2026-10-30 thorough hunt:** detail still visible; regression `renders technical detail when the prop begins with a leading newline`.
 
 **Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
@@ -1517,10 +1549,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -7767,6 +7799,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
+
+- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
+- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
+- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+
+- [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — scrollToSection sets active before smooth scroll completes — **cheap-disproof 2026-10-30 thorough hunt #3:** intentional immediate highlight; regression `marks the clicked artifact nav button active when scrollIntoView runs`.
+- [x] (invalid) `ensureSessionId` — server render returns literal `server` for both helpers — **cheap-disproof 2026-10-30 thorough hunt #3:** shared SSR placeholder by design; regression `returns server placeholders when window is unavailable during SSR`.
+- [x] (invalid) `ShowcasePageTelemetry` — distinct malformed `%` slugs share one analytics scenario string — **cheap-disproof 2026-10-30 thorough hunt #3:** invalid `%` prefixes stay distinct; regression `maps distinct invalid percent-encoding run ids to distinct analytics scenarios`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — overlapping `showSampleResult` may issue parallel sample fetches but applies only the latest generation and one telemetry event (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles` asserts duplicate fetch count); invalid `%` run segments keep trimmed slug for telemetry by design (`resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`); missing artifact nav target leaves prior `aria-current` unchanged (`keeps aria-current on the prior section when a nav click targets a removed section`); volatile browser id stable per tab when storage throws (`reuses the same volatile browser id when localStorage writes fail`; separate from session id by design); distinct blank run ids share `unknown` analytics bucket intentionally (`maps distinct whitespace-only run ids to the same unknown analytics scenario`). Reseeded five follow-on `(candidate)` rows. 24 scoped marketing vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — third rapid activation after first fetch settles starts a fresh sample load — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional refresh + telemetry; regression `applies the latest sample when showSampleResult runs again after an earlier sample fetch completes`.
+- [x] (valid-no-repro) `loadSampleResult` — sample fetch omits abort signal so stale responses still parse — **cheap-disproof 2026-10-30 thorough hunt #2:** generation guard discards superseded JSON; regression `does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — intersection observer keeps active id for removed DOM node until another section intersects — **cheap-disproof 2026-10-30 thorough hunt #2:** ratio zero callbacks move highlight; regression `moves aria-current when the observer reports the prior active section left the viewport`.
+- [x] (invalid) `ensureSessionId` / `ensureBrowserId` — volatile ids differ from each other in private mode — **cheap-disproof 2026-10-30 thorough hunt #2:** separate session vs browser caches are intentional; regression `issues distinct volatile session and browser ids when localStorage is unavailable`.
+- [x] (valid-no-repro) `ShowcasePageTelemetry` — malformed `%` run id records showcase_viewed with raw trimmed slug — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional slug fallback path; regression `records showcase_viewed with the trimmed slug when percent-encoding in the run id is invalid`.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows — overlapping `showSampleResult` guarded by `sampleRequestGenerationRef` and single telemetry (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`); blank showcase run ids map to `unknown` and still record viewed (`resolveShowcaseScenarioSlug maps blank run ids to unknown`, `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`); missing artifact section nav click no-ops safely (`does not throw when artifact section is removed before nav click`; buyer body always mounts sections); volatile Quick Scan session id stable per tab when storage throws (`reuses the same volatile session id when localStorage writes fail`; no capacity messaging change by design). Reseeded five follow-on `(candidate)` rows. 20 scoped marketing vitest tests in touched suites passed; no production code changed.
 
 2026-10-11 seed hunt (seed-only): re-read Quick Scan browser/session identity helpers, sample loading and submit lifecycle, showcase telemetry, and the demo artifact body; no fresh row met the same-run hunt-ready bar. Seeded five bounded candidates for whitespace-padded browser identifiers, overlapping sample-result requests, status-transition sample overwrite, duplicate showcase-view telemetry on render-mode changes, and missing optional artifact sections. Three focused artifact-navigation suites passed 6/6; no production or regression code changed.
@@ -7799,10 +7853,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 35
+- **hunts:** 38
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7827,11 +7881,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `recordShowcaseViewed` — empty scenario slug skips telemetry — **cheap-disproof 2026-10-29 thorough hunt:** `resolveShowcaseScenarioSlug` maps blank run ids to `unknown`; regressions `resolveShowcaseScenarioSlug maps blank run ids to unknown` and `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`.
 - [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing target without feedback — **cheap-disproof 2026-10-29 thorough hunt:** intentional no-op when section absent; regression `does not throw when artifact section is removed before nav click`.
 - [x] (valid-no-repro) `ensureSessionId` volatile fallback without operator hint — **cheap-disproof 2026-10-29 thorough hunt:** volatile id stable within tab; regression `reuses the same volatile session id when localStorage writes fail`.
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — locus: no in-flight dedupe; input: rapid double activation (monitor cost/abuse).
-- [ ] (candidate) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — locus: `resolveShowcaseScenarioSlug` catch branch; input: invalid percent-encoding (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — locus: early return before `setActiveId`; input: DOM removal after observer priming (monitor).
-- [ ] (candidate) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — locus: parallel volatile helpers; input: private mode navigation (monitor).
-- [ ] (candidate) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — locus: blank run id mapping; input: product analytics contract (monitor).
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — **cheap-disproof 2026-10-30 thorough hunt:** latest generation wins; regression asserts two sample fetches with one telemetry event in `records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`.
+- [x] (valid-no-repro) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — **cheap-disproof 2026-10-30 thorough hunt:** intentional slug fallback; regression `resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — **cheap-disproof 2026-10-30 thorough hunt:** no-op scroll preserves prior active id; regression `keeps aria-current on the prior section when a nav click targets a removed section`.
+- [x] (valid-no-repro) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — **cheap-disproof 2026-10-30 thorough hunt:** separate volatile caches are intentional; regression `reuses the same volatile browser id when localStorage writes fail`.
+- [x] (invalid) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — **cheap-disproof 2026-10-30 thorough hunt:** whitespace-only run ids intentionally collapse to `unknown`; regression `maps distinct whitespace-only run ids to the same unknown analytics scenario`.
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
@@ -12099,6 +12153,18 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
+
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
+
+2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — **cheap-disproof 2026-10-30 thorough hunt #2:** catalog TOC excludes claim heading; policy regression `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`.
+- [x] (invalid) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — **cheap-disproof 2026-10-30 thorough hunt #2:** empty claim still renders callout shell; regression `still renders an empty claim callout shell when claim prop is an empty string on a visible slug`.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — **cheap-disproof 2026-10-30 thorough hunt #2:** registry scan found zero help topics with header claim missing omit coverage.
+
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
@@ -12107,10 +12173,10 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 40
+- **hunts:** 42
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -12166,11 +12232,11 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `resolveStripSlugForOmitPolicy` exact alias lookup — a live `EvidenceOrientationClaimCallout` caller can pass a newly retained legacy strip slug that is not mapped to its canonical omitted registry slug, leaving a duplicate claim band reachable; verify against current strip props and registry entries before promoting.
+- [x] (valid-no-repro) `resolveStripSlugForOmitPolicy` exact alias lookup — live legacy strip slugs unmapped to canonical omitted registry slugs — **cheap-disproof 2026-10-30 thorough hunt:** automated orientation `slug` scan found zero alias gaps; regressions `omits legacy orientation strip slug aliases that differ from registry help-topic slugs` and connect/cloud alias cases.
 - [x] (proven) `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — TOC listed `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` is omitted and the header claim strip has no matching anchor — **hit 2026-10-29 thorough hunt:** `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions in `HelpConnectAwsSecurelyGuideView.test.tsx` and `claim-discipline-policy.test.ts`
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — a live help guide whose header owns claim discipline can pass its registry slug without an omit-set entry, leaving its orientation strip visible; compare current guide/header composition against the set before promoting.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — live help guide whose header owns claim discipline passes registry slug without omit-set entry — **cheap-disproof 2026-10-30 thorough hunt:** non-omitted help slugs (e.g. `help-governance-infrastructure-drift`) intentionally render sole claim via orientation strip; regression `passes governance infrastructure drift help claim through for visible-band orientation slug`.
 - [x] (proven) `resolveGuideHeadingsForStrip` / `HelpPreferencesGuideView` — preferences TOC kept claim heading link while `help-preferences` omits bottom band and header strip lacks anchor — **hit 2026-10-21 thorough hunt lane C:** filtered `guideHeadings`; regression in `HelpPreferencesGuideView.test.tsx`.
-- [ ] (candidate) `resolveClaimDisciplineForStrip` undefined claim passthrough — a live visible-band caller can receive an empty or undefined claim from a guide-specific evidence constant and silently render no claim band; trace the actual claim props before promoting.
+- [x] (valid-no-repro) `resolveClaimDisciplineForStrip` undefined claim passthrough — visible-band caller receives empty or undefined claim and silently renders no claim band — **cheap-disproof 2026-10-30 thorough hunt:** intentional for sources-only visible strips; regression `allows undefined claim passthrough on visible slugs when callers omit copy`.
 
 - [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 

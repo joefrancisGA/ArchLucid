@@ -181,6 +181,36 @@ describe("SignupForm", () => {
     expect(message).toBe("Enter work email, full name, and organization to continue.");
   });
 
+  it("deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "   ",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
+  });
+
+  it("deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "not-an-email",
+      adminDisplayName: "Ops User",
+      organizationName: "   ",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
+  });
+
+  it("deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "not-an-email",
+      adminDisplayName: "   ",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
+  });
+
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
     const message = deriveSignupFormReadinessMessage({
       adminEmail: "not-an-email",
@@ -1762,6 +1792,167 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not emit registration scope headers when defaultProjectId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: 1,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when tenantId is whitespace-only in session storage", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "   ",
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: "   ",
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body read throws", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 201,
+        text: () => Promise.reject(new Error("stream read failed")),
+      })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows generic submit error when register response body read throws on a non-ok response", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 503,
+        text: () => Promise.reject(new Error("stream read failed")),
+      })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Request failed (503)");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("keeps Creating label on the submit button after successful register until navigation", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
@@ -2101,6 +2292,49 @@ describe("SignupForm", () => {
     expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
   });
 
+  it("does not call register fetch when optional architecture team size exceeds 10000", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "10001" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps submit disabled after pasting team size 10001 over a valid value and blurring the field", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    const teamSizeInput = screen.getByTestId("signup-architecture-team-size");
+    fireEvent.change(teamSizeInput, { target: { value: "12" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.change(teamSizeInput, { target: { value: "10001" } });
+    fireEvent.blur(teamSizeInput);
+
+    await waitFor(() => {
+      expect(screen.getByText(/between 1 and 10,000/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+  });
+
   it("keeps submit disabled when industry Other has whitespace-only specification", async () => {
     render(<SignupForm />);
     fillRequiredFields();
@@ -2179,6 +2413,24 @@ describe("SignupForm", () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not call register fetch on rapid double-click when work email is invalid", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "bad-email" } });
+
+    const submitButton = screen.getByRole("button", { name: /Create evaluation workspace/i });
+
+    fireEvent.click(submitButton);
+    fireEvent.click(submitButton);
+
+    expect(fetchMock).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();
   });
@@ -2604,6 +2856,39 @@ describe("SignupForm", () => {
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.architectureTeamSize).toBe(12);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("includes optional architecture team size 10000 in register POST body from the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "10000" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.architectureTeamSize).toBe(10_000);
 
     vi.unstubAllGlobals();
   });

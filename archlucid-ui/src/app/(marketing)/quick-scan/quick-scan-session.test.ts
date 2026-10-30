@@ -41,4 +41,51 @@ describe("quick-scan-session identity helpers", () => {
     setItemSpy.mockRestore();
     getItemSpy.mockRestore();
   });
+
+  it("reuses the same volatile browser id when localStorage writes fail", () => {
+    const setItemSpy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    const getItemSpy = vi.spyOn(window.localStorage, "getItem").mockReturnValue(null);
+
+    const first = ensureBrowserId();
+    const second = ensureBrowserId();
+
+    expect(first).toBe(second);
+    expect(first.length).toBeGreaterThan(0);
+
+    setItemSpy.mockRestore();
+    getItemSpy.mockRestore();
+  });
+
+  it("issues distinct volatile session and browser ids when localStorage is unavailable", () => {
+    const setItemSpy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    const getItemSpy = vi.spyOn(window.localStorage, "getItem").mockReturnValue(null);
+
+    const sessionId = ensureSessionId();
+    const browserId = ensureBrowserId();
+
+    expect(sessionId).toBe(ensureSessionId());
+    expect(browserId).toBe(ensureBrowserId());
+    expect(sessionId).not.toBe(browserId);
+
+    setItemSpy.mockRestore();
+    getItemSpy.mockRestore();
+  });
+
+  it("returns server placeholders when window is unavailable during SSR", () => {
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+    Object.defineProperty(globalThis, "window", { value: undefined, configurable: true });
+
+    try {
+      expect(ensureSessionId()).toBe("server");
+      expect(ensureBrowserId()).toBe("server");
+    } finally {
+      if (windowDescriptor) {
+        Object.defineProperty(globalThis, "window", windowDescriptor);
+      }
+    }
+  });
 });
