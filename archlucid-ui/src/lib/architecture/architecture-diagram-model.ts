@@ -334,7 +334,7 @@ function flowEdgeDedupeKey(edge: Pick<ArchitectureDiagramEdge, "sourceId" | "tar
 function pushFlowEdge(
   edges: ArchitectureDiagramEdge[],
   seenFlowEdgeKeys: Set<string>,
-  edgeIndexRef: { readonly current: number },
+  edgeIndexRef: { current: number },
   edge: Omit<ArchitectureDiagramEdge, "id" | "removed">,
 ): void {
   const candidate: ArchitectureDiagramEdge = {

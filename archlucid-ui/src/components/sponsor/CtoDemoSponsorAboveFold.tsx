@@ -57,6 +57,7 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
 }
 
 const OVERALL_ASSESSMENT_NOT_STORED_LABEL = "Overall assessment was not stored.";
+const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/governance/approval-queue";
 
 /** Compact CTO demo landing hero — verdict, top risks, and sponsor action above the fold (#4). */
 export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): ReactElement {

@@ -95,7 +95,9 @@ const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = 
 export function resolveWizardRecapPresetMatchingFields(input: {
   readonly presetId: string | null | undefined;
   readonly formValues: WizardFormValues;
-  readonly dirtyFields: Partial<Record<keyof WizardFormValues, boolean | boolean[]>>;
+  readonly dirtyFields: {
+    readonly [K in string]?: unknown;
+  };
 }): readonly (keyof WizardFormValues)[] {
   const presetId = input.presetId?.trim() ?? "";
 
