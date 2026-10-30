@@ -16632,11 +16632,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotValueReportMarkdownFormatter` — metadata `Audit export truncated` boolean without cross-link when `CommittedRunsInventoryTruncated` also true — locus: metadata table dual flags; input: both truncation flags set with loaded run details.
-- (candidate) `PilotValueReportService.BuildAsync` — average pipeline completion includes negative wall times filtered but NaN average if all samples invalid — locus: completionSeconds aggregation; input: committedUtc before CreatedUtc on all loaded runs.
-- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest file name does not include demo warning segment when `DemoDataWarning` true — locus: zip file naming; input: demo tenant committed run.
-- (candidate) `BoardPackPdfCoverCopy` — custom period title uses exclusive end bound while value report builder uses same half-open window — locus: title wording vs `[start,end)` contract; input: override bounds on board pack export.
-- (candidate) `PilotValueReportMarkdownFormatter` — `FormatRoiSourceFreshnessDispositionCell` treats whitespace-only disposition as present value — locus: ROI metadata row; input: whitespace freshness string.
+- (candidate) `PilotBuyerSafeEvidenceGateEvaluator` — hard gap on `AuditRowCount == 0` without treating `AuditRowCountTruncated` lower-bound rows as attested inventory — locus: `Evaluate` audit continuity check; input: truncated audit export with positive lower-bound count.
+- (candidate) `PilotRunDeltaComputer` — `EstimatedUsdSavings` aggregation when top finding muted but severity buckets non-zero — locus: findings rollup vs sponsor ROI totals; input: committed run with muted critical finding.
+- (candidate) `SponsorEvidencePackService` — demo run value report delta freshness copied when scope run differs from requested pack run — locus: cross-run delta assembly; input: tenant with multiple committed runs in window.
+- (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — accepts missing `isDemoTenant` property as non-demo without requiring explicit false — locus: JSON guard; input: deltas JSON omitting demo flag on production tenant.
+- (candidate) `FirstValueReportMarkdownFormatting` — ISO timestamp cells omit explicit UTC suffix on sponsor markdown tables — locus: date formatting helper; input: manifest CreatedUtc with DateTimeKind.Unspecified.
+
+2026-10-30 seed hunt (seed-only): re-read buyer-safe gate, buyer proof pack builder/guard, board pack cover copy, and pilot value report formatter/service; cheap-disproof closed five open `(candidate)` rows from hunt 61 (no additional board-pack chrome ship — sequential custom-period copy hits paused per workflow); no hunt-ready row promoted; seeded five mechanism-backed `(candidate)` rows below; scoped **41** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: n/a.
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — dual `AuditExportTruncated` and `CommittedRunsInventoryTruncated` metadata — **cheap-disproof 2026-10-30 seed hunt (hunt 62):** separate metadata rows; summary audit totals unchanged by design.
+- [x] (valid-no-repro) `PilotValueReportService.BuildAsync` — NaN average pipeline when wall times invalid — **cheap-disproof 2026-10-30 seed hunt (hunt 62):** negative walls skipped; empty `completionSeconds` yields null avg and formatter not-stored label.
+- [x] (invalid) `BuyerProofPackBuilder.TryBuildZipAsync` — zip file name omits demo segment — **cheap-disproof 2026-10-30 seed hunt (hunt 62):** `demoDataWarning` on manifest + `DemoDataWarning` on result; filename stability intentional.
+- [x] (valid-no-repro) `BoardPackPdfCoverCopy.BuildTitle` — exclusive end bound wording — **cheap-disproof 2026-10-30 seed hunt (hunt 62):** title already marks `exclusive` aligned with half-open value-report window.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter.FormatRoiSourceFreshnessDispositionCell` — whitespace-only disposition — **cheap-disproof 2026-10-30 seed hunt (hunt 62):** saturated `[other]` sibling of empty-disposition hit; resolver path emits normalized tokens today.
 
 2026-10-30 seed hunt (seed→hit): promoted QuestPDF page header still reading `ArchLucid — quarterly board pack` when custom override period set despite markdown cover fix; `BoardPackPdfCoverCopy.BuildPdfHeaderLabel` aligns header chrome; regressions in `BoardPackPdfCoverCopyTests`; cheap-disproof closed five hunt-60 `(candidate)` rows; seeded five follow-on rows; scoped **41** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: Custom-period board pack PDFs no longer show a quarterly-only header on every page while the body describes a shorter requested window.
 
@@ -16720,7 +16728,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
