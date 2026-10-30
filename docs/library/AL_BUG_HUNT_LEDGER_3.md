@@ -2903,7 +2903,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-**Hunts:** 88 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+**Hunts:** 89 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #89 (seed-only): the cooldown-fallback OIDC reread found no new reachable mechanism-backed candidate or hunt-ready row across session/BFF generation, PKCE, token/OAuth parsing, discovery, redirect setup, JWT display, configuration, and expiry normalization. The scoped `src/lib/oidc` suite passed 1030/1030 again. No production code changed.
 
 2026-10-30 seed hunt #88 (seed-only): cooldown fallback selected `ui-oidc` after all open zones were demoted; fresh rereading of session generation and BFF synchronization, PKCE consumption, token/OAuth parsing, discovery validation/cache, redirect setup, JWT display decoding, configuration, and expiry normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
