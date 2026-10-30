@@ -175,4 +175,74 @@ public sealed class DifficultyBasedExtractionRouterThoroughHuntReproTests
             element.Kind == ArchitectureElementKind.Assumption
             && element.Name.Contains("Current vs target", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void Classify_returns_human_review_for_data_protection_with_ideographic_space()
+    {
+        string phrase = "data\u3000protection";
+        _router.Classify($"Policies must satisfy {phrase} controls.")
+            .Should().Be(ExtractionDifficulty.HumanReviewRequired);
+    }
+
+    [Fact]
+    public void Extract_does_not_emit_ownership_gap_for_fullwidth_parentheses_owner_label_with_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "RACI lists （owner）platform team. Legacy racks remain unowned.",
+            "fullwidth-paren-owner");
+
+        elements.Should().NotContain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Extract_tags_target_lifecycle_scope_after_multiplication_sign_as_is_typo_header()
+    {
+        string header = "as\u00D7is";
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            $"""
+            {header}
+            component: billing
+            to be
+            component: billing v2
+            """,
+            "multiply-as-is-typo");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Component
+            && element.Name.Contains("billing v2", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.TargetState);
+    }
+
+    [Fact]
+    public void Extract_tags_target_lifecycle_scope_after_composed_to_be_acute_header()
+    {
+        string header = "to be\u0301";
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            $"""
+            as is
+            component: billing
+            {header}
+            component: billing v2
+            """,
+            "composed-to-be-acute");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.Component
+            && element.Name.Contains("billing v2", StringComparison.OrdinalIgnoreCase)
+            && element.LifecycleScope == ArchitectureLifecycleScope.TargetState);
+    }
+
+    [Fact]
+    public void Extract_emits_ownership_gap_when_only_plural_owners_mentions_unowned()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            "Owners rotate weekly. Several racks are still unowned.",
+            "plural-owners-only");
+
+        elements.Should().Contain(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            && element.Name.Contains("Unowned component", StringComparison.OrdinalIgnoreCase));
+    }
 }
