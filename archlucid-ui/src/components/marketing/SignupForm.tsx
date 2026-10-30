@@ -352,6 +352,7 @@ export function SignupForm() {
                   <Input
                     id="signup-industry-specify"
                     data-testid="signup-industry-specify"
+                    maxLength={200}
                     {...register("industryVerticalOther")}
                     className="mt-1.5 h-10"
                   />

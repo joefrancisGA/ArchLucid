@@ -2,6 +2,10 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #84 (hit): proved the `industryVerticalOther` schema capped values at 200 characters but the rendered “Other” input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the Other industry input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 141/141. Private beta: invited buyers selecting Other for their industry now get a browser-level 200-character boundary that matches the signup validation contract instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `industryVerticalOther` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #84:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
 2026-10-30 thorough hunt #83 (dry): cheap-disproof closed both seeded post-commit candidates — existing regressions cover success-toast and router-transition failures after committed registration, and intentionally retain the disabled “Creating” state to prevent duplicate signup requests. Full SignupForm suite passed 140/140; no production code changed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when navigation throws after successful register` and `keeps Creating label on the submit button after successful register until navigation` cover the committed-registration boundary; no new failing repro.
@@ -330,11 +334,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 68
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 5
+- **hunts:** 69
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
+- **last-bug:** 2026-10-30 — Other industry input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 

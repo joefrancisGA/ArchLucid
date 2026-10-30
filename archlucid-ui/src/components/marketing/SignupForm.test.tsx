@@ -2638,6 +2638,22 @@ describe("SignupForm", () => {
     expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
   });
 
+  it("caps the Other industry input at the schema maximum", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+
+    expect(screen.getByTestId("signup-industry-specify")).toHaveAttribute("maxLength", "200");
+  });
+
   it("keeps submit disabled for fractional optional architecture team size", async () => {
     render(<SignupForm />);
     fillRequiredFields();
