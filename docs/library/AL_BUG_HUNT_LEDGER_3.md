@@ -7895,6 +7895,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #43 (hit): promoted `RunDetailCreateHomeEvidenceCaptureRegion` — a loaded empty stored-evidence catalog was treated as non-authoritative, so persisted session inventory could restore a deleted evidence row in the review detail; treat the empty catalog as authoritative when no legacy artifacts are available and retain only explicitly pending upload rows; regression `does not restore persisted captured evidence when the loaded catalog is empty`; focused evidence inventory tests passed 12/12. Private beta: invited architects no longer see deleted or absent uploaded evidence reappear in a review’s capture inventory after a detail reload; only server-confirmed or explicitly pending uploads remain visible.
+
 2026-10-30 seed hunt #42 (hit): promoted `use-runs-list` — `safeRuns` accepted non-empty but invalid `createdUtc` strings, so the `new Date(...).getTime()` comparator returned `NaN` and the review table could retain an API row whose position depended on input order; reject non-finite parsed timestamps before sorting; regression `omits a review row whose createdUtc is not a valid timestamp`; focused timestamp/sorting tests passed 3/3. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
 
 2026-10-30 seed hunt #41 (seed-only): fresh rereading of operator-route scope subscriptions and sibling next-review footer loaders found the same saturated state-machine gap already fixed in `ArchitectureIntelligenceNextReviewFooterClient`; no new candidate was promoted or duplicated. The focused footer regression/component tests passed 3/3. No production code changed.
@@ -7906,6 +7908,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — **hit 2026-10-30 thorough hunt #40:** reload on live scope key, clear old rows immediately, and ignore late responses after scope cleanup; regression above. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace’s next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
 - [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — **hit 2026-10-30 thorough hunt #40:** active-effect cleanup prevents the prior scope response from committing after the scope switch; regression above.
 - [x] (proven) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — **hit 2026-10-30 seed hunt #42:** reject rows whose parsed timestamp is non-finite before sorting; regression above. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
+- [x] (proven) `RunDetailCreateHomeEvidenceCaptureRegion` — empty stored-evidence catalog restores stale persisted inventory — **hit 2026-10-30 seed hunt #43:** loaded empty catalog is authoritative when no legacy artifacts exist, and reconciliation retains only explicitly pending upload rows; regression above. Private beta: invited architects no longer see deleted or absent uploaded evidence reappear in a review’s capture inventory after a detail reload; only server-confirmed or explicitly pending uploads remain visible.
 
 2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
 
@@ -7946,11 +7949,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 42
+- **hunts:** 43
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — malformed review-list `createdUtc` participated in sorting
+- **last-bug:** 2026-10-30 — empty stored-evidence catalog restored stale persisted inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
