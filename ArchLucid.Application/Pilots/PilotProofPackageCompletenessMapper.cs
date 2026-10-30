@@ -55,6 +55,7 @@ public static class PilotProofPackageCompletenessMapper
                 deltas.TopFindingId is null || deltas.TopFindingEvidenceChain is not null,
             AuditRowsPresentOrLowerBound =
                 deltas.AuditRowCountResolved && (deltas.AuditRowCount > 0 || deltas.AuditRowCountTruncated),
+            AuditRowCountResolved = deltas.AuditRowCountResolved,
             LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
             LlmCallCountResolved = deltas.LlmCallCountResolved,
             RoiEvidenceConfidence = roiTier,

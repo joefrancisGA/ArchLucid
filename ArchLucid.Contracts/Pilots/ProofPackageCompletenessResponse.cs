@@ -92,6 +92,16 @@ public sealed class ProofPackageCompletenessResponse
     }
 
     /// <summary>
+    ///     Mirrors <see cref="PilotRunDeltasResponse.AuditRowCountResolved" /> — false means
+    ///     <see cref="AuditRowsPresentOrLowerBound" /> is unknown, not confirmed absent.
+    /// </summary>
+    public bool AuditRowCountResolved
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary>
     ///     Per-run LLM completion rows counted from execution traces when <see cref="LlmCallCountResolved" /> is
     ///     <see langword="true" />; otherwise <see langword="null" />.
     /// </summary>

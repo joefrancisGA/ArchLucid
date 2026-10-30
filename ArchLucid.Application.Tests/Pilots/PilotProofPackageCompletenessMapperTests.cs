@@ -14,6 +14,22 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class PilotProofPackageCompletenessMapperTests
 {
     [Fact]
+    public void Build_when_audit_row_count_unresolved_surfaces_resolved_false()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with { AuditRowCount = 0, AuditRowCountResolved = false };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c =
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.AuditRowCountResolved.Should().BeFalse();
+        c.AuditRowsPresentOrLowerBound.Should().BeFalse(
+            "unresolved audit counts must not read as confirmed absent rows");
+    }
+
+    [Fact]
     public void Build_StrongRoi_CommittedNonDemo_HasStrongTierAndPassFlags()
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, PilotBuyerSafeEvidenceGateResult gate, ValueReportSnapshot snap) =
@@ -30,6 +46,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.FindingsBySeverityPresent.Should().BeTrue();
         c.TopFindingEvidenceChainPresentOrNotApplicable.Should().BeTrue();
         c.AuditRowsPresentOrLowerBound.Should().BeTrue();
+        c.AuditRowCountResolved.Should().BeTrue();
         c.LlmCallCountResolved.Should().BeTrue();
         c.LlmCallCount.Should().Be(2);
         c.ProofSendability.Should().Be(nameof(ProofPackageSendability.Sendable));

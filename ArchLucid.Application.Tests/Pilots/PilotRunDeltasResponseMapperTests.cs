@@ -299,6 +299,37 @@ public class PilotRunDeltasResponseMapperTests
         json.Should().NotContain("\"llmCallCount\": 0");
     }
 
+    [Fact]
+    public void ToResponseWithProofPackage_when_audit_count_unresolved_maps_resolved_false()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = Guid.NewGuid().ToString("N"),
+            Status = ArchitectureRunStatus.Committed,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = DateTime.UtcNow,
+            ManifestCommittedUtc = DateTime.UtcNow,
+            AuditRowCount = 0,
+            AuditRowCountResolved = false,
+        };
+
+        ValueReportSnapshot valueReport = MinimalValueReportSnapshot();
+
+        PilotRunDeltasResponse response =
+            PilotRunDeltasResponseMapper.ToResponseWithProofPackage(run, manifest, deltas, valueReport);
+
+        response.AuditRowCountResolved.Should().BeFalse();
+        response.ProofPackageCompleteness!.AuditRowCountResolved.Should().BeFalse();
+    }
+
     private static ValueReportSnapshot MinimalValueReportSnapshot() =>
         new(
             TenantId: Guid.NewGuid(),

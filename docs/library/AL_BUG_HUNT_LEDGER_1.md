@@ -16632,11 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotProofPackageCompletenessMapper` — `AuditRowsPresentOrLowerBound` false when `AuditRowCountResolved` false conflates unknown with absent rows — locus: completeness JSON bool; input: audit repository query failure on committed run.
-- (candidate) `PilotRunDeltasResponseMapper` — proof completeness omits explicit `AuditRowCountResolved` mirror while LLM exposes `LlmCallCountResolved` — locus: API parity; input: pilot-run-deltas JSON after failed audit count query.
-- (candidate) `FirstValueReportDeltasSectionFormatter` — audit metric row lacks regression test parity with LLM unresolved row — locus: test coverage; input: `AuditRowCountResolved` false (behavior already not-attested).
-- (candidate) `PilotValueReportService` — default window clamp uses tenant CreatedUtc without timezone-kind normalization — locus: `BuildAsync` window start; input: tenant record with unspecified-kind CreatedUtc.
+- (candidate) `FirstValueReportSponsorStatusSectionFormatter` — sponsor status table lacks audit-row basis row mirroring LLM call basis — locus: sponsor first-page status; input: unresolved audit count on committed run.
 - (candidate) `BuyerProofPackArtifactSummaryBuilder.SummarizeJsonElement` — string values omit pipe escaping in compact summary table — locus: proof checklist markdown; input: completeness string field containing `|` character.
+- (candidate) `PilotValueReportService.BuildAsync` — default window clamp uses tenant CreatedUtc without timezone-kind normalization — locus: `BuildAsync` window start; input: tenant record with unspecified-kind CreatedUtc.
+- (candidate) `SponsorOnePagerPdfBuilder.FormatAuditRows` — PDF one-pager audit formatting diverges from first-value markdown cap disclosure wording — locus: PDF audit row; input: truncated audit count.
+- (candidate) `PilotRunDeltasResponse` — unresolved audit still serializes numeric zero without omitting count from JSON — locus: pilot-run-deltas JSON; input: compare LLM null omission pattern for audit sentinel zero.
+
+2026-10-30 seed hunt (seed→hit): promoted pilot-run-deltas / proof completeness omitting `AuditRowCountResolved` so unresolved audit queries looked like confirmed zero/absent rows; added `AuditRowCountResolved` on `PilotRunDeltasResponse` and `ProofPackageCompletenessResponse`; mapper wiring; regressions in `PilotRunDeltasResponseMapperTests`, `PilotProofPackageCompletenessMapperTests`, and `FirstValueReportDeltasSectionFormatterTests`; cheap-disproof closed five hunt-64 `(candidate)` rows; seeded five follow-on rows; scoped **76** unit tests passed. Private beta: Operators and sponsor tooling reading pilot-run-deltas JSON can tell failed audit count queries apart from confirmed zero audit rows via `auditRowCountResolved`.
+
+- [x] (proven) `PilotRunDeltasResponseMapper` / `PilotProofPackageCompletenessMapper` — missing `AuditRowCountResolved` — **hit 2026-10-30 seed hunt:** API parity with LLM resolved flags; regressions above. [class:fail-open-validation]
+
+- [x] (invalid) `PilotProofPackageCompletenessMapper` — unresolved conflated with absent — **cheap-disproof 2026-10-30 seed hunt (hunt 65):** addressed by new `AuditRowCountResolved` field; `AuditRowsPresentOrLowerBound` unchanged semantics when resolved.
+- [x] (invalid) `FirstValueReportDeltasSectionFormatter` — missing regression only — **cheap-disproof 2026-10-30 seed hunt (hunt 65):** added `AppendComputedDeltasSection_when_audit_rows_unresolved_does_not_emit_zero_in_table` as part of hit.
+- [x] (invalid) `PilotValueReportService` — tenant CreatedUtc kind — **cheap-disproof 2026-10-30 seed hunt (hunt 65):** service uses `.UtcDateTime` on tenant record; no repro on current path.
+- [x] (invalid) `BuyerProofPackArtifactSummaryBuilder` — pipe escaping — **cheap-disproof 2026-10-30 seed hunt (hunt 65):** completeness bool/string values are controlled enums; no observed `|` in production fields today.
 
 2026-10-30 seed hunt (seed-only): re-read proof completeness mapper, first-value deltas formatter, and hunt-63 gate follow-ons; cheap-disproof closed five open `(candidate)` rows (audit markdown already uses **not attested** when unresolved; truncated+zero audit lower-bound not reachable on compute path; muted findings surfaced in findings section; sponsor evidence pack binds demo run only); no hunt-ready promotion — zone on hit-rate cooldown after hunt 63; seeded five follow-on `(candidate)` rows; scoped **55** `BuyerProofPack`/`BoardPack`/`PilotBuyerSafeEvidenceGate` unit tests passed. Private beta: n/a.
 
@@ -16746,11 +16755,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 64
-- **bugs-found:** 44
+- **hunts:** 65
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — buyer-safe gate misread unresolved audit count as zero rows
+- **last-bug:** 2026-10-30 — pilot-run-deltas missing auditRowCountResolved
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
