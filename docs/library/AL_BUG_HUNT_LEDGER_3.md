@@ -741,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 57 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 58 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-30 seed hunt #118 (seed-only): rotation kept `cli-draft-new` after one prior `cli-terraform-evidence` dry hunt; reread `DraftNewCommand.cs` and `DraftNewCommandCoreTests`, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
