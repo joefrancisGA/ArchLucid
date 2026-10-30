@@ -325,13 +325,8 @@ public sealed class SponsorOnePagerPdfBuilder(
         return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
     }
 
-    private static string FormatLlmCallCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.LlmCallCountResolved)
-            return "(not attested — execution trace query failed)";
-
-        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatPlainText(deltas);
 
     private static void RenderEvidenceChain(IContainer column, PilotRunDeltas deltas)
     {

@@ -118,19 +118,8 @@ public static class FirstValueReportDeltasSectionFormatter
             : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
     }
 
-    private static string FormatLlmCallCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.LlmCallCountResolved)
-            return "_(not attested — execution trace query failed)_";
-
-        if (deltas.LlmCallCount == 0)
-        {
-            return
-                "0 _(zero may be valid when simulator substitution applies — see execution mode / quality disposition)_";
-        }
-
-        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
 
     private static string FormatFindingsTotal(PilotRunDeltas deltas) =>
         PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas);
