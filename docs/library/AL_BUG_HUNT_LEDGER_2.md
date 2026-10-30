@@ -3611,6 +3611,21 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (hit #140): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded language tag character (`U+E0020`, supplementary-plane `Format` as UTF-16 surrogate pair) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; iterate `Rune` code points in `RemoveInvisibleKeyMaterialChars` so surrogate-pair format characters strip like BMP paste invisibles; regressions `When_admin_key_config_has_embedded_language_tag_char_still_authenticates`, `Normalize_strips_language_tag_char_embedded_in_key_material`, `GetSnapshot_treats_language_tag_char_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #139 (duplicate-header variation-selector-only first value via `When_enabled_true_and_duplicate_api_key_headers_skip_variation_selector_only_first_value`; enclosing-mark-only rotate replace via `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_enclosing_mark_only`; trailing-comma empty segment via existing comma-blank regressions; dual-slot expiry messaging via shared-key expiry regression; rotation audit actor contract via hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 87/89 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed supplementary-plane language-tag format characters between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer.RemoveInvisibleKeyMaterialChars` — surrogate-pair language tag breaks config/header parity — **hit 2026-10-30 thorough hunt #140:** `Rune` enumeration + supplementary `Format` strip; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers skip variation-selector-only first value — **cheap-disproof 2026-10-30 thorough hunt #140:** regression `When_enabled_true_and_duplicate_api_key_headers_skip_variation_selector_only_first_value`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — enclosing-mark-only slot uses replace not append — **cheap-disproof 2026-10-30 thorough hunt #140:** regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_enclosing_mark_only`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — trailing comma empty segment ignored — **cheap-disproof 2026-10-30 thorough hunt #140:** `When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — dual-slot expiry ordering on shared material — **cheap-disproof 2026-10-30 thorough hunt #140:** `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit actor contract — **cheap-disproof 2026-10-30 thorough hunt #140:** hunt #88 controller audit tests.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — locus: ~225–233; input: timing-safe auth compare (reachability: constant-time monitor).
+- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — locus: ~87–88; input: paste-only whitespace rotate (reachability: masker segment count).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — locus: ~64–67; input: production host + disabled auth (reachability: bypass guard regressions).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — locus: ~85; input: legacy invalidate route (#90 contract).
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — inbound header language tag matches config after rune normalization — locus: ~151; input: header carries `U+E0020`; reachability: normalization hit-suite monitor.
+
 2026-10-30 thorough hunt (hit #139): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded enclosing mark (`U+0489` COMBINING CYRILLIC MILLIONS SIGN, `UnicodeCategory.EnclosingMark`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended combining-mark stripping in `IsInvisibleKeyMaterialChar` to include `SpacingCombiningMark` and `EnclosingMark` alongside existing `NonSpacingMark`; regressions `When_admin_key_config_has_embedded_enclosing_mark_still_authenticates`, `Normalize_strips_embedded_enclosing_mark_from_key_material`, `GetSnapshot_treats_enclosing_mark_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #138 (`ConstantTimeKeyEquals` SHA-256 design ~225–233; `HasConfiguredKeyMaterial` whitespace-only masker ~87–88; Production bypass guard ~64–67; legacy rotate invalidate ~85; normalization hit-suite recycle including #138 non-spacing marks); reseeded five follow-on `(candidate)` rows; scoped filter 83/85 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed enclosing or spacing combining marks between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — enclosing mark paste breaks config/header parity — **hit 2026-10-30 thorough hunt #139:** strip `SpacingCombiningMark`/`EnclosingMark`; regressions above.
@@ -3620,11 +3635,11 @@
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-10-30 thorough hunt #139:** `InvalidatePrevious = true` ~85 by design (#90).
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — **cheap-disproof 2026-10-30 thorough hunt #139:** normalization hit suite covers Mn/Mc/Me paste parity through hunt #139.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `X-Api-Key` headers with variation-selector-only first value — locus: first-wins skip; input: two header lines; reachability: proxy duplicate-header monitor.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when enclosing-mark-only slot configured — locus: `HasConfiguredKeyMaterial`; input: `\u0489`-only slot; reachability: rotate replace monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — trailing comma segment invisible-only — locus: empty-segment skip; input: `valid,`; reachability: comma rotation monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — expired reader key fails before invalid-key when admin mismatch — locus: expiry messages ~117–123; input: wrong key + expired reader slot; reachability: dual-slot messaging monitor.
-- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit actor display name redacted — locus: audit payload; input: rotate under ApiKey principal; reachability: hunt #88 actor contract monitor.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers variation-selector-only first — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — enclosing-mark-only rotate replace — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — trailing comma empty segment — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — dual-slot expiry messaging — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit actor contract — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
 
 2026-10-30 thorough hunt (hit #138): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded variation selector (`U+FE00`, `UnicodeCategory.NonSpacingMark`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended `IsInvisibleKeyMaterialChar` to strip non-spacing marks (covers variation selectors and combining tone marks in paste paths); regressions `When_admin_key_config_has_embedded_variation_selector_still_authenticates`, `Normalize_strips_embedded_variation_selector_from_key_material`, `GetSnapshot_treats_variation_selector_only_admin_slot_as_unconfigured`, `Normalize_strips_embedded_combining_grave_tone_from_key_material`; cheap-disproof closed five open `(candidate)` rows from hunt #137 (duplicate-header invisible-first skip per hunt #136/`skip_invisible_only_first_value`; CGJ-only rotate slot unconfigured after #137 normalization; comma-segment ZWSP normalizes per existing suite; dual-slot expiry ordering per `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`; rotation audit omits plaintext per hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed variation selectors or other non-spacing marks between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
 
@@ -4217,11 +4232,11 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 139
-- **bugs-found:** 28
+- **hunts:** 140
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — enclosing mark paste broke API key auth while admin snapshot showed configured
+- **last-bug:** 2026-10-30 — supplementary-plane language tag paste broke API key auth while admin snapshot showed configured
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

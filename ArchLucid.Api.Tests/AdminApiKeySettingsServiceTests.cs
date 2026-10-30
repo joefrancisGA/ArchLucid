@@ -514,6 +514,38 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void GetSnapshot_treats_language_tag_char_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = char.ConvertFromUtf32(0xE0020)
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "language-tag-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_enclosing_mark_only()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u0489"
+            });
+
+        AdminApiKeyRotateResponse response = sut.Rotate(
+            new AdminApiKeyRotateRequest { Slot = "Admin", InvalidatePrevious = false });
+
+        response.DeploymentAction.Should().Be("Replace");
+        response.ReplaceConfigValue.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
     public void GetSnapshot_treats_tab_only_admin_slot_as_unconfigured()
     {
         AdminApiKeySettingsService sut = CreateService(

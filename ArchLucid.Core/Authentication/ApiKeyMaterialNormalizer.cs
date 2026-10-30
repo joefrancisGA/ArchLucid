@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace ArchLucid.Core.Authentication;
 
@@ -30,18 +31,27 @@ public static class ApiKeyMaterialNormalizer
         Span<char> buffer = value.Length <= 256 ? stackalloc char[value.Length] : new char[value.Length];
         int writeIndex = 0;
 
-        foreach (char character in value)
+        foreach (Rune rune in value.EnumerateRunes())
         {
-            if (IsInvisibleKeyMaterialChar(character))
+            if (IsInvisibleKeyMaterialRune(rune))
                 continue;
 
-            buffer[writeIndex++] = character;
+            writeIndex += rune.EncodeToUtf16(buffer[writeIndex..]);
         }
 
         return writeIndex == 0 ? string.Empty : new string(buffer[..writeIndex]);
     }
 
-    private static bool IsInvisibleKeyMaterialChar(char character)
+    private static bool IsInvisibleKeyMaterialRune(Rune rune)
+    {
+        if (rune.IsBmp)
+            return IsInvisibleKeyMaterialBmpChar((char)rune.Value);
+
+        // Supplementary-plane format characters (for example U+E0020 language tag) paste invisibly as UTF-16 surrogate pairs.
+        return Rune.GetUnicodeCategory(rune) == UnicodeCategory.Format;
+    }
+
+    private static bool IsInvisibleKeyMaterialBmpChar(char character)
     {
         UnicodeCategory category = char.GetUnicodeCategory(character);
 

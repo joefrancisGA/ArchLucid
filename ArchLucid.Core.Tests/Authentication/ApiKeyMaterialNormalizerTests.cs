@@ -196,4 +196,17 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u0489").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_language_tag_char_embedded_in_key_material()
+    {
+        string withTag = "sec" + char.ConvertFromUtf32(0xE0020) + "ret-admin";
+        ApiKeyMaterialNormalizer.Normalize(withTag).Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_language_tag_char_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize(char.ConvertFromUtf32(0xE0020)).Should().BeEmpty();
+    }
 }
