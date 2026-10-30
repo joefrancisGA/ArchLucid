@@ -2084,3 +2084,4 @@
 {"at":"2026-10-30T20:30:21.6302094Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
 {"at":"2026-10-30T20:32:08.9392466Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
 {"at":"2026-10-30T20:33:55.4826335Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
+{"at":"2026-10-30T20:35:44.5953654Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
