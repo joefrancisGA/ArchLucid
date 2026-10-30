@@ -178,7 +178,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string tokenText = token.ToString();
 
-        foreach (string segment in tokenText.Split(',', ';', '\t', '\v', '|', '&', ' '))
+        foreach (string segment in tokenText.Split(',', ';', '\t', '\v', '\f', '|', '&', ' '))
         {
             if (segment.Length == 0)
                 continue;
