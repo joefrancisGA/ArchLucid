@@ -16856,15 +16856,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows seeded after hunt 57; no failing repro. Sponsor aggregator shares the repaired `AgentCalibratedConfidenceByTaskIdBuilder` path (hit 2026-10-30 seed hunt). `ClassifyThresholdFailure` returns `semantic` when both structural and published-semantic floors pass but the gate already rejected on calibrated confidence (`AgentOutputQualityGate.cs` final branch); candidate misread structural mis-tag. Public rejection tokens intentionally name published semantic scores; calibrated threshold reject carries `quality_gate_threshold_reject` (2026-10-23 hit). Missing Real-task `findings` leaves citation ratio unevaluated by contract (`PilotStrict_NullCoverageRatio_DoesNotReject`). Prefix trace-id matching is intentional for shortened finding keys (`ResolveTraceForSnapshotFinding_uses_prefix_trace_id_match_before_engine_type_fallback`). Scoped **230** `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate task calibrated map — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** `AgentCalibratedConfidenceByTaskIdBuilder` now selects latest result (hunt 57); aggregator calls the same builder and `TryEvaluateTraceAsync`; regression `TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results`.
+- [x] (invalid) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated-only reject telemetry `structural` — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** empty-reason ladder returns `RejectReasonSemantic` when neither published floor fails; parity prior 2026-10-30 dry on calibrated/high semantic pairing.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — `pilot_semantic_score_below_floor` with calibrated reject — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** saturated `[state-machine-gap]` summary-token sibling; calibrated path adds `quality_gate_threshold_reject` (2026-10-23 hit).
+- [x] (invalid) `AgentOutputTraceFindingCitationCoverageApplicator.Apply` — Real task without `findings` skips LP-04 — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** intentional skip when ratio not evaluated; regression `PilotStrict_NullCoverageRatio_DoesNotReject`.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — 32-char prefix collision — **cheap-disproof 2026-10-30 thorough hunt (hunt 58):** prefix match resolves shortened persisted finding trace ids; regression `ResolveTraceForSnapshotFinding_uses_prefix_trace_id_match_before_engine_type_fallback`.
+
 2026-10-30 seed hunt (seed→hit): promoted `AgentCalibratedConfidenceByTaskIdBuilder.Build` last-write-wins on repository enumeration order for duplicate `taskId` rows instead of the latest result by `CreatedUtc`; a retried task could keep a stale low calibrated confidence and reject evaluation, block sponsor evidence, or skew finding-confidence enrichment after the retry passed; build the lookup with `AgentResultLatestForTaskSelector` (parity with structural execution mode, hunt 2026-10-10); regression `TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results`; seeded five follow-on `(candidate)` rows below; **230** scoped `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: PilotStrict quality evaluation and finding-confidence enrichment on retried agent tasks use the latest calibrated confidence, not an older attempt on the same task id.
 
 - [x] (proven) `AgentCalibratedConfidenceByTaskIdBuilder.Build` — stale calibrated confidence when duplicate task results are not listed oldest-first — **hit 2026-10-30 seed hunt:** latest-result selector when building task-id map; regression above.
-
-- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — sponsor block still keyed off shared calibrated map for duplicate task retries — locus: `AgentCalibratedConfidenceByTaskIdBuilder.Build`; input: two persisted results same `taskId` where only the latest should clear sponsor evidence; verify aggregator regression mirrors recorder/confidence pipeline.
-- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated-only semantic reject with high `OverallSemanticScore` — locus: `ClassifyThresholdFailure` uses published semantic score only; input: reject driven by calibrated confidence below floor while blended semantic score passes; wrong outcome: telemetry category `structural` instead of `semantic`.
-- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — `pilot_semantic_score_below_floor` when calibrated reject already applied — locus: PilotStrict block compares `OverallSemanticScore` to floor; input: low calibrated confidence with high blended semantic score; mechanism: misleading public token alongside `quality_gate_threshold_reject`.
-- [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator.Apply` — Real task without `findings` property skips LP-04 ratio — locus: `TryParseFindings` false early return; input: Real-mode trace with citations but no findings key; wrong outcome: `PilotStrictMinCitationCoverageRatio` gate skipped (`FindingCitationCoverageRatio` null).
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — 32-character prefix ties distinct trace ids — locus: prefix compare in `ResolveTraceForSnapshotFinding`; input: two traces sharing a 32-char prefix with different suffixes mapped to the wrong finding trace.
 
 2026-10-30 thorough hunt (dry): five open follow-on `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks stayed inside the saturated `[state-machine-gap]` summary-token class. Eighteen duplicate `(candidate)` rows still open under `### Hypotheses` were the 2026-10-22 closes left unchecked; those copies are ticked with the same disposition. No production code changed. Private beta: n/a.
 
@@ -16976,9 +16978,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — stale calibrated confidence on duplicate task results
 - **related-pd-tb:** none
