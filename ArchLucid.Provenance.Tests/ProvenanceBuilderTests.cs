@@ -3098,4 +3098,152 @@ public sealed class ProvenanceBuilderTests
         graph.Nodes.Count(n => n.Type == ProvenanceNodeType.GraphNode).Should().Be(1);
         graph.Edges.Count(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode).Should().Be(1);
     }
+
+    [Fact]
+    public void Build_deduplicates_influence_edges_when_duplicate_finding_rows_list_padded_related_ids_and_graph_lists_case_variant_nodes()
+    {
+        const string graphNodeId = "node-influence-dup-rows";
+        const string findingId = "finding-influence-dup-rows";
+
+        GraphSnapshot graphSnap = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = graphNodeId, NodeType = "Service", Label = "Lower" },
+                new GraphNode { NodeId = graphNodeId.ToUpperInvariant(), NodeType = "Service", Label = "Upper" },
+            ],
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "First",
+                    Rationale = "r",
+                    RelatedNodeIds = [$"  {graphNodeId}  "],
+                },
+                new Finding
+                {
+                    FindingId = findingId,
+                    FindingType = "Compliance",
+                    Category = "sec",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Second",
+                    Rationale = "r",
+                    RelatedNodeIds = [graphNodeId.ToUpperInvariant()],
+                },
+            ],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = findings,
+            Graph = graphSnap,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode).Should().Be(1);
+    }
+
+    [Fact]
+    public void Build_deduplicates_triggered_by_rule_when_manifest_lists_case_variant_decision_rows_and_padded_applied_rule_ids()
+    {
+        const string decisionId = "dec-trigger-dedup";
+        const string ruleId = "rule-trigger-dedup";
+
+        ResolvedArchitectureDecision firstRow = new()
+        {
+            DecisionId = decisionId,
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision secondRow = new()
+        {
+            DecisionId = decisionId.ToUpperInvariant(),
+            Category = "c",
+            Title = "Decide",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [firstRow, secondRow],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload
+            {
+                AppliedRuleIds = [ruleId, $"  {ruleId.ToUpperInvariant()}  "],
+            }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Decision).Should().Be(1);
+        graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Rule).Should().Be(1);
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.TriggeredByRule).Should().Be(1);
+    }
+
+    [Fact]
+    public void Build_preserves_artifact_format_metadata_when_duplicate_rows_differ_only_by_format_casing()
+    {
+        SynthesizedArtifact firstRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "md",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [],
+        };
+
+        SynthesizedArtifact secondRow = new()
+        {
+            ArtifactId = ArtifactId,
+            ArtifactType = "doc",
+            Name = "overview.md",
+            Format = "MD",
+            Content = "x",
+            ContentHash = "h",
+            ContributingDecisionIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [firstRow, secondRow],
+        });
+
+        ProvenanceNode artifactNode = graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Artifact).Subject;
+        artifactNode.Metadata["format"].Should().Be("MD");
+    }
 }
