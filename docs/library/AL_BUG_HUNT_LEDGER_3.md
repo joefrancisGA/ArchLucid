@@ -7813,6 +7813,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed three open `(candidate)` rows — repeated SampleOnly status refreshes retain the real result because the auto-sample effect is guarded by `result === null`; `DemoPreviewArtifactNav` disconnects its observer during effect cleanup and no callback can update unmounted UI; `recordShowcaseFunnelEvent` uses the same trimmed-scenario early return as `recordShowcaseViewed`. Reseeded three follow-on `(candidate)` rows. 31 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #6:** existing SampleOnly-after-real-result regression covers the guard.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — **cheap-disproof 2026-10-30 thorough hunt #6:** effect cleanup disconnects the observer; no mounted state update remains reachable.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #6:** both functions trim and return before telemetry for empty scenarios.
+
+- [ ] (candidate) `useQuickScanClient` — status refresh after failed sample can restart the sample request repeatedly — locus: effect dependency on `result` and `status`; input: rejected sample + repeated status updates (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — locus: `sections` snapshot vs visibility map; input: dynamic artifact removal (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel event can emit with whitespace render mode while viewed event is valid — locus: render-mode contract; input: malformed telemetry props (monitor).
+
 2026-10-30 thorough hunt #5 (dry): the picker re-presented five marketing monitor rows already closed by thorough hunt #4 because the reseed block remained duplicated as open rows. Revalidated the existing regressions and classified the duplicate rows as valid-no-repro; removed the stale open duplicates and seeded three bounded follow-on monitor rows. 31 scoped vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) duplicate picker rows for Quick Scan POST/sample ordering, sample error reset, artifact navigation IO/click ordering, blocked-storage browser identity, and blank showcase telemetry — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already closed by the preceding #4 regressions; no new hunt-ready mechanism.
