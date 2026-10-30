@@ -3051,6 +3051,162 @@ public sealed class {|#0:DefaultInterfaceAwaitUsingDisposeAuditController|}(IAud
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task AL0003_reports_when_mutually_recursive_locals_with_LogAsync_are_never_invoked_from_entry()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class MutuallyRecursiveLocalController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> {|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        async System.Threading.Tasks.Task LocalAAsync()
+        {
+            await LocalBAsync();
+        }
+
+        async System.Threading.Tasks.Task LocalBAsync()
+        {
+            await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+            await LocalAAsync();
+        }
+
+        return Ok();
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.MutuallyRecursiveLocalController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_LogAsync_runs_only_from_catch_filter_local()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class CatchFilterLocalAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> {|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok();
+        }
+        catch (System.Exception ex) when (LogInCatchFilter(ex, cancellationToken))
+        {
+            throw;
+        }
+    }
+
+    bool LogInCatchFilter(System.Exception ex, System.Threading.CancellationToken cancellationToken)
+    {
+        _ = auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+        return false;
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.CatchFilterLocalAuditController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_default_interface_LogAsync_runs_only_from_catch_filter()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+internal static class DefaultInterfaceCatchFilterProbe
+{
+    public static IAuditService AuditService = null!;
+}
+
+public interface IDefaultMutatingApi
+{
+    [HttpPost("x")]
+    async System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        try
+        {
+            return null!;
+        }
+        catch (System.Exception ex) when (LogInCatchFilter(ex, cancellationToken))
+        {
+            throw;
+        }
+
+        bool LogInCatchFilter(System.Exception ex, System.Threading.CancellationToken cancellationToken)
+        {
+            _ = DefaultInterfaceCatchFilterProbe.AuditService.LogAsync(
+                new AuditEvent { EventType = "Probe" },
+                cancellationToken);
+            return false;
+        }
+    }
+}
+
+public sealed class {|#0:DefaultInterfaceCatchFilterAuditController|}(IAuditService auditService)
+    : ControllerBase, IDefaultMutatingApi
+{
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.DefaultInterfaceCatchFilterAuditController.ArchLucid.Api.Probe.IDefaultMutatingApi.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
         ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)

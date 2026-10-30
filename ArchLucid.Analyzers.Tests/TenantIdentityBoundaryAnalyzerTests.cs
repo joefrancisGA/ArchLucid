@@ -847,6 +847,29 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_params_HttpContext_array_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(params {|#0:HttpContext|}[] contexts) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
   public async Task Reports_out_HttpContext_parameter()
   {
     const string testCode = """

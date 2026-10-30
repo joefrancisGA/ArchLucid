@@ -539,11 +539,16 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             LocalFunctionStatementSyntax? callerLocalFunctionStatementSyntax =
                 invocationSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
-            if (callerLocalFunctionStatementSyntax is null ||
-                reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
+            if (callerLocalFunctionStatementSyntax is null)
             {
+                if (invocationSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+                    continue;
+
                 return true;
             }
+
+            if (reachableLocalFunctions.Contains(callerLocalFunctionStatementSyntax))
+                return true;
         }
 
         return false;
@@ -574,7 +579,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             memberAccessExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
         if (enclosingLocalFunction is null)
-            return true;
+        {
+            return memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+        }
 
         return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
     }
@@ -587,7 +594,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
         if (enclosingLocalFunction is null)
-            return true;
+        {
+            return invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+        }
 
         return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
     }
