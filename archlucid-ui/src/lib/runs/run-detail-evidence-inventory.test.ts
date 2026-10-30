@@ -6,9 +6,12 @@ import {
   deriveEvidenceScopeReadiness,
   deriveRunDetailEvidenceInventory,
   formatRunDetailEvidenceCitingFindingCount,
+  formatRunDetailEvidenceSourceNameDisplay,
   findingsCiteEvidenceWithoutStoredSourceNames,
   FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE,
   RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+  RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED,
+  RUN_DETAIL_EVIDENCE_SOURCE_NAME_STORED_EMPTY,
 } from "@/lib/runs/run-detail-evidence-inventory";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -27,6 +30,14 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
 }
 
 describe("run-detail-evidence-inventory", () => {
+  it("formatRunDetailEvidenceSourceNameDisplay distinguishes not stored from stored empty", () => {
+    expect(formatRunDetailEvidenceSourceNameDisplay(RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED)).toBe(
+      RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED,
+    );
+    expect(formatRunDetailEvidenceSourceNameDisplay("   ")).toBe(RUN_DETAIL_EVIDENCE_SOURCE_NAME_STORED_EMPTY);
+    expect(formatRunDetailEvidenceSourceNameDisplay("policy.pdf")).toBe("policy.pdf");
+  });
+
   it("withholds citing finding counts when findings snapshot was not stored (P-09)", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [],
