@@ -280,8 +280,17 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL =
   "All resources whose connection state was not classified" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING =
+  "Starting resource has no stored resource group — narrow by resource group is unavailable." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG =
   "Same resource group as starting resource" as const;
+
+export function startingDiagramOutlineResourceGroupStored(
+  startingNode: { readonly resourceGroup?: string | null } | null,
+): boolean {
+  return (startingNode?.resourceGroup?.trim() ?? "").length > 0;
+}
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR =
   "Shares a diagram edge with the starting resource (layout adjacency, not network isolation)." as const;

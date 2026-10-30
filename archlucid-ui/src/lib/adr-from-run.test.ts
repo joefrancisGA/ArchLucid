@@ -374,6 +374,38 @@ describe("adr-from-run", () => {
     expect(input.findings.length).toBe(2);
     expect(input.findings[0]?.findingId).toBe("high");
     expect(input.findings[1]?.findingId).toBe("low");
+    expect(input.omittedMutedFindingCount).toBe(1);
+  });
+
+  it("buildMadrMarkdownFromRun labels muted-only exports separately from missing findings", () => {
+    const muted: QuickDecisionFinding = {
+      findingId: "muted",
+      title: "Muted",
+      recommendation: "r",
+      severityValue: 3,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "c" },
+      isMuted: true,
+      muteReason: "noise",
+    };
+
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [muted],
+      maxFindings: 5,
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    const md = buildMadrMarkdownFromRun(input);
+
+    expect(md).toContain("Muted findings were stored on this review and are not included in this ADR export.");
   });
 
   it("buildAdrGeneratorRunInput forwards trust labels from quick decision findings", () => {

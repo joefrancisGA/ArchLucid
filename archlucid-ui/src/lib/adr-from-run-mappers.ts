@@ -126,8 +126,10 @@ export function buildAdrGeneratorRunInput(args: {
         ? args.maxFindings
         : DEFAULT_MAX_FINDINGS;
   const explanation = buildAdrExplanationSlice(args.explanationSummary);
+  const mutedFindingCount = args.quickDecisionFindings.filter((finding) => finding.isMuted === true).length;
   const sorted = sortQuickDecisionFindings(args.quickDecisionFindings).filter((f) => f.isMuted !== true);
   const capped = sorted.slice(0, Math.max(0, Math.trunc(maxFindings)));
+  const omittedCappedFindingCount = Math.max(0, sorted.length - capped.length);
   const findings: AdrGeneratorFindingSlice[] = capped.map((f) => {
     const semanticSupportFields = resolveFindingSemanticSupportBandExportFields(f);
 
@@ -155,5 +157,7 @@ export function buildAdrGeneratorRunInput(args: {
     manifestCounts: args.manifestCounts,
     explanation,
     findings,
+    omittedCappedFindingCount,
+    omittedMutedFindingCount: mutedFindingCount,
   };
 }

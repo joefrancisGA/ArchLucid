@@ -68,6 +68,11 @@ public static class ArchitectureManifestMarkdownSummaryExport
     public static string FormatSnapshotRelationshipCountPhrase(int count) =>
         count == 0 ? RelationshipsNotListedOnSnapshot : $"{count} relationship(s)";
 
+    public static string FormatRelationshipsSummaryCapRemainderLine(int omittedCount) =>
+        omittedCount == 1
+            ? "1 more relationship was stored on this snapshot and is not listed in this summary."
+            : $"{omittedCount} more relationships were stored on this snapshot and are not listed in this summary.";
+
     public static string FormatManifestCollectionCountLabel(string countLabel, int count) =>
         count == 0
             ? countLabel switch

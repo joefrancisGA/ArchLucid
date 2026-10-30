@@ -79,6 +79,16 @@ function nodeMatchesUnknownSearchQuery(
   return haystack.includes(trimmed);
 }
 
+export function resolveDiagramOutlineStartingResourceGroup(
+  outline: InfraEvidenceMermaidOutline,
+  startingSeedId: string | null | undefined,
+): string | null {
+  const startingNode = resolveDiagramOutlineStartingNode(outline, startingSeedId);
+  const trimmed = startingNode?.resourceGroup?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function filterDiagramOutlineUnknownNodes(input: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly outline: InfraEvidenceMermaidOutline;

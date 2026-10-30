@@ -356,9 +356,13 @@ internal static class DiagramForestDataFlowRollup
                 ? DiagramForestDiagramNeighborOnViewCopy.FormatNoNeighborOnViewStatusLine()
                 : DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(neighborCount);
         }
-        string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
-            ? "Resource group was not stored."
-            : member.ArmResourceGroup.Trim();
+        string resourceGroup = member.ArmResourceGroup switch
+        {
+            null => "Resource group was not stored.",
+            { Length: 0 } => "Resource group was stored empty.",
+            var value when string.IsNullOrWhiteSpace(value) => "Resource group was stored empty.",
+            var value => value.Trim(),
+        };
         return string.Join(
             " · ",
             new[] { caption.ResourceName, resourceGroup, status }

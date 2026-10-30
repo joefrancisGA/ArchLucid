@@ -25,7 +25,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
-import { ASK_RETRIEVAL_MODE_NOT_STORED_LABEL, ASK_RETRIEVAL_NOT_DEGRADED_LABEL } from "@/lib/ask-retrieval-mode-copy";
+import {
+  ASK_RETRIEVAL_DEGRADED_LABEL,
+  ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
+  ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
+} from "@/lib/ask-retrieval-mode-copy";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   askReviewArtifactStatusCopy,
@@ -36,7 +40,6 @@ import {
 import {
   BUYER_ASK_CONVERSATION_EMPTY_BODY,
   BUYER_ASK_CONVERSATION_EMPTY_TITLE,
-  BUYER_ASK_RETRIEVAL_DEGRADED_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -237,11 +240,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ) : retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"
-            label={
-              buyerPolishedShell
-                ? BUYER_ASK_RETRIEVAL_DEGRADED_LABEL
-                : "Vector search was stored as unavailable. The fallback search mode was not stored."
-            }
+            label={ASK_RETRIEVAL_DEGRADED_LABEL}
             data-testid="ask-retrieval-degraded-badge"
           />
         ) : (

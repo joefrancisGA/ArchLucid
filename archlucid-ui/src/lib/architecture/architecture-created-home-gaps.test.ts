@@ -53,6 +53,20 @@ describe("buildMissingItems artifact honesty (P-14)", () => {
     );
 
     expect(items.some((item) => item.label.includes("not uploaded"))).toBe(false);
+    expect(items.some((item) => item.id === "artifact-bundle-unknown")).toBe(true);
+  });
+});
+
+describe("buildMissingItems people and systems (P-17)", () => {
+  it("surfaces stored-empty list copy when the system name is stored", () => {
+    const items = buildMissingItems(
+      baseInput({
+        architectureName: "Payments",
+        peopleAndSystems: [],
+      }),
+    );
+
+    expect(items.find((item) => item.id === "people-systems")?.label).toContain("stored empty");
   });
 });
 

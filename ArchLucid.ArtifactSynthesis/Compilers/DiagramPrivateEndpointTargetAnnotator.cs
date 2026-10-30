@@ -69,9 +69,13 @@ internal static class DiagramPrivateEndpointTargetAnnotator
                 continue;
             }
 
-            string? privateEndpointName = string.IsNullOrWhiteSpace(fromGraphNode.Label)
-                ? null
-                : fromGraphNode.Label.Trim();
+            string? privateEndpointName = fromGraphNode.Label switch
+            {
+                null => null,
+                { Length: 0 } => string.Empty,
+                var label when string.IsNullOrWhiteSpace(label) => string.Empty,
+                var label => label.Trim(),
+            };
 
             foreach (DiagramNode targetNode in targetNodes)
             {
