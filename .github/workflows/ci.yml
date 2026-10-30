@@ -644,6 +644,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_sponsor_visibility
 
+      - name: SecureNow decision velocity
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_decision_velocity.py
+
+      - name: SecureNow decision velocity unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_decision_velocity
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py
