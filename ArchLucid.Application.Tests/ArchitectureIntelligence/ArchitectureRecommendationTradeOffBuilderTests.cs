@@ -616,6 +616,34 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        IReadOnlyList<string> normalized = ClosedLoopDeclaredPrioritiesNormalizer.Normalize(
+            ["priority #1: Cost over Security"]);
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            normalized);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Be(
+            "Prioritize cost-first with explicit compensating controls.");
+    }
+
+    [Fact]
     public void BuildRecommendations_prefers_reliability_first_when_priority_is_cost_of_reliability_program()
     {
         ArchitectureRecommendationEngine sut = new();

@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a later `over` hid an earlier `before` in the same priority
+- **last-bug:** 2026-10-30 — `priority #1` cut the explicit pair at the hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `priority #1: Cost over Security` resolving balanced because path canonicalization cut the priority at `#`; prose without a slash or backslash now skips that canonicalizer; regression `BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests passed (`RunAnalyzers=false`). Private beta: when an invited operator numbers a priority as priority #1 and then says cost over security, the security-versus-cost recommendation follows that pair.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — `priority #1: Cost over Security` dropped the pair at `#` — **hit 2026-10-30 seed hunt:** skip path canonicalization unless the priority contains `/` or `\`; regression `BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash`.
 
 2026-10-30 seed hunt (seed→hit): promoted `Security before Cost, Cost over Security` resolving cost-first because `over` was searched before `before`; the earliest explicit pair in the string now wins; regression `BuildRecommendations_prefers_security_first_when_before_clause_precedes_over_clause`; Alternatives/ProposedChange/TradeOff tests 112/112. Private beta: when an invited operator writes security before cost and then cost over security in the same priority, the security-versus-cost recommendation follows the earlier clause.
 
@@ -5880,11 +5884,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 73
+- **hunts:** 74
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 28
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a later `over` hid an earlier `before` in the same priority
+- **last-bug:** 2026-10-30 — `priority #1` cut the explicit pair at the hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
