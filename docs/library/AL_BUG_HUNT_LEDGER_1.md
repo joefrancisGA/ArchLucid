@@ -6024,6 +6024,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-30 thorough hunt (hit): promoted localized RACI `owner：team` (fullwidth colon U+FF1A) matching bounded `owner` while `unowned` appeared elsewhere; fullwidth colon added to ownership label delimiters; matrix case `fullwidth-colon-owner`; cheap-disproof closed four sibling `(candidate)` rows (figure space `\u2007` and NBSP regulatory/lifecycle parity covered by flexible phrase whitespace hunt 44; soft hyphen `as\u00ADis` token still intentional literal hyphen contract—target scope follows ASCII `to be` only; dual lifecycle with NBSP `as is` already emits transition once phrase matching is used in tests); **95** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: localized architecture paste with fullwidth-colon RACI labels no longer invents operational-ownership gaps when legacy capacity is described as unowned elsewhere.
+
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — figure space `\u2007` in `as is` — **cheap-disproof 2026-10-30 thorough hunt (hunt 45):** flexible Unicode whitespace parity with hunt 44; regression `Extract_tags_current_lifecycle_scope_after_figure_space_as_is_header`.
+- [x] (valid-no-repro) `ContainsHumanReviewMarker` — NBSP inside `soc 2` — **cheap-disproof 2026-10-30 thorough hunt (hunt 45):** shared phrase matcher; regression `Classify_returns_human_review_for_soc_2_with_no_break_space`.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — fullwidth colon `owner：team` — **hit 2026-10-30 thorough hunt (hunt 45):** U+FF1A ownership delimiters; matrix `fullwidth-colon-owner`.
+- [x] (invalid) `ContainsTokenMarker` — soft hyphen inside `as-is` — **cheap-disproof 2026-10-30 thorough hunt (hunt 45):** hyphenated token markers remain literal by contract; regression `Extract_tags_lifecycle_scope_when_as_is_uses_soft_hyphen_line_break` documents target scope from ASCII `to be` header.
+- [x] (valid-no-repro) `LooksAmbiguous` — NBSP `as is` with ASCII `to be` — **cheap-disproof 2026-10-30 thorough hunt (hunt 45):** flexible phrase matching; regressions `Classify_returns_ambiguous_for_nbsp_as_is_with_ascii_to_be` and `Extract_emits_dual_lifecycle_transition_for_nbsp_as_is_with_ascii_to_be`.
+
+- [ ] (candidate) `TryMatchBoundedMarker` — ideographic space `\u3000` between multi-word regulatory phrases — locus: phrase whitespace loop uses `char.IsWhiteSpace`; input: CJK-formatted compliance paste; mechanism: confirm parity regression gap for `data protection` markers.
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — fullwidth parentheses `（owner）` RACI labels — locus: delimiter set uses ASCII parens only; input: localized runbook with separate `unowned` mention.
+- [ ] (candidate) `ContainsTokenMarker` — multiplication sign `\u00D7` separator in `as×is` typo export — locus: token markers require hyphen; input: corrupted export headers; wrong outcome: lifecycle scope drift.
+- [ ] (candidate) `FindBoundedMarkerIndex` — trailing combining acute on `be` in `to be\u0301` header — locus: ordinal case-insensitive char match; input: PDF composed Unicode; mechanism: target boundary missed while ASCII `to be` substring appears normalized in viewer.
+- [ ] (candidate) `Extract` — `Owners` plural marker with separate `unowned` without singular `owner` — locus: `ContainsOwnershipMarker` plural fallback; input: enterprise RACI using plural only; wrong outcome: skip ownership gap detection.
+
 2026-10-30 thorough hunt (hit): promoted `FindBoundedMarkerIndex` phrase matching requiring ASCII space only, so PDF-export `to\u202Fbe` headers did not establish target-state lifecycle boundaries and components after them kept prior `as is` scope; phrase markers now treat any Unicode whitespace between words as a space separator; regression `Extract_tags_target_lifecycle_scope_after_narrow_no_break_space_to_be_header`; cheap-disproof closed four sibling `(candidate)` rows (`~owner~` blocked by `~` delimiters; possessive `owner's` blocked by `'` closing delimiter; `owner-gateway` hyphen end boundary; snake_case `as_is`/`to_be` intentionally hyphen/space-only per 2026-10-23 lifecycle hit); **88** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: architecture-intelligence extraction on PDF-exported lifecycle headings with narrow no-break spaces tags target-state components correctly.
 
 - [x] (valid-no-repro) `FindBoundedOwnershipMarkerIndex` — markdown single-tilde strike `~owner~` — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** lone leading `~` is an ownership opening delimiter; regression `Extract_does_not_emit_ownership_gap_for_single_tilde_strike_owner_with_unowned`.
@@ -6114,11 +6128,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 44
-- **bugs-found:** 24
+- **hunts:** 45
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — NNBSP `to be` lifecycle boundary
+- **last-bug:** 2026-10-30 — fullwidth-colon `owner` false ownership token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
