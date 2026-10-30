@@ -91,7 +91,8 @@ public static class SendableExportCoverComposer
 
         if (!string.IsNullOrWhiteSpace(input.CoverageContext.RunId))
         {
-            sb.AppendLine($"- **Review id:** `{input.CoverageContext.RunId.Trim()}`");
+            sb.AppendLine(
+                $"- **Review id:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(input.CoverageContext.RunId.Trim())}");
         }
         else
         {

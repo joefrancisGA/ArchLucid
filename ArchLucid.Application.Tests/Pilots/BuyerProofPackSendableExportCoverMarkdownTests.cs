@@ -32,4 +32,23 @@ public sealed class BuyerProofPackSendableExportCoverMarkdownTests
 
         sb.ToString().Should().Contain("**Review record status:** `Committed\\|Pending`");
     }
+
+    [Fact]
+    public void Sendable_cover_when_review_id_contains_backtick_preserves_inline_code()
+    {
+        CareerExportCoverageHonestyInput input = new(
+            new SponsorReviewCoverageHonestyContext(
+                RunId: "run`kpi",
+                Verdict: new FeasibilityVerdict { Kind = FeasibilityVerdictKind.Feasible },
+                AnalysisStagesComplete: true,
+                ActorNodeCount: 0),
+            EnginesSucceeded: null,
+            WorkingDesk: false,
+            ClassificationCounts: null);
+
+        StringBuilder sb = new();
+        SendableExportCoverComposer.AppendMarkdownSection(sb, input);
+
+        sb.ToString().Should().Contain("**Review id:** ``run`kpi``");
+    }
 }

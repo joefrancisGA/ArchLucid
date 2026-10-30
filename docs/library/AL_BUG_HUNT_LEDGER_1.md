@@ -16632,6 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-30 seed hunt (hunt 129, seed→hit): reseeded `application-pilots` after hunt 128; promoted **Sendable export cover** markdown **Review id** line using a single-backtick fence around raw run ids so interior backticks broke inline code while other sponsor surfaces already used `WrapMarkdownInlineCode`; regression `Sendable_cover_when_review_id_contains_backtick_preserves_inline_code`; cheap-disproof closed five open `(candidate)` rows — review id backtick monitor closed this hit, ROI baseline table monitor retained, markdown vs PDF apostrophe parity monitor retained, contract bypass monitor only, trace GUID theoretical; scoped **125** BuyerProofPack/BoardPack-filter tests passed. Private beta: First-value sendable-export cover markdown keeps review ids readable when persisted run ids include backticks.
+
+- [x] (proven) `SendableExportCoverComposer.AppendMarkdownSection` — review id single-backtick fence — **hit 2026-10-30 seed hunt (hunt 129):** `WrapMarkdownInlineCode`; regression above. [class:other]
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — per-field basis table inline-code wrap — **cheap-disproof 2026-10-30 seed hunt (hunt 129):** basis labels remain closed enum strings; monitor retained.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.AppendFindingsSection` — markdown severity table vs PDF plain-text quoting parity for apostrophe labels — **cheap-disproof 2026-10-30 seed hunt (hunt 129):** markdown inline code vs PDF SQL quotes by design; monitor retained.
+- [x] (valid-no-repro) `InferredTrailEntry.FormatMarkdownExportLine` — markdown bypass — **cheap-disproof 2026-10-30 seed hunt (hunt 129):** sponsor markdown uses `FormatInferredTrailExportLine` since hunt 93.
+- [x] (valid-no-repro) `FirstValueReportTraceSectionFormatter` — GUID table pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 129):** duplicate monitor; `D` GUID tokens pipe-free.
+
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor if basis labels ever echo tenant text (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.AppendFindingsSection` — markdown severity table vs PDF plain-text quoting parity for apostrophe labels — locus: computed deltas surfaces; input: monitor.
+- (candidate) `InferredTrailEntry.FormatMarkdownExportLine` — direct contract formatter bypasses export sanitizer — locus: contract unit tests only today; input: monitor.
+- (candidate) `FirstValueReportTraceSectionFormatter` — evidence chain GUID cells when id formatting ever includes pipe — locus: `FormatGuid` table cells; input: n/a GUID (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — locus: computed deltas surfaces; input: monitor.
+
 2026-10-30 seed hunt (hunt 128, seed→hit): reseeded `application-pilots` after hunt 127; promoted **Sendable export cover** markdown leaving **Review record status** unwrapped while sibling review id already used backticks; wrap persisted status with `FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode` in `FormatReviewRecordStatusMarkdownLine`; regression `Sendable_cover_when_review_record_status_contains_pipe_wraps_inline_code`; cheap-disproof closed five open `(candidate)` rows — review record status monitor closed this hit, ROI baseline table monitor retained, markdown vs PDF apostrophe parity monitor retained, contract bypass monitor only, trace GUID theoretical; scoped **124** BuyerProofPack/BoardPack-filter tests passed. Private beta: First-value sendable-export cover markdown no longer renders ambiguous review-record status when persisted copy includes punctuation.
 
 - [x] (proven) `SendableExportCoverComposer.FormatReviewRecordStatusMarkdownLine` — review record status without inline-code wrap — **hit 2026-10-30 seed hunt (hunt 128):** `WrapMarkdownInlineCode`; regression above. [class:other]
