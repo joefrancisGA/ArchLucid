@@ -206,7 +206,7 @@ internal class ScimBearerAuthenticationHandler(
     {
         foreach (char character in tail)
         {
-            if (character is '|' or '\\' or '\uFF5C')
+            if (character is '|' or '/' or '\\' or '\uFF5C')
                 continue;
 
             if (char.IsWhiteSpace(character))
