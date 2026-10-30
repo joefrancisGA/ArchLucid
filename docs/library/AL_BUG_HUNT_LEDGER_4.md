@@ -9826,7 +9826,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge with trailing base64 after double-quoted realm — locus: comma-segment scan; input: `WWW-Authenticate: Basic realm="app", dXNlcjpwYXNz`; wrong outcome: leak; reachability: malformed challenge dumps.
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie2:` Path compound with eight-character session — locus: cookie scan; input: `Set-Cookie2: a=1; session=12345678; Path=/`; wrong outcome: preserve long session; reachability: browser-style Set-Cookie2 dumps.
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` with unquoted realm base64 after comma — locus: shared Basic scan; input: `Proxy-Authorization: Basic realm=app, dXNlcjpwYXNz`; wrong outcome: leak; reachability: proxy header pastes.
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded plus — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%2B"}``; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded plus — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%2B"}`; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
 
 2026-10-30 seed hunt #705 (hit): proved Basic authorization pastes with **thin-space-separated** suffix parameters leaked because delimiter truncation covered figure space but not `\u2009`; fixed via thin-space suffix truncation in `TryBasicAuthorizationPayloadFromToken`; cheap-disproof closed trailing base64 after backtick `realm` (`Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_backtick_quoted_realm`), eight-character `Set-Cookie2:` session values before `SameSite` (`Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_samesite`), `Proxy-Authorization: Basic` single-quoted realm pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_single_quotes_contain_base64_userinfo`), and JSON string properties with percent-encoded ampersand on Basic pastes (`Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_ampersand_on_basic_paste`); regression `Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_thin_space_suffix`; reseeded five `(candidate)` rows; scoped Configuration filter **2960/2960** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Basic pastes that use thin-space-delimited suffix junk after base64.
 
@@ -9835,12 +9835,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie2:` SameSite compound with eight-character session — **cheap-disproof 2026-10-30 seed hunt #705:** length gate; regression above.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` with realm base64 in single quotes — **cheap-disproof 2026-10-30 seed hunt #705:** shared Basic scan; regression above.
 - [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded ampersand — **cheap-disproof 2026-10-30 seed hunt #705:** JSON + percent decode; regression above.
-
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic payload truncated by hair-space suffix — locus: whitespace delimiters; input: `Authorization: Basic dXNlcjpwYXNz\u200aother=value`; wrong outcome: leak; reachability: concatenated header pastes in logs.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge with trailing base64 after single-quoted realm — locus: comma-segment scan; input: `WWW-Authenticate: Basic realm='app', dXNlcjpwYXNz`; wrong outcome: leak; reachability: malformed challenge dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie:` Path compound with eight-character session — locus: cookie scan; input: `Set-Cookie: a=1; session=12345678; Path=/`; wrong outcome: preserve long session; reachability: browser-style Set-Cookie dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` with realm base64 in double quotes — locus: shared Basic scan; input: `Proxy-Authorization: Basic realm="dXNlcjpwYXNz"`; wrong outcome: leak; reachability: proxy header pastes.
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded equals — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%3D"}`; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
 
 2026-10-30 seed hunt #704 (hit): proved Basic authorization pastes with **figure-space-separated** suffix parameters leaked because delimiter truncation covered narrow no-break space but not `\u2007`; fixed via figure-space suffix truncation in `TryBasicAuthorizationPayloadFromToken`; cheap-disproof closed trailing base64 after square-bracket `realm` (`Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_square_bracket_realm`), eight-character `Set-Cookie:` session values before `SameSite` (`Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_samesite`), `Proxy-Authorization: Basic` backtick realm pastes (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_backticks_contain_base64_userinfo`), and JSON string properties with percent-encoded semicolon on Basic pastes (`Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_semicolon_on_basic_paste`); regression `Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_figure_space_suffix`; reseeded five `(candidate)` rows; scoped Configuration filter **2956/2956** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Basic pastes that use figure-space-delimited suffix junk after base64.
 
@@ -15339,11 +15333,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 663
-- **bugs-found:** 1037
+- **hunts:** 664
+- **bugs-found:** 1038
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — thin-space Basic suffix redaction in config summary
+- **last-bug:** 2026-10-30 — hair-space Basic suffix redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none
