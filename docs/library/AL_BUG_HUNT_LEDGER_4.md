@@ -16098,11 +16098,21 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 36
-- **bugs-found:** 36
+- **hunts:** 37
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 - spaced ASCII backslash between phrase words broke managed identity detection
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — spaced ASCII pipe between phrase words broke managed identity detection
+
+2026-10-30 seed hunt #860 (seed→hit): reseeded phrase normalization after backslash fix; proved spaced ASCII `|` between words (`managed | identity`) missed `HasManagedIdentityConstraint` while compact `managed|identity` slugs stayed suppressed via compound-identifier delimiters; `NormalizeSpacedAsciiPipe` mirrors spaced solidus/backslash; regressions in `RequestConstraintPhraseSpacedPipeTests`; reseeded five `(candidate)` rows; scoped RequestConstraint filter **916/916** (Release, `RunAnalyzers=false`). Private beta: architecture intake constraint text with paste-style spaced pipes now classifies managed identity requirements instead of silently missing them on the RC35 line.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII pipe between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-30 seed hunt #860 (seed→hit):** map `|` to ASCII space when adjacent to ASCII spaces; regressions in `RequestConstraintPhraseSpacedPipeTests`.
+
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII colon between phrase words (`private : endpoint`) may miss affirmative phrase detection — locus: post-normalization phrase scan; input: spaced colon between networking phrase words (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII plus between phrase words (`managed + identity`) may miss affirmative phrase detection — locus: normalization chain; input: spaced plus between identity phrase words (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII ampersand between phrase words (`encryption & keys`) may miss affirmative encryption phrase — locus: normalization chain; input: spaced ampersand inside encryption constraint text (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII equals between phrase words (`private = endpoint`) may miss private networking phrase — locus: normalization chain; input: spaced equals between private networking words (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced pipe inside negated suffix (`managed | identity is not required`) may false-affirm — locus: suffix negation after pipe normalization; input: spaced pipe phrase followed by suffix negation (monitor).
 
 2026-10-22 thorough hunt (hit): proved spaced ASCII `\` between phrase words (`managed \ identity`) missed `HasManagedIdentityConstraint` while compact `managed\identity` slugs stayed suppressed; `NormalizeSpacedAsciiBackslash` mirrors spaced solidus; regressions in `RequestConstraintPhraseSpacedBackslashTests`; cheap-disproof closed duplicate-space private-networking, spaced-hyphen, capability-token, and suffix-negation spacing candidates (ASCII spaces route through `SpaceSeparator` slow path and `CollapseConsecutiveAsciiSpaces`); 914 scoped RequestConstraint tests passed.
 
