@@ -707,6 +707,49 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_coalesces_decision_display_title_when_duplicate_rows_differ_only_by_title_casing()
+    {
+        ResolvedArchitectureDecision lower = new()
+        {
+            DecisionId = "dec-1",
+            Category = "c",
+            Title = "Enable regional WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision upper = new()
+        {
+            DecisionId = "DEC-1",
+            Category = "c",
+            Title = "ENABLE REGIONAL WAF",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [lower, upper],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.Decision)
+            .Which.Name.Should().Be("ENABLE REGIONAL WAF");
+    }
+
+    [Fact]
     public void Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids()
     {
         ResolvedArchitectureDecision lower = new()
