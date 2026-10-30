@@ -220,8 +220,11 @@ public sealed class SponsorOnePagerPdfBuilder(
                         .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
                     {
-                        column.Item().PaddingTop(4).Text($"Committed manifest version: {FormatManifestVersion(manifest)}");
-                        column.Item().Text($"System: {FormatSystemName(manifest)}");
+                        column.Item().PaddingTop(4).Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatCommittedManifestVersionLine(
+                                manifest.Metadata.ManifestVersion));
+                        column.Item().Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatSystemNameLine(manifest.SystemName));
                     }
                     else
                     {
@@ -296,12 +299,8 @@ public sealed class SponsorOnePagerPdfBuilder(
         table.Cell().Padding(2).Text(value).Bold();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas)
-    {
-        return deltas.TimeToCommittedManifest is not { } wall
-            ? "Time to committed manifest was not stored."
-            : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
-    }
+    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas);
 
     private static string FormatAuditRows(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatPlainText(deltas);
@@ -349,19 +348,5 @@ public sealed class SponsorOnePagerPdfBuilder(
         }
 
         return $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).";
-    }
-
-    private static string FormatManifestVersion(GoldenManifest manifest)
-    {
-        return string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion)
-            ? "Manifest version was not stored."
-            : manifest.Metadata.ManifestVersion.Trim();
-    }
-
-    private static string FormatSystemName(GoldenManifest manifest)
-    {
-        return string.IsNullOrWhiteSpace(manifest.SystemName)
-            ? "System name was not stored."
-            : manifest.SystemName.Trim();
     }
 }

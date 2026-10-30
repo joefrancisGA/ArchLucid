@@ -22,4 +22,12 @@ public sealed class BuyerProofPackSponsorOnePagerPlainTextFormatterTests
             .Should()
             .Be("Manifest version: 'v2|beta'");
     }
+
+    [Fact]
+    public void FormatSystemNameLine_when_name_contains_pipe_quotes_name()
+    {
+        PilotSponsorOnePagerPlainTextFormatter.FormatSystemNameLine("Core|Platform")
+            .Should()
+            .Be("System: 'Core|Platform'");
+    }
 }
