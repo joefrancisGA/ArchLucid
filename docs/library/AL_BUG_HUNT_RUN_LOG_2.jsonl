@@ -2077,3 +2077,4 @@
 {"at":"2026-10-29T21:35:48.2264118Z","zoneId":"application-billing-logic","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-29T21:38:13.8817952Z","zoneId":"application-billing-logic","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T08:02:27.5006102Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-30T08:15:15.7333654Z","zoneId":"api-request-null-collection-elements","outcome":"hit","productLine":"archlucid-shared"}
