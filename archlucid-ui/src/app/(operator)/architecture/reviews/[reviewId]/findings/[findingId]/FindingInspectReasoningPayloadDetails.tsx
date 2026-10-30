@@ -7,7 +7,6 @@ import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -24,7 +23,6 @@ import {
   formatFindingInspectReasoningTraceDisplay,
   isFindingInspectReasoningTraceRenderable,
 } from "@/lib/findings/finding-inspect-reasoning-trace-display";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly runId: string;

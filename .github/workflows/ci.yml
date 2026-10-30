@@ -2597,7 +2597,23 @@ jobs:
 
       - name: Set git diff range (push)
         if: github.event_name == 'push'
-        run: echo "ARCHLUCID_GIT_DIFF_RANGE=${{ github.event.before }}...${{ github.event.after }}" >> "$GITHUB_ENV"
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          # The first push to a newly created shared RC has an all-zero GitHub 'before'.
+          # Compare its first parent to the merge HEAD rather than silently skipping
+          # guard checks or passing an invalid 000...HEAD range into git diff.
+          if [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            if ! git rev-parse --verify "${AFTER_SHA}^1" >/dev/null 2>&1; then
+              echo "::error::New-branch push has no valid first parent for guard diff."
+              exit 1
+            fi
+            BEFORE_SHA="$(git rev-parse "${AFTER_SHA}^1")"
+            echo "First RC push: comparing the first parent to the merge HEAD."
+          fi
+          echo "ARCHLUCID_GIT_DIFF_RANGE=${BEFORE_SHA}...${AFTER_SHA}" >> "$GITHUB_ENV"
 
       - name: Set git diff range (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
