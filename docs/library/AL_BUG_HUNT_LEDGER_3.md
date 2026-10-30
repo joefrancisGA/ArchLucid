@@ -8940,6 +8940,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `ReviewChainOfCustodySection` — closing a default-open custody disclosure reopens both sections when no URL section key is present — locus: `isSectionOpen` default fallback; input: operator closes “Who and when” without `reviewChainOfCustodySection` in the review URL; wrong outcome: the section cannot remain closed.
 - [ ] (candidate) `ReviewAgentExecutionLogSection` — agent execution rows sort incorrectly when API `createdUtc` values use equivalent timestamps with different offsets — locus: lexicographic `createdUtc` sort; input: persisted execution results with `2026-10-30T10:00:00Z` and `2026-10-30T06:30:00-04:00`; wrong outcome: audit order differs from chronology.
 
+2026-10-30 thorough hunt #50 (dry): repeated the focused disproof pass for the two unpromoted monitor rows; the chain-of-custody and execution-log URL-sync suites passed 4/4, with no failing repro and no production change.
+
 2026-10-30 thorough hunt #49 (dry): the two seeded monitor rows were reviewed against their concrete loci and their existing URL-sync suites passed 4/4; neither row was hunt-ready for this thorough pass, so no failing repro or production change was claimed.
 
 2026-10-30 thorough hunt #47 (dry): cheap-disproof closed five open `(candidate)` rows — governance confirmation, technology rationale, first-screen proof, More sections, and assessment narrative disclosures all reconcile URL changes through `useSearchParams` without requiring `popstate`; 13 focused URL-sync tests passed and no production code changed.
