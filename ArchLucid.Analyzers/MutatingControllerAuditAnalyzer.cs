@@ -570,7 +570,9 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     private static bool LogAsyncMemberAccessCountsForAuditProof(
         MemberAccessExpressionSyntax memberAccessExpressionSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
         if (!string.Equals(memberAccessExpressionSyntax.Name.Identifier.Text, "LogAsync", StringComparison.Ordinal))
             return false;
@@ -580,7 +582,10 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         if (enclosingLocalFunction is null)
         {
-            return memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+            if (memberAccessExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+                return false;
+
+            return IsLogAsyncSyntaxProofReachable(semanticModel, memberAccessExpressionSyntax, cancellationToken);
         }
 
         return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
@@ -588,17 +593,179 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     private static bool AuditLogAsyncInvocationCountsForAuditProof(
         InvocationExpressionSyntax invocationExpressionSyntax,
-        MethodDeclarationSyntax containingMethodDeclarationSyntax)
+        MethodDeclarationSyntax containingMethodDeclarationSyntax,
+        SemanticModel? semanticModel,
+        CancellationToken cancellationToken)
     {
         LocalFunctionStatementSyntax? enclosingLocalFunction =
             invocationExpressionSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
 
         if (enclosingLocalFunction is null)
         {
-            return invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is null;
+            if (invocationExpressionSyntax.FirstAncestorOrSelf<CatchFilterClauseSyntax>() is not null)
+                return false;
+
+            return IsLogAsyncSyntaxProofReachable(semanticModel, invocationExpressionSyntax, cancellationToken);
         }
 
         return LocalFunctionIsInvokedFromContainingMethod(enclosingLocalFunction, containingMethodDeclarationSyntax);
+    }
+
+    private static bool IsLogAsyncSyntaxProofReachable(
+        SemanticModel? semanticModel,
+        SyntaxNode logAsyncSyntaxNode,
+        CancellationToken cancellationToken)
+    {
+        SwitchSectionSyntax? switchSectionSyntax = logAsyncSyntaxNode.FirstAncestorOrSelf<SwitchSectionSyntax>();
+
+        if (switchSectionSyntax is null)
+            return true;
+
+        if (switchSectionSyntax.Parent is not SwitchStatementSyntax switchStatementSyntax)
+            return true;
+
+        if (semanticModel is not null)
+        {
+            return IsSwitchSectionReachableForConstantDiscriminant(
+                switchStatementSyntax,
+                switchSectionSyntax,
+                semanticModel,
+                cancellationToken);
+        }
+
+        return IsSwitchSectionReachableForSyntaxLiteralDiscriminant(switchStatementSyntax, switchSectionSyntax);
+    }
+
+    private static bool IsSwitchSectionReachableForSyntaxLiteralDiscriminant(
+        SwitchStatementSyntax switchStatementSyntax,
+        SwitchSectionSyntax switchSectionSyntax)
+    {
+        if (switchStatementSyntax.Expression is not LiteralExpressionSyntax discriminantLiteralSyntax)
+            return true;
+
+        if (!TryGetSwitchLiteralValue(discriminantLiteralSyntax, out string? discriminantText))
+            return true;
+
+        bool sectionHasDefaultLabel = switchSectionSyntax.Labels.Any(
+            label => label.Keyword.IsKind(SyntaxKind.DefaultKeyword));
+
+        foreach (SwitchLabelSyntax labelSyntax in switchSectionSyntax.Labels)
+        {
+            if (labelSyntax is not CaseSwitchLabelSyntax caseSwitchLabelSyntax)
+                continue;
+
+            if (caseSwitchLabelSyntax.Value is LiteralExpressionSyntax caseLiteralSyntax &&
+                TryGetSwitchLiteralValue(caseLiteralSyntax, out string? caseText) &&
+                string.Equals(discriminantText, caseText, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        if (!sectionHasDefaultLabel)
+            return false;
+
+        foreach (SwitchSectionSyntax otherSectionSyntax in switchStatementSyntax.Sections)
+        {
+            foreach (SwitchLabelSyntax otherLabelSyntax in otherSectionSyntax.Labels)
+            {
+                if (otherLabelSyntax is not CaseSwitchLabelSyntax otherCaseLabelSyntax)
+                    continue;
+
+                if (otherCaseLabelSyntax.Value is LiteralExpressionSyntax otherCaseLiteralSyntax &&
+                    TryGetSwitchLiteralValue(otherCaseLiteralSyntax, out string? otherCaseText) &&
+                    string.Equals(discriminantText, otherCaseText, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryGetSwitchLiteralValue(LiteralExpressionSyntax literalExpressionSyntax, out string? normalizedText)
+    {
+        normalizedText = literalExpressionSyntax.Token.ValueText;
+
+        if (string.IsNullOrEmpty(normalizedText))
+        {
+            normalizedText = literalExpressionSyntax.Token.Text;
+        }
+
+        return !string.IsNullOrEmpty(normalizedText);
+    }
+
+    private static bool IsSwitchSectionReachableForConstantDiscriminant(
+        SwitchStatementSyntax switchStatementSyntax,
+        SwitchSectionSyntax switchSectionSyntax,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        Optional<object?> discriminantOptional =
+            semanticModel.GetConstantValue(switchStatementSyntax.Expression, cancellationToken);
+
+        if (!discriminantOptional.HasValue)
+            return true;
+
+        object? discriminant = discriminantOptional.Value;
+        bool sectionHasDefaultLabel = switchSectionSyntax.Labels.Any(
+            label => label.Keyword.IsKind(SyntaxKind.DefaultKeyword));
+
+        foreach (SwitchLabelSyntax labelSyntax in switchSectionSyntax.Labels)
+        {
+            if (labelSyntax is not CaseSwitchLabelSyntax caseSwitchLabelSyntax)
+                continue;
+
+            Optional<object?> caseConstantOptional =
+                semanticModel.GetConstantValue(caseSwitchLabelSyntax.Value, cancellationToken);
+
+            if (caseConstantOptional.HasValue &&
+                AuditProofConstantValuesEqual(discriminant, caseConstantOptional.Value))
+            {
+                return true;
+            }
+        }
+
+        if (!sectionHasDefaultLabel)
+            return false;
+
+        foreach (SwitchSectionSyntax otherSectionSyntax in switchStatementSyntax.Sections)
+        {
+            foreach (SwitchLabelSyntax otherLabelSyntax in otherSectionSyntax.Labels)
+            {
+                if (otherLabelSyntax is not CaseSwitchLabelSyntax otherCaseLabelSyntax)
+                    continue;
+
+                Optional<object?> otherCaseConstantOptional =
+                    semanticModel.GetConstantValue(otherCaseLabelSyntax.Value, cancellationToken);
+
+                if (otherCaseConstantOptional.HasValue &&
+                    AuditProofConstantValuesEqual(discriminant, otherCaseConstantOptional.Value))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool AuditProofConstantValuesEqual(object? left, object? right)
+    {
+        if (left is null || right is null)
+            return left is null && right is null;
+
+        if (left.Equals(right))
+            return true;
+
+        if (left is int leftInt && right is int rightInt)
+            return leftInt == rightInt;
+
+        if (left is long leftLong && right is long rightLong)
+            return leftLong == rightLong;
+
+        return string.Equals(left.ToString(), right.ToString(), StringComparison.Ordinal);
     }
 
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
@@ -906,7 +1073,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                              .OfType<InvocationExpressionSyntax>())
                 {
                     if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax &&
-                        LogAsyncMemberAccessCountsForAuditProof(memberAccessExpressionSyntax, methodAnchorSyntax))
+                        LogAsyncMemberAccessCountsForAuditProof(
+                            memberAccessExpressionSyntax,
+                            methodAnchorSyntax,
+                            semanticModel: null,
+                            cancellationTokenScoped))
                     {
                         return true;
                     }
@@ -938,7 +1109,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (EnumerateMethodBodies(methodAnchorSyntax).SelectMany(bodySubtreeScoped => bodySubtreeScoped
                     .DescendantNodesAndSelf()
                     .OfType<InvocationExpressionSyntax>()).Any(invocationSyntaxScoped =>
-                    AuditLogAsyncInvocationCountsForAuditProof(invocationSyntaxScoped, methodAnchorSyntax) &&
+                    AuditLogAsyncInvocationCountsForAuditProof(
+                        invocationSyntaxScoped,
+                        methodAnchorSyntax,
+                        semanticModelScoped,
+                        cancellationTokenScoped) &&
                     InvocationMatchesAuditInterfaceSemantic(
                     semanticModelScoped,
                     auditInterfaceDeclaredTypeSymbolScoped,
