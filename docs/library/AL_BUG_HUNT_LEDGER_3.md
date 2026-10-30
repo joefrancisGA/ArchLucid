@@ -506,6 +506,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-30 seed hunt #66 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
 2026-10-30 seed hunt #65 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #64 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
@@ -626,7 +628,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29

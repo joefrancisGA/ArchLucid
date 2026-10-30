@@ -2073,3 +2073,4 @@
 {"at":"2026-10-30T20:04:18.9539427Z","zoneId":"ui-help-docs","outcome":"dry","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx)"]}
 {"at":"2026-10-30T20:07:11.4345705Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs)"]}
 {"at":"2026-10-30T20:10:05.5036916Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs)"]}
+{"at":"2026-10-30T20:12:56.7983499Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs,ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs)"]}
