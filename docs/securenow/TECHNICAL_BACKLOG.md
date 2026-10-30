@@ -133,7 +133,8 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Scenario accelerators | [securenow-scenario-00-index.md](../../.cursor/prompts/securenow-scenario-00-index.md) | **SN-ACCEL-01–03** + hold | [`SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) |
 | Compliance readiness | [securenow-compliance-00-index.md](../../.cursor/prompts/securenow-compliance-00-index.md) | **SN-COMP-01–04** + hold | [`SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md) |
 | Proof-of-ROI | [securenow-roi-00-index.md](../../.cursor/prompts/securenow-roi-00-index.md) | **SN-ROI-01–04** + hold | [`SECURENOW_ROI_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ROI_COMPOSER_PROMPTS.md) |
-| Marketability | [securenow-marketability-00-index.md](../../.cursor/prompts/securenow-marketability-00-index.md) | **SN-MKT-01–03** shipped; **04–07** + hold | [`SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) |
+| Marketability | [securenow-marketability-00-index.md](../../.cursor/prompts/securenow-marketability-00-index.md) | **SN-MKT-01–07** shipped + hold | [`SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) |
+| Accessibility | [securenow-accessibility-00-index.md](../../.cursor/prompts/securenow-accessibility-00-index.md) | **SN-A11Y-01–04** + hold | [`SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md) |
 
 ---
 
