@@ -93,7 +93,8 @@ public static class FirstValueReportTraceSectionFormatter
 
         sb.AppendLine("| Pointer | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Manifest version | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
+        sb.AppendLine(
+            $"| Manifest version | `{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(chain.ManifestVersion ?? "Manifest version was not stored.")}` |");
         sb.AppendLine($"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
         sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
         sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
@@ -111,6 +112,8 @@ public static class FirstValueReportTraceSectionFormatter
 
     private static string FormatStoredTraceField(string? value, string missingLabel)
     {
-        return string.IsNullOrWhiteSpace(value) ? missingLabel : $"`{value.Trim()}`";
+        return string.IsNullOrWhiteSpace(value)
+            ? missingLabel
+            : $"`{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(value.Trim())}`";
     }
 }
