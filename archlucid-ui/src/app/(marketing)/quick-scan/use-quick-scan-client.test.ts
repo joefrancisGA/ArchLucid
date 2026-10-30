@@ -293,6 +293,7 @@ describe("useQuickScanClient", () => {
 
     expect(trackQuickScanSampleViewed).toHaveBeenCalledTimes(1);
     expect(trackQuickScanSampleViewed).toHaveBeenCalledWith("SampleOnly");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("does not let a stale sample response overwrite a completed AI analysis", async () => {

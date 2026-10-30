@@ -94,4 +94,51 @@ describe("DemoPreviewArtifactNav", () => {
 
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
+
+  it("keeps aria-current on the prior section when a nav click targets a removed section", () => {
+    class IntersectionObserverMock {
+      public constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+
+      public observe(): void {}
+
+      public disconnect(): void {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
+    const activeSection = document.createElement("div");
+    activeSection.id = "artifact-evidence-graph";
+    document.body.appendChild(activeSection);
+
+    render(<DemoPreviewArtifactNav />);
+
+    act(() => {
+      observerCallback?.(
+        [
+          {
+            target: activeSection,
+            isIntersecting: true,
+            intersectionRatio: 0.9,
+          },
+        ] as unknown as IntersectionObserverEntry[],
+        {} as IntersectionObserver,
+      );
+    });
+
+    expect(screen.getByTestId("demo-preview-artifact-nav-artifact-evidence-graph")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+
+    document.body.removeChild(activeSection);
+
+    fireEvent.click(screen.getByTestId("demo-preview-artifact-nav-artifact-evidence-graph"));
+
+    expect(screen.getByTestId("demo-preview-artifact-nav-artifact-evidence-graph")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
 });

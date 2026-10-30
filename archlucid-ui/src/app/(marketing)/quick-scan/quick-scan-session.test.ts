@@ -41,4 +41,20 @@ describe("quick-scan-session identity helpers", () => {
     setItemSpy.mockRestore();
     getItemSpy.mockRestore();
   });
+
+  it("reuses the same volatile browser id when localStorage writes fail", () => {
+    const setItemSpy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    const getItemSpy = vi.spyOn(window.localStorage, "getItem").mockReturnValue(null);
+
+    const first = ensureBrowserId();
+    const second = ensureBrowserId();
+
+    expect(first).toBe(second);
+    expect(first.length).toBeGreaterThan(0);
+
+    setItemSpy.mockRestore();
+    getItemSpy.mockRestore();
+  });
 });
