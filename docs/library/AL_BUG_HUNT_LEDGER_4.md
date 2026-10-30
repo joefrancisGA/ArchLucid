@@ -390,8 +390,20 @@
 ---
 
 ## Zone: host-core-jobs
-- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification sent when row already `Failed`/`Succeeded` — **hit 2026-10-21 seed hunt lane C:** `ShouldAbortRetryNotification`; regression above.
 
+2026-10-30 seed hunt #955 (seed-only): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); re-read `ArchLucid.Host.Core/Jobs/` and `ArchLucid.Host.Core/Hosted/`; cheap-disproof closed four open `(candidate)` rows from lane B — invalid exhausted-retry stale reset (`ResetStaleRunningJobsOlderThanAsync` already marks `Failed` when `RetryCount >= MaxRetries`), invalid in-memory queue-writer-rejected retry terminal (post-log `_info` re-read before `Failed` assignment at lines 274–276), valid-no-repro watchdog leader lease lost mid-batch trailing notify (reclaimed ids wait for next leader pass), valid-no-repro durable capacity-exhausted retry terminal deleting Azure message after `MarkFailedTerminalAsync` (intentional notification cleanup on terminal row); no hunt-ready promotion; reseeded five `(candidate)` rows below; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
+
+- [ ] (candidate) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — concurrent `MarkCanceledAsync` on `Pending` row between `UPDLOCK` read and `Running` assignment — locus: claim transaction; input: operator cancel during processor prepare; wrong outcome: executor starts after cancel visible in SQL.
+- [ ] (candidate) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — returns `WorkUnitJson` for terminal `Failed` rows without re-checking `BackgroundJobState` — locus: accessor read path; input: tenant access verifier reads work unit after terminal failure; wrong outcome: stale payload treated as runnable.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid `WorkUnitJson` terminal assigns `RetryCount + 1` from prepare snapshot when `MaxRetries` is zero — locus: invalid-payload branch; input: malformed payload on zero-retry job; wrong outcome: poll shows retry count 1 on terminal `Failed`.
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — `ResetStaleRunningJobsOlderThanAsync` returns only `Pending` reclaims while exhausted stale rows become `Failed` without operator-visible queue notify — locus: notify batch filter; input: stale `Running` at max retries past threshold; wrong outcome: terminal failure hidden until poll without matching processor error text.
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` succeeds then `SendJobIdAsync` throws non-cancel fault after row insert — locus: notify failure terminal; input: transient Azure queue outage on enqueue; wrong outcome: row left `Pending` without terminal `Failed` when notify fails.
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification sent when row already `Failed`/`Succeeded` — **hit 2026-10-21 seed hunt lane C:** `ShouldAbortRetryNotification`; regression above.
+- [x] (invalid) `BackgroundJobRepository.ResetStaleRunningJobsOlderThanAsync` — `Running` row with `RetryCount == MaxRetries` past threshold should surface `Failed` — **cheap-disproof 2026-10-30 seed hunt #955:** stale reset SQL sets `State = Failed` with exhausted-retry error when retries exhausted; only `Pending` reclaims are returned for queue notify.
+- [x] (invalid) `InMemoryBackgroundJobQueue.ExecuteAsync` — queue-writer-rejected retry branch logs before post-log `_info` re-read — **cheap-disproof 2026-10-30 seed hunt #955:** writer-rejected path re-reads `_info` after log before terminal `Failed` assignment (lines 274–276).
+- [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — leader lease lost mid-batch after stale reset leaves trailing reclaims without notify — **cheap-disproof 2026-10-30 seed hunt #955:** trailing ids wait for next leader pass (#1429 batch semantics).
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — capacity-exhausted retry terminal deletes Azure message after `MarkFailedTerminalAsync` — **cheap-disproof 2026-10-30 seed hunt #955:** terminal row plus message delete prevents duplicate processing; visibility redelivery is intentional stale-notification cleanup.
 
 2026-10-21 seed hunt (seed-only): lane B; cheap-disproof closed five open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on candidates; Host.Core 77/77; Api 97 passed (9 SQL integration unavailable on Linux VM).
 
@@ -401,10 +413,13 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **consecutive-dry-hunts:** 2
+- **hunts:** 51
+- **bugs-found:** 34
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
@@ -432,10 +447,10 @@
 - [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload `row.RetryCount + 1` without re-read — **cheap-disproof 2026-10-21 lane B seed hunt:** single-thread prepare snapshot (2026-10-04 dry).
 
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff pre-send `GetAsync` checks only `Canceled` (not `Failed`/`Succeeded`) before `SendMessageAsync` when a duplicate Azure queue notification for the same `JobId` is still visible after another poll marked the row terminal.
-- (candidate) `BackgroundJobRepository.ResetStaleRunningJobsOlderThanAsync` — `Running` row with `RetryCount == MaxRetries` and `MaxRetries > 0` past `ResolveStaleRunningThreshold` (`BackgroundJobs:ProcessorVisibilityMinutes` + 1) should surface `Failed` without queue re-notify; verify poll APIs and `Error` text match exhausted-retry processor terminal semantics.
-- (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — queue-writer-rejected retry branch (`_queue.Writer.TryWrite` false, lines 264–287) logs before terminal `Failed` without the paired post-log `_info` re-read used on capacity-exhausted retry terminal (2026-09-27 parity family).
-- (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — leader lease lost mid-batch after `ResetStaleRunningJobsOlderThanAsync` leaves trailing reclaimed `JobId` values without `SendJobIdAsync` until the next leader pass (`HostLeaderElection:Enabled` default true).
-- (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — capacity-exhausted retry terminal after `CountNonTerminalAsync >= maxPendingJobs` does not delete the in-flight Azure message until after `MarkFailedTerminalAsync`, so visibility timeout can redeliver while row is already `Failed` (`BackgroundJobs:MaxPendingJobs` capacity).
+- [x] (invalid) `BackgroundJobRepository.ResetStaleRunningJobsOlderThanAsync` — exhausted-retry stale `Running` should surface `Failed` — **cheap-disproof 2026-10-30 seed hunt #955:** see hunt #955 diary row.
+- [x] (invalid) `InMemoryBackgroundJobQueue.ExecuteAsync` — queue-writer-rejected retry branch missing post-log `_info` re-read — **cheap-disproof 2026-10-30 seed hunt #955:** see hunt #955 diary row.
+- [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — leader lease lost mid-batch trailing notify — **cheap-disproof 2026-10-30 seed hunt #955:** see hunt #955 diary row.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — capacity-exhausted retry terminal message delete timing — **cheap-disproof 2026-10-30 seed hunt #955:** see hunt #955 diary row.
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
@@ -490,13 +505,13 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-14
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-05 thorough hunt (dry): cheap-disproved four seeded candidates (MarkCanceled vs TryAssignUnlessCanceled, processor not-claimable poll, hung execute watchdog vs execute lease TTL, integration outbox dequeue pagination); 74 Host.Core + 15 focused Api tests passed.
 
