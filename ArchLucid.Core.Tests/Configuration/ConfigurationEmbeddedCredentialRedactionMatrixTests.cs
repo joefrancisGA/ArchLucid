@@ -10711,6 +10711,34 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_hair_space_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz\u200aother=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_path()
+    {
+        const string effectiveValue = "Set-Cookie: a=1; session=12345678; Path=/";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_double_quotes_contain_base64_userinfo()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic realm=\"dXNlcjpwYXNz\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_equals_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%3D"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_samesite()
     {
         const string effectiveValue = "Set-Cookie2: a=1; session=12345678; SameSite=Strict";
