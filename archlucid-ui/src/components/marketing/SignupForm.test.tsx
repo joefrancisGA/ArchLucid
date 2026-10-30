@@ -2540,6 +2540,24 @@ describe("SignupForm", () => {
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/valid work email/i);
   });
 
+  it("caps the work email input at the schema maximum", () => {
+    render(<SignupForm />);
+
+    expect(screen.getByLabelText(/Work email/i)).toHaveAttribute("maxLength", "254");
+  });
+
+  it("caps the full-name input at the schema maximum", () => {
+    render(<SignupForm />);
+
+    expect(screen.getByLabelText(/Full name/i)).toHaveAttribute("maxLength", "200");
+  });
+
+  it("caps the organization input at the schema maximum", () => {
+    render(<SignupForm />);
+
+    expect(screen.getByLabelText(/Organization name/i)).toHaveAttribute("maxLength", "200");
+  });
+
   it("shows overlong-industry readiness when Other specification exceeds 200 characters", async () => {
     render(<SignupForm />);
     fillRequiredFields();
@@ -2636,6 +2654,22 @@ describe("SignupForm", () => {
 
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/200 characters/i);
     expect(screen.getByTestId("signup-form-readiness")).not.toHaveTextContent(/specify your industry/i);
+  });
+
+  it("caps the Other industry input at the schema maximum", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+
+    expect(screen.getByTestId("signup-industry-specify")).toHaveAttribute("maxLength", "200");
   });
 
   it("keeps submit disabled for fractional optional architecture team size", async () => {

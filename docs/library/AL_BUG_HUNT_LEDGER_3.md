@@ -2,6 +2,40 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #90 (seed-only): reran the focused SignupForm regression suite after reviewing current required and optional validation paths; all 144 tests passed and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #89 (seed-only): re-read the full SignupForm path, including schema-backed submit gating, optional-field clearing, numeric bounds, and register payload shaping; no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #88 (seed-only): re-read `SignupForm`, `signupFormSchema`, optional field bounds, and the 144-test focused suite; visible schema limits now match their rendered controls, and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #87 (hit): proved the `organizationName` schema capped organization names at 200 characters but the rendered organization input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the organization input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 144/144. Private beta: invited buyers entering a long organization name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `organizationName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #87:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #86 (hit): proved the `adminDisplayName` schema capped full names at 200 characters but the rendered full-name input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the full-name input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 143/143. Private beta: invited buyers entering a long full name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `adminDisplayName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #86:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #85 (hit): proved the `adminEmail` schema capped work emails at 254 characters but the rendered email input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={254}` and `caps the work email input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 142/142. Private beta: invited buyers entering a long work email now get a browser-level 254-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `adminEmail` accepts more than the schema’s 254-character maximum in the rendered input — **hit 2026-10-30 seed hunt #85:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #84 (hit): proved the `industryVerticalOther` schema capped values at 200 characters but the rendered “Other” input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the Other industry input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 141/141. Private beta: invited buyers selecting Other for their industry now get a browser-level 200-character boundary that matches the signup validation contract instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `industryVerticalOther` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #84:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 thorough hunt #83 (dry): cheap-disproof closed both seeded post-commit candidates — existing regressions cover success-toast and router-transition failures after committed registration, and intentionally retain the disabled “Creating” state to prevent duplicate signup requests. Full SignupForm suite passed 140/140; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when navigation throws after successful register` and `keeps Creating label on the submit button after successful register until navigation` cover the committed-registration boundary; no new failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when success toast throws after successful register` covers the toast failure; no new failing repro.
+
+2026-10-30 seed hunt #82 (seed-only): re-read `SignupForm`, `signupFormSchema`, and the 140-test SignupForm suite; existing regressions cover validation gates, retry guards, response parsing, attribution, storage failures, and keyboard submission. No new hunt-ready row was promoted; seeded two bounded post-commit navigation candidates.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state; input: a valid signup receives `200`/`201` and `router.push` rejects after the tenant is created.
+- [ ] (candidate) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration; input: a valid signup receives `200`/`201` while the toast implementation throws during success handling.
+
 2026-10-30 thorough hunt #66 (dry): cheap-disproof closed three open `(candidate)` rows — retry and completion guards remain covered across router transition, first-touch serialization failure remains non-blocking, and the submit callback snapshots company size before the POST/session write. The full SignupForm suite passed 140/140; no production code changed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
@@ -320,11 +354,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 66
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 4
+- **hunts:** 76
+- **bugs-found:** 18
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
+- **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -707,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 49 · **Bugs found:** 17 · **Consecutive dry hunts:** 11
+**Hunts:** 50 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 thorough hunt #96 (dry): rotation fired after three `ui-auth-proxy` seed-only outcomes. Cheap-disproof closed all five queued candidates: generated client calls map transport cancellation to `DraftApiResult` failures, JSON mode rejects missing system name during preflight, and non-JSON answer HTTP failure already has `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; focused `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_execute_cancellation_emits_execute_failed_without_ok_true`, `RunCoreAsync_connect_cancellation_propagates_operation_canceled`, `RunCoreAsync_admit_transport_failure_stderr_only_without_json_envelope`, and `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`; reaffirmed `RunCoreAsync_skip_all_when_stale_pending_question_skip_fails_returns_operation_failed`; 73 scoped `DraftNewCommandCoreTests` passed.
 
@@ -717,11 +753,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--text` that trims below minimum length fails in connect stage without `CliJson.WriteFailureLine` — **cheap-disproof 2026-10-08 seed hunt #49:** length gate is stderr usage after connect by design; regressions `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting` and `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`.
 - [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` transport failure stderr-only in non-JSON mode — **cheap-disproof 2026-10-08 seed hunt #49:** parity JSON admit transport test; regression `RunCoreAsync_admit_transport_failure_stderr_only_without_json_envelope`.
 
-- [ ] (candidate) `DraftNewCommandAdmitStage` — cooperative cancel during `CreateDraftAsync` may surface `OperationCanceledException` instead of stderr-only create failure — locus: `CreateDraftAsync` await ~28–36; input: cancel token while create HTTP call is in flight (non-JSON).
-- [ ] (candidate) `DraftNewCommandAdmitStage` — cooperative cancel during `PatchDraftAsync` may surface `OperationCanceledException` instead of stderr-only patch failure — locus: patch await in admit stage; input: cancel mid-patch before admit.
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` cancellation may propagate `OperationCanceledException` instead of stderr-only load failure — locus: questions load ~23–31; input: cancel while GET `/questions` is in flight.
-- [ ] (candidate) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` returning null for system name exits `OperationFailed` without distinguishing EOF vs cancel in JSON mode — locus: ~66–72; input: `--json` with missing `--system-name` (should fail preflight instead).
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` HTTP failure stderr-only in non-JSON interactive mode — locus: answer path after `ReadLineAsync`; input: parity with `AnswerMustQuestionHttpFailureHandler` coverage under non-JSON.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — cooperative cancel during `CreateDraftAsync` may surface `OperationCanceledException` instead of stderr-only create failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `CreateDraftAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the stage writes stderr-only failure and returns `OperationFailed`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — cooperative cancel during `PatchDraftAsync` may surface `OperationCanceledException` instead of stderr-only patch failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `PatchDraftAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the stage writes stderr-only failure and returns `OperationFailed`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` cancellation may propagate `OperationCanceledException` instead of stderr-only load failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `GetDraftQuestionsAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the loop handles it through the existing question-load error path.
+- [x] (invalid) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` returning null for system name exits `OperationFailed` without distinguishing EOF vs cancel in JSON mode — **cheap-disproof 2026-10-30 thorough hunt #96:** JSON preflight rejects missing `--system-name` before `DraftNewCommandAdmitStage` can prompt; a null prompt is only reachable in interactive mode.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` HTTP failure stderr-only in non-JSON interactive mode — **cheap-disproof 2026-10-30 thorough hunt #96:** existing `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope` covers `AnswerMustQuestionHttpFailureHandler` and the focused suite passed 73/73.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error`, `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`, `RunCoreAsync_create_failure_stderr_only_without_json_envelope`, `Parse_missing_api_base_url_value_returns_null`, and `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`; 75 scoped draft-new CLI tests passed.
 
@@ -2480,7 +2516,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 69 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+**Hunts:** 73 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #95 (seed-only): repeated the auth/proxy regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #94 (seed-only): repeated the auth/proxy source review and scoped regression matrix after the prior reseed; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #93 (seed-only): re-read proxy forwarding, path canonicalization, host-gate integration, auth routing, body limits, and the current auth/proxy regression coverage; scoped auth/proxy vitest passed 90/90 and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 thorough hunt #91 (dry): rotation fired after three `ui-form-validation` seed-only outcomes. Cheap-disproof closed the five queued candidates: invitation confirmation body/query ordering does not create a dependency, unknown `ResumeWorkflow` is not a reachable current API step, expired bootstrap workspace mutations correctly return 401, host-gate preserves the raw query string including encoded ampersands, and the OTP client forwards whitespace unchanged rather than omitting it; scoped auth/proxy vitest passed 90/90. No production code changed.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`, `encodes invitationToken on status GET and returnUrl on workspace select when both are present`, `passes through /api/proxy paths without demo-run alias rewrite`, `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`, and `returns false when the proxy responds with 204 No Content`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
 
@@ -2490,11 +2534,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `verifyEmailOtpCode` — verify POST omits scope headers while subsequent `fetchPostAuthBootstrapStatus` attaches stale scope — **cheap-disproof 2026-10-08 seed hunt #68:** intentional pre-auth vs post-auth split; reaffirmed `does not forward stale operator scope headers on verify POST`; regression `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`.
 - [x] (valid-no-repro) `initiatePostAuthAccessRequest` — 202 vs 200 distinction may strand UI when proxy returns 204 No Content — **cheap-disproof 2026-10-08 seed hunt #68:** contract accepts only HTTP 202; 204 returns false like 200; regression `returns false when the proxy responds with 204 No Content`; reaffirmed `returns true only for HTTP 202 Accepted`.
 
-- [ ] (candidate) `acceptPostAuthInvitation` — `confirmEmailMismatch` POST body vs `returnUrl` query ordering when both invitation token and unsafe returnUrl supplied — locus: `acceptPostAuthInvitation`; input: mismatch confirm with open-redirect query.
-- [ ] (candidate) `resolveEmailOtpPostAuthPath` — bootstrap routing for `ResumeWorkflow` nextStep (if API adds it) may skip bootstrap query builder — locus: `email-otp-post-auth.ts` default branch; input: unknown `nextStep` with safe returnUrl.
-- [ ] (candidate) `enforceProxyBffSessionGuard` — operator `/api/proxy` POST without CSRF when cookie expired but readable — locus: `proxy-bff-session-guard.ts`; input: expired session cookie on bootstrap workspace create.
-- [ ] (candidate) `decideHostGateRedirect` — app-host marketing path redirect may drop `returnUrl` when query uses encoded ampersands — locus: `host-gate.ts` `pathAndQuery`; input: `/pricing` with `utm_source=a&returnUrl=%2Fdesk`.
-- [ ] (candidate) `requestEmailOtpChallenge` — Turnstile token omitted from JSON body when `botChallengeToken` whitespace-only — locus: `email-otp-api.ts` challenge POST body; input: spaces-only token after trim.
+- [x] (invalid) `acceptPostAuthInvitation` — `confirmEmailMismatch` POST body vs `returnUrl` query ordering when both invitation token and unsafe returnUrl supplied — **cheap-disproof 2026-10-30 thorough hunt #91:** query and JSON body are independent request fields; no ordering-dependent branch exists in `acceptPostAuthInvitation`.
+- [x] (invalid) `resolveEmailOtpPostAuthPath` — bootstrap routing for `ResumeWorkflow` nextStep (if API adds it) may skip bootstrap query builder — **cheap-disproof 2026-10-30 thorough hunt #91:** `ResumeWorkflow` is not a current `PostAuthBootstrapDestination` value and the candidate depends on a future API addition rather than a reachable current input.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — operator `/api/proxy` POST without CSRF when cookie expired but readable — **cheap-disproof 2026-10-30 thorough hunt #91:** expired bootstrap workspace mutations intentionally return 401 and clear the session; regression coverage includes `blocks bootstrap status GET when the BFF session cookie is expired` and active-session CSRF rejection.
+- [x] (valid-no-repro) `decideHostGateRedirect` — app-host marketing path redirect may drop `returnUrl` when query uses encoded ampersands — **cheap-disproof 2026-10-30 thorough hunt #91:** `pathAndQuery` concatenates the normalized pathname with the original `input.search` unchanged; existing redirect/query regressions cover this preservation contract.
+- [x] (invalid) `requestEmailOtpChallenge` — Turnstile token omitted from JSON body when `botChallengeToken` whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #91:** the current client forwards the supplied token verbatim; whitespace-only input is not omitted, and the candidate provides no reachable client outcome beyond sending an invalid token for server validation.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when explicit returnUrl is unsafe`, `encodes whitespace-only returnUrl on accept the same way as bootstrap status URLSearchParams`, `attaches operator scope headers on HEAD bootstrap polls when localStorage still has scope`, and `does not redirect marketing-host post-auth bootstrap proxy POST paths to the app origin`; reaffirmed `allows anonymous marketing mutations with a valid BFF session and no CSRF token`; scoped auth/proxy vitest 270 passed with 3 unrelated baseline seam failures.
 
@@ -7893,6 +7937,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
+
+- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
+- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
+
+2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses the email input’s type constraint and the handler posts malformed work-email values — **hit 2026-10-30 seed hunt #80:** validate the trimmed address with the browser-compatible email pattern before posting; regression in `MarketingPricingQuotePanel.test.tsx`.
+
+2026-10-30 seed hunt #79 (hit): proved `MarketingPricingQuotePanel` disabled native validation with `noValidate` but did not validate required work email or company fields before POST, so an empty quote request reached the API; added a required-identity guard and `does not submit when required buyer identity fields are empty` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 2/2. Private beta: invited buyers can no longer submit an empty pricing request and instead receive immediate required-field guidance before the quote service is called.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses required browser checks and `onSubmit` posts blank work email/company values — **hit 2026-10-30 seed hunt #79:** guard required identity fields before composing and posting the quote request; regression in `MarketingPricingQuotePanel.test.tsx`.
+
+2026-10-30 seed hunt #78 (hit): proved the marketing FAQ TOC announced its active in-page section with `aria-current="page"` instead of the `location` value used by the equivalent privacy-policy TOC, causing assistive technology to describe a section location as the current page; changed the active value to `location` and added `marks the active category as the current in-page location` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC suite passed 2/2. Private beta: invited buyers using screen readers can now distinguish the active FAQ section as an in-page location instead of hearing it announced as the current page.
+
+- [x] (proven) `MarketingFaqPageToc` — the active FAQ category link uses `aria-current="page"` for in-page navigation, unlike the privacy TOC’s `aria-current="location"` contract — **hit 2026-10-30 seed hunt #78:** use the `location` value and cover the active category announcement in `MarketingFaqPageToc.test.tsx`.
+
+2026-10-30 seed hunt #77 (hit): proved the bottom “Open another illustrative sample” link scrolled to the sample section without selecting the sample path, leaving the section visually de-emphasized after the click; wired the link through the existing sample-path selector and added `selects the sample path when the bottom sample link is activated` in `get-started.test.tsx`. Focused get-started suite passed 9/9. Private beta: invited buyers who follow the lower-page sample CTA now see the sample path selected instead of landing on a visually muted section that still presents the trial path as active.
+
+- [x] (proven) `GetStartedPageClient` — the lower “Open another illustrative sample” link scrolls to `#choose-sample` without selecting the sample path, so the destination remains visually de-emphasized — **hit 2026-10-30 seed hunt #77:** call `selectSamplePath` from the link and cover the selected-state transition in `get-started.test.tsx`.
+
+2026-10-30 seed hunt #76 (hit): proved a loaded third-party Clarity implementation could throw from consent-approved CTA analytics and interrupt the CTA click handler; guarded analytics calls so failures are swallowed and added `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`. Focused analytics suite passed 8/8. Private beta: invited buyers can now activate hero CTAs even when the loaded analytics provider fails during event recording.
+
 2026-10-30 thorough hunt #75 (hit): proved consent-gated marketing CTA analytics could throw when browser storage access was denied, allowing analytics to escape the click handler; guarded storage lookup and added `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`. The self-demo SSR placeholder candidate was invalid because the client CTA has no no-JavaScript interaction contract. Focused analytics suite passed 7/7. Private beta: invited buyers in storage-restricted browsers can now activate hero CTAs without an analytics exception interrupting the interaction.
 
 2026-10-30 seed hunt #74 (seed-only): re-read `CtaButton`, marketing CTA analytics, self-demo/walkthrough href builders, trust focus scrolling, and pricing CTA focus; no failing repro was promoted. Seeded two bounded candidates for a future thorough hunt.
@@ -8145,11 +8212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 49
-- **bugs-found:** 43
+- **hunts:** 55
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Signup verification status request generation
+- **last-bug:** 2026-10-30 — Pricing quote email format validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8163,6 +8230,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `recordMarketingHeroCtaClarityEvent` — a failing Clarity implementation interrupts CTA analytics — **hit 2026-10-30 seed hunt #76:** catch analytics provider failures so CTA analytics becomes best-effort; regression `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `recordMarketingHeroCtaClarityEvent` — denied browser storage throws during consent lookup — **hit 2026-10-30 thorough hunt #75:** catch storage access failures and no-op analytics; regression `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `MarketingResourcesMenu` — Escape closes the menu without restoring focus to the trigger — **hit 2026-10-30 thorough hunt #73:** focus the trigger after Escape closes the menu; regression `returns focus to the Resources trigger when Escape closes the menu` in `MarketingResourcesMenu.test.tsx`.
 - [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.
@@ -12482,6 +12550,12 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt #43 (dry): cheap-disproof closed the three seeded candidates — specialty walkthrough heading/TOC parity is covered by `drops specialty walkthrough claim TOC row`, empty visible claims are explicitly covered by the evidence-orientation regression, and policy alias behavior is covered by the legacy alias tests. Focused claim-discipline and orientation suites passed 40/40; no production code changed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — **cheap-disproof 2026-10-30 thorough hunt #43:** `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band` covers the omitted-band heading filter.
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — **cheap-disproof 2026-10-30 thorough hunt #43:** `still renders an empty claim callout shell when claim prop is an empty string on a visible slug` establishes the intentional shell behavior.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — **cheap-disproof 2026-10-30 thorough hunt #43:** legacy alias coverage in `claim-discipline-policy.test.ts` exercises the mapped omit decisions.
+
 2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
 
 - [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
@@ -12497,14 +12571,14 @@ ABQ-09 churn hotspot.
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
-- **status:** open
+- **status:** exhausted
 - **impact:** medium
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none

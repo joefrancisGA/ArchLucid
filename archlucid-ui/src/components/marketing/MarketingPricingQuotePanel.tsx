@@ -94,6 +94,21 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
     setBusy(true);
     setError(null);
 
+    const normalizedWorkEmail = workEmail.trim();
+    const normalizedCompanyName = companyName.trim();
+
+    if (normalizedWorkEmail.length === 0 || normalizedCompanyName.length === 0) {
+      setError("Work email and company are required.");
+      setBusy(false);
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedWorkEmail)) {
+      setError("Enter a valid work email.");
+      setBusy(false);
+      return;
+    }
+
     const composed = buildQuoteMessageBody(
       message,
       industry,

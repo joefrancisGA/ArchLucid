@@ -34,4 +34,26 @@ describe("MarketingPricingQuotePanel", () => {
     });
     expect(screen.getByRole("alert")).not.toHaveTextContent("System.InvalidOperationException");
   });
+
+  it("does not submit when required buyer identity fields are empty", () => {
+    render(<MarketingPricingQuotePanel openOnMount />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit quote request" }));
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("does not submit when the work email is malformed", () => {
+    render(<MarketingPricingQuotePanel openOnMount />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Work email" }), {
+      target: { value: "buyer-at-example.com" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Company" }), {
+      target: { value: "Contoso" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Submit quote request" }));
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

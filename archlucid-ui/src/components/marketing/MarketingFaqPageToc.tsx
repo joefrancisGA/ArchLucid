@@ -80,7 +80,7 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
                   active ? "font-semibold text-al-text-primary no-underline" : undefined,
                 )}
                 href={`#${category.id}`}
-                aria-current={active ? "page" : undefined}
+                aria-current={active ? "location" : undefined}
                 onClick={(event) => {
                   event.preventDefault();
                   window.history.pushState(null, "", `#${category.id}`);
