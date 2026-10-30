@@ -249,6 +249,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (figureSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, figureSpaceIndex).Trim()))
             return true;
 
+        int thinSpaceIndex = token.IndexOf('\u2009');
+
+        if (thinSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, thinSpaceIndex).Trim()))
+            return true;
+
         int quoteIndex = token.IndexOf('"');
 
         if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
