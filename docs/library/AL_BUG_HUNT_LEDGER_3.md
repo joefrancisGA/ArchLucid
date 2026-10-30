@@ -2358,13 +2358,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-30 seed hunt #49 (seed-only): corrected candidate placement after hit #48; the two remaining source-context/result-state candidates remain untested and no new candidate was promoted in this pass.
+
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy; input: source-context returns a non-empty `sourceTexts` array whose contents trim to empty; wrong outcome: operator sees loaded-intake messaging while the description is empty and analysis cannot proceed; mechanism: product context status uses `sources.length > 0` while description uses trimmed content; reachability: API source-context response with empty document content.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists; input: reasoning endpoint returns a structurally accepted result with no specialist reviews/findings; wrong outcome: checklist advances to complete while the reasoning workspace has no actionable result; mechanism: `analysisComplete` checks only `runState?.kind === "reasoning"`; reachability: architecture-intelligence run API response.
+
 2026-10-30 thorough hunt #48 (hit): promoted `primaryDescriptionFromSources` — when source context contained only an attachment and no canonical `architecture-description.txt`, the first attachment was copied into the architecture description field and could be submitted as the primary source; require the canonical description file instead of falling back to `sources[0]`; regression `does not treat an attachment-only source as the primary architecture description`; related helper tests passed 9/9. Private beta: invited architects opening reviews with attachment-only intake no longer submit an attachment’s content as the architecture description; the description remains empty until they provide the primary brief.
 
 2026-10-30 seed hunt #47 (seed-only): reread the page-client action gates and source-text projection after the prior candidate exhaustion; no candidate was promoted or reproven. Seeded three fresh bounded candidates below.
 
 - [x] (proven) `primaryDescriptionFromSources` — attachment-only source context uses the first attached document as the architecture description — **hit 2026-10-30 thorough hunt #48:** require the canonical `architecture-description.txt` source; regression above. Private beta: invited architects opening reviews with attachment-only intake no longer submit an attachment’s content as the architecture description; the description remains empty until they provide the primary brief.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy; input: source-context returns a non-empty `sourceTexts` array whose contents trim to empty; wrong outcome: operator sees loaded-intake messaging while the description is empty and analysis cannot proceed; mechanism: product context status uses `sources.length > 0` while description uses trimmed content; reachability: API source-context response with empty document content.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists; input: reasoning endpoint returns a structurally accepted result with no specialist reviews/findings; wrong outcome: checklist advances to complete while the reasoning workspace has no actionable result; mechanism: `analysisComplete` checks only `runState?.kind === "reasoning"`; reachability: architecture-intelligence run API response.
 
 2026-10-30 thorough hunt #46 (dry): cheap-disproof closed five queued candidates — conflict refs reset on the non-conflicting inbound path, reasoning response ids intentionally become the canonical active scope, retry disables the editable description while loading, fixture loading does not mutate the URL tier, and review selection clears interview answers on scope change. The page-client suite executed 57 tests but the worker exceeded the VM heap during teardown; the focused helper suite passed 3/3 and no production code changed.
 
@@ -2419,7 +2422,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
