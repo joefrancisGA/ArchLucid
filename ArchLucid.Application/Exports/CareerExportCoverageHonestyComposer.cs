@@ -139,7 +139,25 @@ public static class CareerExportCoverageHonestyComposer
     }
 
     public static string FormatPlainText(CareerExportCoverageHonestyInput input)
-        => ConvertMarkdownToPlainText(FormatMarkdown(input));
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        (string? corePlain, IReadOnlyList<string> sponsorLines) = BuildCareerExportPlainTextParts(input);
+
+        List<string> sections = [];
+
+        if (corePlain is not null)
+        {
+            sections.Add(corePlain);
+        }
+
+        if (sponsorLines.Count > 0)
+        {
+            sections.Add(string.Join('\n', sponsorLines));
+        }
+
+        return string.Join("\n\n", sections);
+    }
 
     internal static string ConvertMarkdownToPlainText(string markdown)
     {
@@ -210,26 +228,43 @@ public static class CareerExportCoverageHonestyComposer
     {
         ArgumentNullException.ThrowIfNull(input);
 
+        (string? corePlain, IReadOnlyList<string> sponsorLines) = BuildCareerExportPlainTextParts(input);
+
         List<string> lines = [];
 
+        if (corePlain is not null)
+        {
+            lines.AddRange(
+                corePlain
+                    .Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        }
+
+        lines.AddRange(sponsorLines);
+
+        return lines;
+    }
+
+    private static (string? CorePlain, IReadOnlyList<string> SponsorLines) BuildCareerExportPlainTextParts(
+        CareerExportCoverageHonestyInput input)
+    {
+        string? corePlain = null;
         string coreMarkdown = BuildMarkdown(input, timeProvider: null, includeSponsorHonesty: false).Trim();
 
         if (coreMarkdown.Length > 0)
         {
-            string corePlain = ConvertMarkdownToPlainText(coreMarkdown).Trim();
+            string converted = ConvertMarkdownToPlainText(coreMarkdown).Trim();
 
-            if (corePlain.Length > 0)
+            if (converted.Length > 0)
             {
-                lines.AddRange(
-                    corePlain
-                        .Replace("\r\n", "\n", StringComparison.Ordinal)
-                        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                corePlain = converted;
             }
         }
 
-        lines.AddRange(SponsorReviewCoverageHonestyMarkdownFormatter.RenderPlainTextLines(input.CoverageContext));
+        IReadOnlyList<string> sponsorLines =
+            SponsorReviewCoverageHonestyMarkdownFormatter.RenderPlainTextLines(input.CoverageContext);
 
-        return lines;
+        return (corePlain, sponsorLines);
     }
 
     public static string FormatMeasurementFloorMarkdown(CareerExportCoverageHonestyInput input)
