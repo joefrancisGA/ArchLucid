@@ -2006,3 +2006,4 @@
 {"at":"2026-10-30T16:03:53.5104182Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:06:03.8409326Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:09:51.6630761Z","zoneId":"cli-draft-new","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T16:27:14.5547711Z","zoneId":"ui-host-gate","outcome":"dry","productLine":"archlucid-shared"}

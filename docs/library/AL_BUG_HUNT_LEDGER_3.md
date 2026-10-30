@@ -2197,11 +2197,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+**Hunts:** 7 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+
+2026-10-30 thorough hunt #97 (dry): cheap-disproof closed both queued candidates: a double-encoded slash is not a reachable canonical operator route and is safely left alone, while `URL.host` retains `:8443` and the existing `www.` alias comparison matches `www.archlucid.net:8443`; host-gate vitest passed 23/23. No production code changed.
+
 2026-10-30 seed hunt #56 (hit): promoted `isMarketingOnlyPath` trailing-slash handling — app-host `/pricing/` was not classified as marketing-only because exact-path checks required no trailing slash, so split-site users could remain on the app host instead of reaching the public pricing page; compare marketing paths after removing trailing slashes while preserving the original redirect location; regression `redirects app-host marketing paths with a trailing slash to the public origin`; host-gate vitest 23/23. Private beta: invited buyers opening a trailing-slash pricing URL on the app host now reach the public pricing page instead of an operator-host route that can render the wrong shell.
 
 - [x] (proven) `isMarketingOnlyPath` — app-host `/pricing/` bypasses the public marketing handoff — **hit 2026-10-30 seed hunt:** compare exact marketing paths using a trailing-slash-free canonical pathname; regression above.
-- [ ] (candidate) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — locus: one `decodeURIComponent` pass before URL pathname resolution; input: public-host operator bookmark containing a double-encoded slash segment.
-- [ ] (candidate) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — locus: alias comparison after `URL.host` normalization; input: configured `https://archlucid.net:8443` and request Host `www.archlucid.net:8443`.
+- [x] (invalid) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — **cheap-disproof 2026-10-30 thorough hunt #97:** a double-encoded slash is not a canonical operator route; leaving the encoded segment on the public host is a safe no-redirect outcome, not a user-visible split-host defect.
+- [x] (valid-no-repro) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — **cheap-disproof 2026-10-30 thorough hunt #97:** `URL.host` retains the non-default port and `requestHost === \`www.${configuredHost}\`` matches the configured alias.
 
 2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
 
@@ -2217,7 +2221,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `decideHostGateRedirect` — empty `search` on `/` → `/welcome` — **cheap-disproof 2026-10-29 thorough hunt:** empty search yields `https://archlucid.net/welcome` without stray `?`.
 - [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
 
-- [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
+- [x] (invalid) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — **cheap-disproof 2026-10-30 thorough hunt #97:** the single decode pass leaves `%2F` encoded and the resulting non-canonical path is safely not handed off.
 - [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` unchanged.
 - [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is already in the legacy operator prefix list.
 - [x] (proven) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — **hit 2026-10-30 seed hunt #56:** see zone-header note above.
