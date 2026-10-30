@@ -7853,13 +7853,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #27 (dry): cheap-disproof closed three open `(candidate)` rows — cancellation after a Quick Scan response is covered by the abort regression, no-observer artifact navigation intentionally retains its catalog default, and App Insights delivery is best-effort with no user-facing dependency. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #28 (dry): cheap-disproof closed three open `(candidate)` rows — failed Quick Scan retries reset the error/status state without a prior-result regression, detached artifact sections are not part of the current catalog map, and control-character scenario inputs are outside the route slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #25 — **cheap-disproof 2026-10-30 thorough hunt #27:** cancellation, no-observer initialization, and telemetry delivery do not produce a proven user-visible defect; no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #27 — **cheap-disproof 2026-10-30 thorough hunt #28:** retry error state, observer section membership, and route-derived scenario input produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — a failed retry leaves the previous successful result visible beside the new error — locus: error-path result clearing; input: successful analysis followed by a later non-OK retry (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — a section removed after observation remains in the ratio map and wins a later tie — locus: observer bookkeeping for detached sections; input: dynamic artifact removal followed by another equal-ratio callback (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — a scenario containing control characters is emitted unchanged to analytics — locus: scenario normalization; input: route-derived `runId` with an embedded control character (monitor).
+- [ ] (candidate) `useQuickScanClient` — a failed sample load leaves a prior AI result visible while showing the sample error — locus: sample error/result state pairing; input: completed AI result followed by a failed sample request (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — an observer callback for an unknown section changes active navigation state — locus: entry target filtering; input: IntersectionObserver reports a non-catalog artifact id (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — decoding a percent-encoded scenario creates a telemetry value different from the canonical route slug — locus: scenario normalization versus route identity; input: route `runId` containing encoded whitespace (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
