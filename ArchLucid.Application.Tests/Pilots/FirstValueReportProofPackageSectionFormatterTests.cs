@@ -35,7 +35,7 @@ public sealed class FirstValueReportProofPackageSectionFormatterTests
             .Single(line => line.Contains("Buyer-safe redaction profile", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| Buyer-safe redaction profile | tenant\\|segmented |");
+        row.Should().Be("| Buyer-safe redaction profile | `tenant\\|segmented` |");
     }
 
     [Fact]

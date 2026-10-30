@@ -64,4 +64,29 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Contain("`3` row(s)");
     }
+
+    [Fact]
+    public void Proof_package_section_when_redaction_profile_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                BuyerSafeRedactionProfile = "tenant`segmented",
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Buyer-safe redaction profile |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``tenant`segmented``");
+    }
 }
