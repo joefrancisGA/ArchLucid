@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.SourceAddressPrefixRegex`, which matched only singular `source_address_prefix`, so an azurerm list `source_address_prefixes = ["*"]` or `["Internet"]` on port 22 produced no risky rule; the source check now reads the list form and still ignores a private CIDR in that list; regressions `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`, `ParseRiskyRules_detects_internet_service_tag_in_source_address_prefixes_list`, and `ParseRiskyRules_ignores_private_cidr_in_source_address_prefixes_list`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1398/1412** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port from the internet through `source_address_prefixes`, the review reports that exposure.
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on port 22 was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
+
 2026-10-30 seed hunt (seed→hit): promoted `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities`, which did not treat `principalId` on `azurerm_user_assigned_identity` as a declared principal, so golden case-65 reported that principal missing on both the identity and the role assignment that references it; principal values now count when the node is not a role assignment; regressions `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity` and `Analyze_still_flags_principal_id_when_no_identity_declares_it`; case-65 expected findings drop the two false dangling rows; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1395/1409** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's package includes a user-assigned identity and a role assignment for that same principal, the review no longer says the principal is missing from the package.
 
 - [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on `azurerm_user_assigned_identity` was not a declared principal — **hit 2026-10-30 seed hunt:** role-assignment `principalId` stays a reference; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
@@ -17089,11 +17093,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 62
-- **bugs-found:** 51
+- **hunts:** 63
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — user-assigned identity principalId was reported missing from the package
+- **last-bug:** 2026-10-30 — source_address_prefixes list wildcard was not an internet source
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17200,6 +17204,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on an admin port was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
 
 - [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on a user-assigned identity was reported missing, including on the identity node itself — **hit 2026-10-30 seed hunt:** that value is a declared principal unless the node is a role assignment; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
 

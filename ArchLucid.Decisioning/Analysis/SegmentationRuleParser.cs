@@ -17,11 +17,11 @@ public static partial class SegmentationRuleParser
 
     /// <summary>
     ///     Azure NSG rules set <c>source_port_range</c> and <c>destination_address_prefix</c> to
-    ///     <c>*</c> even when <c>source_address_prefix</c> is a private CIDR. Only the source prefix
-    ///     value decides whether the rule admits the internet.
+    ///     <c>*</c> even when the source is a private CIDR. Only <c>source_address_prefix</c> or
+    ///     the list form <c>source_address_prefixes</c> decides whether the rule admits the internet.
     /// </summary>
     [GeneratedRegex(
-        @"(?<![A-Za-z0-9_])source_address_prefix\s*=\s*(?<value>[^\s,;]+)",
+        @"(?<![A-Za-z0-9_])source_address_prefix(?:es)?\s*=\s*(?<value>\[[^\]]*\]|[^\s,;]+)",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex SourceAddressPrefixRegex();
 
@@ -143,10 +143,30 @@ public static partial class SegmentationRuleParser
     {
         foreach (Match match in SourceAddressPrefixRegex().Matches(dequoted))
         {
-            string value = match.Groups["value"].Value.Trim().TrimEnd(',', ';');
+            if (PrefixValueAllowsInternet(match.Groups["value"].Value))
+            {
+                return true;
+            }
+        }
 
-            if (value is "*" or "internet"
-                || value.Contains("0.0.0.0/0", StringComparison.Ordinal))
+        return false;
+    }
+
+    private static bool PrefixValueAllowsInternet(string raw)
+    {
+        string value = raw.Trim().TrimEnd(',', ';');
+
+        if (value.Length >= 2 && value[0] == '[' && value[^1] == ']')
+        {
+            value = value[1..^1];
+        }
+
+        foreach (string part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string token = part.Trim().TrimEnd(',', ';');
+
+            if (token is "*" or "internet"
+                || token.Contains("0.0.0.0/0", StringComparison.Ordinal))
             {
                 return true;
             }

@@ -115,6 +115,65 @@ public sealed class SegmentationRuleParserTests
     }
 
     [Fact]
+    public void ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard()
+    {
+        // azurerm_network_security_rule uses source_address_prefixes for a list.
+        // Simple terraform stores that nested attribute in the security_rule body.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                access                     = "Allow"
+                direction                  = "Inbound"
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefixes    = ["*"]
+                destination_address_prefix = "*"
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_detects_internet_service_tag_in_source_address_prefixes_list()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                destination_port_range  = "3389"
+                source_address_prefixes = ["Internet"]
+                """,
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(3389);
+    }
+
+    [Fact]
+    public void ParseRiskyRules_ignores_private_cidr_in_source_address_prefixes_list()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                """
+                source_port_range          = "*"
+                destination_port_range     = "22"
+                source_address_prefixes    = ["10.0.0.0/8"]
+                destination_address_prefix = "*"
+                """,
+        };
+
+        SegmentationRuleParser.ParseRiskyRules(properties).Should().BeEmpty();
+    }
+
+    [Fact]
     public void ParseRiskyRules_returns_empty_when_no_rules_blob()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
