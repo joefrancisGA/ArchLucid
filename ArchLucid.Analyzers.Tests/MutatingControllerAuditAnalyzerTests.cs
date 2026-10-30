@@ -2500,6 +2500,106 @@ public sealed class {|#0:DefaultInterfaceAwaitUsingController|}(IAuditService au
         }.RunAsync();
     }
 
+    [Fact]
+    public async Task Mutating_audit_excluded_on_partial_outer_shell_suppresses_AL0003_for_nested_default_interface_controller()
+    {
+        const string partOne = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDefaultMutatingApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+
+[MutatingAuditExcluded("partial outer")]
+public static partial class ExcludedPartialOuterShell
+{
+}
+}
+""";
+
+        const string partTwo = """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public static partial class ExcludedPartialOuterShell
+{
+    public sealed class NestedDefaultInterfaceController(IAuditService auditService)
+        : ControllerBase, IDefaultMutatingApi
+    {
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestState =
+            {
+                Sources =
+                {
+                    ("PartOne.cs", partOne),
+                    ("PartTwo.cs", partTwo),
+                },
+            },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_default_interface_body_uses_synchronous_using_without_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDefaultMutatingApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        using var _ = new System.IO.MemoryStream();
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+
+public sealed class {|#0:DefaultInterfaceSyncUsingController|}(IAuditService auditService)
+    : ControllerBase, IDefaultMutatingApi
+{
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.DefaultInterfaceSyncUsingController.ArchLucid.Api.Probe.IDefaultMutatingApi.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
     private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
         ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
