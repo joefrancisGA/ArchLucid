@@ -72,8 +72,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             string severity = finding.Severity.ToString();
             string category = string.IsNullOrWhiteSpace(finding.Category) ? "Category was not stored." : finding.Category.Trim();
             string message = Truncate(finding.Message, 180);
+            string categoryDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(category);
+            string messageDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message);
 
-            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({category}) — {message}");
+            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({categoryDisplay}) — {messageDisplay}");
 
             if (index < findings.Count - 1)
             {
