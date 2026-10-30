@@ -25909,6 +25909,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: host-composition
 
+2026-10-30 seed hunt #997 (seed-only, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (dry, dry, dry; run log through hunt #996). Picker rotated with **`-AvoidZoneId`** to `host-composition` (`seedHunt: true`). Re-read `InMemoryValueReportJobQueue.PreferDistributedPollState`, `ApiRequestUsageEventBatchFlushHostedService` disable/mid-timer paths, `AzureBlobCollectionRunArtifactReader` list/read error handling, and `ValueReportJobPollStateCacheRegistrar` Redis vs process-shared fallback; no hunt-ready promotion in this seed pass; reseeded five `(candidate)` rows for the next thorough hunt; scoped filter **514** `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local `Failed` may hide peer `Pending` progress on the enqueue replica — locus: `PreferDistributedPollState` default branch when `local.Phase == Failed` and `distributed.Phase == Pending`; input: worker replica still rendering while enqueue replica recorded fail-fast; wrong outcome: client poll exits failed before peer completes (monitor).
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — disabling metering mid-timer may leave buffered API usage unflushed until host stop — locus: inner loop `break` when `Enabled` becomes false; input: events queued then options flip off during periodic flush; wrong outcome: usage undercount until shutdown drain (monitor).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ListManifestsAsync` — storage list failure may return a partial manifest set without surfacing failure to discovery — locus: exception handling during blob enumeration; input: `RequestFailedException` mid-page; wrong outcome: discovery silently omits later runs (monitor).
+- [ ] (candidate) `AzureBlobCollectionRunArtifactReader.ReadArtifactAsync` — non-cancellation download errors may be indistinguishable from missing packages — locus: catch returns null; input: auth/throttling on artifact download; wrong outcome: ingest treats artifact as absent (monitor).
+- [ ] (candidate) `ValueReportJobPollStateCacheRegistrar.Register` — Redis probe connection may diverge from the host `IDistributedCache` instance used elsewhere — locus: standalone `RedisCache` construction when `IDistributedCache` absent; input: health-probe string differs from ASP.NET Redis cache config; wrong outcome: poll-state writes on one backend and reads on another (monitor).
+
 2026-10-30 thorough hunt #984 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance`, picker rotated with `-AvoidZoneId` to `host-composition`. Cheap-disproof closed the five queued candidates — local pending remains pending for a generic distributed failure, local completed bytes remain authoritative over distributed pending, the duplicate-manifest discovery candidate is outside the selected composition path, corrupt distributed state does not replace an existing local pending job, and distributed enqueue persistence failure remains intentional fail-fast. The host composition test project built successfully with no errors; no production code changed.
 
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local pending overridden by distributed failed with generic unknown copy — **cheap-disproof 2026-10-30 thorough hunt #984:** `IsAuthoritativeDistributedTerminalFailure` excludes the generic fallback error and existing queue-state regressions cover the authority guard.
@@ -25923,7 +25931,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 93
+- **hunts:** 94
 - **bugs-found:** 72
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-30
