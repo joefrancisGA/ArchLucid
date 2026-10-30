@@ -29,6 +29,9 @@ public static class TopologyProposalRelationshipEdgeMapper
         Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities = [];
         Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        // Two child modules often declare the same resource label. The shared leaf must fan out
+        // the way an unindexed count root does, instead of sticking to the first module indexed.
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(
             topologyNodes,
             endpointAliases,
@@ -36,7 +39,8 @@ public static class TopologyProposalRelationshipEdgeMapper
             indexedTerraformEndpointIdentities,
             uniqueIndexedTerraformEndpointNodeIds,
             ambiguousIndexedTerraformEndpointIdentities,
-            ambiguousIndexedTerraformEndpointNodeIds);
+            ambiguousIndexedTerraformEndpointNodeIds,
+            ambiguousSharedTerraformLeafNodeIds);
 
         List<GraphEdge> edges = [];
 
@@ -49,7 +53,8 @@ public static class TopologyProposalRelationshipEdgeMapper
                 unindexedTerraformEndpointIdentities,
                 indexedTerraformEndpointIdentities,
                 ambiguousIndexedTerraformEndpointIdentities,
-                ambiguousIndexedTerraformEndpointNodeIds);
+                ambiguousIndexedTerraformEndpointNodeIds,
+                ambiguousSharedTerraformLeafNodeIds);
 
             if (fromNodeIds.Count == 0)
                 continue;
@@ -61,7 +66,8 @@ public static class TopologyProposalRelationshipEdgeMapper
                 unindexedTerraformEndpointIdentities,
                 indexedTerraformEndpointIdentities,
                 ambiguousIndexedTerraformEndpointIdentities,
-                ambiguousIndexedTerraformEndpointNodeIds);
+                ambiguousIndexedTerraformEndpointNodeIds,
+                ambiguousSharedTerraformLeafNodeIds);
 
             if (toNodeIds.Count == 0)
                 continue;
@@ -96,9 +102,11 @@ public static class TopologyProposalRelationshipEdgeMapper
         HashSet<string> indexedTerraformEndpointIdentities,
         Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds,
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities,
-        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds)
+        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds,
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds)
     {
         Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<string>> sharedLeafNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in topologyNodes)
         {
@@ -116,6 +124,18 @@ public static class TopologyProposalRelationshipEdgeMapper
 
             if (terraformEndpointIdentity is null)
                 continue;
+
+            if (!string.IsNullOrWhiteSpace(node.NodeId))
+            {
+                if (!sharedLeafNodeIds.TryGetValue(terraformEndpointIdentity, out List<string>? leafNodes))
+                {
+                    leafNodes = [];
+                    sharedLeafNodeIds[terraformEndpointIdentity] = leafNodes;
+                }
+
+                if (!leafNodes.Contains(node.NodeId))
+                    leafNodes.Add(node.NodeId);
+            }
 
             string? withoutInstanceKey =
                 TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(terraformEndpointIdentity);
@@ -140,6 +160,14 @@ public static class TopologyProposalRelationshipEdgeMapper
                     ambiguousIndexedTerraformEndpointNodeIds[withoutInstanceKey] = [firstNodeId, node.NodeId];
                 }
             }
+        }
+
+        foreach (KeyValuePair<string, List<string>> sharedLeaf in sharedLeafNodeIds)
+        {
+            if (sharedLeaf.Value.Count < 2)
+                continue;
+
+            ambiguousSharedTerraformLeafNodeIds[sharedLeaf.Key] = sharedLeaf.Value;
         }
 
         foreach (KeyValuePair<string, string> uniqueIndexedEndpoint in uniqueIndexedTerraformEndpointNodeIds)
@@ -389,8 +417,18 @@ public static class TopologyProposalRelationshipEdgeMapper
         HashSet<string> unindexedTerraformEndpointIdentities,
         HashSet<string> indexedTerraformEndpointIdentities,
         HashSet<string> ambiguousIndexedTerraformEndpointIdentities,
-        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds)
+        Dictionary<string, List<string>> ambiguousIndexedTerraformEndpointNodeIds,
+        Dictionary<string, List<string>> ambiguousSharedTerraformLeafNodeIds)
     {
+        if (!string.IsNullOrWhiteSpace(candidate))
+        {
+            string canonicalCandidate =
+                TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(candidate.Trim());
+
+            if (ambiguousSharedTerraformLeafNodeIds.TryGetValue(canonicalCandidate, out List<string>? sharedLeafNodes))
+                return sharedLeafNodes;
+        }
+
         if (TryResolveNodeId(
                 candidate,
                 endpointKeyToNodeId,

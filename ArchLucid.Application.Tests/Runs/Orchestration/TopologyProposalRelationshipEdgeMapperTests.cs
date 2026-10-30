@@ -1184,6 +1184,71 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address()
+    {
+        // Terraform child modules reuse resource labels. terraform show JSON addresses are
+        // module.hub.azurerm_app_service.main and module.spoke.azurerm_app_service.main.
+        // Agents cite the leaf azurerm_app_service.main, the same address count-index fan-out already accepts.
+        const string sharedLeaf = "azurerm_app_service.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "hub-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "hub-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.hub." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "spoke-api",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "spoke-api",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.spoke." + sharedLeaf,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                },
+                new ManifestRelationship
+                {
+                    SourceId = "module.spoke." + sharedLeaf,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Where(e => e.FromNodeId == "hub-api" && e.ToNodeId == "ds-1" && e.EdgeType == GraphEdgeTypes.ConnectsTo)
+            .Should().ContainSingle();
+        edges.Where(e => e.FromNodeId == "spoke-api" && e.ToNodeId == "ds-1" && e.EdgeType == GraphEdgeTypes.ConnectsTo)
+            .Should().HaveCount(2);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_unindexed_root_when_graph_has_single_indexed_instance_with_quoted_key_in_source_id()
     {
         const string rootTerraformAddress = "azurerm_app_service.main";

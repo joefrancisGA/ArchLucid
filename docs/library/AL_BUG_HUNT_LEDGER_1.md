@@ -3545,6 +3545,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins leaf registration when two Terraform child modules share a resource address (`module.hub.azurerm_app_service.main` and `module.spoke.azurerm_app_service.main`); a relationship citing the leaf `azurerm_app_service.main` attached only to the first module. Shared leaves now fan out the way unindexed count roots do, while a full module address still resolves to that module; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`; scoped filter 1013/1013 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal cites a Terraform resource address declared in more than one module, the merged graph keeps a relationship to every inventoried module instance instead of attaching that edge only to the module indexed first.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — shared Terraform leaf across child modules resolved only to the first indexed module — **hit 2026-10-30 seed hunt:** fan out when the same normalized leaf maps to more than one topology node; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`. [class:state-machine-gap]
+
 2026-10-29 seed hunt (seed→hit): promoted declared `endpointAliases` Terraform keys that keep quoted for_each instance keys while relationship lookup strips those quotes, so the edge mapper dropped the relationship; register the canonical Terraform key beside the raw alias key; regression `MapRelationships_resolves_unquoted_for_each_endpoint_when_declared_alias_key_uses_quoted_instance_key`; scoped filter 1011/1011 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal maps a relationship to a Terraform for_each address, a declared rename alias stored with quoted instance keys (`["primary"]`) now resolves the same node as the unquoted form (`[primary]`), so the graph merge keeps the edge instead of dropping it.
 
 2026-10-27 seed hunt (seed-only, pass 8): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`MapRelationships` `EdgeId` vs manifest `RelationshipType` — `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes` shows both project to `ConnectsTo` with identical `EdgeId` by design; `TryResolveStrippedTerraformInstanceKey` indexed guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`; dual ARM property vs `SourceId` keys — `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` and terraform property regressions; synthetic fallback before category preference — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`; unknown endpoint empty resolve — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
@@ -3673,11 +3677,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 106
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3687,11 +3691,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 106
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3797,11 +3801,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 106
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — shared Terraform leaf across child modules resolved only to the first indexed module
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
