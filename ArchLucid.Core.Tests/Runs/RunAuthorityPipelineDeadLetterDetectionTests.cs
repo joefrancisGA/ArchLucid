@@ -72,6 +72,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_whole_number_schema_version_above_int32_max()
+    {
+        const string json = """
+            {"schemaVersion":4294967296.0,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_true_when_schema_version_property_is_omitted()
     {
         const string json = """

@@ -88,4 +88,38 @@ public sealed class AuthorityPipelineOptionsConfigurationTests
             TimeSpan.Zero,
             "negative horizons must not push lease stale cutoffs into the future for SQL capacity accounting");
     }
+
+    [Fact]
+    public void AuthorityPipeline_Concurrency_negative_wait_poll_milliseconds_binds_for_sql_gate_clamp()
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:AuthorityPipeline:Concurrency:WaitPollMilliseconds"] = "-5",
+                })
+            .Build();
+
+        AuthorityPipelineOptions options = new();
+        configuration.GetSection("ArchLucid").GetSection(AuthorityPipelineOptions.SectionName).Bind(options);
+
+        options.Concurrency.WaitPollMilliseconds.Should().Be(-5);
+    }
+
+    [Fact]
+    public void AuthorityPipeline_negative_pipeline_timeout_binds_without_throwing()
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:AuthorityPipeline:PipelineTimeout"] = "-00:01:00",
+                })
+            .Build();
+
+        AuthorityPipelineOptions options = new();
+        configuration.GetSection("ArchLucid").GetSection(AuthorityPipelineOptions.SectionName).Bind(options);
+
+        options.PipelineTimeout.Should().BeNegative();
+    }
 }

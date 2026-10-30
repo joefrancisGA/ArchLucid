@@ -129,6 +129,12 @@ public static class ArchitectureRunStatusTransitionTable
             return false;
         }
 
+        if (runId.Value == Guid.Empty)
+        {
+            handle = default;
+            return false;
+        }
+
         handle = new ReadyForCommitRun(runId);
         return true;
     }
@@ -181,6 +187,7 @@ public static class ArchitectureRunStatusTransitionTable
         if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;

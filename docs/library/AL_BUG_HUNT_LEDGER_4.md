@@ -16342,21 +16342,31 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 29
-- **bugs-found:** 4
+- **hunts:** 30
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — TryIssueReadyForCommitRun empty run id; TryParseStatus int32 overflow ordinal
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt #875 (hit): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance`. Proved `TryIssueReadyForCommitRun` threw when `RunId` was empty because the `Try*` helper constructed `ReadyForCommitRun` without guarding `Guid.Empty`; fixed with early `false` return. Proved `TryParseStatus` accepted fractional whole-number ordinals above `int.MaxValue` (e.g. `4294967296.0`) via unchecked `(int)` cast aliasing to `Created`; fixed by bounding `TryParseWholeNumberString` to `int.MaxValue` (parity with `StrictSchemaVersionReader`). Cheap-disproof closed negative `WaitPollMilliseconds` (SQL gate clamps below 10 ms), negative `PipelineTimeout` (orchestrator skips `CancelAfter` when not positive), and oversized dead-letter `schemaVersion` doubles (strict reader rejects above `int32` max); scoped **74** `RunAuthority`/`AuthorityPipeline` Core tests passed. Private beta: malformed in-memory legacy status ordinals no longer coerce to `Created`; commit orchestration no longer throws on empty run id at the typestate gate.
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun` — a `Guid.Empty` run id reaches the `ReadyForCommitRun` constructor and throws from a `Try*` method — **hit 2026-10-30 thorough hunt #875:** regression `TryIssueReadyForCommitRun_returns_false_for_empty_run_id_without_throwing`.
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryParseStatus` — casts a finite whole-number double outside `Int32` range after the integer parse fails — **hit 2026-10-30 thorough hunt #875:** regression `TryParseStatus_rejects_whole_number_double_outside_int32_range`.
+- [x] (valid-no-repro) `AuthorityPipelineConcurrencyOptions.WaitPollMilliseconds` — accepts a negative polling delay — **cheap-disproof 2026-10-30 thorough hunt #875:** `SqlTenantAuthorityPipelineConcurrencyGate` clamps below 10 ms; regression `AuthorityPipeline_Concurrency_negative_wait_poll_milliseconds_binds_for_sql_gate_clamp`.
+- [x] (valid-no-repro) `AuthorityPipelineOptions.PipelineTimeout` — accepts a negative timeout — **cheap-disproof 2026-10-30 thorough hunt #875:** `CancelAfter` skipped when timeout ≤ zero; regression `AuthorityPipeline_negative_pipeline_timeout_binds_without_throwing`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — schema-version parsing accepts a floating whole number but does not visibly bound precision — **cheap-disproof 2026-10-30 thorough hunt #875:** `StrictSchemaVersionReader` caps at `int.MaxValue`; regression `IsDeadLettered_returns_false_for_whole_number_schema_version_above_int32_max`.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ExecutionCompletedQualityRejected` denied (quality-rejected runs cannot finalize without recovery).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `PartiallyCompleted` denied (must reach `ReadyForCommit` via execute-complete events).
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `true` `failureClass` token returns not dead-lettered (parity with `false` non-string guard).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch.
 
 2026-10-08 seed hunt (seed-only): re-read run transition parsing, lifecycle projection, dead-letter detection, typestate finalization, and authority pipeline options; no in-zone hunt-ready row promoted; scoped `RunAuthority` tests were run before recording the outcome.
 
 - [x] (proven) `AuthorityPipelineConcurrencyOptions.LeaseRecognitionHorizon` — negative duration moved SQL stale cutoff into the future — **hit 2026-10-21 lane B:** getter clamps below zero to `TimeSpan.Zero`; regression `AuthorityPipeline_Concurrency_clamps_negative_lease_recognition_horizon_to_zero`.
-- [ ] (candidate) `AuthorityPipelineConcurrencyOptions.WaitPollMilliseconds` — accepts a negative polling delay — locus: option property in `AuthorityPipelineConcurrencyOptions.cs`; input: `AuthorityPipeline:Concurrency:WaitPollMilliseconds` below zero; wrong outcome: saturated-slot retry can fail instead of waiting; reachability: this property is bound from application configuration and passed to the SQL concurrency gate.
-- [ ] (candidate) `AuthorityPipelineOptions.PipelineTimeout` — accepts a negative timeout — locus: option property in `AuthorityPipelineOptions.cs`; input: `AuthorityPipeline:PipelineTimeout` below zero; wrong outcome: pipeline execution can fail during cancellation-token timeout setup; reachability: the option is bound from application configuration and consumed by authority orchestration.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — casts a finite whole-number double outside `Int32` range after the integer parse fails — locus: `TryParseWholeNumberString` fallback in `ArchitectureRunStatusTransitionTable.cs`; input: an oversized numeric legacy-status string; wrong outcome: an out-of-range value could alias to an enum status; reachability: in-memory legacy status strings reach this parser from run headers.
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — schema-version parsing accepts a floating whole number but does not visibly bound precision — locus: `TryReadSupportedSchemaVersion` and `StrictSchemaVersionReader` call; input: a very large fractional JSON schema version that rounds to a supported integer; wrong outcome: malformed failure payload may be treated as a supported dead-letter record; reachability: `LastFailureReason` is persisted JSON read from run records.
 
 2026-10-08 seed hunt (seed-only): re-read the public transition-table surface and ready-for-commit typestate boundary; no hunt-ready row promoted; the existing configuration candidates remain outside the selected source paths.
 

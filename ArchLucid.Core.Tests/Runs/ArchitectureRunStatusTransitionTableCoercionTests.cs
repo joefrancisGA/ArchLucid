@@ -215,4 +215,13 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeFalse();
         status.Should().Be(default);
     }
+
+    [Fact]
+    public void TryParseStatus_rejects_whole_number_double_outside_int32_range()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("4294967296.0", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
 }

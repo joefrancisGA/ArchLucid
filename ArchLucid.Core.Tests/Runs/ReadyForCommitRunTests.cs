@@ -35,4 +35,15 @@ public sealed class ReadyForCommitRunTests
 
         handle.Should().Be(default(ReadyForCommitRun));
     }
+
+    [Fact]
+    public void TryIssueReadyForCommitRun_returns_false_for_empty_run_id_without_throwing()
+    {
+        ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun(
+            ArchitectureRunStatus.ReadyForCommit,
+            RunId.Empty,
+            out ReadyForCommitRun handle).Should().BeFalse();
+
+        handle.Should().Be(default(ReadyForCommitRun));
+    }
 }
