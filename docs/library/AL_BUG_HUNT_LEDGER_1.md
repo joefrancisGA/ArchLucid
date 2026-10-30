@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.HasInternetSource`, which treated any `= *` in an NSG rule blob as an internet source whenever `source_address_prefix` appeared; a simple-terraform `security_rule` body with `source_address_prefix = "10.0.0.0/8"`, `source_port_range = "*"`, and `destination_address_prefix = "*"` was reported as internet-to-22; the internet check now reads the source prefix value; regressions `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`, `ParseRiskyRules_still_detects_internet_source_when_port_and_destination_are_wildcards`, and `ParseRiskyRules_detects_azure_internet_service_tag_with_destination_wildcard`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1393/1407** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port only from a private address range, and the rule still uses the usual any-source-port and any-destination wildcards, the review no longer reports that rule as internet-exposed.
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` — **hit 2026-10-30 seed hunt:** only the source prefix value counts as internet; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
+
 2026-10-30 seed hunt (seed→hit): promoted `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` visit set that keyed only on node id, so a private-endpoint arrival at a datastore dropped a later public path to the same store; visit identity is now the node plus whether that arrival already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1390/1404** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's architecture has both a private-endpoint route and a public route to the same datastore, the review still reports the public route.
 
 - [x] (proven) `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` — private-endpoint arrival consumed the datastore node — **hit 2026-10-30 seed hunt:** visit key includes whether the path already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`.
@@ -17081,11 +17085,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 60
-- **bugs-found:** 49
+- **hunts:** 61
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — private-endpoint arrival hid the public path to the same datastore
+- **last-bug:** 2026-10-30 — private NSG source flagged as internet because port and destination wildcards matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17192,6 +17196,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` counted as internet-to-22 — **hit 2026-10-30 seed hunt:** internet evidence is the source prefix value; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
 
 - [x] (proven) `RequirementRedundancyParser.GeoRedundancyRegex` — `RAGRS`, `GZRS`, and `RA-GZRS` requirement text did not count as geo redundancy, so an LRS datastore produced no SKU-tier finding — **hit 2026-10-30 seed hunt:** geo pattern includes those abbreviations; regressions `TryParse_detects_azure_geo_sku_abbreviations` and `AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku`. [class:other]
 

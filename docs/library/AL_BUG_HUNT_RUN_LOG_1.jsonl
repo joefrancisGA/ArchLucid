@@ -2838,3 +2838,4 @@
 {"at":"2026-10-30T09:07:39.4946791Z","zoneId":"agent-runtime-evaluation","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T09:10:44.9204553Z","zoneId":"extraction-router","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T09:19:17.2371250Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T09:31:03.6689298Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","defectClass":"other"}

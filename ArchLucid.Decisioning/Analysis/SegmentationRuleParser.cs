@@ -15,6 +15,16 @@ public static partial class SegmentationRuleParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex K8sWildcardSourceRegex();
 
+    /// <summary>
+    ///     Azure NSG rules set <c>source_port_range</c> and <c>destination_address_prefix</c> to
+    ///     <c>*</c> even when <c>source_address_prefix</c> is a private CIDR. Only the source prefix
+    ///     value decides whether the rule admits the internet.
+    /// </summary>
+    [GeneratedRegex(
+        @"(?<![A-Za-z0-9_])source_address_prefix\s*=\s*(?<value>[^\s,;]+)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    private static partial Regex SourceAddressPrefixRegex();
+
     public static IReadOnlyList<SegmentationRiskyRule> ParseRiskyRules(IReadOnlyDictionary<string, string> properties)
     {
         ArgumentNullException.ThrowIfNull(properties);
@@ -98,10 +108,7 @@ public static partial class SegmentationRuleParser
             return true;
         }
 
-        if (dequoted.Contains("source_address_prefix", StringComparison.Ordinal)
-            && (dequoted.Contains("=*", StringComparison.Ordinal)
-                || dequoted.Contains("= *", StringComparison.Ordinal)
-                || dequoted.Contains("internet", StringComparison.Ordinal)))
+        if (SourceAddressPrefixAllowsInternet(dequoted))
         {
             return true;
         }
@@ -130,6 +137,22 @@ public static partial class SegmentationRuleParser
 
         return dequoted.Contains(" internet", StringComparison.Ordinal)
             || dequoted.Contains("source=*", StringComparison.Ordinal);
+    }
+
+    private static bool SourceAddressPrefixAllowsInternet(string dequoted)
+    {
+        foreach (Match match in SourceAddressPrefixRegex().Matches(dequoted))
+        {
+            string value = match.Groups["value"].Value.Trim().TrimEnd(',', ';');
+
+            if (value is "*" or "internet"
+                || value.Contains("0.0.0.0/0", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool ContainsPrivateSourceOnly(string normalized)
