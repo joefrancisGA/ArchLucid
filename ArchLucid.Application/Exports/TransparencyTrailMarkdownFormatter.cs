@@ -103,7 +103,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (InferredTrailEntry entry in inferred)
         {
-            sb.AppendLine($"- {entry.FormatMarkdownExportLine()}");
+            sb.AppendLine($"- {FormatInferredTrailExportLine(entry)}");
         }
 
         sb.AppendLine();
@@ -239,6 +239,42 @@ public static class TransparencyTrailMarkdownFormatter
         return value.Trim().Length > 0
             ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim())
             : AssertionValueStoredEmptyLabel;
+    }
+
+    internal static string FormatInferredTrailExportLine(InferredTrailEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+
+        return
+            $"{FormatInferredTrailKey(entry)}: {FormatInferredTrailValue(entry)} ({entry.FormatExportConfidenceSegment()})";
+    }
+
+    private static string FormatInferredTrailKey(InferredTrailEntry entry)
+    {
+        if (entry.Key is null)
+        {
+            return InferredTrailEntry.KeyNotStoredLabel;
+        }
+
+        string trimmed = entry.Key.Trim();
+
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : InferredTrailEntry.KeyStoredEmptyLabel;
+    }
+
+    private static string FormatInferredTrailValue(InferredTrailEntry entry)
+    {
+        if (entry.Value is null)
+        {
+            return InferredTrailEntry.ValueNotStoredLabel;
+        }
+
+        string trimmed = entry.Value.Trim();
+
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : InferredTrailEntry.ValueStoredEmptyLabel;
     }
 
     internal static string FormatSkippedTrailExportLine(SkippedQuestionTrailEntry entry)

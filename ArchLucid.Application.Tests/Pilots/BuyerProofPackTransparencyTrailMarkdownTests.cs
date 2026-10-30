@@ -99,4 +99,31 @@ public sealed class BuyerProofPackTransparencyTrailMarkdownTests
         markdown.Should().Contain("`Room -evil`");
         markdown.Split('\n').Should().NotContain("- evil");
     }
+
+    [Fact]
+    public void Transparency_trail_when_inferred_value_contains_newline_does_not_emit_extra_bullet()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted = [],
+            Inferred =
+            [
+                new InferredTrailEntry
+                {
+                    Key = "scale.requestsPerSecond",
+                    Value = "1000\n-evil",
+                    Confidence = 80,
+                },
+            ],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("### Inferred");
+        markdown.Should().Contain("`1000 -evil`");
+        markdown.Split('\n').Should().NotContain("- evil");
+    }
 }
