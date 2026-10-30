@@ -5557,6 +5557,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-30 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` after the explicit-balance rationale fix. No hunt-ready row. Closed three sibling lenses. Left three candidates. Private beta: n/a.
+
+- [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — Fail + `GovernanceDisposition.Accepted` still emits a must-change recommendation. Input: a Fail finding whose disposition is Accepted.
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — an unverified Fail finding is stamped `SupportStatus.IndirectlySupported`. Input: Fail + `EvidenceCondition.Unverified`.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — the trade-off `RequiresHumanApproval` flag is true when the parent recommendation flag is false. Input: High Security Fail and High Cost Fail.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — `Cost` then `Do not prefer Cost` stays cost-first — **closed 2026-10-30 seed hunt:** sibling of the later negated-pair clear; do not extend `Any()` as another last-negation synonym.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ExplicitDimensionOverDimensionPattern` — `availability-first` / `recovery-first` — **closed 2026-10-30 seed hunt:** sibling of the position-label `-first` suffix; those labels are not dimension tokens.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForTradeOff` — a second verified finding with the same title gets no trade-off — **closed 2026-10-30 seed hunt:** one trade-off per dimension pair stays on the first actionable finding.
+
 2026-10-30 seed hunt (seed→hit): promoted `Security over Cost` then `Do not prefer Security over Cost` staying balanced while the rationale said no declared priority selected either dimension; an explicit balance now says the declared priorities kept the findings balanced; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`; Alternatives/ProposedChange/TradeOff tests 119/119. Private beta: when an invited operator lists security over cost and then says not to prefer security over cost, the security-versus-cost recommendation stays balanced and the rationale says the declared priorities kept the findings balanced.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — a negated pair used the no-priority rationale — **hit 2026-10-30 seed hunt:** `DeclaredPairChoice.Balanced` gets its own rationale; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`.
@@ -5908,7 +5917,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 80
+- **hunts:** 81
 - **last-hunt:** 2026-10-30
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
