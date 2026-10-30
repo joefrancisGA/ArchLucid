@@ -274,4 +274,65 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
         row.Should().Contain(PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored);
         row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
     }
+
+    [Fact]
+    public void Computed_deltas_table_when_material_finding_without_severity_buckets_findings_source_does_not_cite_agent_results_path()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                AgentResultsIncludedInDetail = true,
+                FindingsCountsFromSnapshot = false,
+                FindingsBySeverity = [],
+                TopFindingId = "f-1",
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel);
+        row.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+        row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
+        row.Should().NotContain("FindingsSnapshot.Findings");
+    }
+
+    [Fact]
+    public void Computed_deltas_table_when_snapshot_flag_but_material_finding_without_buckets_source_does_not_cite_snapshot_findings_path()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsCountsFromSnapshot = true,
+                FindingsBySeverity = [],
+                TopFindingId = "f-1",
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+        row.Should().NotContain("FindingsSnapshot.Findings");
+    }
 }

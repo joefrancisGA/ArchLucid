@@ -18,6 +18,11 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
     {
         ArgumentNullException.ThrowIfNull(deltas);
 
+        if (HasMaterialFindingWithoutSeverityBuckets(deltas))
+        {
+            return FindingsBySeverityNotAttestedLabel;
+        }
+
         if (deltas.FindingsCountsFromSnapshot)
         {
             return "`FindingsSnapshot.Findings` (unmuted only)";
