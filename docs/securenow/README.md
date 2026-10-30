@@ -38,6 +38,10 @@
 - [Procurement evidence index](PROCUREMENT_PACK_INDEX.md) lists SecureNow and platform-shared artifacts with buyer-safe status labels. It is not an approved customer offer.
 - [Buyer security brief](BUYER_SECURITY_ONE_PAGER.md) summarizes collection, non-goals, verification labels, and refused assurance claims for reviewers. It is not an approved customer offer.
 - [Procurement response overlay](PROCUREMENT_RESPONSE_OVERLAY.md) holds SecureNow-specific questionnaire answers. It is not a completed SIG or CAIQ and not an approved offer.
+- [Data-processing schedule](DATA_PROCESSING_SCHEDULE.md) is a negotiation template for collection, hosting modes, and retention blanks. It is not an executed DPA.
+- [Subprocessors delta](SUBPROCESSORS_DELTA.md) maps the platform register to hosted and in-tenant SecureNow. It is not a new vendor list.
+- [Questionnaire crosswalk](QUESTIONNAIRE_CROSSWALK.md) routes spreadsheet themes to the platform packet or SecureNow overlay. It is not a completed SIG or CAIQ.
+- [Quote cover](QUOTE_COVER.md) is a vendor-setup attachment with SKU identifiers only. It is not a public list price or an approved offer.
 - [Marketplace prepublication contract](MARKETPLACE_PREPUBLICATION_CONTRACT.md) explicitly forbids reusing ArchLucid subscriptions as SecureNow entitlements and keeps live commerce disabled.
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
 - [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
