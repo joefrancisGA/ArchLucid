@@ -2903,7 +2903,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-**Hunts:** 79 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+**Hunts:** 80 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #80 (seed-only): reread the OIDC discovery, authorization, PKCE, session, token, BFF, JWT, configuration, and normalization paths with their focused tests; no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 2026-10-30 thorough hunt #79 (dry): rotation selected `ui-oidc` via cooldown fallback. Cheap-disproof closed all five queued candidates: the two long misspellings are covered by the existing alias-collapse regressions but are not new reachable provider inputs; control-character normalization is covered by `humanizes token JSON error codes with trailing control characters`; BFF status `708` is not emitted by the route and non-401/403 failures are already soft-fail parity; and the JSON string root is rejected by `throws when a successful token response body is a JSON string root`. The scoped OIDC token, BFF sync, and refresh-route suites passed 654/654. No production code changed.
 
