@@ -154,6 +154,23 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return false;
 
         ReadOnlySpan<char> token = afterBasic.Trim();
+
+        if (TryBasicAuthorizationPayloadFromToken(token))
+            return true;
+
+        string tokenText = token.ToString();
+
+        foreach (string segment in tokenText.Split(','))
+        {
+            if (TryBasicAuthorizationPayloadFromToken(segment.AsSpan().Trim()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromToken(ReadOnlySpan<char> token)
+    {
         string payload = CollapseBasicAuthorizationBase64Characters(token);
 
         if (payload.Length == 0)
@@ -200,7 +217,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         foreach (char character in token)
         {
-            if (char.IsWhiteSpace(character))
+            if (ShouldIgnoreInBasicBase64Collapse(character))
                 continue;
 
             if (char.IsLetterOrDigit(character) || character is '+' or '/' or '=')
@@ -213,6 +230,14 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return collapsed.ToString();
+    }
+
+    private static bool ShouldIgnoreInBasicBase64Collapse(char character)
+    {
+        if (char.IsWhiteSpace(character))
+            return true;
+
+        return character is '\u200B' or '\u200C' or '\u200D' or '\uFEFF';
     }
 
     private static string NormalizeBase64PayloadPadding(ReadOnlySpan<char> payload)
