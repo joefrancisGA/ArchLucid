@@ -10683,6 +10683,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_no_break_space_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz\u00a0other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_curly_brace_realm()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm={app}, dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_close_brace_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%7D"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_square_bracket_realm()
     {
         const string effectiveValue = "WWW-Authenticate: Basic realm=[app], dXNlcjpwYXNz";
