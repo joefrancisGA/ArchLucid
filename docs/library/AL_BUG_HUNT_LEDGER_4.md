@@ -435,14 +435,6 @@
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
-2026-10-30 thorough hunt #987 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance`, picker selected the same zone with cooldown fallback. Cheap-disproof closed the five queued candidates — populated base `SourceType`, `Category`, and `ReasoningTrace` are not backfilled by a first overlay row, while whitespace-only base `EdgeId` and `Category` cases validate disagreement on a later duplicate. The focused graph overlay suite passed 215/215; no production code changed.
-
-- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `SourceType` — **cheap-disproof 2026-10-30 thorough hunt #987:** scalar backfill only runs when the retained value is blank; regression coverage passes.
-- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `Category` — **cheap-disproof 2026-10-30 thorough hunt #987:** scalar backfill only runs when the retained value is blank; regression coverage passes.
-- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph directed edge may backfill disagreeing populated `ReasoningTrace` — **cheap-disproof 2026-10-30 thorough hunt #987:** scalar backfill only runs when the retained value is blank; regression coverage passes.
-- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only base `EdgeId` accepts conflicting second overlay row — **cheap-disproof 2026-10-30 thorough hunt #987:** first-row backfill is followed by duplicate-agreement validation; the focused suite passes.
-- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — whitespace-only base node `Category` accepts conflicting second overlay row — **cheap-disproof 2026-10-30 thorough hunt #987:** first-row backfill is followed by duplicate-agreement validation; the focused suite passes.
-
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.GetFileAsync` — returns `_files` for `Canceled` rows until eviction — **valid-no-repro 2026-10-07 thorough hunt:** `JobsController.DownloadJobFile` requires `BackgroundJobState.Succeeded` before `GetFileAsync`; queue-layer retention is not an operator download defect.
@@ -21889,13 +21881,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 182
-- **bugs-found:** 46
-- **consecutive-dry-hunts:** 90
+- **hunts:** 183
+- **bugs-found:** 47
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-23 — base-graph edge collisions skipped overlay duplicate label agreement
+- **last-bug:** 2026-10-30 — blank ARM name/type produced a misleading missing-name label
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-30 seed hunt #988 (hit): cooldown fallback selected `ui-oidc` in the picker output, but the focused graph/provenance run exposed a reachable inventory overlay label defect: an ARM resource with whitespace-only name and type emitted `Resource name was not stored.` instead of its trimmed ARM ID. `ResolveLabel` now preserves the trimmed ARM path only when both metadata fields are empty; the regression and focused KnowledgeGraph/Provenance suite passed 1/1 and 697/697. Private beta: invited operators inspecting sparse Azure inventory evidence now see a stable ARM resource label instead of an unhelpful missing-name placeholder.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.ResolveLabel` — whitespace-only ARM name and resource type produce a misleading missing-name label — **hit 2026-10-30 seed hunt #988:** preserve the trimmed ARM ID when no stored name/type exists; regression `BuildOverlay_stamps_trimmed_arm_id_label_when_name_segment_and_resource_type_are_whitespace_only`.
 
 2026-10-30 thorough hunt #986 (dry): rotation did not fire (`shouldRotate: false`; KG low-yield streak 2/3 — next consecutive dry rotates). Cheap-disproof closed five open `(candidate)` rows reseeded after hunt #985 — invalid first-row populated base node `SourceId` overwrite (`Merge_preserves_base_node_source_id_when_first_overlay_row_disagrees_on_source_id`), invalid first-row populated base node `ReasoningTrace` overwrite (`Merge_preserves_base_node_reasoning_trace_when_first_overlay_row_disagrees_on_reasoning_trace`), invalid first-row populated base edge `InferenceSource` overwrite (`Merge_preserves_base_edge_inference_source_when_first_overlay_row_disagrees_on_inference_source`), valid-no-repro base-graph overlay duplicate edge `ProvenanceKind` agreement on second overlay row when base edge provenance kind is whitespace-only (`Merge_throws_when_overlay_duplicate_edges_disagree_on_provenance_kind_for_base_graph_directed_key_when_base_provenance_kind_is_whitespace_only`), and valid-no-repro ProvenanceBuilder whitespace-only duplicate graph-node node types (`Build_preserves_graph_node_node_type_when_later_case_variant_row_has_whitespace_only_node_type`); reseeded five `(candidate)` rows; scoped filter **697** KnowledgeGraph + **179** Provenance tests passed. Private beta: n/a.
 
