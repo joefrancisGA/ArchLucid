@@ -2,13 +2,21 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only string `tenantId` on `201` omits scope headers after trim (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); invalid email plus whitespace org uses TB-2010 required-field copy before email branch (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`); success-path body read failure still navigates on `201` (`still navigates after 201 when register response body read throws`); team size `10001` blocked in UI without register POST (`keeps submit disabled when optional architecture team size exceeds 10000`, `does not call register fetch when optional architecture team size exceeds 10000`); keyboard submit on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`). Reseeded five follow-on `(candidate)` rows. 136 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultWorkspaceId` omits registration scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "   ", defaultProjectId: "<guid>" }` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name prefers email copy over required-field copy — locus: issue ordering; input: invalid email + `"   "` display name (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — malformed JSON `201` body after successful `res.text()` still navigates — locus: parse catch on success; input: `{not json}` with `201` (monitor).
+- [ ] (candidate) `SignupForm` — paste of `10001` into team size then blur re-enables submit — locus: controlled field sync; input: paste over valid size (monitor).
+- [ ] (candidate) `SignupForm` — double-click submit with invalid email fires register `fetch` once — locus: disabled gate race; input: rapid clicks on invalid form (monitor).
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — numeric `defaultProjectId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultProjectId is stored as a JSON number`); non-OK body read failure uses HTTP status fallback (`shows generic submit error when register response body read throws on a non-ok response`); whitespace-only full name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`); optional team size `10000` included from UI at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`, builder regressions); scientific notation `1e2` serializes to whole `100` by design (`serializes scientific notation optional architecture team size when it parses to a whole number`). Reseeded five follow-on `(candidate)` rows. 132 scoped SignupForm vitest tests passed; no production code changed.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "   ", defaultWorkspaceId: "<guid>", defaultProjectId: "<guid>" }` (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — locus: issue ordering; input: invalid email + `"   "` org (monitor TB-2010).
-- [ ] (candidate) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — locus: success-path body read catch; input: mocked stream failure on `201` (monitor).
-- [ ] (candidate) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — locus: schema max vs builder; input: bypass validation with `10001` (monitor).
-- [ ] (candidate) `SignupForm` — keyboard submit with invalid email calls register `fetch` — locus: keyboard vs click paths; input: Enter on invalid email (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — **cheap-disproof 2026-10-30 thorough hunt #2:** trim gate; regression `does not emit registration scope headers when tenantId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — **cheap-disproof 2026-10-30 thorough hunt #2:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional success path; regression `still navigates after 201 when register response body read throws`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — **cheap-disproof 2026-10-30 thorough hunt #2:** schema max blocks submit; regressions `keeps submit disabled when optional architecture team size exceeds 10000` and `does not call register fetch when optional architecture team size exceeds 10000`.
+- [x] (valid-no-repro) `SignupForm` — keyboard submit with invalid email calls register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #2:** `canSubmit` gate; regression `shows inline validation on keyboard submit without calling fetch`.
 
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five header-queue `(candidate)` rows — numeric `defaultWorkspaceId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`); empty `503` body uses status fallback (`shows synthetic message when register error response body is empty`); second `submit` while in-flight blocked (`does not fire a second register request when the form is submitted again while in flight`); `%` in work-email local part unreachable before verify (`invalid` on double-encode candidate); whitespace-only organization name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`). Reseeded five follow-on `(candidate)` rows. 128 scoped SignupForm vitest tests passed; no production code changed.
 
@@ -236,9 +244,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
 - **related-pd-tb:** TB-2005
