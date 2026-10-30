@@ -229,7 +229,29 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (closeBraceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBraceIndex).Trim()))
             return true;
 
+        if (TryBasicAuthorizationPayloadFromRealmEqualsParameter(token))
+            return true;
+
         return TryBasicAuthorizationPayloadFromQuotedSegments(token);
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromRealmEqualsParameter(ReadOnlySpan<char> token)
+    {
+        int realmIndex = token.IndexOf("realm=".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (realmIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> realmValue = token.Slice(realmIndex + "realm=".Length).Trim();
+        int commaIndex = realmValue.IndexOf(',');
+
+        if (commaIndex > 0)
+            realmValue = realmValue.Slice(0, commaIndex).Trim();
+
+        if (TryBasicAuthorizationPayloadFromCollapsedToken(realmValue))
+            return true;
+
+        return TryBasicAuthorizationPayloadFromQuotedSegments(realmValue);
     }
 
     private static ReadOnlySpan<char> TrimLeadingByteOrderMarks(ReadOnlySpan<char> token)
@@ -551,6 +573,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return true;
 
         if (ContainsCredentialCookieHeaderValue(trimmed, "Set-Cookie2:"))
+            return true;
+
+        if (ContainsCredentialCookieHeaderValue(trimmed, "Cookie2:"))
             return true;
 
         return ContainsCredentialCookieHeaderValue(trimmed, "Cookie:");
