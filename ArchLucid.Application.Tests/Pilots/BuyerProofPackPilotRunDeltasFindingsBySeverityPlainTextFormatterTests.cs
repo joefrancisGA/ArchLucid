@@ -37,6 +37,19 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsBySeverityPlainTextForma
     }
 
     [Fact]
+    public void Format_when_severity_label_contains_backtick_quotes_label_in_plain_text_join()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warn`ing", 1)],
+        };
+
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas)
+            .Should()
+            .Be("'Warn`ing': 1");
+    }
+
+    [Fact]
     public void Format_when_severity_label_contains_pipe_quotes_label_in_plain_text_join()
     {
         PilotRunDeltas deltas = new()

@@ -35,14 +35,14 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
         if (string.IsNullOrEmpty(key))
             return "''";
 
-        if (key.Contains('|', StringComparison.Ordinal)
-            || key.Contains(',', StringComparison.Ordinal)
-            || key.Contains(':', StringComparison.Ordinal)
-            || key.Contains('\'', StringComparison.Ordinal))
+        if (SeverityLabelNeedsQuoting(key))
         {
             return $"'{key.Replace("'", "''", StringComparison.Ordinal)}'";
         }
 
         return key;
     }
+
+    private static bool SeverityLabelNeedsQuoting(string key) =>
+        key.AsSpan().IndexOfAny("|,:'\r\n`") >= 0;
 }
