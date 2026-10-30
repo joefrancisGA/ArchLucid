@@ -588,7 +588,7 @@ public sealed class PilotValueReportMarkdownFormatterTests
 
         string markdown = sut.Format(report);
 
-        markdown.Should().Contain("| ROI source freshness disposition | HOLD |");
+        markdown.Should().Contain("| ROI source freshness disposition | `HOLD` |");
     }
 
     [Fact]

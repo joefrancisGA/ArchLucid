@@ -9,6 +9,27 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class BuyerProofPackPilotValueReportMetadataMarkdownTests
 {
     [Fact]
+    public void Metadata_table_when_roi_freshness_disposition_contains_backtick_preserves_inline_code()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        string markdown = sut.Format(
+            new PilotValueReport
+            {
+                TenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                FromUtc = from,
+                ToUtc = from.AddDays(30),
+                RoiSourceFreshnessDisposition = "HOLD`stale",
+            });
+
+        string row = markdown.Split('\n')
+            .Single(line => line.Contains("| ROI source freshness disposition |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| ROI source freshness disposition | ``HOLD`stale`` |");
+    }
+
+    [Fact]
     public void Metadata_table_when_roi_freshness_disposition_contains_pipe_escapes_table_cell()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
@@ -26,7 +47,7 @@ public sealed class BuyerProofPackPilotValueReportMetadataMarkdownTests
             .Single(line => line.Contains("| ROI source freshness disposition |", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| ROI source freshness disposition | HOLD\\|stale |");
+        row.Should().Be("| ROI source freshness disposition | `HOLD\\|stale` |");
     }
 
     [Fact]
@@ -47,6 +68,6 @@ public sealed class BuyerProofPackPilotValueReportMetadataMarkdownTests
         string row = markdown.Split('\n')
             .Single(line => line.Contains("| ROI source freshness disposition |", StringComparison.Ordinal))
             .TrimEnd();
-        row.Should().Be("| ROI source freshness disposition | HOLD \\| forged \\| row \\| |");
+        row.Should().Be("| ROI source freshness disposition | `HOLD \\| forged \\| row \\|` |");
     }
 }

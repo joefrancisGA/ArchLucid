@@ -258,7 +258,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         if (string.IsNullOrEmpty(disposition))
             return "ROI source freshness disposition was not computed.";
 
-        return FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(disposition);
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition);
     }
 
     private static string FormatTimelineSystemCell(string? value)
