@@ -16342,13 +16342,27 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 30
-- **bugs-found:** 6
+- **hunts:** 31
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — TryIssueReadyForCommitRun empty run id; TryParseStatus int32 overflow ordinal
+- **last-bug:** 2026-10-30 — DocumentedRules mutable array exposure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt #879 (hit): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance`. Proved `DocumentedRules` returned the shared `Rules` array as `IReadOnlyList`, so a cast to `ArchitectureRunStatusTransitionRule[]` could mutate process-wide transition documentation; fixed with `Array.AsReadOnly(Rules)`. Cheap-disproof closed finalize-from-quality-rejected, finalize-from-partially-completed, boolean `true` `failureClass`, and `TasksGenerated` + pipeline dead-letter ordering; scoped **72** Core `RunAuthority`/`AuthorityRunLifecycle` tests passed. Private beta: no direct invite-path UI change; authority run lifecycle rules can no longer be corrupted in-process by callers that cast the documented rule list.
+
+- [x] (proven) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — **hit 2026-10-30 thorough hunt #879:** `Array.AsReadOnly(Rules)`; regression `DocumentedRules_does_not_return_mutable_shared_rules_array`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ExecutionCompletedQualityRejected` denied (quality-rejected runs cannot finalize without recovery) — **cheap-disproof 2026-10-30 thorough hunt #879:** finalize pinned to `ReadyForCommit`; regression `TryTransition_denies_commit_finalized_from_execution_completed_quality_rejected`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `PartiallyCompleted` denied (must reach `ReadyForCommit` via execute-complete events) — **cheap-disproof 2026-10-30 thorough hunt #879:** regression `TryTransition_denies_commit_finalized_from_partially_completed`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `true` `failureClass` token returns not dead-lettered (parity with `false` non-string guard) — **cheap-disproof 2026-10-30 thorough hunt #879:** `TryReadNonEmptyTextToken` requires string tokens; regression `IsDeadLettered_returns_false_for_boolean_true_failure_class_token`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch — **cheap-disproof 2026-10-30 thorough hunt #879:** `IsDeadLettered` precedes in-progress legacy branch; regression `ResolveFromRunHeader_tasks_generated_with_pipeline_dead_letter_returns_failed_not_in_progress`.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Committed` denied (terminal committed runs cannot re-finalize).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch.
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with nested object-valued `failureClass` returns not dead-lettered.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — empty string legacy status rejected (parity with whitespace-only coercion path).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `WaitingForResults` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch.
 
 2026-10-30 thorough hunt #875 (hit): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance`. Proved `TryIssueReadyForCommitRun` threw when `RunId` was empty because the `Try*` helper constructed `ReadyForCommitRun` without guarding `Guid.Empty`; fixed with early `false` return. Proved `TryParseStatus` accepted fractional whole-number ordinals above `int.MaxValue` (e.g. `4294967296.0`) via unchecked `(int)` cast aliasing to `Created`; fixed by bounding `TryParseWholeNumberString` to `int.MaxValue` (parity with `StrictSchemaVersionReader`). Cheap-disproof closed negative `WaitPollMilliseconds` (SQL gate clamps below 10 ms), negative `PipelineTimeout` (orchestrator skips `CancelAfter` when not positive), and oversized dead-letter `schemaVersion` doubles (strict reader rejects above `int32` max); scoped **74** `RunAuthority`/`AuthorityPipeline` Core tests passed. Private beta: malformed in-memory legacy status ordinals no longer coerce to `Created`; commit orchestration no longer throws on empty run id at the typestate gate.
 
@@ -16358,20 +16372,14 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (valid-no-repro) `AuthorityPipelineOptions.PipelineTimeout` — accepts a negative timeout — **cheap-disproof 2026-10-30 thorough hunt #875:** `CancelAfter` skipped when timeout ≤ zero; regression `AuthorityPipeline_negative_pipeline_timeout_binds_without_throwing`.
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — schema-version parsing accepts a floating whole number but does not visibly bound precision — **cheap-disproof 2026-10-30 thorough hunt #875:** `StrictSchemaVersionReader` caps at `int.MaxValue`; regression `IsDeadLettered_returns_false_for_whole_number_schema_version_above_int32_max`.
 
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ExecutionCompletedQualityRejected` denied (quality-rejected runs cannot finalize without recovery).
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `PartiallyCompleted` denied (must reach `ReadyForCommit` via execute-complete events).
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `true` `failureClass` token returns not dead-lettered (parity with `false` non-string guard).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch.
+- [x] (proven) `ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun` — a `Guid.Empty` run id reaches the `ReadyForCommitRun` constructor and throws from a `Try*` method — **hit 2026-10-30 thorough hunt #875:** duplicate hypothesis row; see hunt #875 closure above.
+- [x] (proven) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — **hit 2026-10-30 thorough hunt #879:** see hunt #879 closure above.
 
 2026-10-08 seed hunt (seed-only): re-read run transition parsing, lifecycle projection, dead-letter detection, typestate finalization, and authority pipeline options; no in-zone hunt-ready row promoted; scoped `RunAuthority` tests were run before recording the outcome.
 
 - [x] (proven) `AuthorityPipelineConcurrencyOptions.LeaseRecognitionHorizon` — negative duration moved SQL stale cutoff into the future — **hit 2026-10-21 lane B:** getter clamps below zero to `TimeSpan.Zero`; regression `AuthorityPipeline_Concurrency_clamps_negative_lease_recognition_horizon_to_zero`.
 
 2026-10-08 seed hunt (seed-only): re-read the public transition-table surface and ready-for-commit typestate boundary; no hunt-ready row promoted; the existing configuration candidates remain outside the selected source paths.
-
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun` — a `Guid.Empty` run id reaches the `ReadyForCommitRun` constructor and throws from a `Try*` method — locus: `TryIssueReadyForCommitRun` in `ArchitectureRunStatusTransitionTable.cs`; input: `ReadyForCommit` plus an empty run id; wrong outcome: malformed commit input raises instead of returning `false`; reachability: the application commit orchestrator passes a parsed run id into this public transition helper.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
 
 2026-10-08 seed hunt (seed-only): re-read the selected transition-table and typestate sources after the prior reseed; no candidate met the in-zone reachability and user-visible wrong-outcome bar, so no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
 

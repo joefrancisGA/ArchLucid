@@ -208,6 +208,38 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void DocumentedRules_does_not_return_mutable_shared_rules_array()
+    {
+        IReadOnlyList<ArchitectureRunStatusTransitionRule> documented =
+            ArchitectureRunStatusTransitionTable.DocumentedRules;
+
+        documented.Should().NotBeOfType<ArchitectureRunStatusTransitionRule[]>(
+            "callers must not cast DocumentedRules to the shared Rules backing array");
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_execution_completed_quality_rejected()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.ExecutionCompletedQualityRejected,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.ExecutionCompletedQualityRejected);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_partially_completed()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.PartiallyCompleted,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.PartiallyCompleted);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_negative_integer_ordinal_string()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-6", out ArchitectureRunStatus status);

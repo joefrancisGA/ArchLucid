@@ -50,7 +50,7 @@ public static class ArchitectureRunStatusTransitionTable
         Rule(ArchitectureRunStatus.Retrying, ArchitectureRunStatusLifecycleEvent.OwnershipLeaseExpiredReconcileToFailedPartial, ArchitectureRunStatus.FailedPartial),
     ];
 
-    public static IReadOnlyList<ArchitectureRunStatusTransitionRule> DocumentedRules => Rules;
+    public static IReadOnlyList<ArchitectureRunStatusTransitionRule> DocumentedRules => Array.AsReadOnly(Rules);
 
     public static bool IsLegalTransition(
         ArchitectureRunStatus from,

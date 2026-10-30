@@ -250,6 +250,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_true_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":true}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_whitespace_only_failure_class_token()
     {
         const string json = """
