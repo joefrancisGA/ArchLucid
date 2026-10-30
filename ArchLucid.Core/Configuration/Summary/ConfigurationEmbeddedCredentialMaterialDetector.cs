@@ -214,6 +214,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (tabIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, tabIndex).Trim()))
             return true;
 
+        int verticalTabIndex = token.IndexOf('\v');
+
+        if (verticalTabIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, verticalTabIndex).Trim()))
+            return true;
+
         int quoteIndex = token.IndexOf('"');
 
         if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
