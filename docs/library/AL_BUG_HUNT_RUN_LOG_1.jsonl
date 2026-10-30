@@ -2845,3 +2845,4 @@
 {"at":"2026-10-30T10:09:49.3823090Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DrRpoQualityAttributeParser.cs"],"severity":"medium","defectClass":"off-by-one"}
 {"at":"2026-10-30T10:14:32.7447742Z","zoneId":"decisioning","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T10:21:16.0789133Z","zoneId":"commit-output-integrity","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T10:28:18.8695715Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","defectClass":"fail-open-validation"}

@@ -288,6 +288,11 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             string left = match.Groups[1].Value;
             string right = match.Groups[2].Value;
 
+            // "Do not prefer Security over Cost" still matches the pair pattern. Honor the same
+            // negation helper the generic dimension path uses, or the left side wins anyway.
+            if (IsNegatedDimensionMention(priority, left))
+                continue;
+
             if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
                 && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
             {

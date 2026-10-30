@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
+- **last-bug:** 2026-10-30 — negated `Security over Cost` still selected Security
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost` still resolving Security-first because `TryResolveDeclaredPairPrecedence` accepted the `over` match without `IsNegatedDimensionMention`; a pair whose left dimension is negated is now skipped; regression `BuildRecommendations_balances_security_and_cost_when_priority_negates_security_over_cost`; scoped Alternatives/ProposedChange/TradeOff tests 110/110. Private beta: when an invited operator's review priorities say not to prefer security over cost, a security-versus-cost recommendation stays balanced instead of resolving as security-first.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Do not prefer Security over Cost` still selected Security — **hit 2026-10-30 seed hunt:** pair match consults `IsNegatedDimensionMention` for the left dimension; regression `BuildRecommendations_balances_security_and_cost_when_priority_negates_security_over_cost`. [class:fail-open-validation]
 
 2026-10-29 seed hunt (seed→hit): promoted bare `Deprioritize Cost` still selecting Cost because negation required `do not` / `don't` before the verb; added `CreateBareDeprioritizeDimensionPattern` on `IsNegatedDimensionMention`; regression `BuildRecommendations_balances_security_and_cost_when_priority_says_deprioritize_cost`; scoped Alternatives/ProposedChange/TradeOff tests 109/109. Private beta: when an invited operator's review priorities say to deprioritize cost, a security-versus-cost recommendation no longer resolves as cost-first; the competing findings stay balanced unless another priority actually selects a dimension.
 
@@ -5868,11 +5872,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 70
-- **last-hunt:** 2026-10-29
-- **bugs-found:** 25
+- **hunts:** 71
+- **last-hunt:** 2026-10-30
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
+- **last-bug:** 2026-10-30 — negated `Security over Cost` still selected Security
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
