@@ -7825,6 +7825,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #12 (dry): cheap-disproof closed three open `(candidate)` rows — malformed successful analysis JSON is surfaced as a request error rather than silently accepted; equal observer ratios resolve deterministically through the stable artifact order; viewed and funnel telemetry share the same trimmed scenario and render-mode property construction. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — **cheap-disproof 2026-10-30 thorough hunt #12:** malformed success JSON enters the error path rather than being treated as a successful analysis; no silent stale-result commit.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — **cheap-disproof 2026-10-30 thorough hunt #12:** equal ratios retain deterministic `ARTIFACT_ITEMS` order; no random selection mechanism.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — **cheap-disproof 2026-10-30 thorough hunt #12:** both helpers construct properties from the same trimmed scenario and supplied render mode.
+
+- [ ] (candidate) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — locus: JSON parse error state; input: sample result followed by malformed POST response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — locus: observer callback precedence; input: click plus simultaneous equal intersections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — locus: dual telemetry normalization; input: mixed-case encoded scenario (monitor).
+
 2026-10-30 thorough hunt #11 (dry): cheap-disproof closed three open `(candidate)` rows — successful real analysis clears the sample error through the submit success state; artifact click/observer ordering intentionally follows actual viewport visibility; funnel telemetry trims the scenario before emitting properties (`recordShowcaseFunnelEvent trims the scenario before emitting telemetry`). Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful real analysis response — **cheap-disproof 2026-10-30 thorough hunt #11:** successful analysis state clears the error; existing POST regressions cover the path.
