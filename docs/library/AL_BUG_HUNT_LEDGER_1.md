@@ -6024,6 +6024,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-30 thorough hunt (hit): promoted `FindBoundedMarkerIndex` phrase matching requiring ASCII space only, so PDF-export `to\u202Fbe` headers did not establish target-state lifecycle boundaries and components after them kept prior `as is` scope; phrase markers now treat any Unicode whitespace between words as a space separator; regression `Extract_tags_target_lifecycle_scope_after_narrow_no_break_space_to_be_header`; cheap-disproof closed four sibling `(candidate)` rows (`~owner~` blocked by `~` delimiters; possessive `owner's` blocked by `'` closing delimiter; `owner-gateway` hyphen end boundary; snake_case `as_is`/`to_be` intentionally hyphen/space-only per 2026-10-23 lifecycle hit); **88** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: architecture-intelligence extraction on PDF-exported lifecycle headings with narrow no-break spaces tags target-state components correctly.
+
+- [x] (valid-no-repro) `FindBoundedOwnershipMarkerIndex` — markdown single-tilde strike `~owner~` — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** lone leading `~` is an ownership opening delimiter; regression `Extract_does_not_emit_ownership_gap_for_single_tilde_strike_owner_with_unowned`.
+- [x] (valid-no-repro) `ContainsOwnershipMarker` — possessive `owner's` — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** apostrophe is a closing ownership delimiter; regression `Extract_does_not_emit_ownership_gap_for_possessive_owner_with_unowned`.
+- [x] (invalid) `InferLifecycleScopeForIndex` — underscore lifecycle shorthand — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** intentional hyphen/spaced lifecycle contract; regression `Classify_as_is_underscore_shorthand_is_clear_extraction_without_dual_markers`.
+- [x] (invalid) `ComponentLinePattern` — `service: owner-gateway` — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** bounded `owner` token fails on hyphen end boundary; ownership gap uses prose markers only; regression `Extract_does_not_emit_ownership_gap_for_service_line_owner_gateway_with_unowned`.
+- [x] (proven) `ContainsPhraseMarker` / `FindBoundedMarkerIndex` — unicode narrow no-break space inside `to be` — **hit 2026-10-30 thorough hunt (hunt 44):** flexible whitespace phrase match; regression above.
+
+- [ ] (candidate) `FindBoundedMarkerIndex` — figure space `\u2007` between `as` and `is` lifecycle phrase — locus: flexible whitespace now covers phrase markers; input: typographic-space PDF headers; mechanism: verify parity with NNBSP for current-state boundaries (inverse regression gap).
+- [ ] (candidate) `ContainsHumanReviewMarker` — NBSP inside `soc 2` regulatory marker — locus: human-review markers share bounded phrase helper; input: compliance paste with non-breaking spaces; wrong outcome: `ClearExtraction` on regulated content.
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — fullwidth colon `owner：team` CJK label — locus: ownership delimiter set is ASCII punctuation; input: localized RACI paste with `unowned` elsewhere.
+- [ ] (candidate) `ContainsTokenMarker` — soft hyphen `\u00AD` inside `as-is` token — locus: token markers still use literal hyphen needle; input: line-broken export `as\u00ADis` section headers.
+- [ ] (candidate) `LooksAmbiguous` — dual lifecycle when only `as\u00A0is` (NBSP) and ASCII `to be` — locus: ambiguous classifier phrase list; input: mixed whitespace variants across sections; wrong outcome: `ClearExtraction` skips transition assumption.
+
 2026-10-30 seed hunt (seed→hit): promoted markdown strikethrough `~~owner~~` RACI labels matching as prose ownership tokens when `unowned` appeared elsewhere; `~` added to ownership label delimiters (parity with `*` emphasis); matrix regression `markdown-strikethrough-owner`; cheap-disproof closed four stale `(candidate)` rows from hunt 2026-10-23 (HTML entity `&lt;owner&gt;` fails end boundary on `&`; regulatory pipe-table ordering invalid because `RequiresHumanReview` precedes `LooksStructured`; negated lifecycle and `to be deployed` scheduling prose lack hunt-ready repro without reopening saturated phrase-boundary class); seeded five mechanism-backed `(candidate)` rows below; **83** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: pasted runbooks with strikethrough RACI role labels no longer invent operational-ownership gaps when legacy capacity is described as unowned elsewhere.
 
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — markdown strikethrough `~~owner~~` label with separate `unowned` mention — **hit 2026-10-30 seed hunt:** `~` ownership delimiters; matrix case `markdown-strikethrough-owner`.
@@ -6032,11 +6046,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `LooksStructured` — pipe table before GDPR text — **cheap-disproof 2026-10-30 seed hunt:** `Classify` evaluates human-review regulatory markers before structured table heuristics.
 - [x] (invalid) `InferLifecycleScopeForIndex` — `to be deployed` scheduling header — **cheap-disproof 2026-10-30 seed hunt:** no distinct wrong lifecycle scope repro; shares phrase matcher with intentional `to be` target-state boundary (2026-10-23 spaced lifecycle hit).
 
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — markdown single-tilde strike `~owner~` (non-GFM) with separate `unowned` mention — locus: delimiter set now covers paired `~~` but not lone tilde emphasis; input: wiki-style struck RACI labels in workshop notes.
-- [ ] (candidate) `ContainsOwnershipMarker` — possessive `owner's` token paired with `unowned` elsewhere — locus: plural fallback appends `s` but apostrophe-s may still bounded-match `owner` substring; input: prose "the owner's on-call" with DR racks unowned.
-- [ ] (candidate) `InferLifecycleScopeForIndex` — underscore lifecycle shorthand `as_is` / `to_be` section headers — locus: token markers use hyphen forms only; input: snake_case lifecycle headings in pasted Confluence exports.
-- [ ] (candidate) `ComponentLinePattern` — `service: owner-gateway` line paired with `unowned` elsewhere — locus: component regex captures names containing `owner` substring; input: service label plus separate unowned capacity sentence; wrong outcome: ownership gap despite identifier not RACI prose.
-- [ ] (candidate) `ContainsPhraseMarker` — unicode narrow no-break space inside `to\u202Fbe` lifecycle phrase — locus: bounded index uses ordinal spans; input: PDF-export target-state headers; mechanism: lifecycle scope misses target boundary while ambiguous classifier still matches spaced phrase elsewhere.
+- [x] (valid-no-repro) `FindBoundedOwnershipMarkerIndex` — markdown single-tilde strike `~owner~` (non-GFM) with separate `unowned` mention — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** see zone-header close above.
+- [x] (valid-no-repro) `ContainsOwnershipMarker` — possessive `owner's` token paired with `unowned` elsewhere — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** see zone-header close above.
+- [x] (invalid) `InferLifecycleScopeForIndex` — underscore lifecycle shorthand `as_is` / `to_be` section headers — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** see zone-header close above.
+- [x] (invalid) `ComponentLinePattern` — `service: owner-gateway` line paired with `unowned` elsewhere — **cheap-disproof 2026-10-30 thorough hunt (hunt 44):** see zone-header close above.
+- [x] (proven) `ContainsPhraseMarker` — unicode narrow no-break space inside `to\u202Fbe` lifecycle phrase — **hit 2026-10-30 thorough hunt (hunt 44):** see zone-header close above.
 
 2026-10-30 thorough hunt (dry): the only hunt-ready row was a doubled checkbox (`- [ ] - [x] (proven-stale)`) for email-domain `owner`. `ContinuesLexicalTokenBefore` already treats `@` as a token continuation, so `ops@owner.example.com` does not start an ownership marker. Existing regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. The inverse, dropping a real owner token that follows `@`, has no architecture-prose citation beyond that email label. No production code changed. Private beta: n/a.
 
@@ -6100,11 +6114,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 43
-- **bugs-found:** 23
+- **hunts:** 44
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — markdown strikethrough `~~owner~~` false ownership token
+- **last-bug:** 2026-10-30 — NNBSP `to be` lifecycle boundary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
