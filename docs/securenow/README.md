@@ -49,6 +49,8 @@
 - [Fixture storyboard](FIXTURE_STORYBOARD.md) is a facilitator script for fixture demos. It is not customer traction.
 - [Scenario chooser](SCENARIO_CHOOSER.md) maps buyer jobs to fixture walkthroughs. It is a fixture index, not customer traction.
 - [Scenario packs](scenario-packs/) are short facilitator instructions per chooser row. They are fixture instructions, not customer evidence.
+- [Control-evidence responsibility](CONTROL_EVIDENCE_RESPONSIBILITY.md) splits customer disposition from SecureNow evidence lineage. It is not a certification.
+- [Framework coverage](FRAMEWORK_COVERAGE.md) indexes thematic mappings and their limits. It is not a certification.
 - [Ten-lane commercial engineering workpack](../go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md) provides offline evidence preparation, a synthetic buyer demo and blocker reports. This work is not customer traction.
 - [Procurement prompt index](../architecture/SECURENOW_PROCUREMENT_COMPOSER_PROMPTS.md) is the paste set for the SecureNow evidence pack and the follow-on schedule, subprocessors delta, crosswalk, and quote cover. It is not an approved offer.
 - [Scenario accelerator prompt index](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) is the paste set for a fixture chooser and short packs. It is not customer evidence.
