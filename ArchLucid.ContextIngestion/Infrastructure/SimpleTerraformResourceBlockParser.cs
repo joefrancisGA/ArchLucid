@@ -607,7 +607,7 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
             }
 
-            int heredocMarkerIndex = line.IndexOf("<<", StringComparison.Ordinal);
+            int heredocMarkerIndex = IndexOfHeredocMarkerOutsideQuotes(line);
 
             if (heredocMarkerIndex < 0)
                 continue;
@@ -635,5 +635,56 @@ internal static class SimpleTerraformResourceBlockParser
         }
 
         return string.Join('\n', lines);
+    }
+
+    private static int IndexOfHeredocMarkerOutsideQuotes(string line)
+    {
+        bool inDoubleQuotes = false;
+        bool inSingleQuotes = false;
+        bool escaped = false;
+
+        for (int index = 0; index < line.Length - 1; index++)
+        {
+            char current = line[index];
+
+            if (inDoubleQuotes || inSingleQuotes)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (inDoubleQuotes && current == '"')
+                    inDoubleQuotes = false;
+                else if (inSingleQuotes && current == '\'')
+                    inSingleQuotes = false;
+
+                continue;
+            }
+
+            if (current == '"')
+            {
+                inDoubleQuotes = true;
+                continue;
+            }
+
+            if (current == '\'')
+            {
+                inSingleQuotes = true;
+                continue;
+            }
+
+            if (current == '<' && line[index + 1] == '<')
+                return index;
+        }
+
+        return -1;
     }
 }
