@@ -389,7 +389,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             return false;
 
         if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
-            && UnreliabilityNegationPattern().IsMatch(priority))
+            && UnreliabilityNegationPattern().IsMatch(priority)
+            && !HasExplicitReliabilityPair(priority))
         {
             return true;
         }
@@ -521,6 +522,22 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
     private static Regex UnreliabilityNegationPattern() =>
         new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    // "Reduce unreliability" must not select Reliability by itself. The same word must not
+    // cancel an explicit "Reliability over Cost" pair that names the hazard being reduced.
+    private static bool HasExplicitReliabilityPair(string priority)
+    {
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+        {
+            if (match.Groups[1].Value.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
+                || match.Groups[2].Value.Equals("Reliability", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
     {
