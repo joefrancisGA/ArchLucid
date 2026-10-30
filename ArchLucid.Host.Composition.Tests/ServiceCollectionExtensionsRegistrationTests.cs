@@ -636,6 +636,26 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_preserves_pre_registered_IProductLineRequestAccessor()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductLineRequestAccessor> injectedAccessor = new();
+        services.AddSingleton(injectedAccessor.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductLineRequestAccessor>().Should().BeSameAs(injectedAccessor.Object,
+            "composition must not replace a test or host-supplied product-line accessor registered before AddArchLucidApplicationServices");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_preserves_pre_registered_TimeProvider()
     {
         IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
