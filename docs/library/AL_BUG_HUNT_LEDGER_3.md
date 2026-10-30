@@ -7748,6 +7748,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
+
+- [x] (valid-no-repro) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+- [x] (valid-no-repro) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+- [x] (valid-no-repro) `FindingInspectWhyMattersSection` — finding inspect why-matters disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+
 2026-10-29 thorough hunt (hit): promoted `RunDetailProvenanceSummaryCard` — identifiers disclosure href writes used `readWindowLocationSearch()`, so expanding Identifiers after soft navigation merged stale review-detail query keys; `syncIdentifiersOpenToUrl` now uses `searchParams.toString()`; regression `writes provenance identifiers disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailProvenanceSummaryCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `PlanningBridgePanel` stale URL write (no disclosure href write locus in panel) and `OperatorBillingWalletPanel` save-confirm href (already uses `searchParams.toString()`). Private beta: invited operators expanding provenance identifiers no longer inherit stale query params after in-app navigation on review detail.
 
 - [x] (proven) `RunDetailProvenanceSummaryCard` — identifiers disclosure write merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
@@ -7781,10 +7787,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 38
-- **last-hunt:** 2026-10-29
+- **hunts:** 39
+- **last-hunt:** 2026-10-30
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-29 — provenance identifiers disclosure merged stale query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** no
