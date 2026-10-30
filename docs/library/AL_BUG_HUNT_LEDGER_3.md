@@ -7855,13 +7855,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #24 (dry): cheap-disproof closed three open `(candidate)` rows — an empty `204` body is not a reachable Quick Scan success contract, sparse observer entries update only when the browser reports a target transition, and route `runId` values are catalog slugs rather than encoded path separators. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #25 (dry): cheap-disproof closed three open `(candidate)` rows — generic non-OK Quick Scan fallback is the established path outside capacity/captcha statuses, the artifact nav intentionally defaults to its first catalog item before observation, and consent storage is the documented browser gate rather than a telemetry delivery guarantee. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (invalid) marketing candidate rows from thorough hunt #23 — **cheap-disproof 2026-10-30 thorough hunt #24:** the 204 body has no reachable accepted-analysis producer, IntersectionObserver supplies entries when targets transition, and `%2F` is outside the route's slug input contract; no failing repro attempted.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #24 — **cheap-disproof 2026-10-30 thorough hunt #25:** non-OK detail projection, initial first-item selection, and consent-storage behavior match the current marketing contracts; no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — a non-OK response with a structured problem detail loses actionable server guidance — locus: non-OK response error projection; input: proxy returns a JSON `detail` alongside an unexpected HTTP status (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — when the first artifact section is absent, initial `aria-current` points at a missing target until observation — locus: initial active-id default; input: dynamic page omits `artifact-sponsor-report` (monitor).
-- [ ] (candidate) `isMarketingAnalyticsAllowed` — storage access failure propagates through a marketing click instead of disabling telemetry — locus: consent `localStorage.getItem`; input: browser storage throws in a privacy-restricted context (monitor).
+- [ ] (candidate) `useQuickScanClient` — cancelling after the POST settles but before React applies the response leaves `submitting` stuck — locus: abort-controller and finally ordering; input: user clicks Cancel at the response-resolution boundary (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — IntersectionObserver-unavailable browsers never reconcile the default active item with the first rendered section — locus: no-observer fallback; input: browser lacks `IntersectionObserver` while the catalog is partially rendered (monitor).
+- [ ] (candidate) `trackShowcaseAppInsights` — rejected App Insights initialization becomes an unhandled promise rejection during an allowed marketing event — locus: async telemetry delivery; input: consent granted while SDK initialization fails (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
