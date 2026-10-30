@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #90 (seed-only): reran the focused SignupForm regression suite after reviewing current required and optional validation paths; all 144 tests passed and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
 2026-10-30 seed hunt #89 (seed-only): re-read the full SignupForm path, including schema-backed submit gating, optional-field clearing, numeric bounds, and register payload shaping; no new mechanism-backed hunt-ready row emerged. No production code changed.
 
 2026-10-30 seed hunt #88 (seed-only): re-read `SignupForm`, `signupFormSchema`, optional field bounds, and the 144-test focused suite; visible schema limits now match their rendered controls, and no new mechanism-backed hunt-ready row emerged. No production code changed.
@@ -350,7 +352,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
