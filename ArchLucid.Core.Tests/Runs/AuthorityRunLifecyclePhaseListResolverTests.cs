@@ -618,6 +618,22 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_failed_partial_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.FailedPartial),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only()
     {
         RunRecord header = new()

@@ -16342,13 +16342,27 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — DocumentedRules mutable array exposure
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-30 thorough hunt #887 (dry): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance` (dry, dry, dry). Cheap-disproof closed five open `(candidate)` rows — stateless transition table allows a single `CommitFinalized` from `ReadyForCommit` and denies repeat finalize from `Committed` (`TryTransition_allows_commit_finalized_from_ready_for_commit`, `TryTransition_denies_commit_finalized_from_committed`), `FailedPartial` + pipeline dead-letter precedes terminal failure branch (`ResolveFromRunHeader_failed_partial_with_pipeline_dead_letter_returns_failed_not_in_progress`), JSON string `"null"` `failureClass` is not pipeline dead-letter (`IsDeadLettered_returns_false_for_quoted_null_string_failure_class`; parity with JSON null token test), Unicode NBSP-only legacy status coerces to `Created` via `string.IsNullOrWhiteSpace` (`TryParseStatus_coerces_unicode_nbsp_whitespace_only_legacy_status_to_created`), and `ExecutionCompletedQualityRejected` + pipeline dead-letter (`ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only`); reseeded five `(candidate)` rows; scoped **77** Core `RunAuthority`/`AuthorityRunLifecycle` tests passed. Private beta: no product change.
+
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ReadyForCommit` allowed only once (no duplicate finalize event denial gap when already committed transition table state is stale) — **cheap-disproof 2026-10-30 thorough hunt #887:** transition table is stateless per call; allowed once from `ReadyForCommit`, then denied from `Committed`; regressions above.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `FailedPartial` with pipeline dead-letter JSON returns `Failed` before terminal failure branch ordering gap — **cheap-disproof 2026-10-30 thorough hunt #887:** regression above.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON string `failureClass` value `"null"` literal returns not dead-lettered (parity with JSON null token guard) — **cheap-disproof 2026-10-30 thorough hunt #887:** regression above.
+- [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable.TryParseStatus` — Unicode whitespace-only legacy status coerces to `Created` (parity with ASCII whitespace-only path) — **cheap-disproof 2026-10-30 thorough hunt #887:** regression above.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` with pipeline dead-letter JSON returns `Failed` before terminal failure branch (parity with quality-rejected without markers) — **cheap-disproof 2026-10-30 thorough hunt #887:** regression above.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Failed` denied (terminal failure runs cannot finalize without reaching `ReadyForCommit`) — locus: finalize pin; input: `Failed` status plus duplicate finalize event (monitor).
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — numeric zero `failureClass` JSON token returns not dead-lettered — locus: `TryReadNonEmptyTextToken`; input: `{"schemaVersion":1,"failureClass":0}` (monitor).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — horizontal-tab-only legacy status coerces to `Created` — locus: `string.IsNullOrWhiteSpace`; input: legacy status `"\t"` (monitor).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch — locus: dead-letter ordering; input: partial completion status plus pipeline dead-letter JSON (monitor).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Retrying` denied (retrying runs must recover before finalize) — locus: finalize pin; input: `Retrying` plus finalize event (monitor).
 
 2026-10-30 thorough hunt #883 (dry): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance` (dry, dry, dry). Cheap-disproof closed five open `(candidate)` rows — `CommitFinalized` from `Committed` denied (`TryTransition_denies_commit_finalized_from_committed`), `Retrying` + pipeline dead-letter before in-progress branch (`ResolveFromRunHeader_retrying_with_pipeline_dead_letter_returns_failed_not_in_progress`), object-valued JSON `failureClass` not dead-lettered (`IsDeadLettered_returns_false_for_object_valued_failure_class_token`), empty-string `LegacyRunStatus` coerces to `Created` for in-memory callers (`TryParseStatus_coerces_empty_string_legacy_status_to_created`; SQL enum-name allowlist on persist), and `WaitingForResults` + pipeline dead-letter (`ResolveFromRunHeader_waiting_for_results_with_pipeline_dead_letter_returns_failed_not_in_progress`); reseeded five `(candidate)` rows; scoped **75** Core `RunAuthority`/`AuthorityRunLifecycle` tests passed. Private beta: no product change.
 
@@ -16358,11 +16372,11 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable.TryParseStatus` — empty string legacy status rejected (parity with whitespace-only coercion path) — **cheap-disproof 2026-10-30 thorough hunt #883:** intentional in-memory coercion to `Created`; SQL allowlist blocks persisted empty status; regression above.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `WaitingForResults` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch — **cheap-disproof 2026-10-30 thorough hunt #883:** regression above.
 
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ReadyForCommit` allowed only once (no duplicate finalize event denial gap when already committed transition table state is stale).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `FailedPartial` with pipeline dead-letter JSON returns `Failed` before terminal failure branch ordering gap.
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON string `failureClass` value `"null"` literal returns not dead-lettered (parity with JSON null token guard).
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — Unicode whitespace-only legacy status coerces to `Created` (parity with ASCII whitespace-only path).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` with pipeline dead-letter JSON returns `Failed` before terminal failure branch (parity with quality-rejected without markers).
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ReadyForCommit` allowed only once (no duplicate finalize event denial gap when already committed transition table state is stale) — **cheap-disproof 2026-10-30 thorough hunt #887:** see hunt #887 diary row.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `FailedPartial` with pipeline dead-letter JSON returns `Failed` before terminal failure branch ordering gap — **cheap-disproof 2026-10-30 thorough hunt #887:** see hunt #887 diary row.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON string `failureClass` value `"null"` literal returns not dead-lettered (parity with JSON null token guard) — **cheap-disproof 2026-10-30 thorough hunt #887:** see hunt #887 diary row.
+- [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable.TryParseStatus` — Unicode whitespace-only legacy status coerces to `Created` (parity with ASCII whitespace-only path) — **cheap-disproof 2026-10-30 thorough hunt #887:** see hunt #887 diary row.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` with pipeline dead-letter JSON returns `Failed` before terminal failure branch (parity with quality-rejected without markers) — **cheap-disproof 2026-10-30 thorough hunt #887:** see hunt #887 diary row.
 
 2026-10-30 thorough hunt #879 (hit): **Zone rotation** after three consecutive dry hunts on `knowledge-graph-provenance`. Proved `DocumentedRules` returned the shared `Rules` array as `IReadOnlyList`, so a cast to `ArchitectureRunStatusTransitionRule[]` could mutate process-wide transition documentation; fixed with `Array.AsReadOnly(Rules)`. Cheap-disproof closed finalize-from-quality-rejected, finalize-from-partially-completed, boolean `true` `failureClass`, and `TasksGenerated` + pipeline dead-letter ordering; scoped **72** Core `RunAuthority`/`AuthorityRunLifecycle` tests passed. Private beta: no direct invite-path UI change; authority run lifecycle rules can no longer be corrupted in-process by callers that cast the documented rule list.
 

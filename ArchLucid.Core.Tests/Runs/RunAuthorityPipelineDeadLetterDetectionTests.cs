@@ -323,6 +323,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_quoted_null_string_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"null"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_null_failure_class_literal()
     {
         const string json = """
