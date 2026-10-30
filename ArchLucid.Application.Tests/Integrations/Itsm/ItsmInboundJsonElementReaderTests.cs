@@ -20,6 +20,13 @@ public sealed class ItsmInboundJsonElementReaderTests
     }
 
     [Fact]
+    public void NormalizeStatusText_canonicalizes_whole_number_float_strings()
+    {
+        ItsmInboundJsonElementReader.NormalizeStatusText("6.0").Should().Be("6");
+        ItsmInboundJsonElementReader.NormalizeStatusText("06").Should().Be("6");
+    }
+
+    [Fact]
     public void ReadStringOrRawText_returns_null_for_json_null()
     {
         using JsonDocument document = JsonDocument.Parse("""{"state":null}""");

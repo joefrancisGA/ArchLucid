@@ -2153,6 +2153,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
+
+- [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` without URL-decoding or rewriting it.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` omitted from host-gate handoff — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is explicitly included in the legacy operator prefix list.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — malformed control character decodes into an unsafe redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** decode/URL resolution failure returns the normalized path and the host gate fails open to `next`, not a cross-host redirect.
+
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` percent-encoded operator paths — `/architecture/reviews%20` on the marketing host stayed `next` because `%20` was not decoded before prefix matching (while decoded trailing space already redirected); `decodeURIComponent` before lowercase, slash collapse, and URL resolution; regression `redirects marketing-host operator paths when pathname uses percent-encoded segments`; cheap-disproof closed four sibling `(candidate)` rows (parent `..` resolves correctly for marketing vs operator handoff, workspace-health nested paths already covered, `/` welcome redirect omits empty query, IPv6 Host not reproduced); scoped host-gate vitest 22/22. Private beta: split-site users following percent-encoded operator bookmarks on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
 - [x] (proven) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — **hit 2026-10-29 thorough hunt:** `decodeURIComponent` in `normalizeHostGatePathname`; regression above.
@@ -8933,6 +8939,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+
+2026-10-30 seed hunt #48 (hit): promoted `ReviewAskDock` — completed answer turns persisted across cross-review soft navigation because the dock had no `runId` reset or stale-response guard, so the next review displayed the prior review's answer and could scope follow-up citations to the new review; reset review-scoped Ask state on `runId` changes and ignore late responses from an old run; regression `does not keep the prior review's answer visible after soft navigation to another review`; Ask dock focused suite 8/8. Private beta: invited architects switching reviews after asking a grounded question no longer see the prior review's answer carried into the new review or risk acting on mismatched citation scope.
+
+- [x] (proven) `ReviewAskDock` — Ask answer turns survive `runId` changes and old responses can commit into the next review — **hit 2026-10-30 seed hunt:** reset turns/thread/question/error state on `runId` changes, ignore responses whose request run no longer matches the active review, and retain the regression above.
+- [ ] (candidate) `ReviewChainOfCustodySection` — closing a default-open custody disclosure reopens both sections when no URL section key is present — locus: `isSectionOpen` default fallback; input: operator closes “Who and when” without `reviewChainOfCustodySection` in the review URL; wrong outcome: the section cannot remain closed.
+- [ ] (candidate) `ReviewAgentExecutionLogSection` — agent execution rows sort incorrectly when API `createdUtc` values use equivalent timestamps with different offsets — locus: lexicographic `createdUtc` sort; input: persisted execution results with `2026-10-30T10:00:00Z` and `2026-10-30T06:30:00-04:00`; wrong outcome: audit order differs from chronology.
+
+2026-10-30 thorough hunt #55 (dry): the two remaining review-workspace candidates again passed the focused chain-of-custody and execution-log suites 4/4; no failing repro or production change.
+
+2026-10-30 thorough hunt #51 (dry): the two unpromoted monitor rows again passed the chain-of-custody and execution-log URL-sync suites 4/4; no failing repro or production change.
+
+2026-10-30 thorough hunt #50 (dry): repeated the focused disproof pass for the two unpromoted monitor rows; the chain-of-custody and execution-log URL-sync suites passed 4/4, with no failing repro and no production change.
+
+2026-10-30 thorough hunt #49 (dry): the two seeded monitor rows were reviewed against their concrete loci and their existing URL-sync suites passed 4/4; neither row was hunt-ready for this thorough pass, so no failing repro or production change was claimed.
+
+2026-10-30 thorough hunt #47 (dry): cheap-disproof closed five open `(candidate)` rows — governance confirmation, technology rationale, first-screen proof, More sections, and assessment narrative disclosures all reconcile URL changes through `useSearchParams` without requiring `popstate`; 13 focused URL-sync tests passed and no production code changed.
+
+- [x] (valid-no-repro) `RunDetailRunGovernanceDispositionActions` — stale confirmation state after review navigation — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDispDecision query changes without a popstate event`; URL-derived state clears through the `useSearchParams` effect.
+- [x] (valid-no-repro) `TechnologyBaselinePanel` — rationale dialog remains open after `techEntryId` is removed — **cheap-disproof 2026-10-30 thorough hunt #47:** `closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event`.
+- [x] (valid-no-repro) `RunDetailFirstScreenProofStatus` — proof details remain open after the query flag is cleared — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDetailFirstScreenProofOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `ReviewWorkspaceMoreTabsMenu` — More sections remains open after the query flag changes — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows reviewMoreTabsOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `RunDetailRunExplanationCollapsible` — assessment narrative remains open after query synchronization — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runAssessmentNarrativeOpen query changes without a popstate event`.
 
 2026-10-29 seed hunt (seed→hit): promoted `RunDetailRunGovernanceDispositionActions` — opening Approve/Reject/Request remediation confirm wrote `runDispDecision` from `readWindowLocationSearch()`, so after cross-review soft navigation the confirm dialog could merge stale findings-toolbar query keys from the lagging address bar; base href writes on `useSearchParams`; regression `writes governance disposition confirm from useSearchParams when window.location.search lags after soft navigation`; governance disposition url-sync vitest 2/2. Private beta: invited architects recording run-level governance disposition no longer inherit stale review query params when opening the confirm dialog after in-app navigation.
 

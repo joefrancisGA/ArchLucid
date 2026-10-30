@@ -1,11 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const replaceMock = vi.fn();
+const askMock = vi.hoisted(() => vi.fn());
+const searchQuery = vi.hoisted(() => ({ value: "" }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
-  useSearchParams: () => new URLSearchParams(""),
+  useSearchParams: () => new URLSearchParams(searchQuery.value),
   useRouter: () => ({
     replace: replaceMock,
   }),
@@ -29,7 +31,7 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/hooks/useAskStream", () => ({
   useAskStream: () => ({
-    ask: vi.fn(),
+    ask: askMock,
     isStreaming: false,
     tokens: "",
     reset: vi.fn(),
@@ -72,5 +74,37 @@ describe("ReviewAskDock", () => {
     fireEvent.click(trigger);
 
     expect(screen.queryByTestId("review-ask-dock-panel")).not.toBeInTheDocument();
+  });
+
+  it("does not keep the prior review's answer visible after soft navigation to another review", async () => {
+    searchQuery.value = "askDock=1";
+    askMock.mockResolvedValueOnce({
+      response: {
+        threadId: "thread-old",
+        answer: "Answer grounded in the old review.",
+        referencedFindings: ["finding-old"],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+        retrievalDegraded: false,
+      },
+      error: null,
+    });
+
+    const { rerender } = render(<ReviewAskDock runId="run-old" reviewTitle="Old review" />);
+
+    fireEvent.click(screen.getByTestId("review-ask-dock-trigger"));
+    fireEvent.change(screen.getByLabelText("Your question"), {
+      target: { value: "What is the risk?" },
+    });
+    fireEvent.click(screen.getByTestId("review-ask-dock-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Answer grounded in the old review.")).toBeInTheDocument();
+    });
+
+    rerender(<ReviewAskDock runId="run-new" reviewTitle="New review" />);
+
+    expect(screen.queryByText("Answer grounded in the old review.")).not.toBeInTheDocument();
+    searchQuery.value = "";
   });
 });

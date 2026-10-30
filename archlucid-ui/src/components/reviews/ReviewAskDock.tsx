@@ -92,6 +92,8 @@ function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
+  const activeRunIdRef = useRef(runId);
+  activeRunIdRef.current = runId;
   const pathname = usePathname() ?? buildReviewWorkspaceRouteHref({ runId });
   const searchParams = useSearchParams();
   const urlAskDockOpen = parseReviewAskDockOpenFromSearch(
@@ -115,6 +117,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const [retrievalDegraded, setRetrievalDegraded] = useState<boolean | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { ask: askStream, isStreaming, tokens: streamingContent, reset: resetStream } = useAskStream();
+  const previousRunIdRef = useRef(runId);
   const askDockDisabled = props.disabled === true;
   const disabledReasonMessage = formatWhyDisabledCtaMessage(props.disabledReason);
   const reviewTitleForGrounding =
@@ -225,8 +228,23 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
     }
   }, [askDockDisabled, syncAskDockToUrl, urlAskDockOpen, urlAskThreadId]);
 
+  useEffect(() => {
+    if (previousRunIdRef.current === runId) {
+      return;
+    }
+
+    previousRunIdRef.current = runId;
+    setQuestion("");
+    setTurns([]);
+    setThreadIdState(null);
+    setError(null);
+    setRetrievalDegraded(null);
+    resetStream();
+  }, [resetStream, runId]);
+
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();
+    const requestRunId = runId;
 
     if (trimmed.length === 0 || isStreaming || runId.length === 0) {
       return;
@@ -240,6 +258,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         question: trimmed,
         runId,
         threadId: threadId ?? undefined});
+
+      if (activeRunIdRef.current !== requestRunId) {
+        return;
+      }
 
       if (streamError !== null) {
         setError({
@@ -288,6 +310,10 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       ]);
       setQuestion("");
     } catch (e: unknown) {
+      if (activeRunIdRef.current !== requestRunId) {
+        return;
+      }
+
       const failure = toApiLoadFailure(e);
 
       if (isApiRequestError(e)) {

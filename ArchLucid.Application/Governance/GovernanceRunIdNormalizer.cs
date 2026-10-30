@@ -20,6 +20,6 @@ public static class GovernanceRunIdNormalizer
         if (Guid.TryParse(left, out Guid leftGuid) && Guid.TryParse(right, out Guid rightGuid))
             return leftGuid == rightGuid;
 
-        return string.Equals(left, right, StringComparison.Ordinal);
+        return string.Equals(Normalize(left), Normalize(right), StringComparison.Ordinal);
     }
 }
