@@ -10,6 +10,12 @@ import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
 import {
+  DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL,
+  formatBuyerConfidenceSourceLabel,
+  formatRecordedDecisionConfidence,
+} from "@/lib/decision-explainability-buyer-copy";
+
+import {
   DECISION_REGISTER_CATEGORY_NOT_STORED_LABEL,
   DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL,
   DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED,
@@ -35,22 +41,22 @@ function formatRecordedAt(value: string | null | undefined): string {
 }
 
 function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
-  if (decision.confidence != null) {
-    const basis = decision.buyerConfidenceSource ?? decision.confidenceSource;
+  const basisLabel = formatBuyerConfidenceSourceLabel(
+    decision.buyerConfidenceSource ?? decision.confidenceSource,
+  );
 
-    if (basis !== null && basis !== undefined && basis.trim().length > 0) {
-      return `${decision.confidence} (${basis})`;
+  if (decision.confidence != null) {
+    const confidenceLabel = formatRecordedDecisionConfidence(decision.confidence);
+
+    if (basisLabel !== DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL) {
+      return `${confidenceLabel} (${basisLabel})`;
     }
 
-    return String(decision.confidence);
+    return confidenceLabel;
   }
 
-  if (decision.buyerConfidenceSource !== null && decision.buyerConfidenceSource !== undefined) {
-    const basis = decision.buyerConfidenceSource.trim();
-
-    if (basis.length > 0) {
-      return `${DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL} (${basis})`;
-    }
+  if (basisLabel !== DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL) {
+    return `${DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL} (${basisLabel})`;
   }
 
   return DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL;
