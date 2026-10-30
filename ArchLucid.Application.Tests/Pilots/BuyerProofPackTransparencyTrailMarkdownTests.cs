@@ -126,4 +126,30 @@ public sealed class BuyerProofPackTransparencyTrailMarkdownTests
         markdown.Should().Contain("`1000 -evil`");
         markdown.Split('\n').Should().NotContain("- evil");
     }
+
+    [Fact]
+    public void Transparency_trail_when_working_document_open_question_value_contains_newline_does_not_emit_extra_bullet()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted =
+            [
+                new AssertedTrailEntry
+                {
+                    Key = "openQuestions.followUp",
+                    Value = "Need\n-evil",
+                },
+            ],
+            Inferred = [],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain(OpenQuestionsExportHonesty.WorkingDocumentExportHeading);
+        markdown.Should().Contain("`Need -evil`");
+        markdown.Split('\n').Should().NotContain("- evil");
+    }
 }
