@@ -1,8 +1,8 @@
 using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Integrations;
-using ArchLucid.Core.ProductLine;
 using ArchLucid.Core.ProductCapability;
+using ArchLucid.Core.ProductLine;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
@@ -707,6 +707,49 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         count.Should().Be(1,
             "integration event publishing must not register duplicate IIntegrationEventPublisher factory descriptors on the shipped composition path");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_oidc_authority_startup_probe_once()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        int count = services.Count(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OidcAuthorityStartupProbeHostedService));
+
+        count.Should().Be(1,
+            "OIDC authority startup probe must not register duplicate IHostedService descriptors per replica");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_leaves_default_capability_catalog_when_only_product_line_accessor_is_pre_registered()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Api);
+        ServiceCollection services = [];
+        Mock<IProductLineRequestAccessor> injectedAccessor = new();
+        services.AddSingleton(injectedAccessor.Object);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = false,
+            ValidateScopes = false
+        });
+
+        provider.GetRequiredService<IProductLineRequestAccessor>().Should().BeSameAs(injectedAccessor.Object);
+
+        services.Count(static d => d.ServiceType == typeof(IProductCapabilityControllerCatalog)).Should().Be(1);
+        services.Should().ContainSingle(static d =>
+            d.ServiceType == typeof(IProductCapabilityControllerCatalog)
+            && d.ImplementationType == typeof(ProductCapabilityControllerCatalog),
+            "partial test-host overrides register the accessor independently from the default capability catalog");
     }
 
     [Fact]
