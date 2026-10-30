@@ -165,6 +165,20 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     }
 
     [Fact]
+    public void Describe_tenant_source_note_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5m,
+            capturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            tenantSourceNote: "baseline_settings: ops`workshop");
+
+        (_, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
+
+        body.Should().Contain("``ops`workshop``");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_includes_section_heading()
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);

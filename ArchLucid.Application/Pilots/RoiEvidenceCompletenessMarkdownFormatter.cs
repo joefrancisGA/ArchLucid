@@ -92,7 +92,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
 
         if (BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource)
             is { } noteTrimmed)
-            parts.Add($"**Source note:** {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(noteTrimmed)}");
+            parts.Add($"**Source note:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(noteTrimmed)}");
 
         return string.Join(" ", parts);
     }
