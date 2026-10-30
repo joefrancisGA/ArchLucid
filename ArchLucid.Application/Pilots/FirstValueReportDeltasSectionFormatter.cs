@@ -43,16 +43,16 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
         if (deltas.FindingsBySeverity.Count == 0)
         {
-            if (deltas.MutedFindingsExcludedCount > 0)
-            {
-                sb.AppendLine(
-                    "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
-            }
-            else if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
             {
                 sb.AppendLine(
                     CultureInfo.InvariantCulture,
                     $"_({PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel})_");
+            }
+            else if (deltas.MutedFindingsExcludedCount > 0)
+            {
+                sb.AppendLine(
+                    "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
             }
             else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
             {

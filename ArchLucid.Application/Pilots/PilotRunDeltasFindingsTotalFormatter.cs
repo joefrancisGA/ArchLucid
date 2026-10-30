@@ -19,13 +19,18 @@ internal static class PilotRunDeltasFindingsTotalFormatter
 
         int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
 
-        if (unmutedTotal == 0 && deltas.MutedFindingsExcludedCount > 0)
-        {
-            return MutedOnlyFindingsTotalLabel;
-        }
-
         if (deltas.FindingsBySeverity.Count == 0 && unmutedTotal == 0)
         {
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+            {
+                return FindingsTotalNotAttestedLabel;
+            }
+
+            if (deltas.MutedFindingsExcludedCount > 0)
+            {
+                return MutedOnlyFindingsTotalLabel;
+            }
+
             if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
             {
                 return SnapshotZeroUnmutedFindingsTotalLabel;

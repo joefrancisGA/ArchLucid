@@ -89,4 +89,19 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsTotalFormatterTests
             .Should()
             .NotBe(PilotRunDeltasFindingsTotalFormatter.SnapshotZeroUnmutedFindingsTotalLabel);
     }
+
+    [Fact]
+    public void FormatFindingsTotal_when_top_finding_and_muted_exclusions_prefers_not_attested_over_muted_copy()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsBySeverity = [],
+            TopFindingId = "f-1",
+            MutedFindingsExcludedCount = 2,
+        };
+
+        PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas)
+            .Should()
+            .Be(PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel);
+    }
 }

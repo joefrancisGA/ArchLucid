@@ -175,4 +175,22 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
         row.Should().Contain($"`{PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel}`");
     }
+
+    [Fact]
+    public void Findings_by_severity_section_when_top_finding_and_muted_exclusions_prefers_not_attested_copy()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsBySeverity = [],
+                TopFindingId = "f-1",
+                MutedFindingsExcludedCount = 3,
+            });
+
+        string md = sb.ToString();
+        md.Should().Contain(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+        md.Should().NotContain("muted findings were excluded from severity counts");
+    }
 }
