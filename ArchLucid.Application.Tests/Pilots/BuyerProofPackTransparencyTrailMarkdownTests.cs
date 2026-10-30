@@ -47,4 +47,30 @@ public sealed class BuyerProofPackTransparencyTrailMarkdownTests
         markdown.Should().Contain("`scale -evil`");
         markdown.Split('\n').Should().NotContain("- evil (Must)");
     }
+
+    [Fact]
+    public void Transparency_trail_when_asserted_value_contains_newline_does_not_emit_extra_bullet()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted =
+            [
+                new AssertedTrailEntry
+                {
+                    Key = "businessOutcome",
+                    Value = "Ship\n-evil",
+                },
+            ],
+            Inferred = [],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("### Asserted");
+        markdown.Should().Contain("`Ship -evil`");
+        markdown.Split('\n').Should().NotContain("- evil");
+    }
 }

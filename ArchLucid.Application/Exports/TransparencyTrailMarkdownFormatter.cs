@@ -175,7 +175,7 @@ public static class TransparencyTrailMarkdownFormatter
         string key = entry.Key is null
             ? AssertionKeyNotStoredLabel
             : entry.Key.Trim().Length > 0
-                ? entry.Key
+                ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(entry.Key.Trim())
                 : AssertionKeyStoredEmptyLabel;
 
         return $"{key}: {FormatAssertedTrailValue(entry.Value)}";
@@ -232,7 +232,9 @@ public static class TransparencyTrailMarkdownFormatter
             return AssertionValueNotStoredLabel;
         }
 
-        return value.Trim().Length > 0 ? value : AssertionValueStoredEmptyLabel;
+        return value.Trim().Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim())
+            : AssertionValueStoredEmptyLabel;
     }
 
     internal static string FormatSkippedTrailExportLine(SkippedQuestionTrailEntry entry)
