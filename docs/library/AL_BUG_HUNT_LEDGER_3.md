@@ -7895,6 +7895,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #42 (hit): promoted `use-runs-list` — `safeRuns` accepted non-empty but invalid `createdUtc` strings, so the `new Date(...).getTime()` comparator returned `NaN` and the review table could retain an API row whose position depended on input order; reject non-finite parsed timestamps before sorting; regression `omits a review row whose createdUtc is not a valid timestamp`; focused timestamp/sorting tests passed 3/3. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
+
 2026-10-30 seed hunt #41 (seed-only): fresh rereading of operator-route scope subscriptions and sibling next-review footer loaders found the same saturated state-machine gap already fixed in `ArchitectureIntelligenceNextReviewFooterClient`; no new candidate was promoted or duplicated. The focused footer regression/component tests passed 3/3. No production code changed.
 
 2026-10-30 thorough hunt #40 (hit): promoted `ArchitectureIntelligenceNextReviewFooterClient` — the footer loaded review rows once with an empty scope dependency and committed the response after an operator workspace switch, so a mounted Architecture Intelligence page could show the prior workspace's next-review link; reload rows on the live operator scope key, clear prior rows immediately, and ignore late responses after scope cleanup; regression `does not commit the prior scope's next-review footer after an operator scope switch`; the pre-fix assertion failed with `prior-scope-next-review` and passed after the fix. The malformed `use-runs-list` timestamp candidate was not promoted. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace's next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
@@ -7903,7 +7905,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — **hit 2026-10-30 thorough hunt #40:** reload on live scope key, clear old rows immediately, and ignore late responses after scope cleanup; regression above. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace’s next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
 - [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — **hit 2026-10-30 thorough hunt #40:** active-effect cleanup prevents the prior scope response from committing after the scope switch; regression above.
-- [ ] (candidate) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — locus: `new Date(...).getTime()` comparator; input: operator reviews list contains a reachable row with an invalid or omitted timestamp; wrong outcome: sort order is not deterministic and newest/oldest navigation can select the wrong review.
+- [x] (proven) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — **hit 2026-10-30 seed hunt #42:** reject rows whose parsed timestamp is non-finite before sorting; regression above. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
 
 2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
 
@@ -7944,11 +7946,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 41
+- **hunts:** 42
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — Architecture Intelligence next-review footer committed prior-scope rows after workspace switch
+- **last-bug:** 2026-10-30 — malformed review-list `createdUtc` participated in sorting
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
