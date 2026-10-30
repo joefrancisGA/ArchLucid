@@ -10760,6 +10760,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_byte_order_mark_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz\ufeffother=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_partitioned()
+    {
+        const string effectiveValue = "Set-Cookie2: a=1; session=12345678; Partitioned";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_comma_on_basic_paste()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNlcjpwYXNz%2C"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_partitioned()
     {
         const string effectiveValue = "Set-Cookie: a=1; session=12345678; Partitioned";
