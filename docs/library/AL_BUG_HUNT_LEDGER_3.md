@@ -2903,7 +2903,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-**Hunts:** 84 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+**Hunts:** 85 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #85 (seed-only): rotation fired after six consecutive low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; fresh rereading of BFF synchronization/refresh, token response parsing, JWT display decoding, authorization URL construction, OAuth normalization, session/PKCE handling, and configuration/discovery coverage produced no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 2026-10-30 seed hunt #84 (seed-only): rotation fired after five low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; reread BFF synchronization/refresh, token response parsing, JWT display decoding, authorization URL construction, and their test coverage, and no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
