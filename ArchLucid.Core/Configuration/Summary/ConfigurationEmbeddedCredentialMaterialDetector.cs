@@ -171,6 +171,41 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool TryBasicAuthorizationPayloadFromToken(ReadOnlySpan<char> token)
     {
+        if (TryBasicAuthorizationPayloadFromCollapsedToken(token))
+            return true;
+
+        int quoteIndex = token.IndexOf('"');
+
+        if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
+            return true;
+
+        return TryBasicAuthorizationPayloadFromQuotedSegments(token);
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromQuotedSegments(ReadOnlySpan<char> token)
+    {
+        for (int index = 0; index < token.Length; index++)
+        {
+            if (token[index] != '"')
+                continue;
+
+            ReadOnlySpan<char> remainder = token.Slice(index + 1);
+            int closingQuote = remainder.IndexOf('"');
+
+            if (closingQuote < 0)
+                continue;
+
+            if (TryBasicAuthorizationPayloadFromCollapsedToken(remainder.Slice(0, closingQuote)))
+                return true;
+
+            index += closingQuote + 1;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromCollapsedToken(ReadOnlySpan<char> token)
+    {
         string payload = CollapseBasicAuthorizationBase64Characters(token);
 
         if (payload.Length == 0)
