@@ -741,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 53 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 54 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 seed hunt #114 (seed-only): rotation kept `cli-draft-new` after the prior low-yield streak did not reach the three-outcome threshold; reread `DraftNewCommand.cs` and `DraftNewCommandCoreTests`, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-30 seed hunt #113 (seed-only): repeated the DraftNew command source review and focused CLI tests after the prior seed-only pass; `DraftNewCommandCoreTests` passed 73/73 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
