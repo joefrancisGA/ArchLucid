@@ -224,7 +224,7 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveInfrastructureDeclaration(InfrastructureDeclarationReference declaration)
     {
-        return HasUsableCompactIdentifierText(declaration.Name)
+        return HasUsableProseReferenceText(declaration.Name)
                && HasUsableCompactIdentifierText(declaration.Format)
                && HasUsableIdentifierText(declaration.Content);
     }

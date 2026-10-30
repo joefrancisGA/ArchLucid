@@ -4583,9 +4583,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a spaced document name was dropped
+- **last-bug:** 2026-10-30 — a spaced infrastructure declaration name was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `core network` being dropped because infrastructure declaration names still used compact identifier checks; names now use `HasUsableProseReferenceText` and format tokens stay compact; regression `Deserialize_keeps_infrastructure_declaration_when_name_contains_internal_spaces`; scoped payload JSON tests 43/43. Private beta: when an invited operator's deferred authority run includes an infrastructure declaration whose name contains spaces, that declaration stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveInfrastructureDeclaration` — a declaration name with an internal space was dropped — **hit 2026-10-30 seed hunt:** `HasUsableProseReferenceText` on declaration names; regression `Deserialize_keeps_infrastructure_declaration_when_name_contains_internal_spaces`.
 
 2026-10-30 thorough hunt (hit): promoted the open candidate where `network diagram` was dropped because document names still used compact identifier checks; names now use the same U+0020 allowance as prose reference lines and still reject a no-break space; regression `Deserialize_keeps_document_when_name_contains_internal_spaces`; scoped payload JSON tests 42/42. Private beta: when an invited operator's deferred authority run includes a source document whose name contains spaces, that document stays in the resumed pipeline.
 
@@ -4613,11 +4617,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 50
-- **bugs-found:** 26
+- **hunts:** 51
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — a spaced document name was dropped
+- **last-bug:** 2026-10-30 — a spaced infrastructure declaration name was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
