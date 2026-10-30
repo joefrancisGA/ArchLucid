@@ -6225,6 +6225,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-safety
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed two open `(candidate)` rows from hunt 2026-10-10 seed. `AnalyzeAsync` already normalizes `BlockSeverityThreshold` via `ContentSafetyBlockSeverityThreshold.Normalize` before `MapResult` (parity 2026-10-21 lane B hit; regression `MapResult_blocks_severity_four_when_configured_threshold_five_is_normalized_before_compare`). Multi-category Azure responses block on the first at-threshold row in analysis order while `Category`/`BlockReason` are diagnostic only (regression `MapResult_blocks_on_first_category_at_threshold_in_analysis_order`; allow/block unchanged when reordering categories). Scoped picker filter **585** tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `AzureContentSafetyGuard.MapResult` — multiple blocking categories report first in SDK analysis order — **cheap-disproof 2026-10-30 thorough hunt (hunt 73):** intentional diagnostic category selection; block decision is any category at/above normalized threshold; regression above.
+- [x] (valid-no-repro) `AzureContentSafetyGuard.AnalyzeAsync` — non-standard `BlockSeverityThreshold` compared raw — **cheap-disproof 2026-10-30 thorough hunt (hunt 73):** `ContentSafetyBlockSeverityThreshold.Normalize` before compare; regression `MapResult_blocks_severity_four_when_configured_threshold_five_is_normalized_before_compare`.
+
+- [ ] (candidate) `AzureContentSafetyGuard.HandleSdkFailure` — `failClosedOnSdkError=true` maps all non-cancel exceptions to category `SdkError` without surfacing HTTP status distinction — locus: static failure mapper; input: throttling vs service outage; mechanism: operators cannot tune fail-closed messaging by failure class.
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — whitespace-only model JSON may bypass output guard while input guard ran — locus: guard invocation order vs empty completion payload; input: provider returns `"   "` JSON string; wrong outcome: blocked input path with allowed empty-toxic output shape.
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` — deny-list scrub runs before audit emit when circuit open — locus: degraded path ordering; input: harmful substring only in category blocked by inner guard; mechanism: audit row may not match scrubbed text snapshot.
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizePromptIdentifier` — Unicode format characters (Cf) preserved in run header fields after control strip — locus: `StripControlChars` vs format-category codepoints; input: bidirectional override in `TaskId`; wrong outcome: log/display spoof outside quarantine contract.
+- [ ] (candidate) `AzureContentSafetyGuard.MapResult` — severity exactly one below normalized threshold on all categories returns allowed without distinguishing near-miss telemetry — locus: allow path; input: severity `2` with threshold normalized to `4`; mechanism: security monitoring cannot observe near-threshold content without a separate signal.
+
 2026-10-11 thorough hunt (dry): cheap-disproved the circuit-open audit-attribution candidate because the selected guard has no request scope and its explicit system actor/event shape establishes `Guid.Empty` as intentional absent scope; retained the Azure category-order and configuration-threshold candidates because their expected contract is outside the selected files. The exact picker filter passed 584/584, with no failing repro or production change.
 
 2026-10-10 seed hunt (seed-only): re-read the selected Content Safety guards and prompt-injection sanitizers; the exact picker filter passed 584/584. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. Seeded bounded candidates for configured severity-threshold range handling and degraded-audit attribution; no production or regression code changed.
@@ -7117,10 +7128,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 72
-- **last-hunt:** 2026-10-11
+- **hunts:** 73
+- **last-hunt:** 2026-10-30
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7147,8 +7158,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `AzureContentSafetyGuard.MapResult` — a reachable Azure response containing multiple blocking categories returns whichever blocking category appears first, while Azure response ordering is not established as stable; diagnostic category/reason text could vary across equivalent blocked inputs.
-- [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — a reachable `ArchLucid:ContentSafety:BlockSeverityThreshold` value outside the documented four-level scale is passed directly to comparison logic, potentially changing block behavior without startup validation; configuration validation is outside the selected files.
+- [x] (valid-no-repro) `AzureContentSafetyGuard.MapResult` — a reachable Azure response containing multiple blocking categories returns whichever blocking category appears first, while Azure response ordering is not established as stable; diagnostic category/reason text could vary across equivalent blocked inputs. — **cheap-disproof 2026-10-30 thorough hunt (hunt 73):** see zone-header close above.
+- [x] (valid-no-repro) `AzureContentSafetyGuard.AnalyzeAsync` — a reachable `ArchLucid:ContentSafety:BlockSeverityThreshold` value outside the documented four-level scale is passed directly to comparison logic, potentially changing block behavior without startup validation; configuration validation is outside the selected files. — **cheap-disproof 2026-10-30 thorough hunt (hunt 73):** see zone-header close above.
 - [x] (invalid) `CircuitBreakingContentSafetyGuard.TryAuditAsync` — fail-open degraded safety events always use `Guid.Empty` tenant/workspace/project identifiers — **cheap-disproof 2026-10-11 thorough hunt:** the selected guard has no request-scope source, and the explicit system actor/event shape makes absent tenant/workspace/project scope intentional here.
 
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract — **cheap-disproof 2026-10-10 thorough hunt:** no selected production caller passes a nullable Azure tag map into this sanitizer; the proposed JSON input has no reachability citation in the selected paths.
