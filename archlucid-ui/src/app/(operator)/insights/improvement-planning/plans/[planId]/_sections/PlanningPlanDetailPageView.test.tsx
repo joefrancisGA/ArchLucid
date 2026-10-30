@@ -1,13 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const refreshMock = vi.fn();
+const navigationMocks = vi.hoisted(() => ({
+  router: { refresh: vi.fn() },
+  searchParams: new URLSearchParams(),
+}));
+const refreshMock = navigationMocks.router.refresh;
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    refresh: refreshMock,
-  }),
+  useRouter: () => navigationMocks.router,
   usePathname: () => "/insights/improvement-planning/plans/demo-plan",
+  useSearchParams: () => navigationMocks.searchParams,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

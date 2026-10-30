@@ -4253,9 +4253,9 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    # All four required check names remain. Two sequential Vitest processes per check
-    # cover disjoint eighths of the full test-file set, releasing Node heap between halves.
-    # Both halves always run and either failure fails the original required gate.
+    # All four required check names and the full test-file inventory remain.
+    # Each check runs eight disjoint 1/32 cohorts in new processes to cap heap growth.
+    # Run every cohort even when one fails; any failure fails the required check.
     strategy:
       fail-fast: false
       matrix:
@@ -4276,7 +4276,7 @@ jobs:
       - name: Install & run unit tests
         working-directory: archlucid-ui
         env:
-          NODE_OPTIONS: --max-old-space-size=12288
+          NODE_OPTIONS: --max-old-space-size=8192
         run: |
           npm ci
           shard_label="${{ matrix.shard }}"
@@ -4286,9 +4286,11 @@ jobs:
             *) echo "::error::Unexpected Vitest shard ${shard_label}"; exit 1 ;;
           esac
           failed=0
-          for shard_in_pair in "$((2 * shard_index - 1))" "$((2 * shard_index))"; do
-            echo "::group::Vitest shard ${shard_in_pair}/8"
-            if ! npm run test:vitest-single-worker -- --shard="${shard_in_pair}/8"; then
+          first_shard="$((8 * (shard_index - 1) + 1))"
+          last_shard="$((8 * shard_index))"
+          for shard_in_cohort in $(seq "${first_shard}" "${last_shard}"); do
+            echo "::group::Vitest shard ${shard_in_cohort}/32"
+            if ! npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/32"; then
               failed=1
             fi
             echo "::endgroup::"
