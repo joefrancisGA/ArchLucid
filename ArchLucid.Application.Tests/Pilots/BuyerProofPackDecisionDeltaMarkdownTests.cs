@@ -57,6 +57,22 @@ public sealed class BuyerProofPackDecisionDeltaMarkdownTests
         result.DecisionDeltaSummary.Should().NotContain("(Sec\n");
     }
 
+    [Fact]
+    public void Novelty_section_when_evidence_class_contains_pipe_wraps_inline_code()
+    {
+        SponsorDecisionDeltaNoveltyResult result = new(
+            DecisionDeltaSummary: "One active finding.",
+            NonObviousRationale: "Category mix is uneven.",
+            NoveltyConfidence: SponsorNoveltyConfidence.Partial,
+            EvidenceClassLabel: "Demo|derived",
+            ConfidenceBasisSummary: "Persisted proof only.");
+
+        StringBuilder sb = new();
+        SponsorDecisionDeltaNoveltyMarkdownFormatter.AppendMarkdownSections(sb, result);
+
+        sb.ToString().Should().Contain("**Evidence class:** `Demo\\|derived`");
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail(string category, string message)
     {
         GoldenManifest manifest = new()
