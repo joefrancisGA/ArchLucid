@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a shared security title put the trade-off on the unverified finding
+- **last-bug:** 2026-10-30 — a negated pair said no declared priority selected either dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Security over Cost` then `Do not prefer Security over Cost` staying balanced while the rationale said no declared priority selected either dimension; an explicit balance now says the declared priorities kept the findings balanced; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`; Alternatives/ProposedChange/TradeOff tests 119/119. Private beta: when an invited operator lists security over cost and then says not to prefer security over cost, the security-versus-cost recommendation stays balanced and the rationale says the declared priorities kept the findings balanced.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — a negated pair used the no-priority rationale — **hit 2026-10-30 seed hunt:** `DeclaredPairChoice.Balanced` gets its own rationale; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`.
 
 2026-10-30 seed hunt (seed→hit): promoted an unverified security finding listed before a verified security finding with the same title, so the security-versus-cost trade-off attached to the evidence-only recommendation; the lookup now uses the recommendation id of the actionable finding; regression `BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match`; Alternatives/ProposedChange/TradeOff tests 118/118. Private beta: when an invited operator's review has an unverified security finding and a verified security finding with the same title, the security-versus-cost trade-off appears on the verified recommendation.
 
@@ -5904,11 +5908,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 79
+- **hunts:** 80
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 34
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — a shared security title put the trade-off on the unverified finding
+- **last-bug:** 2026-10-30 — a negated pair said no declared priority selected either dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

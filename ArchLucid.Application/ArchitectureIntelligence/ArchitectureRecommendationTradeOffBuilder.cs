@@ -124,6 +124,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             ResolutionRationale = BuildResolutionRationale(
                 prefersFirst,
                 prefersSecond,
+                pairChoice == DeclaredPairChoice.Balanced,
                 firstDimension,
                 secondDimension),
             RequiresHumanApproval = true,
@@ -164,12 +165,18 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static string BuildResolutionRationale(
         bool prefersFirst,
         bool prefersSecond,
+        bool explicitlyBalanced,
         QualityDimension firstDimension,
         QualityDimension secondDimension)
     {
         if (prefersFirst || prefersSecond)
         {
             return $"Declared priorities were used to resolve competing {firstDimension} and {secondDimension} findings.";
+        }
+
+        if (explicitlyBalanced)
+        {
+            return $"Declared priorities kept competing {firstDimension} and {secondDimension} findings balanced.";
         }
 
         return $"No declared priority selected {firstDimension} or {secondDimension}, so the competing findings stay balanced.";
