@@ -25755,9 +25755,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
 - **hunts:** 90
 - **bugs-found:** 72
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-23 — stale local failed hid distributed terminal poll
+- **last-bug:** 2026-10-30 — local pending ignored distributed completed without bytes
 - **code-changed-since:** no
 
 2026-10-30 thorough hunt #976 (hit, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance`, picker rotated with **`-AvoidZoneId`** to `host-composition`. Promoted enqueue-replica **local pending** ignoring distributed **Completed** without document bytes (peer-only polls already failed via `TryPoll_reports_failure_when_distributed_completed_state_has_no_document_bytes`); `PreferDistributedPollState` now merges distributed completed terminal state over local pending even when bytes are absent; regression `TryPoll_prefers_distributed_completed_without_bytes_over_local_pending`; cheap-disproof closed five open `(candidate)` rows reseeded after hunt #975 — completed-with-bytes over pending closed hunt #75, local completed without bytes vs distributed pending closed hunt #85, ingest duplicate `runId` batch closed hunt #79, unknown phase synthetic failed copy hunt #78, terminal persist failure clears stale pending hunt #61; reseeded five `(candidate)` rows; scoped **514** `FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions` tests passed (`RunAnalyzers=false`). Private beta: Multi-instance async value-report polling on the enqueue replica exits with the same missing-document failure copy as peers instead of spinning in-progress forever when distributed state is completed without bytes.
