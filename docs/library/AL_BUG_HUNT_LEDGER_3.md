@@ -7859,13 +7859,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #41 (dry): cheap-disproof closed three open `(candidate)` rows — capacity/error updates remain independently scoped, sort stability preserves the first equal-ratio section, and non-breaking spaces are outside the canonical route slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+2026-10-30 thorough hunt #43 (dry): cheap-disproof closed three open `(candidate)` rows — result state prevents capacity messaging from replacing a completed sample, fixed catalog order resolves equal-ratio entries, and line separators are outside the route slug contract. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) marketing candidate rows from thorough hunt #40 — **cheap-disproof 2026-10-30 thorough hunt #41:** capacity/error state, observer ties, and confusable route whitespace produce no failing repro.
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #41 — **cheap-disproof 2026-10-30 thorough hunt #43:** status/result ordering, observer ties, and line-separator route input produce no failing repro.
 
-- [ ] (candidate) `useQuickScanClient` — status refresh after sample success overwrites the success status message with a capacity message — locus: status effect and result state ordering; input: SampleOnly status changes after sample result resolves (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries select a section that is not first in document order — locus: ratio sort tie-break; input: equal ratios delivered in reverse DOM order (monitor).
-- [ ] (candidate) `recordShowcaseViewed` — Unicode line separator in a decoded slug changes analytics event property serialization — locus: route slug normalization; input: encoded U+2028 in `runId` (monitor).
+- [ ] (candidate) `useQuickScanClient` — capacity recovery after a sample result changes the result status while focus is moving to results — locus: status effect and result-focus sequencing; input: Available status update during result announcement (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries cause unnecessary active-state rerenders — locus: unconditional `setActiveId` on same winner; input: repeated equal-ratio callbacks (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — decoded line separator affects telemetry property length without affecting visible route copy — locus: scenario serialization; input: encoded U+2028 in a generated `runId` (monitor).
 
 2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
 
