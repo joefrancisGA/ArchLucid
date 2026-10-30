@@ -4310,7 +4310,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     # All four required check names and the full test-file inventory remain.
-    # Each check runs eight disjoint 1/32 cohorts in new processes to cap heap growth.
+    # Each check runs sixteen disjoint 1/64 cohorts in fresh processes to contain observed heap OOMs.
     # Run every cohort even when one fails; any failure fails the required check.
     strategy:
       fail-fast: false
@@ -4342,11 +4342,11 @@ jobs:
             *) echo "::error::Unexpected Vitest shard ${shard_label}"; exit 1 ;;
           esac
           failed=0
-          first_shard="$((8 * (shard_index - 1) + 1))"
-          last_shard="$((8 * shard_index))"
+          first_shard="$((16 * (shard_index - 1) + 1))"
+          last_shard="$((16 * shard_index))"
           for shard_in_cohort in $(seq "${first_shard}" "${last_shard}"); do
-            echo "::group::Vitest shard ${shard_in_cohort}/32"
-            if ! npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/32"; then
+            echo "::group::Vitest shard ${shard_in_cohort}/64"
+            if ! npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/64"; then
               failed=1
             fi
             echo "::endgroup::"

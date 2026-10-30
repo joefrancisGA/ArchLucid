@@ -19,5 +19,21 @@ class Rc39CiWiringTests(unittest.TestCase):
         self.assertNotIn("refs/heads/RC36", workflow)
 
 
+    def test_vitest_cohorts_cover_every_test_file_without_skips(self) -> None:
+        """Four required shards must collectively run all 64 disjoint cohorts."""
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn('first_shard="$((16 * (shard_index - 1) + 1))"', workflow)
+        self.assertIn('last_shard="$((16 * shard_index))"', workflow)
+        self.assertIn('--shard="${shard_in_cohort}/64"', workflow)
+        self.assertIn("failed=1", workflow)
+        self.assertIn('exit "${failed}"', workflow)
+        cohorts = [
+            cohort
+            for shard_index in range(1, 5)
+            for cohort in range(16 * (shard_index - 1) + 1, 16 * shard_index + 1)
+        ]
+        self.assertEqual(cohorts, list(range(1, 65)))
+
+
 if __name__ == "__main__":
     unittest.main()
