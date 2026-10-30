@@ -17305,6 +17305,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-30 seed hunt (seed→hit #216): promoted `Tenant slug moved` and `Tenant slug linked` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #215); gateway copy such as `Tenant slug moved to another org already exists` matched org slug context because hunt #215 excluded `held` but not `moved` or `linked` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `moved` and `linked`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_moved_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_linked_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #215 — **invalid** erasure offboard correlation trim (`TenantErasureCommandService` audit envelope trims correlation ~643), **invalid** disabled engine alias in stored JSON (`WorkspaceAllowedEngineSetService` persists alias id list only; no `IsEnabled` field in stored shape), **invalid** convert tier after tenant load (`TenantTrialConversionStage.ConvertTrialAsync` maps target tier before `GetByIdAsync` ~35–45); reseeded five follow-on `(candidate)` rows; scoped filter **396/396** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug moved or Tenant slug linked phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug moved prose — **hit 2026-10-30 seed hunt #216:** excluded slug phrase word `moved`; regression above.
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug linked prose — **hit 2026-10-30 seed hunt #216:** excluded slug phrase word `linked`; regression above.
+- [x] (invalid) `TenantErasureCommandService` — offboard correlation trim — **cheap-disproof 2026-10-30 seed hunt #216:** correlation trimmed on platform audit append.
+- [x] (invalid) `WorkspaceAllowedEngineSetService.GetAsync` — disabled alias in JSON — **cheap-disproof 2026-10-30 seed hunt #216:** stored payload is alias id list; no enabled flag reachability.
+- [x] (invalid) `TenantTrialConversionStage.ConvertTrialAsync` — tier validation after tenant load — **cheap-disproof 2026-10-30 seed hunt #216:** `TryMapRequestTier` runs before tenant repository lookup.
+
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug assigned` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug assigned elsewhere already exists` (reachability: gateway prose).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug marked` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug marked unavailable already exists` (reachability: gateway duplicate-key prose).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completion while verification failed may advance to done without probe pass — locus: complete vs verification stage; input: operator complete after failed verification (reachability: migration maintenance).
+- [ ] (candidate) `TenantSuspendCommandService.TryUnsuspendAsync` — idempotent unsuspend on never-suspended tenant returns false without distinguishing not-suspended — locus: outcome enum; input: unsuspend on active tenant (reachability: admin unsuspend API).
+- [ ] (candidate) `TenantSlugNormalizer.FromName` — interior punctuation-only segments collapse to empty slug — locus: normalization; input: org name of punctuation only (reachability: self-service slug mint).
+
 2026-10-30 seed hunt (seed→hit #215): promoted `Tenant slug used` and `Tenant slug held` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #214); gateway copy such as `Tenant slug used elsewhere already exists` matched org slug context because hunt #214 excluded `kept` but not `used` or `held` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `used` and `held`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_used_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_held_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #214 — **invalid** missing workspace failure (`TenantWorkspaceScopeGuard` returns `WorkspaceNotFound` when workspace id absent ~32–37), **invalid** duplicate detector before slug normalization (`TenantProvisioningService.ProvisionAsync` computes `TenantSlugNormalizer.FromName` before insert and uses `IsDuplicateOrganization` only on insert catch for idempotent race ~65–97), **invalid** projection refresh offboard no-op (`RunProjectionRefreshAsync` returns `InErasureQuarantine` with refresh payload when offboard completes mid-run ~47–48); reseeded five follow-on `(candidate)` rows; scoped filter **394/394** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug used or Tenant slug held phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug used prose — **hit 2026-10-30 seed hunt #215:** excluded slug phrase word `used`; regression above.
@@ -17313,11 +17327,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantProvisioningService` — duplicate detector before slug normalization — **cheap-disproof 2026-10-30 seed hunt #215:** slug normalized before insert; detector used for idempotent duplicate-key race handling.
 - [x] (invalid) `TenantMigrationProjectionRefreshService` — offboard mid-run silent no-op — **cheap-disproof 2026-10-30 seed hunt #215:** orchestrator surfaces `InErasureQuarantine` after refresh when tenant offboarded.
 
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug moved` substring satisfies slug context without index tokens — locus: `IsTenantSlugPhraseExcludedWord`; input: `Tenant slug moved to another org already exists` (reachability: gateway prose).
-- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug linked` substring satisfies slug context without index tokens — locus: phrase scan; input: `Tenant slug linked incorrectly already exists` (reachability: gateway duplicate-key prose).
-- [ ] (candidate) `TenantErasureCommandService` — offboard audit correlation trim parity with suspend path — locus: audit envelope; input: padded correlation on offboard command (reachability: erasure API).
-- [ ] (candidate) `WorkspaceAllowedEngineSetService.GetAsync` — disabled engine alias in stored JSON still returned until next set — locus: read path; input: persisted alias with `IsEnabled=false` (reachability: workspace engine settings).
-- [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — target tier validation after tenant load may 404 ghost tenant with invalid tier — locus: validation ordering; input: missing tenant + invalid tier (reachability: trial convert API).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — Tenant slug moved prose — **hit 2026-10-30 seed hunt #216** (see hunt note above).
+- [x] (proven) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — Tenant slug linked prose — **hit 2026-10-30 seed hunt #216** (see hunt note above).
+- [x] (invalid) `TenantErasureCommandService` — offboard correlation trim — **cheap-disproof 2026-10-30 seed hunt #216** (see hunt note above).
+- [x] (invalid) `WorkspaceAllowedEngineSetService.GetAsync` — disabled alias JSON — **cheap-disproof 2026-10-30 seed hunt #216** (see hunt note above).
+- [x] (invalid) `TenantTrialConversionStage.ConvertTrialAsync` — tier validation ordering — **cheap-disproof 2026-10-30 seed hunt #216** (see hunt note above).
 
 2026-10-30 seed hunt (seed→hit #214): promoted `Tenant slug set` and `Tenant slug kept` prose false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` (monitors from seed hunt #213); gateway copy such as `Tenant slug set incorrectly already exists` matched org slug context because hunt #213 excluded `found` but not `set` or `kept` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `set` and `kept`; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_set_substring_in_already_exists_message` and `IsDuplicateOrganization_does_not_match_tenant_slug_kept_substring_in_already_exists_message`; cheap-disproof closed three remaining open `(candidate)` rows from hunt #213 — **invalid** migration start compensating unsuspend (`StartAsync` catch block calls `TryUnsuspendAsync` when insert fails after applied suspend ~73–83), **valid-no-repro** unknown quality-gate override token (`GetAsync` falls back to host default when `TryParseMode` fails; intentional admin-settings fail-open), **invalid** converted tenant blank `TrialStatus` write block (`TrialLimitGate.GuardWriteAsync` returns early without blocking when `TrialStatus` is whitespace ~40–41); reseeded five follow-on `(candidate)` rows; scoped filter **392/392** passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug set or Tenant slug kept phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
@@ -17745,11 +17759,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 215
-- **bugs-found:** 193
+- **hunts:** 216
+- **bugs-found:** 194
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Tenant slug used/held prose duplicate-detector false positive
+- **last-bug:** 2026-10-30 — Tenant slug moved/linked prose duplicate-detector false positive
 
 ### Hypotheses
 
