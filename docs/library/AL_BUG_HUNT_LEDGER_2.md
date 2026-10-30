@@ -1,4 +1,4 @@
-> **Scope:** Hunt ledger for `/al-bug2` (API, identity, tenancy, and governance). Edit this file only from that command. Sync and push `bugsmash-2`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — Hunt ledger for `/al-bug2` (API, identity, tenancy, and governance). Edit this file only from that command. Sync and push `bugsmash-2`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: tenant-settings-sql
 
