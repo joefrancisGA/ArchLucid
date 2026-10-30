@@ -130,6 +130,41 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_when_disposition_lead_line_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN`tenant baseline",
+            NarrativeBlock: "Narrative tail.");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        sb.ToString().Should().Contain("``WARN`tenant baseline``");
+    }
+
+    [Fact]
+    public void Describe_when_narrative_block_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review baseline posture.",
+            NarrativeBlock: "Basis`class tail.");
+
+        (_, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap, disposition);
+
+        body.Should().Contain("``Basis`class tail.``");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_includes_section_heading()
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);

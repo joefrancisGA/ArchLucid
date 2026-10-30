@@ -34,7 +34,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         if (disposition is not null)
         {
             sb.AppendLine();
-            sb.AppendLine($"**Claim disposition:** {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(disposition.DispositionLeadLine)}");
+            sb.AppendLine($"**Claim disposition:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.DispositionLeadLine)}");
         }
 
         sb.AppendLine();
@@ -67,7 +67,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         };
 
         if (disposition is not null)
-            body = $"{body} {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(disposition.NarrativeBlock)}";
+            body = $"{body} {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.NarrativeBlock)}";
 
         return (headline, body);
     }
