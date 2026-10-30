@@ -113,11 +113,14 @@ export function secureNowQuestionCountsAsReviewableQueueRow(
     || secureNowQuestionCountsAsMissingStatusFilterRow(question);
 }
 
+export const SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER =
+  "Question disposition status was not stored" as const;
+
 export type SecureNowQuestionQueueReviewFilter =
   | "Open"
   | "Answered"
   | "Dismissed"
-  | "Status not stored";
+  | typeof SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER;
 
 export function secureNowQuestionQueueInitialReviewFilter(
   questions: readonly SecureNowQuestionOpenQueueRowFields[],
@@ -131,7 +134,7 @@ export function secureNowQuestionQueueInitialReviewFilter(
   }
 
   if (questions.some((question) => secureNowQuestionCountsAsMissingStatusFilterRow(question))) {
-    return "Status not stored";
+    return SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER;
   }
 
   return "Dismissed";

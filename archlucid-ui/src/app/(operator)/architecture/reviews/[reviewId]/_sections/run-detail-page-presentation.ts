@@ -268,10 +268,7 @@ export async function buildRunDetailPresentation(
         }),
     reviewOwnerLabel: deriveReviewOwnerLabel(model.resolvedDetail.run),
     templateLabel: deriveReviewTemplateLabel(model.manifestSummaryForUi),
-    packageVersionLabel: derivePackageVersionLabel(
-      model.manifestSummaryForUi ?? model.manifestSummary,
-      model.manifestId,
-    ),
+    packageVersionLabel: derivePackageVersionLabel(model.resolvedDetail.run, model.manifestId),
     finalizedAtLabel: finalizedAtUtc !== null ? formatInstantForLocale(finalizedAtUtc) : null,
     signedReviewRecordId: (model.manifestId ?? "").trim().length > 0 ? (model.manifestId ?? "").trim() : null,
     signedReviewRecordIdLabel: deriveSignedReviewRecordIdLabel(model.manifestId),

@@ -203,4 +203,18 @@ describe("infra-evidence-png-reading-strip", () => {
 
     expect(lines.join("\n")).not.toContain("Observed traffic occurred");
   });
+
+  it("calls out executive overflow stripping and private endpoint traffic hedge on PNG strip", () => {
+    const executive = buildInfraEvidencePngReadingStripLines({
+      mode: "executive",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      executiveOverflowStripped: true,
+      includePrivateEndpointNodes: true,
+    });
+
+    const joined = executive.join("\n");
+    expect(joined).toContain("Executive overflow rollups");
+    expect(joined).toContain("not observed traffic");
+  });
 });

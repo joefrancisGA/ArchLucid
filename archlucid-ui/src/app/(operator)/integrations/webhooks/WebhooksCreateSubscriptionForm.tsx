@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, type Dispatch, type SetStateAction } from "react";
 
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -53,7 +53,34 @@ import {
   parseWebhooksTechnicalEventNameEventIdFromSearch,
   webhooksTechnicalEventNameDisclosureHrefFromSearch,
 } from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+
+function resolveWebhooksDeliveryContractOpenForUrlSync(routerRaw: string | null): boolean {
+  const routerOpen = parseWebhooksDeliveryContractOpenFromSearch(routerRaw);
+  const committedOpen = parseWebhooksDeliveryContractOpenFromSearch(
+    new URLSearchParams(readWindowLocationSearch()).get("webhooksDeliveryContractOpen"),
+  );
+
+  if (committedOpen !== routerOpen) {
+    return committedOpen;
+  }
+
+  return routerOpen;
+}
+
+function resolveWebhooksTechnicalEventNameEventIdForUrlSync(routerRaw: string | null): string {
+  const routerId = parseWebhooksTechnicalEventNameEventIdFromSearch(routerRaw);
+  const committedId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+    new URLSearchParams(readWindowLocationSearch()).get("webhooksTechnicalEventNameEventId"),
+  );
+
+  if (committedId !== routerId) {
+    return committedId;
+  }
+
+  return routerId;
+}
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -80,43 +107,46 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   const searchParams = useSearchParams();
   const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
   const webhooksTechnicalEventNameEventIdParam = searchParams.get("webhooksTechnicalEventNameEventId");
-  const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
-    parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam),
+  const deliveryContractOpen = resolveWebhooksDeliveryContractOpenForUrlSync(
+    webhooksDeliveryContractOpenParam,
   );
 
   const syncDeliveryContractOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
-        webhooksDeliveryContractDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        webhooksDeliveryContractDisclosureHrefFromSearch(
+          readWindowLocationSearch(),
+          open,
+          pathname,
+        ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setDeliveryContractOpen = useCallback(
     (open: boolean) => {
-      setDeliveryContractOpenState(open);
       syncDeliveryContractOpenToUrl(open);
     },
     [syncDeliveryContractOpenToUrl],
   );
 
-  useEffect(() => {
-    setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
-  }, [webhooksDeliveryContractOpenParam]);
-
   const syncTechnicalEventNameOpenToUrl = useCallback(
     (eventId: string | null) => {
       router.replace(
-        webhooksTechnicalEventNameDisclosureHrefFromSearch(searchParams.toString(), eventId, pathname),
+        webhooksTechnicalEventNameDisclosureHrefFromSearch(
+          readWindowLocationSearch(),
+          eventId,
+          pathname,
+        ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
-  const technicalEventNameOpenId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+  const technicalEventNameOpenId = resolveWebhooksTechnicalEventNameEventIdForUrlSync(
     webhooksTechnicalEventNameEventIdParam,
   );
 

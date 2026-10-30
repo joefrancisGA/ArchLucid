@@ -37,6 +37,7 @@ import {
   secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionQueueInitialReviewFilter,
+  SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
   type SecureNowQuestionQueueReviewFilter,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
@@ -159,7 +160,7 @@ function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueF
     if (filter === "Answered") {
       return secureNowQuestionCountsAsAnsweredFilterRow(question);
     }
-    if (filter === "Status not stored") {
+    if (filter === SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER) {
       return secureNowQuestionCountsAsMissingStatusFilterRow(question);
     }
     return secureNowQuestionCountsAsDismissedFilterRow(question);
@@ -206,7 +207,12 @@ function resolveFocusAfterReload(
     return { filter: queueFilter, index: indexInCurrent };
   }
 
-  const filters: QueueFilter[] = ["Open", "Answered", "Dismissed", "Status not stored"];
+  const filters: QueueFilter[] = [
+    "Open",
+    "Answered",
+    "Dismissed",
+    SECURENOW_QUESTION_DISPOSITION_STATUS_NOT_STORED_FILTER,
+  ];
   for (const candidateFilter of filters) {
     const rows = filterQuestions(loadedQuestions, candidateFilter);
     const index = rows.findIndex((question) => questionIdentity(question) === focusIdentity);

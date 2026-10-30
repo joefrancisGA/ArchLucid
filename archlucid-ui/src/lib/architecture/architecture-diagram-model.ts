@@ -11,6 +11,7 @@ import {
 } from "@/lib/architecture/architecture-diagram-copy";
 import {
   resolveArchitectureDiagramNodeDisplayLabel,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
@@ -28,6 +29,16 @@ import type {
 } from "@/lib/architecture/architecture-diagram-types";
 
 const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>)\s*/;
+
+function lineLooksLikeStoredDataFlow(text: string): boolean {
+  const trimmed = text.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return FLOW_SPLIT_PATTERN.test(trimmed);
+}
 
 type ResolvedSectionEntities =
   | { readonly state: "present"; readonly entities: readonly ArchitectureStructuredEntity[] }
@@ -116,7 +127,10 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
+    const displayLabel =
+      entity.label.trim().length === 0
+        ? ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED
+        : resolveArchitectureDiagramNodeDisplayLabel(entity.label);
 
     if (entity.label.trim().length === 0) {
       skippedUnlabeled.count += 1;
@@ -313,11 +327,38 @@ function resolveFlowEdgeLabel(
   return RELATIONSHIP_NOT_STORED_LABEL;
 }
 
+function flowEdgeDedupeKey(edge: Pick<ArchitectureDiagramEdge, "sourceId" | "targetId" | "label" | "provenance">): string {
+  return `${edge.sourceId}\u001f${edge.targetId}\u001f${edge.label}\u001f${edge.provenance}`;
+}
+
+function pushFlowEdge(
+  edges: ArchitectureDiagramEdge[],
+  seenFlowEdgeKeys: Set<string>,
+  edgeIndexRef: { current: number },
+  edge: Omit<ArchitectureDiagramEdge, "id" | "removed">,
+): void {
+  const candidate: ArchitectureDiagramEdge = {
+    ...edge,
+    id: `edge_${edgeIndexRef.current}`,
+    removed: false,
+  };
+  const key = flowEdgeDedupeKey(candidate);
+
+  if (seenFlowEdgeKeys.has(key)) {
+    return;
+  }
+
+  seenFlowEdgeKeys.add(key);
+  edges.push(candidate);
+  edgeIndexRef.current += 1;
+}
+
 function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
   edges: ArchitectureDiagramEdge[],
   unmatchedDataFlows: string[],
+  diagramHonestyNotes: string[],
 ): void {
   const flowSection = parseResult.sections.find((section) => section.key === "data-flows");
 
@@ -325,7 +366,8 @@ function addFlowEdges(
     return;
   }
 
-  let edgeIndex = edges.length;
+  const seenFlowEdgeKeys = new Set(edges.map((edge) => flowEdgeDedupeKey(edge)));
+  const edgeIndexRef = { current: edges.length };
 
   const recordUnmatchedFlow = (raw: string): void => {
     const normalized = raw.trim();
@@ -354,15 +396,12 @@ function addFlowEdges(
     for (const endpoints of parsedEndpoints) {
       const edgeLabel = resolveFlowEdgeLabel(endpoints, parsedEndpoints, trailingEdgeLabel, detailKind);
 
-      edges.push({
-        id: `edge_${edgeIndex}`,
+      pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
         sourceId: endpoints.sourceId,
         targetId: endpoints.targetId,
         label: edgeLabel,
         provenance: entity.provenance,
-        removed: false,
       });
-      edgeIndex += 1;
     }
     }
   }
@@ -374,20 +413,24 @@ function addFlowEdges(
       const parsedLineEndpoints = parseFlowEndpoints(line, nodes);
 
       if (parsedLineEndpoints.length === 0) {
-        recordUnmatchedFlow(line);
+        if (lineLooksLikeStoredDataFlow(line)) {
+          recordUnmatchedFlow(line);
+        } else if (line.trim().length > 0) {
+          diagramHonestyNotes.push(
+            `Data flow narrative line was not matched to diagram components: ${line.trim()}`,
+          );
+        }
+
         continue;
       }
 
       for (const endpoints of parsedLineEndpoints) {
-        edges.push({
-          id: `edge_${edgeIndex}`,
+        pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
           sourceId: endpoints.sourceId,
           targetId: endpoints.targetId,
           label: resolveFlowEdgeLabel(endpoints, parsedLineEndpoints, "", "content"),
           provenance: flowSection.provenance,
-          removed: false,
         });
-        edgeIndex += 1;
       }
     }
   }
@@ -447,7 +490,7 @@ export function buildArchitectureDiagramModel(
     diagramHonestyNotes.push(formatReviewTitleNotCollectedSystemNote(architectureName.trim()));
   }
 
-  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows);
+  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows, diagramHonestyNotes);
 
   const trustBoundaries = resolveArchitectureDiagramSectionEntities(byKey.get("trust-boundaries"));
   const trustBoundaryLabels =

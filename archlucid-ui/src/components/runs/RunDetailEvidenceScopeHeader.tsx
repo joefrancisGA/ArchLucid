@@ -5,23 +5,70 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { TrustEvidenceReadinessVerdict } from "@/lib/trust-evidence-readiness";
 
+export const RUN_DETAIL_EVIDENCE_ITEM_COUNT_NOT_STORED =
+  "Evidence item count was not stored." as const;
+
+export const RUN_DETAIL_EVIDENCE_ITEMS_STORED_EMPTY =
+  "Evidence items were stored empty." as const;
+
+export const RUN_DETAIL_DELIVERABLE_COUNT_NOT_STORED =
+  "Deliverable count was not stored on this review." as const;
+
+export const RUN_DETAIL_DELIVERABLES_STORED_EMPTY =
+  "Deliverables were stored empty." as const;
+
+export const RUN_DETAIL_DELIVERABLE_COUNT_MALFORMED =
+  "Deliverable count was not readable." as const;
+
 export type RunDetailEvidenceScopeHeaderProps = {
   readonly packageName: string;
   readonly reviewDateLabel: string;
-  readonly evidenceItemCount: number;
-  readonly deliverableCount: number;
+  readonly evidenceItemCount: number | null;
+  readonly deliverableCount: number | null;
+  readonly deliverableCountMalformed?: boolean;
   readonly readinessHeadline: string;
   readonly readinessVerdict: TrustEvidenceReadinessVerdict;
   readonly evidenceCoverageLine?: string | null;
 };
 
+function formatEvidenceItemsCell(count: number | null): string {
+  if (count === null) {
+    return RUN_DETAIL_EVIDENCE_ITEM_COUNT_NOT_STORED;
+  }
+
+  if (count <= 0) {
+    return RUN_DETAIL_EVIDENCE_ITEMS_STORED_EMPTY;
+  }
+
+  return String(count);
+}
+
+function formatDeliverablesCell(
+  count: number | null,
+  malformed: boolean,
+): string {
+  if (malformed) {
+    return RUN_DETAIL_DELIVERABLE_COUNT_MALFORMED;
+  }
+
+  if (count === null) {
+    return RUN_DETAIL_DELIVERABLE_COUNT_NOT_STORED;
+  }
+
+  if (count <= 0) {
+    return RUN_DETAIL_DELIVERABLES_STORED_EMPTY;
+  }
+
+  return String(count);
+}
+
 export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeaderProps): ReactElement {
+  const evidenceCount = props.evidenceItemCount;
   const readinessVerdict: TrustEvidenceReadinessVerdict =
-    props.evidenceItemCount === 0 ? "gaps" : props.readinessVerdict;
+    evidenceCount !== null && evidenceCount === 0 ? "gaps" : props.readinessVerdict;
   const readinessKind = readinessVerdict === "complete" ? "ready" : "needs-attention";
   const coverageLine = props.evidenceCoverageLine?.trim() ?? "";
-  const showEvidenceItems = props.evidenceItemCount > 0;
-  const showDeliverables = props.deliverableCount > 0;
+  const deliverableMalformed = props.deliverableCountMalformed === true;
 
   return (
     <header
@@ -46,24 +93,15 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
         <div>
           <dt className="text-al-text-secondary">Evidence items</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
-            {showEvidenceItems ? props.evidenceItemCount : "No submitted source documents are listed."}
+            {formatEvidenceItemsCell(evidenceCount)}
           </dd>
         </div>
-        {showDeliverables ? (
-          <div>
-            <dt className="text-al-text-secondary">Deliverables</dt>
-            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
-              {props.deliverableCount}
-            </dd>
-          </div>
-        ) : (
-          <div>
-            <dt className="text-al-text-secondary">Deliverables</dt>
-            <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">
-              Deliverable count was not stored on this review.
-            </dd>
-          </div>
-        )}
+        <div>
+          <dt className="text-al-text-secondary">Deliverables</dt>
+          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
+            {formatDeliverablesCell(props.deliverableCount, deliverableMalformed)}
+          </dd>
+        </div>
       </dl>
       <div className="mt-3">
         <StatusTag kind={readinessKind} label={props.readinessHeadline} />

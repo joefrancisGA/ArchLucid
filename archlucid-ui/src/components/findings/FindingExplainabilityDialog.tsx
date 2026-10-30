@@ -464,7 +464,14 @@ export function FindingExplainabilityDialog({
                       ))}
                     </ul>
                   </section>
-                ) : null}
+                ) : (
+                  <section className={cn("rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS)}>
+                    <h3 className={cn("mb-1 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Alternative paths considered</h3>
+                    <p className={cn("m-0 text-amber-950 dark:text-amber-50", OPERATOR_TYPOGRAPHY.helper)}>
+                      Alternative paths were not stored.
+                    </p>
+                  </section>
+                )}
                 {data.notes.length > 0 ? (
                   <section>
                     <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Notes</h3>
@@ -474,7 +481,14 @@ export function FindingExplainabilityDialog({
                       ))}
                     </ul>
                   </section>
-                ) : null}
+                ) : (
+                  <section>
+                    <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Notes</h3>
+                    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      Notes were not stored.
+                    </p>
+                  </section>
+                )}
                 {findingId !== null && findingId.trim().length > 0 ? (
                   <FindingExplainPanel
                     runId={runId}

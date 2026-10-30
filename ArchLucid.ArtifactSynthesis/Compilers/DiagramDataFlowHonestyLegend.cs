@@ -26,6 +26,9 @@ public static class DiagramDataFlowHonestyLegend
     public const string ObservedRuntimeTimeWindowSentence =
         "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";
 
+    public const string ObservedRuntimeTimeWindowMissingSentence =
+        "Observed-in-logs edges are on this diagram, but the diagnostic time window was not stored on every edge.";
+
     public const string PipelineDirectionMissingSentence =
         "Pipeline direction was not stored in this package. Re-collect Azure inventory to refresh pipeline metadata.";
 

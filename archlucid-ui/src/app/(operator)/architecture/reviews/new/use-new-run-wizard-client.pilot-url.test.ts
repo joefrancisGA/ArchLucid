@@ -1,10 +1,10 @@
-import { render, waitFor, type ReactNode } from "@testing-library/react";
+import { render, waitFor, act, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const pilotSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,15 +24,35 @@ const pilotSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
+
+const setFocusedPilotModeEnabledRef = vi.hoisted(() => ({
+  current: null as ((value: boolean) => void) | null,
+}));
 
 const focusedPilotModeEnabledRef = vi.hoisted(() => ({ current: true }));
 
@@ -41,7 +61,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => pilotSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => pilotSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       pilotSearchParamsHarness.applyHref(href);
 
@@ -144,8 +164,12 @@ vi.mock("./NewRunWizardDeferredChunks", () => ({
 }));
 
 vi.mock("./NewRunWizardStepBody", () => ({
-  NewRunWizardStepBody: (props: { readonly focusedPilotModeEnabled: boolean }) => {
+  NewRunWizardStepBody: (props: {
+    readonly focusedPilotModeEnabled: boolean;
+    readonly setFocusedPilotModeEnabled: (value: boolean) => void;
+  }) => {
     focusedPilotModeEnabledRef.current = props.focusedPilotModeEnabled;
+    setFocusedPilotModeEnabledRef.current = props.setFocusedPilotModeEnabled;
 
     return null;
   },
@@ -228,5 +252,35 @@ describe("useNewRunWizardClient pilot URL sync", () => {
     await waitFor(() => {
       expect(focusedPilotModeEnabledRef.current).toBe(true);
     });
+  });
+
+  it("writes pilot toggle from useSearchParams when window.location.search lags after soft navigation", async () => {
+    pilotSearchParamsHarness.applySearchParamsQuery("mode=full");
+    pilotSearchParamsHarness.setWindowLocationSearch("mode=full&staleToolbar=old");
+
+    render(
+      createElement(
+        PilotSearchParamsRerenderHost,
+        null,
+        createElement(function NewRunWizardClientPilotUrlSyncProbe() {
+          const { stepBody } = useNewRunWizardClient({ embeddedInPathSwitcher: false });
+
+          return stepBody;
+        }),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(setFocusedPilotModeEnabledRef.current).not.toBeNull();
+    });
+
+    act(() => {
+      setFocusedPilotModeEnabledRef.current?.(false);
+    });
+
+    const lastQuery = pilotSearchParamsHarness.state.query;
+    expect(lastQuery).toContain("pilot=0");
+    expect(lastQuery).toContain("mode=full");
+    expect(lastQuery).not.toContain("staleToolbar");
   });
 });

@@ -147,4 +147,20 @@ public sealed class AnalysisExportRequestRehydratorTests
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*broken*");
     }
+
+    [Fact]
+    public void CompareQuality_Rehydrate_treats_whitespace_only_include_evidence_string_as_omitted()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson = """{"includeEvidence":"   ","includeManifest":true}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.IncludeEvidence.Should().BeFalse();
+        result.IncludeManifest.Should().BeTrue();
+    }
 }

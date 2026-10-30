@@ -131,6 +131,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const sortOrderRef = useRef(sortOrder);
   sortOrderRef.current = sortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
+  const selectedRunRef = useRef(selectedRun);
+  selectedRunRef.current = selectedRun;
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const compareSelectionRef = useRef(compareSelection);
   compareSelectionRef.current = compareSelection;
@@ -262,10 +264,35 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     };
   }, []);
 
+  const routerSearchString = searchParams.toString();
+
+  const resolveInspectorRunIdForUrlSync = useCallback((): string | null => {
+    const fromSelection = selectedRunRef.current?.runId?.trim() ?? "";
+
+    if (fromSelection.length > 0) {
+      return fromSelection;
+    }
+
+    const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+    );
+
+    if (committedInspectorRunId.length > 0) {
+      return committedInspectorRunId;
+    }
+
+    if (urlInspectorRunId.length > 0) {
+      // Inspector close commits cleared search before useSearchParams catches up.
+      return null;
+    }
+
+    return null;
+  }, [urlInspectorRunId]);
+
   useEffect(() => {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
-        runsListSearchHrefFromSearch(readWindowLocationSearch(), filterText, pathname),
+        runsListSearchHrefFromSearch(routerSearchString, filterText, pathname),
         { notify: false },
       );
     }, 250);
@@ -273,7 +300,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [filterText, pathname]);
+  }, [filterText, pathname, routerSearchString]);
 
   const setFilterText = useCallback((value: string): void => {
     filterTextRef.current = value;
@@ -283,10 +310,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const clearFilterText = useCallback(() => {
     filterTextRef.current = "";
     setFilterTextState("");
-    commitHrefIfChanged(runsListClearSearchHrefFromSearch(readWindowLocationSearch(), pathname), {
+    commitHrefIfChanged(runsListClearSearchHrefFromSearch(routerSearchString, pathname), {
       notify: false,
     });
-  }, [pathname]);
+  }, [pathname, routerSearchString]);
 
   const setSortOrder = useCallback((_order: SortOrder): void => {
     // Sort is URL-driven via FilterChip navigation; retained for hook API compatibility.
@@ -296,14 +323,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       commitHrefIfChanged(
         runsListCompareInspectorHrefFromSearch(
-          runsListEffectiveSearchFromSearch(readWindowLocationSearch(), filterTextRef.current),
+          runsListEffectiveSearchFromSearch(routerSearchString, filterTextRef.current),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, routerSearchString],
   );
 
   const setSelectedRun = useCallback(
@@ -318,16 +345,29 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (value: string[] | ((current: string[]) => string[])) => {
       setCompareSelectionState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncCompareInspectorToUrl(selectedRun?.runId ?? null, next);
+        syncCompareInspectorToUrl(resolveInspectorRunIdForUrlSync(), next);
 
         return next;
       });
     },
-    [selectedRun?.runId, syncCompareInspectorToUrl],
+    [resolveInspectorRunIdForUrlSync, syncCompareInspectorToUrl],
   );
 
   useEffect(() => {
-    const next = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+    const committedCompare = [
+      ...parseRunsListCompareRunIdsFromSearch(
+        new URLSearchParams(readWindowLocationSearch()).get("compareRuns"),
+      ),
+    ];
+    const urlCompare = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+
+    let next = urlCompare;
+
+    if (committedCompare.join(",") !== urlCompare.join(",")) {
+      // History navigation updates window.location before App Router searchParams catch up.
+      next = committedCompare;
+    }
+
     const current = compareSelectionRef.current;
 
     if (current.length === next.length && current.every((id, index) => id === next[index])) {
@@ -396,6 +436,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     ) {
       // History navigation updates window.location before App Router searchParams catch up.
       effectiveInspectorRunId = committedInspectorRunId;
+    }
+    else if (committedInspectorRunId.length === 0 && urlInspectorRunId.length > 0) {
+      // Inspector close (Escape / close button) commits cleared search before useSearchParams catches up.
+      effectiveInspectorRunId = "";
+    }
+
+    if (effectiveInspectorRunId.length === 0) {
+      setSelectedRunState(null);
+
+      return;
     }
 
     const fromUrl = safeRuns.find((run) => run.runId === effectiveInspectorRunId) ?? null;

@@ -25,6 +25,7 @@ import {
   printPackagePage,
   resolvePackagePrintSemanticSupportBandDisplayLine,
   resolvePackagePrintSemanticSupportBandStampLine,
+  resolvePackagePrintFindingsSnapshotPresent,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
   resolvePackagePrintStatusLabel,
@@ -90,7 +91,18 @@ describe("package-print-view (TB-2205)", () => {
         summary({ hasGovernanceWarnings: undefined }),
       ),
     ).toBe("Finalized. Governance warning flags were not stored.");
-    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe(
+      "Finalized. No governance warnings were stored.",
+    );
+  });
+
+  it("does not claim zero warnings were stored when governance warning flags are explicitly false (P-18)", () => {
+    const line = buildPackagePrintFindingsSummary(
+      summary({ findingCount: 2, warningCount: 0, hasGovernanceWarnings: false }),
+    );
+
+    expect(line).toContain("No governance warning flags were stored.");
+    expect(line).not.toContain("0 warnings were stored.");
   });
 
   it("resolves status and presentation for a finalized package", () => {
@@ -262,5 +274,23 @@ describe("package-print-view (TB-2205)", () => {
     });
 
     expect(presentation.semanticSupportBandStampLine).toContain("1 Supported");
+  });
+
+  it("resolvePackagePrintFindingsSnapshotPresent does not treat unknown flags as absent (P-06/P-07)", () => {
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: undefined }), undefined),
+    ).toBeUndefined();
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: false }), undefined),
+    ).toBe(false);
+    expect(
+      resolvePackagePrintFindingsSnapshotPresent(summary({ hasFindingsSnapshot: true }), null),
+    ).toBe(true);
+  });
+
+  it("buildPackagePrintPresentation leaves findings snapshot flag undefined when omitted (P-06/P-07)", () => {
+    const presentation = buildPackagePrintPresentation(summary());
+
+    expect(presentation.semanticSupportFindingsSnapshotPresent).toBeUndefined();
   });
 });

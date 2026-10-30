@@ -101,6 +101,10 @@ internal static class DiagramDataFlowCaptionBuilder
             {
                 captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
             }
+            else if (observedRuntimeEdges.Count > 0)
+            {
+                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
+            }
         }
 
         bool hasIngestion = includedNodes.Any(node =>

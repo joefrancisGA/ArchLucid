@@ -23,6 +23,8 @@ import {
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED,
+  FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY,
+  FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX,
 } from "@/lib/findings/findings-what-if-analysis";
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -254,11 +256,14 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                     </span>
                   ) : row.savingsUsd === 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      {formatUsd(0)} projected impact stored
+                      {FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY}
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
                     </span>
                   ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      −{formatUsd(row.savingsUsd)}
+                      {FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX}−{formatUsd(row.savingsUsd)}
                       {props.isIllustrativePricing ? (
                         <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
                       ) : null}

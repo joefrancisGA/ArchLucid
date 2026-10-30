@@ -57,7 +57,7 @@ export function buildQuickDecisionFindingEvidenceLinks(
   const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
   const manifestHref = manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
   const graphHref =
-    (evidenceRefCount !== null && evidenceRefCount > 0) || graphFocusId !== null
+    evidenceRefCount !== null && evidenceRefCount > 0
       ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
       : null;
   const viewEvidenceHref =

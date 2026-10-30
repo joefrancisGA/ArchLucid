@@ -1026,7 +1026,7 @@ export interface components {
             determinism?: null | components["schemas"]["DeterminismCheckResult"];
             diagram?: null | string;
             evidence?: null | components["schemas"]["AgentEvidencePackage"];
-            executionTraces?: components["schemas"]["AgentExecutionTrace"][];
+            executionTraces?: null | components["schemas"]["AgentExecutionTrace"][];
             manifest?: null | components["schemas"]["GoldenManifest"];
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
             run?: components["schemas"]["ArchitectureRun"];
@@ -5720,7 +5720,7 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
-            heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckLedgerEntries?: components["schemas"]["HeldCheckLedgerRollupEntry"][];
             heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
             /** Format: int32 */
             judgeConfiguredCap?: null | number;
@@ -5728,8 +5728,8 @@ export interface components {
             judgeEffectiveCap?: null | number;
             /** Format: int32 */
             judgeSkippedByCap?: number;
-            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
-            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
+            proseAssumptionHeldCheckAsks?: components["schemas"]["ProseAssumptionHeldCheckAsk"][];
+            proseAssumptionRegisterEntries?: components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };

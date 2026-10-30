@@ -143,7 +143,9 @@ export function FindingInspectFindingBody({
       ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {modelProvenance.origin}
-        {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}
+        {modelProvenance.grounding === "Not applicable"
+          ? " · Grounding is not applicable for this finding."
+          : ` · ${modelProvenance.grounding}`}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
       {modelProvenance.trustLabelReason !== null ? (

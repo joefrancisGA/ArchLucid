@@ -64,6 +64,16 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toBe("Evidence shows public ingress on the intake API.");
   });
 
+  it("notes when stored reasoning continues after the first sentence (P-18)", () => {
+    const result = buildFindingDerivationSentence({
+      reasoningSummary: "First sentence here. Second sentence continues.",
+      severityLabel: "High",
+    });
+
+    expect(result.sentence).toContain("Full recommendation was stored");
+    expect(result.sentence).toContain("First sentence here.");
+  });
+
   it("uses severity omission copy without wrapping it in a severity finding clause", () => {
     const result = buildFindingDerivationSentence({
       ruleName: "Ingress rule",
@@ -88,6 +98,8 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     );
     expect(result.sentence).toContain('Policy rule "PHI minimization at intake"');
     expect(result.sentence).toContain("3 cited evidence references");
+    expect(result.sentence).not.toContain("matched");
+    expect(result.sentence).not.toContain("produced");
     expect(result.sentence).toContain("High severity finding");
   });
 

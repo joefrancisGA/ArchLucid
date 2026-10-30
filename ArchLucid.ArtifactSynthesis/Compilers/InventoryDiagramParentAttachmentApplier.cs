@@ -209,10 +209,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
-            ReadResourceName(
-                connectorDiagramNode.ArmResourceId,
-                connectorDiagramNode.Label,
-                connectorDiagramNode.NodeId));
+            InventoryDiagramRelationshipLabelTexts.AccessConnectorExternalTargetConfiguredLabel);
         DiagramEdge? existingEdge = ast.Edges.FirstOrDefault(edge =>
             string.Equals(edge.FromNodeId, parentDiagramNodeId, StringComparison.Ordinal)
             && string.Equals(edge.ToNodeId, externalTargetDiagramNodeId, StringComparison.Ordinal)
@@ -236,7 +233,7 @@ internal static class InventoryDiagramParentAttachmentApplier
             FromNodeId = parentDiagramNodeId,
             ToNodeId = externalTargetDiagramNodeId,
             Label = edgeLabel,
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
             InferenceSource = GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget,
         });
 

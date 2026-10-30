@@ -7,6 +7,21 @@ export type WizardPreset = {
   values: Partial<WizardFormValues>;
 };
 
+export function formatWizardPresetStringListHonesty(
+  values: readonly string[] | null | undefined,
+  fieldLabel: string,
+): string | null {
+  if (values === null || values === undefined) {
+    return `${fieldLabel} were not stored on this starter preset.`;
+  }
+
+  if (values.length === 0) {
+    return `${fieldLabel} were stored as an empty list on this starter preset.`;
+  }
+
+  return null;
+}
+
 /** Applies preset field overrides on top of base wizard values (validation runs on step advance and submit). */
 export function applyWizardPreset(
   base: WizardFormValues,
@@ -65,6 +80,47 @@ export function wizardFormFieldMatchesPreset(
   }
 
   return false;
+}
+
+const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = [
+  "systemName",
+  "environment",
+  "cloudProvider",
+  "description",
+  "constraints",
+  "requiredCapabilities",
+];
+
+/** True when React Hook Form marked a scalar or array field dirty. */
+export function isWizardFormFieldDirty(dirty: unknown): boolean {
+  if (Array.isArray(dirty)) {
+    return dirty.some(Boolean);
+  }
+
+  return dirty === true;
+}
+
+/** Fields that still match the starter preset and were not dirtied — for recap honesty. */
+export function resolveWizardRecapPresetMatchingFields(input: {
+  readonly presetId: string | null | undefined;
+  readonly formValues: WizardFormValues;
+  readonly dirtyFields: {
+    readonly [K in keyof WizardFormValues]?: unknown;
+  };
+}): readonly (keyof WizardFormValues)[] {
+  const presetId = input.presetId?.trim() ?? "";
+
+  if (presetId.length === 0) {
+    return [];
+  }
+
+  return WIZARD_RECAP_PRESET_TRACKED_FIELDS.filter((field) => {
+    if (isWizardFormFieldDirty(input.dirtyFields[field])) {
+      return false;
+    }
+
+    return wizardFormFieldMatchesPreset(presetId, field, input.formValues);
+  });
 }
 
 export const wizardPresets: WizardPreset[] = [

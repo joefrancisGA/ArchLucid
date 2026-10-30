@@ -87,6 +87,14 @@ describe("formatAzureResourceDisplay", () => {
       secondaryLabel: "Resource type was not stored. Resource group was not stored.",
     });
   });
+
+  it("states when only resource group was not stored on ARM ids (P-19)", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/providers/Microsoft.Storage/storageAccounts/acct1",
+      ).secondaryLabel,
+    ).toBe("Storage/storageAccounts · Resource group was not stored.");
+  });
 });
 
 describe("normalizeSecureNowResourceNameForDisplay", () => {

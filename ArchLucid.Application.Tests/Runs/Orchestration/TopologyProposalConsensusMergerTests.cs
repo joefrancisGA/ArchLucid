@@ -1159,6 +1159,27 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_reports_zero_disagreement_when_required_controls_differ_only_by_interior_whitespace_runs_on_one_model()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["encrypt at rest", "encrypt  at rest"],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["encrypt at rest"],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("encrypt at rest");
+    }
+
+    [Fact]
     public void Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id()
     {
         AgentTopologyProposal primary = new()

@@ -22,7 +22,13 @@ export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS: readonly string[] = [
 ];
 
 function answerDeniesTopRisk(answerText: string): boolean {
-  return /\bno top risk\b/i.test(answerText) || /\btop risk was not stored\b/i.test(answerText);
+  return (
+    /\bno top risk\b/i.test(answerText)
+    || /\btop risk was not stored\b/i.test(answerText)
+    || /\btop risk was not named\b/i.test(answerText)
+    || /\bhighest(?:\s+priority)?\s+risk was not\b/i.test(answerText)
+    || /\btop risk\b[^.]{0,80}\b(not stored|not named|omitted|missing)\b/i.test(answerText)
+  );
 }
 
 function answerNamesTopRisk(answerText: string): boolean {

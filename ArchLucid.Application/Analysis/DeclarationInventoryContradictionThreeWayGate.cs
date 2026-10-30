@@ -1,3 +1,5 @@
+using ArchLucid.Core.Findings;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -19,7 +21,17 @@ public static class DeclarationInventoryContradictionThreeWayGate
 
         if (IsTransportSecurityKey(declarationKey))
         {
-            return normalizedDeclaration is "true" or "enabled";
+            if (normalizedDeclaration is "true" or "enabled")
+                return true;
+
+            if (!IsMinimumTlsVersionKey(declarationKey))
+                return false;
+
+            string tlsToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+                mismatch.DeclarationValue);
+
+            return tlsToken is "1.2" or "1.3";
         }
 
         if (IsEncryptionKey(declarationKey))
@@ -32,12 +44,14 @@ public static class DeclarationInventoryContradictionThreeWayGate
             if (normalizedDeclaration is "false" or "disabled" or "deny" or "restricted")
                 return true;
 
-            if (IsNetworkAclBlobKey(declarationKey)
-                && normalizedDeclaration.Contains("defaultaction", StringComparison.Ordinal)
-                && normalizedDeclaration.Contains("deny", StringComparison.Ordinal))
-                return true;
+            if (!IsNetworkAclBlobKey(declarationKey))
+                return false;
 
-            return false;
+            string actionToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction,
+                mismatch.DeclarationValue);
+
+            return NormalizeSecurityToken(actionToken) is "false" or "disabled" or "deny" or "restricted";
         }
 
         if (IsWorkloadIsolationKey(declarationKey))
@@ -94,6 +108,10 @@ public static class DeclarationInventoryContradictionThreeWayGate
         || (DeclarationKeyContainsSecurityToken(declarationKey, "ssl")
             && !declarationKey.Contains("storage", StringComparison.OrdinalIgnoreCase));
 
+    private static bool IsMinimumTlsVersionKey(string declarationKey) =>
+        DeclarationKeyContainsSecurityToken(declarationKey, "tls")
+        && DeclarationKeyContainsSecurityToken(declarationKey, "version");
+
     private static bool IsEncryptionKey(string declarationKey) =>
         DeclarationKeyContainsSecurityToken(declarationKey, "storageencrypted")
         || DeclarationKeyContainsSecurityToken(declarationKey, "storage_encrypted");
@@ -106,6 +124,7 @@ public static class DeclarationInventoryContradictionThreeWayGate
     private static bool IsNetworkAclBlobKey(string declarationKey) =>
         DeclarationKeyContainsSecurityToken(declarationKey, "networkacl")
         || DeclarationKeyContainsSecurityToken(declarationKey, "network_acl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "network_rules")
         || DeclarationKeyContainsSecurityToken(declarationKey, "networkrules");
 
     private static bool IsWorkloadIsolationKey(string declarationKey) =>

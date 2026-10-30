@@ -93,7 +93,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         body.AppendChild(new WpParagraph(
             new WpParagraphProperties(
                 new ParagraphStyleId { Val = $"Heading{level}" }),
-            new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve })));
+            new WpRun(WordText(text))));
     }
 
     internal static void AddStyledParagraph(Body body, string text, string styleId)
@@ -101,7 +101,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         body.AppendChild(new WpParagraph(
             new WpParagraphProperties(
                 new ParagraphStyleId { Val = styleId }),
-            new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve })));
+            new WpRun(WordText(text))));
     }
 
     internal static void AddBullet(Body body, string text)
@@ -109,7 +109,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         body.AppendChild(new WpParagraph(
             new WpParagraphProperties(
                 new SpacingBetweenLines { After = "40" }),
-            new WpRun(new WpText($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
+            new WpRun(WordText($"• {text}"))));
     }
 
     internal static void AddSpacer(Body body, int count = 1)
@@ -133,7 +133,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
                 new WpSpacingBetweenLines { Before = "120", After = "120", Line = "280", LineRule = LineSpacingRuleValues.Auto }),
             new WpRun(
                 new WpRunProperties(new Bold(), new Color { Val = options.SecondaryColorHex }),
-                new WpText(text) { Space = SpaceProcessingModeValues.Preserve }));
+                WordText(text)));
 
         body.AppendChild(paragraph);
     }
@@ -142,9 +142,9 @@ internal static class ConsultingDocxOpenXmlPrimitives
     {
         AddStyledParagraph(body, $"[{language}]", "Subtle");
 
-        foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
+        foreach (string line in OpenXmlWordText.ForXml(text).Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
-            WpRun run = new(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new(WordText(line))
             {
                 RunProperties = new WpRunProperties(
                     new RunFonts { Ascii = "Consolas" },
@@ -191,7 +191,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
 
     private static WpTableCell BuildCell(string text, bool bold, string width)
     {
-        WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new(WordText(text));
 
         if (bold)
 
@@ -250,4 +250,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
 
         body.AppendChild(new WpParagraph(new WpRun(drawing)));
     }
+
+    private static WpText WordText(string text) =>
+        new(OpenXmlWordText.ForXml(text)) { Space = SpaceProcessingModeValues.Preserve };
 }

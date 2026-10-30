@@ -11,6 +11,9 @@ class MarketplaceProductIsolationTests(unittest.TestCase):
         self.assertFalse(report["marketplaceProductEnabled"])
         self.assertIn("webhookOfferIdCheckedBeforeMutation", report["blockers"])
         self.assertIn("crossProductEntitlementNegativeTestsObserved", report["blockers"])
+        self.assertIn("ownerApprovedPlanAndPricing", report["blockers"])
+        self.assertTrue(report["signals"]["privateQuoteSheetApproved"])
+        self.assertFalse(report["signals"]["ownerApprovedPlanAndPricing"])
         self.assertTrue(report["signals"]["globalOfferIdOptionExists"])
 
     def test_fake_owner_metadata_never_grants_security_entitlement(self):

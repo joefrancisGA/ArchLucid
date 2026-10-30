@@ -271,9 +271,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             Open finding
           </Link>
         </Button>
-        {viewEvidenceHref !== null ? (
+        {evidenceRefCount !== null || viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
-            href={viewEvidenceHref}
+            href={viewEvidenceHref ?? undefined}
             evidenceRefCount={evidenceRefCount}
             className="shrink-0"
           />

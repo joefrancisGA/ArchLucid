@@ -195,6 +195,12 @@ export function ArchitectureCreatedHomeViewport(
                   </li>
                 ))}
               </ul>
+              {model.missingItemsOmittedCount > 0 ? (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {model.missingItemsOmittedCount} more gap
+                  {model.missingItemsOmittedCount === 1 ? " was" : "s were"} stored.
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>

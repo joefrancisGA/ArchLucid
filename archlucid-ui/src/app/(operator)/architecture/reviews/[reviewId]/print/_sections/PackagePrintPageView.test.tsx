@@ -151,9 +151,10 @@ describe("PackagePrintPageView (TB-2205)", () => {
       />,
     );
 
-    expect(screen.getByTestId("package-print-sponsor-synopsis")).toHaveTextContent(
-      "Sponsor synopsis was not stored on this print.",
-    );
+    const synopsis = screen.getByTestId("package-print-sponsor-synopsis");
+    expect(synopsis).toHaveTextContent("A stored sponsor synopsis was not on this print.");
+    expect(synopsis).toHaveTextContent("Draft review");
+    expect(synopsis).toHaveTextContent("Finding count was not stored.");
   });
 
   it("renders meeting capture blockedReason callout when capture is blocked (sealed-manifest 409)", () => {

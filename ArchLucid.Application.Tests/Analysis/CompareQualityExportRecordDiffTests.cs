@@ -39,6 +39,62 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_reports_review_board_firm_name_when_branding_changes()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Contoso Advisory"}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Fabrikam Advisory"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().Contain("ReviewBoardWhitelabelFirmDisplayName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_ignores_review_board_firm_name_that_differs_only_by_padding()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"  Contoso Advisory  "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Contoso Advisory"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().NotContain("ReviewBoardWhitelabelFirmDisplayName");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -2386,6 +2442,195 @@ public sealed class CompareQualityExportRecordDiffTests
 
         result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
         result.RequestDiff.ChangedValues.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_compare_run_id_in_json_as_equivalent_to_null_when_column_populated()
+    {
+        const string compareRunId = "cccccccccccccccccccccccccccccccc";
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = compareRunId,
+            AnalysisRequestJson =
+                """{"includeAgentResultCompare":true,"compareRunId":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = compareRunId,
+            AnalysisRequestJson = """{"includeAgentResultCompare":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
+        result.RequestDiff.ChangedValues.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_compare_manifest_version_in_json_as_equivalent_to_null_when_column_populated()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "v1",
+            AnalysisRequestJson =
+                """{"includeManifestCompare":true,"compareManifestVersion":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "v1",
+            AnalysisRequestJson = """{"includeManifestCompare":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareManifestVersion");
+        result.RequestDiff.ChangedValues.Should().NotContain("CompareManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_template_profile_in_json_as_equivalent_to_null_when_column_populated()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "consulting",
+            AnalysisRequestJson = """{"templateProfile":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "consulting",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfile");
+        result.RequestDiff.ChangedValues.Should().NotContain("TemplateProfile");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_template_profile_display_name_in_json_as_equivalent_to_null_when_column_populated()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfileDisplayName = "Consulting profile",
+            AnalysisRequestJson = """{"templateProfileDisplayName":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfileDisplayName = "Consulting profile",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfileDisplayName");
+        result.RequestDiff.ChangedValues.Should().NotContain("TemplateProfileDisplayName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_template_profile_in_json_as_equivalent_to_null_when_template_profile_display_name_column_populated()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfileDisplayName = "Consulting profile",
+            AnalysisRequestJson = """{"templateProfile":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfileDisplayName = "Consulting profile",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfile");
+        result.RequestDiff.ChangedValues.Should().NotContain("TemplateProfile");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_template_profile_display_name_in_json_as_equivalent_to_null_when_template_profile_column_populated()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "consulting",
+            AnalysisRequestJson = """{"templateProfileDisplayName":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "consulting",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfileDisplayName");
+        result.RequestDiff.ChangedValues.Should().NotContain("TemplateProfileDisplayName");
     }
 
     [Fact]

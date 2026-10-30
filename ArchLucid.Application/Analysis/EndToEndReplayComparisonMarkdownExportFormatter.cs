@@ -61,12 +61,12 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine($"- Fuzzy (possible) matches: {metadata.FuzzyMatchCount}");
             sb.AppendLine($"- Unmatched left findings: {metadata.UnmatchedLeftCount}");
             sb.AppendLine($"- Unmatched right findings: {metadata.UnmatchedRightCount}");
-            sb.AppendLine($"- Correlation honesty: {metadata.HonestyNote}");
+            sb.AppendLine($"- Correlation honesty: {MarkdownListText.Format(metadata.HonestyNote)}");
         }
 
         if (report.FindingLifecycle is not null)
             foreach (string line in CrossReviewFindingLifecycleExportLines.Build(report.FindingLifecycle))
-                sb.AppendLine($"- {line}");
+                sb.AppendLine($"- {MarkdownListText.Format(line)}");
 
         sb.AppendLine();
     }
@@ -146,7 +146,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine("### Added Relationships");
             sb.AppendLine();
             foreach (RelationshipDiffItem rel in report.ManifestDiff.AddedRelationships)
-                sb.AppendLine($"- {rel.ToDisplayLine()}");
+                sb.AppendLine($"- {MarkdownListText.Format(rel.ToDisplayLine())}");
             sb.AppendLine();
         }
 
@@ -155,7 +155,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine("### Removed Relationships");
             sb.AppendLine();
             foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
-                sb.AppendLine($"- {rel.ToDisplayLine()}");
+                sb.AppendLine($"- {MarkdownListText.Format(rel.ToDisplayLine())}");
             sb.AppendLine();
         }
 
@@ -191,7 +191,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
         }
 
         foreach (string item in items)
-            sb.AppendLine($"- {item}");
+            sb.AppendLine($"- {MarkdownListText.Format(item)}");
         sb.AppendLine();
     }
 }

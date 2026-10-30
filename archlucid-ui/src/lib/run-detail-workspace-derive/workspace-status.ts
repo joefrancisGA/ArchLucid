@@ -165,7 +165,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       }
 
       if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-        return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+        return { label: "Approved", kind: "approved", statusTagKind: "ready" };
       }
 
       return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
@@ -180,7 +180,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     }
 
     if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+      return { label: "Approved", kind: "approved", statusTagKind: "ready" };
     }
 
     return resolveReviewCompleteWorkspaceStatus(input, null);

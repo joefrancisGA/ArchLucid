@@ -66,8 +66,17 @@ public static class DiagramForestEdgeLabelCollapse
                 continue;
             }
 
+            DiagramEdge labelCarrier = componentEdges
+                .OrderBy(edge => EdgeKey(edge), StringComparer.Ordinal)
+                .First();
+
             foreach (DiagramEdge edge in componentEdges)
             {
+                if (string.Equals(EdgeKey(edge), EdgeKey(labelCarrier), StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 suppressed.Add(EdgeKey(edge));
             }
         }

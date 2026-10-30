@@ -226,7 +226,7 @@ function formatManifestSummaryFallback(
   const operatorSummaryTrimmed = summary.operatorSummary?.trim() ?? "";
 
   if (summary.operatorSummary === null || summary.operatorSummary === undefined) {
-    lines.push("Operator summary was not stored.");
+    lines.push("Operator summary was not included in this export.");
   } else if (operatorSummaryTrimmed.length === 0) {
     lines.push("Operator summary was stored empty.");
   } else {
@@ -250,12 +250,12 @@ function formatManifestSummaryFallback(
 
   lines.push("## Component breakdown");
   lines.push("");
-  lines.push("Component breakdown was not stored.");
+  lines.push("Component breakdown was not included in this export.");
   lines.push("");
 
   lines.push("## Security model");
   lines.push("");
-  lines.push("Security model was not stored.");
+  lines.push("Security model was not included in this export.");
   lines.push("");
 
   const honestyInput = resolveCareerExportHonestyInput(options, summary);
@@ -274,6 +274,12 @@ function formatManifestSummaryFallback(
 
     lines.push("## Measurement floor");
     lines.push("");
+    if (enginesSucceeded === null || enginesSucceeded === undefined) {
+      lines.push(
+        "Distinct engines that succeeded on this package was not stored on this export.",
+      );
+      lines.push("");
+    }
     lines.push(
       formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null, measurementFloorOptions).line,
     );

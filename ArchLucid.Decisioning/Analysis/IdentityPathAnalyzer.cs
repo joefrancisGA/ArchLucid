@@ -59,9 +59,11 @@ public static class IdentityPathAnalyzer
         List<IdentityBlastRadiusPath> paths)
     {
         Queue<(string NodeId, int HopCount, List<string> PathNodeIds, string? ActiveRoleName)> queue = new();
+        // Visit identity is the node plus the write role carried in. A reader assignment
+        // that reaches a key vault first must not hide a later Contributor path to that vault.
         HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase)
         {
-            actor.NodeId,
+            VisitStateKey(actor.NodeId, roleOnPath: null),
         };
 
         queue.Enqueue((actor.NodeId, 0, [actor.NodeId], ActiveRoleName: null));
@@ -115,12 +117,11 @@ public static class IdentityPathAnalyzer
 
             foreach (string neighborId in neighbors)
             {
-                if (visited.Contains(neighborId))
+                if (!visited.Add(VisitStateKey(neighborId, roleOnPath)))
                 {
                     continue;
                 }
 
-                visited.Add(neighborId);
                 List<string> nextPath = [.. pathNodeIds, neighborId];
                 queue.Enqueue((neighborId, hopCount + 1, nextPath, roleOnPath));
             }
@@ -171,6 +172,9 @@ public static class IdentityPathAnalyzer
             neighbors.Add(toNodeId);
         }
     }
+
+    private static string VisitStateKey(string nodeId, string? roleOnPath) =>
+        string.Concat(nodeId, "\u001f", roleOnPath ?? string.Empty);
 
     private static bool IsMachineActor(GraphNode actor)
     {

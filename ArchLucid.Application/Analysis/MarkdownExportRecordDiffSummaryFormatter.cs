@@ -58,7 +58,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
 
         foreach (string item in items.OrderBy(x => x))
 
-            sb.AppendLine($"- {item}");
+            sb.AppendLine($"- {MarkdownListText.Format(item)}");
 
         sb.AppendLine();
     }

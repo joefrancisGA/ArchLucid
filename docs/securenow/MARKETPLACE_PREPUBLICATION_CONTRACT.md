@@ -1,3 +1,5 @@
+> **Scope:** SecureNow Marketplace prepublication hold. Not a live Partner Center offer, and not permission to treat an ArchLucid subscription as SecureNow access.
+
 # SecureNow Marketplace offer — prepublication contract (NOT LIVE)
 
 **Status: HOLD / OWNER REVIEW ONLY.** This is not an approved transactable offer, not a listing in Partner Center, and does not authorize using the ArchLucid Marketplace subscription plans for SecureNow. SecureNow's controlled beta remains **NO_GO**.
@@ -8,8 +10,10 @@
 - **Customer:** authorized enterprise Azure security architect/operator; Reader-only inventory or authorized upload.
 - **Delivered output:** evidence-classified possible access paths, ranked technical dimensions, advisory cut points, and explicitly limited later-snapshot verification.
 - **Not offered:** autonomous remediation, observed exploitation, breach prevention warranty, unsupported cloud coverage, guaranteed savings or SOC certification.
-- **Offer/plan IDs:** UNASSIGNED. No proposed external SKU should be assumed unique until Partner Center and legal review.
-- **Price, tax, legal entity, currency, support SLA, security assurances, DPA:** NOT APPROVED.
+- **Offer/plan IDs:** UNASSIGNED in Partner Center. Reserved private ids on the quote sheet are not a registration.
+- **Private quote sheet (2026-10-29):** price, currency, tax posture, and payout identity are owner-approved only in [PRIVATE_PRICE_SHEET.md](PRIVATE_PRICE_SHEET.md). That sheet is not a public list price and does not enable billing.
+- **Founder response targets:** recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md). About one hour to acknowledge during weekday Eastern business hours. Not a contractual SLA and not service credits.
+- **Contractual support SLA, security assurances, DPA, Partner Center plan, and live billing:** NOT APPROVED.
 
 ## Engineering entitlement contract (future implementation, not activation)
 
@@ -22,7 +26,7 @@
 
 ## Human-only release gates
 
-Approved product-specific price/plan, publisher/Partner Center offer creation, company tax/payout identities, DPA/legal, supported SLA, positive beta release decision, live Azure identity/isolation tests and owner sign-off.
+Partner Center offer creation, a CPA tax determination, DPA/legal, a contractual support SLA (the founder response targets do not satisfy this gate), positive beta release decision, live Azure identity/isolation tests, and owner sign-off to publish. The private quote sheet does not satisfy these gates.
 
 **Existing shared architecture:** [ArchLucid Azure Marketplace offer](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) is an implementation reference only. Do not reuse its subscription ID as the proof of SecureNow access.
 

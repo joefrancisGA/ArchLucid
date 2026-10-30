@@ -45,7 +45,7 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
         value: "Observed",
         confidence: 0,
       }),
-    ).toContain("Confidence was not stored.");
+    ).toContain("Confidence 0 is outside the stored 1–100 scale.");
   });
 
   it("labels omitted inferred confidence and value", () => {

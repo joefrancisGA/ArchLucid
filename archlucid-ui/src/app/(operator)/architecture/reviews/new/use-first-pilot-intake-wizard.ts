@@ -26,6 +26,7 @@ import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast
 import { evidenceFilesIncludeBinaryArchitectureDocument } from "@/lib/evidence-readable-text";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
+import { resolveScopeGateOpenTransition } from "@/lib/architecture/scope-gate-open-setter";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
 import {
@@ -128,9 +129,9 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
       setScopeGateOpenState((current) => {
-        const resolved = typeof next === "function" ? next(current) : next;
+        const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (scopeGateOpenRef.current !== resolved) {
+        if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
           commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
             notify: false,
