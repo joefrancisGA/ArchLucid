@@ -636,6 +636,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_compliance_notes
 
+      - name: SecureNow sponsor visibility
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_sponsor_visibility.py
+
+      - name: SecureNow sponsor visibility unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_sponsor_visibility
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py
