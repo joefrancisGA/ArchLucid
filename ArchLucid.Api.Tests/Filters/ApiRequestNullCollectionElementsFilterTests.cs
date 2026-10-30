@@ -4,6 +4,7 @@ using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Filters;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Host.Core.ProblemDetails;
 
@@ -94,6 +95,36 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
     }
 
     [Fact]
+    public async Task OnActionExecutionAsync_rejects_batch_from_body_with_null_array_element()
+    {
+        ApiRequestNullCollectionElementsFilter sut = new();
+        IReadOnlyList<ArchitectureRequest> body = new List<ArchitectureRequest> { null! };
+
+        MethodInfo method = typeof(RunsController).GetMethod(
+            nameof(RunsController.CreateRunBatch),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunsController.CreateRunBatch));
+
+        ActionExecutingContext executing = BuildBodyExecutingContext(method, body, "/v1/runs/request/batch");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(new ActionExecutedContext(executing, [], new object()));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult result = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
+            .Which.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
     public async Task OnActionExecutionAsync_allows_valid_from_body()
     {
         ApiRequestNullCollectionElementsFilter sut = new();
@@ -129,6 +160,7 @@ public sealed class ApiRequestNullCollectionElementsFilterTests
         {
             Name = bodyParameter.Name!,
             ParameterType = bodyParameter.ParameterType,
+            ParameterInfo = bodyParameter,
             BindingInfo = new BindingInfo { BindingSource = BindingSource.Body },
         };
 
