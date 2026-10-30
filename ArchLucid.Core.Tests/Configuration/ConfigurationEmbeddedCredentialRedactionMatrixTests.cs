@@ -10347,6 +10347,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_quotes_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=\"dXNlcjpwYXNz\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_has_byte_order_mark_prefix()
+    {
+        const string effectiveValue = "Authorization: Basic \uFEFFdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie2_session_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie2: session=1234567";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_contains_response_fragment()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest realm=\"app\", response=\"deadbeef0123\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_basic_paste_with_zero_width_space()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic dXNl\u200BcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
