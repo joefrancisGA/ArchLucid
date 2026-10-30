@@ -2840,3 +2840,4 @@
 {"at":"2026-10-30T16:44:00.8412593Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:44:36.7671407Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T16:45:32.6606030Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T16:48:45.1003609Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared"}

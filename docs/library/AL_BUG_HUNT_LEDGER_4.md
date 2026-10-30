@@ -19261,6 +19261,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-30 thorough hunt #920 (hit, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#917–#919 dry), picker rotated with **`-AvoidZoneId`** to `context-ingestion`. Proved `ContainsSensitiveKeyAssignment` treated `password =` inside multiline `/* … */` comments as live assignment keys and redacted entire `tf.*` block bodies; fixed with spanning block-comment state plus inline `/* … */` stripping before key scan; regressions `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment` and `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_inline_block_comment_suffix`. Cheap-disproof closed three sibling `(candidate)` rows — unclosed heredoc EOF masking (#908), duplicate trimmed diagram node IDs (#908), and decoy `resource` text inside non-heredoc multiline strings still emits properties only (`ParseBodyIntoProperties` does not promote string literals to resources). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). Private beta: invited operators whose Terraform nested blocks document password-like placeholders in multiline block comments keep non-secret fields on the RC35 ingestion path instead of whole-block `[REDACTED]`.
+
+- [x] (proven) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` redacts whole block — **hit 2026-10-30 thorough hunt #920:** spanning block-comment skip; regression `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment`.
+- [x] (valid-no-repro) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on assignment line — **cheap-disproof 2026-10-30 thorough hunt #920:** key scan uses assignment name before inline comment; regression above.
+- [x] (valid-no-repro) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — unclosed heredoc at EOF — **cheap-disproof 2026-10-30 thorough hunt #920:** see hunt #908 diary.
+- [x] (invalid) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed diagram node IDs — **cheap-disproof 2026-10-30 thorough hunt #920:** see hunt #908 diary.
+- [x] (invalid) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header in non-heredoc multiline string — **cheap-disproof 2026-10-30 thorough hunt #920:** property scan only; header extraction uses masked `ExtractBlocks`.
+
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — reachable Terraform with an unclosed heredoc may leave post-opener lines masked through EOF — locus: heredoc terminator state at EOF; input: truncated upload with valid resource after opener (monitor).
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` may still redact when comment spans lines — locus: spanning block-comment state; input: opening `/*` on one line and `password =` on the next (monitor).
+- [ ] (candidate) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed diagram node IDs — locus: `objectIdByDiagramNodeId`; input: malformed duplicate ids if a future intake path emits them (monitor).
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header text inside a non-heredoc multiline string may leak into nested property scans — locus: line-based body scan; input: multiline string literal containing example resource header (monitor).
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on an assignment line may redact the whole block — locus: inline block-comment strip before key scan; input: `enabled = true /* password = secret */` (monitor).
+
 2026-10-30 thorough hunt #916 (hit, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#913–#915 dry), picker rotated with **`-AvoidZoneId`** to `context-ingestion`. Proved `ContainsSensitiveKeyAssignment` treated whole-line `/* password = … */` block comments as assignment keys and redacted entire `tf.*` block bodies; fixed by skipping trimmed whole-line block comments before key scan; regression `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_block_comment`. Cheap-disproof closed four sibling `(candidate)` rows — unclosed heredoc EOF masking (#908), duplicate diagram node IDs, heredoc-body decoy headers (`ParseAsync_HeredocBodyContainingResourceHeaderText_YieldsSingleResource`), and single-quoted `<<` strings already covered by #912 quote-aware opener scan (`ParseAsync_SingleQuotedStringContainingHeredocMarker_DoesNotMaskFollowingResourceHeader`). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **839/841** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). Private beta: invited operators uploading Terraform blocks with password-like text only in `/* */` comments keep non-secret block fields on the RC35 ingestion path.
 
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — sensitive assignment key only inside block comment redacts whole block — **hit 2026-10-30 thorough hunt #916:** skip whole-line `/* … */` before key scan; regression above.
@@ -21360,11 +21374,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1062
-- **bugs-found:** 431
+- **hunts:** 1063
+- **bugs-found:** 432
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — HCL `#` comment lines false-positive whole-block redaction; heredoc decoy resource headers
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — multiline block-comment false-positive whole-block redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

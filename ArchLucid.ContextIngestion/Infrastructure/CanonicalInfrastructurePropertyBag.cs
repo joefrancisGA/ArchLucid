@@ -376,8 +376,27 @@ public static class CanonicalInfrastructurePropertyBag
 
     private static bool ContainsSensitiveKeyAssignment(string blockBody)
     {
+        bool inBlockComment = false;
+
         foreach (string line in blockBody.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
         {
+            if (inBlockComment)
+            {
+                int closeIndex = line.IndexOf("*/", StringComparison.Ordinal);
+
+                if (closeIndex < 0)
+                    continue;
+
+                inBlockComment = false;
+
+                string afterClose = line[(closeIndex + 2)..];
+
+                if (ContainsSensitiveKeyOnAssignmentLine(afterClose))
+                    return true;
+
+                continue;
+            }
+
             string trimmedLine = line.Trim();
 
             if (trimmedLine.StartsWith("#", StringComparison.Ordinal)
@@ -392,18 +411,52 @@ public static class CanonicalInfrastructurePropertyBag
                 continue;
             }
 
-            int equalsIndex = line.IndexOf('=');
+            int blockOpenIndex = line.IndexOf("/*", StringComparison.Ordinal);
 
-            if (equalsIndex <= 0)
+            if (blockOpenIndex >= 0)
+            {
+                int blockCloseIndex = line.IndexOf("*/", blockOpenIndex + 2, StringComparison.Ordinal);
+
+                if (blockCloseIndex < 0)
+                {
+                    string beforeOpen = line[..blockOpenIndex];
+
+                    if (ContainsSensitiveKeyOnAssignmentLine(beforeOpen))
+                        return true;
+
+                    inBlockComment = true;
+                    continue;
+                }
+
+                string beforeComment = line[..blockOpenIndex];
+                string afterComment = line[(blockCloseIndex + 2)..];
+
+                if (ContainsSensitiveKeyOnAssignmentLine(beforeComment)
+                    || ContainsSensitiveKeyOnAssignmentLine(afterComment))
+                {
+                    return true;
+                }
+
                 continue;
+            }
 
-            string rawKey = line[..equalsIndex].Trim().Trim('"', '\'');
-
-            if (ShouldRedactKey(rawKey))
+            if (ContainsSensitiveKeyOnAssignmentLine(line))
                 return true;
         }
 
         return false;
+    }
+
+    private static bool ContainsSensitiveKeyOnAssignmentLine(string line)
+    {
+        int equalsIndex = line.IndexOf('=');
+
+        if (equalsIndex <= 0)
+            return false;
+
+        string rawKey = line[..equalsIndex].Trim().Trim('"', '\'');
+
+        return ShouldRedactKey(rawKey);
     }
 
     public static bool TryAddTfJsonProperty(
