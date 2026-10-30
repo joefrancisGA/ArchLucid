@@ -7891,6 +7891,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #69 (hit): proved `useMarketingEarlyAccessSubmit` rendered upstream non-2xx response bodies directly in the public early-access form, so a backend exception could leak internal details to anonymous visitors; replaced the body with generic retry copy and added `does not expose upstream failure details in the early-access error`. Focused early-access hook suite passed 4/4. Private beta: invited buyers requesting evaluation access now see safe recovery copy instead of raw backend exception details when the access service fails.
+
 2026-10-30 seed hunt #68 (hit): proved the FAQ category TOC intercepted anchor clicks for smooth scrolling without writing the hash, so the visible navigation moved but the URL could not be copied, refreshed, or used as a deep link; update history before scrolling and added `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC test passed 1/1. Private beta: invited buyers browsing FAQ categories can now share or refresh the selected section without losing their place.
 
 2026-10-30 seed hunt #67 (hit): proved `MarketingPricingQuotePanel` rendered upstream non-2xx response bodies directly in the anonymous customer-facing error, so a backend exception could expose internal failure details; replaced that body with generic retry copy and added `does not expose upstream failure details in the customer-facing error`. Focused quote-panel test passed 1/1. Private beta: invited buyers requesting pricing now see safe recovery copy instead of raw backend exception details when the quote service fails.
@@ -8121,8 +8123,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 42
-- **bugs-found:** 40
+- **hunts:** 43
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — Signup verification status request generation
@@ -8139,6 +8141,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.
 - [x] (proven) `MarketingFaqPageToc` category links — smooth-scroll interception drops the destination hash — **hit 2026-10-30 seed hunt #68:** write the category fragment with `history.pushState` before scrolling; regression `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`.
 - [x] (proven) `MarketingPricingQuotePanel.onSubmit` — non-2xx quote responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #67:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the customer-facing error` in `MarketingPricingQuotePanel.test.tsx`.
 - [x] (proven) `SignupVerifyClient.refreshTrialStatus` — an older background poll could overwrite a newer manual verification check — **hit 2026-10-30 seed hunt #66:** gate status commits by a monotonically increasing request generation; regression `does not let an older background poll override a newer manual check` in `SignupVerifyClient.test.tsx`.
