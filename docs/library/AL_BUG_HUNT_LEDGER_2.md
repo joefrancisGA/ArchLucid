@@ -1000,6 +1000,9 @@
 2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
+
+2026-10-30 seed hunt #273 (seed-only): re-read `TenantErasureCommandService` and `TenantErasureQuarantineMiddleware`; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 82 scoped `TenantErasure` tests passed (49 Application + 33 Api).
+
 - [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `TenantErasureOffboarded` audit after quarantine restore between pre-audit read and append — **hit 2026-10-21 seed hunt lane C:** immediate pre-append re-read; regression above.
 
 
@@ -1010,6 +1013,12 @@
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects appends audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-reads tenant before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — authenticated caller with `ScopeContext.TenantId == Guid.Empty` bypasses quarantine before `ITenantGetByIdRequestCache` lookup — locus: ~99-104; input: tenant-authenticated request where scope resolver yields empty tenant id on a non-`Skip` path; reachability: platform mis-scope or pre-provisioned tenant routes during active erasure quarantine on a real tenant.
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — concurrent first-time approve may double-append `TenantErasureApproved` platform audits because approve lacks deterministic audit event id — locus: ~377-438 vs offboard `CreateOffboardAuditEventId`; input: parallel admin approve calls before repository CAS exposes `TenantErasureApprovedUtc`.
+- [ ] (candidate) `TenantErasureCommandService.QuarantineDaysBetween` — offboard audit `quarantineDays` rounds fractional `(ErasureEligibleUtc - OffboardedUtc)` while eligibility uses calendar `now.AddDays(QuarantineDays)` — locus: ~54-55 vs ~592-599; input: offboard timestamp near DST or eligible skew producing audit day count unlike configured quarantine days.
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — `/v1/register` skip requires raw path prefix match while erasure lifecycle allowlist uses normalized path only — locus: ~76-77 vs ~59-60; input: offboarded tenant POST to dot-segment or duplicate-slash register URL that normalizes to `/v1/register`.
+- [ ] (candidate) `TenantErasureCommandService.TryClearLegalHoldAsync` — pre-audit re-read treats newly observed `OffboardedUtc` as concurrent offboard race and skips `TenantErasureLegalHoldCleared` audit — locus: ~495-508; input: hold clear interleaved with offboard completion between atomic clear and audit snapshot reads.
 
 - [x] (proven) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` / `Skip` — dot-segment tenant erasure lifecycle paths (`/v1/tenant/erasure/./approve`) did not match `/v1/tenant/erasure` allowlist and returned `403` during quarantine — **hit 2026-10-06 seed hunt:** collapse `.` and `..` segments after duplicate-slash normalization; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`.
 
@@ -1088,10 +1097,10 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 272
+- **hunts:** 273
 - **bugs-found:** 493
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
