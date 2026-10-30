@@ -182,6 +182,6 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
             .Single(line => line.Contains("ROI claim gate", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| ROI claim gate | Hold\\|review baseline |");
+        row.Should().Be("| ROI claim gate | `Hold\\|review baseline` |");
     }
 }

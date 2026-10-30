@@ -75,4 +75,64 @@ public sealed class BuyerProofPackSponsorStatusRoiBasisMarkdownTests
 
         row.Should().Contain("`Low\\|estimate`");
     }
+
+    [Fact]
+    public void Sponsor_status_evidence_source_row_when_redaction_profile_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.Sendable,
+            new ProofPackageCompletenessResponse
+            {
+                BuyerSafeRedactionProfile = "tenant`segmented",
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                AuditRowCountResolved = true,
+                LlmCallCountResolved = true,
+            },
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Pass,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                true,
+                "Pass",
+                "Pass narrative"));
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence source |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``tenant`segmented``");
+    }
+
+    [Fact]
+    public void Sponsor_status_roi_claim_gate_row_when_lead_line_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse(),
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold`review baseline",
+                "Hold narrative"));
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI claim gate |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("``Hold`review baseline``");
+    }
 }

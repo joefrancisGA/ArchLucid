@@ -39,7 +39,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
         sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
-        sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(roiClaimGate.DispositionLeadLine)} |");
+        sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
         sb.AppendLine($"| Audit row basis | {FormatSponsorAuditRowBasis(deltas, proof)} |");
@@ -57,7 +57,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             return "**Demo-derived** — illustrative sample output; do not present as buyer outcome.";
 
         return proof.BuyerSafeRedactionProfile.Length > 0
-            ? $"**{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.BuyerSafeRedactionProfile)}** — tenant-scoped persisted proof fields."
+            ? $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.BuyerSafeRedactionProfile)} — tenant-scoped persisted proof fields."
             : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
     }
 
