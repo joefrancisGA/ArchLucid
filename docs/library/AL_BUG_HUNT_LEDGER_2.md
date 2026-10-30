@@ -3611,6 +3611,20 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (dry #94): cheap-disproof closed five open `(candidate)` rows from hunt #93 — valid-no-repro rotation audit sets `ExplicitActor=true` so ApiKey-named principals persist (~122, hit #9 regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent`); valid-no-repro generated rotation material meets minimum length (`AdminApiKeySettingsServiceTests` `PlaintextKey.Length` assert); valid-no-repro POST rotate honors `InvalidatePrevious=false` append path (~53, append service tests); valid-no-repro test-actor header overrides gated on `AllowTestActorHeaders` (`BuildSuccessTicket` ~128–131, `When_test_actor_headers_disallowed_ignores_override_name`); valid-no-repro Production bypass blocked in handler and documented in type remarks (~16–20, ~64–67, `When_enabled_false_and_bypass_true_in_production_returns_failure`); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 14); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — `ExplicitActor=true` for ApiKey principals — **cheap-disproof 2026-10-30 thorough hunt #94:** intentional audit fix #9; controller comment ~121–122; audit actor regressions.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — generated key length budget — **cheap-disproof 2026-10-30 thorough hunt #94:** `ApiKeyMaterialGenerator` output; service tests assert ≥32 chars.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateAsync` — append via `InvalidatePrevious=false` — **cheap-disproof 2026-10-30 thorough hunt #94:** delegates to service; append deployment tests.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildSuccessTicket` — test-actor override flag gate — **cheap-disproof 2026-10-30 thorough hunt #94:** `AllowTestActorHeaders` check ~130; disallowed override regression.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` / options remarks — Production bypass documentation and runtime block — **cheap-disproof 2026-10-30 thorough hunt #94:** handler remarks ~16–20; Production fail path ~64–67.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — compares SHA-256 digests with `FixedTimeEquals` — locus: ~225–233; input: matching admin key material (reachability: security monitor).
+- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — treats whitespace-only slots as unconfigured via masker — locus: ~87–88; input: rotate append on whitespace slot (reachability: #1896 regressions).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production environment rejects `DevelopmentBypassAll` even when `Enabled=false` — locus: ~64–67; input: misconfigured Production host (reachability: startup + handler defense).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route cannot append because `InvalidatePrevious` is fixed true — locus: ~85; input: legacy rotate only replace (reachability: deprecated API monitor).
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — shared normalization for configured segments and inbound header — locus: handler ~210 and ~151; input: paste/obfuscation attempts (reachability: prior normalization hits).
+
 2026-10-30 thorough hunt (dry #93): cheap-disproof closed five open `(candidate)` rows from hunt #92 — valid-no-repro `GetSnapshot` reads `_optionsMonitor.CurrentValue` for reload parity (~17, same monitor pattern as auth #92); valid-no-repro replace rotate sets `PlaintextKey` and `ReplaceConfigValue` to the same material (`AdminApiKeySettingsServiceTests` invalidate paths); valid-no-repro rotation audits bind tenant/workspace/project from `IScopeContextProvider.GetCurrentScope` (`CreateRotationAuditEvent` ~115–128, #85); valid-no-repro expiry uses inclusive `TimeProvider` UTC compare (~239–240, `When_admin_key_expiry_is_exactly_now_returns_failure` / read-only twin); valid-no-repro empty GUID scope ids suppressed in claims (~255–262, `When_empty_guid_scope_ids_do_not_emit_scope_claims`); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 13); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `AdminApiKeySettingsService.GetSnapshot` — options monitor reload on GET — **cheap-disproof 2026-10-30 thorough hunt #93:** `_optionsMonitor.CurrentValue` ~17; intentional Key Vault reload parity with auth handler.
@@ -3619,11 +3633,11 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.IsKeyExpired` — inclusive UTC expiry boundary — **cheap-disproof 2026-10-30 thorough hunt #93:** `>=` compare ~239–240; exactly-now regressions.
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildApiKeyClaims` — empty GUID scope suppression — **cheap-disproof 2026-10-30 thorough hunt #93:** guards ~255–262; regression `When_empty_guid_scope_ids_do_not_emit_scope_claims`.
 
-- [ ] (candidate) `AdminApiKeySettingsController.CreateRotationAuditEvent` — marks `ExplicitActor=true` so API key principals persist actor name in audit — locus: ~122; input: rotate under ApiKey admin auth (reachability: #9 explicit-actor hit class monitor).
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — generated `PlaintextKey` meets minimum hex length budget — locus: ~34; input: any successful rotate (reachability: `AdminApiKeySettingsServiceTests` length assert).
-- [ ] (candidate) `AdminApiKeySettingsController.RotateAsync` — POST body `InvalidatePrevious=false` can return append deployment action — locus: ~53; input: configured slot append rotate (reachability: append service tests).
-- [ ] (candidate) `ApiKeyAuthenticationHandler.BuildSuccessTicket` — applies test-actor overrides only when `AllowTestActorHeaders` enabled — locus: ~128–131; input: valid admin key without override flag (reachability: `When_test_actor_headers_disallowed_ignores_override_name`).
-- [ ] (candidate) `ApiKeyAuthenticationOptions` — XML remarks document Production block for `DevelopmentBypassAll` — locus: handler type remarks ~16–20; input: production startup validation monitor (reachability: host configuration rules).
+- [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — `ExplicitActor=true` for ApiKey principals — **cheap-disproof 2026-10-30 thorough hunt #94:** see hunt #94 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — generated key length budget — **cheap-disproof 2026-10-30 thorough hunt #94:** see hunt #94 diary row.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateAsync` — append via `InvalidatePrevious=false` — **cheap-disproof 2026-10-30 thorough hunt #94:** see hunt #94 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.BuildSuccessTicket` — test-actor override flag gate — **cheap-disproof 2026-10-30 thorough hunt #94:** see hunt #94 diary row.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` / options remarks — Production bypass documentation and runtime block — **cheap-disproof 2026-10-30 thorough hunt #94:** see hunt #94 diary row.
 
 2026-10-30 thorough hunt (dry #92): cheap-disproof closed five open `(candidate)` rows from hunt #91 — valid-no-repro `IOptionsMonitor.CurrentValue` reload per request (~49, regression `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`); valid-no-repro rotate response issues one-time `PlaintextKey` while GET stays masked (`AdminApiKeySettingsService.Rotate` ~41–48, service/endpoint tests); valid-no-repro settings rotate audit uses `AdminApiKeyRotationMaterialIssued` (~62); valid-no-repro legacy route audit uses `ApiKeyRotated` with canonical slot (~92–94, `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`); valid-no-repro `Enabled=false` without bypass returns disabled messaging not invalid-key (~56–62, `When_enabled_false_and_bypass_false_valid_api_key_header_still_fails`); reseeded five follow-on `(candidate)` rows; zone **cooling** (`consecutive-dry-hunts` 12); scoped filter 73/75 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: n/a.
 
@@ -3791,9 +3805,9 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 93
+- **hunts:** 94
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 13
+- **consecutive-dry-hunts:** 14
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-20 — hex API key material rejected when config/header casing differed
 - **related-pd-tb:** none
