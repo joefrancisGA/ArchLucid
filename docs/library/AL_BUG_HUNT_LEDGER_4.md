@@ -19261,6 +19261,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-30 thorough hunt #924 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#921–#923 dry), picker rotated with **`-AvoidZoneId`** to `context-ingestion`. Cheap-disproof closed five open `(candidate)` rows reseeded after hunt #920 — multiline `/* */` password lines no longer false-positive redact after #920 spanning block-comment fix (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment`), inline `/* password = … */` suffix remains non-redacting (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_inline_block_comment_suffix`), unclosed heredoc EOF masking conservative on malformed uploads (#908), duplicate trimmed diagram node IDs lack supported intake path (#908), and decoy `resource` text in non-heredoc multiline strings still emits properties only (`ParseBodyIntoProperties` does not promote string literals to resources). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). Private beta: n/a.
+
+- [x] (invalid) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` may still redact when comment spans lines — **cheap-disproof 2026-10-30 thorough hunt #924:** #920 spanning block-comment fix; regression above.
+- [x] (valid-no-repro) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on an assignment line — **cheap-disproof 2026-10-30 thorough hunt #924:** regression above.
+- [x] (valid-no-repro) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — unclosed heredoc at EOF — **cheap-disproof 2026-10-30 thorough hunt #924:** see hunt #908 diary.
+- [x] (invalid) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed diagram node IDs — **cheap-disproof 2026-10-30 thorough hunt #924:** see hunt #908 diary.
+- [x] (invalid) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header in non-heredoc multiline string — **cheap-disproof 2026-10-30 thorough hunt #924:** see hunt #920 diary.
+
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — reachable Terraform with an unclosed heredoc may leave post-opener lines masked through EOF — locus: heredoc terminator state at EOF; input: truncated upload with valid resource after opener (monitor).
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` may still redact when comment spans lines — locus: spanning block-comment state; input: opening `/*` on one line and `password =` on the next (monitor).
+- [ ] (candidate) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed diagram node IDs — locus: `objectIdByDiagramNodeId`; input: malformed duplicate ids if a future intake path emits them (monitor).
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header text inside a non-heredoc multiline string may leak into nested property scans — locus: line-based body scan; input: multiline string literal containing example resource header (monitor).
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on an assignment line may redact the whole block — locus: inline block-comment strip before key scan; input: `enabled = true /* password = secret */` (monitor).
+
 2026-10-30 thorough hunt #920 (hit, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#917–#919 dry), picker rotated with **`-AvoidZoneId`** to `context-ingestion`. Proved `ContainsSensitiveKeyAssignment` treated `password =` inside multiline `/* … */` comments as live assignment keys and redacted entire `tf.*` block bodies; fixed with spanning block-comment state plus inline `/* … */` stripping before key scan; regressions `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment` and `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_inline_block_comment_suffix`. Cheap-disproof closed three sibling `(candidate)` rows — unclosed heredoc EOF masking (#908), duplicate trimmed diagram node IDs (#908), and decoy `resource` text inside non-heredoc multiline strings still emits properties only (`ParseBodyIntoProperties` does not promote string literals to resources). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). Private beta: invited operators whose Terraform nested blocks document password-like placeholders in multiline block comments keep non-secret fields on the RC35 ingestion path instead of whole-block `[REDACTED]`.
 
 - [x] (proven) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` redacts whole block — **hit 2026-10-30 thorough hunt #920:** spanning block-comment skip; regression `TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment`.
@@ -21374,9 +21388,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1063
+- **hunts:** 1064
 - **bugs-found:** 432
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — multiline block-comment false-positive whole-block redaction
 - **related-pd-tb:** none
