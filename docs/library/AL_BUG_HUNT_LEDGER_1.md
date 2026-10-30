@@ -17015,6 +17015,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read. [class:boolean-coercion]
+- [ ] (candidate) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged. [class:boolean-coercion]
+- [ ] (candidate) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — a missing in-scope row inserts `manifest` when `manifest.TenantId` is not `scope.TenantId`; the SQL update throws instead. [class:authz-scope]
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` still remaps a network-isolation baseline to workload isolation. [class:boolean-coercion]
+- [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence. [class:boolean-coercion]
+
 2026-10-30 seed hunt (seed→hit): promoted `DrRpoQualityAttributeParser.ConvertHoursToMinutes`, which rounds `rpoHours` `0.0083` (the hours `RequestQualityAttributeMaterializer` stores for `RPO 0.5 minutes`) to 0 minutes, so the recovery finding states `RPO 0 min`; a positive fraction under half a minute now stays at 1 minute while exact hour products such as 0.25 hours stay 15 minutes; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1402/1416** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator records a recovery objective of half a minute, the review states that RPO as 1 minute instead of 0 minutes.
 
 - [x] (proven) `DrRpoQualityAttributeParser.ConvertHoursToMinutes` — `rpoHours` `0.0083` from `RPO 0.5 minutes` became 0 minutes — **hit 2026-10-30 seed hunt:** a positive fraction under half a minute stays at 1 minute; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`. [class:off-by-one]
@@ -17101,7 +17109,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30

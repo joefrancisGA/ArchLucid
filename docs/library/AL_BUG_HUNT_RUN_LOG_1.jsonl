@@ -2843,3 +2843,4 @@
 {"at":"2026-10-30T09:47:14.6217894Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","defectClass":"fail-open-validation"}
 {"at":"2026-10-30T09:59:44.4585598Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/SegmentationRuleParser.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-30T10:09:49.3823090Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DrRpoQualityAttributeParser.cs"],"severity":"medium","defectClass":"off-by-one"}
+{"at":"2026-10-30T10:14:32.7447742Z","zoneId":"decisioning","outcome":"seed-only","productLine":"archlucid-shared"}
