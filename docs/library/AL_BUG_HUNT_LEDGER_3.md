@@ -2197,7 +2197,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
-**Hunts:** 9 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+**Hunts:** 10 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #101 (seed-only): repeated the host-gate source review and focused regression suite after the prior reseed; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
 2026-10-30 seed hunt #99 (seed-only): repeated the host-gate source review and focused regression suite after the prior dry/seed cycle; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
