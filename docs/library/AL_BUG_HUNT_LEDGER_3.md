@@ -7891,6 +7891,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #72 (seed-only): re-read public header/menu, privacy TOC, FAQ chrome, and trust-navigation paths; no hunt-ready row was proven. Seeded one bounded keyboard-navigation candidate.
+
+- [ ] (candidate) `MarketingResourcesMenu` — Escape or outside-focus closure removes the open menu while leaving focus on a removed menu item; locus: `setOpen(false)` close handlers without restoring focus to the Resources trigger; input: a keyboard user opens Resources, focuses a menu item, and presses Escape or tabs outside.
+
 2026-10-30 thorough hunt #71 (dry): cheap-disproof closed the two seeded candidates — trial-nudge pricing intentionally focuses a collapsed quote section with an explicit “Request quote” trigger, and FAQ panels are independent disclosures rather than a single-open accordion. `MarketingTierPricingSection.test.tsx` and `MarketingFaqPageToc.test.tsx` passed 9/9; no production code changed.
 
 - [x] (valid-no-repro) `TrialNudgePricingQuoteFocus` + `MarketingPricingQuotePanel` — **cheap-disproof 2026-10-30 thorough hunt #71:** the route focuses the quote section while its explicit trigger remains available; no contract requires automatic opening or immediate form exposure.
@@ -8130,7 +8134,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 41
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
