@@ -1,12 +1,17 @@
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
+  isUnrecognizedFindingClassification,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
+
+export const FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL =
+  "Finding classification was not recognized." as const;
 
 export type FindingClassificationValue =
   | typeof FINDING_CLASSIFICATION_DECISION_GRADE
   | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
+  | string
   | null
   | undefined;
 
@@ -43,6 +48,10 @@ export function resolveFindingClassificationLabel(
     }
 
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
+  }
+
+  if (isUnrecognizedFindingClassification(classification)) {
+    return FINDING_CLASSIFICATION_UNRECOGNIZED_LABEL;
   }
 
   return null;

@@ -32,7 +32,13 @@ public sealed class DecisionConfidenceSourceMapperTests
     }
 
     [Fact]
-    public void ToBuyerLabel_parses_string_encoded_whole_number_ordinal()
+    public void ToBuyerLabel_unrecognized_string_returns_unrecognized_label()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel("NotARealSource").Should().Be(BuyerDecisionConfidenceSource.Unrecognized);
+    }
+
+    [Fact]
+    public void ToBuyerLabel_unknown_enum_maps_to_unknown_not_unrecognized()
     {
         DecisionConfidenceSourceMapper.ToBuyerLabel("5.0").Should().Be(BuyerDecisionConfidenceSource.ModelAssisted);
     }

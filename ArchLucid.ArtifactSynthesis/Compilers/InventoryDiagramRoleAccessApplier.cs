@@ -90,6 +90,12 @@ internal static class InventoryDiagramRoleAccessApplier
             {
                 return "Role names were not listed on this line.";
             }
+
+            if (roleNames.Count > 1)
+            {
+                return
+                    $"{InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0])} ({roleNames.Count} assignments on this line.)";
+            }
         }
 
         return InventoryDiagramRelationshipLabelTexts.FormatRoleAssignmentAccessLabel(roleNames[0]);

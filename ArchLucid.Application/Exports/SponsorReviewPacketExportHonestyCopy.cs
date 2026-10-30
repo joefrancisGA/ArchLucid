@@ -2,6 +2,8 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Findings;
 
+using System.Linq;
+
 namespace ArchLucid.Application.Exports;
 
 internal static class SponsorReviewPacketExportHonestyCopy
@@ -16,6 +18,12 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string EvidenceLinkNotStored = "Evidence link was not stored.";
     internal const string SupportingEvidenceNotListedInPacket =
         "Supporting evidence ids and rationale were not listed in this packet.";
+
+    internal const string SupportingFindingIdsNotStored = "Supporting finding ids were not stored.";
+
+    internal const string SupportingFindingIdsStoredEmpty = "Supporting finding ids were stored empty.";
+
+    internal const string DecisionRationaleNotStored = "Decision rationale was not stored.";
     internal const string TopDecisionsNotStored = "No decisions were stored for this review.";
     internal const string PricingBasisNoteNotStored = "Pricing basis note was not stored.";
     internal const string CostEvidenceFreshnessNotStored = "Cost evidence freshness was not stored.";
@@ -49,6 +57,31 @@ internal static class SponsorReviewPacketExportHonestyCopy
             return SelectedOptionStoredEmpty;
 
         return string.IsNullOrWhiteSpace(raw) ? SelectedOptionNotStored : raw.Trim();
+    }
+
+    internal static string FormatSupportingFindingIdsSummary(IReadOnlyList<string>? supportingFindingIds)
+    {
+        if (supportingFindingIds is null)
+        {
+            return SupportingFindingIdsNotStored;
+        }
+
+        if (supportingFindingIds.Count == 0)
+        {
+            return SupportingFindingIdsStoredEmpty;
+        }
+
+        return string.Join(", ", supportingFindingIds.Select(id => id.Trim()).Where(id => id.Length > 0));
+    }
+
+    internal static string FormatDecisionRationale(string? raw)
+    {
+        if (raw is null)
+        {
+            return DecisionRationaleNotStored;
+        }
+
+        return string.IsNullOrWhiteSpace(raw) ? DecisionRationaleNotStored : raw.Trim();
     }
 
     internal static string FormatTopFindingTitle(ArchitectureFinding finding)

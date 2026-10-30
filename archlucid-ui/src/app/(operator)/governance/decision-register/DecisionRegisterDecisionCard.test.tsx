@@ -24,7 +24,22 @@ describe("DecisionRegisterDecisionCard (P-10)", () => {
 
     expect(screen.getByText("Confidence was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Decision rationale was not stored.")).toBeInTheDocument();
-    expect(screen.queryByText(/Unknown/)).not.toBeInTheDocument();
+    expect(screen.getByText("Locked with sealed review record")).toBeInTheDocument();
+    expect(screen.queryByText(/^Signed$/)).not.toBeInTheDocument();
+  });
+
+  it("maps buyer confidence source through explainability labels (P-15)", () => {
+    render(
+      <DecisionRegisterDecisionCard
+        decision={decision({
+          confidence: 0.82,
+          buyerConfidenceSource: "Evidence-backed",
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/82% \(recorded as a 0–1 fraction\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(Evidence-backed\)/)).toBeInTheDocument();
   });
 
   it("labels missing category and empty supporting findings", () => {

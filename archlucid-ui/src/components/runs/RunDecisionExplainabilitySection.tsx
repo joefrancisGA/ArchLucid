@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import {
   formatDecisionPipelineBuyerLabel,
+  formatBuyerConfidenceSourceLabel,
   formatRecordedDecisionConfidenceWithPipeline,
   resolveRecordedDecisionConfidenceNote,
 } from "@/lib/decision-explainability-buyer-copy";
@@ -204,7 +205,9 @@ export function RunDecisionExplainabilitySection(props: {
                           {confidenceNote}
                         </span>
                       ) : row.buyerConfidenceSource ? (
-                        <span className={cn("block text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>{row.buyerConfidenceSource}</span>
+                        <span className={cn("block text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>
+                          {formatBuyerConfidenceSourceLabel(row.buyerConfidenceSource)}
+                        </span>
                       ) : null}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell className={cn("align-top", buyerPolishedShell ? OPERATOR_TYPOGRAPHY.helper : "font-mono", OPERATOR_TYPOGRAPHY.micro)}>

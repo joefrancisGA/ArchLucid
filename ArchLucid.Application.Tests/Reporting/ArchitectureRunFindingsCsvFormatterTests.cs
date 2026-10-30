@@ -79,6 +79,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-eval",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg",
@@ -104,6 +105,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-no-track",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Info,
             Category = "cat",
             Message = "msg",
@@ -131,6 +133,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-1",
+            Classification = FindingClassification.DecisionGradeFinding,
             SourceAgent = AgentType.Compliance,
             Severity = FindingSeverity.Warning,
             Category = "cat",
@@ -153,7 +156,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Warning.,cat,");
-        csv.Should().Contain(",muted,noise,Stored confidence score: 0.5,Trust label was not stored.,Trust label reason was not stored.,");
+        csv.Should().Contain(",muted,noise,Stored confidence score: 0.5,Decision-grade finding,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);
@@ -168,6 +171,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-itsm",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Critical,
             Category = "security",
             Message = "Rotate keys"
@@ -207,7 +211,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
             + ","
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
             + ","
-            + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"
+            + "Confidence score was not stored.,Decision-grade finding,Trust label was not stored.,Trust label reason was not stored.,"
             + "Jira,SEC-42,https://example.atlassian.net/browse/SEC-42,Pending,Deferred,"
             + revisit.ToString("O")
             + ",Jira:SEC-42; ServiceNow:INC001");
@@ -219,6 +223,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-no-row",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg"
@@ -250,6 +255,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-blank-provider",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg"
@@ -289,6 +295,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-trust",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "Rule hit",
@@ -324,6 +331,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
                 new ArchitectureFinding
                 {
                     FindingId = "",
+                    Classification = FindingClassification.DecisionGradeFinding,
                     Severity = FindingSeverity.Warning,
                     Category = "security",
                     Message = "Rotate keys",
@@ -343,10 +351,10 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding decisionGrade = new()
         {
             FindingId = "f-decision",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "security",
             Message = "Rotate keys",
-            Classification = FindingClassification.DecisionGradeFinding,
         };
 
         ArchitectureFinding checklist = new()
@@ -376,6 +384,42 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureRunFindingsCsvFormatter.CountOmittedChecklistCoverageFindingsInDetail(detail).Should().Be(1);
         ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["f-decision"]);
         csv.Should().Contain($"{ArchitectureRunFindingsCsvFormatter.ChecklistCoverageRowsOmittedLinePrefix} 1");
+    }
+
+    [Fact]
+    public void BuildCsvContent_omits_unclassified_classification_rows()
+    {
+        ArchitectureFinding decisionGrade = new()
+        {
+            FindingId = "f-decision",
+            Classification = FindingClassification.DecisionGradeFinding,
+            Severity = FindingSeverity.Warning,
+            Category = "security",
+            Message = "Rotate keys",
+        };
+
+        ArchitectureFinding unclassified = new()
+        {
+            FindingId = "f-null-class",
+            Severity = FindingSeverity.Info,
+            Category = "hygiene",
+            Message = "Missing gate",
+            Classification = null,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [decisionGrade, unclassified],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain("f-decision");
+        csv.Should().NotContain("f-null-class");
+        csv.Should().Contain($"{ArchitectureRunFindingsCsvFormatter.UnclassifiedClassificationRowsOmittedLinePrefix} 1");
     }
 
     [Fact]
@@ -427,6 +471,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-honest",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
         };
         finding.Category = null!;
@@ -461,6 +506,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-savings",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cost",
             Message = "msg",
@@ -487,6 +533,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-muted",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg",
@@ -512,6 +559,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-ids",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg",
@@ -537,6 +585,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureFinding finding = new()
         {
             FindingId = "f-ids",
+            Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
             Category = "cat",
             Message = "msg",
@@ -568,15 +617,30 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
                 {
                     Findings =
                     [
-                        new ArchitectureFinding { FindingId = "a" },
-                        new ArchitectureFinding { FindingId = "b" }
-                    ]
+                        new ArchitectureFinding
+                        {
+                            FindingId = "a",
+                            Classification = FindingClassification.DecisionGradeFinding,
+                        },
+                        new ArchitectureFinding
+                        {
+                            FindingId = "b",
+                            Classification = FindingClassification.DecisionGradeFinding,
+                        },
+                    ],
                 },
                 new AgentResult
                 {
-                    Findings = [new ArchitectureFinding { FindingId = "a" }]
-                }
-            ]
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            FindingId = "a",
+                            Classification = FindingClassification.DecisionGradeFinding,
+                        },
+                    ],
+                },
+            ],
         };
 
         ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["a", "b"]);

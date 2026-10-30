@@ -67,8 +67,8 @@ export type QuickDecisionFinding = {
   humanReviewStatusStored?: boolean;
   /** False when the run-detail finding row omitted `severity` (default enum is not a stored fact). */
   severityStored?: boolean;
-  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
-  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage (or unrecognized wire value). */
+  classification?: string | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
   /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
@@ -314,10 +314,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         : null;
 
       const classificationRaw = fr.classification;
-      const classification =
-        classificationRaw === "DecisionGradeFinding" || classificationRaw === "ChecklistCoverage"
-          ? classificationRaw
-          : null;
+      let classification: string | null = null;
+
+      if (classificationRaw !== null && classificationRaw !== undefined) {
+        if (typeof classificationRaw === "string") {
+          const trimmed = classificationRaw.trim();
+          classification = trimmed.length > 0 ? trimmed : null;
+        } else {
+          classification = String(classificationRaw);
+        }
+      }
 
       const treatmentRaw = fr.treatment;
       const treatment =

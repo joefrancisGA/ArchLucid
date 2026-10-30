@@ -42,6 +42,16 @@ describe("architecture-recommendation-provenance-presentation (LP-07)", () => {
   });
 });
 
+describe("architecture-recommendation-provenance-presentation (P-20)", () => {
+  it("labels missing support status instead of omitting support from the line", () => {
+    expect(
+      formatArchitectureRecommendationProvenanceLine({
+        origin: "ModelInferred",
+      }),
+    ).toBe("Origin: Model proposed · Support: Support status was not stored.");
+  });
+});
+
 describe("architecture-recommendation-provenance-presentation (P-15)", () => {
   it("labels omitted provenance instead of hiding the chip line", () => {
     expect(formatArchitectureRecommendationProvenanceLine(undefined)).toBe(

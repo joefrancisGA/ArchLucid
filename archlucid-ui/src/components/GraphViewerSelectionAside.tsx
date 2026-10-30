@@ -69,7 +69,10 @@ export function GraphViewerSelectionAside({
         ) : null}
 
         {!selectedEdge && !selectedNode && interactiveSurfaceReady && !buyerTrailPanel ? (
-          <p>Select a node or inferred edge on the canvas to inspect reasoning and metadata.</p>
+          <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            No graph selection yet. Select a node or inferred edge on the canvas to inspect stored
+            reasoning and metadata — nothing here is inferred from the empty selection.
+          </p>
         ) : null}
 
         {!selectedEdge && !selectedNode && interactiveSurfaceReady && buyerTrailPanel ? (

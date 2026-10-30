@@ -218,6 +218,9 @@ public sealed class SponsorReviewPacketBuilder(
                 SelectedOption = entry.SelectedOption,
                 ConfidenceLabel = entry.BuyerConfidenceSource ?? entry.ConfidenceSource,
                 EvidenceHref = string.Empty,
+                SupportingFindingIdsSummary =
+                    SponsorReviewPacketExportHonestyCopy.FormatSupportingFindingIdsSummary(entry.SupportingFindingIds),
+                Rationale = entry.Rationale,
             });
         }
 

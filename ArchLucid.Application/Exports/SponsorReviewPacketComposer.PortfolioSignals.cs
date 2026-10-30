@@ -33,6 +33,14 @@ public static partial class SponsorReviewPacketComposer
                 : decision.ConfidenceLabel.Trim();
             sb.AppendLine($"  - Confidence: {confidence}");
 
+            string supportingFindingIds = string.IsNullOrWhiteSpace(decision.SupportingFindingIdsSummary)
+                ? SponsorReviewPacketExportHonestyCopy.SupportingFindingIdsNotStored
+                : decision.SupportingFindingIdsSummary.Trim();
+            sb.AppendLine($"  - Supporting finding ids: {supportingFindingIds}");
+
+            string rationale = SponsorReviewPacketExportHonestyCopy.FormatDecisionRationale(decision.Rationale);
+            sb.AppendLine($"  - Rationale: {rationale}");
+
             string evidence = string.IsNullOrWhiteSpace(decision.EvidenceHref)
                 ? SponsorReviewPacketExportHonestyCopy.SupportingEvidenceNotListedInPacket
                 : decision.EvidenceHref.Trim();

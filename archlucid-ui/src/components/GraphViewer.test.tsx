@@ -22,9 +22,7 @@ describe("GraphViewer", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "Select a node or inferred edge on the canvas to inspect reasoning and metadata.",
-        ),
+        screen.getByText(/No graph selection yet\. Select a node or inferred edge on the canvas/),
       ).toBeInTheDocument();
     });
     expect(screen.getByRole("heading", { name: "Graph Settings" })).toBeInTheDocument();
@@ -60,7 +58,7 @@ describe("GraphViewer", () => {
 
     await waitFor(() => {
       expect(within(toolbar).getByRole("button", { name: "Highlight path" })).toBeEnabled();
-      expect(within(toolbar).getByRole("button", { name: "Focus selection" })).toBeEnabled();
+      expect(within(toolbar).getByRole("link", { name: "Focus selection" })).toBeInTheDocument();
     });
   });
 });

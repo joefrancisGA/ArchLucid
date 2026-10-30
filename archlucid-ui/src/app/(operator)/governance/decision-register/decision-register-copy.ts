@@ -82,7 +82,7 @@ export const DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE = "Open approval";
 
 export const DECISION_REGISTER_OPEN_DECISION_LABEL = "Open decision";
 
-export const DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED = "Signed";
+export const DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED = "Locked with sealed review record";
 
 export const DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL = "Confidence was not stored.";
 

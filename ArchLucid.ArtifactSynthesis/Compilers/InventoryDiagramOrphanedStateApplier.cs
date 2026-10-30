@@ -53,20 +53,20 @@ internal static class InventoryDiagramOrphanedStateApplier
                 classificationGraph,
                 hasCitedDiagramEdges);
 
-            if (hasCitedDiagramEdges)
+            if (result.State is not null)
             {
-                diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
-                diagramNode.ConnectionStateMessage = null;
+                diagramNode.ConnectionState = result.State;
+                diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
                 diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
                     diagramNode.UnresolvedRelationshipDetails,
                     result.UnresolvedRelationshipDetails);
                 continue;
             }
 
-            if (result.State is not null)
+            if (hasCitedDiagramEdges)
             {
-                diagramNode.ConnectionState = result.State;
-                diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
+                diagramNode.ConnectionStateMessage = null;
                 diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
                     diagramNode.UnresolvedRelationshipDetails,
                     result.UnresolvedRelationshipDetails);
