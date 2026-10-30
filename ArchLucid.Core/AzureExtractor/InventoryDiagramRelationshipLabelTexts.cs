@@ -133,6 +133,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string Peered = "Peering is connected. Observed traffic was not stored.";
 
+    public const string PeeringStoredConnectedStateNotStored =
+        "Peering was stored. A connected peering state was not stored.";
+
     public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
         "A remote network id was stored. Peering state was not stored.";
 

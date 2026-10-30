@@ -93,6 +93,8 @@ export function InferenceQuestionnairePanel(
   const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [listCapReached, setListCapReached] = useState(false);
+  const [listTotalCount, setListTotalCount] = useState<number | null>(null);
 
   const proposedItems = useMemo(
     () => items.filter(
@@ -119,6 +121,8 @@ export function InferenceQuestionnairePanel(
     try {
       const response = await listInferenceQuestionnaireItems(snapshotId);
       setItems(response.items);
+      setListCapReached(response.capReached);
+      setListTotalCount(response.totalCount);
       setCurrentIndex(0);
       setChoice(null);
       setSelectedCatalog("");
@@ -258,6 +262,15 @@ export function InferenceQuestionnairePanel(
 
         {currentItem != null ? (
           <>
+            {listCapReached && listTotalCount !== null && listTotalCount > proposedItems.length ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="inference-questionnaire-cap-honesty"
+              >
+                Showing {proposedItems.length} of {listTotalCount} proposed questionnaire item(s). The list cap was
+                reached; additional items were not loaded.
+              </p>
+            ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-progress">
               Question {currentIndex + 1} of {proposedItems.length}
             </p>
