@@ -2,6 +2,10 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #87 (hit): proved the `organizationName` schema capped organization names at 200 characters but the rendered organization input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the organization input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 144/144. Private beta: invited buyers entering a long organization name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `organizationName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #87:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
 2026-10-30 seed hunt #86 (hit): proved the `adminDisplayName` schema capped full names at 200 characters but the rendered full-name input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the full-name input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 143/143. Private beta: invited buyers entering a long full name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
 
 - [x] (proven) `SignupForm` — `adminDisplayName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #86:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
@@ -342,11 +346,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 71
-- **bugs-found:** 17
+- **hunts:** 72
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Full-name input length contract
+- **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
