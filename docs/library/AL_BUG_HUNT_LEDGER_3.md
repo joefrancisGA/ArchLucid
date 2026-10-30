@@ -7813,6 +7813,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed three open `(candidate)` rows — failed sample refreshes do not restart from status alone because the auto-sample effect requires `result === null` and the status transition is already covered; the artifact observer is disconnected on unmount and stale zero-ratio entries cannot update a detached component; funnel telemetry uses the same blank-scenario early return as viewed telemetry (`recordShowcaseFunnelEvent is a no-op when scenario trims to empty`). Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample request restarts repeatedly after a failed sample and repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #7:** the effect only auto-loads while `result === null`, with existing status/sample coverage.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — **cheap-disproof 2026-10-30 thorough hunt #7:** effect cleanup disconnects the observer; detached components cannot receive a state update.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #7:** paired trim guards; regression `recordShowcaseFunnelEvent is a no-op when scenario trims to empty`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — locus: auto-sample effect/error state; input: transient sample 500 + status refetch (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — locus: effect lifetime; input: dynamic DOM replacement (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — locus: telemetry property normalization; input: `{ scenario: "demo", renderMode: " " }` (monitor).
+
 2026-10-30 thorough hunt #6 (dry): cheap-disproof closed three open `(candidate)` rows — repeated SampleOnly status refreshes retain the real result because the auto-sample effect is guarded by `result === null`; `DemoPreviewArtifactNav` disconnects its observer during effect cleanup and no callback can update unmounted UI; `recordShowcaseFunnelEvent` uses the same trimmed-scenario early return as `recordShowcaseViewed`. Reseeded three follow-on `(candidate)` rows. 31 scoped marketing vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #6:** existing SampleOnly-after-real-result regression covers the guard.
