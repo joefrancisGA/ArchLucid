@@ -1378,13 +1378,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-30 thorough hunt #35 (dry): cheap-disproof closed five candidate rows — generation guards ignore stale 204 success, browser email validation rejects embedded spaces while payload trim handles peripheral spaces, unsupported control characters use the generic submit error by design, in-flight cancellation is disabled and network counts are covered, and React escapes technical detail text. The focused `AuthCallbackAccessPanel.test.tsx` suite passed 101/101; no production code changed. Zone exhausted after all hypotheses were closed, three consecutive dry hunts, and no production-path commit since the last hunt.
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
 
-- [ ] (candidate) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — locus: stale guard vs success; input: reopen form mid-flight edge (monitor).
-- [ ] (candidate) `workEmail` — plus-address local part with spaces trimmed only at payload — locus: `.trim()` on whole address; input: `"ops +tag @example.com"` (monitor).
-- [ ] (candidate) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — locus: generic error; input: name with `\u000b` (monitor).
-- [ ] (candidate) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — locus: counter vs dismiss; input: cancel then resubmit (monitor).
-- [ ] (candidate) `technicalDetail` — HTML-like strings escaped only by React text node — locus: JSX interpolation; input: angle-bracket detail (monitor).
+- [x] (valid-no-repro) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — **cheap-disproof 2026-10-30 thorough hunt #35:** generation guard prevents stale success; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (invalid) `workEmail` — plus-address local part with spaces trimmed only at payload — **cheap-disproof 2026-10-30 thorough hunt #35:** native `type="email"` validation rejects embedded spaces before `onSubmit`; peripheral spaces are already covered by `trims peripheral spaces on workEmail in the POST body`.
+- [x] (valid-no-repro) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — **cheap-disproof 2026-10-30 thorough hunt #35:** generic rejection copy is intentional for all unsupported control characters; the same guard is covered by the vertical-tab note regressions.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — **cheap-disproof 2026-10-30 thorough hunt #35:** Cancel is disabled during submit and counter/generation behavior is covered by in-flight tests.
+- [x] (valid-no-repro) `technicalDetail` — HTML-like strings escaped only by React text node — **cheap-disproof 2026-10-30 thorough hunt #35:** JSX text interpolation escapes markup; existing technical-detail rendering tests cover the surface.
 
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
 
@@ -1612,14 +1614,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 - **id:** ui-auth-callback
-- **status:** open
+- **status:** exhausted
 - **impact:** low
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
