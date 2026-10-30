@@ -1969,3 +1969,4 @@
 {"at":"2026-10-30T14:07:47.5069797Z","zoneId":"ui-operator-routes","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T14:12:37.2654996Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/reviews/ReviewAgentExecutionLogSection.tsx,archlucid-ui/src/components/reviews/ReviewAgentExecutionLogSection.url-sync.test.tsx)"]}
 {"at":"2026-10-30T14:16:44.4349358Z","zoneId":"ui-review-detail-workspace","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-30T14:20:34.8667275Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectReasoningPayloadDetails.tsx,archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectReasoningPayloadDetails.url-sync.test.tsx)"]}
