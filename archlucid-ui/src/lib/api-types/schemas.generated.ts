@@ -5368,6 +5368,10 @@ export interface components {
         HolisticCriticResponse: {
             critiqueMarkdown?: string;
             disclaimer?: string;
+            /** Format: int32 */
+            omittedFindingLinesCount?: number;
+            /** Format: int32 */
+            omittedThemeSummariesCount?: number;
         };
         HostLeaderLeaseSnapshot: {
             holderInstanceId?: string;

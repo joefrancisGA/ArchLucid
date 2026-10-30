@@ -18630,6 +18630,14 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "omittedFindingLinesCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "omittedThemeSummariesCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
