@@ -163,8 +163,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         written += AppendStoredSecurityControls(sb, security.Controls);
 
-        foreach (SecurityPostureItem control in (security.Controls ?? []).Where(static c => c is not null))
+        foreach (SecurityPostureItem? control in security.Controls ?? [])
         {
+            if (control is null)
+            {
+                sb.AppendLine("- Control was not stored.");
+                written++;
+                continue;
+            }
+
             string controlId = string.IsNullOrWhiteSpace(control.ControlId)
                 ? "Control id was not stored."
                 : control.ControlId.Trim();
@@ -342,6 +349,8 @@ public static class ArchitectureRequiredMarkdownSections
         {
             if (value is null)
             {
+                sb.AppendLine($"- {label} was not stored.");
+                written++;
                 continue;
             }
 
@@ -510,8 +519,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestService service in services.Where(static s => s is not null))
+        foreach (ManifestService? service in services)
         {
+            if (service is null)
+            {
+                sb.AppendLine("- Service was not stored.");
+                written++;
+                continue;
+            }
+
             string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
             sb.AppendLine(
                 $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}){FormatServicePurposeSuffix(service.Purpose)}");
@@ -537,8 +553,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestDatastore datastore in datastores.Where(static d => d is not null))
+        foreach (ManifestDatastore? datastore in datastores)
         {
+            if (datastore is null)
+            {
+                sb.AppendLine("- Datastore was not stored.");
+                written++;
+                continue;
+            }
+
             string datastoreName = FormatComponentName(
                 datastore.DatastoreName,
                 "Datastore name was not stored.",
@@ -567,8 +590,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestService service in services.Where(static s => s is not null))
+        foreach (ManifestService? service in services)
         {
+            if (service is null)
+            {
+                sb.AppendLine("- Service was not stored.");
+                written++;
+                continue;
+            }
+
             string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
             sb.AppendLine(
                 $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}, {FormatRuntimePlatform(service.RuntimePlatform)})");
@@ -594,8 +624,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestDatastore datastore in datastores.Where(static d => d is not null))
+        foreach (ManifestDatastore? datastore in datastores)
         {
+            if (datastore is null)
+            {
+                sb.AppendLine("- Datastore was not stored.");
+                written++;
+                continue;
+            }
+
             string datastoreName = FormatComponentName(
                 datastore.DatastoreName,
                 "Datastore name was not stored.",
@@ -627,8 +664,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestRelationship relationship in relationships.Where(static r => r is not null))
+        foreach (ManifestRelationship? relationship in relationships)
         {
+            if (relationship is null)
+            {
+                sb.AppendLine("- Relationship was not stored.");
+                written++;
+                continue;
+            }
+
             string sourceLabel = FormatTopologyEndpointLabel(topology, relationship.SourceId, "Relationship source id was not stored.");
             string targetLabel = FormatTopologyEndpointLabel(topology, relationship.TargetId, "Relationship target id was not stored.");
             string relationshipType = FormatRelationshipType(relationship.RelationshipType);

@@ -144,10 +144,13 @@ public static class ArchitectureMandatedMarkdownSections
         }
         else
         {
-            foreach (ManifestService service in topology.Services)
+            foreach (ManifestService? service in topology.Services)
             {
                 if (service is null)
+                {
+                    lines.Add("- Service was not stored.");
                     continue;
+                }
 
                 string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
                 string serviceId = string.IsNullOrWhiteSpace(service.ServiceId)
@@ -167,10 +170,13 @@ public static class ArchitectureMandatedMarkdownSections
         }
         else
         {
-            foreach (ManifestDatastore datastore in topology.Datastores)
+            foreach (ManifestDatastore? datastore in topology.Datastores)
             {
                 if (datastore is null)
+                {
+                    lines.Add("- Datastore was not stored.");
                     continue;
+                }
 
                 string datastoreName = FormatComponentName(
                     datastore.DatastoreName,
@@ -260,10 +266,13 @@ public static class ArchitectureMandatedMarkdownSections
         }
         else
         {
-            foreach (SecurityPostureItem control in security.Controls)
+            foreach (SecurityPostureItem? control in security.Controls)
             {
                 if (control is null)
+                {
+                    lines.Add("- Control was not stored.");
                     continue;
+                }
 
                 string controlId = string.IsNullOrWhiteSpace(control.ControlId)
                     ? "Control id was not stored."
@@ -497,10 +506,14 @@ public static class ArchitectureMandatedMarkdownSections
 
         List<string> lines = [];
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
             if (item is null)
+            {
+                lines.Add(
+                    $"- {whitespaceItemLabel.Replace("was stored empty.", "was not stored.", StringComparison.Ordinal)}");
                 continue;
+            }
 
             if (item.Length == 0 || item.Trim().Length == 0)
             {
@@ -559,10 +572,13 @@ public static class ArchitectureMandatedMarkdownSections
         if (items is null)
             return;
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
             if (item is null)
+            {
+                lines.Add($"- {prefix} was not stored.");
                 continue;
+            }
 
             if (item.Length == 0 || item.Trim().Length == 0)
             {

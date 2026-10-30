@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
@@ -322,12 +323,12 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
         node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithTrailingSlash));
     }
 
     [Fact]
-    public void BuildOverlay_stamps_resource_type_label_when_final_arm_name_segment_is_whitespace_only()
+    public void BuildOverlay_labels_missing_name_when_final_arm_name_segment_is_whitespace_only()
     {
         const string resourceType = "Microsoft.Sql/servers";
         const string armIdWithWhitespaceNameSegment =
@@ -363,11 +364,11 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 
     [Fact]
-    public void BuildOverlay_stamps_resource_type_label_when_arm_resource_id_has_no_name_segment()
+    public void BuildOverlay_labels_missing_name_when_arm_resource_id_has_no_name_segment()
     {
         const string armIdWithoutSlash = "legacy-resource-name";
         const string resourceType = "Microsoft.Sql/servers";
@@ -402,12 +403,12 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
         node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithoutSlash));
     }
 
     [Fact]
-    public void BuildOverlay_stamps_trimmed_arm_id_label_when_resource_type_is_whitespace_only_and_arm_id_has_no_slash()
+    public void BuildOverlay_labels_missing_name_when_resource_type_is_whitespace_only_and_arm_id_has_no_slash()
     {
         const string armIdWithoutSlash = "legacy-resource-name";
 
@@ -441,7 +442,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(armIdWithoutSlash);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 
     [Fact]
