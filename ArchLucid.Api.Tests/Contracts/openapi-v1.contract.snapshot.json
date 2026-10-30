@@ -5177,6 +5177,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isStale": {
             "type": "boolean"
           },

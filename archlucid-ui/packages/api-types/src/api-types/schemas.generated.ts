@@ -1516,6 +1516,7 @@ export interface components {
             evidenceHref?: string;
             findingId?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isStale?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             /** Format: date-time */
