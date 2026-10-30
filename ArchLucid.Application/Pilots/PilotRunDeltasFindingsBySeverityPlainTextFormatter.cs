@@ -17,7 +17,12 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
                     $"{PilotPlainTextSafeLabelFormatter.FormatLabel(p.Key)}: {p.Value.ToString(CultureInfo.InvariantCulture)}"));
         }
 
-        if (deltas.FindingsCountsFromSnapshot)
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+        {
+            return PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel;
+        }
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
         {
             return "0 unmuted findings in snapshot (no severity rows materialized).";
         }

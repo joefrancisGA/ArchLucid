@@ -76,4 +76,35 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsBySeverityPlainTextForma
             .Should()
             .Be(PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored);
     }
+
+    [Fact]
+    public void Format_when_top_finding_without_severity_buckets_does_not_claim_no_findings_on_agent_results()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsCountsFromSnapshot = false,
+            FindingsBySeverity = [],
+            TopFindingId = "f-1",
+        };
+
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas)
+            .Should()
+            .Be(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+    }
+
+    [Fact]
+    public void Format_when_snapshot_flag_but_top_finding_present_does_not_use_snapshot_zero_copy()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsCountsFromSnapshot = true,
+            FindingsBySeverity = [],
+            TopFindingId = "f-1",
+        };
+
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas)
+            .Should()
+            .Be(PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel);
+    }
 }

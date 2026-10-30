@@ -26,10 +26,7 @@ internal static class PilotRunDeltasFindingsTotalFormatter
 
         if (deltas.FindingsBySeverity.Count == 0 && unmutedTotal == 0)
         {
-            if (deltas.FindingsCountsFromSnapshot
-                && deltas.MutedFindingsExcludedCount == 0
-                && string.IsNullOrWhiteSpace(deltas.TopFindingId)
-                && deltas.SponsorNarrativeFindings.Count == 0)
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
             {
                 return SnapshotZeroUnmutedFindingsTotalLabel;
             }
