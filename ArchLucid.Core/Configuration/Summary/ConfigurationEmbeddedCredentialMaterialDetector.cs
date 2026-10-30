@@ -46,6 +46,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (trimmed.Length < 4)
             return false;
 
+        if (ConfigurationSensitiveConfigValueScanner.TryScanJsonForEmbeddedCredentials(trimmed))
+            return true;
+
         if (ContainsUrlUserInfoCredentials(trimmed))
             return true;
 
@@ -143,17 +146,32 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsBasicAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int basicIndex = trimmed.IndexOf("Basic".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int searchStart = 0;
 
-        if (basicIndex < 0)
-            return false;
+        while (searchStart < trimmed.Length)
+        {
+            ReadOnlySpan<char> remainder = trimmed.Slice(searchStart);
+            int basicIndex = remainder.IndexOf("Basic".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
-        ReadOnlySpan<char> afterBasic = trimmed.Slice(basicIndex + "Basic".Length);
+            if (basicIndex < 0)
+                return false;
 
-        if (afterBasic.IsEmpty || !char.IsWhiteSpace(afterBasic[0]))
-            return false;
+            int absoluteBasicIndex = searchStart + basicIndex;
+            ReadOnlySpan<char> afterBasic = trimmed.Slice(absoluteBasicIndex + "Basic".Length);
 
-        ReadOnlySpan<char> token = afterBasic.Trim();
+            if (!afterBasic.IsEmpty && char.IsWhiteSpace(afterBasic[0])
+                && TryBasicAuthorizationHeaderToken(afterBasic))
+                return true;
+
+            searchStart = absoluteBasicIndex + "Basic".Length;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationHeaderToken(ReadOnlySpan<char> afterBasic)
+    {
+        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(afterBasic.Trim());
 
         if (TryBasicAuthorizationPayloadFromToken(token))
             return true;
@@ -171,7 +189,14 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool TryBasicAuthorizationPayloadFromToken(ReadOnlySpan<char> token)
     {
+        token = TrimLeadingByteOrderMarks(token);
+
         if (TryBasicAuthorizationPayloadFromCollapsedToken(token))
+            return true;
+
+        int semicolonIndex = token.IndexOf(';');
+
+        if (semicolonIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, semicolonIndex).Trim()))
             return true;
 
         int quoteIndex = token.IndexOf('"');
@@ -182,20 +207,31 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         return TryBasicAuthorizationPayloadFromQuotedSegments(token);
     }
 
+    private static ReadOnlySpan<char> TrimLeadingByteOrderMarks(ReadOnlySpan<char> token)
+    {
+        while (token.Length > 0 && token[0] == '\uFEFF')
+            token = token.Slice(1);
+
+        return token;
+    }
+
     private static bool TryBasicAuthorizationPayloadFromQuotedSegments(ReadOnlySpan<char> token)
     {
         for (int index = 0; index < token.Length; index++)
         {
-            if (token[index] != '"')
+            char quote = token[index];
+
+            if (quote is not '"' and not '\'')
                 continue;
 
             ReadOnlySpan<char> remainder = token.Slice(index + 1);
-            int closingQuote = remainder.IndexOf('"');
+            int closingQuote = remainder.IndexOf(quote);
 
             if (closingQuote < 0)
                 continue;
 
-            if (TryBasicAuthorizationPayloadFromCollapsedToken(remainder.Slice(0, closingQuote)))
+            if (closingQuote > 0
+                && TryBasicAuthorizationPayloadFromCollapsedToken(remainder.Slice(0, closingQuote)))
                 return true;
 
             index += closingQuote + 1;

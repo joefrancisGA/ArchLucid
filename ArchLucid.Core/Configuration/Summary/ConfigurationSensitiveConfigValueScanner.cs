@@ -34,6 +34,22 @@ internal static class ConfigurationSensitiveConfigValueScanner
         }
     }
 
+    internal static bool TryScanJsonForEmbeddedCredentials(ReadOnlySpan<char> trimmed)
+    {
+        if (trimmed.IsEmpty || (trimmed[0] != '{' && trimmed[0] != '['))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed.ToString());
+            return ContainsCredentialProperties(document.RootElement);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     private static bool ContainsCredentialProperties(JsonElement element)
     {
         switch (element.ValueKind)

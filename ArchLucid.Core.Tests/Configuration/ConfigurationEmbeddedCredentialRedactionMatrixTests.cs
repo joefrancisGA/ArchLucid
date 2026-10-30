@@ -10382,6 +10382,34 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_realm_single_quotes_contain_base64_userinfo()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm='dXNlcjpwYXNz'";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_semicolon_suffix()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz;other=value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_digest_challenge_has_unquoted_response()
+    {
+        const string effectiveValue = "WWW-Authenticate: Digest response=deadbeef0123";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_wraps_basic_paste_with_byte_order_mark()
+    {
+        const string effectiveValue = """{"hdr":"Authorization: Basic \uFEFFdXNlcjpwYXNz"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
