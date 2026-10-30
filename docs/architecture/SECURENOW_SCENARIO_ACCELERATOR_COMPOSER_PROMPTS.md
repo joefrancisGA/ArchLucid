@@ -3,7 +3,7 @@
 
 # SecureNow scenario accelerators — Composer prompts
 
-**Created:** 2026-10-30 · **Status:** Not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-30 · **Status:** SN-ACCEL-01–03 shipped (chooser, packs, warn-only checker). **Audience:** Composer 2.5 slow (`composer-2.5`)
 
 Template and Accelerator Richness scored **42** for SecureNow on the 30 October 2026 desk pass. ArchLucid scored **70** because `templates/starter-proof-packs/` is a choosable, dry-run catalog. SecureNow has one fixture storyboard and an empty executive proof form. These prompts add a five-row chooser, one short pack per row, and a warn-only checker. They do not add ArchLucid starter-pack JSON, fill the executive proof packet, or approve a customer demo.
 
