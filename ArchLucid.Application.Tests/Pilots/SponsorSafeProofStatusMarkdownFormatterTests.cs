@@ -69,6 +69,30 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_when_gate_mirror_evidence_completeness_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        ProofPackageCompletenessResponse proof = StrongProof(evidenceCompleteness: "Strong`tenant");
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            proof,
+            CompleteDeltas(topFindingId: null),
+            NonSimulatorRun());
+
+        sb.ToString().Should().Contain("``Strong`tenant``");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_includes_sponsor_proof_readiness_sendable()
     {
         StringBuilder sb = new();
@@ -197,7 +221,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
 
     private static ProofPackageCompletenessResponse StrongProof(
         bool demoTenantWarningRequired = false,
-        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong) =>
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        string evidenceCompleteness = "Strong") =>
         new()
         {
             DemoTenantWarningRequired = demoTenantWarningRequired,
@@ -218,7 +243,7 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             BuyerSafeRedactionProfile = "x",
             PublishingTier = "Complete",
             ProofSendability = "Sendable",
-            EvidenceCompleteness = "Strong",
+            EvidenceCompleteness = evidenceCompleteness,
             AgentOutputPilotStrictEvidenceSatisfied = true,
             SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
         };
