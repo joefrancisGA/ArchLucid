@@ -209,6 +209,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (closeParenIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeParenIndex).Trim()))
             return true;
 
+        int closeBracketIndex = token.IndexOf(']');
+
+        if (closeBracketIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBracketIndex).Trim()))
+            return true;
+
         return TryBasicAuthorizationPayloadFromQuotedSegments(token);
     }
 
@@ -224,6 +229,21 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     {
         for (int index = 0; index < token.Length; index++)
         {
+            if (token[index] == '<')
+            {
+                ReadOnlySpan<char> angleRemainder = token.Slice(index + 1);
+                int closingAngle = angleRemainder.IndexOf('>');
+
+                if (closingAngle > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(angleRemainder.Slice(0, closingAngle)))
+                    return true;
+
+                if (closingAngle >= 0)
+                    index += closingAngle + 1;
+
+                continue;
+            }
+
             char quote = token[index];
 
             if (quote is not '"' and not '\'' and not '`')
