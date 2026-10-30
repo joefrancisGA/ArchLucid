@@ -404,9 +404,7 @@ internal static class RequestConstraintTokenMatcher
         if (!ContainsConstraintNormalizationCharacters(haystack))
             return NormalizeSpacedListSeparators(
                 NormalizeSpacedAsciiSolidus(
-                    NormalizeSpacedAsciiBackslash(
-                        NormalizeSpacedAsciiPlus(
-                            NormalizeSpacedAsciiPipe(haystack)))));
+                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack))));
 
         StringBuilder builder = new(haystack.Length);
 
@@ -425,8 +423,7 @@ internal static class RequestConstraintTokenMatcher
         return NormalizeSpacedListSeparators(
             NormalizeSpacedAsciiSolidus(
                 NormalizeSpacedAsciiBackslash(
-                    NormalizeSpacedAsciiPlus(
-                        NormalizeSpacedAsciiPipe(CollapseConsecutiveAsciiSpaces(builder.ToString()))))));
+                    NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString())))));
     }
 
     private static string NormalizeSpacedListSeparators(string haystack)
@@ -507,35 +504,20 @@ internal static class RequestConstraintTokenMatcher
         return CollapseConsecutiveAsciiSpaces(normalized.ToString());
     }
 
-    private static string NormalizeSpacedAsciiPipe(string haystack)
+    private static string NormalizeSpacedPhraseSeparators(string haystack)
     {
-        if (!haystack.Contains('|'))
-            return haystack;
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '|');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '+');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, ':');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '=');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '_');
 
-        StringBuilder normalized = new(haystack.Length);
-
-        for (int index = 0; index < haystack.Length; index++)
-        {
-            char character = haystack[index];
-
-            if (character == '|'
-                && ((index > 0 && haystack[index - 1] == ' ')
-                    || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
-            {
-                normalized.Append(' ');
-            }
-            else
-            {
-                normalized.Append(character);
-            }
-        }
-
-        return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+        return haystack;
     }
 
-    private static string NormalizeSpacedAsciiPlus(string haystack)
+    private static string NormalizeSpacedAsciiDelimiter(string haystack, char delimiter)
     {
-        if (!haystack.Contains('+'))
+        if (!haystack.Contains(delimiter))
             return haystack;
 
         StringBuilder normalized = new(haystack.Length);
@@ -544,7 +526,7 @@ internal static class RequestConstraintTokenMatcher
         {
             char character = haystack[index];
 
-            if (character == '+'
+            if (character == delimiter
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
