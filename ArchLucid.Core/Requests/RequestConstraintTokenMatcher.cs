@@ -515,6 +515,10 @@ internal static class RequestConstraintTokenMatcher
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '#');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '@');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '%');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '^');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '~');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '!');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '?');
 
         return haystack;
     }
