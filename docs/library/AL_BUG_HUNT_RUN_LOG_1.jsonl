@@ -2864,3 +2864,4 @@
 {"at":"2026-10-30T13:37:38.4185008Z","zoneId":"authority-pipeline-payload","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T13:39:55.0684297Z","zoneId":"authority-pipeline-payload","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-30T13:42:27.0567819Z","zoneId":"authority-pipeline-payload","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T13:46:27.1755725Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared"}

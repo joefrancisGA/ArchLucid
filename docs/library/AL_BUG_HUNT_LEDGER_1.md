@@ -4582,10 +4582,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
+- **hunts:** 56
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — multiline document and declaration names were dropped
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-30 seed hunt (seed-only): reread `AuthorityPipelineWorkPayload.cs` and focused JSON/null-element regressions after the multiline and NBSP parity hits; cheap-disproof closed stale NBSP-in-body `(candidate)` rows (already fixed by `HasUsableMultilineBodyText` and `Deserialize_filters_document_when_content_contains_embedded_nbsp`); cheap-disproof closed orchestrator serialize-without-pre-materialize `(candidate)` because `AuthorityPipelineWorkProcessor` always `TryDeserialize`s and `EnsureMutableCollections` runs before `IsValidForProcessing`; no new hunt-ready mechanism promoted; seeded five follow-on `(candidate)` rows below; scoped payload JSON tests 50/50 (`RunAnalyzers=false`).
+
+- [x] (proven) `HasSubstantiveDocument` — embedded U+00A0 in document `content` — **cheap-disproof 2026-10-30 seed hunt:** `HasUsableMultilineBodyText`; regression `Deserialize_filters_document_when_content_contains_embedded_nbsp`.
+- [x] (proven) `HasSubstantiveInfrastructureDeclaration` — embedded U+00A0 in declaration `content` — **cheap-disproof 2026-10-30 seed hunt:** same multiline body guard on declaration content; NBSP filtered at materialization.
+- [x] (valid-no-repro) `AuthorityPipelineWorkPayloadJson.Serialize` — enqueue without `EnsureMutableCollections` — **cheap-disproof 2026-10-30 seed hunt:** worker path always deserializes outbox JSON and materializes collections before the processing gate (`AuthorityPipelineWorkProcessor`).
+
+- [ ] (candidate) `HasSubstantiveInfrastructureDeclaration` — declaration `format` with a `; charset=` suffix is dropped by `HasUsableCompactIdentifierText` while document `contentType` keeps the raw value after `NormalizeContentTypeForLookup` — locus: `HasUsableCompactIdentifierText(declaration.Format)`; input: `format: "json; charset=utf-8"` when a client copies HTTP Content-Type into the declaration format field.
+- [ ] (candidate) `MaterializeStringList` — unused private helper still filters with `HasSubstantiveText` only — locus: dead method beside `MaterializeReferenceStringList`; input: future refactor re-routes a reference list through `MaterializeStringList` and revives format-only or combining-mark entries.
+- [ ] (candidate) `HasUsableMultilineBodyText` — policy or constraint lines containing U+2028/U+2029 line separators are rejected as exotic whitespace — locus: allowed set is space/tab/CR/LF only; input: `policyReferences: ["section\u2028detail"]` from pasted rich text.
+- [ ] (candidate) `AuthorityRunOrchestratorExecuteCore` — deferred enqueue serializes in-memory lists that may still contain null elements — locus: `AuthorityPipelineWorkPayloadJson.Serialize` without pre-materialize; input: `[null]` in `inlineRequirements` survives into outbox JSON until worker deserialize strips it (verify no handler bypass).
+- [ ] (candidate) `HasSubstantiveInfrastructureDeclaration` — declaration `format` containing an embedded newline is dropped by compact identifier rules — locus: `HasUsableCompactIdentifierText(declaration.Format)`; input: `format: "terraform-show-json\n"` from a wrapped paste in the intake UI.
 
 2026-10-30 seed hunt (seed→hit): promoted document and infrastructure declaration names with embedded newlines being dropped because names still used single-line `HasUsableProseReferenceText`; names now use `HasUsableMultilineBodyText` like bodies and string lists; regressions `Deserialize_keeps_document_when_name_contains_newline` and `Deserialize_keeps_infrastructure_declaration_when_name_contains_newline`; scoped payload JSON tests 50/50. Private beta: when an invited operator's deferred authority run includes a document or infrastructure declaration whose name spans multiple lines, that entry stays in the resumed pipeline.
 
@@ -4633,13 +4648,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — multiline document and declaration names were dropped
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
@@ -4695,9 +4710,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2343 (seed-only): reseeded authority-pipeline-payload; no new hunt-ready rows.
 
 
-- [ ] (candidate) `HasSubstantiveDocument` — `content` with embedded U+00A0 between substantive characters survives `HasUsableIdentifierText` because `HasSubstantiveText` skips `char.IsWhiteSpace` — locus: `MaterializeDocumentList` / `HasSubstantiveDocument`; input: deferred outbox JSON `documents[].content` `"visible\u00A0token"` reachable from intake documents on beta architecture requests; mechanism: scope metadata / parser inputs may not normalize NBSP the same as compact identifier fields.
-- [ ] (candidate) `HasSubstantiveInfrastructureDeclaration` — declaration `content` with embedded U+00A0 survives materialization — locus: `HasUsableIdentifierText(declaration.Content)`; input: `infrastructureDeclarations[].content` with `\u00A0` inside JSON body string from beta IaC snippet upload; mechanism: `SourceId` / canonical object keys use `DeclarationId` while body corruption may change parsed resource identity vs prior runs.
-- [ ] (candidate) `AuthorityPipelineWorkPayloadJson.Serialize` — orchestrator enqueues without calling `EnsureMutableCollections` before STJ write — locus: `AuthorityRunOrchestratorExecuteCore` serialize path; input: in-memory `ContextIngestionRequest` with `documents: [null]` or `inlineRequirements: [null]` if a future caller bypasses contract setters; mechanism: worker must always deserialize before handle (verify no in-process handler bypass).
+- [x] (proven) `HasSubstantiveDocument` — embedded U+00A0 in document `content` — **cheap-disproof 2026-10-30 seed hunt:** `HasUsableMultilineBodyText`; regression `Deserialize_filters_document_when_content_contains_embedded_nbsp`.
+- [x] (proven) `HasSubstantiveInfrastructureDeclaration` — embedded U+00A0 in declaration `content` — **cheap-disproof 2026-10-30 seed hunt:** same multiline body guard on declaration content.
+- [x] (valid-no-repro) `AuthorityPipelineWorkPayloadJson.Serialize` — orchestrator enqueues without calling `EnsureMutableCollections` before STJ write — **cheap-disproof 2026-10-30 seed hunt:** worker always `TryDeserialize`s and materializes before the gate.
 
 ### Hypotheses
 
