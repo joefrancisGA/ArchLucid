@@ -21881,21 +21881,35 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 184
-- **bugs-found:** 47
+- **hunts:** 185
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — blank ARM name/type produced a misleading missing-name label
+- **last-bug:** 2026-10-30 — null elements in persisted graph snapshot crashed provenance build
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-30 seed hunt #990 (hit): picker `seedHunt` with no visible open rows (hunt #989 candidates omitted `- [ ]` checkboxes); re-read `ProvenanceBuilder` and proved the first null-collection monitor via `GraphJsonSerialization.DeserializeSnapshot` retaining a null `nodes[]` element — `Build` threw before materializing provenance. `ProvenanceBuilder` now projects persisted collections with `OfType`/`null`-safe rule ids; regression `Build_skips_null_graph_node_element_from_deserialized_snapshot`; scoped filter **697** KnowledgeGraph + **180** Provenance tests passed. Private beta: provenance views for runs whose graph projection JSON contains sparse/null array elements no longer crash during build.
+
+- [x] (proven) `ProvenanceBuilder.Build` — null `GraphNode` entry in deserialized graph snapshot — **hit 2026-10-30 seed hunt #990:** skip null collection elements before graph construction; regression `Build_skips_null_graph_node_element_from_deserialized_snapshot`.
+- [x] (invalid) `ProvenanceBuilder.Build` — null `Finding` entry in findings snapshot — **cheap-disproof 2026-10-30 seed hunt #990:** same `OfType<Finding>()` projection covers persisted findings lists.
+- [x] (invalid) `ProvenanceBuilder.Build` — null manifest decision entry — **cheap-disproof 2026-10-30 seed hunt #990:** same `OfType<ResolvedArchitectureDecision>()` projection covers manifest decisions.
+- [x] (invalid) `ProvenanceBuilder.Build` — null `SynthesizedArtifact` entry — **cheap-disproof 2026-10-30 seed hunt #990:** artifact rows use `OfType<SynthesizedArtifact>()`.
+- [x] (invalid) `ProvenanceBuilder.Build` — null element in `AppliedRuleIds` — **cheap-disproof 2026-10-30 seed hunt #990:** `DistinctAppliedRuleIds` skips null rule id strings before `NormalizeId`.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null `GraphNode` in `baseGraph.Nodes` reaches `NormalizeNodeId(node.NodeId)` during base id indexing and can fail before overlay merge; reachability: malformed in-memory graph snapshot passed to inventory overlay merge.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null overlay node row reaches `NormalizeNodeId(inventoryNode.NodeId)` in the overlay loop; reachability: malformed inventory overlay snapshot.
+- [ ] (candidate) `ProvenanceBuilder.Build` — whitespace-only `FindingId` on a finding row collapses to empty id and may create duplicate empty-key provenance nodes; reachability: findings snapshot with blank ids from persistence.
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows whose endpoints normalize to empty ARM ids are skipped silently while duplicate resource rows with conflicting `cloudResourceId` may throw only on scalar merge; reachability: Azure inventory snapshot with duplicate normalized ARM ids and disagreeing cloud resource ids.
+- [ ] (candidate) `ProvenanceBuilder.Build` — duplicate graph nodes whose `NodeId` differs only by surrounding whitespace merge in `AddNode` but `graphNodeIds` HashSet uses case-insensitive normalized ids while influenced-by edges reference trimmed related ids; reachability: graph snapshot with case/whitespace variant node ids and findings linking related nodes.
 
 2026-10-30 seed hunt #989 (seed-only): re-read `ArchitectureInventoryObservedFactGraphBuilder`, `ArchitectureInventoryObservedFactGraphOverlayMerger`, and `ProvenanceBuilder`; no candidate was promoted because the remaining null-element paths require malformed persisted collection entries and need a dedicated failing repro. Scoped KnowledgeGraph/Provenance tests passed 697/697 and 179/179; seeded five fresh `(candidate)` rows.
 
-- (candidate) `ProvenanceBuilder.Build` — a persisted graph snapshot containing a null `GraphNode` entry reaches `graphNodes.Select(n => NormalizeId(n.NodeId))` and can fail before provenance materialization; reachability: persisted `GraphSnapshot` payload.
-- (candidate) `ProvenanceBuilder.Build` — a persisted findings snapshot containing a null `Finding` entry reaches `findingRows.GroupBy(f => NormalizeId(f.FindingId))` and can fail before finding provenance is emitted; reachability: persisted `FindingsSnapshot` payload.
-- (candidate) `ProvenanceBuilder.Build` — a persisted manifest containing a null decision entry reaches `DistinctDecisionKeys()` and can fail while constructing decision provenance; reachability: persisted `ManifestDocument` payload.
-- (candidate) `ProvenanceBuilder.Build` — a persisted artifact bundle containing a null `SynthesizedArtifact` entry reaches `artifacts.GroupBy(artifact => artifact.ArtifactId)` and can fail before artifact provenance is emitted; reachability: persisted artifact bundle payload.
-- (candidate) `ProvenanceBuilder.Build` — a rule-audit payload with a null element in `AppliedRuleIds` reaches `NormalizeId` via `DistinctAppliedRuleIds` and can fail during rule provenance construction; reachability: persisted `RuleAuditTraceDto` payload.
+- [x] (invalid) `ProvenanceBuilder.Build` — null `GraphNode` entry — **hit 2026-10-30 seed hunt #990** (see hunt note above).
+- [x] (invalid) `ProvenanceBuilder.Build` — null `Finding` entry — **cheap-disproof 2026-10-30 seed hunt #990** (see hunt note above).
+- [x] (invalid) `ProvenanceBuilder.Build` — null manifest decision entry — **cheap-disproof 2026-10-30 seed hunt #990** (see hunt note above).
+- [x] (invalid) `ProvenanceBuilder.Build` — null `SynthesizedArtifact` entry — **cheap-disproof 2026-10-30 seed hunt #990** (see hunt note above).
+- [x] (invalid) `ProvenanceBuilder.Build` — null element in `AppliedRuleIds` — **cheap-disproof 2026-10-30 seed hunt #990** (see hunt note above).
 
 2026-10-30 seed hunt #988 (hit): cooldown fallback selected `ui-oidc` in the picker output, but the focused graph/provenance run exposed a reachable inventory overlay label defect: an ARM resource with whitespace-only name and type emitted `Resource name was not stored.` instead of its trimmed ARM ID. `ResolveLabel` now preserves the trimmed ARM path only when both metadata fields are empty; the regression and focused KnowledgeGraph/Provenance suite passed 1/1 and 697/697. Private beta: invited operators inspecting sparse Azure inventory evidence now see a stable ARM resource label instead of an unhelpful missing-name placeholder.
 

@@ -2383,4 +2383,28 @@ public sealed class ProvenanceBuilderTests
             .Should()
             .BeEmpty();
     }
+
+    [Fact]
+    public void Build_skips_null_graph_node_element_from_deserialized_snapshot()
+    {
+        GraphSnapshot? graphSnapshot = GraphJsonSerialization.DeserializeSnapshot(
+            Encoding.UTF8.GetBytes("""{"nodes":[null,{"nodeId":"n1","nodeType":"Service","label":"One"}],"edges":[]}"""));
+
+        graphSnapshot.Should().NotBeNull();
+        graphSnapshot!.Nodes.Any(static n => n is null).Should().BeTrue();
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = graphSnapshot,
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Should().ContainSingle(n => n.Type == ProvenanceNodeType.GraphNode);
+        graph.Nodes.Single(n => n.Type == ProvenanceNodeType.GraphNode).ReferenceId.Should().Be("n1");
+    }
 }

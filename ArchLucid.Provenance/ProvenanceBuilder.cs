@@ -22,9 +22,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
-        IReadOnlyList<GraphNode> graphNodes = graph.Nodes ?? [];
-        IReadOnlyList<Finding> findingRows = findings.Findings ?? [];
-        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions = manifest.Decisions ?? [];
+        IReadOnlyList<GraphNode> graphNodes = (graph.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<Finding> findingRows = (findings.Findings ?? []).OfType<Finding>().ToArray();
+        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions =
+            (manifest.Decisions ?? []).OfType<ResolvedArchitectureDecision>().ToArray();
+        IReadOnlyList<SynthesizedArtifact> artifactRows = artifacts.OfType<SynthesizedArtifact>().ToArray();
 
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
@@ -89,7 +91,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
 
 
-        foreach (SynthesizedArtifact a in artifacts)
+        foreach (SynthesizedArtifact a in artifactRows)
 
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -197,7 +199,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
 
-        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifacts.GroupBy(static artifact => artifact.ArtifactId))
+        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifactRows.GroupBy(static artifact => artifact.ArtifactId))
         {
             SynthesizedArtifact representative =
                 ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(artifactGroup);
@@ -327,6 +329,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string>? appliedRuleIds) =>
             (appliedRuleIds ?? [])
+                .Where(static ruleId => ruleId is not null)
                 .Select(NormalizeId)
                 .Where(static ruleId => ruleId.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
