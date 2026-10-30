@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — negated `Security over Cost` still selected Security
+- **last-bug:** 2026-10-30 — alphabetical priority sort reversed the later explicit pair
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted closed-loop `ClosedLoopDeclaredPrioritiesNormalizer` alphabetical sort so `Security over Cost` then `Cost over Security` resolved security-first; normalization now keeps encounter order for `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_keeps_later_explicit_pair_after_declared_priority_normalization`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests 123/123. Private beta: when an invited operator lists security over cost and then cost over security, the security-versus-cost recommendation follows the later bullet.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical sort reversed a later `Cost over Security` — **hit 2026-10-30 seed hunt:** drop `OrderBy` so the last explicit pair stays last; regression `BuildRecommendations_keeps_later_explicit_pair_after_declared_priority_normalization`.
 
 2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost` still resolving Security-first because `TryResolveDeclaredPairPrecedence` accepted the `over` match without `IsNegatedDimensionMention`; a pair whose left dimension is negated is now skipped; regression `BuildRecommendations_balances_security_and_cost_when_priority_negates_security_over_cost`; scoped Alternatives/ProposedChange/TradeOff tests 110/110. Private beta: when an invited operator's review priorities say not to prefer security over cost, a security-versus-cost recommendation stays balanced instead of resolving as security-first.
 
@@ -5872,11 +5876,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 71
+- **hunts:** 72
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 26
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — negated `Security over Cost` still selected Security
+- **last-bug:** 2026-10-30 — alphabetical priority sort reversed the later explicit pair
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

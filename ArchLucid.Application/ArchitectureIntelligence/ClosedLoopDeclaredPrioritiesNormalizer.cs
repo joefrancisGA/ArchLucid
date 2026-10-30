@@ -10,12 +10,13 @@ internal static class ClosedLoopDeclaredPrioritiesNormalizer
     {
         ArgumentNullException.ThrowIfNull(priorities);
 
+        // Encounter order is trade-off precedence: the last explicit pair wins. Alphabetical
+        // sort made "Security over Cost" then "Cost over Security" resolve security-first.
         return priorities
             .Where(priority => !string.IsNullOrWhiteSpace(priority))
             .Select(priority => NormalizeUnicode(priority.Trim()))
             .Select(priority => GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(priority.ToLowerInvariant()))
             .GroupBy(priority => priority, StringComparer.Ordinal)
-            .OrderBy(group => group.Key, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToList();
     }
