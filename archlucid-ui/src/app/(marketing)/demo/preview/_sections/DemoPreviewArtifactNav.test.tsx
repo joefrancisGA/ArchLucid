@@ -141,4 +141,55 @@ describe("DemoPreviewArtifactNav", () => {
       "true",
     );
   });
+
+  it("moves aria-current when the observer reports the prior active section left the viewport", () => {
+    class IntersectionObserverMock {
+      public constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+
+      public observe(): void {}
+
+      public disconnect(): void {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
+    const formerActive = document.createElement("div");
+    formerActive.id = "artifact-evidence-graph";
+    const nextActive = document.createElement("div");
+    nextActive.id = "artifact-governance-approval";
+    document.body.append(formerActive, nextActive);
+
+    render(<DemoPreviewArtifactNav />);
+
+    const emit = (entries: Array<{ id: string; ratio: number; intersecting: boolean }>): void => {
+      act(() => {
+        observerCallback?.(
+          entries.map(({ id, ratio, intersecting }) => ({
+            target: document.getElementById(id),
+            isIntersecting: intersecting,
+            intersectionRatio: ratio,
+          })) as unknown as IntersectionObserverEntry[],
+          {} as IntersectionObserver,
+        );
+      });
+    };
+
+    emit([{ id: "artifact-evidence-graph", ratio: 0.9, intersecting: true }]);
+    expect(screen.getByTestId("demo-preview-artifact-nav-artifact-evidence-graph")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+
+    emit([
+      { id: "artifact-evidence-graph", ratio: 0, intersecting: false },
+      { id: "artifact-governance-approval", ratio: 0.7, intersecting: true },
+    ]);
+
+    expect(screen.getByTestId("demo-preview-artifact-nav-artifact-governance-approval")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
 });

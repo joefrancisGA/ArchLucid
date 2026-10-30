@@ -57,4 +57,21 @@ describe("quick-scan-session identity helpers", () => {
     setItemSpy.mockRestore();
     getItemSpy.mockRestore();
   });
+
+  it("issues distinct volatile session and browser ids when localStorage is unavailable", () => {
+    const setItemSpy = vi.spyOn(window.localStorage, "setItem").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    const getItemSpy = vi.spyOn(window.localStorage, "getItem").mockReturnValue(null);
+
+    const sessionId = ensureSessionId();
+    const browserId = ensureBrowserId();
+
+    expect(sessionId).toBe(ensureSessionId());
+    expect(browserId).toBe(ensureBrowserId());
+    expect(sessionId).not.toBe(browserId);
+
+    setItemSpy.mockRestore();
+    getItemSpy.mockRestore();
+  });
 });

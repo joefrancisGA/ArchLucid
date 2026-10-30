@@ -354,4 +354,108 @@ describe("useQuickScanClient", () => {
 
     expect(result.current.result).toEqual(REAL_ANALYSIS);
   });
+
+  it("applies the latest sample when showSampleResult runs again after an earlier sample fetch completes", async () => {
+    const refreshedSample = {
+      ...SAMPLE_ANALYSIS,
+      summary: "Sample refreshed after a settled load.",
+    };
+    let sampleFetchCount = 0;
+
+    vi.mocked(trackQuickScanSampleViewed).mockClear();
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        sampleFetchCount += 1;
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => (sampleFetchCount === 1 ? SAMPLE_ANALYSIS : refreshedSample),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(refreshedSample);
+    });
+
+    await act(async () => {
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(refreshedSample);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(trackQuickScanSampleViewed).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses", async () => {
+    let resolveSlow: ((value: Response) => void) | undefined;
+    const slowPromise = new Promise<Response>((resolve) => {
+      resolveSlow = resolve;
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        if (fetchMock.mock.calls.length === 1) {
+          return slowPromise;
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => SAMPLE_ANALYSIS,
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("Busy");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeUndefined();
+
+    await act(async () => {
+      resolveSlow?.({
+        ok: true,
+        json: async () => ({
+          systemName: "Stale",
+          primaryEnvironment: "Azure",
+          summary: "Should not replace the newer sample.",
+        }),
+      } as Response);
+    });
+
+    expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+  });
 });
