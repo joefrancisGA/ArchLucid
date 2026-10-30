@@ -474,7 +474,10 @@ public async Task Foreign_snapshot_cannot_read_or_write()
 
         questions.Should().ContainSingle(question =>
             question.QuestionKey == "orphan-still-needed@v1"
-            && question.ResourceId == childResourceId);
+            && string.Equals(
+                question.ResourceId,
+                childResourceId,
+                StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

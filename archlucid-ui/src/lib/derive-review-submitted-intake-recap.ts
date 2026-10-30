@@ -175,6 +175,11 @@ export function deriveReviewSubmittedIntakeRecap(
         value: RECAP_BUSINESS_OUTCOME_STORED_EMPTY,
       });
     }
+  } else if (isGeneratedIntakeBrief(description)) {
+    pushUniqueRecapField(fields, {
+      label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+      value: RECAP_BUSINESS_OUTCOME_NOT_STORED,
+    });
   }
 
   if (description.includes(SCOPE_UNDERSTANDING_SECTION_HEADER)) {

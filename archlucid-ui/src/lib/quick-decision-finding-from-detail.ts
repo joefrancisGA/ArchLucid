@@ -57,6 +57,10 @@ export type QuickDecisionFinding = {
   itsmLinkedTicketsSummary?: string | null;
   /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
+  /** False when the run-detail finding row omitted `humanReviewStatus` (default enum is not a stored fact). */
+  humanReviewStatusStored?: boolean;
+  /** False when the run-detail finding row omitted `severity` (default enum is not a stored fact). */
+  severityStored?: boolean;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
@@ -220,7 +224,10 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         wireJson = '{"error":"finding_payload_not_json_serializable"}';
       }
 
-      const severityValue = coerceArchitectureFindingSeverity(fr.severity);
+      const severityStored =
+        fr.severity !== null && fr.severity !== undefined
+        && (typeof fr.severity !== "string" || fr.severity.trim().length > 0);
+      const severityValue = severityStored ? coerceArchitectureFindingSeverity(fr.severity) : null;
 
       const isMuted = fr.isMuted === true;
 
@@ -277,7 +284,12 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? assignedToUserIdRaw.trim()
           : null;
 
-      const humanReviewStatus = normalizeFindingHumanReviewStatus(fr.humanReviewStatus);
+      const humanReviewStatusStored =
+        fr.humanReviewStatus !== null && fr.humanReviewStatus !== undefined
+        && (typeof fr.humanReviewStatus !== "string" || fr.humanReviewStatus.trim().length > 0);
+      const humanReviewStatus = humanReviewStatusStored
+        ? normalizeFindingHumanReviewStatus(fr.humanReviewStatus)
+        : null;
 
       const classificationRaw = fr.classification;
       const classification =
@@ -302,6 +314,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         category: category.length > 0 ? category : null,
         recommendation,
         severityValue,
+        severityStored,
         findingOrder: order++,
         aiReasoning: { wireJson, reasoningTrace: reasoning },
         isMuted,
@@ -320,6 +333,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         trustLabelReason,
         assignedToUserId,
         humanReviewStatus,
+        humanReviewStatusStored,
         classification,
         treatment,
         semanticSupportBand,
