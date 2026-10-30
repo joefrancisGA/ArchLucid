@@ -4789,6 +4789,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-30 seed hunt (seed→hit #24): promoted comma-folded `Authorization` with fullwidth solidus (`U+FF0F`) and big solidus (`U+29F8`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard on `Bearer／, Bearer <valid>` and `Bearer⧸, Bearer <valid>`; consolidated glued delimiter placeholder code points into `BearerGluedDelimiterPlaceholderCodePoints` (includes hunts #18–#23 set plus new glyphs); regressions `HandleAuthenticateAsync_succeeds_when_fullwidth_solidus_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_big_solidus_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three sibling `(candidate)` rows from seed hunt #23 (negative `auth_time` rejected via `age < TimeSpan.Zero` per hunt #11; zero-minute lifetime clamped per hunt #12; workspace-only scope promotion requires configured source per existing normalizer tests); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 53/53. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a fullwidth or big solidus placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — fullwidth solidus (`U+FF0F`) placeholder after `Bearer` trips mix guard — **hit 2026-10-30 seed hunt #24:** regression `HandleAuthenticateAsync_succeeds_when_fullwidth_solidus_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — big solidus (`U+29F8`) placeholder after `Bearer` trips mix guard — **hit 2026-10-30 seed hunt #24:** regression `HandleAuthenticateAsync_succeeds_when_big_solidus_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — negative Unix `auth_time` string — **cheap-disproof 2026-10-30 seed hunt #24:** regression `HasRecentAuthentication_returns_false_for_future_auth_time` on full tree (`age < TimeSpan.Zero`).
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — zero `accessTokenLifetimeMinutes` clamped to five minutes — **cheap-disproof 2026-10-30 seed hunt #24:** `Math.Clamp(..., 5, 24*60)`; regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes` on full tree.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — workspace scope promoted when tenant scope absent — **cheap-disproof 2026-10-30 seed hunt #24:** `PromoteSingleValueIfMissing` only promotes when inbound source yields exactly one distinct non-empty value; workspace/tenant sources are independent configured paths.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter small slash (`U+02FF`) glued after `Bearer` — locus: `BearerGluedDelimiterPlaceholderCodePoints`; input: `Bearer⿿, Bearer valid`; reachability: rare Unicode paste monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — comma in glued placeholder tail with leading slash glyph only — locus: mix guard vs empty segment; input: `Bearer/,, Bearer valid`; reachability: double-comma proxy fold monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `auth_time` as whitespace-padded integer string — locus: `long.TryParse` trim; input: `  1735689600  `; reachability: claim paste monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — negative `accessTokenLifetimeMinutes` clamped — locus: lower `Math.Clamp`; input: `-1`; reachability: trial lifetime monitor.
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — stale auth-version on email `sub` still enforced when Guid-shaped — locus: platform user detection; input: synthetic Guid email — reachability: local issuer monitor.
+
 2026-10-30 seed hunt (seed→hit #23): promoted comma-folded `Authorization` with set-minus slash (`U+2216`) and box-drawings diagonal (`U+2571`) placeholders after `Bearer` before valid segment — segments misclassified as non-Bearer and tripped mix guard on `Bearer∖, Bearer <valid>` and `Bearer╱, Bearer <valid>`; extended `IsBearerDelimiterOnlyPlaceholder` with `U+2216` and `U+2571`; regressions `HandleAuthenticateAsync_succeeds_when_set_minus_slash_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_diagonal_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three sibling `(candidate)` rows from seed hunt #22 (hex-prefixed `auth_time` rejected by `long.TryParse`; twenty-four-hour trial lifetime clamp per hunt #13; non-Guid `sub` skips auth-version enforcement per `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 51/51. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a set-minus or box-drawing slash placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — set-minus slash (`U+2216`) placeholder after `Bearer` trips mix guard — **hit 2026-10-30 seed hunt #23:** regression `HandleAuthenticateAsync_succeeds_when_set_minus_slash_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -4797,11 +4811,13 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — `accessTokenLifetimeMinutes` at twenty-four-hour upper clamp — **cheap-disproof 2026-10-30 seed hunt #23:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours` on full tree.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — matching auth-version on non-Guid `sub` skipped — **cheap-disproof 2026-10-30 seed hunt #23:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim` on full tree.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — fullwidth solidus (`U+FF0F`) glued after `Bearer` before comma-folded valid token — locus: delimiter-only placeholder set; input: `Bearer／, Bearer valid`; reachability: CJK slash monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — big solidus (`U+29F8`) glued after `Bearer` — locus: placeholder parity; input: `Bearer⧸, Bearer valid`; reachability: math symbol paste monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — negative Unix `auth_time` string — locus: age calculation; input: `-1`; reachability: vendor clock paste monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — zero `accessTokenLifetimeMinutes` clamped to five minutes — locus: `Math.Clamp` lower bound; input: `0`; reachability: trial lifetime monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — workspace scope promoted when tenant scope absent — locus: scope promotion order; input: workspace-only IdP attributes — reachability: SAML scope monitor.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — matching auth-version on non-Guid `sub` skipped — **cheap-disproof 2026-10-30 seed hunt #23:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim` on full tree.
+
+- [x] (proven) `ScimBearerAuthenticationHandler` — fullwidth solidus (`U+FF0F`) placeholder — **hit 2026-10-30 seed hunt #24:** see seed hunt #24 diary.
+- [x] (proven) `ScimBearerAuthenticationHandler` — big solidus (`U+29F8`) placeholder — **hit 2026-10-30 seed hunt #24:** see seed hunt #24 diary.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — negative Unix `auth_time` — **cheap-disproof 2026-10-30 seed hunt #24:** see seed hunt #24 diary.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — zero `accessTokenLifetimeMinutes` — **cheap-disproof 2026-10-30 seed hunt #24:** see seed hunt #24 diary.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — workspace scope when tenant absent — **cheap-disproof 2026-10-30 seed hunt #24:** see seed hunt #24 diary.
 
 2026-10-30 seed hunt (seed→hit #22): promoted comma-folded `Authorization` with Unicode division slash (`U+2215`) and fraction slash (`U+2044`) placeholders after `Bearer` before valid segment — glued slash segments misclassified as non-Bearer and tripped mix guard on `Bearer∕, Bearer <valid>` and `Bearer⁄, Bearer <valid>`; extended `IsBearerDelimiterOnlyPlaceholder` with `U+2215` and `U+2044`; regressions `HandleAuthenticateAsync_succeeds_when_division_slash_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_fraction_slash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three sibling `(candidate)` rows from seed hunt #21 (`auth_time` scientific notation rejected by `long.TryParse`; omitted trial lifetime uses configured default per hunt #14; duplicate tenant GUID casing normalized by `DeduplicateCanonicalGuidScopeClaims` per hunt #3); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 49/49. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a Unicode slash placeholder before a valid token on the JwtBearer pilot path.
 
@@ -5040,11 +5056,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 50
-- **bugs-found:** 39
+- **hunts:** 51
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected set-minus and box-drawing slash placeholders before valid comma-folded token
+- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected fullwidth and big solidus placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses

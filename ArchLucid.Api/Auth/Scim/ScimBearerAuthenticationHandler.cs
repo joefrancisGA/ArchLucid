@@ -202,11 +202,14 @@ internal class ScimBearerAuthenticationHandler(
         return false;
     }
 
+    private const string BearerGluedDelimiterPlaceholderCodePoints =
+        "|/\\" + "\u2044\u2215\u2216\u2571\u29F8\uFF0F\uFF5C\uFF3C";
+
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
         foreach (char character in tail)
         {
-            if (character is '|' or '/' or '\\' or '\u2044' or '\u2215' or '\u2216' or '\u2571' or '\uFF5C' or '\uFF3C')
+            if (BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
                 continue;
 
             if (char.IsWhiteSpace(character))
