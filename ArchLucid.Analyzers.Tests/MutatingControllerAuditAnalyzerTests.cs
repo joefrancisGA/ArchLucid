@@ -1227,6 +1227,42 @@ public sealed class InterfaceMethodExcludedController(IAuditService auditService
     }
 
     [Fact]
+    public async Task Mutating_audit_excluded_on_controller_type_suppresses_AL0003_for_default_interface_member()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDefaultMutatingApi
+{
+    [HttpPost("x")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+
+[MutatingAuditExcluded("controller shell")]
+public sealed class ExcludedShellDefaultInterfaceController(IAuditService auditService)
+    : ControllerBase, IDefaultMutatingApi
+{
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Http_Get_actions_do_not_require_audit()
     {
         const string testCode = AuditAndMvcStubs +
