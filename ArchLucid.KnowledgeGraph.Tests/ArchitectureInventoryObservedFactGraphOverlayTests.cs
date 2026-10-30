@@ -6501,6 +6501,58 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_types_when_base_node_type_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-node-type-case";
+        const string nodeTypeLower = GraphNodeTypes.TopologyResource;
+        string nodeTypeUpper = nodeTypeLower.ToUpperInvariant();
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = "   ",
+                    Label = "SQL",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = nodeTypeLower,
+                    Label = "SQL",
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = nodeTypeUpper,
+                    Label = "SQL",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.NodeType.Should().Be(nodeTypeLower);
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_duplicate_nodes_disagree_on_source_id_for_base_graph_node_id_when_base_source_id_is_whitespace_only()
     {
         const string SharedNodeId = "inventory-node-base-whitespace-source-id-conflict";
