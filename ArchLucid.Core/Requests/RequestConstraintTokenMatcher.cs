@@ -404,7 +404,9 @@ internal static class RequestConstraintTokenMatcher
         if (!ContainsConstraintNormalizationCharacters(haystack))
             return NormalizeSpacedListSeparators(
                 NormalizeSpacedAsciiSolidus(
-                    NormalizeSpacedAsciiBackslash(NormalizeSpacedAsciiPipe(haystack))));
+                    NormalizeSpacedAsciiBackslash(
+                        NormalizeSpacedAsciiPlus(
+                            NormalizeSpacedAsciiPipe(haystack)))));
 
         StringBuilder builder = new(haystack.Length);
 
@@ -423,7 +425,8 @@ internal static class RequestConstraintTokenMatcher
         return NormalizeSpacedListSeparators(
             NormalizeSpacedAsciiSolidus(
                 NormalizeSpacedAsciiBackslash(
-                    NormalizeSpacedAsciiPipe(CollapseConsecutiveAsciiSpaces(builder.ToString())))));
+                    NormalizeSpacedAsciiPlus(
+                        NormalizeSpacedAsciiPipe(CollapseConsecutiveAsciiSpaces(builder.ToString()))))));
     }
 
     private static string NormalizeSpacedListSeparators(string haystack)
@@ -516,6 +519,32 @@ internal static class RequestConstraintTokenMatcher
             char character = haystack[index];
 
             if (character == '|'
+                && ((index > 0 && haystack[index - 1] == ' ')
+                    || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
+            {
+                normalized.Append(' ');
+            }
+            else
+            {
+                normalized.Append(character);
+            }
+        }
+
+        return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+    }
+
+    private static string NormalizeSpacedAsciiPlus(string haystack)
+    {
+        if (!haystack.Contains('+'))
+            return haystack;
+
+        StringBuilder normalized = new(haystack.Length);
+
+        for (int index = 0; index < haystack.Length; index++)
+        {
+            char character = haystack[index];
+
+            if (character == '+'
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
