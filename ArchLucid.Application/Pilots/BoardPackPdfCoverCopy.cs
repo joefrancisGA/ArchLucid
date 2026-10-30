@@ -17,7 +17,7 @@ internal static class BoardPackPdfCoverCopy
         if (customPeriod)
         {
             return FormattableString.Invariant(
-                $"# ArchLucid board pack — custom period `{FormatUtc(periodStartUtc)}` inclusive → `{FormatUtc(periodEndUtc)}` exclusive (UTC)");
+                $"# ArchLucid board pack — custom period {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatUtc(periodStartUtc))} inclusive → {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatUtc(periodEndUtc))} exclusive (UTC)");
         }
 
         return FormattableString.Invariant(

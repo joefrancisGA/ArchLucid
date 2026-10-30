@@ -39,4 +39,29 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Be("| Proof sendability (API mirror) | `Send\\|able` · `Partial` · **Strong** |");
     }
+
+    [Fact]
+    public void Proof_package_section_when_llm_count_resolved_wraps_count_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { LlmCallCount = 3, LlmCallCountResolved = true },
+            new ProofPackageCompletenessResponse
+            {
+                LlmCallCountResolved = true,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM-call count |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("`3` row(s)");
+    }
 }

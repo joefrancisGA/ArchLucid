@@ -63,4 +63,21 @@ public sealed class BuyerProofPackPilotValueReportMarkdownTests
 
         markdown.Should().Contain("``Pay`core``");
     }
+
+    [Fact]
+    public void Pilot_value_report_agent_types_when_label_contains_pipe_preserves_inline_code()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        string markdown = sut.Format(
+            new PilotValueReport
+            {
+                TenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                FromUtc = from,
+                ToUtc = from.AddDays(7),
+                UniqueAgentTypes = ["Topology|Review"],
+            });
+
+        markdown.Should().Contain("`Topology\\|Review`");
+    }
 }

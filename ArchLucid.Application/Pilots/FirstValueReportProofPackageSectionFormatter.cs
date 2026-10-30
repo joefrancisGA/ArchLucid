@@ -74,7 +74,7 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
     {
-        return !c.ArtifactDescriptorCountResolved ? "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing)." : $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this committed architecture manifest.";
+        return !c.ArtifactDescriptorCountResolved ? "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing)." : $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ArtifactDescriptorCount.GetValueOrDefault().ToString(CultureInfo.InvariantCulture))} descriptor(s) for this committed architecture manifest.";
     }
 
     private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
@@ -82,9 +82,14 @@ public static class FirstValueReportProofPackageSectionFormatter
         if (!c.CommittedManifestPresent)
             return "Missing — no committed architecture manifest on this run detail.";
         if (!c.CommittedManifestTimestampResolved)
-            return "Missing — `GoldenManifest.Metadata.CreatedUtc` is default / not a real commit timestamp.";
+        {
+            return
+                $"Missing — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.Metadata.CreatedUtc")} is default / not a real commit timestamp.";
+        }
+
         DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
-        return $"Present — `{committedUtc:O}` (`GoldenManifest.Metadata.CreatedUtc`).";
+        return
+            $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(committedUtc.ToString("O", CultureInfo.InvariantCulture))} ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.Metadata.CreatedUtc")}).";
     }
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
@@ -96,7 +101,7 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
-        return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
+        return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture))} row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Not present on this run.";

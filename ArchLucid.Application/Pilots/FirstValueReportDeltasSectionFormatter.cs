@@ -89,8 +89,10 @@ public static class FirstValueReportDeltasSectionFormatter
             return;
         }
 
-        sb.AppendLine($"Wall-clock from `RunRecord.CreatedUtc` to `GoldenManifest.CommittedUtc`: **{wall:c}**.");
-        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` · Committed: `{deltas.ManifestCommittedUtc:O}`.");
+        sb.AppendLine(
+            $"Wall-clock from {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("RunRecord.CreatedUtc")} to {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.CommittedUtc")}: **{wall:c}**.");
+        sb.AppendLine(
+            $"Created: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.RunCreatedUtc.ToString("O", CultureInfo.InvariantCulture))} · Committed: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.ManifestCommittedUtc?.ToString("O", CultureInfo.InvariantCulture) ?? "Committed time was not stored.")}.");
         sb.AppendLine();
     }
 
@@ -98,7 +100,7 @@ public static class FirstValueReportDeltasSectionFormatter
     {
         return deltas.TimeToCommittedManifest is not { } wall
             ? "Time to committed manifest was not stored."
-            : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
+            : $"**{wall:c}** (committed {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.ManifestCommittedUtc?.ToString("O", CultureInfo.InvariantCulture) ?? "Committed time was not stored.")})";
     }
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
