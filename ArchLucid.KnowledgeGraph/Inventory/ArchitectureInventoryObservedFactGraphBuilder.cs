@@ -185,6 +185,13 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             return storedName!;
         }
 
+        if (string.IsNullOrWhiteSpace(resource.ResourceType)
+            && armNameSegment is null
+            && armId.Contains("/providers/", StringComparison.OrdinalIgnoreCase))
+        {
+            return armId.Trim();
+        }
+
         return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
     }
 

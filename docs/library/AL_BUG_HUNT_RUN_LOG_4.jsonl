@@ -2915,3 +2915,7 @@
 {"at":"2026-10-30T20:34:12.0781291Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T20:42:46.8006733Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Composition/)"]}
 {"at":"2026-10-30T20:45:42.4766297Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/,ArchLucid.Provenance/)"]}
+{"at":"2026-10-30T21:28:27.4891992Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/Inventory/ArchitectureInventoryObservedFactGraphBuilder.cs,ArchLucid.KnowledgeGraph.Tests/ArchitectureInventoryObservedFactGraphOverlayTests.cs)"]}
+{"at":"2026-10-30T21:34:20.4181860Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-30T21:38:51.4718679Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-30T21:42:18.3576788Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
