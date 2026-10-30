@@ -726,6 +726,31 @@ namespace N
   }
 
   [Fact]
+  public async Task Does_not_report_typeof_banned_type_in_collection_expression_element()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System;
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(Type[] items) { }
+
+        void Call()
+        {
+            M([typeof(HttpContext)]);
+        }
+    }
+}
+""";
+
+    await RunInnerLayerTestAsync(testCode);
+  }
+
+  [Fact]
   public async Task Reports_banned_type_identifier_in_collection_expression_cast_element_at_call_site()
   {
     const string testCode = """
