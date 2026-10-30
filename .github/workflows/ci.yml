@@ -628,6 +628,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_scenario_chooser
 
+      - name: SecureNow compliance notes
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_compliance_notes.py
+
+      - name: SecureNow compliance notes unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_compliance_notes
+
       - name: Starter proof pack validation unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_starter_proof_packs.py"
