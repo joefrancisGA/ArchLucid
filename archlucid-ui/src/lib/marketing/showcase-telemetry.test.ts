@@ -48,6 +48,12 @@ describe("showcase-telemetry", () => {
     expect(resolveShowcaseScenarioSlug("\n")).toBe("unknown");
   });
 
+  it("maps distinct invalid percent-encoding run ids to distinct analytics scenarios", () => {
+    expect(resolveShowcaseScenarioSlug("claims%")).toBe("claims%");
+    expect(resolveShowcaseScenarioSlug("billing%")).toBe("billing%");
+    expect(resolveShowcaseScenarioSlug("claims%")).not.toBe(resolveShowcaseScenarioSlug("billing%"));
+  });
+
   it("recordShowcaseViewed is a no-op when scenario trims to empty", () => {
     recordShowcaseViewed({ scenario: "   ", renderMode: "static" });
 

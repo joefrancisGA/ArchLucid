@@ -7799,13 +7799,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
-2026-10-30 thorough hunt #2 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — post-settle `showSampleResult` re-activation intentionally refetches and re-records telemetry (`applies the latest sample when showSampleResult runs again after an earlier sample fetch completes`); sample fetch omits `AbortSignal` but superseded generations still discard stale JSON (`does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses`); artifact nav updates `aria-current` when intersection ratios drop to zero (`moves aria-current when the observer reports the prior active section left the viewport`); volatile session and browser ids remain distinct caches when storage throws (`issues distinct volatile session and browser ids when localStorage is unavailable`); invalid `%` run segments still emit `showcase_viewed` with trimmed slug by design (`records showcase_viewed with the trimmed slug when percent-encoding in the run id is invalid`). Reseeded five follow-on `(candidate)` rows. 20 scoped vitest tests in touched suites passed; no production code changed.
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
 
-- [ ] (candidate) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — locus: status effect guard; input: capacity race after submit (monitor).
-- [ ] (candidate) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — locus: abortController vs sample ref; input: cancel in-flight submit then sample CTA (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav` — scrollToSection sets active before smooth scroll completes — locus: click vs observer race; input: fast scroll + IO callback (monitor).
-- [ ] (candidate) `ensureSessionId` — server render returns literal `server` for both helpers — locus: SSR identity; input: hydration mismatch telemetry (monitor).
-- [ ] (candidate) `ShowcasePageTelemetry` — distinct malformed `%` slugs share one analytics scenario string — locus: resolveShowcaseScenarioSlug fallback; input: analytics cardinality (monitor).
+- [ ] (candidate) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — locus: POST completion without generation guard; input: sample CTA during slow POST (monitor).
+- [ ] (candidate) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — locus: error reset on submit; input: failed sample then analyze (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — locus: IO vs click race; input: scroll mid-click (monitor).
+- [ ] (candidate) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — locus: volatile cache lifetime; input: private mode reload (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — locus: dual telemetry paths; input: consent granted + blank slug (monitor).
+
+- [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — scrollToSection sets active before smooth scroll completes — **cheap-disproof 2026-10-30 thorough hunt #3:** intentional immediate highlight; regression `marks the clicked artifact nav button active when scrollIntoView runs`.
+- [x] (invalid) `ensureSessionId` — server render returns literal `server` for both helpers — **cheap-disproof 2026-10-30 thorough hunt #3:** shared SSR placeholder by design; regression `returns server placeholders when window is unavailable during SSR`.
+- [x] (invalid) `ShowcasePageTelemetry` — distinct malformed `%` slugs share one analytics scenario string — **cheap-disproof 2026-10-30 thorough hunt #3:** invalid `%` prefixes stay distinct; regression `maps distinct invalid percent-encoding run ids to distinct analytics scenarios`.
 
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — overlapping `showSampleResult` may issue parallel sample fetches but applies only the latest generation and one telemetry event (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles` asserts duplicate fetch count); invalid `%` run segments keep trimmed slug for telemetry by design (`resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`); missing artifact nav target leaves prior `aria-current` unchanged (`keeps aria-current on the prior section when a nav click targets a removed section`); volatile browser id stable per tab when storage throws (`reuses the same volatile browser id when localStorage writes fail`; separate from session id by design); distinct blank run ids share `unknown` analytics bucket intentionally (`maps distinct whitespace-only run ids to the same unknown analytics scenario`). Reseeded five follow-on `(candidate)` rows. 24 scoped marketing vitest tests in touched suites passed; no production code changed.
 
@@ -7847,9 +7853,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none

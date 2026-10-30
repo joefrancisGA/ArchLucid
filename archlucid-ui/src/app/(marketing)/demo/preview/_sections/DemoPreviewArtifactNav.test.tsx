@@ -192,4 +192,31 @@ describe("DemoPreviewArtifactNav", () => {
       "true",
     );
   });
+
+  it("marks the clicked artifact nav button active when scrollIntoView runs", () => {
+    class IntersectionObserverMock {
+      public constructor(_callback: IntersectionObserverCallback) {}
+
+      public observe(): void {}
+
+      public disconnect(): void {}
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
+    const target = document.createElement("div");
+    target.id = "artifact-governance-approval";
+    target.scrollIntoView = vi.fn();
+    document.body.appendChild(target);
+
+    render(<DemoPreviewArtifactNav />);
+
+    fireEvent.click(screen.getByTestId("demo-preview-artifact-nav-artifact-governance-approval"));
+
+    expect(screen.getByTestId("demo-preview-artifact-nav-artifact-governance-approval")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    expect(target.scrollIntoView).toHaveBeenCalled();
+  });
 });

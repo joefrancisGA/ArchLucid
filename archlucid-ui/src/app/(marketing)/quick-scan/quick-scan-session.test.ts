@@ -74,4 +74,18 @@ describe("quick-scan-session identity helpers", () => {
     setItemSpy.mockRestore();
     getItemSpy.mockRestore();
   });
+
+  it("returns server placeholders when window is unavailable during SSR", () => {
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+    Object.defineProperty(globalThis, "window", { value: undefined, configurable: true });
+
+    try {
+      expect(ensureSessionId()).toBe("server");
+      expect(ensureBrowserId()).toBe("server");
+    } finally {
+      if (windowDescriptor) {
+        Object.defineProperty(globalThis, "window", windowDescriptor);
+      }
+    }
+  });
 });

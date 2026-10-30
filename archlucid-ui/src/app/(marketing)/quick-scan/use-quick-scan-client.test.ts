@@ -458,4 +458,145 @@ describe("useQuickScanClient", () => {
 
     expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
   });
+
+  it("does not apply analysis results after cancelSubmit aborts an in-flight POST", async () => {
+    let resolvePost: ((value: Response) => void) | undefined;
+    let rejectPost: ((reason: unknown) => void) | undefined;
+    const postPromise = new Promise<Response>((resolve, reject) => {
+      resolvePost = resolve;
+      rejectPost = reject;
+    });
+
+    useQuickScanStatusQueryMock.mockReturnValue({
+      data: {
+        enabled: true,
+        capacityAvailable: true,
+        requireSignIn: false,
+        sampleResultAvailable: false,
+        capacityState: "Available",
+      },
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes("/marketing/quick-scan") && init?.method === "POST") {
+        init.signal?.addEventListener("abort", () => {
+          rejectPost?.(new DOMException("Aborted", "AbortError"));
+        });
+
+        return postPromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.setFormValues({
+        systemName: "Contoso",
+        primaryEnvironment: "Azure",
+        primaryEnvironmentOther: "",
+        description: "A multi-region workflow with audit logging.",
+        architectureConcerns: [],
+      });
+      result.current.markFieldTouched("systemName");
+      result.current.markFieldTouched("primaryEnvironment");
+      result.current.markFieldTouched("description");
+    });
+
+    await act(async () => {
+      void result.current.handleFormSubmit({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    act(() => {
+      result.current.cancelSubmit();
+    });
+
+    await act(async () => {
+      resolvePost?.({
+        ok: true,
+        text: async () => JSON.stringify(REAL_ANALYSIS),
+      } as Response);
+    });
+
+    expect(result.current.result).toBeNull();
+  });
+
+  it("invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled", async () => {
+    let resolveSample: ((value: Response) => void) | undefined;
+    let rejectPost: ((reason: unknown) => void) | undefined;
+    const samplePromise = new Promise<Response>((resolve) => {
+      resolveSample = resolve;
+    });
+    const postPromise = new Promise<Response>((_resolve, reject) => {
+      rejectPost = reject;
+    });
+
+    useQuickScanStatusQueryMock.mockReturnValue({
+      data: {
+        enabled: true,
+        capacityAvailable: true,
+        requireSignIn: false,
+        sampleResultAvailable: false,
+        capacityState: "Available",
+      },
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      if (url.includes("/marketing/quick-scan/sample")) {
+        return samplePromise;
+      }
+
+      if (url.includes("/marketing/quick-scan") && init?.method === "POST") {
+        init.signal?.addEventListener("abort", () => {
+          rejectPost?.(new DOMException("Aborted", "AbortError"));
+        });
+
+        return postPromise;
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.setFormValues({
+        systemName: "Contoso",
+        primaryEnvironment: "Azure",
+        primaryEnvironmentOther: "",
+        description: "A multi-region workflow with audit logging.",
+        architectureConcerns: [],
+      });
+      result.current.markFieldTouched("systemName");
+      result.current.markFieldTouched("primaryEnvironment");
+      result.current.markFieldTouched("description");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await act(async () => {
+      void result.current.handleFormSubmit({
+        preventDefault: vi.fn(),
+      } as unknown as FormEvent<HTMLFormElement>);
+    });
+
+    act(() => {
+      result.current.cancelSubmit();
+    });
+
+    await act(async () => {
+      resolveSample?.({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      } as Response);
+    });
+
+    expect(result.current.result).toBeNull();
+  });
 });
