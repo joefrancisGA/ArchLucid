@@ -202,6 +202,16 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
+            if (!symbol.IsAbstract &&
+                DefaultInterfacePublicApiActionsAreAllAuthorized(
+                    symbol,
+                    authorizeAttribute,
+                    allowAnonymousAttribute,
+                    nonActionAttribute))
+            {
+                return;
+            }
+
             // Non-public and [NonAction] route-marked members are not API actions; do not emit a
             // type-level AL0001 when the controller exposes no public actions (e.g. protected helpers).
 
@@ -274,6 +284,57 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         }
 
         return foundInheritedApiAction;
+    }
+
+    private static bool DefaultInterfacePublicApiActionsAreAllAuthorized(
+        INamedTypeSymbol controllerType,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        bool foundDefaultInterfaceApiAction = false;
+
+        foreach (INamedTypeSymbol iface in controllerType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod ||
+                    interfaceMethod.MethodKind != MethodKind.Ordinary ||
+                    interfaceMethod.IsAbstract ||
+                    interfaceMethod.IsStatic)
+                {
+                    continue;
+                }
+
+                IMethodSymbol? implementation =
+                    controllerType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null ||
+                    !SymbolEqualityComparer.Default.Equals(implementation, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (!IsDeclaredPublicApiAction(interfaceMethod, nonActionAttribute))
+                {
+                    continue;
+                }
+
+                if (!MethodHasAspNetCoreActionMarkerAttribute(interfaceMethod))
+                {
+                    continue;
+                }
+
+                foundDefaultInterfaceApiAction = true;
+
+                if (!ActionHasAuthorization(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return foundDefaultInterfaceApiAction;
     }
 
     private static bool NestedDerivedControllerTypesSatisfyEmptyOuterShell(
