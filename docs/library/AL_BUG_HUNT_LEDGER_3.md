@@ -2,6 +2,11 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #82 (seed-only): re-read `SignupForm`, `signupFormSchema`, and the 140-test SignupForm suite; existing regressions cover validation gates, retry guards, response parsing, attribution, storage failures, and keyboard submission. No new hunt-ready row was promoted; seeded two bounded post-commit navigation candidates.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state; input: a valid signup receives `200`/`201` and `router.push` rejects after the tenant is created.
+- [ ] (candidate) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration; input: a valid signup receives `200`/`201` while the toast implementation throws during success handling.
+
 2026-10-30 thorough hunt #66 (dry): cheap-disproof closed three open `(candidate)` rows — retry and completion guards remain covered across router transition, first-touch serialization failure remains non-blocking, and the submit callback snapshots company size before the POST/session write. The full SignupForm suite passed 140/140; no production code changed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
@@ -320,7 +325,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-30
