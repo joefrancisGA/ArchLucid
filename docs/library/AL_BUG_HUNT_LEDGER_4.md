@@ -21917,7 +21917,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows whose endpoints normalize to empty ARM ids are skipped silently while duplicate resource rows with conflicting `cloudResourceId` may throw only on scalar merge; reachability: Azure inventory snapshot with duplicate normalized ARM ids and disagreeing cloud resource ids.
 - [ ] (candidate) `ProvenanceBuilder.Build` — duplicate graph nodes whose `NodeId` differs only by surrounding whitespace merge in `AddNode` but `graphNodeIds` HashSet uses case-insensitive normalized ids while influenced-by edges reference trimmed related ids; reachability: graph snapshot with case/whitespace variant node ids and findings linking related nodes.
 
-2026-10-30 seed hunt #989 (seed-only): re-read `ArchitectureInventoryObservedFactGraphBuilder`, `ArchitectureInventoryObservedFactGraphOverlayMerger`, and `ProvenanceBuilder`; no candidate was promoted because the remaining null-element paths require malformed persisted collection entries and need a dedicated failing repro. Scoped KnowledgeGraph/Provenance tests passed 697/697 and 179/179; seeded five fresh `(candidate)` rows.
+2026-10-30 seed hunt #989 (seed-only): re-read `ArchitectureInventoryObservedFactGraphBuilder`, `ArchitectureInventoryObservedFactGraphOverlayMerger`, and `ProvenanceBuilder`; no candidate was promoted because the remaining null-element paths required a dedicated failing repro. Scoped KnowledgeGraph/Provenance tests passed 697/697 and 179/179; seeded five fresh `(candidate)` rows.
 
 - [x] (invalid) `ProvenanceBuilder.Build` — null `GraphNode` entry — **hit 2026-10-30 seed hunt #990** (see hunt note above).
 - [x] (invalid) `ProvenanceBuilder.Build` — null `Finding` entry — **cheap-disproof 2026-10-30 seed hunt #990** (see hunt note above).
@@ -24822,6 +24822,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 
 ### Hypotheses
+
+- (candidate) `ProvenanceBuilder.Build` — a persisted findings snapshot containing a null `Finding` entry reaches `findingRows.GroupBy(f => NormalizeId(f.FindingId))` and can fail before finding provenance is emitted; reachability: persisted `FindingsSnapshot` payload.
+- (candidate) `ProvenanceBuilder.Build` — a persisted manifest containing a null decision entry reaches `DistinctDecisionKeys()` and can fail while constructing decision provenance; reachability: persisted `ManifestDocument` payload.
+- (candidate) `ProvenanceBuilder.Build` — a persisted artifact bundle containing a null `SynthesizedArtifact` entry reaches `artifacts.GroupBy(artifact => artifact.ArtifactId)` and can fail before artifact provenance is emitted; reachability: persisted artifact bundle payload.
+- (candidate) `ProvenanceBuilder.Build` — a rule-audit payload with a null element in `AppliedRuleIds` reaches `NormalizeId` via `DistinctAppliedRuleIds` and can fail during rule provenance construction; reachability: persisted `RuleAuditTraceDto` payload.
 
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments` — persisted `CanonicalObject.SourceId` values differing only by case could split one structured diagram into multiple reconstructed documents; **cheap-disproof 2026-10-04 thorough hunt:** `SourceId` is an opaque stable document identifier in the selected reconstruction/merge paths, with no case-insensitive equivalence contract or reachable producer evidence.
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — a persisted `connectedToNodeIds` token whose canonical-object id differs only by case could omit a diagram edge; **cheap-disproof 2026-10-04 thorough hunt:** canonical-object ids are opaque stable identifiers and the selected mapper/reconstructor paths emit and consume the same exact id shape; no reachable case-variant input was established.
