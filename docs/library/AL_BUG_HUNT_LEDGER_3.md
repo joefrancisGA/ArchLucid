@@ -7895,6 +7895,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #41 (seed-only): fresh rereading of operator-route scope subscriptions and sibling next-review footer loaders found the same saturated state-machine gap already fixed in `ArchitectureIntelligenceNextReviewFooterClient`; no new candidate was promoted or duplicated. The focused footer regression/component tests passed 3/3. No production code changed.
+
 2026-10-30 thorough hunt #40 (hit): promoted `ArchitectureIntelligenceNextReviewFooterClient` — the footer loaded review rows once with an empty scope dependency and committed the response after an operator workspace switch, so a mounted Architecture Intelligence page could show the prior workspace's next-review link; reload rows on the live operator scope key, clear prior rows immediately, and ignore late responses after scope cleanup; regression `does not commit the prior scope's next-review footer after an operator scope switch`; the pre-fix assertion failed with `prior-scope-next-review` and passed after the fix. The malformed `use-runs-list` timestamp candidate was not promoted. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace's next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
 
 2026-10-30 seed hunt #64 (seed-only): re-read operator reviews-list sorting/selection, architecture-intelligence next-review context, and operator scope boundaries; no newly promoted hunt-ready row produced a failing repro. Seeded three bounded follow-on candidates below.
@@ -7942,7 +7944,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 40
+- **hunts:** 41
 - **last-hunt:** 2026-10-30
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0

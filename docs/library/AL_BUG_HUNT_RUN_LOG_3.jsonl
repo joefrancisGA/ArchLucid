@@ -2054,3 +2054,4 @@
 {"at":"2026-10-30T18:50:00.7005857Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T18:52:41.9513612Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T19:00:16.3100439Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient.tsx,archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient.test.tsx)"]}
+{"at":"2026-10-30T19:03:12.1274526Z","zoneId":"ui-operator-routes","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/)"]}
