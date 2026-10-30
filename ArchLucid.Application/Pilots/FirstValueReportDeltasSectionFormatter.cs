@@ -144,9 +144,7 @@ public static class FirstValueReportDeltasSectionFormatter
 
     private static string FormatFindingsTotalSource(PilotRunDeltas deltas)
     {
-        string list = deltas.FindingsCountsFromSnapshot
-            ? "`FindingsSnapshot.Findings` (unmuted only)"
-            : "`ArchitectureRunDetail.Results[*].Findings` (unmuted only)";
+        string list = PilotRunDeltasFindingsEmptySeverityHonesty.ResolveFindingsTotalSourceList(deltas);
 
         return deltas.MutedFindingsExcludedCount > 0
             ? $"{list}; muted findings excluded"

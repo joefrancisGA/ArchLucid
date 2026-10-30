@@ -11,6 +11,26 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
     internal const string AgentResultsIncludedEmptySeverityPlainLabel =
         "No findings were stored on agent results for this run.";
 
+    internal const string FindingsTotalSourceAgentResultsOmittedLabel =
+        "`ArchitectureRunDetail` agent results omitted on run detail payload";
+
+    internal static string ResolveFindingsTotalSourceList(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.FindingsCountsFromSnapshot)
+        {
+            return "`FindingsSnapshot.Findings` (unmuted only)";
+        }
+
+        if (!deltas.AgentResultsIncludedInDetail)
+        {
+            return FindingsTotalSourceAgentResultsOmittedLabel;
+        }
+
+        return "`ArchitectureRunDetail.Results[*].Findings` (unmuted only)";
+    }
+
     internal static bool HasMaterialFindingWithoutSeverityBuckets(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);

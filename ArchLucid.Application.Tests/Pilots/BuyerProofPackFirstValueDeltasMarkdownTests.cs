@@ -245,4 +245,33 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
             .Should()
             .Be(PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
     }
+
+    [Fact]
+    public void Computed_deltas_table_when_agent_results_omitted_findings_source_does_not_cite_architecture_run_detail_results()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            sb,
+            new PilotRunDeltas
+            {
+                AgentResultsIncludedInDetail = false,
+                FindingsCountsFromSnapshot = false,
+                FindingsBySeverity = [],
+                TimeToCommittedManifest = TimeSpan.FromHours(1),
+                ManifestCommittedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+                RunCreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+                LlmCallCountResolved = true,
+                LlmCallCount = 0,
+                AuditRowCountResolved = true,
+                AuditRowCount = 0,
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings (total) |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored);
+        row.Should().NotContain("ArchitectureRunDetail.Results[*].Findings");
+    }
 }
