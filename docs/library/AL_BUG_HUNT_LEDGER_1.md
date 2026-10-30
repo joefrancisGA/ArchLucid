@@ -16543,6 +16543,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-30 seed hunt (seed-only): re-read `PilotValueReportMarkdownFormatter`, `PilotValueReportService`, `BuyerProofPackCommitGuard`, `BuyerProofPackBuilder`, and `BoardPackQuarterWindow` after the 2026-10-30 dry pass; inverse checks on combined truncation flags, digest clamp on short windows, and buyer-pack caution wiring did not meet the hunt-ready bar; no failing repro; seeded five follow-on `(candidate)` rows below; scoped **35** `BuyerProofPack`/`BoardPack` unit tests passed (`RunAnalyzers=false`; API integration tests skipped — SQL fixture unavailable on Linux cloud VM).
+
+- [ ] (candidate) `PilotValueReportMarkdownFormatter` — when `RunDetailSampleLoadedNoRows` and `CommittedRunsInventoryTruncated` are both true, the metadata `Committed runs` row uses only the zero-loaded detail qualifier and omits the partial-inventory phrase — locus: mutually exclusive `if` branches (~32-47); input: keyset inventory stop with every `GetRunDetailForRoiAsync` returning null.
+- [ ] (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — validator never reads `isSampleRun` from deltas JSON (sample caution is merged in `BuyerProofPackBuilder` only) — locus: `TryValidateDeltasJson`; input: tampered `pilot-run-deltas.json` with `isSampleRun:true` inserted after ZIP assembly if a future path re-validates JSON without rebuilding limitations.
+- [ ] (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-hour override windows are untested beyond the 12-hour theory row — locus: ISO-week clamp; input: `POST /v1/pilots/board-pack.pdf` period of a few minutes spanning a week boundary; wrong outcome: `weekEndUtc` not after `weekStartUtc`.
+- [ ] (candidate) `PilotValueReportService.BuildAsync` — `EmptyReport` when `toExclusive <= from` returns zero committed runs while still surfacing `GovernancePendingApprovalsNow` — locus: early return ~113-114; input: inverted or equal report window from API query params; mechanism: sponsor markdown may read like a healthy empty pilot when only pending approvals are non-zero.
+- [ ] (candidate) `PilotValueReportMarkdownFormatter.FormatAvgSeconds` — sub-second averages render with two decimal places while minute/hour branches use `0.##` — locus: final branch `< 60` returns `$"{s:0.##} s"`; input: avg pipeline completion between 0 and 1 second from a single fast committed run; mechanism: rounding/display inconsistency vs minute formatting.
+
 2026-10-30 thorough hunt (dry): five open `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks did not meet the hunt-ready bar. `GovernanceApprovals`, `GovernanceRejections`, and `ComparisonOrDriftDetections` are audit-export counts (`PilotValueReportService` lines 125–128), so an empty detail timeline does not zero them. The metadata count cell prefers the detail-sample qualifier, and `| Committed-run inventory truncated |` still prints the inventory flag. `bool.TryParse("true ")` returns true, so the padded string does not suppress the demo warning. A positive window that contains its midpoint keeps `weekEndUtc` after `weekStartUtc` after the digest clamp. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** count cell shows the detail-sample qualifier; `| Committed-run inventory truncated |` still discloses the keyset stop. Combining both phrases on the count cell is a `[state-machine-gap]` sibling of the 2026-10-23 qualifier.
@@ -16582,7 +16590,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-30
