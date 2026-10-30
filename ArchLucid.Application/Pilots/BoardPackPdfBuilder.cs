@@ -102,7 +102,7 @@ public sealed class BoardPackPdfBuilder(
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Helvetica"));
-                page.Header().Text("ArchLucid — quarterly board pack").Bold().FontSize(14);
+                page.Header().Text(BoardPackPdfCoverCopy.BuildPdfHeaderLabel(customPeriod)).Bold().FontSize(14);
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));
                 page.Footer().AlignCenter().Text(text =>
                 {

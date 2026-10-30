@@ -38,6 +38,11 @@ internal static class BoardPackPdfCoverCopy
                """;
     }
 
+    internal static string BuildPdfHeaderLabel(bool customPeriod) =>
+        customPeriod
+            ? "ArchLucid — board pack (custom period)"
+            : "ArchLucid — quarterly board pack";
+
     private static string FormatUtc(DateTimeOffset value) =>
         value.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
 }

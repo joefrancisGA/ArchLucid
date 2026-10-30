@@ -50,4 +50,20 @@ public sealed class BoardPackPdfCoverCopyTests
 
         intro.Should().Contain("full quarter window");
     }
+
+    [Fact]
+    public void BuildPdfHeaderLabel_when_custom_period_does_not_say_quarterly()
+    {
+        BoardPackPdfCoverCopy.BuildPdfHeaderLabel(customPeriod: true)
+            .Should()
+            .Be("ArchLucid — board pack (custom period)");
+    }
+
+    [Fact]
+    public void BuildPdfHeaderLabel_when_calendar_quarter_keeps_quarterly_wording()
+    {
+        BoardPackPdfCoverCopy.BuildPdfHeaderLabel(customPeriod: false)
+            .Should()
+            .Be("ArchLucid — quarterly board pack");
+    }
 }

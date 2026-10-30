@@ -16632,11 +16632,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Governance approvals` when `AuditExportTruncated` and `RunDetailsTruncated` both true — locus: Summary table dual truncation; input: audit cap and run-detail cap with non-zero approval tally.
-- (candidate) `PilotValueReportService.BuildAsync` — `TotalRunsCommitted` uses collected inventory count while timeline excludes runs whose detail fetch returned null — locus: aggregation vs timeline parity; input: mixed successful and failed detail loads under cap.
-- (candidate) `BuyerProofPackDeltasJsonFormatter` — serializes ROI freshness disposition without normalizing whitespace-only strings — locus: deltas JSON export; input: whitespace disposition from upstream resolver.
-- (candidate) `BoardPackPdfBuilder` — PDF header footer still says quarterly board pack when custom override period requested — locus: QuestPDF header chrome vs markdown cover; input: POST board-pack.pdf with override bounds.
-- (candidate) `PilotValueReportMarkdownFormatter` — timeline `System name was not stored empty.` vs `stored empty` inconsistency when service emits stored-empty label — locus: EscapeCell vs `FormatPilotValueReportSystemName`; input: whitespace system name on timeline row.
+- (candidate) `PilotValueReportMarkdownFormatter` — metadata `Audit export truncated` boolean without cross-link when `CommittedRunsInventoryTruncated` also true — locus: metadata table dual flags; input: both truncation flags set with loaded run details.
+- (candidate) `PilotValueReportService.BuildAsync` — average pipeline completion includes negative wall times filtered but NaN average if all samples invalid — locus: completionSeconds aggregation; input: committedUtc before CreatedUtc on all loaded runs.
+- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest file name does not include demo warning segment when `DemoDataWarning` true — locus: zip file naming; input: demo tenant committed run.
+- (candidate) `BoardPackPdfCoverCopy` — custom period title uses exclusive end bound while value report builder uses same half-open window — locus: title wording vs `[start,end)` contract; input: override bounds on board pack export.
+- (candidate) `PilotValueReportMarkdownFormatter` — `FormatRoiSourceFreshnessDispositionCell` treats whitespace-only disposition as present value — locus: ROI metadata row; input: whitespace freshness string.
+
+2026-10-30 seed hunt (seed→hit): promoted QuestPDF page header still reading `ArchLucid — quarterly board pack` when custom override period set despite markdown cover fix; `BoardPackPdfCoverCopy.BuildPdfHeaderLabel` aligns header chrome; regressions in `BoardPackPdfCoverCopyTests`; cheap-disproof closed five hunt-60 `(candidate)` rows; seeded five follow-on rows; scoped **41** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: Custom-period board pack PDFs no longer show a quarterly-only header on every page while the body describes a shorter requested window.
+
+- [x] (proven) `BoardPackPdfBuilder` — QuestPDF header when custom override period — **hit 2026-10-30 seed hunt:** `BuildPdfHeaderLabel`; regressions `BuildPdfHeaderLabel_when_custom_period_does_not_say_quarterly`. [class:state-machine-gap]
+
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — dual audit and run-detail truncation on governance row — **cheap-disproof 2026-10-30 seed hunt (hunt 61):** audit totals by design; metadata flags disclose each cap separately.
+- [x] (valid-no-repro) `PilotValueReportService.BuildAsync` — timeline vs committed count when detail fetch fails — **cheap-disproof 2026-10-30 seed hunt (hunt 61):** inventory count is in-window committed runs; timeline lists successful detail loads only; documented partial-sample paths.
+- [x] (invalid) `BuyerProofPackDeltasJsonFormatter` — whitespace ROI disposition — **cheap-disproof 2026-10-30 seed hunt (hunt 61):** resolver emits normalized tokens; whitespace-only not observed on pilot path today.
+- [x] (invalid) `PilotValueReportMarkdownFormatter` — EscapeCell vs stored-empty system name — **cheap-disproof 2026-10-30 seed hunt (hunt 61):** service emits `System name was stored empty.` before formatter; EscapeCell not used on raw whitespace input.
 
 2026-10-30 seed hunt (seed→hit): promoted board pack cover still labeling `Q{quarter} {year}` and claiming a full quarter window when both override bounds are set; extracted `BoardPackPdfCoverCopy` for custom-period title and intro; regressions in `BoardPackPdfCoverCopyTests`; cheap-disproof closed five hunt-59 `(candidate)` rows; seeded five follow-on rows; scoped **39** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: Sponsors who request a shorter board-pack UTC window see cover copy that matches the requested period instead of calendar-quarter-only labeling.
 
@@ -16711,11 +16720,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 60
-- **bugs-found:** 42
+- **hunts:** 61
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — board pack cover mislabeled custom override periods as full calendar quarter
+- **last-bug:** 2026-10-30 — board pack PDF header still quarterly on custom period
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
