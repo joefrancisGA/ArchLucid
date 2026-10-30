@@ -1,7 +1,12 @@
 /** Maps OpenAPI FindingHumanReviewStatus integers to operator-facing labels (TB-063). */
 export function formatFindingHumanReviewStatusLabel(
   status: number | string | null | undefined,
+  options?: { readonly stored?: boolean },
 ): string {
+  if (options?.stored === false) {
+    return "Human review status was not stored";
+  }
+
   const numeric =
     typeof status === "number"
       ? status

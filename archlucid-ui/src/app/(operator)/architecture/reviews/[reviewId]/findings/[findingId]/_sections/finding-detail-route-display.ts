@@ -6,6 +6,7 @@ import {
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
+import { coerceArchitectureFindingSeverity, humanReviewStatusDisplay, normalizeFindingHumanReviewStatus, severityBadgeLabel } from "@/lib/quick-decision-severity-labels";
 import { formatQuickDecisionRecommendedAction } from "@/lib/quick-decision-finding-links";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import type { FindingConfidenceLevel } from "@/types/explanation";
@@ -156,6 +157,16 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     if (status !== null && status.trim().length > 0) {
       return status;
     }
+
+    if (payload.humanReviewStatusStored === false) {
+      return STATUS_NOT_STORED;
+    }
+
+    const reviewStatus = normalizeFindingHumanReviewStatus(payload.humanReviewStatus);
+
+    if (reviewStatus !== null) {
+      return humanReviewStatusDisplay(reviewStatus, { stored: payload.humanReviewStatusStored }).label;
+    }
   }
 
   return STATUS_NOT_STORED;
@@ -163,6 +174,20 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
 
 export function fallbackSeverity(payload: FindingInspectPayload | null, findingId: string): string {
   if (payload !== null) {
+    if (payload.severityStored === false) {
+      return SEVERITY_NOT_STORED;
+    }
+
+    const wireSeverity = coerceArchitectureFindingSeverity(payload.severity);
+
+    if (wireSeverity !== null) {
+      if (resolveProductionEvalChromeFromStorage()) {
+        return buyerFindingSeverityDisplayLabel(severityBadgeLabel(wireSeverity), payload.findingId ?? findingId);
+      }
+
+      return severityBadgeLabel(wireSeverity);
+    }
+
     const severity = findingInspectPrimaryLabels(payload).severityLabel;
 
     if (resolveProductionEvalChromeFromStorage()) {

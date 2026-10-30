@@ -147,7 +147,12 @@ export function normalizeFindingHumanReviewStatus(value: unknown): number | null
  */
 export function humanReviewStatusDisplay(
   value: number | null | undefined,
+  options?: { readonly stored?: boolean },
 ): FindingHumanReviewStatusDisplay {
+  if (options?.stored === false) {
+    return { label: "Human review status was not stored", statusKind: "neutral" };
+  }
+
   switch (value) {
     case 0:
       return { label: "No human review required", statusKind: "neutral" };
