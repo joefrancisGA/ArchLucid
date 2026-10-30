@@ -4477,19 +4477,33 @@
 
 ## Zone: tenant-data-export
 
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (export-record metadata career gate, replay lifecycle re-check, review export HTTP mapping, padded CLI boolean strings, RunsExport career 409); reseeded five follow-on `(candidate)` rows; scoped filter **22/23** passed — 13 `ArchLucid.Api.Tests` + 9 `ArchLucid.Application.Tests` (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML copy assertion failure on VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ExportsController.GetExportRecord` — metadata without career posture — **cheap-disproof 2026-10-30 thorough hunt (dry):** `RunExportQueryFacade.GetExportRecordAsync` calls `EnsureCareerAllowsExportRecordMetadataOrThrowAsync`; controller maps `CareerArtifactExportBlockedException`; regression `GetExportRecordAsync_throws_when_career_posture_blocks_metadata_read`.
+- [x] (valid-no-repro) `RunExportQueryFacade.ReplayExportAsync` — skips lifecycle before replay — **cheap-disproof 2026-10-30 thorough hunt (dry):** facade invokes `TryEnsureExportRunLifecycleCompleteAsync` before `_exportReplayService.ReplayAsync`; replay service re-checks lifecycle on byte export.
+- [x] (valid-no-repro) `ArchitectureReviewExportService` / `RunsExportController.Export` — missing career 409 mapping — **cheap-disproof 2026-10-30 thorough hunt (dry):** `RunsExportController` catches `CareerArtifactExportBlockedException`; regression `Export_returns_409_when_career_export_blocked`.
+- [x] (invalid) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — padded `" 1 "` / `" 1.0 "` bypass sample block — **cheap-disproof 2026-10-30 thorough hunt (dry):** invariant-culture `double.TryParse` with `NumberStyles.Float` accepts surrounding whitespace and coerces to non-zero (blocks sample workspace, does not bypass).
+- [x] (valid-no-repro) `RunsExportController` — career parity vs `ArtifactExportController` — **cheap-disproof 2026-10-30 thorough hunt (dry):** review export route maps career block; run ZIP/artifact parity shipped 2026-10-06 thorough hunt.
+
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — non-breaking Unicode whitespace (for example NBSP) inside string `"1"` may fail exact `"1"` compare before numeric coercion — locus: string branch ~156–182; input: hand-edited `pilot-run-deltas.json` with `\u00A01`; reachability: CLI proof-packet bundle deltas.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — career gate after lifecycle uses honesty material loader only; sample-workspace block depends on run header fields not re-read from export record snapshot — locus: `CareerExportCoverageHonestyMaterialLoader` vs persisted export metadata; input: run header drift after export record captured.
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — single career gate on run id before listing all export rows — locus: `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` once per history query; input: mixed career posture across export types on same run (verify intended run-scoped gate).
+- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — format-specific HTML/PDF branches diverge on missing sponsor/manifest copy while DOCX path enforces career gate first — locus: HTML template vs DOCX builder ordering; input: career-blocked run with partial manifest fields.
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — punycode / IDN blob host labels vs ASCII allowlist entries — locus: host normalization before allowlist; input: operator-configured blob URL with internationalized domain.
+
 2026-09-13 seed hunt #2388 (seed-only): reseeded tenant-data-export; no new hunt-ready rows.
 - **status:** open
 - **impact:** high
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 943
+- **hunts:** 944
 - **bugs-found:** 57
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
 
@@ -6445,13 +6459,7 @@
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string `"1.00"` / `"01"` for `is_sample_run` — **cheap-disproof 2026-10-06 thorough hunt:** invariant-culture whole-number string coercion after #3469/`"1.0"` fix already treats both as true; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
 - [x] (proven) `ArchitectureExportController.ExportRunSummary` — missing career-blocked HTTP mapping — **hit 2026-10-06 thorough hunt:** `RunSummaryOnePagerExportService` calls `CareerArtifactExportCompletenessGate` but controller only mapped `ConflictException`; regression `ExportRunSummary_returns_409_when_career_export_blocked`.
 
-- [ ] (candidate) `ExportsController.GetExportRecord` — returns export-record JSON metadata after sealed-manifest guard without career posture check; reachable when operators inspect persisted export rows for career-blocked runs (metadata read vs byte replay).
-- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — does not re-run lifecycle Complete guard before delegating to `ExportReplayService` when lineage/hash already verified; reachable if lifecycle regresses after export record was captured.
-- [ ] (candidate) `ArchitectureReviewExportService` / review markdown export — career gate in application service but API controller may not map `CareerArtifactExportBlockedException` to 409 on all routes (parity with `DocxExportController`).
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string values with leading/trailing whitespace around numeric tokens (`" 1 "`, `" 1.0 "`) may bypass sample-workspace block; reachable from hand-edited `pilot-run-deltas.json`.
-- [ ] (candidate) `RunsExportController` — run export listing or download helpers may omit career posture parity with `ArtifactExportController` run ZIP paths after recent RunArtifacts fixes; reachable on product routes under `/architecture/runs`.
-
-- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
+2026-09-12 seed hunt #1814 (hit):
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — coalesced publish-policy mix — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 
