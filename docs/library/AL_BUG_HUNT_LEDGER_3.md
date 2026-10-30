@@ -7893,6 +7893,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
+
+- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
+- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
+
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
 
 - [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses the email input’s type constraint and the handler posts malformed work-email values — **hit 2026-10-30 seed hunt #80:** validate the trimmed address with the browser-compatible email pattern before posting; regression in `MarketingPricingQuotePanel.test.tsx`.
@@ -8163,7 +8168,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
