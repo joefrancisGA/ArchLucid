@@ -137,6 +137,9 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       };
     }
 
+    const latestRunHasInventoryEvidence =
+      runSummaryQuery.data?.hasGraphSnapshot === true || runSummaryQuery.data?.hasContextSnapshot === true;
+
     const stateInput = {
       commitContext,
       canExecute,
@@ -146,6 +149,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       architectureId: readCachedLastOpenArchitectureId(),
       suppressReadyToFinalize: careerHonesty.suppressReadyToFinalize,
       hideSampleRecovery: careerHonesty.hideSampleRecovery,
+      latestRunHasInventoryEvidence,
     };
 
     const readyToFinalize =
@@ -160,7 +164,11 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       errorMessage: null,
       retry,
       readiness: resolveFirstReviewGuideReadiness(stateInput),
-      progress: resolveFirstReviewGuideProgress(commitContext, careerHonesty.suppressReadyToFinalize),
+      progress: resolveFirstReviewGuideProgress(
+        commitContext,
+        careerHonesty.suppressReadyToFinalize,
+        latestRunHasInventoryEvidence,
+      ),
       steps: resolveFirstReviewGuideSteps(stateInput),
       headerActions: resolveFirstReviewGuideHeaderActions(stateInput),
       requiredBlockers: resolveFirstReviewGuideRequiredBlockers(stateInput),

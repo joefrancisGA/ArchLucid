@@ -190,8 +190,12 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     constraintsEntries.length > 0 && constraintsEntries.some((c) => c.trim().length === 0);
 
   const identityStepReached = props.stepIndex >= 1;
-  const hasConstraintsArray = constraintsEntries.length > 0;
-  const hasCapabilitiesArray = capabilityEntries.length > 0;
+  const constraintsTouched = formState.touchedFields.constraints === true;
+  const capabilitiesTouched = formState.touchedFields.requiredCapabilities === true;
+  const constraintsStoredEmpty =
+    constraintsTouched && constraintsNonEmpty.length === 0 && !hasBlankConstraintEntry;
+  const capabilitiesStoredEmpty =
+    capabilitiesTouched && capabilitiesNonEmpty.length === 0 && !hasBlankCapabilityEntry;
   const briefPreview = truncate(description, DESCRIPTION_PREVIEW_CHARS);
   const constraintsPreview = truncate(constraintsNonEmpty, CONSTRAINTS_PREVIEW_CHARS);
   const capabilitiesPreview = truncate(capabilitiesNonEmpty, CAPABILITIES_PREVIEW_CHARS);
@@ -349,7 +353,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
               </>
             ) : hasBlankCapabilityEntry ? (
               <span className="text-neutral-600 dark:text-neutral-400">A required capability entry was stored empty.</span>
-            ) : hasCapabilitiesArray ? (
+            ) : capabilitiesStoredEmpty ? (
               <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were stored empty.</span>
             ) : (
               <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were not stored yet.</span>
@@ -397,7 +401,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
               </>
             ) : hasBlankConstraintEntry ? (
               <span className="text-neutral-600 dark:text-neutral-400">A constraint entry was stored empty.</span>
-            ) : hasConstraintsArray ? (
+            ) : constraintsStoredEmpty ? (
               <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
             ) : (
               <span className="text-neutral-600 dark:text-neutral-400">Constraints were not stored yet.</span>

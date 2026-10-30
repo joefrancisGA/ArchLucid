@@ -21,9 +21,7 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   ];
 
   parts.push(
-    typeof snapshot.resourceCount === "number" && Number.isFinite(snapshot.resourceCount)
-      ? `${Math.trunc(snapshot.resourceCount)} resources`
-      : "Resource count was not stored.",
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount, snapshot.captureStatus),
   );
 
   return parts.join(" · ");

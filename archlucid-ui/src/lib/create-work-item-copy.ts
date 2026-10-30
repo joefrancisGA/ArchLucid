@@ -40,6 +40,8 @@ export const CREATE_WORK_ITEM_FIELD_TITLE = "Title";
 
 export const CREATE_WORK_ITEM_FIELD_DESCRIPTION = "Description";
 
+export const CREATE_WORK_ITEM_FIELD_SEVERITY = "Severity (highest finding)";
+
 export const CREATE_WORK_ITEM_FIELD_PRIORITY = "Priority";
 
 export const CREATE_WORK_ITEM_FIELD_OWNER = "Owner";

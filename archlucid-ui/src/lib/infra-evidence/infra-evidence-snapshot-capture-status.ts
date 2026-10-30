@@ -8,7 +8,8 @@ export type InfraEvidenceSnapshotCaptureStatusPresentation = {
     | "In progress"
     | "Blocked"
     | "Capture status was not stored"
-    | "Capture status was stored empty";
+    | "Capture status was stored empty"
+    | "Capture status was not recognized";
   readonly description: string;
 };
 
@@ -38,8 +39,8 @@ const FAILED: InfraEvidenceSnapshotCaptureStatusPresentation = {
 
 const UNRECOGNIZED: InfraEvidenceSnapshotCaptureStatusPresentation = {
   kind: "needs-attention",
-  label: "Needs attention",
-  description: "Inventory capture status is not recognized.",
+  label: "Capture status was not recognized",
+  description: "Inventory capture status is not recognized (not the same as a partial capture).",
 };
 
 const STORED_EMPTY: InfraEvidenceSnapshotCaptureStatusPresentation = {
@@ -96,6 +97,13 @@ function parseCaptureLifecycle(captureStatus: number | string | null | undefined
     default:
       return null;
   }
+}
+
+/** True when capture lifecycle is still pending (resource census not finished). */
+export function isInfraEvidenceSnapshotCapturePending(
+  captureStatus: number | string | null | undefined,
+): boolean {
+  return parseCaptureLifecycle(captureStatus) === "pending";
 }
 
 /** Maps Azure inventory capture lifecycle to canonical StatusTag presentation. */
