@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `FirstValueReportSemanticSupportBandSectionFormatter` — semantic support band ignores unresolved audit when LLM resolved — locus: sponsor status semantic cell; input: `AuditRowCountResolved` false on otherwise sendable run.
-- (candidate) `SponsorDecisionDeltaNoveltyMarkdownFormatter` — evidence class line omits audit-unresolved copy in golden markdown fixtures — locus: formatter tests; input: unresolved audit fixture not asserted.
-- (candidate) `BuyerProofPackArtifactSummaryBuilder` — governed-finding coverage string branch omits table-cell escaping — locus: coverage summary markdown; input: coverage label containing `|`.
+- (candidate) `FirstValueReportSponsorStatusSectionFormatter.FormatSponsorEvidenceSource` — redaction profile pipe not escaped in sponsor status table — locus: evidence source row; input: `BuyerSafeRedactionProfile` containing `|`.
+- (candidate) `BuyerProofPackDeltasJsonFormatter` — serialized ROI label strings echoed without JSON string escaping audit — locus: deltas JSON writer; input: disposition token with quotes.
+- (candidate) `BoardPackPdfCoverCopy.BuildTitle` — custom period title when override spans year boundary — locus: title formatter; input: Dec–Jan override window.
 - (candidate) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF omits simulator zero-valid caveat present in sponsor-status LLM basis row — locus: one-pager delta table; input: resolved zero LLM calls on simulator run.
-- (candidate) `PilotValueReportService.BuildAsync` — inverted window returns `EmptyReport` while governance pending-now still populated — locus: `BuildAsync` early empty; input: `toExclusive <= from` with pending approvals.
+- (candidate) `PilotRunDeltaComputer` — estimated savings unresolved flag omitted from sponsor status semantic cell — locus: deltas vs sponsor table; input: savings query failure with resolved findings.
+
+2026-10-30 seed hunt (seed→hit): promoted buyer proof compact summary `SummarizeJsonElement` echoing proof-package string fields without pipe escaping, splitting checklist markdown when tenant redaction profile contains `|`; reuse `FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell` on string cells; regression `Build_when_proof_string_field_contains_pipe_escapes_table_cell`; cheap-disproof closed five hunt-67 `(candidate)` rows; seeded five follow-on rows; scoped **42** unit tests passed. Private beta: Buyer ZIP artifact summaries stay readable when stored redaction profile names include pipe characters.
+
+- [x] (proven) `BuyerProofPackArtifactSummaryBuilder.SummarizeJsonElement` — proof string pipe escaping — **hit 2026-10-30 seed hunt (hunt 68):** table-cell escape on string branch; regression above.
+
+- [x] (invalid) `FirstValueReportSemanticSupportBandSectionFormatter` — semantic cell vs audit unresolved — **cheap-disproof 2026-10-30 seed hunt (hunt 68):** locus counts finding semantic bands only; no audit predicate in formatter.
+- [x] (invalid) `SponsorDecisionDeltaNoveltyMarkdownFormatter` — fixture gap — **cheap-disproof 2026-10-30 seed hunt (hunt 68):** test-coverage lens; resolver fix hunt 67 covers production copy.
+- [x] (valid-no-repro) `BuyerProofPackArtifactSummaryBuilder` — governed coverage label pipes — **cheap-disproof 2026-10-30 seed hunt (hunt 68):** coverage section uses fixed English labels; hit addresses dynamic proof-package strings.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.FormatLlmCallCount` — PDF simulator caveat — **cheap-disproof 2026-10-30 seed hunt (hunt 68):** duplicate hunt 67; abbreviated PDF delta table by design.
+- [x] (invalid) `PilotValueReportService.BuildAsync` — inverted window pending governance — **cheap-disproof 2026-10-30 seed hunt (hunt 68):** duplicate hunt 57/67; intentional pending-now on empty window.
 
 2026-10-30 seed hunt (seed→hit): promoted novelty **Evidence class** still reading PilotStrict-attested when LLM trace resolved but audit row count query failed; `ResolveEvidenceClassLabel` now gates on `AuditRowCountResolved`, Strong novelty requires audit resolved, and confidence basis summary lists audit resolution; regression `Resolve_when_audit_row_basis_unresolved_does_not_claim_pilot_strict_attested_evidence_class`; cheap-disproof closed five hunt-66 `(candidate)` rows; seeded five follow-on rows; scoped **51** unit tests passed. Private beta: Sponsors reading the decision-delta / novelty block no longer see fully attested PilotStrict evidence class when audit counts failed to load for the run.
 
@@ -16773,11 +16783,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 67
-- **bugs-found:** 47
+- **hunts:** 68
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — novelty evidence class when audit unresolved
+- **last-bug:** 2026-10-30 — buyer proof compact summary pipe escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

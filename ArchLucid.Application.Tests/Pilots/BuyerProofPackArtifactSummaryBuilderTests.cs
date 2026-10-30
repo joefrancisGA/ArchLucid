@@ -9,6 +9,24 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class BuyerProofPackArtifactSummaryBuilderTests
 {
     [Fact]
+    public void Build_when_proof_string_field_contains_pipe_escapes_table_cell()
+    {
+        const string deltasJson = """
+                                  {
+                                    "proofPackageCompleteness": {
+                                      "buyerSafeRedactionProfile": "tenant|segmented"
+                                    }
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        markdown.Should().Contain("`buyerSafeRedactionProfile` | `tenant\\|segmented` |");
+        string profileRow = markdown.Split('\n').Single(line => line.Contains("buyerSafeRedactionProfile", StringComparison.Ordinal)).TrimEnd();
+        profileRow.Should().Be("| `buyerSafeRedactionProfile` | `tenant\\|segmented` |");
+    }
+
+    [Fact]
     public void Build_WhenGovernedFindingCoveragePresent_EmitsGovernedCoverageSection()
     {
         const string deltasJson = """
