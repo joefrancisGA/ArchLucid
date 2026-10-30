@@ -8934,6 +8934,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-30 thorough hunt #47 (dry): cheap-disproof closed five open `(candidate)` rows — governance confirmation, technology rationale, first-screen proof, More sections, and assessment narrative disclosures all reconcile URL changes through `useSearchParams` without requiring `popstate`; 13 focused URL-sync tests passed and no production code changed.
+
+- [x] (valid-no-repro) `RunDetailRunGovernanceDispositionActions` — stale confirmation state after review navigation — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDispDecision query changes without a popstate event`; URL-derived state clears through the `useSearchParams` effect.
+- [x] (valid-no-repro) `TechnologyBaselinePanel` — rationale dialog remains open after `techEntryId` is removed — **cheap-disproof 2026-10-30 thorough hunt #47:** `closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event`.
+- [x] (valid-no-repro) `RunDetailFirstScreenProofStatus` — proof details remain open after the query flag is cleared — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDetailFirstScreenProofOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `ReviewWorkspaceMoreTabsMenu` — More sections remains open after the query flag changes — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows reviewMoreTabsOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `RunDetailRunExplanationCollapsible` — assessment narrative remains open after query synchronization — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runAssessmentNarrativeOpen query changes without a popstate event`.
+
 2026-10-29 seed hunt (seed→hit): promoted `RunDetailRunGovernanceDispositionActions` — opening Approve/Reject/Request remediation confirm wrote `runDispDecision` from `readWindowLocationSearch()`, so after cross-review soft navigation the confirm dialog could merge stale findings-toolbar query keys from the lagging address bar; base href writes on `useSearchParams`; regression `writes governance disposition confirm from useSearchParams when window.location.search lags after soft navigation`; governance disposition url-sync vitest 2/2. Private beta: invited architects recording run-level governance disposition no longer inherit stale review query params when opening the confirm dialog after in-app navigation.
 
 - [x] (proven) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` / stale toolbar on confirm write — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for confirm href writes; regression above.
