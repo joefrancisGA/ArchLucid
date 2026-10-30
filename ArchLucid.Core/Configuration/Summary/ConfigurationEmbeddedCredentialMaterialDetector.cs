@@ -178,8 +178,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string tokenText = token.ToString();
 
-        foreach (string segment in tokenText.Split(',', ';', '\t'))
+        foreach (string segment in tokenText.Split(',', ';', '\t', '|', ' '))
         {
+            if (segment.Length == 0)
+                continue;
+
             if (TryBasicAuthorizationPayloadFromToken(segment.AsSpan().Trim()))
                 return true;
         }
@@ -242,6 +245,11 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         int paragraphSeparatorIndex = token.IndexOf('\u2029');
 
         if (paragraphSeparatorIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, paragraphSeparatorIndex).Trim()))
+            return true;
+
+        int nextLineIndex = token.IndexOf('\u0085');
+
+        if (nextLineIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, nextLineIndex).Trim()))
             return true;
 
         int noBreakSpaceIndex = token.IndexOf('\u00a0');
