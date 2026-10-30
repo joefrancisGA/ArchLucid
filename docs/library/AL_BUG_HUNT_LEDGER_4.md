@@ -21794,13 +21794,27 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 127
+- **hunts:** 128
 - **bugs-found:** 46
-- **consecutive-dry-hunts:** 35
+- **consecutive-dry-hunts:** 36
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — base-graph edge collisions skipped overlay duplicate label agreement
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-30 thorough hunt #917 (dry): cheap-disproof closed five open `(candidate)` rows reseeded after hunt #915 — invalid first-row populated base node `SourceId` overwrite (`Merge_preserves_base_node_source_id_when_first_overlay_row_disagrees_on_source_id`), invalid first-row populated base node `ReasoningTrace` overwrite (`Merge_preserves_base_node_reasoning_trace_when_first_overlay_row_disagrees_on_reasoning_trace`), invalid first-row populated base edge `InferenceSource` overwrite (`Merge_preserves_base_edge_inference_source_when_first_overlay_row_disagrees_on_inference_source`), base-graph overlay duplicate edge `ProvenanceKind` agreement when base edge provenance kind is whitespace-only (`Merge_throws_when_overlay_duplicate_edges_disagree_on_provenance_kind_for_base_graph_directed_key_when_base_provenance_kind_is_whitespace_only`), and valid-no-repro ProvenanceBuilder whitespace-only duplicate graph-node node types (`Build_preserves_graph_node_node_type_when_later_case_variant_row_has_whitespace_only_node_type`); reseeded five `(candidate)` rows; scoped filter **697** KnowledgeGraph + **179** Provenance tests passed. Private beta: n/a.
+
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `SourceId` — **cheap-disproof 2026-10-30 thorough hunt #917:** regression above.
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `ReasoningTrace` — **cheap-disproof 2026-10-30 thorough hunt #917:** regression above.
+- [x] (invalid) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph directed edge may backfill disagreeing populated `InferenceSource` — **cheap-disproof 2026-10-30 thorough hunt #917:** regression above.
+- [x] (valid-no-repro) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate edge `ProvenanceKind` agreement on second overlay row when base edge provenance kind is whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #917:** regression above.
+- [x] (valid-no-repro) `ProvenanceBuilder` — duplicate graph-node rows with whitespace-only `NodeType` may downgrade populated node types in metadata — **cheap-disproof 2026-10-30 thorough hunt #917:** regression above.
+
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `Label` — locus: scalar backfill gate; input: base node with populated label plus overlay row with conflicting label (monitor).
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph node may backfill disagreeing populated `NodeType` — locus: scalar backfill gate; input: base node with populated node type plus overlay row with conflicting node type (monitor).
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — first overlay row on a base-graph directed edge may backfill disagreeing populated `DeclaredConnectionId` — locus: scalar backfill gate; input: base edge with populated declared connection id plus overlay row with conflicting id (monitor).
+- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — base-graph overlay duplicate edge `InferenceSource` agreement on second overlay row when base edge inference source is whitespace-only — locus: trimmed scalar agreement; input: base edge with whitespace-only inference source plus two overlay rows with conflicting sources (monitor).
+- [ ] (candidate) `ProvenanceBuilder` — duplicate graph-node rows with whitespace-only `Category` may downgrade populated categories in metadata — locus: category coalescence; input: populated category plus later whitespace-only duplicate row (monitor).
 
 2026-10-30 thorough hunt #915 (dry): cheap-disproof closed five open `(candidate)` rows reseeded after hunt #914 — invalid first-row populated base node `SourceType` overwrite (`Merge_preserves_base_node_source_type_when_first_overlay_row_disagrees_on_source_type`), invalid first-row populated base node `Category` overwrite (`Merge_preserves_base_node_category_when_first_overlay_row_disagrees_on_category`), invalid first-row populated base edge `ReasoningTrace` overwrite (`Merge_preserves_base_edge_reasoning_trace_when_first_overlay_row_disagrees_on_reasoning_trace`), base-graph overlay duplicate edge `EdgeId` agreement when base edge id is whitespace-only (`Merge_throws_when_overlay_duplicate_edges_disagree_on_edge_id_for_base_graph_directed_key_when_base_edge_id_is_whitespace_only`), and base-graph overlay duplicate node `Category` agreement when base node category is whitespace-only (`Merge_throws_when_overlay_duplicate_nodes_disagree_on_category_for_base_graph_node_id_when_base_category_is_whitespace_only`); reseeded five `(candidate)` rows; scoped filter **697** KnowledgeGraph + **179** Provenance tests passed. Private beta: n/a.
 
