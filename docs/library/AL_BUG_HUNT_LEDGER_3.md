@@ -7893,6 +7893,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #74 (seed-only): re-read `CtaButton`, marketing CTA analytics, self-demo/walkthrough href builders, trust focus scrolling, and pricing CTA focus; no failing repro was promoted. Seeded two bounded candidates for a future thorough hunt.
+
+- [ ] (candidate) `CtaButton` + `recordMarketingHeroCtaClarityEvent` — a storage-access exception during consent lookup escapes the click handler; locus: direct `window.localStorage.getItem` before anchor navigation; input: browser privacy mode or denied storage when an invited buyer activates a hero CTA.
+- [ ] (candidate) `SelfDemoRequestCta` — server-rendered fallback origin becomes `https://localhost` in the href before hydration; locus: `typeof window === "undefined"` origin branch and no-JavaScript navigation; input: a buyer opens the welcome page with JavaScript unavailable and selects the self-demo CTA.
+
 2026-10-30 thorough hunt #73 (hit): proved Escape closed `MarketingResourcesMenu` without restoring focus, leaving keyboard users on the removed menu item; added a trigger ref and return focus on Escape with regression `returns focus to the Resources trigger when Escape closes the menu`. Focused menu suite passed 3/3. Private beta: invited buyers using keyboard navigation can now dismiss Resources and continue from the visible trigger instead of losing focus in the closed menu.
 
 2026-10-30 seed hunt #72 (seed-only): re-read public header/menu, privacy TOC, FAQ chrome, and trust-navigation paths; no hunt-ready row was proven. Seeded one bounded keyboard-navigation candidate.
@@ -8138,7 +8143,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
