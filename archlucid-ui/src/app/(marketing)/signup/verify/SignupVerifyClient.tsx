@@ -47,11 +47,18 @@ export function SignupVerifyClient() {
   const [resendOutcome, setResendOutcome] = useState<"success" | "failed" | null>(null);
   const [, setCooldownTick] = useState(0);
   const autoContinueRef = useRef<number | null>(null);
+  const trialStatusRequestRef = useRef(0);
 
   const resendCooldown = readSignupVerifyResendCooldown();
 
-  const refreshTrialStatus = useCallback(async (): Promise<SignupVerifyTrialStatusResult> => {
+  const refreshTrialStatus = useCallback(async (): Promise<SignupVerifyTrialStatusResult | null> => {
+    const requestId = ++trialStatusRequestRef.current;
     const result = await fetchSignupVerifyTrialStatus();
+
+    if (requestId !== trialStatusRequestRef.current) {
+      return null;
+    }
+
     setTrialStatus(result);
 
     return result;
@@ -68,7 +75,7 @@ export function SignupVerifyClient() {
       setChecking(true);
       const result = await refreshTrialStatus();
 
-      if (!canceled && result.kind === "error") {
+      if (!canceled && result?.kind === "error") {
         setInitialLoadFailed(true);
       }
 
@@ -176,6 +183,10 @@ export function SignupVerifyClient() {
     setStillPendingAfterCheck(false);
     const result = await refreshTrialStatus();
     setChecking(false);
+
+    if (result === null) {
+      return;
+    }
 
     if (result.kind === "ready") {
       continueToOnboarding();
