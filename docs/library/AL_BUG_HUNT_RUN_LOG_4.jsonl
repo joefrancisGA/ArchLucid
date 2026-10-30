@@ -2929,9 +2929,7 @@
 {"at":"2026-10-30T22:17:41.4706926Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:18:59.1776611Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:23:12.4502627Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-30T22:23:10.4421070Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-30T22:26:38.4612055Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
-=======
 {"at":"2026-10-30T22:27:12.4759536Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
->>>>>>> 6f80a0bc5e (Record hunt #1001 dry in AL_BUG_HUNT_RUN_LOG_4.jsonl.)
+{"at":"2026-10-30T22:29:59.1150975Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
