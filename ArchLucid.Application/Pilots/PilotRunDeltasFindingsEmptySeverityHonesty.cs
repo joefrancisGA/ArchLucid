@@ -27,4 +27,16 @@ internal static class PilotRunDeltasFindingsEmptySeverityHonesty
             && deltas.FindingsCountsFromSnapshot
             && !HasMaterialFindingWithoutSeverityBuckets(deltas);
     }
+
+    internal static bool IsMutedOnlyEmptySeverity(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
+
+        return deltas.FindingsBySeverity.Count == 0
+            && unmutedTotal == 0
+            && deltas.MutedFindingsExcludedCount > 0
+            && !HasMaterialFindingWithoutSeverityBuckets(deltas);
+    }
 }

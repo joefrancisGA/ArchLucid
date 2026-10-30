@@ -26,7 +26,7 @@ internal static class PilotRunDeltasFindingsTotalFormatter
                 return FindingsTotalNotAttestedLabel;
             }
 
-            if (deltas.MutedFindingsExcludedCount > 0)
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
             {
                 return MutedOnlyFindingsTotalLabel;
             }

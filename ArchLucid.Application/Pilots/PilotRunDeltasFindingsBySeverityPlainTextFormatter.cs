@@ -22,6 +22,11 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
             return PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel;
         }
 
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+        {
+            return PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel;
+        }
+
         if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
         {
             return PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel;

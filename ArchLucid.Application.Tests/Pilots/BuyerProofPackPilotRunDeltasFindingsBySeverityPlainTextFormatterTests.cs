@@ -94,6 +94,24 @@ public sealed class BuyerProofPackPilotRunDeltasFindingsBySeverityPlainTextForma
     }
 
     [Fact]
+    public void Format_when_muted_exclusions_only_aligns_with_findings_total_plain_label()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsBySeverity = [],
+            MutedFindingsExcludedCount = 2,
+        };
+
+        string bySeverity = PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas);
+        string total = PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas);
+
+        bySeverity.Should().Be(total);
+        bySeverity.Should().Contain("muted findings were excluded");
+        bySeverity.Should().NotContain("No findings were stored on agent results");
+    }
+
+    [Fact]
     public void Format_when_snapshot_flag_but_top_finding_present_does_not_use_snapshot_zero_copy()
     {
         PilotRunDeltas deltas = new()

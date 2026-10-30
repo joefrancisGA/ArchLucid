@@ -49,7 +49,7 @@ public static class FirstValueReportDeltasSectionFormatter
                     CultureInfo.InvariantCulture,
                     $"_({PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel})_");
             }
-            else if (deltas.MutedFindingsExcludedCount > 0)
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
             {
                 sb.AppendLine(
                     "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
