@@ -16526,7 +16526,37 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
-**Hunts:** 42 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+2026-10-30 seed hunt (seed-only): re-read `GovernanceRunIdNormalizer`, preview/mutation-correction run-id paths, policy-pack simulate bulk dedupe, and recurrence validation after #210 opaque equivalence hit; cheap-disproof closed five stale `(candidate)` rows that lived outside `### Hypotheses`; seeded five new mechanism-backed `(candidate)` rows below; scoped PolicyPack/Governance filter **834/843** passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — manifest `RunId` without re-normalize — **cheap-disproof 2026-10-30 seed hunt:** line 71 uses `GovernanceRunIdNormalizer.AreEquivalent(candidateManifest.RunId, runId)` after request trim; regression family `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats`.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService.ValidateArchitectureReviewFinalizeSubject` — finalize subject trim without normalize — **cheap-disproof 2026-10-30 seed hunt:** uses `AreEquivalent(trimmedSubjectId, normalizedRunId)` (#210 opaque parity).
+- [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer` — register rows beyond page 100 omitted from markdown — **cheap-disproof 2026-10-30 seed hunt:** intentional digest budget (`DecisionsNeededRiskRegisterPageSize`); summary total remains accurate.
+- [x] (valid-no-repro) `PolicyPackWorkspaceSelectionService.ListAsync` — disabled scope winner vs effective merge — **cheap-disproof 2026-10-30 seed hunt:** list shows assignment row; `EffectiveGovernanceResolver` filters disabled packs at merge (#2026-10-09).
+- [x] (valid-no-repro) `GovernanceDecisionsNeededSummaryCalculator.IsHighSeverity` — exotic severity vocabulary — **cheap-disproof 2026-10-30 seed hunt:** register reader projects persisted severity contract; prior 2026-10-03 dry closed substring class.
+
+- **id:** application-governance-policy
+- **status:** open
+- **impact:** medium
+- **aliases:** policy packs; governance coverage; before-after diff
+- **paths:** ArchLucid.Application/Governance/
+- **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
+- **hunts:** 43
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-29 — opaque run id whitespace in GovernanceRunIdNormalizer.AreEquivalent (#210)
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+### Hypotheses
+
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `Distinct(StringComparer.OrdinalIgnoreCase)` on trimmed run id strings treats dashed vs canonical-N GUID as two bulk slots — locus: bulk simulate loop ~65–68; input: same logical run twice with `D` and `N` format in one request; reachability: OpenAPI bulk policy-pack simulate payloads.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` returns null at `Guid.TryParse` without opaque-id normalization path — locus: ~111–112; input: padded opaque architecture run key if simulate API expands beyond GUID; reachability: today simulate contract is GUID-only (404 parity).
+- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — compare notes echo raw activation `RunId` while manifest load uses `AreEquivalent` — locus: activation notes ~140–141; input: stored activation id with invisible Unicode; reachability: operator-facing note text only.
+- [ ] (candidate) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — locus: ~45; input: unexpected casing in persisted status column; reachability: DB contract stores exact enum name from commit pipeline.
+- [ ] (candidate) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — locus: ~233; input: opaque run ids on future event payloads; reachability: integration events use GUID run keys today.
+
+**Hunts:** 43 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
 
 2026-10-29 thorough hunt (hit #210): promoted `(candidate)` `GovernanceRunIdNormalizer.AreEquivalent` — opaque architecture run keys and finalize subjects compared ordinally without `Normalize`, so padded or paste-hidden Unicode run ids failed correction/preview subject checks even after inbound normalization; `AreEquivalent` now compares `Normalize(left)` to `Normalize(right)` for non-GUID ids; regressions `AreEquivalent_treats_outer_whitespace_on_opaque_run_ids_as_equivalent` and `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent`; scoped PolicyPack/Governance filter 834/843 passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: governance correction and preview flows accept the same opaque run id when vendors or operators paste padded run keys, so invited architects are not blocked by whitespace-only drift on non-GUID run identifiers.
 
@@ -16538,27 +16568,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPackWorkspaceSelectionService.ListAsync` — `SelectWinningAssignment` ignores `IsEnabled` — **cheap-disproof 2026-10-29 #210:** by design after #2026-10-09 precedence fix; regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment` documents scope winner for enablement toggles while `EffectiveGovernanceResolver` filters disabled rows at merge time.
 - [x] (valid-no-repro) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — expiring-waiver inclusive window boundary — **cheap-disproof 2026-10-29 #210:** digest scheduler uses `TimeProvider` UTC; `ExpiresAtUtc` comparisons are offset-aware; no DST on stored instants.
 - [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — markdown lists `.Take(10)` approvals while total uses full pending count — **cheap-disproof 2026-10-29 #210:** intentional operator digest truncation; summary total remains accurate for badge counts.
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` — stale/unowned-high register rows beyond page 100 omitted from markdown sections while still counted when present on first page only — locus: shared page size constant; input: >100 register rows with stale findings sorted beyond first page; reachability: requires register sort/pagination contract audit.
-- [ ] (candidate) `PolicyPackWorkspaceSelectionService.ListAsync` — scope-winning disabled assignment shows `IsEnabled=false` while effective governance merges enabled tenant assignment — locus: `SelectWinningAssignment` vs `FilterApplicableAssignments`; input: operator interprets list row as effective pack state; reachability: UX/doc gap not a resolver bug.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — trims run id once at entry but manifest `RunId` comparison relies on `AreEquivalent` without re-normalizing manifest-side opaque ids — locus: line ~54–71; input: persisted manifest run id with leading invisible char; reachability: depends on writer storing normalized ids.
-- [ ] (candidate) `GovernanceMutationCorrectionService.ValidateArchitectureReviewFinalizeSubject` — trims subject id only on finalize path while other subjects use stored values — locus: ~313–320; input: padded finalize subject without matching normalize on stored finalize token; reachability: partial overlap with #210 opaque equivalence.
-- [ ] (candidate) `GovernanceDecisionsNeededSummaryCalculator` — `IsHighSeverity` substring classifier on register severities — locus: private helper ~79–86; input: exotic severity vocabulary outside `FindingSeverity`; reachability: reader projects enum names today (#2026-10-03 cheap-disproof class).
 
 2026-10-27 seed hunt (seed-only): re-read `GovernanceDigestDecisionNeededComposer`, `GovernanceDecisionsNeededSummaryCalculator`, `PolicyPackWorkspaceSelectionService`, and `GovernanceRunIdNormalizer` after October disposition-digest hit; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped PolicyPack/Governance Application tests passed (`RunAnalyzers=false`). Private beta: n/a.
-
-- **id:** application-governance-policy
-- **status:** open
-- **impact:** medium
-- **aliases:** policy packs; governance coverage; before-after diff
-- **paths:** ArchLucid.Application/Governance/
-- **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 42
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — opaque run id whitespace in GovernanceRunIdNormalizer.AreEquivalent (#210)
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): proved the decisions-needed digest counted earlier NeedsEvidence and Deferred events after a later remediation; latest disposition per finding now drives the summary, the total, and the markdown; regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition`; 14 digest, calculator, and disposition-map tests passed.
 
