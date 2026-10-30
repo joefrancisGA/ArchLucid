@@ -65,7 +65,8 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         if (skippedMustKeys.Count > 0)
         {
-            sb.AppendLine($"- **Skipped required questions:** {string.Join(", ", skippedMustKeys)}");
+            sb.AppendLine(
+                $"- **Skipped required questions:** {FormatSkippedMustQuestionKeysForMarkdown(skippedMustKeys)}");
         }
 
         TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, verdict?.TransparencyTrail);
@@ -105,7 +106,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         if (skippedMustKeys.Count > 0)
         {
-            lines.Add($"Skipped required questions: {string.Join(", ", skippedMustKeys)}");
+            lines.Add($"Skipped required questions: {FormatSkippedMustQuestionKeysPlainText(skippedMustKeys)}");
         }
 
         return lines;
@@ -150,4 +151,10 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         return keys;
     }
+
+    private static string FormatSkippedMustQuestionKeysForMarkdown(IReadOnlyList<string> keys)
+        => string.Join(", ", keys.Select(static key => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(key)));
+
+    private static string FormatSkippedMustQuestionKeysPlainText(IReadOnlyList<string> keys)
+        => string.Join(", ", keys.Select(static key => FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(key)));
 }
