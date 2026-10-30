@@ -16140,6 +16140,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-30 seed hunt (seed-only #208): cheap-disproof closed eight stale open `(candidate)` rows (probe static-message and corrupt-Stage lenses, TrialLimitGate offboard ordering already covered by erasure middleware, verification probe return and erasure audit correlation fixed in #146/#148, duplicate-detector and slug-normalizer siblings in #141/#142). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 382/382 passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `TenantMigrationVerificationProbe.RunAsync` — untrimmed static probe failure messages — **cheap-disproof 2026-10-30 seed hunt #208:** probe literals are fixed strings; orchestrator normalizes via `ToPublicProbeResult` before persist/API (#140/#148).
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `Stage` on corrupt enum storage — **cheap-disproof 2026-10-30 seed hunt #208:** snapshot exposes `active.Stage.ToString()` from typed enum; no string column reachability.
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle vs offboarded export-only tenant — **cheap-disproof 2026-10-30 seed hunt #208:** erasure quarantine middleware blocks tenant APIs before trial gate; parity #142.
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned probe still exposed raw padded `ErrorMessage` — **cheap-disproof 2026-10-30 seed hunt #208:** fixed #148 (`ToPublicProbeResult`).
+- [x] (proven) `TenantErasureCommandService.AppendPlatformAuditAsync` — padded correlation id on erasure audit — **cheap-disproof 2026-10-30 seed hunt #208:** fixed #146 (audit envelope trim).
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — post-active phases before `OffboardedUtc` check — **cheap-disproof 2026-10-30 seed hunt #208:** duplicate of middleware-ordering row above.
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `TargetCatalogVersion` — **cheap-disproof 2026-10-30 seed hunt #208:** snapshot has no target catalog field (#142).
+- [x] (invalid) `TenantSlugNormalizer.FromName` — interior double-hyphen DNS collapse — **cheap-disproof 2026-10-30 seed hunt #208:** consecutive separators collapse by design (#142).
+
+- [ ] (candidate) `WorkspaceAllowedEngineSetService.TryReadStoredAsync` — duplicate alias ids in persisted JSON are returned without deduplication — locus: allowed list assembly ~113–116; input: tenant settings JSON listing the same registered alias twice (reachability: workspace admin allowed-engines GET after override write).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — compensating `TryUnsuspendAsync` after failed `InsertAsync` forwards untrimmed `correlationId` while migration row would have used `correlationId.Trim()` — locus: insert catch ~73–82; input: padded correlation id on migration start when insert throws (reachability: catalog migration start API).
+- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` still returns `TrialExpiresUtc` with `DaysRemaining` null — locus: early branch ~51–57; input: corrupt row with blank status and future expiry (reachability: unsupported without manual SQL; pilot read path documents non-trial shell).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.ContainsTenantSlugPhrase` — `Tenant slug history` substring satisfies slug context without `IX_Tenants_Slug` — locus: phrase scan ~104–134; input: exception text `Tenant slug history already exists` without tenant-table index tokens (reachability: generic infrastructure duplicate prose).
+- [ ] (candidate) `TenantProvisioningDataRegionPolicy.Validate` — all-whitespace entries in configured supported list fall through to platform defaults without rejecting blank config tokens — locus: `ResolveEffectiveSupported` ~29–44; input: `SupportedDataRegions` containing `"   "` only (reachability: operator provisioning options bind).
+
 2026-10-29 seed hunt (seed→hit #207): promoted `Tenant slug appears` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug appears invalid already exists` matched org slug context because hunt #206 excluded `requires` but not `appears` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `appears`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_appears_substring_in_already_exists_message`; scoped filter 382/382 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug appears phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug appears prose — **hit 2026-10-29 seed hunt #207:** excluded slug phrase word `appears`; regression above.
@@ -16397,13 +16414,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantSuspendCommandService.AppendPlatformAuditAsync` — padded correlation id on suspend audit — **hit 2026-10-29 seed hunt #145:** trim on audit envelope; regression above.
 
-- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — probe failures return untrimmed static messages at source — locus: `Failed()` helper; input: N/A for static literals (reachability: low unless probe adds padding).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `Stage` string if enum storage corrupted — locus: `Stage.ToString()` passthrough; input: N/A without corrupt row (reachability: low).
-- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases vs offboarded tenant — locus: middleware ordering; input: export-only offboarded write (reachability: prior valid-no-repro).
+- [x] (invalid) `TenantMigrationVerificationProbe.RunAsync` — probe failures return untrimmed static messages at source — **cheap-disproof 2026-10-30 seed hunt #208:** static literals; orchestrator normalizes (#140/#148).
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `Stage` string if enum storage corrupted — **cheap-disproof 2026-10-30 seed hunt #208:** typed enum snapshot.
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases vs offboarded tenant — **cheap-disproof 2026-10-30 seed hunt #208:** erasure middleware ordering (#142).
 
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned `Probe` still exposes raw padded `ErrorMessage` — **hit 2026-10-29 #148** (proven above).
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned `Probe` still exposes raw padded `ErrorMessage` — **hit 2026-10-29 #148** (`ToPublicProbeResult`).
 
-- [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — offboard/legal-hold audit correlation id padding — **hit 2026-10-29 #146** (proven above).
+- [x] (proven) `TenantErasureCommandService.AppendPlatformAuditAsync` — offboard/legal-hold audit correlation id padding — **hit 2026-10-29 #146** (audit envelope trim).
 
 2026-10-29 seed hunt (seed→hit #144): promoted `(candidate)` unpadded `correlationId` on `TenantCatalogMigrationOrchestrator.AppendPlatformAuditAsync`; `StartAsync` persisted trimmed correlation ids but migration-started platform audit kept padded request value; central audit helper now trims correlation id and actor fields; regression `StartAsync_trims_correlation_id_on_started_migration_audit_event`; scoped filter 300/300 passed (`RunAnalyzers=false`). Private beta: catalog migration platform audit correlation ids match persisted migration rows so operators can trace migration steps in audit tooling.
 
@@ -16450,9 +16467,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — locus: lifecycle frozen throws ~49–56 vs offboard middleware; input: authenticated request on offboarded export-only tenant (reachability: erasure middleware ordering — prior valid-no-repro unless new bypass cited).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — active migration with whitespace-only `TargetCatalogVersion` may surface non-null status shell — locus: snapshot assembly; input: row with blank target version after partial start (reachability: migration API read).
-- [ ] (candidate) `TenantSlugNormalizer.Normalize` — preserves interior double-hyphen segments that collapse differently in DNS routing — locus: slug transform; input: signup slug with `--` segment (reachability: self-service registration).
+- [x] (valid-no-repro) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — **cheap-disproof 2026-10-30 seed hunt #208:** erasure middleware blocks tenant APIs before trial gate (#142).
+- [x] (invalid) `TenantMigrationStatusService.GetForTenantAsync` — active migration with whitespace-only `TargetCatalogVersion` — **cheap-disproof 2026-10-30 seed hunt #208:** snapshot has no target catalog field (#142).
+- [x] (invalid) `TenantSlugNormalizer.Normalize` — interior double-hyphen DNS routing — **cheap-disproof 2026-10-30 seed hunt #208:** hyphen collapse by design (#142).
 
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -16476,10 +16493,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 207
+- **hunts:** 208
 - **bugs-found:** 186
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Tenant slug appears prose duplicate-detector false positive
 - **last-bug:** 2026-10-29 — Tenant slug was prose
 
