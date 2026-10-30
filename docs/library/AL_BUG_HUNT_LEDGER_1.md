@@ -16632,11 +16632,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `TransparencyTrailMarkdownFormatter` — asserted trail export line when assertion value includes markdown — locus: asserted subsection; input: persisted assertion value (monitor).
-- (candidate) `FirstValueReportProofPackageSectionFormatter` — demo-tenant warning row when profile string includes pipe — locus: proof contract table; input: pipe in demo warning copy (monitor).
+- (candidate) `TransparencyTrailMarkdownFormatter` — asserted trail responder suffix when label includes markdown — locus: asserted metadata suffix; input: persisted responder label (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.AppendFindingsSection` — severity label newline monitor after hunt 88 pipe fix — locus: findings table; input: monitor.
 - (candidate) `FirstValueReportTraceSectionFormatter` — evidence chain GUID cells when id formatting ever includes pipe — locus: `FormatGuid` table cells; input: n/a GUID (monitor).
 - (candidate) `BuyerProofPackLimitationsMarkdown` — caution banner when demo warning string contains markdown line breaks — locus: limitations builder; input: multi-line demo caution string (monitor).
 - (candidate) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — computed-deltas table omits zero-valid simulator caveat present on sponsor-status LLM basis row — locus: deltas markdown table; input: resolved zero LLM calls on simulator-substituted run.
+
+2026-10-30 seed hunt (hunt 91, seed→hit): reseeded `application-pilots` after hunt 90; promoted transparency-trail **Asserted** export lines echoing persisted assertion keys and values without inline-code wrapping, allowing embedded newlines to forge sibling markdown bullets under `### Asserted`; `WrapMarkdownInlineCode` on user keys/values in `FormatAssertedTrailLine` / `FormatAssertedTrailValue`; regression `Transparency_trail_when_asserted_value_contains_newline_does_not_emit_extra_bullet`; cheap-disproof closed five open `(candidate)` rows — responder suffix monitor deferred, demo warning static English, trace GUID theoretical, limitations fixed English, deltas LLM caveat disclosure parity; scoped **73** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor first-value transparency-trail asserted sections stay structurally intact when stored assertion keys or values include line breaks or pipe characters.
+
+- [x] (proven) `TransparencyTrailMarkdownFormatter` — asserted key/value markdown injection — **hit 2026-10-30 seed hunt (hunt 91):** `WrapMarkdownInlineCode` on asserted keys and values; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `TransparencyTrailMarkdownFormatter` — skipped-key lens — **cheap-disproof 2026-10-30 seed hunt (hunt 91):** hunt 90 closed skipped keys.
+- [x] (valid-no-repro) `FirstValueReportProofPackageSectionFormatter` — demo warning pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 91):** static English demo-failure copy.
+- [x] (valid-no-repro) `FirstValueReportTraceSectionFormatter` — GUID table pipe — **cheap-disproof 2026-10-30 seed hunt (hunt 91):** duplicate hunt 90; `D` GUID tokens pipe-free.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatLlmCallCount` — simulator caveat parity — **cheap-disproof 2026-10-30 seed hunt (hunt 91):** disclosure parity; not table breakage.
 
 2026-10-30 seed hunt (hunt 90, seed→hit): reseeded `application-pilots` after hunt 89; promoted transparency-trail **Skipped MUST/SHOULD** export lines still echoing raw question keys after hunt 89 fixed only the honesty summary list, allowing embedded newlines to forge sibling markdown bullets under `### Skipped MUST questions`; `WrapMarkdownInlineCode` via shared `FormatSkippedTrailQuestionKey`; regression `Transparency_trail_when_skipped_must_question_key_contains_newline_does_not_emit_extra_bullet`; cheap-disproof closed five open `(candidate)` rows — asserted-value monitor deferred, demo warning static English, trace GUID theoretical, limitations fixed English, deltas LLM caveat disclosure parity; scoped **72** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor first-value transparency-trail sections stay structurally intact when skipped question keys include line breaks or pipe characters.
 
