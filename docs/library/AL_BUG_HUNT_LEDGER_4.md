@@ -9840,7 +9840,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `WWW-Authenticate: Basic` challenge with trailing base64 after tilde in realm value — locus: challenge segment scan; input: `WWW-Authenticate: Basic realm=app~dXNlcjpwYXNz`; wrong outcome: leak; reachability: malformed challenge dumps.
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie:` SameSite=None compound with eight-character session — locus: cookie scan; input: `Set-Cookie: a=1; session=12345678; SameSite=None`; wrong outcome: preserve long session; reachability: browser-style Set-Cookie dumps.
 - [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Proxy-Authorization: Basic` with parenthesis empty realm and trailing base64 — locus: shared Basic scan; input: `Proxy-Authorization: Basic realm=() dXNlcjpwYXNz`; wrong outcome: leak; reachability: proxy header pastes (re-probe after hyphen split family).
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded carriage return — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%0D"}``; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string with Basic paste and trailing percent-encoded carriage return — locus: JSON string + percent decode; input: `{"hdr":"Authorization: Basic dXNlcjpwYXNz%0D"}`; wrong outcome: leak; reachability: JSON-wrapped encoded pastes.
 
 2026-10-30 seed hunt #730 (dry): cheap-disproof closed Basic authorization pastes with **hyphen-separated** suffix parameters (`Resolve_redacts_embedded_credential_material_when_basic_payload_is_truncated_by_hyphen_suffix` — pair delimiter `-` truncates mid-token), trailing base64 after plus sign inside `realm` value (`Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_plus_sign_in_realm_value`, hunt #729 pair delimiter `+` and hunt #727 `=` split), eight-character `Set-Cookie2:` session values before `SameSite=Strict` (`Resolve_redacts_embedded_credential_material_when_set_cookie2_compound_list_has_eight_character_session_before_samesite`), `Proxy-Authorization: Basic` with empty single-quoted `realm` and space-separated trailing base64 (`Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_realm_empty_single_quotes_then_space_separated_base64`), and JSON string properties with percent-encoded line feed on Basic pastes (`Resolve_redacts_json_effective_values_when_string_property_wraps_percent_encoded_newline_on_basic_paste`); reseeded five `(candidate)` rows; scoped Configuration filter **3044/3044** (Release, `RunAnalyzers=false`). Private beta: no product change; matrix pins document fail-closed behavior for the probed paste shapes.
 
@@ -15607,9 +15607,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 688
-- **bugs-found:** 1060
-- **consecutive-dry-hunts:** 1
+- **hunts:** 689
+- **bugs-found:** 1061
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — hyphen-delimited Basic challenge segment redaction in config summary
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — underscore-delimited Basic challenge segment redaction in config summary
 - **last-hunt:** 2026-10-30
