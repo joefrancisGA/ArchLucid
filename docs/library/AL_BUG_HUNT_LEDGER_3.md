@@ -2514,7 +2514,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 70 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+**Hunts:** 71 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #93 (seed-only): re-read proxy forwarding, path canonicalization, host-gate integration, auth routing, body limits, and the current auth/proxy regression coverage; scoped auth/proxy vitest passed 90/90 and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 thorough hunt #91 (dry): rotation fired after three `ui-form-validation` seed-only outcomes. Cheap-disproof closed the five queued candidates: invitation confirmation body/query ordering does not create a dependency, unknown `ResumeWorkflow` is not a reachable current API step, expired bootstrap workspace mutations correctly return 401, host-gate preserves the raw query string including encoded ampersands, and the OTP client forwards whitespace unchanged rather than omitting it; scoped auth/proxy vitest passed 90/90. No production code changed.
 
