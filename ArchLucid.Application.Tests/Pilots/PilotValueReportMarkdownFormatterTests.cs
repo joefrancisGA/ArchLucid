@@ -172,6 +172,7 @@ public sealed class PilotValueReportMarkdownFormatterTests
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
         DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
         PilotValueReport report = new()
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -180,6 +181,7 @@ public sealed class PilotValueReportMarkdownFormatterTests
             TotalRunsCommitted = 3,
             TotalFindings = 0,
             RunDetailsTruncated = false,
+            RunDetailCap = cap,
             CommittedRunsTimeline = [],
         };
 
@@ -198,6 +200,10 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "| Committed runs | 3 (0 loaded for detail in partial sample) |");
         markdown.Should().NotContain("| Committed runs | 3 |");
+        markdown.Should().Contain(
+            FormattableString.Invariant(
+                $"| Run-detail cap | {cap} (truncated: false; 0 committed runs loaded for detail in the partial sample) |"));
+        markdown.Should().NotContain(FormattableString.Invariant($"| Run-detail cap | {cap} (truncated: False) |"));
     }
 
     [Fact]

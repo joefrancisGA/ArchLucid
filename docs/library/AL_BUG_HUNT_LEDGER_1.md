@@ -16632,6 +16632,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+- (candidate) `PilotValueReportMarkdownFormatter` — Summary `Policy pack assignments` when `AuditExportTruncated` true without audit-window partial qualifier — locus: Summary table; input: truncated audit export with non-zero policy assignment tally and full run-detail sample.
+- (candidate) `PilotValueReportService.BuildAsync` — `RoiSourceFreshnessDisposition` left empty when latest in-window committed run detail fetch returns null but an older run detail loaded into timeline — locus: post-loop freshness resolver; input: newest run id missing detail, prior run present in `runsForDetails`.
+- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — manifest `demoDataWarning` true while limitations omit demo bullet when `isSampleRun` set without `isDemoTenant` on deltas JSON — locus: caution flag wiring; input: sample-run deltas with demo flag false.
+- (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — override window shorter than seven days where clamped `weekEndUtc` minus `weekStartUtc` is under one day and ExecDigest week label spans misleading calendar days — locus: clamped ISO week inside sub-week override; input: two-day override straddling ISO Monday boundary.
+- (candidate) `PilotValueReportMarkdownFormatter` — metadata `Run-detail cap` when `RunDetailsTruncated` true and timeline non-empty but `TotalRunsCommitted` equals `RunDetailCap` exactly — locus: cap row else branch; input: committed count equals cap with partial timeline rows.
+
+2026-10-30 seed hunt (seed→hit): promoted metadata `Run-detail cap` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false still emitted `(truncated: False)` without admitting zero detail loads; aligned cap row with partial-sample honesty; extended regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; seeded five follow-on `(candidate)` rows; scoped **59** `BuyerProofPack`/`BoardPack`/`PilotValueReportMarkdownFormatter` unit tests passed. Private beta: Pilot value report exports no longer imply the run-detail cap was unused when every in-window committed run failed to load for detail—sponsors see explicit zero-loaded wording on the cap row.
+
+- [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `Run-detail cap` when `RunDetailSampleLoadedNoRows` and `RunDetailsTruncated` false — **hit 2026-10-30 seed hunt:** `(truncated: false; 0 committed runs loaded for detail in the partial sample)`; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`. [class:state-machine-gap]
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed the five `(candidate)` rows seeded after hunt 56; no failing repro. Metadata count row still prefers the detail-sample qualifier when both flags apply, with `| Committed-run inventory truncated |` disclosing the keyset stop (parity prior 2026-10-30 dry). `TryValidateDeltasJson` validates commit posture and `isDemoTenant` only; `BuyerProofPackBuilder` merges `isSampleRun` into manifest and limitations (2026-10-05 hit). Positive override windows keep `weekEndUtc` after `weekStartUtc` after the ISO-week clamp (`DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; sub-hour spans clamp to the override bounds). Inverted or equal pilot-value windows intentionally yield `EmptyReport` while still reporting live pending approvals (`AL_BUG_HUNT_LEDGER_2` invalid 2026-08-26; `BuildAsync_empty_window_returns_zeros`). Hour, minute, and sub-second `FormatAvgSeconds` branches all use `0.##`. Scoped **35** `BuyerProofPack`/`BoardPack` unit tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — combined `RunDetailSampleLoadedNoRows` and `CommittedRunsInventoryTruncated` on metadata count row — **cheap-disproof 2026-10-30 thorough hunt (hunt 57):** detail-sample qualifier on count cell plus dedicated inventory-truncated metadata row; dual phrase on count is a saturated `[state-machine-gap]` sibling.
@@ -16681,13 +16691,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 57
-- **bugs-found:** 39
-- **consecutive-dry-hunts:** 2
+- **hunts:** 58
+- **bugs-found:** 40
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-23 — metadata committed-runs count without detail-load qualifier
+- **last-bug:** 2026-10-30 — pilot value report run-detail cap row when zero detail loads
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 

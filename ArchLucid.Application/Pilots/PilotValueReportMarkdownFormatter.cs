@@ -46,7 +46,13 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
         }
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r) && !r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Run-detail cap | {r.RunDetailCap} (truncated: false; 0 committed runs loaded for detail in the partial sample) |");
+        }
+        else if (r.RunDetailsTruncated)
         {
             if (r.CommittedRunsTimeline.Count == 0 && r.TotalRunsCommitted > 0)
             {
