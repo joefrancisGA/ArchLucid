@@ -277,31 +277,40 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (string.IsNullOrWhiteSpace(priority))
                 continue;
 
-            Match? match = FirstExplicitDimensionPairMatch(priority);
+            bool matchedThisPriority = false;
 
-            if (match is not { Success: true })
-                continue;
-
-            string left = match.Groups[1].Value;
-            string right = match.Groups[2].Value;
-
-            // "Do not prefer Security over Cost" still matches the pair pattern. Honor the same
-            // negation helper the generic dimension path uses, or the left side wins anyway.
-            if (IsNegatedDimensionMention(priority, left))
-                continue;
-
-            if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
-                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
+            foreach (Match match in ExplicitDimensionPairMatches(priority))
             {
-                prefersFirstDimension = true;
-                found = true;
+                string left = match.Groups[1].Value;
+                string right = match.Groups[2].Value;
+
+                // A negated pair is not a preference. Keep scanning this string so a later
+                // affirmative pair, such as "Cost over Security" after "Do not prefer Security over Cost",
+                // can still resolve the trade-off.
+                if (IsNegatedDimensionMention(priority, left))
+                    continue;
+
+                if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
+                    && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
+                {
+                    prefersFirstDimension = true;
+                    found = true;
+                    matchedThisPriority = true;
+                    break;
+                }
+
+                if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
+                    && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
+                {
+                    prefersFirstDimension = false;
+                    found = true;
+                    matchedThisPriority = true;
+                    break;
+                }
             }
-            else if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
-                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
-            {
-                prefersFirstDimension = false;
-                found = true;
-            }
+
+            if (matchedThisPriority)
+                continue;
         }
 
         return found;
@@ -455,19 +464,25 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     // A later "over" must not hide an earlier "before" in the same priority string.
     private static Match? FirstExplicitDimensionPairMatch(string priority)
     {
-        Match over = ExplicitDimensionOverDimensionPattern().Match(priority);
-        Match before = ExplicitDimensionBeforeDimensionPattern().Match(priority);
-
-        if (over.Success && before.Success)
-            return over.Index <= before.Index ? over : before;
-
-        if (over.Success)
-            return over;
-
-        if (before.Success)
-            return before;
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+            return match;
 
         return null;
+    }
+
+    private static List<Match> ExplicitDimensionPairMatches(string priority)
+    {
+        List<Match> matches = [];
+
+        foreach (Match match in ExplicitDimensionOverDimensionPattern().Matches(priority))
+            matches.Add(match);
+
+        foreach (Match match in ExplicitDimensionBeforeDimensionPattern().Matches(priority))
+            matches.Add(match);
+
+        matches.Sort(static (left, right) => left.Index.CompareTo(right.Index));
+
+        return matches;
     }
 
     private static Regex ExplicitDimensionOverDimensionPattern() =>

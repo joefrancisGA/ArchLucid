@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — `priority #1` cut the explicit pair at the hash
+- **last-bug:** 2026-10-30 — a negated pair hid a later affirmative pair in the same priority
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost. Cost over Security.` resolving balanced because a negated earliest pair continued to the next priority string and hid the later affirmative pair; the pair scan now skips a negated left side and keeps the first non-negated pair in that string; regression `BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security`; Alternatives/ProposedChange/TradeOff tests 114/114. Private beta: when an invited operator says not to prefer security over cost and then says cost over security in the same priority, the security-versus-cost recommendation follows the later pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — a negated pair hid a later affirmative pair in the same priority — **hit 2026-10-30 seed hunt:** keep scanning the string after a negated left side; regression `BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security`.
 
 2026-10-30 seed hunt (seed→hit): promoted `priority #1: Cost over Security` resolving balanced because path canonicalization cut the priority at `#`; prose without a slash or backslash now skips that canonicalizer; regression `BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests passed (`RunAnalyzers=false`). Private beta: when an invited operator numbers a priority as priority #1 and then says cost over security, the security-versus-cost recommendation follows that pair.
 
@@ -5884,11 +5888,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 74
+- **hunts:** 75
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 29
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — `priority #1` cut the explicit pair at the hash
+- **last-bug:** 2026-10-30 — a negated pair hid a later affirmative pair in the same priority
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
