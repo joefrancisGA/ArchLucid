@@ -58,6 +58,10 @@ public static class ApiKeyMaterialNormalizer
         if (character is '\u115F' or '\u1160' or '\u3164' or '\uFFA0')
             return true;
 
+        // Braille blank and object-replacement glyphs paste invisibly in spreadsheet/key vault exports.
+        if (character is '\u2800' or '\uFFFC')
+            return true;
+
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
         return character != ' ' && category == UnicodeCategory.SpaceSeparator;
     }

@@ -142,4 +142,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u3164").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_braille_blank_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u2800ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_braille_blank_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u2800").Should().BeEmpty();
+    }
 }
