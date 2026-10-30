@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -74,7 +75,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
 
         return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
-            ?? DiagramArmTypeFriendlyName.FormatUnmappedArmTypeCaption(node.ArmResourceType);
+            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)

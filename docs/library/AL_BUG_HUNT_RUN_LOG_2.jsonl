@@ -2207,3 +2207,12 @@
 {"at":"2026-10-30T19:03:26.1299640Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T19:08:05.7587543Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-30T19:12:46.4459489Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:17:19.7375869Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:21:25.3676258Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:25:26.4863053Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:29:31.8009055Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:39:08.1792817Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:43:20.5991630Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T19:47:39.4996354Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T20:00:25.8477951Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-30T20:05:31.9138379Z","zoneId":"api-key-auth","outcome":"dry","productLine":"archlucid-shared"}

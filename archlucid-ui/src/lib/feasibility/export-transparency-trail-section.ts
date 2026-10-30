@@ -88,7 +88,7 @@ export function formatTransparencyTrailMarkdownSection(
       lines.push(`- ${formatAssertedTrailLine(entry)}${responder}${questionId}${recordedUtc}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Asserted entries were stored empty.");
   }
 
   lines.push("");
@@ -100,7 +100,7 @@ export function formatTransparencyTrailMarkdownSection(
       lines.push(`- ${formatInferredTrailEntryLabel(entry)}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Inferred entries were stored empty.");
   }
 
   const mustSkipped = section.skipped.filter((entry) => entry.tier === "Must");
