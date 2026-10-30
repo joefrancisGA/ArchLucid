@@ -17015,6 +17015,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed→hit): promoted `DrRpoQualityAttributeParser.ConvertHoursToMinutes`, which rounds `rpoHours` `0.0083` (the hours `RequestQualityAttributeMaterializer` stores for `RPO 0.5 minutes`) to 0 minutes, so the recovery finding states `RPO 0 min`; a positive fraction under half a minute now stays at 1 minute while exact hour products such as 0.25 hours stay 15 minutes; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1402/1416** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator records a recovery objective of half a minute, the review states that RPO as 1 minute instead of 0 minutes.
+
+- [x] (proven) `DrRpoQualityAttributeParser.ConvertHoursToMinutes` — `rpoHours` `0.0083` from `RPO 0.5 minutes` became 0 minutes — **hit 2026-10-30 seed hunt:** a positive fraction under half a minute stays at 1 minute; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`. [class:off-by-one]
+
 2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.TryGetRiskyPort`, which treated any isolated admin-port digits in the security_rule body as the destination port, so `destination_port_range = "443"` with `destination_address_prefix = "10.22.0.0/16"` or `priority = 3389` was reported as internet-to-22 or internet-to-3389; the port is now read from `destination_port_range(s)`, `from_port`, and `to_port`; regressions `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`, `ParseRiskyRules_does_not_treat_priority_number_as_admin_destination_port`, and `ParseRiskyRules_detects_admin_port_from_aws_from_port`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1401/1415** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows HTTPS from the internet to a subnet such as 10.22.0.0/16, the review no longer reports that rule as SSH open to the internet.
 
 - [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
@@ -17097,11 +17101,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 64
-- **bugs-found:** 53
+- **hunts:** 65
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — address octets in an NSG rule were read as admin destination ports
+- **last-bug:** 2026-10-30 — half-minute RPO hours rounded to 0 minutes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17208,6 +17212,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `DrRpoQualityAttributeParser.ConvertHoursToMinutes` — `rpoHours` `0.0083` from `RPO 0.5 minutes` became 0 minutes — **hit 2026-10-30 seed hunt:** a positive fraction under half a minute stays at 1 minute; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`. [class:off-by-one]
 
 - [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
 
