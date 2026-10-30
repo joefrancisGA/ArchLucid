@@ -146,10 +146,7 @@ export function buildRunDetailEvidencePresentation(
       governanceGateLabel: model.governanceGateLabel,
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
-    createHomeActivityProvenanceAsOfLabel:
-      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
-        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) ?? "Provenance time was not stored."
-        : "Provenance time was not stored.",
+    createHomeActivityProvenanceAsOfLabel: "Not recorded",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)
