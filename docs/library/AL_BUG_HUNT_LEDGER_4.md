@@ -21881,13 +21881,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 189
+- **hunts:** 190
 - **bugs-found:** 51
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-30 — null supporting-finding and contributing-decision id entries crashed provenance edge wiring
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 thorough hunt #995 (dry): cheap-disproof closed the four stale null-collection candidates still present in the historical `### Hypotheses` block; `ProvenanceBuilder` already applies `OfType` projections from hunt #990. Provenance 188/188 and KnowledgeGraph 704/704 passed; no production change.
 
 2026-10-30 thorough hunt #994 (dry): cheap-disproof closed nine candidates — four persisted null collection rows are covered by the hunt #990 `OfType` projections; case-variant manifest decision ids are covered by `Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids`; duplicate artifact names are covered by the artifact coalescing/name regressions; overlay edge endpoint/EdgeId cases are covered by existing case-variant and backfill tests; whitespace-only relationship types are intentionally skipped; and case-variant graph-node rows are covered by graph-node coalescing and case-insensitive influence tests. Provenance 188/188 and KnowledgeGraph 704/704 passed.
 
@@ -24847,10 +24849,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted findings snapshot containing a null `Finding` entry reaches `findingRows.GroupBy(f => NormalizeId(f.FindingId))` and can fail before finding provenance is emitted; reachability: persisted `FindingsSnapshot` payload.
-- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted manifest containing a null decision entry reaches `DistinctDecisionKeys()` and can fail while constructing decision provenance; reachability: persisted `ManifestDocument` payload.
-- [ ] (candidate) `ProvenanceBuilder.Build` — a persisted artifact bundle containing a null `SynthesizedArtifact` entry reaches `artifacts.GroupBy(artifact => artifact.ArtifactId)` and can fail before artifact provenance is emitted; reachability: persisted artifact bundle payload.
-- [ ] (candidate) `ProvenanceBuilder.Build` — a rule-audit payload with a null element in `AppliedRuleIds` reaches `NormalizeId` via `DistinctAppliedRuleIds` and can fail during rule provenance construction; reachability: persisted `RuleAuditTraceDto` payload.
+- [x] (invalid) `ProvenanceBuilder.Build` — persisted null `Finding`, decision, artifact, or applied-rule collection entries — **cheap-disproof 2026-10-30 thorough hunt #995:** hunt #990 `OfType` projections already skip these rows.
 
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments` — persisted `CanonicalObject.SourceId` values differing only by case could split one structured diagram into multiple reconstructed documents; **cheap-disproof 2026-10-04 thorough hunt:** `SourceId` is an opaque stable document identifier in the selected reconstruction/merge paths, with no case-insensitive equivalence contract or reachable producer evidence.
 - [x] (invalid) `StructuredDiagramCanonicalModelReconstructor.ReconstructEdges` — a persisted `connectedToNodeIds` token whose canonical-object id differs only by case could omit a diagram edge; **cheap-disproof 2026-10-04 thorough hunt:** canonical-object ids are opaque stable identifiers and the selected mapper/reconstructor paths emit and consume the same exact id shape; no reachable case-variant input was established.

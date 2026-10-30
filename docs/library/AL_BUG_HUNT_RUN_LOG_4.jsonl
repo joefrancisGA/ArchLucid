@@ -2921,3 +2921,4 @@
 {"at":"2026-10-30T21:47:49.9987713Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.KnowledgeGraph/Inventory/ArchitectureInventoryObservedFactGraphOverlayMerger.cs,ArchLucid.KnowledgeGraph.Tests/ArchitectureInventoryObservedFactGraphOverlayTests.cs)"]}
 {"at":"2026-10-30T21:51:26.1680495Z","zoneId":"knowledge-graph-provenance","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Provenance/ProvenanceBuilder.cs,ArchLucid.Provenance.Tests/ProvenanceBuilderTests.cs,ArchLucid.KnowledgeGraph.Tests/ArchitectureInventoryObservedFactGraphOverlayTests.cs)"]}
 {"at":"2026-10-30T21:58:01.6184297Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-30T22:00:46.2723655Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
