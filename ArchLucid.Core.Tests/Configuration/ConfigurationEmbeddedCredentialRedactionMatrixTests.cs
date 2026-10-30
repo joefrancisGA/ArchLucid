@@ -11271,6 +11271,13 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_www_authenticate_basic_challenge_has_trailing_base64_after_percent_sign_in_realm_value()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=app%dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_set_cookie_compound_list_has_eight_character_session_before_max_age()
     {
         const string effectiveValue = "Set-Cookie: a=1; session=12345678; Max-Age=3600";
