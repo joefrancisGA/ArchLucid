@@ -66,9 +66,28 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
 
         string row = sb.ToString()
             .Split('\n')
-            .Single(line => line.StartsWith("| Warn", StringComparison.Ordinal))
+            .Single(line => line.Contains("| `Warn", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Be("| Warn\\|ing | 2 |");
+        row.Should().Be("| `Warn\\|ing` | 2 |");
+    }
+
+    [Fact]
+    public void Findings_by_severity_table_when_severity_label_contains_backtick_preserves_inline_code()
+    {
+        StringBuilder sb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(
+            sb,
+            new PilotRunDeltas
+            {
+                FindingsBySeverity = [new KeyValuePair<string, int>("Warn`ing", 1)],
+            });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ``Warn", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Be("| ``Warn`ing`` | 1 |");
     }
 }
