@@ -741,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 50 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 51 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 seed hunt #111 (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; repeated the DraftNew command source review and focused CLI tests, which passed 73/73 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
 
 2026-10-30 thorough hunt #96 (dry): rotation fired after three `ui-auth-proxy` seed-only outcomes. Cheap-disproof closed all five queued candidates: generated client calls map transport cancellation to `DraftApiResult` failures, JSON mode rejects missing system name during preflight, and non-JSON answer HTTP failure already has `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; focused `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
