@@ -2358,10 +2358,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
-2026-10-30 seed hunt #49 (seed-only): corrected candidate placement after hit #48; the two remaining source-context/result-state candidates remain untested and no new candidate was promoted in this pass.
+2026-10-30 thorough hunt #50 (hit): promoted blank source-context handling — a non-empty `sourceTexts` array with only whitespace contents was marked `loaded`, so the page showed loaded-intake messaging while the architecture description remained empty; require at least one trimmed source body before marking context loaded; regression `hasUsableArchitectureSourceText` rejects whitespace-only rows; focused helper suites passed 5/5. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
 
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy; input: source-context returns a non-empty `sourceTexts` array whose contents trim to empty; wrong outcome: operator sees loaded-intake messaging while the description is empty and analysis cannot proceed; mechanism: product context status uses `sources.length > 0` while description uses trimmed content; reachability: API source-context response with empty document content.
+- [x] (proven) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy — **hit 2026-10-30 thorough hunt #50:** product context is `loaded` only when a source body has non-whitespace content; regression above. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
 - [ ] (candidate) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists; input: reasoning endpoint returns a structurally accepted result with no specialist reviews/findings; wrong outcome: checklist advances to complete while the reasoning workspace has no actionable result; mechanism: `analysisComplete` checks only `runState?.kind === "reasoning"`; reachability: architecture-intelligence run API response.
+
+2026-10-30 seed hunt #49 (seed-only): corrected candidate placement after hit #48; the two remaining source-context/result-state candidates remain untested and no new candidate was promoted in this pass.
 
 2026-10-30 thorough hunt #48 (hit): promoted `primaryDescriptionFromSources` — when source context contained only an attachment and no canonical `architecture-description.txt`, the first attachment was copied into the architecture description field and could be submitted as the primary source; require the canonical description file instead of falling back to `sources[0]`; regression `does not treat an attachment-only source as the primary architecture description`; related helper tests passed 9/9. Private beta: invited architects opening reviews with attachment-only intake no longer submit an attachment’s content as the architecture description; the description remains empty until they provide the primary brief.
 
@@ -2422,11 +2424,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 49
-- **bugs-found:** 33
+- **hunts:** 50
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — attachment-only source populated the primary architecture description
+- **last-bug:** 2026-10-30 — blank source contents were marked as loaded intake
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
