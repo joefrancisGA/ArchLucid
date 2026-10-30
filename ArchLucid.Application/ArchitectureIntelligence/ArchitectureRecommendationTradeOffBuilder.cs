@@ -559,11 +559,15 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (finding.Dimension != dimension || !IsActionableForTradeOff(finding))
                 continue;
 
+            string expectedRecommendationId = ArchitectureRecommendationStableId.FromFinding(
+                finding,
+                ArchitectureRecommendationProposedChange.Build(finding));
+
             ArchitectureRecommendation? match = recommendations.FirstOrDefault(
-                recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
-                    dimensionLabel,
-                    StringComparison.Ordinal)
-                    && string.Equals(recommendation.Problem, finding.Title, StringComparison.Ordinal));
+                recommendation => string.Equals(
+                    recommendation.RecommendationId,
+                    expectedRecommendationId,
+                    StringComparison.Ordinal));
 
             if (match is not null)
                 return match;

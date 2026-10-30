@@ -5553,9 +5553,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — `unreliability` canceled an explicit Reliability pair
+- **last-bug:** 2026-10-30 — a shared security title put the trade-off on the unverified finding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted an unverified security finding listed before a verified security finding with the same title, so the security-versus-cost trade-off attached to the evidence-only recommendation; the lookup now uses the recommendation id of the actionable finding; regression `BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match`; Alternatives/ProposedChange/TradeOff tests 118/118. Private beta: when an invited operator's review has an unverified security finding and a verified security finding with the same title, the security-versus-cost trade-off appears on the verified recommendation.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForTradeOff` — shared title attached the trade-off to the unverified finding — **hit 2026-10-30 seed hunt:** match `ArchitectureRecommendationStableId.FromFinding` for the actionable finding; regression `BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match`.
 
 2026-10-30 seed hunt (seed→hit): promoted `Reliability over Cost to reduce unreliability` resolving balanced because `unreliability` negated every Reliability mention; an explicit Reliability pair now keeps the preference while a bare unreliability priority still does not; regression `BuildRecommendations_prefers_recovery_first_when_reliability_over_cost_mentions_unreliability`; Alternatives/ProposedChange/TradeOff tests 117/117. Private beta: when an invited operator says reliability over cost to reduce unreliability, the reliability-versus-cost recommendation follows that pair.
 
@@ -5900,11 +5904,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 78
+- **hunts:** 79
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-30 — `unreliability` canceled an explicit Reliability pair
+- **last-bug:** 2026-10-30 — a shared security title put the trade-off on the unverified finding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -1925,6 +1925,50 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
         secondTradeOffId.Should().Be(firstTradeOffId);
     }
 
+    [Fact]
+    public void BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match()
+    {
+        const string sharedTitle = "Public endpoint lacks documented trust boundary";
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding unverifiedSecurityFinding = new()
+        {
+            FindingId = "sec-unverified",
+            Dimension = QualityDimension.Security,
+            Title = sharedTitle,
+            Rationale = "Gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+            EvidenceCondition = EvidenceCondition.Unverified,
+        };
+        SpecialistReviewFinding verifiedSecurityFinding = CreateFailFinding(
+            "sec-verified",
+            QualityDimension.Security,
+            sharedTitle);
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [unverifiedSecurityFinding, verifiedSecurityFinding, costFinding],
+            ["Security"]);
+
+        ArchitectureRecommendation unverifiedRecommendation = recommendations.Single(
+            recommendation => recommendation.ProposedChange.StartsWith(
+                "Collect additional evidence",
+                StringComparison.Ordinal));
+        ArchitectureRecommendation verifiedRecommendation = recommendations.Single(
+            recommendation => recommendation.ProposedChange.StartsWith(
+                "Document a trust boundary",
+                StringComparison.Ordinal));
+
+        unverifiedRecommendation.TradeOffs.Should().BeEmpty();
+        verifiedRecommendation.TradeOffs.Should().ContainSingle();
+        verifiedRecommendation.TradeOffs[0].RecommendedResolution.Should().Be(
+            "Prioritize security-first over cost-first.");
+    }
+
     private static SpecialistReviewFinding CreateFailFinding(
         string findingId,
         QualityDimension dimension,
