@@ -10,6 +10,9 @@ internal static class PilotRunDeltasFindingsTotalFormatter
     internal const string MutedOnlyFindingsTotalLabel =
         "0 (muted findings were excluded from this total.)";
 
+    internal const string SnapshotZeroUnmutedFindingsTotalLabel =
+        "0 (no unmuted findings in persisted snapshot.)";
+
     internal static string FormatFindingsTotal(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);
@@ -19,6 +22,14 @@ internal static class PilotRunDeltasFindingsTotalFormatter
         if (unmutedTotal == 0 && deltas.MutedFindingsExcludedCount > 0)
         {
             return MutedOnlyFindingsTotalLabel;
+        }
+
+        if (deltas.FindingsCountsFromSnapshot
+            && deltas.FindingsBySeverity.Count == 0
+            && unmutedTotal == 0
+            && deltas.MutedFindingsExcludedCount == 0)
+        {
+            return SnapshotZeroUnmutedFindingsTotalLabel;
         }
 
         if (deltas.FindingsBySeverity.Count == 0
