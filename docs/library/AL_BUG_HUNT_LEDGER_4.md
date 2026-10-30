@@ -25739,12 +25739,26 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 89
+- **hunts:** 90
 - **bugs-found:** 72
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — stale local failed hid distributed terminal poll
 - **code-changed-since:** no
+
+2026-10-30 thorough hunt #975 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#972–#974 dry), picker rotated with **`-AvoidZoneId`** to `host-composition`. Cheap-disproof closed five open `(candidate)` rows reseeded after hunt #971 — invalid local pending not overridden by distributed completed bytes (`TryPoll_prefers_distributed_terminal_state_over_local_pending`, hunt #75), valid-no-repro local completed without bytes overridden by distributed pending (`TryPoll_prefers_distributed_pending_when_local_completed_has_no_document_bytes`, hunt #85), valid-no-repro ingest exception on first duplicate `runId` blocks later manifest (`DiscoverAsync_continues_when_ingest_throws_for_one_manifest`, `DiscoverAsync_tries_later_duplicate_runId_after_first_manifest_fails_ingest`, hunt #79), invalid unknown distributed phase leaves local pending visible (`TryPoll_reports_failure_when_distributed_state_has_unknown_phase`, hunt #78), valid-no-repro terminal distributed write failure leaves peer polling pending (`TryPoll_on_peer_instance_does_not_stay_pending_when_terminal_poll_state_cannot_be_persisted`, hunt #61); reseeded five `(candidate)` rows; scoped **16** `PollingCollectionRunDiscoveryTests` + **5** named value-report poll-state regressions (prebuilt Host.Composition test binary; project rebuild blocked by unrelated duplicate-`using` compile error on trunk). Private beta: n/a.
+
+- [x] (invalid) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed completed bytes — **cheap-disproof 2026-10-30 thorough hunt #975:** distributed terminal state wins over local pending; regression above.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local completed without bytes overridden by distributed pending — **cheap-disproof 2026-10-30 thorough hunt #975:** regression above.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — ingest exception on first duplicate `runId` blocks later manifest — **cheap-disproof 2026-10-30 thorough hunt #975:** per-manifest ingest catch; regressions above.
+- [x] (invalid) `InMemoryValueReportJobQueue.TryPoll` — unknown distributed phase leaves local pending visible — **cheap-disproof 2026-10-30 thorough hunt #975:** corrupt phase surfaces failed poll copy; regression above.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJobAsync` — terminal distributed write failure leaves peer polling pending forever — **cheap-disproof 2026-10-30 thorough hunt #975:** clears distributed poll state when terminal persist fails; regression above.
+
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed failed — locus: merge order; input: stale pending; wrong outcome: intentional until terminal.
+- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local failed with bytes edge (impossible phase) — locus: merge; input: corrupt local; wrong outcome: guard.
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — rejected ingest allows duplicate `runId` retry — locus: dedupe; input: rejected then valid; wrong outcome: hunt #79.
+- [ ] (candidate) `ProcessSharedValueReportJobPollStateCache` — prune expired entries on read — locus: TTL; input: stale key; wrong outcome: hunt #74.
+- [ ] (candidate) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces failed poll — locus: enqueue catch; input: cache down; wrong outcome: intentional.
 
 2026-10-30 thorough hunt #971 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#968–#970 dry), picker rotated with **`-AvoidZoneId`** to `host-composition`. Cheap-disproof closed five open `(candidate)` rows from the 2026-10-23 dry reseed — invalid local pending not overridden by distributed failed (`TryPoll_prefers_distributed_terminal_state_over_local_pending`, hunt #75), invalid local failed with document bytes (`RunJobAsync` never assigns bytes on `Failed`; merge guards via `PreferDistributedPollState`), valid-no-repro rejected ingest duplicate `runId` retry (`DiscoverAsync_imports_later_duplicate_runId_after_first_manifest_rejected`, hunt #79), valid-no-repro prune expired poll-state entries on read (`Set_prunes_expired_entries_without_get` on write, hunt #72; lazy `Get` expiry is second-chance cleanup), valid-no-repro enqueue pending distributed write failure (`TryPoll_on_peer_instance_reports_failure_when_pending_state_cannot_be_persisted`, intentional fail-fast); reseeded five `(candidate)` rows; scoped **18** `PollingCollectionRunDiscoveryTests` + **5** named value-report poll-state regressions passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -25754,11 +25768,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ProcessSharedValueReportJobPollStateCache` — prune expired entries on read — **cheap-disproof 2026-10-30 thorough hunt #971:** `Set` prunes expired entries; lazy `Get` removal is intentional second-chance cleanup (hunt #83).
 - [x] (valid-no-repro) `InMemoryValueReportJobQueue.Enqueue` — distributed pending write failure surfaces failed poll — **cheap-disproof 2026-10-30 thorough hunt #971:** intentional fail-fast when pending poll state cannot be persisted; regression above.
 
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed completed bytes — locus: merge order; input: peer completed with bytes while enqueue replica still pending; wrong outcome: hunt #75 terminal merge.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — local completed without bytes overridden by distributed pending — locus: merge order; input: stale local completed missing bytes; wrong outcome: hunt #85.
-- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — ingest exception on first duplicate `runId` blocks later manifest — locus: dedupe; input: throw then valid row; wrong outcome: hunt #79 per-manifest catch.
-- [ ] (candidate) `InMemoryValueReportJobQueue.TryPoll` — unknown distributed phase leaves local pending visible — locus: corrupt payload; input: invalid phase string; wrong outcome: hunt #78 failed poll copy.
-- [ ] (candidate) `InMemoryValueReportJobQueue.RunJobAsync` — terminal distributed write failure leaves peer polling pending forever — locus: terminal persist; input: cache write fault after job completes; wrong outcome: hunt #61 clear-on-failure.
+- [x] (invalid) `InMemoryValueReportJobQueue.TryPoll` — local pending not overridden by distributed completed bytes — **cheap-disproof 2026-10-30 thorough hunt #975:** see hunt #975 diary row.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.TryPoll` — local completed without bytes overridden by distributed pending — **cheap-disproof 2026-10-30 thorough hunt #975:** see hunt #975 diary row.
+- [x] (valid-no-repro) `PollingCollectionRunDiscovery.DiscoverAsync` — ingest exception on first duplicate `runId` blocks later manifest — **cheap-disproof 2026-10-30 thorough hunt #975:** see hunt #975 diary row.
+- [x] (invalid) `InMemoryValueReportJobQueue.TryPoll` — unknown distributed phase leaves local pending visible — **cheap-disproof 2026-10-30 thorough hunt #975:** see hunt #975 diary row.
+- [x] (valid-no-repro) `InMemoryValueReportJobQueue.RunJobAsync` — terminal distributed write failure leaves peer polling pending forever — **cheap-disproof 2026-10-30 thorough hunt #975:** see hunt #975 diary row.
 
 2026-10-23 thorough hunt (seed→hit): proved stale local `Failed` overrode distributed terminal `Completed` (no bytes) and `Failed` (peer error) on merge; prefer distributed completed/failed when local is failed; regressions `TryPoll_prefers_distributed_completed_when_local_is_failed_and_remote_has_no_document_bytes` and `TryPoll_prefers_distributed_failed_error_when_local_is_failed`; cheap-disproof closed three sibling `(candidate)` rows; scoped poll-state tests 26 passed (`RunAnalyzers=false`).
 
