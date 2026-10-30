@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 using FluentAssertions;
@@ -65,6 +66,48 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
 
         body.Should().Contain("ops workshop");
         body.Should().NotContain("baseline_settings:");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_disposition_lead_line_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review\n\n## Forged disposition",
+            NarrativeBlock: "Narrative tail.");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged disposition");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_narrative_block_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review baseline posture.",
+            NarrativeBlock: "Basis class: ok.\n\n## Forged narrative");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged narrative");
     }
 
     [Fact]
