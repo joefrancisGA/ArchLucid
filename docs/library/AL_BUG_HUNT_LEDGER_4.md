@@ -21925,12 +21925,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ProvenanceBuilder.Build` — null `SynthesizedArtifact` entry — **cheap-disproof 2026-10-30 seed hunt #990:** artifact rows use `OfType<SynthesizedArtifact>()`.
 - [x] (invalid) `ProvenanceBuilder.Build` — null element in `AppliedRuleIds` — **cheap-disproof 2026-10-30 seed hunt #990:** `DistinctAppliedRuleIds` skips null rule id strings before `NormalizeId`.
 
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null `GraphNode` in `baseGraph.Nodes` reaches `NormalizeNodeId(node.NodeId)` during base id indexing and can fail before overlay merge; reachability: malformed in-memory graph snapshot passed to inventory overlay merge.
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — null overlay node row reaches `NormalizeNodeId(inventoryNode.NodeId)` in the overlay loop; reachability: malformed inventory overlay snapshot.
-- [ ] (candidate) `ProvenanceBuilder.Build` — whitespace-only `FindingId` on a finding row collapses to empty id and may create duplicate empty-key provenance nodes; reachability: findings snapshot with blank ids from persistence.
-- [ ] (candidate) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — relationship rows whose endpoints normalize to empty ARM ids are skipped silently while duplicate resource rows with conflicting `cloudResourceId` may throw only on scalar merge; reachability: Azure inventory snapshot with duplicate normalized ARM ids and disagreeing cloud resource ids.
-- [ ] (candidate) `ProvenanceBuilder.Build` — duplicate graph nodes whose `NodeId` differs only by surrounding whitespace merge in `AddNode` but `graphNodeIds` HashSet uses case-insensitive normalized ids while influenced-by edges reference trimmed related ids; reachability: graph snapshot with case/whitespace variant node ids and findings linking related nodes.
-
 2026-10-30 seed hunt #989 (seed-only): re-read `ArchitectureInventoryObservedFactGraphBuilder`, `ArchitectureInventoryObservedFactGraphOverlayMerger`, and `ProvenanceBuilder`; no candidate was promoted because the remaining null-element paths required a dedicated failing repro. Scoped KnowledgeGraph/Provenance tests passed 697/697 and 179/179; seeded five fresh `(candidate)` rows.
 
 - [x] (invalid) `ProvenanceBuilder.Build` — null `GraphNode` entry — **hit 2026-10-30 seed hunt #990** (see hunt note above).

@@ -15,10 +15,10 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        List<GraphNode> baseNodes = baseGraph.Nodes.OfType<GraphNode>().ToList();
-        List<GraphNode> overlayNodes = inventoryOverlay.Nodes.OfType<GraphNode>().ToList();
-        List<GraphEdge> baseEdges = baseGraph.Edges.OfType<GraphEdge>().ToList();
-        List<GraphEdge> overlayEdges = inventoryOverlay.Edges.OfType<GraphEdge>().ToList();
+        IReadOnlyList<GraphNode> baseNodes = (baseGraph.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<GraphEdge> baseEdges = (baseGraph.Edges ?? []).OfType<GraphEdge>().ToArray();
+        IReadOnlyList<GraphNode> overlayNodes = (inventoryOverlay.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<GraphEdge> overlayEdges = (inventoryOverlay.Edges ?? []).OfType<GraphEdge>().ToArray();
 
         HashSet<string> baseNodeIds = baseNodes
             .Select(static node => NormalizeNodeId(node.NodeId))
