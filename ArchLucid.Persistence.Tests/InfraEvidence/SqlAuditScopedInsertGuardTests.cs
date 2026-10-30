@@ -53,7 +53,7 @@ public sealed class SqlAuditScopedInsertGuardTests
             LinkedUtc = DateTime.UtcNow,
         };
         Func<Task> action = () => repository.InsertArchitectureLinkInScopeAsync(scope, link);
-        await action.Should().ThrowAsync<InvalidOperationException>()
+        await action.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*foreign tenant authority*");
     }
 }
