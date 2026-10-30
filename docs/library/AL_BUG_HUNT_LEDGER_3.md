@@ -12115,6 +12115,12 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
+
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — verify anchor parity before promoting.
+- [ ] (candidate) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — trace live callers before promoting.
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — compare help topic registry churn against omit set before promoting.
+
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
@@ -12123,10 +12129,10 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -12182,11 +12188,11 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `resolveStripSlugForOmitPolicy` exact alias lookup — a live `EvidenceOrientationClaimCallout` caller can pass a newly retained legacy strip slug that is not mapped to its canonical omitted registry slug, leaving a duplicate claim band reachable; verify against current strip props and registry entries before promoting.
+- [x] (valid-no-repro) `resolveStripSlugForOmitPolicy` exact alias lookup — live legacy strip slugs unmapped to canonical omitted registry slugs — **cheap-disproof 2026-10-30 thorough hunt:** automated orientation `slug` scan found zero alias gaps; regressions `omits legacy orientation strip slug aliases that differ from registry help-topic slugs` and connect/cloud alias cases.
 - [x] (proven) `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — TOC listed `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` is omitted and the header claim strip has no matching anchor — **hit 2026-10-29 thorough hunt:** `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions in `HelpConnectAwsSecurelyGuideView.test.tsx` and `claim-discipline-policy.test.ts`
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — a live help guide whose header owns claim discipline can pass its registry slug without an omit-set entry, leaving its orientation strip visible; compare current guide/header composition against the set before promoting.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — live help guide whose header owns claim discipline passes registry slug without omit-set entry — **cheap-disproof 2026-10-30 thorough hunt:** non-omitted help slugs (e.g. `help-governance-infrastructure-drift`) intentionally render sole claim via orientation strip; regression `passes governance infrastructure drift help claim through for visible-band orientation slug`.
 - [x] (proven) `resolveGuideHeadingsForStrip` / `HelpPreferencesGuideView` — preferences TOC kept claim heading link while `help-preferences` omits bottom band and header strip lacks anchor — **hit 2026-10-21 thorough hunt lane C:** filtered `guideHeadings`; regression in `HelpPreferencesGuideView.test.tsx`.
-- [ ] (candidate) `resolveClaimDisciplineForStrip` undefined claim passthrough — a live visible-band caller can receive an empty or undefined claim from a guide-specific evidence constant and silently render no claim band; trace the actual claim props before promoting.
+- [x] (valid-no-repro) `resolveClaimDisciplineForStrip` undefined claim passthrough — visible-band caller receives empty or undefined claim and silently renders no claim band — **cheap-disproof 2026-10-30 thorough hunt:** intentional for sources-only visible strips; regression `allows undefined claim passthrough on visible slugs when callers omit copy`.
 
 - [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 
