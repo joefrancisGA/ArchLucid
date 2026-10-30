@@ -7891,6 +7891,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #70 (seed-only): re-read pricing trial-nudge focus, FAQ hash navigation, early-access submission, and marketing CTA paths; no additional repro was promoted. Seeded two bounded candidates for the next hunt.
+
+- [ ] (candidate) `TrialNudgePricingQuoteFocus` + `MarketingPricingQuotePanel` — `/pricing?source=trial-nudge` scrolls to the quote section while the panel remains collapsed behind its “Request quote” trigger; locus: trial-nudge focus effect versus quote panel `openOnMount`; input: a buyer follows the trial-upgrade nudge into pricing and expects the sales-led request path to be immediately actionable.
+- [ ] (candidate) `MarketingFaqItemPanel` — changing the FAQ hash from one item id to another leaves the previously hash-forced panel open; locus: one-way `forceOpen` effect and retained local `open` state; input: a buyer navigates between two `/faq#<item-id>` links in the same page session.
+
 2026-10-30 seed hunt #69 (hit): proved `useMarketingEarlyAccessSubmit` rendered upstream non-2xx response bodies directly in the public early-access form, so a backend exception could leak internal details to anonymous visitors; replaced the body with generic retry copy and added `does not expose upstream failure details in the early-access error`. Focused early-access hook suite passed 4/4. Private beta: invited buyers requesting evaluation access now see safe recovery copy instead of raw backend exception details when the access service fails.
 
 2026-10-30 seed hunt #68 (hit): proved the FAQ category TOC intercepted anchor clicks for smooth scrolling without writing the hash, so the visible navigation moved but the URL could not be copied, refreshed, or used as a deep link; update history before scrolling and added `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC test passed 1/1. Private beta: invited buyers browsing FAQ categories can now share or refresh the selected section without losing their place.
@@ -8123,7 +8128,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
