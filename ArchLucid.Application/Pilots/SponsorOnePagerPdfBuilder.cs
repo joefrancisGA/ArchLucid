@@ -165,7 +165,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 });
                 page.Content().Column(column =>
                 {
-                    column.Item().Text($"Run: {run.RunId}").FontSize(11);
+                    column.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatRunHeaderLine(run.RunId)).FontSize(11);
                     column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     if (coverageHonestyLines.Count > 0)
@@ -327,7 +327,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 return;
             }
 
-            c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "Manifest version was not stored."}");
+            c.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatManifestVersionLine(chain.ManifestVersion));
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
