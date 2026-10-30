@@ -54,6 +54,10 @@ public static class ApiKeyMaterialNormalizer
         if (category is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
             return true;
 
+        // Hangul filler letters paste invisibly between visible key bytes (IME/Word paste paths).
+        if (character is '\u115F' or '\u1160' or '\u3164' or '\uFFA0')
+            return true;
+
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
         return character != ' ' && category == UnicodeCategory.SpaceSeparator;
     }

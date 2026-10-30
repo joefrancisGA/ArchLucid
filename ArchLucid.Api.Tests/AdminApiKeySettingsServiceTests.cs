@@ -439,6 +439,21 @@ public sealed class AdminApiKeySettingsServiceTests
     }
 
     [Fact]
+    public void GetSnapshot_treats_hangul_filler_only_admin_slot_as_unconfigured()
+    {
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = "\u3164"
+            });
+
+        sut.GetSnapshot().Admin.IsConfigured.Should().BeFalse(
+            "hangul-filler-only config is not authenticatable key material after normalization");
+        sut.GetSnapshot().Admin.MaskedSegments.Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetSnapshot_treats_tab_only_admin_slot_as_unconfigured()
     {
         AdminApiKeySettingsService sut = CreateService(

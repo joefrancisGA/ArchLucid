@@ -130,4 +130,16 @@ public sealed class ApiKeyMaterialNormalizerTests
     {
         ApiKeyMaterialNormalizer.Normalize("\u00A0").Should().BeEmpty();
     }
+
+    [Fact]
+    public void Normalize_strips_embedded_hangul_filler_from_key_material()
+    {
+        ApiKeyMaterialNormalizer.Normalize("sec\u3164ret-admin").Should().Be("secret-admin");
+    }
+
+    [Fact]
+    public void Normalize_strips_hangul_filler_only_material_to_empty()
+    {
+        ApiKeyMaterialNormalizer.Normalize("\u3164").Should().BeEmpty();
+    }
 }
