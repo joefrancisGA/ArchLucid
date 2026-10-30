@@ -5916,6 +5916,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_source_types_when_base_source_type_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-source-type-case";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot.ToUpperInvariant(),
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.SourceType
+            .Should().Be(ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot);
+    }
+
+    [Fact]
     public void Merge_backfills_base_graph_edge_provenance_kind_from_first_overlay_row_when_base_provenance_kind_is_whitespace_only()
     {
         const string NodeA = "node-a";
