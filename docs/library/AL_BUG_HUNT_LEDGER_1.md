@@ -16632,11 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-- (candidate) `PilotBuyerSafeEvidenceGateEvaluator` — hard gap on `AuditRowCount == 0` without treating `AuditRowCountTruncated` lower-bound rows as attested inventory — locus: `Evaluate` audit continuity check; input: truncated audit export with positive lower-bound count.
-- (candidate) `PilotRunDeltaComputer` — `EstimatedUsdSavings` aggregation when top finding muted but severity buckets non-zero — locus: findings rollup vs sponsor ROI totals; input: committed run with muted critical finding.
-- (candidate) `SponsorEvidencePackService` — demo run value report delta freshness copied when scope run differs from requested pack run — locus: cross-run delta assembly; input: tenant with multiple committed runs in window.
-- (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — accepts missing `isDemoTenant` property as non-demo without requiring explicit false — locus: JSON guard; input: deltas JSON omitting demo flag on production tenant.
-- (candidate) `FirstValueReportMarkdownFormatting` — ISO timestamp cells omit explicit UTC suffix on sponsor markdown tables — locus: date formatting helper; input: manifest CreatedUtc with DateTimeKind.Unspecified.
+- (candidate) `PilotProofPackageCompletenessMapper` — `AuditRowsPresentOrLowerBound` true when truncated with zero count — locus: completeness JSON vs gate semantics; input: truncated audit query returning zero at cap boundary.
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatAuditRowCount` — unresolved audit count renders like attested zero — locus: deltas markdown table; input: `AuditRowCountResolved` false.
+- (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — missing `isDemoTenant` defaults non-demo — locus: guard JSON; input: production run deltas omitting demo flag (already invalid lens).
+- (candidate) `PilotRunDeltaComputer` — muted findings excluded count not surfaced on sponsor narrative when snapshot findings drive totals — locus: `MutedFindingsExcludedCount`; input: muted critical with snapshot rollup.
+- (candidate) `SponsorEvidencePackService` — packs reuse tenant-wide freshness when building per-run proof — locus: evidence pack assembly; input: multi-run tenant window.
+
+2026-10-30 seed hunt (seed→hit): promoted buyer-safe gate treating unresolved `AuditRowCount` sentinel zero as confirmed zero-row hard gap; unresolved counts now emit soft **not attested** gap (parity with LLM trace unresolved path); hard zero-row gap requires `AuditRowCountResolved`; regressions `Evaluate_UnresolvedAuditRowCount_IsPartialWithSoftGap_NotZeroRowsHardGap` and tightened `Evaluate_ZeroAuditRows_HardGap_IsNotSendable`; cheap-disproof closed five hunt-62 `(candidate)` rows; seeded five follow-on rows; scoped **55** unit tests passed. Private beta: When audit row queries fail for a committed pilot run, sponsor send readiness now surfaces a partial/caveated posture instead of a hard not-sendable zero-audit misread.
+
+- [x] (proven) `PilotBuyerSafeEvidenceGateEvaluator` — unresolved `AuditRowCount` with sentinel zero — **hit 2026-10-30 seed hunt:** soft not-attested gap; regression `Evaluate_UnresolvedAuditRowCount_IsPartialWithSoftGap_NotZeroRowsHardGap`. [class:fail-open-validation]
+
+- [x] (valid-no-repro) `PilotBuyerSafeEvidenceGateEvaluator` — truncated audit with positive lower bound — **cheap-disproof 2026-10-30 seed hunt (hunt 63):** resolved truncated counts are > 0; hard gap only when resolved and zero.
+- [x] (invalid) `PilotRunDeltaComputer` — muted findings vs estimated savings — **cheap-disproof 2026-10-30 seed hunt (hunt 63):** savings path independent; muted count tracked on deltas for disclosure.
+- [x] (invalid) `SponsorEvidencePackService` — cross-run freshness copy — **cheap-disproof 2026-10-30 seed hunt (hunt 63):** no reachable mis-bind found in service read; defer until concrete repro.
+- [x] (invalid) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — missing `isDemoTenant` — **cheap-disproof 2026-10-30 seed hunt (hunt 63):** builder-generated JSON always includes flag; guard validates builder output not arbitrary tampering.
+- [x] (invalid) `FirstValueReportMarkdownFormatting` — UTC suffix omission — **cheap-disproof 2026-10-30 seed hunt (hunt 63):** helper is table-cell escaping only; timestamp formatting lives in section formatters with `O` format elsewhere.
 
 2026-10-30 seed hunt (seed-only): re-read buyer-safe gate, buyer proof pack builder/guard, board pack cover copy, and pilot value report formatter/service; cheap-disproof closed five open `(candidate)` rows from hunt 61 (no additional board-pack chrome ship — sequential custom-period copy hits paused per workflow); no hunt-ready row promoted; seeded five mechanism-backed `(candidate)` rows below; scoped **41** `BuyerProofPack`/`BoardPack` unit tests passed. Private beta: n/a.
 

@@ -43,7 +43,14 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
                 "Committed architecture manifest absent or run not in Committed status — finalize before external sponsor distribution.");
         }
 
-        if (deltas.AuditRowCount == 0)
+        List<string> softGapMessages = [];
+
+        if (!deltas.AuditRowCountResolved)
+        {
+            softGapMessages.Add(
+                "Scoped audit-event row count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no audit continuity.");
+        }
+        else if (deltas.AuditRowCount == 0)
         {
             hardGapMessages.Add(
                 "Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
@@ -54,8 +61,6 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
             hardGapMessages.Add(
                 "PilotStrict agent output quality posture failed for one or more LLM traces (or aggregate explanation faithfulness) — do not circulate this run as sponsor-grade real-mode evidence until traces are green.");
         }
-
-        List<string> softGapMessages = [];
 
         if (manifest is not null && manifest.Metadata.CreatedUtc == default)
         {
