@@ -2,6 +2,10 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #85 (hit): proved the `adminEmail` schema capped work emails at 254 characters but the rendered email input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={254}` and `caps the work email input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 142/142. Private beta: invited buyers entering a long work email now get a browser-level 254-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `adminEmail` accepts more than the schema’s 254-character maximum in the rendered input — **hit 2026-10-30 seed hunt #85:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
 2026-10-30 seed hunt #84 (hit): proved the `industryVerticalOther` schema capped values at 200 characters but the rendered “Other” input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the Other industry input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 141/141. Private beta: invited buyers selecting Other for their industry now get a browser-level 200-character boundary that matches the signup validation contract instead of entering text the form can never submit.
 
 - [x] (proven) `SignupForm` — `industryVerticalOther` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #84:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
@@ -334,11 +338,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 69
-- **bugs-found:** 15
+- **hunts:** 70
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — Other industry input length contract
+- **last-bug:** 2026-10-30 — Work email input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
