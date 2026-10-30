@@ -165,7 +165,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
             for (int layer = 0; layer < 8; layer++)
             {
-                byte[] bytes = Convert.FromBase64String(payloadSpan.ToString());
+                byte[] bytes = Convert.FromBase64String(NormalizeBase64PayloadPadding(payloadSpan));
                 string decoded = Encoding.UTF8.GetString(bytes);
                 ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
 
@@ -213,6 +213,17 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return collapsed.ToString();
+    }
+
+    private static string NormalizeBase64PayloadPadding(ReadOnlySpan<char> payload)
+    {
+        string normalized = payload.ToString();
+        int remainder = normalized.Length % 4;
+
+        if (remainder == 0)
+            return normalized;
+
+        return normalized + new string('=', 4 - remainder);
     }
 
     private static bool LooksLikeBase64Payload(ReadOnlySpan<char> value)
@@ -316,20 +327,19 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsNegotiateAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int negotiateIndex = trimmed.IndexOf("Negotiate ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int negotiateIndex = trimmed.IndexOf("Negotiate".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (negotiateIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(negotiateIndex + "Negotiate ".Length).Trim();
-        int end = 0;
+        ReadOnlySpan<char> afterNegotiate = trimmed.Slice(negotiateIndex + "Negotiate".Length);
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
+        if (afterNegotiate.IsEmpty || !char.IsWhiteSpace(afterNegotiate[0]))
+            return false;
 
-        token = token.Slice(0, end);
+        ReadOnlySpan<char> token = afterNegotiate.Trim();
 
-        return token.Length >= 8;
+        return CollapsedBearerCredentialLength(token) >= 8;
     }
 
     private static bool ContainsNtlmAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
