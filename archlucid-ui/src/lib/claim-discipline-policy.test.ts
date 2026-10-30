@@ -321,4 +321,18 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("package-print")).toBe(true);
     expect(resolveClaimDisciplineForStrip("package-print", undefined)).toBeUndefined();
   });
+
+  it("drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band", () => {
+    expect(shouldOmitClaimDisciplineBand("help-specialty-walkthroughs")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-specialty-walkthroughs",
+        [
+          { id: "help-specialty-walkthroughs-claim-discipline-heading", title: "What this guide does not cover" },
+          { id: "specialty-template-catalog", title: "Available templates" },
+        ],
+        "help-specialty-walkthroughs-claim-discipline-heading",
+      ),
+    ).toEqual([{ id: "specialty-template-catalog", title: "Available templates" }]);
+  });
 });

@@ -12139,11 +12139,17 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
+
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
+
 2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
 
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — verify anchor parity before promoting.
-- [ ] (candidate) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — trace live callers before promoting.
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — compare help topic registry churn against omit set before promoting.
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — **cheap-disproof 2026-10-30 thorough hunt #2:** catalog TOC excludes claim heading; policy regression `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`.
+- [x] (invalid) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — **cheap-disproof 2026-10-30 thorough hunt #2:** empty claim still renders callout shell; regression `still renders an empty claim callout shell when claim prop is an empty string on a visible slug`.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — **cheap-disproof 2026-10-30 thorough hunt #2:** registry scan found zero help topics with header claim missing omit coverage.
 
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
@@ -12153,9 +12159,9 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
