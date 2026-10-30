@@ -123,4 +123,37 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
 
         sb.ToString().Should().Contain("| Audit row basis | **500+**");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_when_roi_narrative_block_contains_pipe_escapes_roi_basis_row()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse
+            {
+                RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Low,
+                RoiConfidenceLabel = "Low",
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+            },
+            new PilotRunDeltas(),
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold|pending baseline"));
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("ROI basis status", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain("Hold\\|pending baseline");
+    }
 }

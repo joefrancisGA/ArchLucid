@@ -109,7 +109,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
             ? FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : roiClaimGate.NarrativeBlock;
+            : FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(roiClaimGate.NarrativeBlock);
 
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }
