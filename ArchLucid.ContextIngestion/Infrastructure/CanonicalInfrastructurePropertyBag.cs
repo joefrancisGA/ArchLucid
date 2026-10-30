@@ -386,6 +386,12 @@ public static class CanonicalInfrastructurePropertyBag
                 continue;
             }
 
+            if (trimmedLine.StartsWith("/*", StringComparison.Ordinal)
+                && trimmedLine.EndsWith("*/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             int equalsIndex = line.IndexOf('=');
 
             if (equalsIndex <= 0)

@@ -1002,4 +1002,29 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().HaveCount(2);
         result.Should().Contain(o => o.Name == "real");
     }
+
+    [Fact]
+    public async Task ParseAsync_SingleQuotedStringContainingHeredocMarker_DoesNotMaskFollowingResourceHeader()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "core.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-single-quoted-heredoc-marker",
+            Content = """
+                      resource "azurerm_resource_group" "wrapper" {
+                        note = 'see <<EOF example'
+                      }
+
+                      resource "azurerm_resource_group" "real" {
+                        location = "eastus"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result.Should().Contain(o => o.Name == "real");
+    }
 }
