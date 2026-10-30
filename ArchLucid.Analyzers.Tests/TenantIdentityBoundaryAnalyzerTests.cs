@@ -970,6 +970,28 @@ namespace N
     await RunInnerLayerTestAsync(testCode, expected);
   }
 
+  [Fact]
+  public async Task Reports_banned_type_in_generic_type_parameter_constraint_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Security.Claims;
+
+    public sealed class C<T> where T : {|#0:ClaimsPrincipal|}
+    {
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>
       RunTestAsync(testCode, InnerLayerAssemblyNameTransform, expectedDiagnostics);
 
