@@ -4789,6 +4789,21 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-30 seed hunt (seed→hit #19): promoted comma-folded `Authorization` with backslash-only placeholder after `Bearer` before valid segment — `TryReadBearerCredentialSegment` rejected glued `\` as non-Bearer and tripped mix guard on `Bearer\\, Bearer <valid>`; extended `IsBearerDelimiterOnlyPlaceholder` with ASCII backslash (peer to `|` / `U+FF5C`); regression `HandleAuthenticateAsync_succeeds_when_backslash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from thorough hunt #18 (VT/FF comma-fold placeholders via whitespace trim + hunt #16/#17 regressions; stale `iat`-only and auth-version rows covered by hunt #17 full-tree regressions); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 45/45. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a lone backslash placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — backslash-only placeholder after `Bearer` trips mix guard — **hit 2026-10-30 seed hunt #19:** regression above.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — vertical-tab-only Bearer placeholder before comma-folded valid token — **cheap-disproof 2026-10-30 seed hunt #19:** `\v` is whitespace; regression `HandleAuthenticateAsync_succeeds_when_vertical_tab_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — form-feed-only Bearer placeholder before comma-folded valid token — **cheap-disproof 2026-10-30 seed hunt #19:** `\f` is whitespace; regression `HandleAuthenticateAsync_succeeds_when_form_feed_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — stale `iat` when `auth_time` absent — **cheap-disproof 2026-10-30 seed hunt #19:** regression `HasRecentAuthentication_returns_false_when_only_stale_iat_is_present_without_auth_time` on full tree.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty Guid `authVersion` omitted from JWT — **cheap-disproof 2026-10-30 seed hunt #19:** regression `IssueAccessToken_omits_auth_version_claim_when_auth_version_is_empty_guid` on full tree.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — rejects platform user when auth-version claim missing on local issuer — **cheap-disproof 2026-10-30 seed hunt #19:** regression `ValidateAsync_rejects_platform_user_tokens_without_auth_version_claim` on full tree.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — multiplication sign (`U+00D7`) glued after `Bearer` before comma-folded valid token — locus: delimiter-only placeholder set; input: `Bearer×, Bearer valid`; reachability: proxy charset normalization monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — solidus-only placeholder after `Bearer` before comma-folded valid segment — locus: `/` vs `\` placeholder parity; input: `Bearer/, Bearer valid`; reachability: URL-escaped header folding monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `auth_time` Unix string with leading plus sign rejected vs accepted — locus: `TryParseWholeNumberLong`; input: `+1700000000`; reachability: vendor claim formatting monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — subordinate `accessTokenLifetimeMinutes` below five-minute floor — locus: `Math.Clamp` lower bound; input: `1`; reachability: trial token lifetime monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — inbound role claim with only zero-width joiners promoted — locus: `PromoteIncomingRoleValues`; input: ZWSP-only role string; reachability: IdP attribute paste monitor.
+
 2026-10-30 thorough hunt (hit #18): promoted comma-folded `Authorization` with `Bearer` + fullwidth vertical line (`U+FF5C`) placeholder before valid Bearer segment — segment was misclassified as non-Bearer and tripped the mix guard on `Bearer\uFF5C, Bearer <valid>`; `TryReadBearerCredentialSegment` now treats delimiter-only placeholders after the scheme (ASCII `|` and `U+FF5C`) as empty Bearer credentials and splits on `U+FF5C`; regression `HandleAuthenticateAsync_succeeds_when_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four sibling `(candidate)` rows from seed hunt #17 (pipe-only comma-folded placeholder covered by delimiter split + empty-segment path, semicolon-separated revoked-then-valid regression, `TryGetAuthenticationInstant` null without time claims by design, `LocalTrialJwtIssuer` whitespace email throws, SAML2 scheme already case-insensitive); reseeded five follow-on `(candidate)` rows; scoped filter 142/144 passed (`RunAnalyzers=false`; 2 SQL integration tests blocked — no SQL Server on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a fullwidth vertical-line placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — fullwidth vertical line after `Bearer` trips mix guard — **hit 2026-10-30 thorough hunt #18:** delimiter-only placeholder; regression above.
@@ -4798,11 +4813,11 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — throws when email blank — **cheap-disproof 2026-10-30 thorough hunt #18:** `ThrowIfNullOrWhiteSpace(email)` before issue.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — SAML2 scheme case-insensitive match — **cheap-disproof 2026-10-30 thorough hunt #18:** `IsSaml2AuthenticatedIdentity` uses `OrdinalIgnoreCase`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — vertical-tab-only Bearer placeholder before comma-folded valid token — locus: empty-token skip; input: `Bearer\v, Bearer valid` (reachability: VT monitor).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — form-feed-only Bearer placeholder before comma-folded valid token — locus: empty-token skip; input: `Bearer\f, Bearer valid` (reachability: FF monitor).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — stale `iat` when `auth_time` absent — locus: iat fallback; input: fresh `iat` without `auth_time` (reachability: step-up monitor).
-- [ ] (candidate) `LocalTrialJwtIssuer` — empty Guid `authVersion` omitted from JWT — locus: optional claim; input: `Guid.Empty` authVersion (reachability: auth-version monitor).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform user when auth-version claim missing on local issuer — locus: Guid `sub` guard; input: missing stamp (reachability: fail-closed monitor).
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — vertical-tab-only Bearer placeholder before comma-folded valid token — **cheap-disproof 2026-10-30 seed hunt #19:** see seed hunt #19 diary.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — form-feed-only Bearer placeholder before comma-folded valid token — **cheap-disproof 2026-10-30 seed hunt #19:** see seed hunt #19 diary.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — stale `iat` when `auth_time` absent — **cheap-disproof 2026-10-30 seed hunt #19:** see seed hunt #19 diary.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty Guid `authVersion` omitted from JWT — **cheap-disproof 2026-10-30 seed hunt #19:** see seed hunt #19 diary.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — rejects platform user when auth-version claim missing on local issuer — **cheap-disproof 2026-10-30 seed hunt #19:** see seed hunt #19 diary.
 
 2026-10-23 seed hunt #17 (seed-only): cheap-disproof closed five open `(candidate)` rows (vertical-tab Bearer placeholder, bare `Bearer,` prefix segment, stale `iat`-only principal, empty `authVersion` omitted, missing auth-version on local Guid `sub`); regression `HandleAuthenticateAsync_succeeds_when_vertical_tab_only_bearer_segment_precedes_valid_comma_folded_credential`; reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 43/43; no handler change.
 
@@ -4963,11 +4978,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 45
-- **bugs-found:** 32
+- **hunts:** 46
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected fullwidth vertical-line placeholder before valid comma-folded token
+- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected backslash-only placeholder before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
