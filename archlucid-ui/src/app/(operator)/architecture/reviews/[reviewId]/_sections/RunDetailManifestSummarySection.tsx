@@ -19,6 +19,8 @@ import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ManifestSummary } from "@/types/authority";
+import { formatCommittedReviewStandardsCloudTarget } from "@/lib/review-standards-cloud-target-display";
+
 import { manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
@@ -251,12 +253,9 @@ export function RunDetailManifestSummarySection(
                   </p>
                   <p className="m-0">
                     Cloud target:{" "}
-                    {manifestSummary.reviewStandardsAtCommit.cloudProvider === null
-                      || manifestSummary.reviewStandardsAtCommit.cloudProvider === undefined
-                      ? "Cloud target was not stored."
-                      : manifestSummary.reviewStandardsAtCommit.cloudProvider.length === 0
-                        ? "Cloud target was stored empty."
-                        : manifestSummary.reviewStandardsAtCommit.cloudProvider}
+                    {formatCommittedReviewStandardsCloudTarget(
+                      manifestSummary.reviewStandardsAtCommit.cloudProvider,
+                    )}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === true
                       ? " · Focused review scope"
                       : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === false

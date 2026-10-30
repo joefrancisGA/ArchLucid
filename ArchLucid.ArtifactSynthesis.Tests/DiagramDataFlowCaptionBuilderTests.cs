@@ -245,6 +245,29 @@ public sealed class DiagramDataFlowCaptionBuilderTests
         };
     }
 
+    [Fact]
+    public void BuildCaptions_leads_with_observed_runtime_sentence_when_observed_edges_present()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> observedEdges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "observed-1",
+                FromNodeId = "web-app",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], observedEdges);
+
+        captions[0].Should().Be(DiagramDataFlowHonestyLegend.ObservedRuntimeLeadingPrimarySentence);
+        captions.Should().NotContain(DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence);
+    }
+
     private static GraphNode CreateStorageNode()
     {
         return new GraphNode

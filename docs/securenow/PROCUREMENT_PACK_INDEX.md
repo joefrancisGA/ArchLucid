@@ -4,7 +4,7 @@
 
 **Audience:** Security, procurement, and GRC reviewers evaluating SecureNow (Azure path and evidence analysis), not the ArchLucid architecture-review product line.
 
-**Last reviewed:** 2026-10-29 (UTC)
+**Last reviewed:** 2026-10-30 (UTC)
 
 **How to cite:** Use the **Status** and **Evidence Type** columns as buyer-safe labels only. They are not attestations. For platform-wide controls shared with ArchLucid, read the linked file and do not treat it as a SecureNow-specific certification. Architecture-review diligence still uses [`../go-to-market/PROCUREMENT_PACK_INDEX.md`](../go-to-market/PROCUREMENT_PACK_INDEX.md).
 
@@ -23,9 +23,19 @@ Labels are **not** attestations. **Template** means legal or owner execution is 
 | Support commitment | Self-attested | [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md) | Founder acknowledgement targets only; **not** a contractual SLA and **not** service credits. |
 | Executive proof packet | Template | [EXECUTIVE_PROOF_PACKET_TEMPLATE.md](EXECUTIVE_PROOF_PACKET_TEMPLATE.md) | Template only; populate with real evidence and human review before any sponsor share. |
 | Buyer demonstration script | Self-attested | [BUYER_PROOF_DEMO.md](BUYER_PROOF_DEMO.md) | Fixture or synthetic demonstration is **not** customer evidence. |
+| Control-evidence responsibility | Template | [CONTROL_EVIDENCE_RESPONSIBILITY.md](CONTROL_EVIDENCE_RESPONSIBILITY.md) | Duty split for customer control owners and SecureNow; not an attestation. |
+| Framework coverage card | Self-attested | [FRAMEWORK_COVERAGE.md](FRAMEWORK_COVERAGE.md) | Thematic coverage index; not a certification or full framework catalog. |
+| ROI cost input | Template | [ROI_COST_INPUT.md](ROI_COST_INPUT.md) | Assembles annual cost **C** from SKU identifiers and customer operating cost; not a savings result. |
+| Commercial order template | Template | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Quote and sign-off shell with SecureNow SKUs and meters; not an approved customer offer and does not publish fees. |
+| Quote-to-pilot checklist | Template | [QUOTE_TO_PILOT_CHECKLIST.md](QUOTE_TO_PILOT_CHECKLIST.md) | Sequences buyer attachments and owner gates; cannot authorize commerce or clear beta **NO_GO**. |
+| SKU and meter card | Template | [SKU_METER_CARD.md](SKU_METER_CARD.md) | Buyer-safe SKU and capacity summary without fee amounts; identifiers are not active entitlements. |
 | In-tenant collection agent (ADR 0103) | Implemented | [../architecture/adrs/0103-securenow-in-tenant-collection-agent.md](../architecture/adrs/0103-securenow-in-tenant-collection-agent.md) | Accepted architecture decision; not proof of a live customer deployment. |
 | In-tenant deployment (ADR 0104) | Implemented | [../architecture/adrs/0104-securenow-in-tenant-deployment.md](../architecture/adrs/0104-securenow-in-tenant-deployment.md) | Accepted architecture decision; not proof of a live customer deployment. |
 | In-tenant Terraform root (engineering) | Self-attested | [../../infra/terraform-securenow-in-tenant/README.md](../../infra/terraform-securenow-in-tenant/README.md) | Engineering description of a customer-operated deployment option; not a deployed tenant attestation. |
+| Data-processing schedule | Template | [DATA_PROCESSING_SCHEDULE.md](DATA_PROCESSING_SCHEDULE.md) | Negotiation exhibit only; does not execute the platform DPA or check the pilot checklist. |
+| Subprocessors delta | Self-attested | [SUBPROCESSORS_DELTA.md](SUBPROCESSORS_DELTA.md) | Reading of the platform register for hosted vs in-tenant SecureNow; not a second vendor list. |
+| Questionnaire crosswalk | Template | [QUESTIONNAIRE_CROSSWALK.md](QUESTIONNAIRE_CROSSWALK.md) | Route map only; **not** a completed SIG or CAIQ. |
+| Quote cover | Template | [QUOTE_COVER.md](QUOTE_COVER.md) | Vendor-setup cover; names SKU identifiers; does not publish fees. |
 
 ### Platform-shared (do not treat as a SecureNow certification)
 
@@ -47,7 +57,11 @@ Labels are **not** attestations. **Template** means legal or owner execution is 
 | Founder support acknowledgement targets | Self-asserted | 2026-10-29 | [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md) | Weekday Eastern business-hour acknowledgement targets; not a contractual SLA. |
 | Buyer demo and proof discipline | Self-asserted | 2026-10-29 | [BUYER_PROOF_DEMO.md](BUYER_PROOF_DEMO.md) | Scripted evaluation path; synthetic results are **not** customer evidence. |
 | Collection agent architecture | Implemented | 2026-10-29 | [../architecture/adrs/0103-securenow-in-tenant-collection-agent.md](../architecture/adrs/0103-securenow-in-tenant-collection-agent.md) | Reader handoff and blob ingest design accepted; customer must still authorize collection scope. |
-| In-tenant hosting architecture | Implemented | 2026-10-29 | [../architecture/adrs/0104-securenow-in-tenant-deployment.md](../architecture/adrs/0104-securenow-in-tenant-deployment.md) | Private data-plane deployment pattern accepted; not a guarantee that every pilot uses this root. |
+| In-tenant hosting architecture | Implemented | 2026-10-30 | [../architecture/adrs/0104-securenow-in-tenant-deployment.md](../architecture/adrs/0104-securenow-in-tenant-deployment.md) | Private data-plane deployment pattern accepted; not a guarantee that every pilot uses this root. |
+| Data-processing schedule template | Self-asserted | 2026-10-30 | [DATA_PROCESSING_SCHEDULE.md](DATA_PROCESSING_SCHEDULE.md) | Template exhibit with **TO BE NEGOTIATED** blanks; not an executed DPA. |
+| Subprocessors delta reading | Self-asserted | 2026-10-30 | [SUBPROCESSORS_DELTA.md](SUBPROCESSORS_DELTA.md) | Maps platform register rows to SecureNow hosting modes; does not edit the platform register. |
+| Questionnaire crosswalk | Self-asserted | 2026-10-30 | [QUESTIONNAIRE_CROSSWALK.md](QUESTIONNAIRE_CROSSWALK.md) | Routes questions to platform packet or SecureNow overlay; not a completed questionnaire. |
+| Quote cover (no fees) | Self-asserted | 2026-10-30 | [QUOTE_COVER.md](QUOTE_COVER.md) | Names private SKU identifiers without publishing fee amounts. |
 
 ## Evidence artifacts — Platform-shared
 

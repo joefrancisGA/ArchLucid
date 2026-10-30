@@ -76,6 +76,37 @@ public sealed class InventoryDiagramDataFlowNsgAnnotationApplierTests
     }
 
     [Fact]
+    public void Apply_marks_unlinked_connector_endpoints_without_claiming_nsg_rules_P20()
+    {
+        DiagramAst ast = new()
+        {
+            Nodes =
+            [
+                new DiagramNode { NodeId = "from", SeedNodeId = "graph-from", ArmResourceType = "Microsoft.Web/sites" },
+                new DiagramNode { NodeId = "to", SeedNodeId = "", ArmResourceType = "Microsoft.Web/sites" },
+            ],
+            Edges =
+            [
+                new DiagramEdge { FromNodeId = "from", ToNodeId = "to", Label = "stored hop" },
+            ],
+        };
+
+        GraphSnapshot graph = BuildAnnotatedFlowGraph(
+            includeSourceNsg: true,
+            includeTargetNsg: true,
+            sourceRules: [CreateRule("allow-https-out", "TCP", "443", "Outbound", "Allow", "100")],
+            targetRules: [CreateRule("allow-https-in", "TCP", "443", "Inbound", "Allow", "100")]);
+
+        InventoryDiagramDataFlowNsgAnnotationApplier.Apply(
+            ast,
+            graph,
+            new Dictionary<string, string>(StringComparer.Ordinal));
+
+        DiagramEdge edge = ast.Edges.Should().ContainSingle().Subject;
+        edge.Label.Should().Contain("NSG annotation skipped — connector endpoint is not on this diagram.");
+    }
+
+    [Fact]
     public void Compile_data_flow_diagram_still_contains_no_nsg_node()
     {
         GraphSnapshot graph = BuildAnnotatedFlowGraph(

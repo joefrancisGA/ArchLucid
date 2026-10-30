@@ -102,7 +102,7 @@ internal static class SecureNowQuestionDisplayCopy
         }
 
         if (resourceName.Length == 0)
-            return trimmed.Length > 0 ? trimmed : InferredConnectionFallbackQuestion;
+            return "Should SecureNow record this inferred connection without a stored resource name?";
 
         return $"Should SecureNow record an inferred connection for {resourceName}?";
     }

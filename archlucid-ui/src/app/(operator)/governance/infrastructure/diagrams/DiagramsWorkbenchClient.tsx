@@ -3187,6 +3187,13 @@ export function DiagramsWorkbenchClient() {
               mermaidSource.trim().length > 0 && mermaidSource !== displayMermaidSource
             }
             crossGroupFanOutIncluded={includeCrossGroupFanOut}
+            executiveFirstTwelveDrawn={
+              selectedMode === "executive"
+              && mermaidSource.includes("first 12 resources drawn on this diagram")
+            }
+            dataFlowHasObservedInLogs={
+              selectedMode === "dataFlow" && /Observed in logs/i.test(mermaidSource)
+            }
           />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             embedQuestionBarInViewport={paintDiagramCanvas}

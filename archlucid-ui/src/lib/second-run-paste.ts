@@ -199,15 +199,23 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
     return cloudProviderResult;
   }
 
+  const envRaw = readString(record, "environment", "Environment");
+
+  if (envRaw !== undefined) {
+    const normalizedEnv = normalizeEnvironmentForWizard(envRaw);
+
+    if (normalizedEnv.length === 0) {
+      return { ok: false, error: `environment '${envRaw}' is not recognized.` };
+    }
+  }
+
   const merged: WizardFormValues = {
     ...defaults,
     requestId,
     systemName: name,
     description,
     environment:
-      readString(record, "environment", "Environment") !== undefined
-        ? normalizeEnvironmentForWizard(readString(record, "environment", "Environment"))
-        : defaults.environment,
+      envRaw !== undefined ? normalizeEnvironmentForWizard(envRaw) : defaults.environment,
     cloudProvider: cloudProviderResult.cloudProvider,
     requiredCapabilities: components,
     constraints,

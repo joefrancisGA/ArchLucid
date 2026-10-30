@@ -36,10 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC38-only full regression and coverage on every branch push; no production deployment.
+# RC39-only full regression and coverage on every branch push; no production deployment.
 on:
   push:
-    branches: [RC38]
+    branches: [RC39]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -52,11 +52,11 @@ on:
         default: false
         type: boolean
 
-# RC38 push CI uses one branch-scoped group: a new candidate supersedes older RC38 push runs.
+# RC39 push CI uses one branch-scoped group: a new candidate supersedes older RC39 push runs.
 # A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC38' && format('rc38-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC39' && format('rc39-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
@@ -619,6 +619,46 @@ jobs:
       - name: Starter proof pack metadata validation (TB-115/TB-116)
         continue-on-error: true
         run: python scripts/ci/check_starter_proof_packs.py
+
+      - name: SecureNow scenario chooser
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_scenario_chooser.py
+
+      - name: SecureNow scenario chooser unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_scenario_chooser
+
+      - name: SecureNow compliance notes
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_compliance_notes.py
+
+      - name: SecureNow compliance notes unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_compliance_notes
+
+      - name: SecureNow ROI notes
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_roi_notes.py
+
+      - name: SecureNow ROI notes unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_roi_notes
+
+      - name: SecureNow commercial packaging
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_commercial_packaging.py
+
+      - name: SecureNow commercial packaging unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_commercial_packaging
+
+      - name: SecureNow marketability
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_marketability.py
+
+      - name: SecureNow marketability unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_marketability
 
       - name: Starter proof pack validation unit tests
         continue-on-error: true
@@ -3891,7 +3931,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC38' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC39' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev

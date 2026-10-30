@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveWizardPresetIdFromDeeplink } from "@/lib/wizard-preset-deeplink";
 import {
   resolveWizardPresetLabel,
+  isWizardFormFieldDirty,
   resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   WIZARD_STARTER_PRESET_FIELD_COPY,
@@ -24,6 +25,7 @@ type NewRunWizardStepRecapProps = {
 
 const DESCRIPTION_PREVIEW_CHARS = 180;
 const CONSTRAINTS_PREVIEW_CHARS = 120;
+const CAPABILITIES_PREVIEW_CHARS = 120;
 
 function truncate(value: string, limit: number): { readonly preview: string; readonly clipped: boolean } {
   if (value.length <= limit) {
@@ -182,13 +184,17 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     .map((c) => c.trim())
     .filter((c) => c.length > 0)
     .join(", ");
+  const hasBlankCapabilityEntry =
+    capabilityEntries.length > 0 && capabilityEntries.some((c) => c.trim().length === 0);
   const hasBlankConstraintEntry =
     constraintsEntries.length > 0 && constraintsEntries.some((c) => c.trim().length === 0);
 
   const identityStepReached = props.stepIndex >= 1;
   const hasConstraintsArray = constraintsEntries.length > 0;
+  const hasCapabilitiesArray = capabilityEntries.length > 0;
   const briefPreview = truncate(description, DESCRIPTION_PREVIEW_CHARS);
   const constraintsPreview = truncate(constraintsNonEmpty, CONSTRAINTS_PREVIEW_CHARS);
+  const capabilitiesPreview = truncate(capabilitiesNonEmpty, CAPABILITIES_PREVIEW_CHARS);
 
   const recapPresetContext = {
     quickStartWizard,
@@ -196,12 +202,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     formValues,
   };
 
-  const constraintsDirty = Array.isArray(formState.dirtyFields.constraints)
-    ? formState.dirtyFields.constraints.some(Boolean)
-    : Boolean(formState.dirtyFields.constraints);
-  const capabilitiesDirty = Array.isArray(formState.dirtyFields.requiredCapabilities)
-    ? formState.dirtyFields.requiredCapabilities.some(Boolean)
-    : Boolean(formState.dirtyFields.requiredCapabilities);
+  const constraintsDirty = isWizardFormFieldDirty(formState.dirtyFields.constraints);
+  const capabilitiesDirty = isWizardFormFieldDirty(formState.dirtyFields.requiredCapabilities);
 
   const briefDisplay = recapStarterScalarLabel(description, "Brief was not stored yet.", {
     ...recapPresetContext,
@@ -323,18 +325,31 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
               );
             }
 
-            if (
-              presetSummary !== null
-              && presetSummary.includes("filled from starter")
-            ) {
+            if (presetSummary !== null && presetSummary.includes("filled from starter")) {
               return (
                 <span className="text-neutral-600 dark:text-neutral-400">{presetSummary}</span>
               );
             }
 
             return capabilitiesNonEmpty.length > 0 ? (
-              capabilitiesNonEmpty
-            ) : capabilityEntries.length > 0 ? (
+              <>
+                {capabilitiesPreview.preview}
+                {capabilitiesPreview.clipped ? (
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {" "}
+                    Preview only; the full required capabilities list is on the Constraints step.
+                  </span>
+                ) : null}
+                {hasBlankCapabilityEntry ? (
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {" "}
+                    (one required capability entry was stored empty)
+                  </span>
+                ) : null}
+              </>
+            ) : hasBlankCapabilityEntry ? (
+              <span className="text-neutral-600 dark:text-neutral-400">A required capability entry was stored empty.</span>
+            ) : hasCapabilitiesArray ? (
               <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were stored empty.</span>
             ) : (
               <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were not stored yet.</span>

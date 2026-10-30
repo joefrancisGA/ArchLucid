@@ -119,7 +119,11 @@ export function resolveCoveragePreviewCloudHonesty(cloudProvider?: string): stri
   }
 
   const normalized = cloudProvider.trim().toLowerCase();
-  if (!["none", "azure", "aws", "gcp"].includes(normalized)) {
+  if (normalized === "none") {
+    return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;
+  }
+
+  if (!["azure", "aws", "gcp"].includes(normalized)) {
     return COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE;
   }
 

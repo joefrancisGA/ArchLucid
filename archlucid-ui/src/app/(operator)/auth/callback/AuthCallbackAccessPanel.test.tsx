@@ -1205,6 +1205,12 @@ describe("AuthCallbackAccessPanel", () => {
     expect(screen.queryByTestId("auth-callback-technical-detail")).not.toBeInTheDocument();
   });
 
+  it("renders technical detail when the prop begins with a leading newline", () => {
+    render(<AuthCallbackAccessPanel technicalDetail={"\nSign-in blocked."} />);
+
+    expect(screen.getByTestId("auth-callback-technical-detail")).toHaveTextContent("Sign-in blocked.");
+  });
+
   it("inserts a newline in the note field when Enter is pressed without submitting", async () => {
     const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
     vi.stubGlobal("fetch", fetchMock);

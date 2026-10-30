@@ -158,7 +158,7 @@ export function buildSponsorRiskReviewMarkdown(
 
   const findingLines =
     prioritizedFindings.length === 0
-      ? "_No finding rows were included in this export._\n"
+      ? "_Findings were not included in this export._\n"
       : [
           "| Severity | Finding | Recommended action |",
           "| --- | --- | --- |",

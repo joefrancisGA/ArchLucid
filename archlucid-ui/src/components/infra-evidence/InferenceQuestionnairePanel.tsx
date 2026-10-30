@@ -211,6 +211,14 @@ export function InferenceQuestionnairePanel(
       data-testid="inference-questionnaire-panel"
       aria-label="Inference questionnaire"
     >
+      {snapshotId.trim().length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="inference-questionnaire-snapshot-id-not-stored"
+        >
+          Inventory snapshot id was not stored.
+        </p>
+      ) : (
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Inference questionnaire</h2>
@@ -388,6 +396,7 @@ export function InferenceQuestionnairePanel(
           </p>
         ) : null}
       </div>
+      )}
     </section>
   );
 }

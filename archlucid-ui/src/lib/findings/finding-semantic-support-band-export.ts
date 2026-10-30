@@ -75,7 +75,7 @@ export function resolveFindingSemanticSupportBandExportFields(
   if (rawBand === "") {
     return {
       semanticSupportBand: "Semantic support band was stored empty.",
-      semanticSupportBandScorerVersion: "Semantic support band scorer version was stored empty.",
+      semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
     };
   }
 
@@ -96,7 +96,17 @@ export function resolveFindingSemanticSupportBandScorerVersion(
     return "Semantic support band scorer version was not stored";
   }
 
-  return finding.semanticSupportBandScorerVersion.trim();
+  if (finding.semanticSupportBandScorerVersion.length === 0) {
+    return "Semantic support band scorer version was stored empty.";
+  }
+
+  const trimmed = finding.semanticSupportBandScorerVersion.trim();
+
+  if (trimmed.length === 0) {
+    return "Semantic support band scorer version was stored empty.";
+  }
+
+  return trimmed;
 }
 
 export function resolveSemanticSupportBandStampScorerVersion(

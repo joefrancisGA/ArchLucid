@@ -51,7 +51,17 @@ export type GovernanceFindingsItsmJsonExportDocument = {
 };
 
 function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): string {
+  if (finding.severityStored === false) {
+    return "Severity was not stored";
+  }
+
   return severityBadgeLabel(finding.severityValue);
+}
+
+function humanReviewStatusLabelForExport(finding: QuickDecisionFinding): string {
+  return humanReviewStatusDisplay(finding.humanReviewStatus, {
+    stored: finding.humanReviewStatusStored,
+  }).label;
 }
 
 function formatItsmFindingIdCell(findingId: string | null | undefined): string {
@@ -238,12 +248,8 @@ export function buildQuickDecisionFindingsCsv(
             : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
       semanticSupportBand,
-      finding.semanticSupportBand !== null
-        && finding.semanticSupportBand !== undefined
-        && finding.semanticSupportBand.length > 0
-        ? resolveFindingSemanticSupportBandScorerVersion(finding)
-        : "Semantic support band scorer version was not stored",
-      finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      resolveFindingSemanticSupportBandScorerVersion(finding),
+      finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
       escapeCsvCell(recordStatus),
     ].join(",");
@@ -281,7 +287,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       findingTitle: finding.title,
       severityLabel: severityLabelFromQuickDecisionFinding(finding),
       recommendedAction: finding.recommendation,
-      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,

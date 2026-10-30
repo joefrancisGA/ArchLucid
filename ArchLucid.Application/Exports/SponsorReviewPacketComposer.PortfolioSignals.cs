@@ -12,7 +12,7 @@ public static partial class SponsorReviewPacketComposer
         IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions,
         int omittedTopDecisionsCount = 0)
     {
-        sb.AppendLine("## Top decisions");
+        sb.AppendLine("## First five decisions (not ranked)");
         sb.AppendLine();
 
         if (topDecisions is null || topDecisions.Count == 0)
@@ -34,7 +34,7 @@ public static partial class SponsorReviewPacketComposer
             sb.AppendLine($"  - Confidence: {confidence}");
 
             string evidence = string.IsNullOrWhiteSpace(decision.EvidenceHref)
-                ? SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored
+                ? SponsorReviewPacketExportHonestyCopy.SupportingEvidenceNotListedInPacket
                 : decision.EvidenceHref.Trim();
             sb.AppendLine($"  - Evidence: {evidence}");
         }

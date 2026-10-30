@@ -19,25 +19,35 @@ function recordMarketingHeroCtaClarityEvent(
 ): void {
   if (typeof window === "undefined") return;
 
-  if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted") return;
+  try {
+    if (window.localStorage.getItem(MARKETING_ANALYTICS_CONSENT_STORAGE_KEY) !== "granted") return;
+  } catch {
+    return;
+  }
 
   const clarity: ClarityApi | undefined = (window as Window & { clarity?: ClarityApi }).clarity;
 
   if (typeof clarity !== "function") return;
 
-  clarity("set", "cta_source", properties.source);
+  try {
+    clarity("set", "cta_source", properties.source);
 
-  if (properties.utm_source !== undefined && properties.utm_source !== "") clarity("set", "cta_utm_source", properties.utm_source);
+    if (properties.utm_source !== undefined && properties.utm_source !== "")
+      clarity("set", "cta_utm_source", properties.utm_source);
 
-  if (properties.utm_medium !== undefined && properties.utm_medium !== "") clarity("set", "cta_utm_medium", properties.utm_medium);
+    if (properties.utm_medium !== undefined && properties.utm_medium !== "")
+      clarity("set", "cta_utm_medium", properties.utm_medium);
 
-  if (properties.utm_campaign !== undefined && properties.utm_campaign !== "")
-    clarity("set", "cta_utm_campaign", properties.utm_campaign);
+    if (properties.utm_campaign !== undefined && properties.utm_campaign !== "")
+      clarity("set", "cta_utm_campaign", properties.utm_campaign);
 
-  if (emailDomainForAnalytics !== undefined && emailDomainForAnalytics !== "")
-    clarity("set", "cta_email_domain", emailDomainForAnalytics);
+    if (emailDomainForAnalytics !== undefined && emailDomainForAnalytics !== "")
+      clarity("set", "cta_email_domain", emailDomainForAnalytics);
 
-  clarity("event", eventName);
+    clarity("event", eventName);
+  } catch {
+    return;
+  }
 }
 
 /**

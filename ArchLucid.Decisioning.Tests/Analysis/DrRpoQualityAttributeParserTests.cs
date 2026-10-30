@@ -37,6 +37,31 @@ public sealed class DrRpoQualityAttributeParserTests
     }
 
     [Fact]
+    public void TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero()
+    {
+        // RequestQualityAttributeMaterializer stores Round(0.5/60, 4) for "RPO 0.5 minutes".
+        GraphNode node = new()
+        {
+            NodeId = "qa-half-minute",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Label = "Availability quality attribute",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["rpoHours"] = "0.0083",
+            },
+        };
+
+        bool parsed = DrRpoQualityAttributeParser.TryParseRecoveryObjectives(
+            node,
+            out int? rpoMinutes,
+            out int? rtoMinutes);
+
+        parsed.Should().BeTrue();
+        rpoMinutes.Should().Be(1);
+        rtoMinutes.Should().BeNull();
+    }
+
+    [Fact]
     public void TryParseRecoveryObjectives_returns_false_for_non_quality_attribute_node()
     {
         GraphNode node = new()

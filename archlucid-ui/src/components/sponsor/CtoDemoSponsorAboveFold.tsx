@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CtoDemoSponsorTenantIsolationCallout } from "@/components/cto-demo/CtoDemoSponsorTenantIsolationCallout";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoHeroStat,
@@ -11,7 +10,10 @@ import {
 } from "@/lib/buyer/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
-import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
+import {
+  getFindingEvidenceInspectHref,
+  getFindingGovernanceDispositionHref,
+} from "@/lib/findings/finding-evidence-navigation";
 import {
   formatSponsorTraceConfidenceDisplay,
   severitySortRank,
@@ -141,7 +143,7 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
                       ·
                     </span>
                     <Link
-                      href={GOVERNANCE_FINDINGS_PATH}
+                      href={getFindingGovernanceDispositionHref(runId, risk.findingId)}
                       className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >

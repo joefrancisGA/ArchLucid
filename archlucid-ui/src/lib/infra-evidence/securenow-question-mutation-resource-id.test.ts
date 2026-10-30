@@ -14,6 +14,7 @@ import {
   secureNowQuestionDispositionMutationSubscriptionId,
   secureNowQuestionHasPackStyleDispositionScope,
   secureNowQuestionPackScopeKindFromPrompt,
+  secureNowQuestionPackAnswerChoiceLabel,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 
 const baseQuestion: SecureNowQuestion = {
@@ -171,7 +172,23 @@ describe("secureNowQuestionReviewerScopeLabel", () => {
         },
         false,
       ),
-    ).toBe("Question scope was not stored.");
+    ).toBe("This resource group. Scope kind was not stored; inferred from pack prompt.");
+  });
+});
+
+describe("secureNowQuestionPackAnswerChoiceLabel", () => {
+  it("includes stored answer codes on policy pack rows", () => {
+    expect(
+      secureNowQuestionPackAnswerChoiceLabel(
+        {
+          source: "PolicyPack",
+          scopeKind: "Subscription",
+          questionKey: "subscription-ownership@v1",
+          questionText: "Who owns this subscription workload?",
+        },
+        "Register",
+      ),
+    ).toBe("Register (Register)");
   });
 });
 

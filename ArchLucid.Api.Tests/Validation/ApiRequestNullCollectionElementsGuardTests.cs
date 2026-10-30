@@ -1,9 +1,15 @@
+using System.Reflection;
+
+using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.Validation;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration.Summary;
 
 using FluentAssertions;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Tests.Validation;
 
@@ -118,6 +124,30 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         };
 
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list()
+    {
+        IReadOnlyList<ArchitectureRequest> requests = new List<ArchitectureRequest> { null! };
+
+        MethodInfo batchMethod = typeof(RunsController).GetMethod(
+            nameof(RunsController.CreateRunBatch),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunsController.CreateRunBatch));
+
+        ParameterInfo bodyParameter = batchMethod.GetParameters().Single(static parameter =>
+            parameter.GetCustomAttribute<FromBodyAttribute>() is not null);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests, bodyParameter).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_false_for_valid_root_batch_request_list_without_body_parameter()
+    {
+        IReadOnlyList<ArchitectureRequest> requests = [new ArchitectureRequest { Description = new string('x', 32) }];
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests).Should().BeFalse();
     }
 
     [Fact]

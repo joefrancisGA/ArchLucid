@@ -1,4 +1,5 @@
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
+import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
 
 function inferredConnectionIdFromQuestionKey(questionKey: string | null | undefined): string | null {
   const normalized = questionKey?.trim() ?? "";
@@ -172,6 +173,24 @@ function secureNowQuestionReviewerScopeLabelFromKind(scopeKind: string): string 
   return null;
 }
 
+export function secureNowQuestionPackAnswerChoiceLabel(
+  question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
+  answerCode: string,
+): string {
+  const label = secureNowQuestionAnswerLabel(answerCode);
+  const trimmedCode = answerCode.trim();
+
+  if (!secureNowQuestionIsPolicyPackDispositionRow(question) || trimmedCode.length === 0) {
+    return label;
+  }
+
+  if (label.startsWith("Answer code ")) {
+    return label;
+  }
+
+  return `${label} (${trimmedCode})`;
+}
+
 export function secureNowQuestionReviewerScopeLabel(
   question: Pick<SecureNowQuestion, "source" | "scopeKind" | "questionKey" | "questionText">,
   _matchesInferredConnection: boolean,
@@ -180,6 +199,16 @@ export function secureNowQuestionReviewerScopeLabel(
   if (trimmedScope.length > 0) {
     const knownLabel = secureNowQuestionReviewerScopeLabelFromKind(trimmedScope);
     return knownLabel ?? `Question scope code ${trimmedScope} has no reviewer label.`;
+  }
+
+  if (secureNowQuestionIsPolicyPackDispositionRow(question)) {
+    const inferredScope = secureNowQuestionDispositionMutationScopeKind(question);
+    if (inferredScope !== null) {
+      const inferredLabel = secureNowQuestionReviewerScopeLabelFromKind(inferredScope);
+      if (inferredLabel !== null) {
+        return `${inferredLabel} Scope kind was not stored; inferred from pack prompt.`;
+      }
+    }
   }
 
   return "Question scope was not stored.";

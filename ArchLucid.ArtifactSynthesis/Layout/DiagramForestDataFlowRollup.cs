@@ -234,8 +234,11 @@ internal static class DiagramForestDataFlowRollup
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(address => address, StringComparer.OrdinalIgnoreCase)
             .ToList();
-        string? rollupHiddenPublicIp = hiddenPublicIpAddresses.Count == 1
-            ? hiddenPublicIpAddresses[0]
+        List<DiagramNode> membersWithHiddenPublicIp = members
+            .Where(member => !string.IsNullOrWhiteSpace(member.HiddenPublicIpAddress))
+            .ToList();
+        string? rollupHiddenPublicIp = membersWithHiddenPublicIp.Count == 1
+            ? membersWithHiddenPublicIp[0].HiddenPublicIpAddress!.Trim()
             : null;
         List<string> privateEndpointNames = members
             .Select(member => member.PrivateEndpointAccessName)
@@ -353,9 +356,13 @@ internal static class DiagramForestDataFlowRollup
                 ? DiagramForestDiagramNeighborOnViewCopy.FormatNoNeighborOnViewStatusLine()
                 : DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(neighborCount);
         }
-        string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
-            ? "Resource group was not stored."
-            : member.ArmResourceGroup.Trim();
+        string resourceGroup = member.ArmResourceGroup switch
+        {
+            null => "Resource group was not stored.",
+            { Length: 0 } => "Resource group was stored empty.",
+            var value when string.IsNullOrWhiteSpace(value) => "Resource group was stored empty.",
+            var value => value.Trim(),
+        };
         return string.Join(
             " · ",
             new[] { caption.ResourceName, resourceGroup, status }

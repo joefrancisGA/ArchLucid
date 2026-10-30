@@ -175,9 +175,11 @@ public static class DiagramNodeHumanCaptionFactory
             };
             combined = $"{combined} · {resourceGroupLine}";
         }
-        string accessibilityTitle = resourceGroupCaption is null
+        string accessibilityTitle = node.IncludeResourceGroupInCaption
             ? combined
-            : $"{combined} · {resourceGroupCaption}";
+            : resourceGroupCaption is null
+                ? combined
+                : $"{combined} · {resourceGroupCaption}";
 
         return new DiagramNodeHumanCaption(
             ResourceName: resourceName,

@@ -23,9 +23,7 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
     );
 
     expect(screen.getByTestId("findings-help-orientation")).toBeInTheDocument();
-    expect(screen.getByTestId("findings-help-claim-discipline").textContent).toContain(
-      "Help orientation, not a diligence package.",
-    );
+    expect(screen.queryByTestId("findings-help-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("findings-help-sources")).toHaveAttribute(
       "aria-labelledby",
       "findings-help-sources-heading",
@@ -89,7 +87,7 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
       ...EVIDENCE_SOURCES_STYLE.operatorRaised.panel.split(" "),
     );
     expect(screen.getByTestId("preset-default-sources")).toHaveAttribute("data-layout", "columns");
-    expect(screen.getByRole("list")).toHaveClass("sm:grid-cols-2");
+    expect(screen.getByRole("list")).toHaveClass("grid-cols-[minmax(0,1fr)_minmax(0,1fr)]");
     expect(screen.getByRole("list")).not.toHaveClass("flex-wrap");
   });
 
@@ -136,6 +134,20 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
     );
     expect(screen.queryByRole("link", { name: "Open First review guide" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Read How ArchLucid works" })).toBeNull();
+  });
+
+  it("still renders an empty claim callout shell when claim prop is an empty string on a visible slug", () => {
+    render(
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="package-print"
+        claim=""
+        sourcesIntro="Follow-ups."
+        sources={[{ label: "Findings", href: "/governance/findings" }]}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId("package-print-sources")).toBeInTheDocument();
   });
 
   it("omits sources-only strips when Where to go next is turned off", () => {

@@ -28,6 +28,12 @@ export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING =
 export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY =
   "Question list was not stored. Do not treat this review as ready to finalize." as const;
 
+export const REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING =
+  "Loading draft questions…" as const;
+
+export const REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING =
+  "Draft questions could not be loaded" as const;
+
 export type PresenterRecordedAssertedEntry = {
   readonly questionKey: string;
   readonly answer: string;
@@ -170,9 +176,13 @@ export function useReviewPresenterElicitation(
     trimmedDraftId.length === 0 || (query.isSuccess && questionListStored && primaryQuestion === null);
 
   const title =
-    query.isSuccess && !questionListStored
-      ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
-      : (primaryQuestion?.prompt ?? "Ready to finalize");
+    query.isLoading && trimmedDraftId.length > 0
+      ? REVIEW_PRESENTER_DRAFT_QUESTIONS_LOADING_HEADING
+      : query.isError
+        ? REVIEW_PRESENTER_DRAFT_QUESTIONS_FAILED_HEADING
+        : query.isSuccess && !questionListStored
+          ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
+          : (primaryQuestion?.prompt ?? "Ready to finalize");
 
   const effectiveTrail = transparencyTrail;
   const questionsFailure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;

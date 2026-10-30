@@ -8,6 +8,7 @@ import {
   shouldOmitClaimDisciplineBand,
 } from "@/lib/claim-discipline-policy";
 import { SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE } from "@/lib/sponsor-dashboard-help-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 
 describe("claim-discipline-policy", () => {
   it("omits low-risk operational slugs", () => {
@@ -304,5 +305,34 @@ describe("claim-discipline-policy", () => {
       { id: "overview", title: "Overview" },
       { id: "where-to-go-next", title: "Where to go next" },
     ]);
+  });
+
+  it("passes governance infrastructure drift help claim through for visible-band orientation slug", () => {
+    expect(expectsVisibleClaimDisciplineBand("help-governance-infrastructure-drift")).toBe(true);
+    expect(
+      resolveClaimDisciplineForStrip(
+        "help-governance-infrastructure-drift",
+        GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE,
+      ),
+    ).toBe(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE);
+  });
+
+  it("allows undefined claim passthrough on visible slugs when callers omit copy", () => {
+    expect(expectsVisibleClaimDisciplineBand("package-print")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("package-print", undefined)).toBeUndefined();
+  });
+
+  it("drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band", () => {
+    expect(shouldOmitClaimDisciplineBand("help-specialty-walkthroughs")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-specialty-walkthroughs",
+        [
+          { id: "help-specialty-walkthroughs-claim-discipline-heading", title: "What this guide does not cover" },
+          { id: "specialty-template-catalog", title: "Available templates" },
+        ],
+        "help-specialty-walkthroughs-claim-discipline-heading",
+      ),
+    ).toEqual([{ id: "specialty-template-catalog", title: "Available templates" }]);
   });
 });

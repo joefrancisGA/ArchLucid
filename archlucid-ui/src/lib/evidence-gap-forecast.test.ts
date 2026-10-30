@@ -293,4 +293,23 @@ describe("deriveEvidencePresenceFromInventoryKinds", () => {
 
     expect(presence.hasArchitectureBrief).toBe(false);
   });
+
+  it("does not treat graph snapshot inventory kinds as cloud inventory or architecture diagram", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["Graph snapshot", "Findings snapshot"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasCloudInventory).toBe(false);
+    expect(presence.hasArchitectureDiagram).toBe(false);
+  });
+
+  it("detects cloud inventory from explicit cloud inventory kind labels", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["Cloud inventory export"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasCloudInventory).toBe(true);
+  });
 });

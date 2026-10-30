@@ -1,3 +1,6 @@
+import {
+  formatExportPreviewShortenedText,
+} from "@/lib/export-preview-caption-honesty";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   isDecisionGradeFinding,
@@ -229,8 +232,11 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 
     entries.push({
       findingId: finding.findingId,
-      title:
-        finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
+      title: formatExportPreviewShortenedText(
+        finding.title,
+        "Finding title was not stored.",
+        96,
+      ),
     });
   }
 

@@ -21,6 +21,7 @@ export type FindingInspectDispositionControlsProps = {
   readonly runId: string;
   readonly canMutate: boolean;
   readonly history: readonly FindingDispositionEvent[];
+  readonly dispositionHistoryLoading: boolean;
   readonly activeWaiver: RiskExceptionRecord | null;
   readonly assignedToUserId: string;
   readonly setAssignedToUserId: (value: string) => void;

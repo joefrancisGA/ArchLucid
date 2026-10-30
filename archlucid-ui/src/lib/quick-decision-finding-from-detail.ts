@@ -6,6 +6,10 @@ import { collectEvidenceRefSnippets } from "@/lib/findings/finding-evidence-ref-
 import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
+import {
+  readArchitectureIntelligenceHumanReviewStoredFromWire,
+  readArchitectureIntelligenceSeverityStoredFromWire,
+} from "@/lib/architecture/architecture-intelligence-finding-wire-honesty";
 import { resolveQuickDecisionFindingPresentation } from "@/lib/quick-decision-finding-wire-fields";
 import {
   coerceArchitectureFindingSeverity,
@@ -39,6 +43,8 @@ export type QuickDecisionFinding = {
   iacStub?: string | null;
   /** Governance tier: blocking violations vs opt-in baseline guidance. */
   enforcementTier: FindingEnforcementTierKind;
+  /** False when the run-detail finding row omitted `enforcementTier` (default enum is not a stored fact). */
+  enforcementTierStored?: boolean;
   /** Normalized evidence ref excerpts for TB-385 inline display. */
   evidenceRefSnippets?: readonly string[];
   /** Persisted insight-density score when present on the wire. */
@@ -57,6 +63,10 @@ export type QuickDecisionFinding = {
   itsmLinkedTicketsSummary?: string | null;
   /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
+  /** False when the run-detail finding row omitted `humanReviewStatus` (default enum is not a stored fact). */
+  humanReviewStatusStored?: boolean;
+  /** False when the run-detail finding row omitted `severity` (default enum is not a stored fact). */
+  severityStored?: boolean;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
@@ -220,7 +230,17 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         wireJson = '{"error":"finding_payload_not_json_serializable"}';
       }
 
-      const severityValue = coerceArchitectureFindingSeverity(fr.severity);
+      const architectureIntelligenceSeverityStored =
+        readArchitectureIntelligenceSeverityStoredFromWire(wireJson);
+      const architectureIntelligenceHumanReviewStored =
+        readArchitectureIntelligenceHumanReviewStoredFromWire(wireJson);
+
+      const severityStored =
+        architectureIntelligenceSeverityStored !== undefined
+          ? architectureIntelligenceSeverityStored
+          : fr.severity !== null && fr.severity !== undefined
+          && (typeof fr.severity !== "string" || fr.severity.trim().length > 0);
+      const severityValue = severityStored ? coerceArchitectureFindingSeverity(fr.severity) : null;
 
       const isMuted = fr.isMuted === true;
 
@@ -247,7 +267,14 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const iacStub =
         typeof iacStubRaw === "string" && iacStubRaw.trim().length > 0 ? iacStubRaw.trim() : null;
 
-      const enforcementTier: FindingEnforcementTierKind = normalizeFindingEnforcementTier(fr.enforcementTier);
+      const enforcementTierStored =
+        typeof fr.enforcementTierStored === "boolean"
+          ? fr.enforcementTierStored
+          : fr.enforcementTier !== null && fr.enforcementTier !== undefined
+            && (typeof fr.enforcementTier !== "string" || fr.enforcementTier.trim().length > 0);
+      const enforcementTier: FindingEnforcementTierKind = enforcementTierStored
+        ? normalizeFindingEnforcementTier(fr.enforcementTier)
+        : null;
 
       const insightDensityRaw = fr.insightDensityScore;
       const insightDensityScore =
@@ -277,7 +304,14 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? assignedToUserIdRaw.trim()
           : null;
 
-      const humanReviewStatus = normalizeFindingHumanReviewStatus(fr.humanReviewStatus);
+      const humanReviewStatusStored =
+        architectureIntelligenceHumanReviewStored !== undefined
+          ? architectureIntelligenceHumanReviewStored
+          : fr.humanReviewStatus !== null && fr.humanReviewStatus !== undefined
+          && (typeof fr.humanReviewStatus !== "string" || fr.humanReviewStatus.trim().length > 0);
+      const humanReviewStatus = humanReviewStatusStored
+        ? normalizeFindingHumanReviewStatus(fr.humanReviewStatus)
+        : null;
 
       const classificationRaw = fr.classification;
       const classification =
@@ -302,6 +336,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         category: category.length > 0 ? category : null,
         recommendation,
         severityValue,
+        severityStored,
         findingOrder: order++,
         aiReasoning: { wireJson, reasoningTrace: reasoning },
         isMuted,
@@ -313,6 +348,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         evidenceRefSnippets: collectEvidenceRefSnippets(evidenceRefsRaw),
         iacStub,
         enforcementTier,
+        enforcementTierStored,
         insightDensityScore,
         whyThisIsNotGeneric,
         policyRuleId,
@@ -320,6 +356,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         trustLabelReason,
         assignedToUserId,
         humanReviewStatus,
+        humanReviewStatusStored,
         classification,
         treatment,
         semanticSupportBand,

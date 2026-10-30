@@ -55,4 +55,22 @@ public sealed class ManifestPostureListHonestyTests
         artifact.Content.Should().Contain(ManifestPostureListHonesty.TopologySectionNotStored);
         artifact.Content.Should().NotContain("No topology information recorded.");
     }
+
+    [Fact]
+    public async Task ReferenceGenerator_distinguishes_null_security_lists_from_empty_lists()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Honesty" },
+            Security = null!,
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain(ManifestPostureListHonesty.SecurityPostureNotStored);
+        artifact.Content.Should().NotContain("No security posture recorded.");
+    }
 }

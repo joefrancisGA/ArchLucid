@@ -116,6 +116,13 @@ public sealed class ArchitectureRiskRegisterEntry
         init;
     } = FindingHumanReviewStatus.NotRequired;
 
+    /// <summary><see langword="false" /> when the relational human review column was null or whitespace.</summary>
+    public bool HumanReviewStatusStored
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     /// Aggregated external ticket keys when <c>dbo.ItsmFindingCorrelations</c> rows exist (e.g. <c>Jira:PROJ-1; ServiceNow:INC001</c>).
     /// </summary>

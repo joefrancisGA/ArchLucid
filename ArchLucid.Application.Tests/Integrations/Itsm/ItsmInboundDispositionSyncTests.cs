@@ -71,6 +71,41 @@ public sealed class ItsmInboundDispositionSyncTests
     }
 
     [Fact]
+    public async Task TryRecordFromWebhookAsync_rationale_normalizes_whole_number_float_external_status_label()
+    {
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r =>
+                    r.Rationale == "ITSM inbound sync: external status '6'."),
+                It.IsAny<Core.Scoping.ScopeContext>(),
+                "servicenow-webhook",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingDispositionEventDto
+                {
+                    EventId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    FindingId = "f1",
+                    Disposition = FindingDisposition.Remediated,
+                    ReviewerUserId = "servicenow-webhook",
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                });
+        ItsmInboundDispositionSync sut =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+
+        ItsmInboundDispositionSyncResult result = await sut.TryRecordFromWebhookAsync(
+            CreateRow(),
+            FindingDisposition.Remediated,
+            "6.0",
+            "servicenow-webhook",
+            PointerToken,
+            FindingDisposition.Accepted,
+            CancellationToken.None);
+
+        result.WasRecorded.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task TryRecordFromWebhookAsync_records_remediated_disposition_with_cas_token()
     {
         Mock<IFindingDispositionService> dispositionService = new();

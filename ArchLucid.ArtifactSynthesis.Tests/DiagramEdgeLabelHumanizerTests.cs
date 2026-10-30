@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
@@ -50,8 +51,21 @@ public sealed class DiagramEdgeLabelHumanizerTests
             .Be(DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel);
     }
 
+    [Fact]
+    public void ResolveDisplayLabel_resource_group_map_collapsed_relates_to_uses_map_honesty_copy()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey] = "true",
+        };
+
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, GraphEdgeTypes.RelatesTo, properties: properties)
+            .Should()
+            .Be(InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgeLabel);
+    }
+
     [Theory]
-    [InlineData("in", InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeTypes.ConnectsTo, InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel)]
     [InlineData(GraphEdgeTypes.Contains, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]

@@ -26,7 +26,9 @@ import {
 import { formatQuickDecisionFindingOwnerDisplay } from "@/lib/findings/quick-decision-finding-display";
 import {
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
+  INHABIT_DISPOSITION_HISTORY_LOADING,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
+  INHABIT_DISPOSITION_HISTORY_STORED_EMPTY_BODY,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
 
 import type { FindingInspectDispositionControlsViewModel } from "./use-finding-inspect-disposition-controls";
@@ -35,6 +37,7 @@ export type FindingInspectWaiverPanelProps = Pick<
   FindingInspectDispositionControlsViewModel,
   | "canMutate"
   | "history"
+  | "dispositionHistoryLoading"
   | "activeWaiver"
   | "waiverRationale"
   | "setWaiverRationale"
@@ -63,6 +66,7 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
   const {
     canMutate,
     history,
+    dispositionHistoryLoading,
     activeWaiver,
     waiverRationale,
     setWaiverRationale,
@@ -219,7 +223,15 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {INHABIT_DISPOSITION_HISTORY_SECTION_TITLE}
         </h3>
-        {history.length > 0 ? (
+        {dispositionHistoryLoading ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-inspect-disposition-history-loading"
+            role="status"
+          >
+            {INHABIT_DISPOSITION_HISTORY_LOADING}
+          </p>
+        ) : history.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
               <li key={event.eventId} data-testid={`finding-inspect-disposition-history-event-${event.eventId}`}>

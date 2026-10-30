@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GraphViewModel } from "@/types/graph";
 import { buildExaminedNodeIdSet, isGraphNodeExamined } from "@/lib/findings/finding-evidence-graph-highlight";
+import type { GraphViewModel } from "@/types/graph";
 
 type FindingEvidenceGraphOutlineProps = {
   readonly graph: GraphViewModel;

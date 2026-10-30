@@ -2,13 +2,139 @@
 
 ## Zone: ui-form-validation
 
+2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #90 (seed-only): reran the focused SignupForm regression suite after reviewing current required and optional validation paths; all 144 tests passed and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #89 (seed-only): re-read the full SignupForm path, including schema-backed submit gating, optional-field clearing, numeric bounds, and register payload shaping; no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #88 (seed-only): re-read `SignupForm`, `signupFormSchema`, optional field bounds, and the 144-test focused suite; visible schema limits now match their rendered controls, and no new mechanism-backed hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #87 (hit): proved the `organizationName` schema capped organization names at 200 characters but the rendered organization input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the organization input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 144/144. Private beta: invited buyers entering a long organization name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `organizationName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #87:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #86 (hit): proved the `adminDisplayName` schema capped full names at 200 characters but the rendered full-name input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the full-name input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 143/143. Private beta: invited buyers entering a long full name now get a browser-level 200-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `adminDisplayName` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #86:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #85 (hit): proved the `adminEmail` schema capped work emails at 254 characters but the rendered email input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={254}` and `caps the work email input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 142/142. Private beta: invited buyers entering a long work email now get a browser-level 254-character boundary that matches signup validation instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `adminEmail` accepts more than the schema’s 254-character maximum in the rendered input — **hit 2026-10-30 seed hunt #85:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 seed hunt #84 (hit): proved the `industryVerticalOther` schema capped values at 200 characters but the rendered “Other” input had no matching `maxLength`, allowing a buyer to type beyond the accepted limit before the disabled-submit guidance appeared; added `maxLength={200}` and `caps the Other industry input at the schema maximum` in `SignupForm.test.tsx`. Full SignupForm suite passed 141/141. Private beta: invited buyers selecting Other for their industry now get a browser-level 200-character boundary that matches the signup validation contract instead of entering text the form can never submit.
+
+- [x] (proven) `SignupForm` — `industryVerticalOther` accepts more than the schema’s 200-character maximum in the rendered input — **hit 2026-10-30 seed hunt #84:** add the matching `maxLength` constraint and regression in `SignupForm.test.tsx`.
+
+2026-10-30 thorough hunt #83 (dry): cheap-disproof closed both seeded post-commit candidates — existing regressions cover success-toast and router-transition failures after committed registration, and intentionally retain the disabled “Creating” state to prevent duplicate signup requests. Full SignupForm suite passed 140/140; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when navigation throws after successful register` and `keeps Creating label on the submit button after successful register until navigation` cover the committed-registration boundary; no new failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration — **cheap-disproof 2026-10-30 thorough hunt #83:** `surfaces signup error when success toast throws after successful register` covers the toast failure; no new failing repro.
+
+2026-10-30 seed hunt #82 (seed-only): re-read `SignupForm`, `signupFormSchema`, and the 140-test SignupForm suite; existing regressions cover validation gates, retry guards, response parsing, attribution, storage failures, and keyboard submission. No new hunt-ready row was promoted; seeded two bounded post-commit navigation candidates.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — a successful registration followed by a router transition failure leaves the form permanently in its submitting state; input: a valid signup receives `200`/`201` and `router.push` rejects after the tenant is created.
+- [ ] (candidate) `SignupForm` `onSubmit` — a success-toast exception prevents verify navigation after a committed registration; input: a valid signup receives `200`/`201` while the toast implementation throws during success handling.
+
+2026-10-30 thorough hunt #66 (dry): cheap-disproof closed three open `(candidate)` rows — retry and completion guards remain covered across router transition, first-touch serialization failure remains non-blocking, and the submit callback snapshots company size before the POST/session write. The full SignupForm suite passed 140/140; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — **cheap-disproof 2026-10-30 thorough hunt #66:** the serialization catch leaves the validated payload unchanged and the non-Latin1 attribution regression passes.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — **cheap-disproof 2026-10-30 thorough hunt #66:** the submit callback values snapshot drives both POST payload and session write; no pending-edit mismatch repro.
+
+2026-10-30 thorough hunt #46 (dry): cheap-disproof closed three open `(candidate)` rows — completion guards cover the retry boundary, attribution encoding failure remains non-blocking, and session writes use the submit callback snapshot. Reseeded three bounded `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #42 — **cheap-disproof 2026-10-30 thorough hunt #46:** retry boundary, encoding failure, and pending optional-field changes produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #38 — **cheap-disproof 2026-10-30 thorough hunt #42:** duplicate activation, multibyte attribution, and pending optional-field edits produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #38:** completion guard, Unicode attribution, and pending field edits produced no failing repro.
+
+- [x] (valid-no-repro) SignupForm candidate rows from thorough hunt #30 — **cheap-disproof 2026-10-30 thorough hunt #34:** route interruption, oversized attribution, and pending-submit edits produced no failing repro.
+
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed registration response followed by retry retains stale provisioning/session fields — **cheap-disproof 2026-10-30 thorough hunt #26:** retry writes and validated session projection are covered by the existing regression tests; no stale fields survive into the next valid attempt.
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — first-touch header serialization changes payload scope when optional UTM fields are absent — **cheap-disproof 2026-10-30 thorough hunt #26:** timestamp-only attribution is serialized independently of optional UTM values.
+-- [x] (valid-no-repro) `SignupForm` — `industryVerticalOther` normalization differs between readiness and register payload — **cheap-disproof 2026-10-30 thorough hunt #26:** the optional Other value is trimmed and omitted when blank; existing normalization tests pass.
+-- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — invalid company-size enum masks blank admin email instead of required guidance — **cheap-disproof 2026-10-30 thorough hunt #9:** required-field readiness is evaluated before optional company-size details, so blank email receives required guidance.
+-- [x] (valid-no-repro) `SignupForm` `onSubmit` — session persistence failure after `201` changes verify navigation state — **cheap-disproof 2026-10-30 thorough hunt #26:** session writes are best-effort and the throwing-storage regression confirms navigation still proceeds.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — a retry button activation during router transition bypasses `registerCompletedRef` after a successful request — **cheap-disproof 2026-10-30 thorough hunt #66:** completion and duplicate-submit tests cover the in-flight/success boundary; no failing repro.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — attribution header encoding failure changes the request’s required registration fields — **cheap-disproof 2026-10-30 thorough hunt #66:** the serialization catch leaves the validated payload unchanged and the non-Latin1 attribution regression passes.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — optional company size selected during POST is written to the registration session without matching the submitted payload — **cheap-disproof 2026-10-30 thorough hunt #66:** the submit callback values snapshot drives both POST payload and session write; no pending-edit mismatch repro.
+
+2026-10-30 thorough hunt #8 (dry): cheap-disproof closed five open `(candidate)` rows re-presented from the prior reseed — changing session JSON types remain behind per-value string gates; touched-field readiness preserves required organization guidance; retry writes only validated top-level provisioning ids; Unicode paragraph separators are normalized before numeric bounds; and native Enter still runs the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #7 — **cheap-disproof 2026-10-30 thorough hunt #8:** all five were already closed by the existing regression suite; no new failing repro.
+
+- [x] (valid-no-repro) duplicate rows — SignupForm candidates from thorough hunt #8 were already classified; no new hypotheses remain in that reseed.
+- [x] (valid-no-repro) duplicate row — readiness precedence was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — nested response/session ordering was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — Unicode team-size whitespace was already closed by thorough hunt #8.
+- [x] (valid-no-repro) duplicate row — optional-field keyboard timing was already closed by thorough hunt #8.
+
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed five open `(candidate)` rows that the picker re-presented from the previous reseed — per-header scope normalization remains string-only; required-field readiness remains first; nested response fields do not become top-level session ids; Unicode line separators are normalized before team-size bounds; and native keyboard submit still uses the resolver. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #6 — **cheap-disproof 2026-10-30 thorough hunt #7:** all five mechanisms were already covered by the existing suite; no new hunt-ready repro.
+
+- [ ] (candidate) `SignupForm` — mixed string/number ids produce inconsistent header subsets across retries — locus: session normalization; input: changing session JSON types (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid company size and blank org produce different copy after blur — locus: touched-field readiness state (monitor).
+- [ ] (candidate) `SignupForm` — nested response id is persisted after a later retry — locus: session write ordering; input: malformed then valid registration responses (monitor).
+- [ ] (candidate) `SignupForm` — Unicode paragraph separator team size is accepted at an over-limit value — locus: schema trim semantics; input: `\u202910001\u2029` (monitor).
+- [ ] (candidate) `SignupForm` — Enter submit from optional field bypasses `canSubmit` during rerender — locus: resolver timing (monitor).
+
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed five open `(candidate)` rows that were already represented by the prior SignupForm regressions — mixed session-id types stay behind string-only scope-header gates; required-field readiness wins over company-size details; nested provisioning shapes do not create top-level ids; Unicode whitespace is trimmed before team-size bounds; and native Enter submission still passes through React Hook Form validation. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed. The following reseed rows were later classified as duplicates by hunts #7 and #8.
+
+- [x] (valid-no-repro) duplicate SignupForm candidate rows from thorough hunt #5 — **cheap-disproof 2026-10-30 thorough hunt #6:** all five mechanisms were already covered by the existing 140-test regression suite; no new hunt-ready repro.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #6; no open hypotheses remain in this historical reseed block.
+
+2026-10-30 thorough hunt #5 (dry): cheap-disproof closed five open `(candidate)` rows — the prior scope-header, readiness, array-root success, leading-zero team-size, and keyboard-submit regressions already cover these mechanisms; no failing repro or production defect was found. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate `ui-form-validation` candidate rows from the previous reseed — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already classified by thorough hunt #4 and retained only as stale picker metadata.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #5; no open hypotheses remain in this historical reseed block.
+
+2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultProjectId` follows the same trimmed string gate as tenant/workspace ids, so `201` omits invalid scope headers; all-whitespace required fields take the TB-2010 required-field branch; JSON-array `201` bodies remain success-only navigation cases; leading-zero `010000` is intentionally parsed as decimal ten and remains within the team-size bound; keyboard focus from invalid email cannot bypass the schema-backed `canSubmit` gate. Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate rows — these five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain in this historical reseed block.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #4:** trimmed string gate is consistent with tenant/workspace handling; no invalid header is emitted.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — **cheap-disproof 2026-10-30 thorough hunt #4:** required-field branch precedes email and optional-field checks.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with JSON array body omits scope headers when ids are strings — **cheap-disproof 2026-10-30 thorough hunt #4:** array-root success is navigation-only and does not expose a provisioning object for scope headers.
+- [x] (invalid) `SignupForm` — architecture team size accepts pasted leading-zero `010000` as valid — **cheap-disproof 2026-10-30 thorough hunt #4:** leading-zero decimal parsing is intentional; `010000` is ten thousand and within the inclusive bound.
+- [x] (valid-no-repro) `SignupForm` — Tab from invalid email field to submit triggers register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #4:** schema-backed `canSubmit` and keyboard validation prevent the request.
+
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only `defaultWorkspaceId` on `201` omits scope headers after trim (`does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`); invalid email plus whitespace full name uses TB-2010 required-field copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); malformed JSON `201` body still navigates on `res.ok` (`still navigates after 201 when register response body is malformed JSON`); pasted team size `10001` stays invalid after blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`); rapid double-click with invalid email skips register POST (`does not call register fetch on rapid double-click when work email is invalid`). Reseeded five follow-on `(candidate)` rows. 140 scoped SignupForm vitest tests passed; no production code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` trim gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: "   " }` (monitor).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — all three required fields whitespace-only prefers generic required copy — locus: trim branch; input: `"   "` email, name, org (monitor TB-2010).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON array body still omits scope headers when ids are strings — locus: session spread; input: `[{ tenantId: "<guid>", … }]` (monitor).
+- [ ] (candidate) `SignupForm` — architecture team size field accepts pasted leading-zero `010000` as valid — locus: parseInt vs schema; input: paste `010000` (monitor).
+- [ ] (candidate) `SignupForm` — Tab from invalid email field to submit triggers register `fetch` — locus: focus order vs canSubmit; input: keyboard navigation (monitor).
+
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed five open `(candidate)` rows — whitespace-only string `tenantId` on `201` omits scope headers after trim (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); invalid email plus whitespace org uses TB-2010 required-field copy before email branch (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`); success-path body read failure still navigates on `201` (`still navigates after 201 when register response body read throws`); team size `10001` blocked in UI without register POST (`keeps submit disabled when optional architecture team size exceeds 10000`, `does not call register fetch when optional architecture team size exceeds 10000`); keyboard submit on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`). Reseeded five follow-on `(candidate)` rows. 136 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with whitespace-only `defaultWorkspaceId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt #3:** trim gate; regression `does not emit registration scope headers when defaultWorkspaceId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name prefers email copy over required-field copy — **cheap-disproof 2026-10-30 thorough hunt #3:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON `201` body after successful `res.text()` still navigates — **cheap-disproof 2026-10-30 thorough hunt #3:** `res.ok` success path; regression `still navigates after 201 when register response body is malformed JSON`.
+- [x] (valid-no-repro) `SignupForm` — paste of `10001` into team size then blur re-enables submit — **cheap-disproof 2026-10-30 thorough hunt #3:** schema max blocks submit after blur; regression `keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`.
+- [x] (valid-no-repro) `SignupForm` — double-click submit with invalid email fires register `fetch` once — **cheap-disproof 2026-10-30 thorough hunt #3:** disabled submit gate; regression `does not call register fetch on rapid double-click when work email is invalid`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — numeric `defaultProjectId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultProjectId is stored as a JSON number`); non-OK body read failure uses HTTP status fallback (`shows generic submit error when register response body read throws on a non-ok response`); whitespace-only full name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`); optional team size `10000` included from UI at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`, builder regressions); scientific notation `1e2` serializes to whole `100` by design (`serializes scientific notation optional architecture team size when it parses to a whole number`). Reseeded five follow-on `(candidate)` rows. 132 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with string `tenantId` containing only whitespace omits scope headers — **cheap-disproof 2026-10-30 thorough hunt #2:** trim gate; regression `does not emit registration scope headers when tenantId is whitespace-only in session storage`.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid email with empty organization after trim prefers email copy — **cheap-disproof 2026-10-30 thorough hunt #2:** TB-2010 required-field branch runs first; regression `deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — successful register when `res.text()` throws still navigates — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional success path; regression `still navigates after 201 when register response body read throws`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — architecture team size `10001` omitted but UI still enables submit — **cheap-disproof 2026-10-30 thorough hunt #2:** schema max blocks submit; regressions `keeps submit disabled when optional architecture team size exceeds 10000` and `does not call register fetch when optional architecture team size exceeds 10000`.
+- [x] (valid-no-repro) `SignupForm` — keyboard submit with invalid email calls register `fetch` — **cheap-disproof 2026-10-30 thorough hunt #2:** `canSubmit` gate; regression `shows inline validation on keyboard submit without calling fetch`.
+
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five header-queue `(candidate)` rows — numeric `defaultWorkspaceId` on `201` omits scope headers by design (`does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number`); empty `503` body uses status fallback (`shows synthetic message when register error response body is empty`); second `submit` while in-flight blocked (`does not fire a second register request when the form is submitted again while in flight`); `%` in work-email local part unreachable before verify (`invalid` on double-encode candidate); whitespace-only organization name uses TB-2010 required-field readiness (`deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name`). Reseeded five follow-on `(candidate)` rows. 128 scoped SignupForm vitest tests passed; no production code changed.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — locus: `registrationScopeHeaders` string gate; input: `{ tenantId: "<guid>", defaultWorkspaceId: "<guid>", defaultProjectId: 1 }` (monitor).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — locus: body read catch; input: mocked stream failure on error response (monitor).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — locus: readiness trim branch; input: `"   "` display name with valid email/org (monitor TB-2010).
-- [ ] (candidate) `SignupForm` — optional architecture team size `10000` included in register POST from UI — locus: upper bound inclusive; input: team size 10000 selected in optional field (monitor).
-- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — locus: Number/isInteger gate; input: `"1e2"` (monitor).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with numeric `defaultProjectId` omits registration scope headers — **cheap-disproof 2026-10-30 thorough hunt:** string gate on project id; regression `does not emit registration scope headers when defaultProjectId is stored as a JSON number`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-OK response when `res.text()` throws surfaces status-only toast — **cheap-disproof 2026-10-30 thorough hunt:** empty body + status fallback; regression `shows generic submit error when register response body read throws on a non-ok response`.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only full name after trim surfaces generic required-field copy — **cheap-disproof 2026-10-30 thorough hunt:** TB-2010 trim branch; regression `deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only full name`.
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size `10000` included in register POST from UI — **cheap-disproof 2026-10-30 thorough hunt:** upper bound inclusive; regression `includes optional architecture team size 10000 in register POST body from the UI`.
+- [x] (invalid) `buildSignupRegisterPayload` — scientific notation team size string omitted when it does not parse to whole number — **cheap-disproof 2026-10-30 thorough hunt:** `1e2` parses to whole `100`; regressions `serializes scientific notation optional architecture team size when it parses to a whole number` and `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`.
 
 2026-10-29 seed hunt (hit): promoted misleading signup readiness for overlong work email after `.max(254)` on `adminEmail` — `deriveSignupFormReadinessMessage` still returned generic invalid-email copy; now maps schema max message to TB-2010-style guidance; regression `deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`. Cheap-disproof closed four sibling `(candidate)` rows — numeric JSON `tenantId` on `201` intentionally omits scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); non-OK empty `{}` uses raw-body contract (`shows raw response text when register returns an empty JSON object on error`); post-`409` rename retry allowed by existing in-flight/`registerCompletedRef` regressions; IDN work emails blocked at zod `.email()` (invalid-email regressions). Reseeded five follow-on `(candidate)` rows. 126 scoped SignupForm vitest tests passed. Private beta: invited evaluation signup now shows the 254-character work-email limit in readiness copy instead of a misleading “valid email” hint.
 
@@ -228,11 +354,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 62
-- **bugs-found:** 14
+- **hunts:** 76
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — signup readiness hid 254-character work email limit
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -615,7 +741,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 49 · **Bugs found:** 17 · **Consecutive dry hunts:** 11
+**Hunts:** 50 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 thorough hunt #96 (dry): rotation fired after three `ui-auth-proxy` seed-only outcomes. Cheap-disproof closed all five queued candidates: generated client calls map transport cancellation to `DraftApiResult` failures, JSON mode rejects missing system name during preflight, and non-JSON answer HTTP failure already has `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; focused `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_execute_cancellation_emits_execute_failed_without_ok_true`, `RunCoreAsync_connect_cancellation_propagates_operation_canceled`, `RunCoreAsync_admit_transport_failure_stderr_only_without_json_envelope`, and `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`; reaffirmed `RunCoreAsync_skip_all_when_stale_pending_question_skip_fails_returns_operation_failed`; 73 scoped `DraftNewCommandCoreTests` passed.
 
@@ -625,11 +753,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--text` that trims below minimum length fails in connect stage without `CliJson.WriteFailureLine` — **cheap-disproof 2026-10-08 seed hunt #49:** length gate is stderr usage after connect by design; regressions `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting` and `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`.
 - [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` transport failure stderr-only in non-JSON mode — **cheap-disproof 2026-10-08 seed hunt #49:** parity JSON admit transport test; regression `RunCoreAsync_admit_transport_failure_stderr_only_without_json_envelope`.
 
-- [ ] (candidate) `DraftNewCommandAdmitStage` — cooperative cancel during `CreateDraftAsync` may surface `OperationCanceledException` instead of stderr-only create failure — locus: `CreateDraftAsync` await ~28–36; input: cancel token while create HTTP call is in flight (non-JSON).
-- [ ] (candidate) `DraftNewCommandAdmitStage` — cooperative cancel during `PatchDraftAsync` may surface `OperationCanceledException` instead of stderr-only patch failure — locus: patch await in admit stage; input: cancel mid-patch before admit.
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` cancellation may propagate `OperationCanceledException` instead of stderr-only load failure — locus: questions load ~23–31; input: cancel while GET `/questions` is in flight.
-- [ ] (candidate) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` returning null for system name exits `OperationFailed` without distinguishing EOF vs cancel in JSON mode — locus: ~66–72; input: `--json` with missing `--system-name` (should fail preflight instead).
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` HTTP failure stderr-only in non-JSON interactive mode — locus: answer path after `ReadLineAsync`; input: parity with `AnswerMustQuestionHttpFailureHandler` coverage under non-JSON.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — cooperative cancel during `CreateDraftAsync` may surface `OperationCanceledException` instead of stderr-only create failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `CreateDraftAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the stage writes stderr-only failure and returns `OperationFailed`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — cooperative cancel during `PatchDraftAsync` may surface `OperationCanceledException` instead of stderr-only patch failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `PatchDraftAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the stage writes stderr-only failure and returns `OperationFailed`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` cancellation may propagate `OperationCanceledException` instead of stderr-only load failure — **cheap-disproof 2026-10-30 thorough hunt #96:** generated `GetDraftQuestionsAsync` maps `TaskCanceledException` to a failed `DraftApiResult`; the loop handles it through the existing question-load error path.
+- [x] (invalid) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` returning null for system name exits `OperationFailed` without distinguishing EOF vs cancel in JSON mode — **cheap-disproof 2026-10-30 thorough hunt #96:** JSON preflight rejects missing `--system-name` before `DraftNewCommandAdmitStage` can prompt; a null prompt is only reachable in interactive mode.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` HTTP failure stderr-only in non-JSON interactive mode — **cheap-disproof 2026-10-30 thorough hunt #96:** existing `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope` covers `AnswerMustQuestionHttpFailureHandler` and the focused suite passed 73/73.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error`, `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`, `RunCoreAsync_create_failure_stderr_only_without_json_envelope`, `Parse_missing_api_base_url_value_returns_null`, and `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`; 75 scoped draft-new CLI tests passed.
 
@@ -1286,13 +1414,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-30 thorough hunt #35 (dry): cheap-disproof closed five candidate rows — generation guards ignore stale 204 success, browser email validation rejects embedded spaces while payload trim handles peripheral spaces, unsupported control characters use the generic submit error by design, in-flight cancellation is disabled and network counts are covered, and React escapes technical detail text. The focused `AuthCallbackAccessPanel.test.tsx` suite passed 101/101; no production code changed. Zone exhausted after all hypotheses were closed, three consecutive dry hunts, and no production-path commit since the last hunt.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `onSubmit` — HTTP `204` with empty body after generation bump still sets `submitted` — **cheap-disproof 2026-10-30 thorough hunt #35:** generation guard prevents stale success; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (invalid) `workEmail` — plus-address local part with spaces trimmed only at payload — **cheap-disproof 2026-10-30 thorough hunt #35:** native `type="email"` validation rejects embedded spaces before `onSubmit`; peripheral spaces are already covered by `trims peripheral spaces on workEmail in the POST body`.
+- [x] (valid-no-repro) `containsUnsupportedAccessRequestText` — vertical tab in required name blocks submit without alert differentiation — **cheap-disproof 2026-10-30 thorough hunt #35:** generic rejection copy is intentional for all unsupported control characters; the same guard is covered by the vertical-tab note regressions.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — cancel during in-flight POST leaves `networkInFlightCount` blocking a later submit — **cheap-disproof 2026-10-30 thorough hunt #35:** Cancel is disabled during submit and counter/generation behavior is covered by in-flight tests.
+- [x] (valid-no-repro) `technicalDetail` — HTML-like strings escaped only by React text node — **cheap-disproof 2026-10-30 thorough hunt #35:** JSX text interpolation escapes markup; existing technical-detail rendering tests cover the surface.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
 
-- [ ] (candidate) `onSubmit` — parses JSON `message` on non-409 failures — locus: generic error branch; input: `502` with `{ message: "…" }`; wrong outcome: surfaces server text; reachability: `POST /api/access-requests` validation errors use `message` on `400` only.
-- [ ] (candidate) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — locus: stale response guard; input: toggle-close mid-flight then late `204`; wrong outcome: success flash; reachability: dismiss invalidates generation.
-- [ ] (candidate) `websiteUrl` honeypot — peripheral spaces posted without trim — locus: raw honeypot in JSON body; input: `"  https://spam.example  "`; wrong outcome: server miss; reachability: server `trimOptional` on honeypot.
-- [ ] (candidate) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — locus: silent early return; input: double submit before first fetch settles; wrong outcome: hidden failure; reachability: in-flight guard.
-- [ ] (candidate) `technicalDetail` — padded detail string renders with leading newline artifact — locus: `{technicalDetail}` JSX; input: `"\\nSign-in blocked"`; wrong outcome: blank helper block; reachability: OIDC error passthrough.
+- [x] (valid-no-repro) `onSubmit` — parses JSON `message` on non-409 failures — **cheap-disproof 2026-10-30 thorough hunt:** generic copy by design; regression `does not parse JSON message field on non-409 API failures`.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — **cheap-disproof 2026-10-30 thorough hunt:** generation guard; regression `dismisses the form via request access toggle while submit is in flight`.
+- [x] (valid-no-repro) `websiteUrl` honeypot — peripheral spaces posted without trim — **cheap-disproof 2026-10-30 thorough hunt:** server-side trim contract; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (valid-no-repro) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — **cheap-disproof 2026-10-30 thorough hunt:** silent early return intentional; regressions `does not surface a submit error when a second submit is blocked while the first POST is still in flight` and `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
+- [x] (invalid) `technicalDetail` — padded detail string renders with leading newline artifact — **cheap-disproof 2026-10-30 thorough hunt:** detail still visible; regression `renders technical detail when the prop begins with a leading newline`.
 
 **Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
@@ -1512,15 +1650,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 - **id:** ui-auth-callback
-- **status:** open
+- **status:** exhausted
 - **impact:** low
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 33
+- **hunts:** 35
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -2059,6 +2197,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-30 seed hunt #56 (hit): promoted `isMarketingOnlyPath` trailing-slash handling — app-host `/pricing/` was not classified as marketing-only because exact-path checks required no trailing slash, so split-site users could remain on the app host instead of reaching the public pricing page; compare marketing paths after removing trailing slashes while preserving the original redirect location; regression `redirects app-host marketing paths with a trailing slash to the public origin`; host-gate vitest 23/23. Private beta: invited buyers opening a trailing-slash pricing URL on the app host now reach the public pricing page instead of an operator-host route that can render the wrong shell.
+
+- [x] (proven) `isMarketingOnlyPath` — app-host `/pricing/` bypasses the public marketing handoff — **hit 2026-10-30 seed hunt:** compare exact marketing paths using a trailing-slash-free canonical pathname; regression above.
+- [ ] (candidate) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — locus: one `decodeURIComponent` pass before URL pathname resolution; input: public-host operator bookmark containing a double-encoded slash segment.
+- [ ] (candidate) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — locus: alias comparison after `URL.host` normalization; input: configured `https://archlucid.net:8443` and request Host `www.archlucid.net:8443`.
+
+2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
+
+- [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` without URL-decoding or rewriting it.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` omitted from host-gate handoff — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is explicitly included in the legacy operator prefix list.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — malformed control character decodes into an unsafe redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** decode/URL resolution failure returns the normalized path and the host gate fails open to `next`, not a cross-host redirect.
+
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` percent-encoded operator paths — `/architecture/reviews%20` on the marketing host stayed `next` because `%20` was not decoded before prefix matching (while decoded trailing space already redirected); `decodeURIComponent` before lowercase, slash collapse, and URL resolution; regression `redirects marketing-host operator paths when pathname uses percent-encoded segments`; cheap-disproof closed four sibling `(candidate)` rows (parent `..` resolves correctly for marketing vs operator handoff, workspace-health nested paths already covered, `/` welcome redirect omits empty query, IPv6 Host not reproduced); scoped host-gate vitest 22/22. Private beta: split-site users following percent-encoded operator bookmarks on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
 - [x] (proven) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — **hit 2026-10-29 thorough hunt:** `decodeURIComponent` in `normalizeHostGatePathname`; regression above.
@@ -2068,10 +2218,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
 
 - [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
-- [ ] (candidate) `decideHostGateRedirect` — `+` in query preserved on operator redirect — locus: `pathAndQuery`; input: marketing host operator path with `search: '?q=a+b'`.
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — locus: legacy prefix list; input: compare `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs host-gate list.
-- [ ] (candidate) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — locus: `isMarketingOnlyPath`; input: app host `/pricing/` exact.
-- [ ] (candidate) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — locus: decode guard; input: malformed `%00` segment (fail closed to `next`).
+- [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` unchanged.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is already in the legacy operator prefix list.
+- [x] (proven) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — **hit 2026-10-30 seed hunt #56:** see zone-header note above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — **cheap-disproof 2026-10-30 thorough hunt #52:** malformed decoding falls through to `next`, not a cross-host redirect.
 
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` dot-segment paths — `/./architecture/reviews` on the marketing host stayed `next` because slash collapse left `/./` segments that failed operator prefix matching; resolve pathname with `URL` after lowercase and slash collapse; regression `redirects marketing-host operator paths when pathname includes a dot segment`; cheap-disproof closed four sibling `(candidate)` rows (`/signup/` prefix funnel by design, bare `/api` non-proxy stays on marketing host, `/SHOWCASE` query already preserved via lowercase normalize, IDN Host pairing not reproduced on this boundary); scoped host-gate vitest 21/21. Private beta: split-site users opening operator bookmarks with `/./` path noise on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
@@ -2366,7 +2516,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 69 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+**Hunts:** 73 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #95 (seed-only): repeated the auth/proxy regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #94 (seed-only): repeated the auth/proxy source review and scoped regression matrix after the prior reseed; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #93 (seed-only): re-read proxy forwarding, path canonicalization, host-gate integration, auth routing, body limits, and the current auth/proxy regression coverage; scoped auth/proxy vitest passed 90/90 and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 thorough hunt #91 (dry): rotation fired after three `ui-form-validation` seed-only outcomes. Cheap-disproof closed the five queued candidates: invitation confirmation body/query ordering does not create a dependency, unknown `ResumeWorkflow` is not a reachable current API step, expired bootstrap workspace mutations correctly return 401, host-gate preserves the raw query string including encoded ampersands, and the OTP client forwards whitespace unchanged rather than omitting it; scoped auth/proxy vitest passed 90/90. No production code changed.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`, `encodes invitationToken on status GET and returnUrl on workspace select when both are present`, `passes through /api/proxy paths without demo-run alias rewrite`, `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`, and `returns false when the proxy responds with 204 No Content`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
 
@@ -2376,11 +2534,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `verifyEmailOtpCode` — verify POST omits scope headers while subsequent `fetchPostAuthBootstrapStatus` attaches stale scope — **cheap-disproof 2026-10-08 seed hunt #68:** intentional pre-auth vs post-auth split; reaffirmed `does not forward stale operator scope headers on verify POST`; regression `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`.
 - [x] (valid-no-repro) `initiatePostAuthAccessRequest` — 202 vs 200 distinction may strand UI when proxy returns 204 No Content — **cheap-disproof 2026-10-08 seed hunt #68:** contract accepts only HTTP 202; 204 returns false like 200; regression `returns false when the proxy responds with 204 No Content`; reaffirmed `returns true only for HTTP 202 Accepted`.
 
-- [ ] (candidate) `acceptPostAuthInvitation` — `confirmEmailMismatch` POST body vs `returnUrl` query ordering when both invitation token and unsafe returnUrl supplied — locus: `acceptPostAuthInvitation`; input: mismatch confirm with open-redirect query.
-- [ ] (candidate) `resolveEmailOtpPostAuthPath` — bootstrap routing for `ResumeWorkflow` nextStep (if API adds it) may skip bootstrap query builder — locus: `email-otp-post-auth.ts` default branch; input: unknown `nextStep` with safe returnUrl.
-- [ ] (candidate) `enforceProxyBffSessionGuard` — operator `/api/proxy` POST without CSRF when cookie expired but readable — locus: `proxy-bff-session-guard.ts`; input: expired session cookie on bootstrap workspace create.
-- [ ] (candidate) `decideHostGateRedirect` — app-host marketing path redirect may drop `returnUrl` when query uses encoded ampersands — locus: `host-gate.ts` `pathAndQuery`; input: `/pricing` with `utm_source=a&returnUrl=%2Fdesk`.
-- [ ] (candidate) `requestEmailOtpChallenge` — Turnstile token omitted from JSON body when `botChallengeToken` whitespace-only — locus: `email-otp-api.ts` challenge POST body; input: spaces-only token after trim.
+- [x] (invalid) `acceptPostAuthInvitation` — `confirmEmailMismatch` POST body vs `returnUrl` query ordering when both invitation token and unsafe returnUrl supplied — **cheap-disproof 2026-10-30 thorough hunt #91:** query and JSON body are independent request fields; no ordering-dependent branch exists in `acceptPostAuthInvitation`.
+- [x] (invalid) `resolveEmailOtpPostAuthPath` — bootstrap routing for `ResumeWorkflow` nextStep (if API adds it) may skip bootstrap query builder — **cheap-disproof 2026-10-30 thorough hunt #91:** `ResumeWorkflow` is not a current `PostAuthBootstrapDestination` value and the candidate depends on a future API addition rather than a reachable current input.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — operator `/api/proxy` POST without CSRF when cookie expired but readable — **cheap-disproof 2026-10-30 thorough hunt #91:** expired bootstrap workspace mutations intentionally return 401 and clear the session; regression coverage includes `blocks bootstrap status GET when the BFF session cookie is expired` and active-session CSRF rejection.
+- [x] (valid-no-repro) `decideHostGateRedirect` — app-host marketing path redirect may drop `returnUrl` when query uses encoded ampersands — **cheap-disproof 2026-10-30 thorough hunt #91:** `pathAndQuery` concatenates the normalized pathname with the original `input.search` unchanged; existing redirect/query regressions cover this preservation contract.
+- [x] (invalid) `requestEmailOtpChallenge` — Turnstile token omitted from JSON body when `botChallengeToken` whitespace-only — **cheap-disproof 2026-10-30 thorough hunt #91:** the current client forwards the supplied token verbatim; whitespace-only input is not omitted, and the candidate provides no reachable client outcome beyond sending an invalid token for server validation.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when explicit returnUrl is unsafe`, `encodes whitespace-only returnUrl on accept the same way as bootstrap status URLSearchParams`, `attaches operator scope headers on HEAD bootstrap polls when localStorage still has scope`, and `does not redirect marketing-host post-auth bootstrap proxy POST paths to the app origin`; reaffirmed `allows anonymous marketing mutations with a valid BFF session and no CSRF token`; scoped auth/proxy vitest 270 passed with 3 unrelated baseline seam failures.
 
@@ -7642,6 +7800,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #64 (seed-only): re-read operator reviews-list sorting/selection, architecture-intelligence next-review context, and operator scope boundaries; no newly promoted hunt-ready row produced a failing repro. Seeded three bounded follow-on candidates below.
+
+- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — locus: `loadRuns` callback has an empty dependency list while reading current scope headers; input: switch tenant scope while architecture intelligence remains mounted; wrong outcome: the footer links to another tenant’s next review.
+- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — locus: one-shot async `loadRuns` has no active scope identity guard; input: switch tenant while the initial list request is pending; wrong outcome: the new scope displays a stale next-review footer.
+- [ ] (candidate) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — locus: `new Date(...).getTime()` comparator; input: operator reviews list contains a reachable row with an invalid or omitted timestamp; wrong outcome: sort order is not deterministic and newest/oldest navigation can select the wrong review.
+
+2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
+
+- [x] (valid-no-repro) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+- [x] (valid-no-repro) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+- [x] (valid-no-repro) `FindingInspectWhyMattersSection` — finding inspect why-matters disclosure href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-30 thorough hunt #60:** focused URL-sync regression coverage confirms disclosure writes use current `useSearchParams` state; no failing repro.
+
 2026-10-29 thorough hunt (hit): promoted `RunDetailProvenanceSummaryCard` — identifiers disclosure href writes used `readWindowLocationSearch()`, so expanding Identifiers after soft navigation merged stale review-detail query keys; `syncIdentifiersOpenToUrl` now uses `searchParams.toString()`; regression `writes provenance identifiers disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailProvenanceSummaryCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `PlanningBridgePanel` stale URL write (no disclosure href write locus in panel) and `OperatorBillingWalletPanel` save-confirm href (already uses `searchParams.toString()`). Private beta: invited operators expanding provenance identifiers no longer inherit stale query params after in-app navigation on review detail.
 
 - [x] (proven) `RunDetailProvenanceSummaryCard` — identifiers disclosure write merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
@@ -7675,10 +7845,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 38
-- **last-hunt:** 2026-10-29
+- **hunts:** 39
+- **last-hunt:** 2026-10-30
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-29 — provenance identifiers disclosure merged stale query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -7767,6 +7937,249 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
+
+- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
+- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
+
+2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses the email input’s type constraint and the handler posts malformed work-email values — **hit 2026-10-30 seed hunt #80:** validate the trimmed address with the browser-compatible email pattern before posting; regression in `MarketingPricingQuotePanel.test.tsx`.
+
+2026-10-30 seed hunt #79 (hit): proved `MarketingPricingQuotePanel` disabled native validation with `noValidate` but did not validate required work email or company fields before POST, so an empty quote request reached the API; added a required-identity guard and `does not submit when required buyer identity fields are empty` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 2/2. Private beta: invited buyers can no longer submit an empty pricing request and instead receive immediate required-field guidance before the quote service is called.
+
+- [x] (proven) `MarketingPricingQuotePanel` — `noValidate` bypasses required browser checks and `onSubmit` posts blank work email/company values — **hit 2026-10-30 seed hunt #79:** guard required identity fields before composing and posting the quote request; regression in `MarketingPricingQuotePanel.test.tsx`.
+
+2026-10-30 seed hunt #78 (hit): proved the marketing FAQ TOC announced its active in-page section with `aria-current="page"` instead of the `location` value used by the equivalent privacy-policy TOC, causing assistive technology to describe a section location as the current page; changed the active value to `location` and added `marks the active category as the current in-page location` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC suite passed 2/2. Private beta: invited buyers using screen readers can now distinguish the active FAQ section as an in-page location instead of hearing it announced as the current page.
+
+- [x] (proven) `MarketingFaqPageToc` — the active FAQ category link uses `aria-current="page"` for in-page navigation, unlike the privacy TOC’s `aria-current="location"` contract — **hit 2026-10-30 seed hunt #78:** use the `location` value and cover the active category announcement in `MarketingFaqPageToc.test.tsx`.
+
+2026-10-30 seed hunt #77 (hit): proved the bottom “Open another illustrative sample” link scrolled to the sample section without selecting the sample path, leaving the section visually de-emphasized after the click; wired the link through the existing sample-path selector and added `selects the sample path when the bottom sample link is activated` in `get-started.test.tsx`. Focused get-started suite passed 9/9. Private beta: invited buyers who follow the lower-page sample CTA now see the sample path selected instead of landing on a visually muted section that still presents the trial path as active.
+
+- [x] (proven) `GetStartedPageClient` — the lower “Open another illustrative sample” link scrolls to `#choose-sample` without selecting the sample path, so the destination remains visually de-emphasized — **hit 2026-10-30 seed hunt #77:** call `selectSamplePath` from the link and cover the selected-state transition in `get-started.test.tsx`.
+
+2026-10-30 seed hunt #76 (hit): proved a loaded third-party Clarity implementation could throw from consent-approved CTA analytics and interrupt the CTA click handler; guarded analytics calls so failures are swallowed and added `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`. Focused analytics suite passed 8/8. Private beta: invited buyers can now activate hero CTAs even when the loaded analytics provider fails during event recording.
+
+2026-10-30 thorough hunt #75 (hit): proved consent-gated marketing CTA analytics could throw when browser storage access was denied, allowing analytics to escape the click handler; guarded storage lookup and added `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`. The self-demo SSR placeholder candidate was invalid because the client CTA has no no-JavaScript interaction contract. Focused analytics suite passed 7/7. Private beta: invited buyers in storage-restricted browsers can now activate hero CTAs without an analytics exception interrupting the interaction.
+
+2026-10-30 seed hunt #74 (seed-only): re-read `CtaButton`, marketing CTA analytics, self-demo/walkthrough href builders, trust focus scrolling, and pricing CTA focus; no failing repro was promoted. Seeded two bounded candidates for a future thorough hunt.
+
+- [x] (proven) `CtaButton` + `recordMarketingHeroCtaClarityEvent` — a storage-access exception during consent lookup escapes the click handler — **hit 2026-10-30 thorough hunt #75:** guard consent storage access and no-op when unavailable; regression `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`.
+- [x] (invalid) `SelfDemoRequestCta` — server-rendered fallback origin becomes `https://localhost` before hydration — **cheap-disproof 2026-10-30 thorough hunt #75:** no-JavaScript interaction is outside the client CTA contract; no production repro promoted.
+
+2026-10-30 thorough hunt #73 (hit): proved Escape closed `MarketingResourcesMenu` without restoring focus, leaving keyboard users on the removed menu item; added a trigger ref and return focus on Escape with regression `returns focus to the Resources trigger when Escape closes the menu`. Focused menu suite passed 3/3. Private beta: invited buyers using keyboard navigation can now dismiss Resources and continue from the visible trigger instead of losing focus in the closed menu.
+
+2026-10-30 seed hunt #72 (seed-only): re-read public header/menu, privacy TOC, FAQ chrome, and trust-navigation paths; no hunt-ready row was proven. Seeded one bounded keyboard-navigation candidate.
+
+- [ ] (candidate) `MarketingResourcesMenu` — Escape or outside-focus closure removes the open menu while leaving focus on a removed menu item; locus: `setOpen(false)` close handlers without restoring focus to the Resources trigger; input: a keyboard user opens Resources, focuses a menu item, and presses Escape or tabs outside.
+
+2026-10-30 thorough hunt #71 (dry): cheap-disproof closed the two seeded candidates — trial-nudge pricing intentionally focuses a collapsed quote section with an explicit “Request quote” trigger, and FAQ panels are independent disclosures rather than a single-open accordion. `MarketingTierPricingSection.test.tsx` and `MarketingFaqPageToc.test.tsx` passed 9/9; no production code changed.
+
+- [x] (valid-no-repro) `TrialNudgePricingQuoteFocus` + `MarketingPricingQuotePanel` — **cheap-disproof 2026-10-30 thorough hunt #71:** the route focuses the quote section while its explicit trigger remains available; no contract requires automatic opening or immediate form exposure.
+- [x] (valid-no-repro) `MarketingFaqItemPanel` — **cheap-disproof 2026-10-30 thorough hunt #71:** each FAQ item owns independent `<details>` state and multiple answers may remain open; hash navigation does not claim accordion exclusivity.
+
+2026-10-30 seed hunt #70 (seed-only): re-read pricing trial-nudge focus, FAQ hash navigation, early-access submission, and marketing CTA paths; no additional repro was promoted. Seeded two bounded candidates for the next hunt.
+
+2026-10-30 seed hunt #69 (hit): proved `useMarketingEarlyAccessSubmit` rendered upstream non-2xx response bodies directly in the public early-access form, so a backend exception could leak internal details to anonymous visitors; replaced the body with generic retry copy and added `does not expose upstream failure details in the early-access error`. Focused early-access hook suite passed 4/4. Private beta: invited buyers requesting evaluation access now see safe recovery copy instead of raw backend exception details when the access service fails.
+
+2026-10-30 seed hunt #68 (hit): proved the FAQ category TOC intercepted anchor clicks for smooth scrolling without writing the hash, so the visible navigation moved but the URL could not be copied, refreshed, or used as a deep link; update history before scrolling and added `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`. Focused FAQ TOC test passed 1/1. Private beta: invited buyers browsing FAQ categories can now share or refresh the selected section without losing their place.
+
+2026-10-30 seed hunt #67 (hit): proved `MarketingPricingQuotePanel` rendered upstream non-2xx response bodies directly in the anonymous customer-facing error, so a backend exception could expose internal failure details; replaced that body with generic retry copy and added `does not expose upstream failure details in the customer-facing error`. Focused quote-panel test passed 1/1. Private beta: invited buyers requesting pricing now see safe recovery copy instead of raw backend exception details when the quote service fails.
+
+2026-10-30 seed hunt #66 (hit): proved overlapping signup verification status requests committed responses in completion order, so an older background poll could overwrite a newer manual check and send an invitee to onboarding on stale readiness; gated `refreshTrialStatus` by request generation and added `does not let an older background poll override a newer manual check` in `SignupVerifyClient.test.tsx`. Focused SignupVerifyClient tests passed 25/25. Private beta: invited operators who manually recheck verification while polling is in flight now retain the newest verification state instead of being redirected from a stale response.
+
+2026-10-30 thorough hunt #65 (dry): cheap-disproof closed three open `(candidate)` rows — result focus only runs on result changes, the artifact observer intentionally captures the mounted marketing sections, and line-separator telemetry remains a distinct route-derived scenario value. The three focused marketing suites passed 28/28; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — status rerender during result focus scrolls the page twice — **cheap-disproof 2026-10-30 thorough hunt #65:** `focusResults` is stable and the result effect depends on `result`, not status; existing Quick Scan tests passed.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — removed sections remain in the captured `sections` array after a marketing route transition — **cheap-disproof 2026-10-30 thorough hunt #65:** the nav mounts with the static artifact body and its observer cleanup is covered; no reachable in-place route replacement repro.
+- [x] (valid-no-repro) `recordShowcaseViewed` — line-separator and ordinary-space scenarios collide after downstream analytics normalization — **cheap-disproof 2026-10-30 thorough hunt #65:** telemetry trims but does not normalize line separators, so distinct route-derived scenarios remain distinct; existing telemetry tests passed.
+
+2026-10-30 thorough hunt #45 (dry): cheap-disproof closed three open `(candidate)` rows — result focus is only driven by result changes, removed observer winners are filtered from visible sections, and line-separator analytics identity remains an intentional route-derived value. Reseeded three bounded `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) marketing candidate rows from thorough hunt #44 — **cheap-disproof 2026-10-30 thorough hunt #45:** result focus, removed observer winners, and line-separator analytics identity produce no failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — status rerender during result focus scrolls the page twice — locus: result effect dependency and focus callback identity; input: status update immediately after result resolution (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed sections remain in the captured `sections` array after a marketing route transition — locus: effect-captured DOM collection; input: route transition replaces artifact nodes without remounting nav (monitor).
+- [ ] (candidate) `recordShowcaseViewed` — line-separator and ordinary-space scenarios collide after downstream analytics normalization — locus: event property canonicalization boundary; input: two generated links differing only by U+2028 versus space (monitor).
+
+2026-10-30 thorough hunt #21 (dry): cheap-disproof closed three open `(candidate)` rows already covered by existing Quick Scan, artifact navigation, and telemetry tests — malformed POST errors preserve the sample without mixing real-analysis metadata; no-target navigation intentionally preserves the previous active item; and runtime-cast telemetry scenarios are unsupported input rather than a reachable production path. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #20 — **cheap-disproof 2026-10-30 thorough hunt #21:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST keeps a sample result while exposing a real-analysis status label — locus: result/status pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed active section keeps an `aria-current` target with no DOM node — locus: dynamic navigation lifecycle (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — casted raw scenario creates a second telemetry key — locus: runtime caller validation (monitor).
+
+2026-10-30 thorough hunt #20 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding marketing tests — malformed POST responses do not mix sample and real metadata; no-target navigation preserves the prior active item by design; and runtime-cast telemetry inputs are unsupported outside the typed API. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #19 — **cheap-disproof 2026-10-30 thorough hunt #20:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST leaves sample metadata with a real-analysis error message — locus: result/error pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — no-target click preserves `aria-current` for a removed section indefinitely — locus: dynamic DOM lifecycle (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — runtime-cast scenario splits telemetry between canonical and raw keys — locus: unsupported runtime input (monitor).
+
+2026-10-30 thorough hunt #19 (dry): cheap-disproof closed three open `(candidate)` rows already covered by the preceding state, navigation, and telemetry tests — malformed POST handling does not cross-assign sample and real result state; no-target navigation preserves the prior active item intentionally; and runtime `as` casts are unsupported caller input outside the typed funnel boundary. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #18 — **cheap-disproof 2026-10-30 thorough hunt #19:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error leaves sample and real result metadata mixed — locus: result/status state pairing (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — no-target click plus prior active item violates accessibility state — locus: `aria-current` preservation (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — runtime-cast scenario causes telemetry cardinality split — locus: unsupported caller data (monitor).
+
+2026-10-30 thorough hunt #18 (dry): cheap-disproof closed three open `(candidate)` rows already represented by prior marketing tests — malformed POST errors reset status rather than falsely reporting sample completion; missing artifact targets are no-op paths rather than first-item fallback; and the typed funnel telemetry API rejects the proposed untyped direct-caller scenario as outside production reach. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #17 — **cheap-disproof 2026-10-30 thorough hunt #18:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST status reset clears the wrong result type — locus: sample vs real response state (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — missing active target silently preserves misleading `aria-current` — locus: no-target click behavior (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — unsupported caller passes encoded scenario through an `as` cast — locus: runtime type boundary (monitor).
+
+2026-10-30 thorough hunt #17 (dry): cheap-disproof closed three open `(candidate)` rows already covered by prior state and telemetry regressions — malformed POST handling does not leave a false completion status; absent artifact targets do not force active-id fallback; and unsupported direct telemetry callers are outside the typed canonical scenario contract. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #16 — **cheap-disproof 2026-10-30 thorough hunt #17:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST response leaves “Showing sample” status after error — locus: status reset path (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed target falls back to first active artifact without observer evidence — locus: active-id fallback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — untyped direct caller sends noncanonical encoded scenario — locus: public telemetry boundary (monitor).
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #15 — **cheap-disproof 2026-10-30 thorough hunt #16:** all three mechanisms were already closed; no new failing repro.
+
+- [x] (valid-no-repro) duplicate row — malformed POST status candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — optional artifact fallback candidate was already closed by thorough hunt #17.
+- [x] (valid-no-repro) duplicate row — direct telemetry caller candidate was already closed by thorough hunt #17.
+
+2026-10-30 thorough hunt #15 (dry): cheap-disproof closed three open `(candidate)` rows that were already represented by the preceding malformed-POST, navigation, and telemetry regressions — malformed analysis errors retain the sample and expose an error; optional artifact omission is not a supported product contract; and page wrappers pass the same canonical scenario into viewed and funnel events. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #14 — **cheap-disproof 2026-10-30 thorough hunt #15:** all three mechanisms remain covered; no new failing repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed analysis response leaves a stale “Showing sample” status message — locus: status-message reset on parse failure; input: sample then malformed POST body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — omitted optional artifact still appears as active after observer callback — locus: fixed item list vs DOM lookup (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — direct caller uses encoded scenario while page wrapper uses decoded slug — locus: caller normalization contract (monitor).
+
+2026-10-30 thorough hunt #14 (dry): cheap-disproof closed three open `(candidate)` rows that were already covered by the preceding marketing regressions — malformed POST errors do not silently replace the sample; conditional artifact omissions are outside the fixed navigation item contract; and route/page normalization occurs before funnel telemetry receives its canonical scenario. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate marketing candidate rows from thorough hunt #13 — **cheap-disproof 2026-10-30 thorough hunt #14:** malformed POST/sample state, deterministic artifact ordering, and route/event scenario handling were already classified; no new repro.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error clears sample result without an explanatory status — locus: error/status message pairing; input: sample plus malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — conditional artifact omission leaves an unreachable active id — locus: fixed nav items vs optional sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — page normalization and direct funnel callers disagree on encoded mixed-case scenarios — locus: caller boundary (monitor).
+
+2026-10-30 thorough hunt #13 (dry): cheap-disproof closed three open `(candidate)` rows — malformed POST JSON leaves the sample result intact while surfacing an error rather than claiming a new analysis; equal observer ratios use deterministic artifact order; both telemetry backends receive the same trimmed, case-preserving scenario value from the shared helper. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — **cheap-disproof 2026-10-30 thorough hunt #13:** JSON parse failure does not call `setResult`; existing stale-result protections remain.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — **cheap-disproof 2026-10-30 thorough hunt #13:** stable artifact order resolves ties deterministically.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — **cheap-disproof 2026-10-30 thorough hunt #13:** both paths consume the same trimmed scenario value; case is intentionally preserved.
+
+- [ ] (candidate) `useQuickScanClient` — malformed POST error leaves stale sample status message visible — locus: error/status state split; input: sample then malformed analysis response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — tie ordering changes when artifact items are conditionally omitted — locus: fixed array vs rendered DOM; input: optional section omission (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario case normalization differs from showcase route slug normalization — locus: page wrapper vs event helper; input: percent-encoded mixed-case slug (monitor).
+
+2026-10-30 thorough hunt #12 (dry): cheap-disproof closed three open `(candidate)` rows — malformed successful analysis JSON is surfaced as a request error rather than silently accepted; equal observer ratios resolve deterministically through the stable artifact order; viewed and funnel telemetry share the same trimmed scenario and render-mode property construction. Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — **cheap-disproof 2026-10-30 thorough hunt #12:** malformed success JSON enters the error path rather than being treated as a successful analysis; no silent stale-result commit.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — **cheap-disproof 2026-10-30 thorough hunt #12:** equal ratios retain deterministic `ARTIFACT_ITEMS` order; no random selection mechanism.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — **cheap-disproof 2026-10-30 thorough hunt #12:** both helpers construct properties from the same trimmed scenario and supplied render mode.
+
+- [ ] (candidate) `useQuickScanClient` — malformed successful analysis clears a visible prior sample without replacement — locus: JSON parse error state; input: sample result followed by malformed POST response (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — equal-ratio observer entries after click erase intended active selection — locus: observer callback precedence; input: click plus simultaneous equal intersections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — App Insights and Clarity diverge on trimmed scenario casing — locus: dual telemetry normalization; input: mixed-case encoded scenario (monitor).
+
+2026-10-30 thorough hunt #11 (dry): cheap-disproof closed three open `(candidate)` rows — successful real analysis clears the sample error through the submit success state; artifact click/observer ordering intentionally follows actual viewport visibility; funnel telemetry trims the scenario before emitting properties (`recordShowcaseFunnelEvent trims the scenario before emitting telemetry`). Reseeded three follow-on `(candidate)` rows. 34 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error survives a successful real analysis response — **cheap-disproof 2026-10-30 thorough hunt #11:** successful analysis state clears the error; existing POST regressions cover the path.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — **cheap-disproof 2026-10-30 thorough hunt #11:** observer ratios represent viewport truth and click state is reconciled by the next callback.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — **cheap-disproof 2026-10-30 thorough hunt #11:** trim is applied to emitted properties; regression `recordShowcaseFunnelEvent trims the scenario before emitting telemetry`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful analysis when response body parsing throws — locus: POST catch/finally state reset; input: successful HTTP response with malformed body (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer ratio tie after click changes active section nondeterministically — locus: stable sort order; input: two equal visible sections (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — render mode property differs between funnel and viewed events after scenario trim — locus: paired property construction; input: canonical scenario with fallback mode (monitor).
+
+2026-10-30 thorough hunt #10 (dry): cheap-disproof closed three open `(candidate)` rows — explicit sample retry success clears the prior sample error (`clears a failed sample error when an explicit retry succeeds`); artifact navigation only updates active state for a currently found target and observer cleanup handles route teardown; funnel telemetry intentionally consumes canonical scenario props rather than decoding encoded values at the low-level event helper. Reseeded three follow-on `(candidate)` rows. 33 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — **cheap-disproof 2026-10-30 thorough hunt #10:** successful retry calls `setError(null)`; regression `clears a failed sample error when an explicit retry succeeds`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — **cheap-disproof 2026-10-30 thorough hunt #10:** click path no-ops when target is absent and observer cleanup handles teardown.
+- [x] (invalid) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — **cheap-disproof 2026-10-30 thorough hunt #10:** low-level telemetry accepts canonical scenario props; route decoding is owned by the page wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error survives a successful real analysis response — locus: POST success state reset; input: failed sample then completed analysis (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — click to a valid section leaves stale active id after a zero-ratio observer callback — locus: click/observer ordering; input: fast click plus viewport exit (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — scenario whitespace is trimmed for validation but not for emitted properties — locus: property normalization; input: `" demo "` scenario (monitor).
+
+2026-10-30 thorough hunt #9 (dry): cheap-disproof closed three open `(candidate)` rows — a failed auto-sample remains eligible for an intentional retry but cannot replace a non-null user result through the status effect; the observer effect’s captured section list is disconnected on unmount and cannot update stale nodes; funnel telemetry accepts the already-normalized `scenario` contract and does not decode route segments itself. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — **cheap-disproof 2026-10-30 thorough hunt #9:** status-driven loading requires `result === null`; user results are protected.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes without unmount — **cheap-disproof 2026-10-30 thorough hunt #9:** observer cleanup and fixed mount snapshot prevent detached state updates.
+- [x] (invalid) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — **cheap-disproof 2026-10-30 thorough hunt #9:** funnel callers pass canonical scenario props; route normalization belongs to the page telemetry wrapper.
+
+- [ ] (candidate) `useQuickScanClient` — manual sample retry after a failed auto-sample leaves stale error text — locus: `setError(null)` only on POST; input: failed sample then explicit retry (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — dynamic section replacement leaves active id pointing to missing node — locus: activeId vs DOM presence; input: remove active artifact section (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — encoded scenario is emitted literally when caller bypasses page wrapper — locus: telemetry boundary; input: `%2F` scenario prop (monitor).
+
+2026-10-30 thorough hunt #8 (dry): cheap-disproof closed three open `(candidate)` rows — a failed sample may retry only when status data changes and remains behind the existing `result === null` guard; the artifact observer is disconnected on unmount and its captured DOM snapshot cannot update detached UI; `renderMode` is a compile-time `ShowcaseRenderMode` union, so whitespace is malformed caller input rather than a reachable production telemetry state. Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — **cheap-disproof 2026-10-30 thorough hunt #8:** retry requires a changed status object and the existing sample effect guard; no unexpected retry path found.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — **cheap-disproof 2026-10-30 thorough hunt #8:** observer cleanup disconnects on unmount; no detached state update is reachable.
+- [x] (invalid) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — **cheap-disproof 2026-10-30 thorough hunt #8:** whitespace violates the compile-time `ShowcaseRenderMode` contract and no production caller supplies it.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample retry replaces a user-entered result after status refresh — locus: result nullability vs manual sample state; input: failed auto-sample followed by manual form state (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — route replacement leaves observer observing old section nodes — locus: effect dependency snapshot; input: DOM node replacement without unmount (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel action accepts a scenario that `resolveShowcaseScenarioSlug` would normalize — locus: caller normalization boundary; input: encoded scenario prop (monitor).
+
+2026-10-30 thorough hunt #7 (dry): cheap-disproof closed three open `(candidate)` rows — failed sample refreshes do not restart from status alone because the auto-sample effect requires `result === null` and the status transition is already covered; the artifact observer is disconnected on unmount and stale zero-ratio entries cannot update a detached component; funnel telemetry uses the same blank-scenario early return as viewed telemetry (`recordShowcaseFunnelEvent is a no-op when scenario trims to empty`). Reseeded three follow-on `(candidate)` rows. 32 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample request restarts repeatedly after a failed sample and repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #7:** the effect only auto-loads while `result === null`, with existing status/sample coverage.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — **cheap-disproof 2026-10-30 thorough hunt #7:** effect cleanup disconnects the observer; detached components cannot receive a state update.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #7:** paired trim guards; regression `recordShowcaseFunnelEvent is a no-op when scenario trims to empty`.
+
+- [ ] (candidate) `useQuickScanClient` — failed sample error is cleared by status-driven retry without user action — locus: auto-sample effect/error state; input: transient sample 500 + status refetch (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — removed section remains in `sections` snapshot after route body mutation — locus: effect lifetime; input: dynamic DOM replacement (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — `renderMode` whitespace is emitted as a telemetry property — locus: telemetry property normalization; input: `{ scenario: "demo", renderMode: " " }` (monitor).
+
+2026-10-30 thorough hunt #6 (dry): cheap-disproof closed three open `(candidate)` rows — repeated SampleOnly status refreshes retain the real result because the auto-sample effect is guarded by `result === null`; `DemoPreviewArtifactNav` disconnects its observer during effect cleanup and no callback can update unmounted UI; `recordShowcaseFunnelEvent` uses the same trimmed-scenario early return as `recordShowcaseViewed`. Reseeded three follow-on `(candidate)` rows. 31 scoped marketing vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — **cheap-disproof 2026-10-30 thorough hunt #6:** existing SampleOnly-after-real-result regression covers the guard.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — **cheap-disproof 2026-10-30 thorough hunt #6:** effect cleanup disconnects the observer; no mounted state update remains reachable.
+- [x] (valid-no-repro) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — **cheap-disproof 2026-10-30 thorough hunt #6:** both functions trim and return before telemetry for empty scenarios.
+
+- [ ] (candidate) `useQuickScanClient` — status refresh after failed sample can restart the sample request repeatedly — locus: effect dependency on `result` and `status`; input: rejected sample + repeated status updates (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer retains zero-ratio entries for sections removed from DOM — locus: `sections` snapshot vs visibility map; input: dynamic artifact removal (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — funnel event can emit with whitespace render mode while viewed event is valid — locus: render-mode contract; input: malformed telemetry props (monitor).
+
+2026-10-30 thorough hunt #5 (dry): the picker re-presented five marketing monitor rows already closed by thorough hunt #4 because the reseed block remained duplicated as open rows. Revalidated the existing regressions and classified the duplicate rows as valid-no-repro; removed the stale open duplicates and seeded three bounded follow-on monitor rows. 31 scoped vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate picker rows for Quick Scan POST/sample ordering, sample error reset, artifact navigation IO/click ordering, blocked-storage browser identity, and blank showcase telemetry — **cheap-disproof 2026-10-30 thorough hunt #5:** all five were already closed by the preceding #4 regressions; no new hunt-ready mechanism.
+
+- [ ] (candidate) `useQuickScanClient` — sample and real-analysis result precedence after repeated status refresh — locus: status effect plus POST completion ordering; input: SampleOnly → Available → SampleOnly transition (monitor).
+- [ ] (candidate) `DemoPreviewArtifactNav` — observer callback after unmount retains visibility map state — locus: effect cleanup; input: route transition during intersection callback (monitor).
+- [ ] (candidate) `recordShowcaseFunnelEvent` — blank scenario handling diverges from `recordShowcaseViewed` — locus: paired telemetry guards; input: funnel click with unknown scenario (monitor).
+
+2026-10-30 thorough hunt #4 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — the existing stale-sample regression establishes that a completed real analysis remains authoritative over an in-flight sample; submit clears stale sample errors before a successful analysis; intersection callbacks intentionally reconcile click selection with actual visibility; volatile browser ids are tab-scoped when storage is blocked and cannot survive a full reload by design; blank showcase scenarios return before both Clarity and App Insights telemetry (`recordShowcaseViewed is a no-op when scenario trims to empty`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates below were already closed by thorough hunt #4; retained only as historical reseed metadata, not open hypotheses.
+
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — completed POST overwrites sample result loaded during in-flight analysis — **cheap-disproof 2026-10-30 thorough hunt #4:** existing stale-sample regression proves the real analysis remains authoritative; no wrong outcome.
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — sample error state persists after a successful POST — **cheap-disproof 2026-10-30 thorough hunt #4:** submit clears error before the POST and successful POST coverage leaves no stale sample error.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — intersection observer overwrites click-selected active id before scroll settles — **cheap-disproof 2026-10-30 thorough hunt #4:** observer state intentionally represents actual viewport visibility; click regression covers immediate active feedback.
+- [x] (invalid) `ensureBrowserId` — volatile browser id survives full page reload when storage blocked — **cheap-disproof 2026-10-30 thorough hunt #4:** module memory is tab-scoped and reload reset is expected when storage is unavailable.
+- [x] (valid-no-repro) `recordShowcaseViewed` — whitespace scenario slug no-op skips App Insights but still sets Clarity tags — **cheap-disproof 2026-10-30 thorough hunt #4:** blank scenarios return before either telemetry path; regression `recordShowcaseViewed is a no-op when scenario trims to empty`.
+
+2026-10-30 thorough hunt #3 (dry): cheap-disproof closed five open `(monitor)` `(candidate)` rows — SampleOnly status effect keeps `result === null` guard (`does not auto-load sample when SampleOnly status arrives after a real analysis result exists`); POST start bumps `sampleRequestGenerationRef` so cancelled submits still drop stale samples (`invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled`) and aborted POST bodies never commit (`does not apply analysis results after cancelSubmit aborts an in-flight POST`); artifact nav click intentionally sets `aria-current` before scroll (`marks the clicked artifact nav button active when scrollIntoView runs`); SSR helpers return shared `server` placeholder without client ids (`returns server placeholders when window is unavailable during SSR`); distinct invalid `%` slugs stay distinct analytics keys (`maps distinct invalid percent-encoding run ids to distinct analytics scenarios`). Reseeded five follow-on `(candidate)` rows. 31 scoped vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) duplicate rows — the five monitor candidates were already closed by thorough hunt #4; no open hypotheses remain from this reseed block.
+
+- [x] (valid-no-repro) `useQuickScanClient` auto-sample effect — capacity flips SampleOnly after a real POST result still triggers sample load — **cheap-disproof 2026-10-30 thorough hunt #3:** `result === null` guard; regression `does not auto-load sample when SampleOnly status arrives after a real analysis result exists`.
+- [x] (valid-no-repro) `useQuickScanClient.onSubmit` — POST abort does not bump sample generation — **cheap-disproof 2026-10-30 thorough hunt #3:** POST start bumps generation; cancel uses `AbortError`; regressions `invalidates an in-flight sample when analysis POST starts even if the POST is later cancelled` and `does not apply analysis results after cancelSubmit aborts an in-flight POST`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — scrollToSection sets active before smooth scroll completes — **cheap-disproof 2026-10-30 thorough hunt #3:** intentional immediate highlight; regression `marks the clicked artifact nav button active when scrollIntoView runs`.
+- [x] (invalid) `ensureSessionId` — server render returns literal `server` for both helpers — **cheap-disproof 2026-10-30 thorough hunt #3:** shared SSR placeholder by design; regression `returns server placeholders when window is unavailable during SSR`.
+- [x] (invalid) `ShowcasePageTelemetry` — distinct malformed `%` slugs share one analytics scenario string — **cheap-disproof 2026-10-30 thorough hunt #3:** invalid `%` prefixes stay distinct; regression `maps distinct invalid percent-encoding run ids to distinct analytics scenarios`.
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — overlapping `showSampleResult` may issue parallel sample fetches but applies only the latest generation and one telemetry event (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles` asserts duplicate fetch count); invalid `%` run segments keep trimmed slug for telemetry by design (`resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`); missing artifact nav target leaves prior `aria-current` unchanged (`keeps aria-current on the prior section when a nav click targets a removed section`); volatile browser id stable per tab when storage throws (`reuses the same volatile browser id when localStorage writes fail`; separate from session id by design); distinct blank run ids share `unknown` analytics bucket intentionally (`maps distinct whitespace-only run ids to the same unknown analytics scenario`). Reseeded five follow-on `(candidate)` rows. 24 scoped marketing vitest tests in touched suites passed; no production code changed.
+
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — third rapid activation after first fetch settles starts a fresh sample load — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional refresh + telemetry; regression `applies the latest sample when showSampleResult runs again after an earlier sample fetch completes`.
+- [x] (valid-no-repro) `loadSampleResult` — sample fetch omits abort signal so stale responses still parse — **cheap-disproof 2026-10-30 thorough hunt #2:** generation guard discards superseded JSON; regression `does not pass an abort signal to the quick-scan sample fetch and still ignores superseded responses`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav` — intersection observer keeps active id for removed DOM node until another section intersects — **cheap-disproof 2026-10-30 thorough hunt #2:** ratio zero callbacks move highlight; regression `moves aria-current when the observer reports the prior active section left the viewport`.
+- [x] (invalid) `ensureSessionId` / `ensureBrowserId` — volatile ids differ from each other in private mode — **cheap-disproof 2026-10-30 thorough hunt #2:** separate session vs browser caches are intentional; regression `issues distinct volatile session and browser ids when localStorage is unavailable`.
+- [x] (valid-no-repro) `ShowcasePageTelemetry` — malformed `%` run id records showcase_viewed with raw trimmed slug — **cheap-disproof 2026-10-30 thorough hunt #2:** intentional slug fallback path; regression `records showcase_viewed with the trimmed slug when percent-encoding in the run id is invalid`.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed four open `(candidate)` rows — overlapping `showSampleResult` guarded by `sampleRequestGenerationRef` and single telemetry (`records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`); blank showcase run ids map to `unknown` and still record viewed (`resolveShowcaseScenarioSlug maps blank run ids to unknown`, `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`); missing artifact section nav click no-ops safely (`does not throw when artifact section is removed before nav click`; buyer body always mounts sections); volatile Quick Scan session id stable per tab when storage throws (`reuses the same volatile session id when localStorage writes fail`; no capacity messaging change by design). Reseeded five follow-on `(candidate)` rows. 20 scoped marketing vitest tests in touched suites passed; no production code changed.
 
 2026-10-11 seed hunt (seed-only): re-read Quick Scan browser/session identity helpers, sample loading and submit lifecycle, showcase telemetry, and the demo artifact body; no fresh row met the same-run hunt-ready bar. Seeded five bounded candidates for whitespace-padded browser identifiers, overlapping sample-result requests, status-transition sample overwrite, duplicate showcase-view telemetry on render-mode changes, and missing optional artifact sections. Three focused artifact-navigation suites passed 6/6; no production or regression code changed.
@@ -7799,11 +8212,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 35
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
+- **hunts:** 55
+- **bugs-found:** 48
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Pricing quote email format validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7817,6 +8230,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `recordMarketingHeroCtaClarityEvent` — a failing Clarity implementation interrupts CTA analytics — **hit 2026-10-30 seed hunt #76:** catch analytics provider failures so CTA analytics becomes best-effort; regression `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`.
+- [x] (proven) `recordMarketingHeroCtaClarityEvent` — denied browser storage throws during consent lookup — **hit 2026-10-30 thorough hunt #75:** catch storage access failures and no-op analytics; regression `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`.
+- [x] (proven) `MarketingResourcesMenu` — Escape closes the menu without restoring focus to the trigger — **hit 2026-10-30 thorough hunt #73:** focus the trigger after Escape closes the menu; regression `returns focus to the Resources trigger when Escape closes the menu` in `MarketingResourcesMenu.test.tsx`.
+- [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.
+- [x] (proven) `MarketingFaqPageToc` category links — smooth-scroll interception drops the destination hash — **hit 2026-10-30 seed hunt #68:** write the category fragment with `history.pushState` before scrolling; regression `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`.
+- [x] (proven) `MarketingPricingQuotePanel.onSubmit` — non-2xx quote responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #67:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the customer-facing error` in `MarketingPricingQuotePanel.test.tsx`.
+- [x] (proven) `SignupVerifyClient.refreshTrialStatus` — an older background poll could overwrite a newer manual verification check — **hit 2026-10-30 seed hunt #66:** gate status commits by a monotonically increasing request generation; regression `does not let an older background poll override a newer manual check` in `SignupVerifyClient.test.tsx`.
 - [x] (proven) `ensureSessionId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Session` — **hit 2026-10-15 thorough hunt:** trim + rewrite storage in `quick-scan-session.ts`; regression `ensureSessionId trims whitespace-padded localStorage values before returning them`.
 - [x] (proven) `ensureBrowserId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Browser` — **hit 2026-10-15 thorough hunt:** same normalization path; regression `ensureBrowserId trims whitespace-padded localStorage values before returning them`.
 - [x] (proven) `useQuickScanClient.showSampleResult` — overlapping sample requests commit in completion order — **hit 2026-10-15 thorough hunt:** `sampleRequestGenerationRef` ignores stale responses; regression `ignores stale sample responses when a newer sample request was started`.
@@ -7827,11 +8247,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `recordShowcaseViewed` — empty scenario slug skips telemetry — **cheap-disproof 2026-10-29 thorough hunt:** `resolveShowcaseScenarioSlug` maps blank run ids to `unknown`; regressions `resolveShowcaseScenarioSlug maps blank run ids to unknown` and `ShowcasePageTelemetry records showcase_viewed with unknown scenario for whitespace run ids`.
 - [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing target without feedback — **cheap-disproof 2026-10-29 thorough hunt:** intentional no-op when section absent; regression `does not throw when artifact section is removed before nav click`.
 - [x] (valid-no-repro) `ensureSessionId` volatile fallback without operator hint — **cheap-disproof 2026-10-29 thorough hunt:** volatile id stable within tab; regression `reuses the same volatile session id when localStorage writes fail`.
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — locus: no in-flight dedupe; input: rapid double activation (monitor cost/abuse).
-- [ ] (candidate) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — locus: `resolveShowcaseScenarioSlug` catch branch; input: invalid percent-encoding (monitor).
-- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — locus: early return before `setActiveId`; input: DOM removal after observer priming (monitor).
-- [ ] (candidate) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — locus: parallel volatile helpers; input: private mode navigation (monitor).
-- [ ] (candidate) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — locus: blank run id mapping; input: product analytics contract (monitor).
+- [x] (valid-no-repro) `useQuickScanClient.showSampleResult` — duplicate sample fetches still run when operators double-click before settle — **cheap-disproof 2026-10-30 thorough hunt:** latest generation wins; regression asserts two sample fetches with one telemetry event in `records sample viewed telemetry once when showSampleResult is invoked twice before the first fetch settles`.
+- [x] (valid-no-repro) `recordShowcaseViewed` — malformed `%` run ids decode to trimmed slug still emitting telemetry — **cheap-disproof 2026-10-30 thorough hunt:** intentional slug fallback; regression `resolveShowcaseScenarioSlug returns trimmed slug when percent-encoding is invalid`.
+- [x] (valid-no-repro) `DemoPreviewArtifactNav.scrollToSection` — missing section leaves stale `aria-current` on nav button — **cheap-disproof 2026-10-30 thorough hunt:** no-op scroll preserves prior active id; regression `keeps aria-current on the prior section when a nav click targets a removed section`.
+- [x] (valid-no-repro) `ensureBrowserId` — volatile browser id resets separately from session id when storage throws — **cheap-disproof 2026-10-30 thorough hunt:** separate volatile caches are intentional; regression `reuses the same volatile browser id when localStorage writes fail`.
+- [x] (invalid) `ShowcasePageTelemetry` — `unknown` scenario bucket conflates distinct malformed run ids in analytics — **cheap-disproof 2026-10-30 thorough hunt:** whitespace-only run ids intentionally collapse to `unknown`; regression `maps distinct whitespace-only run ids to the same unknown analytics scenario`.
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
@@ -8653,6 +9073,37 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+
+2026-10-30 seed hunt #63 (seed→hit): promoted `FindingInspectReasoningPayloadDetails` — the lazy typed-payload request could commit after navigation to another finding, and its URL toggle path also referenced missing navigation helpers; guard responses by active run/finding identity, reset payload state on identity changes, and restore the helper imports; regression `does not commit a lazy payload response after navigating to another finding`; focused suite 2/2. Cheap-disproof closed the `RunDetailNextReviewFooterClient` stale-response lens because effect cleanup prevents the prior request from committing after review navigation. Seeded two bounded follow-on candidates. Private beta: invited architects switching findings no longer see a prior finding’s structured evaluation payload appear in the next finding, and the operator disclosure controls no longer fail at runtime.
+
+- [x] (valid-no-repro) `RunDetailNextReviewFooterClient` — prior project-runs response replaces the next-review footer after review navigation — **cheap-disproof 2026-10-30 seed hunt #62:** the effect cleanup flips the mounted guard before the new run request, so the prior response does not commit; temporary deferred-response repro passed.
+- [x] (proven) `FindingInspectReasoningPayloadDetails` — lazy typed-payload response commits into a different finding after cross-finding navigation — **hit 2026-10-30 seed hunt #63:** guard the awaited response by active run/finding identity, reset lazy payload state on identity changes, and restore missing `commitHrefIfChanged` / `readWindowLocationSearch` imports; regression above. Private beta: invited architects switching findings no longer see a prior finding’s structured evaluation payload appear in the next finding, and the operator disclosure controls no longer fail at runtime.
+- [ ] (candidate) `RunDetailArtifactsExportsSection` — an export completion from a prior review clears busy state for a new review after navigation — locus: download callbacks set shared busy flags after `await` without a run identity guard; input: start package export, navigate to another review before download settles; wrong outcome: the new review's export controls re-enable or report completion for the wrong run.
+- [ ] (candidate) `run-detail-page-presentation` — omitted `currentManifestVersion` and a manifest summary version disagree on package-version display after presentation rebuild — locus: `derivePackageVersionLabel(model.resolvedDetail.run, model.manifestId)` versus manifest-summary data; input: finalized run with manifest id and summary version but missing run version; wrong outcome: package metadata loses a stored version or shows “not recorded.”
+
+2026-10-30 thorough hunt #61 (hit): promoted `ReviewAgentExecutionLogSection` — execution rows were sorted lexicographically by raw `createdUtc`, so equivalent timestamps with different offsets could display in the wrong chronology; sort valid timestamps by parsed instant with a lexical fallback for malformed values; regression `orders execution rows by instant when createdUtc values use different offsets`; `ReviewAgentExecutionLogSection.url-sync.test.tsx` 3/3. Private beta: invited architects reviewing an agent execution history now see rows in actual event chronology even when persisted timestamps use different UTC offsets.
+
+2026-10-30 seed hunt #48 (hit): promoted `ReviewAskDock` — completed answer turns persisted across cross-review soft navigation because the dock had no `runId` reset or stale-response guard, so the next review displayed the prior review's answer and could scope follow-up citations to the new review; reset review-scoped Ask state on `runId` changes and ignore late responses from an old run; regression `does not keep the prior review's answer visible after soft navigation to another review`; Ask dock focused suite 8/8. Private beta: invited architects switching reviews after asking a grounded question no longer see the prior review's answer carried into the new review or risk acting on mismatched citation scope.
+
+- [x] (proven) `ReviewAskDock` — Ask answer turns survive `runId` changes and old responses can commit into the next review — **hit 2026-10-30 seed hunt:** reset turns/thread/question/error state on `runId` changes, ignore responses whose request run no longer matches the active review, and retain the regression above.
+- [ ] (candidate) `ReviewChainOfCustodySection` — closing a default-open custody disclosure reopens both sections when no URL section key is present — locus: `isSectionOpen` default fallback; input: operator closes “Who and when” without `reviewChainOfCustodySection` in the review URL; wrong outcome: the section cannot remain closed.
+- [x] (proven) `ReviewAgentExecutionLogSection` — agent execution rows sort incorrectly when API `createdUtc` values use equivalent timestamps with different offsets — **hit 2026-10-30 thorough hunt #61:** compare parsed timestamp instants and retain a lexical fallback for malformed values; regression above. Private beta: invited architects reviewing an agent execution history now see rows in actual event chronology even when persisted timestamps use different UTC offsets.
+
+2026-10-30 thorough hunt #59 (dry): the two remaining review-workspace candidates again passed the focused chain-of-custody and execution-log suites 4/4; no failing repro or production change.
+
+2026-10-30 thorough hunt #51 (dry): the two unpromoted monitor rows again passed the chain-of-custody and execution-log URL-sync suites 4/4; no failing repro or production change.
+
+2026-10-30 thorough hunt #50 (dry): repeated the focused disproof pass for the two unpromoted monitor rows; the chain-of-custody and execution-log URL-sync suites passed 4/4, with no failing repro and no production change.
+
+2026-10-30 thorough hunt #49 (dry): the two seeded monitor rows were reviewed against their concrete loci and their existing URL-sync suites passed 4/4; neither row was hunt-ready for this thorough pass, so no failing repro or production change was claimed.
+
+2026-10-30 thorough hunt #47 (dry): cheap-disproof closed five open `(candidate)` rows — governance confirmation, technology rationale, first-screen proof, More sections, and assessment narrative disclosures all reconcile URL changes through `useSearchParams` without requiring `popstate`; 13 focused URL-sync tests passed and no production code changed.
+
+- [x] (valid-no-repro) `RunDetailRunGovernanceDispositionActions` — stale confirmation state after review navigation — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDispDecision query changes without a popstate event`; URL-derived state clears through the `useSearchParams` effect.
+- [x] (valid-no-repro) `TechnologyBaselinePanel` — rationale dialog remains open after `techEntryId` is removed — **cheap-disproof 2026-10-30 thorough hunt #47:** `closes the rationale dialog when techEntryId is removed from useSearchParams without a popstate event`.
+- [x] (valid-no-repro) `RunDetailFirstScreenProofStatus` — proof details remain open after the query flag is cleared — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runDetailFirstScreenProofOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `ReviewWorkspaceMoreTabsMenu` — More sections remains open after the query flag changes — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows reviewMoreTabsOpen query changes without a popstate event`.
+- [x] (valid-no-repro) `RunDetailRunExplanationCollapsible` — assessment narrative remains open after query synchronization — **cheap-disproof 2026-10-30 thorough hunt #47:** `follows runAssessmentNarrativeOpen query changes without a popstate event`.
 
 2026-10-29 seed hunt (seed→hit): promoted `RunDetailRunGovernanceDispositionActions` — opening Approve/Reject/Request remediation confirm wrote `runDispDecision` from `readWindowLocationSearch()`, so after cross-review soft navigation the confirm dialog could merge stale findings-toolbar query keys from the lagging address bar; base href writes on `useSearchParams`; regression `writes governance disposition confirm from useSearchParams when window.location.search lags after soft navigation`; governance disposition url-sync vitest 2/2. Private beta: invited architects recording run-level governance disposition no longer inherit stale review query params when opening the confirm dialog after in-app navigation.
 
@@ -12099,18 +12550,36 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-10-30 thorough hunt #43 (dry): cheap-disproof closed the three seeded candidates — specialty walkthrough heading/TOC parity is covered by `drops specialty walkthrough claim TOC row`, empty visible claims are explicitly covered by the evidence-orientation regression, and policy alias behavior is covered by the legacy alias tests. Focused claim-discipline and orientation suites passed 40/40; no production code changed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — **cheap-disproof 2026-10-30 thorough hunt #43:** `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band` covers the omitted-band heading filter.
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — **cheap-disproof 2026-10-30 thorough hunt #43:** `still renders an empty claim callout shell when claim prop is an empty string on a visible slug` establishes the intentional shell behavior.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — **cheap-disproof 2026-10-30 thorough hunt #43:** legacy alias coverage in `claim-discipline-policy.test.ts` exercises the mapped omit decisions.
+
+2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
+
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
+
+2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — specialty walkthrough help keeps claim TOC row while `help-specialty-walkthroughs` omits bottom band and header owns claim — **cheap-disproof 2026-10-30 thorough hunt #2:** catalog TOC excludes claim heading; policy regression `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`.
+- [x] (invalid) `EvidenceOrientationClaimAndSourcesStrip` — visible slug with empty-string claim prop suppresses callout while sources remain — **cheap-disproof 2026-10-30 thorough hunt #2:** empty claim still renders callout shell; regression `still renders an empty claim callout shell when claim prop is an empty string on a visible slug`.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly added help registry slug missing from omit set while header claim strip renders — **cheap-disproof 2026-10-30 thorough hunt #2:** registry scan found zero help topics with header claim missing omit coverage.
+
 2026-10-10 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its live strip callers, and focused tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded four bounded `(candidate)` rows for static legacy alias drift, omitted live guide slugs, claim-heading id drift, and empty claim inputs. The focused policy suite passed 28/28.
 
 - **id:** ui-claim-discipline-policy
-- **status:** open
+- **status:** exhausted
 - **impact:** medium
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 40
+- **hunts:** 43
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -12166,11 +12635,11 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `resolveStripSlugForOmitPolicy` exact alias lookup — a live `EvidenceOrientationClaimCallout` caller can pass a newly retained legacy strip slug that is not mapped to its canonical omitted registry slug, leaving a duplicate claim band reachable; verify against current strip props and registry entries before promoting.
+- [x] (valid-no-repro) `resolveStripSlugForOmitPolicy` exact alias lookup — live legacy strip slugs unmapped to canonical omitted registry slugs — **cheap-disproof 2026-10-30 thorough hunt:** automated orientation `slug` scan found zero alias gaps; regressions `omits legacy orientation strip slug aliases that differ from registry help-topic slugs` and connect/cloud alias cases.
 - [x] (proven) `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — TOC listed `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` is omitted and the header claim strip has no matching anchor — **hit 2026-10-29 thorough hunt:** `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions in `HelpConnectAwsSecurelyGuideView.test.tsx` and `claim-discipline-policy.test.ts`
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — a live help guide whose header owns claim discipline can pass its registry slug without an omit-set entry, leaving its orientation strip visible; compare current guide/header composition against the set before promoting.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` coverage — live help guide whose header owns claim discipline passes registry slug without omit-set entry — **cheap-disproof 2026-10-30 thorough hunt:** non-omitted help slugs (e.g. `help-governance-infrastructure-drift`) intentionally render sole claim via orientation strip; regression `passes governance infrastructure drift help claim through for visible-band orientation slug`.
 - [x] (proven) `resolveGuideHeadingsForStrip` / `HelpPreferencesGuideView` — preferences TOC kept claim heading link while `help-preferences` omits bottom band and header strip lacks anchor — **hit 2026-10-21 thorough hunt lane C:** filtered `guideHeadings`; regression in `HelpPreferencesGuideView.test.tsx`.
-- [ ] (candidate) `resolveClaimDisciplineForStrip` undefined claim passthrough — a live visible-band caller can receive an empty or undefined claim from a guide-specific evidence constant and silently render no claim band; trace the actual claim props before promoting.
+- [x] (valid-no-repro) `resolveClaimDisciplineForStrip` undefined claim passthrough — visible-band caller receives empty or undefined claim and silently renders no claim band — **cheap-disproof 2026-10-30 thorough hunt:** intentional for sources-only visible strips; regression `allows undefined claim passthrough on visible slugs when callers omit copy`.
 
 - [x] (proven) `HelpTeamsIntegrationGuideView` / `TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS` — claim TOC entry `#help-teams-integration-claim-discipline-heading` survived while `help-teams-integration` is omitted and claim renders only in header strip without matching anchor — **hit 2026-09-12 seed hunt #1949:** fixed with `resolveGuideHeadingsForStrip`; regression `omits claim-discipline TOC link when header strip owns the claim band`
 

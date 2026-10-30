@@ -800,6 +800,151 @@ namespace N
     await RunInnerLayerTestAsync(testCode, expected);
   }
 
+  [Fact]
+  public async Task Reports_ref_readonly_HttpContext_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(ref readonly {|#0:HttpContext|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_in_HttpContext_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(in {|#0:HttpContext|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_params_HttpContext_array_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(params {|#0:HttpContext|}[] contexts) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_out_HttpContext_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(out {|#0:HttpContext|} context)
+        {
+            {|#1:context|} = null!;
+        }
+    }
+}
+""";
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    DiagnosticResult expectedAssignment = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(1)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expectedParameter, expectedAssignment);
+  }
+
+  [Fact]
+  public async Task Reports_ref_HttpContext_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(ref {|#0:HttpContext|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_scoped_HttpContext_parameter()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(scoped ref {|#0:HttpContext|} context) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("Microsoft.AspNetCore.Http.HttpContext");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
   private static Task RunInnerLayerTestAsync(string testCode, params DiagnosticResult[] expectedDiagnostics) =>
       RunTestAsync(testCode, InnerLayerAssemblyNameTransform, expectedDiagnostics);
 

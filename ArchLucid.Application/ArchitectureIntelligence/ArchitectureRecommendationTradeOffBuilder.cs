@@ -91,10 +91,10 @@ internal static class ArchitectureRecommendationTradeOffBuilder
                 declaredPriorities,
                 firstDimension,
                 secondDimension,
-                out bool explicitPrefersFirstDimension))
+                out DeclaredPairChoice pairChoice))
         {
-            prefersFirst = explicitPrefersFirstDimension;
-            prefersSecond = !explicitPrefersFirstDimension;
+            prefersFirst = pairChoice == DeclaredPairChoice.PreferFirst;
+            prefersSecond = pairChoice == DeclaredPairChoice.PreferSecond;
         }
         else
         {
@@ -124,6 +124,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             ResolutionRationale = BuildResolutionRationale(
                 prefersFirst,
                 prefersSecond,
+                pairChoice == DeclaredPairChoice.Balanced,
                 firstDimension,
                 secondDimension),
             RequiresHumanApproval = true,
@@ -164,12 +165,18 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static string BuildResolutionRationale(
         bool prefersFirst,
         bool prefersSecond,
+        bool explicitlyBalanced,
         QualityDimension firstDimension,
         QualityDimension secondDimension)
     {
         if (prefersFirst || prefersSecond)
         {
             return $"Declared priorities were used to resolve competing {firstDimension} and {secondDimension} findings.";
+        }
+
+        if (explicitlyBalanced)
+        {
+            return $"Declared priorities kept competing {firstDimension} and {secondDimension} findings balanced.";
         }
 
         return $"No declared priority selected {firstDimension} or {secondDimension}, so the competing findings stay balanced.";
@@ -261,14 +268,21 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             @"\bprice\s+of\s+(?:security|reliability|operations|compliance)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    private enum DeclaredPairChoice
+    {
+        Unresolved,
+        PreferFirst,
+        PreferSecond,
+        Balanced,
+    }
+
     private static bool TryResolveDeclaredPairPrecedence(
         IReadOnlyList<string> declaredPriorities,
         QualityDimension firstDimension,
         QualityDimension secondDimension,
-        out bool prefersFirstDimension)
+        out DeclaredPairChoice pairChoice)
     {
-        prefersFirstDimension = false;
-        bool found = false;
+        pairChoice = DeclaredPairChoice.Unresolved;
         string firstToken = firstDimension.ToString();
         string secondToken = secondDimension.ToString();
 
@@ -277,32 +291,53 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (string.IsNullOrWhiteSpace(priority))
                 continue;
 
-            Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+            DeclaredPairChoice? thisPriority = ResolvePairChoiceInPriority(
+                priority,
+                firstToken,
+                secondToken);
 
-            if (!match.Success)
-                match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
+            if (thisPriority is not null)
+                pairChoice = thisPriority.Value;
+        }
 
-            if (!match.Success)
-                continue;
+        return pairChoice != DeclaredPairChoice.Unresolved;
+    }
 
+    // Later priority strings overwrite earlier ones. A string whose only relevant pair is negated
+    // clears an earlier preference so "Security over Cost" then "Do not prefer Security over Cost"
+    // stays balanced. Inside one string, the first non-negated relevant pair still wins.
+    private static DeclaredPairChoice? ResolvePairChoiceInPriority(
+        string priority,
+        string firstToken,
+        string secondToken)
+    {
+        bool sawNegatedRelevantPair = false;
+
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+        {
             string left = match.Groups[1].Value;
             string right = match.Groups[2].Value;
 
-            if (left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
-                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase))
+            bool prefersFirst = left.Equals(firstToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(secondToken, StringComparison.OrdinalIgnoreCase);
+            bool prefersSecond = left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
+                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase);
+
+            if (!prefersFirst && !prefersSecond)
+                continue;
+
+            if (IsNegatedDimensionMention(priority, left))
             {
-                prefersFirstDimension = true;
-                found = true;
+                sawNegatedRelevantPair = true;
+                continue;
             }
-            else if (left.Equals(secondToken, StringComparison.OrdinalIgnoreCase)
-                && right.Equals(firstToken, StringComparison.OrdinalIgnoreCase))
-            {
-                prefersFirstDimension = false;
-                found = true;
-            }
+
+            return prefersFirst
+                ? DeclaredPairChoice.PreferFirst
+                : DeclaredPairChoice.PreferSecond;
         }
 
-        return found;
+        return sawNegatedRelevantPair ? DeclaredPairChoice.Balanced : null;
     }
 
     private static bool IsCostTokenInHyphenatedCompoundAdjective(string priority)
@@ -330,12 +365,9 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     {
         prefersDimension = false;
 
-        Match? match = ExplicitDimensionOverDimensionPattern().Match(priority);
+        Match? match = FirstExplicitDimensionPairMatch(priority);
 
-        if (!match.Success)
-            match = ExplicitDimensionBeforeDimensionPattern().Match(priority);
-
-        if (!match.Success)
+        if (match is not { Success: true })
             return false;
 
         string left = match.Groups[1].Value;
@@ -364,7 +396,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             return false;
 
         if (dimensionToken.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
-            && UnreliabilityNegationPattern().IsMatch(priority))
+            && UnreliabilityNegationPattern().IsMatch(priority)
+            && !HasExplicitReliabilityPair(priority))
         {
             return true;
         }
@@ -453,18 +486,65 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 
+    // A later "over" must not hide an earlier "before" in the same priority string.
+    private static Match? FirstExplicitDimensionPairMatch(string priority)
+    {
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+            return match;
+
+        return null;
+    }
+
+    private static List<Match> ExplicitDimensionPairMatches(string priority)
+    {
+        List<Match> matches = [];
+
+        foreach (Match match in ExplicitDimensionOverDimensionPattern().Matches(priority))
+            matches.Add(match);
+
+        foreach (Match match in ExplicitDimensionBeforeDimensionPattern().Matches(priority))
+            matches.Add(match);
+
+        matches.Sort(static (left, right) => left.Index.CompareTo(right.Index));
+
+        return matches;
+    }
+
+    // Position labels are "{dimension}-first" ("security-first over cost-first"). The suffix
+    // sits between the dimension and over/before, so a bare dimension token never matches.
+    private const string ExplicitDimensionToken = "Security|Cost|Reliability";
+
+    private const string ExplicitDimensionFirstSuffix =
+        @"(?:[-\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]first)?";
+
     private static Regex ExplicitDimensionOverDimensionPattern() =>
         new(
-            @"\b(Security|Cost|Reliability)\s+over\s+(Security|Cost|Reliability)\b",
+            $@"\b({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\s+over\s+({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static Regex ExplicitDimensionBeforeDimensionPattern() =>
         new(
-            @"\b(Security|Cost|Reliability)\s+before\s+(Security|Cost|Reliability)\b",
+            $@"\b({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\s+before\s+({ExplicitDimensionToken}){ExplicitDimensionFirstSuffix}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     private static Regex UnreliabilityNegationPattern() =>
         new(@"\bunreliability\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    // "Reduce unreliability" must not select Reliability by itself. The same word must not
+    // cancel an explicit "Reliability over Cost" pair that names the hazard being reduced.
+    private static bool HasExplicitReliabilityPair(string priority)
+    {
+        foreach (Match match in ExplicitDimensionPairMatches(priority))
+        {
+            if (match.Groups[1].Value.Equals("Reliability", StringComparison.OrdinalIgnoreCase)
+                || match.Groups[2].Value.Equals("Reliability", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static bool IsActionableForTradeOff(SpecialistReviewFinding finding)
     {
@@ -486,11 +566,15 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             if (finding.Dimension != dimension || !IsActionableForTradeOff(finding))
                 continue;
 
+            string expectedRecommendationId = ArchitectureRecommendationStableId.FromFinding(
+                finding,
+                ArchitectureRecommendationProposedChange.Build(finding));
+
             ArchitectureRecommendation? match = recommendations.FirstOrDefault(
-                recommendation => recommendation.AffectedRequirementOrQualityAttribute.Equals(
-                    dimensionLabel,
-                    StringComparison.Ordinal)
-                    && string.Equals(recommendation.Problem, finding.Title, StringComparison.Ordinal));
+                recommendation => string.Equals(
+                    recommendation.RecommendationId,
+                    expectedRecommendationId,
+                    StringComparison.Ordinal));
 
             if (match is not null)
                 return match;

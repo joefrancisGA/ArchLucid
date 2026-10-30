@@ -32,6 +32,18 @@ internal static class ManifestPostureListHonesty
 
     internal const string ComplianceControlsStoredEmpty = "Compliance controls were stored as an empty list.";
 
+    internal const string SecuritySectionNotStored = "Security section was not stored.";
+
+    internal const string SecurityPostureNotStored = "Security posture was not stored.";
+
+    internal const string SecurityPostureStoredEmpty = "Security posture was stored as an empty list.";
+
+    internal const string SecurityControlsNotStored = "Security controls were not stored.";
+
+    internal const string SecurityControlsStoredEmpty = "Security controls were stored as an empty list.";
+
+    internal const string SecurityGapsNotStored = "Security gaps were not stored.";
+
     internal static void AppendRequirementsCoverageSection(StringBuilder sb, RequirementsCoverageSection? requirements)
     {
         ArgumentNullException.ThrowIfNull(sb);
@@ -160,6 +172,99 @@ internal static class ManifestPostureListHonesty
         }
 
         return written;
+    }
+
+    internal static void AppendSecurityPostureSection(StringBuilder sb, SecuritySection? security, bool referenceStyle)
+    {
+        ArgumentNullException.ThrowIfNull(sb);
+
+        if (security is null)
+        {
+            sb.AppendLine(referenceStyle ? $"- {SecurityPostureNotStored}" : SecurityPostureNotStored);
+            return;
+        }
+
+        IReadOnlyList<SecurityPostureItem>? controls = security.Controls;
+        IReadOnlyList<string>? gaps = security.Gaps;
+
+        if (controls is null && gaps is null)
+        {
+            sb.AppendLine(referenceStyle ? $"- {SecurityPostureNotStored}" : SecurityPostureNotStored);
+            return;
+        }
+
+        if (controls is null)
+        {
+            sb.AppendLine(referenceStyle ? $"- {SecurityControlsNotStored}" : SecurityControlsNotStored);
+        }
+        else if (controls.Count == 0)
+        {
+            sb.AppendLine(
+                referenceStyle ? $"- {SecurityControlsStoredEmpty}" : SecurityControlsStoredEmpty);
+        }
+        else
+        {
+            foreach (SecurityPostureItem control in controls)
+            {
+                if (referenceStyle)
+                {
+                    string controlId = Docx.DocxManifestFieldPresentation.FormatManifestTableCell(
+                        control.ControlId,
+                        "Control id");
+                    string controlName =
+                        Docx.DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                    string impact = Docx.DocxManifestFieldPresentation.FormatManifestTableCell(
+                        control.Impact,
+                        "Impact");
+                    string status = Docx.DocxManifestFieldPresentation.FormatManifestTableCell(
+                        control.Status,
+                        "Control status");
+                    sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
+                }
+                else
+                {
+                    string controlId = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                        control.ControlId,
+                        ArchitectureManifestNarrativeHonestyCopy.ControlIdNotStored);
+                    string controlName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                        control.ControlName,
+                        ArchitectureManifestNarrativeHonestyCopy.ControlNameNotStored);
+                    string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        control.Impact,
+                        "Impact was not stored.",
+                        "Impact was stored empty.");
+                    string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        control.Status,
+                        ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                        ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
+                    sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
+                }
+            }
+        }
+
+        if (gaps is null)
+        {
+            sb.AppendLine(referenceStyle ? $"- {SecurityGapsNotStored}" : SecurityGapsNotStored);
+        }
+        else if (gaps.Count == 0)
+        {
+            if (controls is not null && controls.Count == 0)
+            {
+                sb.AppendLine(
+                    referenceStyle ? $"- {SecurityPostureStoredEmpty}" : SecurityPostureStoredEmpty);
+            }
+        }
+        else
+        {
+            foreach (string gap in gaps)
+            {
+                if (referenceStyle)
+                    sb.AppendLine($"- Gap: {gap}");
+                else
+                    sb.AppendLine(
+                        $"- Security Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Security gap was not stored.", "Security gap was stored empty.")}");
+            }
+        }
     }
 
     internal static void AppendCompliancePostureSection(StringBuilder sb, ComplianceSection? compliance, bool referenceStyle)

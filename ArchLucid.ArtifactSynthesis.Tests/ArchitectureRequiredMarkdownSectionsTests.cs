@@ -306,7 +306,10 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         string markdown = sb.ToString();
         markdown.Should().Contain("Topology section was not stored.");
         markdown.Should().Contain("Security section was not stored.");
-        markdown.Should().Contain("Operational considerations were not stored.");
+        markdown.Should().Contain("## Operational Considerations");
+        markdown.Should().Contain("Cost and unresolved issues were not stored.");
+        markdown.Should().Contain("Compliance posture was stored as an empty list.");
+        markdown.Should().NotContain("Operational considerations were not stored.");
         markdown.Should().NotContain("Data-plane resource:");
     }
 

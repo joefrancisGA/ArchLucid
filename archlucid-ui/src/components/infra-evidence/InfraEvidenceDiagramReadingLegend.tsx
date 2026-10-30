@@ -8,10 +8,14 @@ export function InfraEvidenceDiagramReadingLegend(props: {
   readonly mode: string;
   readonly executiveOverflowStripped?: boolean;
   readonly crossGroupFanOutIncluded?: boolean;
+  readonly executiveFirstTwelveDrawn?: boolean;
+  readonly dataFlowHasObservedInLogs?: boolean;
 }): React.JSX.Element {
   const lines = resolveInfraEvidenceDiagramReadingLegend(props.mode, {
     executiveOverflowStripped: props.executiveOverflowStripped,
     crossGroupFanOutIncluded: props.crossGroupFanOutIncluded,
+    executiveFirstTwelveDrawn: props.executiveFirstTwelveDrawn,
+    dataFlowHasObservedInLogs: props.dataFlowHasObservedInLogs,
   });
 
   return (
@@ -25,6 +29,9 @@ export function InfraEvidenceDiagramReadingLegend(props: {
         <li data-testid="infra-evidence-diagram-reading-legend-boxes">{lines.boxes}</li>
         <li data-testid="infra-evidence-diagram-reading-legend-connectors">{lines.connectors}</li>
         <li data-testid="infra-evidence-diagram-reading-legend-evidence-kind">{lines.evidenceKind}</li>
+        {lines.scopeNote ? (
+          <li data-testid="infra-evidence-diagram-reading-legend-scope-note">{lines.scopeNote}</li>
+        ) : null}
       </ul>
     </section>
   );

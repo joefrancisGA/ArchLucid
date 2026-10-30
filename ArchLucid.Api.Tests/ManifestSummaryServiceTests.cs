@@ -234,6 +234,9 @@ public sealed class ManifestSummaryServiceTests
                 StringSplitOptions.None)
             .Length - 1;
         count.Should().Be(2);
+        markdown.Should().Contain(
+            ArchitectureManifestMarkdownSummaryExport.FormatRelationshipsSummaryCapRemainderLine(
+                RelationshipStressPairCount - 2));
     }
 
     [SkippableFact]

@@ -52,4 +52,18 @@ describe("ShowcasePageTelemetry", () => {
       renderMode: "static",
     });
   });
+
+  it("records showcase_viewed with the trimmed slug when percent-encoding in the run id is invalid", () => {
+    render(
+      <ShowcasePageTelemetry runId="claims%" renderMode="api">
+        <div>child</div>
+      </ShowcasePageTelemetry>,
+    );
+
+    expect(recordShowcaseViewedMock).toHaveBeenCalledTimes(1);
+    expect(recordShowcaseViewedMock).toHaveBeenCalledWith({
+      scenario: "claims%",
+      renderMode: "api",
+    });
+  });
 });
