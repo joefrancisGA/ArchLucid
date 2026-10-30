@@ -599,6 +599,14 @@ internal static class SimpleTerraformResourceBlockParser
                 continue;
             }
 
+            string trimmedLine = line.TrimStart();
+
+            if (trimmedLine.StartsWith('#')
+                || trimmedLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             int heredocMarkerIndex = line.IndexOf("<<", StringComparison.Ordinal);
 
             if (heredocMarkerIndex < 0)
