@@ -164,8 +164,26 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableCompactIdentifierText(value))
+            .Where(static value => value is not null && HasUsableProseReferenceText(value))
             .ToList();
+    }
+
+    /// <summary>
+    ///     Policy references, topology hints, security baselines, and capability lines are sentences.
+    ///     Ordinary spaces stay. Whitespace other than U+0020 still fails because those consumers only trim the ends.
+    /// </summary>
+    private static bool HasUsableProseReferenceText(string? value)
+    {
+        if (!HasUsableIdentifierText(value))
+            return false;
+
+        foreach (char character in value!.Trim())
+        {
+            if (char.IsWhiteSpace(character) && character != ' ')
+                return false;
+        }
+
+        return true;
     }
 
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)

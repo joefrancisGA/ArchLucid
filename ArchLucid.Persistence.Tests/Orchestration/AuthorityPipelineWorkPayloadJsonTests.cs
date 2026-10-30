@@ -707,6 +707,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces()
+    {
+        Guid runId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "topologyHints": [
+                  "Prefer outbox or transactional inbox for consistency",
+                  "hint\u00A0with-nbsp"
+                ]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.TopologyHints.Should().Equal(
+            "Prefer outbox or transactional inbox for consistency");
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp()
     {
         Guid runId = Guid.Parse("16161616-1616-1616-1616-161616161616");
