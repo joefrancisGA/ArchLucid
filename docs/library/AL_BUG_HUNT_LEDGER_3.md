@@ -2403,7 +2403,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-30 thorough hunt #50 (hit): promoted blank source-context handling — a non-empty `sourceTexts` array with only whitespace contents was marked `loaded`, so the page showed loaded-intake messaging while the architecture description remained empty; require at least one trimmed source body before marking context loaded; regression `hasUsableArchitectureSourceText` rejects whitespace-only rows; focused helper suites passed 5/5. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
 
 - [x] (proven) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy — **hit 2026-10-30 thorough hunt #50:** product context is `loaded` only when a source body has non-whitespace content; regression above. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists; input: reasoning endpoint returns a structurally accepted result with no specialist reviews/findings; wrong outcome: checklist advances to complete while the reasoning workspace has no actionable result; mechanism: `analysisComplete` checks only `runState?.kind === "reasoning"`; reachability: architecture-intelligence run API response.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists — **cheap-disproof 2026-10-31 thorough hunt:** the shipped `hasActionableArchitectureIntelligenceResult` predicate rejects empty reasoning payloads; focused checklist regressions pass 5/5.
+
+2026-10-31 thorough hunt (dry): the only picker candidate was already closed by the current `hasActionableArchitectureIntelligenceResult` fix and 5/5 focused checklist regressions; no additional repro or production change. Private beta: n/a.
 
 2026-10-30 seed hunt #49 (seed-only): corrected candidate placement after hit #48; the two remaining source-context/result-state candidates remain untested and no new candidate was promoted in this pass.
 
@@ -2466,9 +2468,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — empty reasoning payload marked analysis complete
 - **related-pd-tb:** none
