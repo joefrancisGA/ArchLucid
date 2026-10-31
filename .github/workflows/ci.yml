@@ -652,6 +652,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_decision_velocity
 
+      - name: SecureNow stickiness
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_stickiness.py
+
+      - name: SecureNow stickiness unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_stickiness
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py

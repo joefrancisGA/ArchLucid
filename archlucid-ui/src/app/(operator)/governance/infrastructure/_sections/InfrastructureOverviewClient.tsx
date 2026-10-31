@@ -44,6 +44,7 @@ import { SecureNowComplianceHomeSection } from "@/components/product-line/Secure
 import { SecureNowDataSourcesHomeSection } from "@/components/product-line/SecureNowDataSourcesHomeSection";
 import { SecureNowFindingsHomeSection } from "@/components/product-line/SecureNowFindingsHomeSection";
 import { SecureNowReviewerHomeSection } from "@/components/product-line/SecureNowReviewerHomeSection";
+import { SecureNowReturnHomeSection } from "@/components/product-line/SecureNowReturnHomeSection";
 import { SecureNowSponsorHomeSection } from "@/components/product-line/SecureNowSponsorHomeSection";
 import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
 import { SecureNowRemediationHomeSection } from "@/components/product-line/SecureNowRemediationHomeSection";
@@ -149,6 +150,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
             {secureNowHome ? <SecureNowHomeEnvironmentContext /> : null}
             {secureNowHome ? <SecureNowHomeWorkSummary /> : null}
+            {secureNowHome ? <SecureNowReturnHomeSection /> : null}
             {secureNowHome ? <SecureNowReviewerHomeSection /> : null}
             {secureNowHome ? <SecureNowSponsorHomeSection /> : null}
             <SecureNowFindingsHomeSection />
