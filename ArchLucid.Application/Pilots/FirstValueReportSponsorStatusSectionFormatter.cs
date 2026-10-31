@@ -83,9 +83,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
                 $"**{evidenceConfidence}** — {label}.{inputsSummary}");
         }
 
-        string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
-            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
+        string fallback = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
         return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
             evidenceConfidence,
