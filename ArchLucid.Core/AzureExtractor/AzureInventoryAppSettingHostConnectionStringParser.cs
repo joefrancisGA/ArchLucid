@@ -191,7 +191,8 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static string NormalizeStorageHost(string host)
     {
         string normalized = NormalizeHost(host);
-        string decoded = Uri.UnescapeDataString(normalized);
+        string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
+            Uri.UnescapeDataString(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -201,7 +202,8 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static string NormalizeCosmosHost(string host)
     {
         string normalized = NormalizeHost(host);
-        string decoded = Uri.UnescapeDataString(normalized);
+        string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
+            Uri.UnescapeDataString(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -211,7 +213,8 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static string NormalizeRedisHost(string host)
     {
         string normalized = NormalizeHost(host);
-        string decoded = Uri.UnescapeDataString(normalized);
+        string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
+            Uri.UnescapeDataString(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -234,7 +237,8 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static string NormalizeServiceBusHost(string host)
     {
         string normalized = NormalizeHost(host);
-        string decoded = Uri.UnescapeDataString(normalized);
+        string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
+            Uri.UnescapeDataString(normalized));
 
         int portSeparatorIndex = decoded.LastIndexOf(':');
 

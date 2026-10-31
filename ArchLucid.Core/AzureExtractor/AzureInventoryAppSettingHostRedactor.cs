@@ -202,6 +202,12 @@ public static partial class AzureInventoryAppSettingHostRedactor
         return NormalizeHttpsInventoryHost(host);
     }
 
+    internal static string StripDecodedInventoryHostPathSeparators(string decoded)
+    {
+        return decoded.Replace("\\", string.Empty, StringComparison.Ordinal)
+            .Replace("/", string.Empty, StringComparison.Ordinal);
+    }
+
     private static string NormalizeSqlInventoryHost(string host)
     {
         string decoded = Uri.UnescapeDataString(host);
@@ -212,8 +218,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             decoded = decoded[..commaIndex];
         }
 
-        decoded = decoded.Replace("\\", string.Empty, StringComparison.Ordinal);
-        decoded = decoded.Replace("/", string.Empty, StringComparison.Ordinal);
+        decoded = StripDecodedInventoryHostPathSeparators(decoded);
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -222,7 +227,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     private static string NormalizeHttpsInventoryHost(string host)
     {
-        string decoded = Uri.UnescapeDataString(host);
+        string decoded = StripDecodedInventoryHostPathSeparators(Uri.UnescapeDataString(host));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()

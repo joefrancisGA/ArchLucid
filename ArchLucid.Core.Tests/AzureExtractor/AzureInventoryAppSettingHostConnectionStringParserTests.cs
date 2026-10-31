@@ -4251,4 +4251,66 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
     }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoded_forward_slash_yields_full_host()
+    {
+        const string value =
+            "Host=tcp:%70g%2f.postgres.database.azure.com,5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_percent_encoded_forward_slash_yields_full_host()
+    {
+        const string value = "https://%70g%2f.postgres.database.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_initial_catalog_percent_encoding_yields_decoded_catalog()
+    {
+        const string value = "Initial Catalog=%61pp;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().Be("app");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_forward_slash_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%2fprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "QueueEndpoint=https://starch%2fqa.queue.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
 }
