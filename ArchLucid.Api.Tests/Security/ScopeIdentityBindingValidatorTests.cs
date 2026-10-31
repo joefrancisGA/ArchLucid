@@ -343,6 +343,25 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void Validate_allows_matching_tenant_header_when_claim_uses_braced_guid_format()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", tenantId.ToString("B"))],
+                "Bearer"))
+        };
+        http.Request.Headers["x-tenant-id"] = tenantId.ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_when_find_first_tenant_claim_unparseable()
     {
         Guid steeredTenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

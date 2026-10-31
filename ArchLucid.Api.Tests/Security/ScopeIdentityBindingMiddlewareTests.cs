@@ -294,6 +294,48 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_development_bypass_on_scim_path_rebinds_scim_bearer_before_scope_validation()
+    {
+        Guid scimTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "DevelopmentBypass"));
+        context.Request.Headers["x-tenant-id"] = scimTenant.ToString("D");
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", scimTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+        authentication.Verify(
+            service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_request_invokes_next()
     {
         DefaultHttpContext context = CreateContext();
