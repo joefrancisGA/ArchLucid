@@ -785,6 +785,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-10-31 seed hunt (seed-only): after the rotated `cli-terraform-evidence` seed-only pass, reread `DraftNewCommandMustQuestionLoop` skip-all vs interactive answer paths, whitespace-only answer rejection, and scope validation on skip/answer responses. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread connect-stage API base URL resolution, intent trim vs interactive prompt paths, and connection failure exit mapping before admit. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed. Rotation is now eligible for the next Set 3 invocation.
+
+2026-10-31 seed hunt (seed-only): reread `DraftNewCommandHooks` prompt/readline cancellation seams, JSON-mode required-flag preflight (`missing_intent_text` / `missing_system_name` / `missing_business_outcome`), and the success-path JSON envelope fields after submit/execute. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-31 seed hunt (seed-only): after the rotated `cli-terraform-evidence` dry hunt, reread `DraftNewCommandIntakeLoop` submit/runId/requestId guards, auto-execute failure JSON envelopes, `--no-auto-execute` messaging, and `DraftNewCommandArgParser` missing-value exits. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
 2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread connect-stage intent trim/JSON failure envelopes, must-question JSON pending guard, skip/answer scope validation, and execute-stage cancellation mapping. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): repeated the DraftNew reread across `DraftNewCommandArgParser` flag boundaries, connect-stage intent resolution, admit-stage scope validation and missing-draft-body guards, and must-question/submit/execute handoff. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
@@ -793,7 +801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; reread `DraftNewCommand.cs` and its focused core-test contract, including option parsing, cancellation delegation, interactive/JSON intake handoff, and the `DraftNewCommandIntakeLoop` boundary. The wrapper has no additional reachable mechanism beyond the covered delegation path; `DraftNewCommandCoreTests` passed 73/73 and no production code changed.
 
-**Hunts:** 62 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 66 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
 
 2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
@@ -1065,12 +1073,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 52 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+2026-10-31 seed hunt (seed-only): rotation fired after three consecutive low-yield outcomes on this zone (`-AvoidZoneId cli-terraform-evidence`) but the Set 3 picker had no alternate eligible zone (`eligibleCount` 1); reread the twenty-entry evidence list, em-dash annotation split contract, and python/C# ordering sync guards. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
+2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread `DocumentationRelativePath` forward-slash contract, `ExtractLeafPaths` vs sixteen-leaf reference parity, and `apply-saas.ps1` legacy-branch wiring. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed. Rotation is now eligible for the next Set 3 invocation.
+
+2026-10-31 seed hunt (seed-only): repeated terraform-evidence reread after the prior seed-only pass; checked hosted-wave partition parity, reference-doc advanced-table row numbering, duplicate-path guards, and report numbered-list contiguity. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
+2026-10-31 seed hunt (seed-only): default picker chose this zone after the latest `cli-draft-new` seed-only pass (rotation not triggered; streak 1/3 on draft-new); reread orchestrator legacy annotation, pilot metadata tail, consumption APIM ordering, and on-disk root directory guards. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
+2026-10-31 seed hunt (seed-only): rotation fired after three consecutive `cli-draft-new` seed-only outcomes (`-AvoidZoneId cli-draft-new`); reread `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots`, `DocumentationRelativePath`, and triple-sync parity with `apply-saas.ps1`, pilot nested roots, and report compose. No new reachable mechanism-backed candidate met the hunt-ready bar; `DeploymentEvidenceTerraformReferenceTests` and `DeploymentEvidenceReportMarkdownTests` passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
+2026-10-31 thorough hunt (dry): rotation fired after three consecutive `cli-draft-new` seed-only outcomes (`-AvoidZoneId cli-draft-new`). Cheap-disproof closed two open `(candidate)` rows: `DeploymentEvidenceReportMarkdown.Compose` emits every annotated evidence line verbatim beside an authoritative doc citation and existing tests assert metadata-only composition/pilot wording (`no Azure apply`, `metadata composition root`, legacy orchestrator suffix); no in-repo consumer applies Terraform from numbered report paths without those annotations, and `ExtractLeafPaths` omits metadata rows for leaf planners. The path-only export/import claim depends on an external normalizer rather than a reachable current wrong outcome in this zone. `DeploymentEvidenceTerraformReferenceTests` and `DeploymentEvidenceReportMarkdownTests` passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — numbered Terraform summary without explicit entry-kind marker may mislead operators into applying metadata roots — **cheap-disproof 2026-10-31 thorough hunt:** annotated lines include `no Azure apply` / legacy orchestrator prose; section cites `REFERENCE_SAAS_STACK_ORDER.md`; regressions `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`; no repository automation executes apply from the numbered list alone.
+- [x] (invalid) `DefaultApplyOrderRoots` — export/import that preserves only path text loses legacy/hosted mode distinction — **cheap-disproof 2026-10-31 thorough hunt:** claim requires an external deployment-review normalizer; in-repo sync uses em-dash annotations and dedicated extractors covered by parity tests; no current consumer strips annotations inside this zone.
+
+**Hunts:** 58 · **Bugs found:** 2 · **Consecutive dry hunts:** 18
 
 2026-10-30 seed hunt #128 (seed-only): rotation fired after eight low-yield `cli-terraform-evidence` outcomes but no alternate Set 3 zone was eligible; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed. Seeded two fresh reachable `(candidate)` rows for the generated deployment-evidence report’s mixed metadata/leaf presentation.
-
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the numbered Terraform summary presents metadata-only composition and pilot entries beside executable leaf roots without an explicit entry-kind marker, so an operator following the report may attempt to apply a non-apply root; locus: the `foreach` that numbers every `DefaultApplyOrderRoots()` line in the Terraform section; input: a `deployment-evidence` report consumed as the operator’s apply checklist.
-- [ ] (candidate) `DefaultApplyOrderRoots` — the static evidence list carries orchestration meaning only in prose annotations while plain leaf lines are indistinguishable from paths that require a legacy or hosted execution mode, so a report consumer that preserves only the path text can lose the required mode distinction; locus: annotated orchestrator/composition/pilot entries mixed with plain leaves; input: generated Markdown normalized by a deployment-review export/import step.
 
 2026-10-30 seed hunt #127 (seed-only): rotation fired after seven low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
