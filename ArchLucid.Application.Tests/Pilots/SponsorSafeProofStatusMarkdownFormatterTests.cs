@@ -187,6 +187,32 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_sendable_sendability_note_matches_all_clear_concrete_gap()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            StrongProof(),
+            CompleteDeltas(topFindingId: null),
+            NonSimulatorRun());
+
+        string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
+        string md = sb.ToString();
+        md.Should().Contain(prose);
+        md.Should().Contain("**Sendability note:**");
+        md.Should().NotContain("Structural sponsor-blocking checks are green");
+    }
+
+    [Fact]
     public void EnumerateConcreteGaps_demo_tenant_calls_out_non_customer_proof()
     {
         ProofPackageCompletenessResponse proof = StrongProof(demoTenantWarningRequired: true);
@@ -276,6 +302,7 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             TimeToCommittedManifestResolved = proof.TimeToCommittedManifestResolved,
             FindingsBySeverityPresent = proof.FindingsBySeverityPresent,
             TopFindingEvidenceChainPresentOrNotApplicable = proof.TopFindingEvidenceChainPresentOrNotApplicable,
+            AuditRowCountResolved = false,
             AuditRowsPresentOrLowerBound = false,
             LlmCallCountResolved = proof.LlmCallCountResolved,
             LlmCallCount = proof.LlmCallCount,
@@ -302,7 +329,7 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
                 NonSimulatorRun())
             .ToList();
 
-        gaps.Should().Contain(s => s.Contains("unattested", StringComparison.OrdinalIgnoreCase));
+        gaps.Should().Contain(PilotRunDeltasAuditRowCountFormatter.NotAttestedPlain);
         gaps.Should().NotContain(s => s.Contains("is **zero**", StringComparison.Ordinal));
     }
 }

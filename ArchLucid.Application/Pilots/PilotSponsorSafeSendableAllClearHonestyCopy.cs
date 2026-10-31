@@ -20,4 +20,7 @@ internal static class PilotSponsorSafeSendableAllClearHonestyCopy
     }
 
     internal static string FormatSponsorSafeConcreteGapLine() => AllClearConcreteGapPlain;
+
+    internal static string FormatSendabilityNoteWhenSendable() =>
+        FormattableString.Invariant($"**Sendability note:** {AllClearConcreteGapPlain}");
 }

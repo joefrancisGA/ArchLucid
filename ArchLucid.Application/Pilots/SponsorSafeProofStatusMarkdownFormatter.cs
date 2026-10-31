@@ -70,7 +70,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable
-                ? "**Sendability note:** Structural sponsor-blocking checks are green — simulator substitution and qualitative baselines elsewhere still apply."
+                ? PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenSendable()
                 : "**Sendability note:** Treat every exported number as provisional until reconciled gaps are cleared.");
         sb.AppendLine();
     }
