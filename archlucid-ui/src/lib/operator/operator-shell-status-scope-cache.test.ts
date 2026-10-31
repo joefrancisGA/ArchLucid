@@ -119,6 +119,35 @@ describe("operator-shell-status-scope-cache", () => {
     expect(readOperatorShellStableCache()).toBeNull();
   });
 
+  it("evicts tenant A cost settings on switch to tenant B while retaining account preferences", () => {
+    writeOperatorScopeToStorage({
+      tenantId: SCOPE_A.tenantId,
+      workspaceId: SCOPE_A.workspaceId,
+      projectId: SCOPE_A.projectId,
+      workspaceLabel: "Tenant A",
+      projectLabel: "Project A",
+    });
+    const queryClient = getOperatorQueryClient();
+    queryClient.setQueryData(operatorQueryKeys.tenantCostSettings, {
+      tenantId: SCOPE_A.tenantId,
+      architectHourlyRateUsd: 250,
+      averageIncidentCostUsd: 10000,
+    });
+    queryClient.setQueryData(operatorQueryKeys.userPreferences, { theme: "dark" });
+    expect(queryClient.getQueryData(operatorQueryKeys.tenantCostSettings)).toBeDefined();
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Tenant B",
+      projectLabel: "Project B",
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.tenantCostSettings)).toBeUndefined();
+    expect(queryClient.getQueryData(operatorQueryKeys.userPreferences)).toEqual({ theme: "dark" });
+  });
+
   it("removeQueries targets every scope-agnostic shell-status key", () => {
     const queryClient = createOperatorQueryClient();
 
