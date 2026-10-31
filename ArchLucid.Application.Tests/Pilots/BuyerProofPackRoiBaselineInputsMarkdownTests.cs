@@ -1,6 +1,8 @@
 using System.Text;
 
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -41,5 +43,50 @@ public sealed class BuyerProofPackRoiBaselineInputsMarkdownTests
 
         string md = sb.ToString();
         md.Should().Contain("> ``Hold`review baseline``");
+    }
+
+    [Fact]
+    public void Roi_baseline_projected_dollar_row_matches_proof_package_contract_when_not_sponsor_safe()
+    {
+        PilotRoiBaselineInputsStatusResponse inputs = new()
+        {
+            ProjectedDollarClaimsSponsorSafe = false,
+            SponsorSafeFallbackCopy = "Use qualitative ROI only.",
+        };
+
+        StringBuilder baselineSb = new();
+        PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(baselineSb, inputs);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiBaselineInputs = inputs,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun
+            {
+                RunId = "r1",
+                Status = ArchitectureRunStatus.Committed,
+            });
+
+        string expected = PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain;
+
+        baselineSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
     }
 }

@@ -30,7 +30,7 @@ public static class PilotRoiBaselineInputsMarkdownFormatter
         sb.AppendLine(
             $"| Loaded architect hourly cost | **{PilotRoiBaselineInputsStatusResolver.FormatBasisLabel(inputs.ArchitectHourlyCostBasis)}** |");
         sb.AppendLine(
-            $"| Projected dollar claims sponsor-safe | **{(inputs.ProjectedDollarClaimsSponsorSafe ? "Yes" : "No")}** |");
+            $"| Projected dollar claims sponsor-safe | {PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatRoiBaselineInputsTableCell(inputs.ProjectedDollarClaimsSponsorSafe)} |");
         sb.AppendLine();
 
         if (!inputs.ProjectedDollarClaimsSponsorSafe)

@@ -49,7 +49,7 @@ public static class FirstValueReportProofPackageSectionFormatter
             sb.AppendLine(
                 $"| ROI baseline inputs (per field) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
             sb.AppendLine(
-                $"| Projected dollar claims sponsor-safe | {(c.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe ? "Yes" : "**No** — do not lead with projected USD savings")} |");
+                $"| Projected dollar claims sponsor-safe | {PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatProofPackageCell(c.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe)} |");
         }
 
         sb.AppendLine($"| Buyer-safe redaction profile | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.BuyerSafeRedactionProfile)} |");
