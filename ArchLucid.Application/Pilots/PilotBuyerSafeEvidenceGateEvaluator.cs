@@ -71,8 +71,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
         {
-            softGapMessages.Add(
-                "Top-severity finding present but evidence-chain pointers did not resolve — verify full run detail JSON before sponsor send.");
+            softGapMessages.Add(PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable());
         }
 
         if (!deltas.LlmCallCountResolved)

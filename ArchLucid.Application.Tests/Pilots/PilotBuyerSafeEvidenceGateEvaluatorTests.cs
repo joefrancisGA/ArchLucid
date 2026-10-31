@@ -175,7 +175,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.SoftGaps.Should().Contain(g => g.Contains("evidence-chain pointers", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse);
     }
 
     [Fact]
