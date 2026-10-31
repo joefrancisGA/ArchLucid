@@ -32,10 +32,10 @@ public sealed partial class DifficultyBasedExtractionRouter
     ///     Opening delimiters for parenthetical labels, bracket notes, markdown emphasis/code spans, and quoted strings.
     /// </summary>
     private static bool IsLabelOrCodeSpanOpeningDelimiter(char c) =>
-        c is '(' or '[' or '{' or '<' or '`' or '*' or '~' or '"' or '\'' or '“' or '‘' or '\uFF1A' or '\uFF08' or '\u3010' or '\u3014';
+        c is '(' or '[' or '{' or '<' or '`' or '*' or '~' or '"' or '\'' or '“' or '‘' or '\uFF1A' or '\uFF08' or '\u3010' or '\u3014' or '\u300A';
 
     private static bool IsLabelOrCodeSpanClosingDelimiter(char c) =>
-        c is ')' or ']' or '}' or '>' or '`' or '*' or '~' or '"' or '\'' or '”' or '’' or '\uFF1A' or '\uFF09' or '\u3011' or '\u3015';
+        c is ')' or ']' or '}' or '>' or '`' or '*' or '~' or '"' or '\'' or '”' or '’' or '\uFF1A' or '\uFF09' or '\u3011' or '\u3015' or '\u300B';
 
     private static int FindBoundedOwnershipMarkerIndex(string sourceText, string marker, int startIndex)
     {

@@ -20,6 +20,7 @@ public sealed partial class DifficultyBasedExtractionRouter
         "pci",
         "pci-dss",
         "iso 27001",
+        "iso-27001",
         "fedramp",
         "nist",
         "sox",
@@ -198,7 +199,7 @@ public sealed partial class DifficultyBasedExtractionRouter
     }
 
     private static bool MatchesAsciiHyphenNeedle(char c) =>
-        c == '-' || c == '\u2011';
+        c == '-' || c is '\u2011' or '\u2012';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
