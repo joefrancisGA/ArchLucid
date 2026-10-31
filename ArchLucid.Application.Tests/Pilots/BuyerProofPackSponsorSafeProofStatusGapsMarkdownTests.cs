@@ -61,12 +61,14 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         gaps.Should().Contain(prose);
         gaps.Should().NotContain("Time-to-committed-manifest is unresolved");
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
             deltas,
             proof,
-            manifest: null,
+            manifest,
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
 
         proofSb.ToString().Should().Contain(prose);
@@ -317,12 +319,14 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         gaps.Should().Contain(prose);
         gaps.Should().NotContain("Artifact descriptor inventory did not resolve");
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
             deltas,
             proof,
-            manifest: null,
+            manifest,
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
 
         proofSb.ToString().Should().Contain(prose);

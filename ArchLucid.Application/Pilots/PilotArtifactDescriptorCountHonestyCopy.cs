@@ -1,5 +1,8 @@
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -25,6 +28,26 @@ internal static class PilotArtifactDescriptorCountHonestyCopy
 
         return
             $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ArtifactDescriptorCount.GetValueOrDefault().ToString(CultureInfo.InvariantCulture))} descriptor(s) for this committed architecture manifest.";
+    }
+
+    internal static string FormatProofPackageCell(PilotRunDeltas deltas, ArchitectureRun run, GoldenManifest? manifest)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(run);
+
+        if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
+        {
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
+        if (!deltas.SynthesizedArtifactDescriptorCountResolved)
+        {
+            return UnresolvedPlain;
+        }
+
+        int count = deltas.SynthesizedArtifactDescriptorCount.GetValueOrDefault();
+        return
+            $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(count.ToString(CultureInfo.InvariantCulture))} descriptor(s) for this committed architecture manifest.";
     }
 
     internal static string FormatSponsorSafeConcreteGapLine() => UnresolvedPlain;

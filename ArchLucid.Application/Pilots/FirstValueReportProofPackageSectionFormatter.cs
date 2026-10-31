@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
@@ -34,10 +35,10 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(c.DemoTenantWarningRequired || deltas.IsDemoTenant)} |");
         sb.AppendLine(
             $"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(!string.IsNullOrWhiteSpace(run.RunId))} |");
-        sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(c)} |");
+        sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(run, manifest)} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest)} |");
-        sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(c)} |");
-        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");
+        sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(deltas, run, manifest)} |");
+        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, run, manifest)} |");
         sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
@@ -84,19 +85,20 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatTimeToCommittedManifestProofCell(
         PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse c)
+        ArchitectureRun run,
+        GoldenManifest? manifest)
     {
         ArgumentNullException.ThrowIfNull(deltas);
-        ArgumentNullException.ThrowIfNull(c);
+        ArgumentNullException.ThrowIfNull(run);
 
-        if (c is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
             return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
         }
 
-        if (c.TimeToCommittedManifestResolved)
+        if (deltas.TimeToCommittedManifest is not null)
         {
-            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
+            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness: null);
         }
 
         return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;

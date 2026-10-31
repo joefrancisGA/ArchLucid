@@ -1,3 +1,6 @@
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -12,6 +15,15 @@ internal static class PilotCommittedManifestStatusHonestyCopy
         ArgumentNullException.ThrowIfNull(c);
 
         return c is { CommittedManifestPresent: true, RunInCommittedStatus: true }
+            ? "Present"
+            : NotSponsorCompletePlain;
+    }
+
+    internal static string FormatProofPackageCell(ArchitectureRun run, GoldenManifest? manifest)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        return manifest is not null && run.Status == ArchitectureRunStatus.Committed
             ? "Present"
             : NotSponsorCompletePlain;
     }

@@ -4,6 +4,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -373,6 +374,8 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
             TimeToCommittedManifest = null,
         };
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
@@ -384,7 +387,7 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
                 RunInCommittedStatus = true,
                 TimeToCommittedManifestResolved = false,
             },
-            manifest: null,
+            manifest,
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
 
         StringBuilder computedSb = new();
@@ -413,6 +416,7 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
     public void Proof_package_time_to_commit_cell_when_wall_clock_present_matches_computed_deltas_cell()
     {
         DateTime committed = new(2026, 3, 1, 12, 0, 0, DateTimeKind.Utc);
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = committed } };
         PilotRunDeltas deltas = new()
         {
             TimeToCommittedManifest = TimeSpan.FromHours(2),
@@ -430,7 +434,7 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
                 RunInCommittedStatus = true,
                 TimeToCommittedManifestResolved = true,
             },
-            manifest: null,
+            manifest,
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
 
         StringBuilder computedSb = new();
@@ -655,5 +659,80 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
             .TrimEnd();
 
         row.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
+    }
+
+    [Fact]
+    public void Proof_package_committed_manifest_when_stale_proof_uses_run_and_manifest_not_dto()
+    {
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                SupportRunIdPresent = true,
+            },
+            manifest,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Created });
+
+        sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Committed manifest + status |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+    }
+
+    [Fact]
+    public void Proof_package_time_to_commit_when_stale_resolved_flag_uses_deltas_not_proof()
+    {
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { TimeToCommittedManifest = null },
+            new ProofPackageCompletenessResponse
+            {
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                TimeToCommittedManifestResolved = true,
+                SupportRunIdPresent = true,
+            },
+            manifest,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain);
+    }
+
+    [Fact]
+    public void Proof_package_artifact_when_stale_resolved_flag_uses_deltas_not_proof()
+    {
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { SynthesizedArtifactDescriptorCountResolved = false },
+            new ProofPackageCompletenessResponse
+            {
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                ArtifactDescriptorCountResolved = true,
+                ArtifactDescriptorCount = 3,
+                SupportRunIdPresent = true,
+            },
+            manifest,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Artifact descriptor count |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotArtifactDescriptorCountHonestyCopy.UnresolvedPlain);
     }
 }
