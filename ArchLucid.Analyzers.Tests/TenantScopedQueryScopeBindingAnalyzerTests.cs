@@ -1231,6 +1231,61 @@ public sealed class QueryUnbufferedRunsRepository
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
 
+    [Fact]
+    public async Task ARCH006_does_not_analyze_command_definition_when_command_type_is_stored_procedure()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class CommandDefinitionStoredProcRunsRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        _ = new CommandDefinition(
+            "usp_LoadRuns",
+            commandType: CommandType.StoredProcedure);
+        _ = connection.ExecuteAsync(new CommandDefinition(
+            "usp_LoadRuns",
+            commandType: CommandType.StoredProcedure));
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
+    [Fact]
+    public async Task ARCH006_does_not_analyze_sql_text_on_command_definition_when_command_type_is_stored_procedure()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class CommandDefinitionStoredProcSqlTextRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        _ = new CommandDefinition(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
+            commandType: CommandType.StoredProcedure);
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
     private static async Task RunPersistenceAnalyzerTestAsync(
         string testCode,
         params DiagnosticResult[] expectedDiagnostics)
