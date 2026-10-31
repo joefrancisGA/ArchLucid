@@ -173,6 +173,101 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
   });
 
+  it("does not mark analysis complete when reasoning returns no actionable result", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse({
+            runId: "empty-reasoning-run",
+            model: { elements: [] },
+            specialistReviews: [],
+            recommendations: [],
+            mustNotFailViolations: [],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture with no specialist result." },
+    });
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).toHaveTextContent("In progress");
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
+  });
+
+  it("clears completed reasoning output before a retry that fails", async () => {
+    let reasoningCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          reasoningCallCount += 1;
+
+          if (reasoningCallCount === 2) {
+            return new Response("retry failed", { status: 500 });
+          }
+
+          return okJsonFetchResponse({
+            runId: "successful-reasoning-run",
+            model: { elements: [] },
+            specialistReviews: [
+              {
+                findings: [
+                  {
+                    findingId: "successful-finding",
+                    title: "Successful reasoning finding",
+                    severity: "High",
+                    conclusion: "Keep this output visible until the retry resolves.",
+                  },
+                ],
+              },
+            ],
+            recommendations: [],
+            mustNotFailViolations: [],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Retryable architecture analysis." },
+    });
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Successful reasoning finding")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-error")).toHaveTextContent("HTTP 500");
+    });
+
+    expect(screen.queryByText("Successful reasoning finding")).not.toBeInTheDocument();
+  });
+
   it("keeps publish disabled for a deep-linked review before analysis produces a result", async () => {
     searchParamsGet.mockImplementation((key: string) =>
       key === "runId" ? "dddddddd-dddd-dddd-dddd-dddddddddddd" : null,

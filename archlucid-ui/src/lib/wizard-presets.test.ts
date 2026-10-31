@@ -57,6 +57,13 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
     expect(resolveWizardPresetLabel("")).toBe("Starter preset was not stored yet.");
   });
 
+  it("treats scalar true and any truthy array element as dirty or touched", () => {
+    expect(isWizardFormFieldDirty(true)).toBe(true);
+    expect(isWizardFormFieldDirty(undefined)).toBe(false);
+    expect(isWizardFormFieldDirty([false, true])).toBe(true);
+    expect(isWizardFormFieldDirty([false, undefined])).toBe(false);
+  });
+
   it("matches a live form field against the selected starter preset", () => {
     const greenfield = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
 

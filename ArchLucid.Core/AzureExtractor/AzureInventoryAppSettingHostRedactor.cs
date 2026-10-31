@@ -7,6 +7,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static partial class AzureInventoryAppSettingHostRedactor
 {
+    private const int InventoryHostPercentEncodingMaxDepth = 10;
+
     private static readonly string[] SecretMarkerSubstrings =
     [
         "Password=",
@@ -125,7 +127,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return null;
         }
 
-        return host;
+        return NormalizeSqlInventoryHost(host);
     }
 
     public static string? TryParseSqlCatalog(string? connectionString, out string? warningCode)
@@ -144,7 +146,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return null;
         }
 
-        string catalog = match.Groups["catalog"].Value.Trim();
+        string catalog = Uri.UnescapeDataString(match.Groups["catalog"].Value.Trim());
 
         if (string.IsNullOrWhiteSpace(catalog))
         {
@@ -178,6 +180,14 @@ public static partial class AzureInventoryAppSettingHostRedactor
         }
 
         string host = match.Groups["host"].Value.Trim().ToLowerInvariant();
+        int queryOrFragmentStart = host.IndexOfAny(['?', '#']);
+
+        if (queryOrFragmentStart >= 0)
+        {
+            host = host[..queryOrFragmentStart];
+        }
+
+        host = host.TrimEnd('/');
 
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -186,12 +196,94 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
         if (host.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase))
         {
-            keyVaultHost = host;
+            keyVaultHost = NormalizeHttpsInventoryHost(host);
 
             return null;
         }
 
-        return host;
+        return NormalizeHttpsInventoryHost(host);
+    }
+
+    internal static string StripDecodedInventoryHostPathSeparators(string decoded)
+    {
+        return decoded.Replace("\\", string.Empty, StringComparison.Ordinal)
+            .Replace("/", string.Empty, StringComparison.Ordinal)
+            .Replace("?", string.Empty, StringComparison.Ordinal)
+            .Replace("#", string.Empty, StringComparison.Ordinal);
+    }
+
+    private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
+    {
+        ReadOnlySpan<string> delimiterTokens = ["%23", "%3f", "%2f", "%5c"];
+
+        foreach (string delimiterToken in delimiterTokens)
+        {
+            string encodedToken = delimiterToken;
+
+            for (int depth = 0; depth < InventoryHostPercentEncodingMaxDepth; depth++)
+            {
+                if (vaultHost.Contains(encodedToken, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                string nextEncodedToken = Uri.EscapeDataString(encodedToken);
+
+                if (string.Equals(nextEncodedToken, encodedToken, StringComparison.Ordinal))
+                {
+                    break;
+                }
+
+                encodedToken = nextEncodedToken;
+            }
+        }
+
+        return false;
+    }
+
+    internal static string DecodeInventoryHostPercentEncoding(string value)
+    {
+        string decoded = value;
+
+        for (int pass = 0; pass < InventoryHostPercentEncodingMaxDepth && decoded.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string next = Uri.UnescapeDataString(decoded);
+
+            if (string.Equals(next, decoded, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            decoded = next;
+        }
+
+        return decoded;
+    }
+
+    private static string NormalizeSqlInventoryHost(string host)
+    {
+        string decoded = DecodeInventoryHostPercentEncoding(host);
+        int commaIndex = decoded.IndexOf(',');
+
+        if (commaIndex >= 0)
+        {
+            decoded = decoded[..commaIndex];
+        }
+
+        decoded = StripDecodedInventoryHostPathSeparators(decoded);
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded.ToLowerInvariant();
+    }
+
+    private static string NormalizeHttpsInventoryHost(string host)
+    {
+        string decoded = StripDecodedInventoryHostPathSeparators(DecodeInventoryHostPercentEncoding(host));
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded;
     }
 
     public static (string? KeyVaultHost, string? SecretName) TryParseKeyVaultReference(string? value)
@@ -207,7 +299,10 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
         if (match.Success)
         {
-            string vaultHost = match.Groups["host"].Value.Trim().ToLowerInvariant();
+            string rawVaultHost = match.Groups["host"].Value.Trim();
+            string vaultHost = ShouldNormalizeKeyVaultSecretUriHost(rawVaultHost)
+                ? NormalizeHttpsInventoryHost(rawVaultHost)
+                : rawVaultHost.ToLowerInvariant();
             string secretName = match.Groups["secret"].Value.Trim();
 
             if (string.IsNullOrWhiteSpace(vaultHost) || string.IsNullOrWhiteSpace(secretName))
@@ -225,7 +320,8 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return (null, null);
         }
 
-        string vaultName = vaultNameMatch.Groups["vault"].Value.Trim().ToLowerInvariant();
+        string vaultNameRaw = vaultNameMatch.Groups["vault"].Value.Trim();
+        string vaultName = vaultNameRaw.ToLowerInvariant();
         string vaultNameSecret = vaultNameMatch.Groups["secret"].Value.Trim();
 
         if (string.IsNullOrWhiteSpace(vaultName) || string.IsNullOrWhiteSpace(vaultNameSecret))
@@ -237,6 +333,11 @@ public static partial class AzureInventoryAppSettingHostRedactor
             || vaultName.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase)
             ? vaultName
             : $"{vaultName}.vault.azure.net";
+
+        if (ShouldNormalizeKeyVaultSecretUriHost(vaultNameRaw))
+        {
+            resolvedVaultHost = NormalizeHttpsInventoryHost(resolvedVaultHost);
+        }
 
         return (resolvedVaultHost, vaultNameSecret);
     }

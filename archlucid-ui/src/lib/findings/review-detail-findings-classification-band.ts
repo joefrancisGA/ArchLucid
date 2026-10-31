@@ -20,14 +20,14 @@ export const FINDING_CLASSIFICATION_CHECKLIST_COVERAGE = "ChecklistCoverage" as 
 
 export const FINDING_CLASSIFICATION_NOT_STORED_LABEL = "Finding classification was not stored." as const;
 
-export type StoredFindingClassification =
+export type KnownFindingClassification =
   | typeof FINDING_CLASSIFICATION_DECISION_GRADE
   | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE;
 
-/** Wire classification is a free string; work-item exports only accept the two stored gate values. */
-export function coerceStoredFindingClassification(
+/** Narrows stored classification to the known ADR 0070 pair; unrecognized wire values become null. */
+export function parseKnownFindingClassification(
   classification: string | null | undefined,
-): StoredFindingClassification | null {
+): KnownFindingClassification | null {
   if (classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
     return FINDING_CLASSIFICATION_DECISION_GRADE;
   }

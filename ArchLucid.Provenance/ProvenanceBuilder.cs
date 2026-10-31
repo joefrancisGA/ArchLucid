@@ -22,11 +22,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
 
-        IReadOnlyList<GraphNode> graphNodes = (graph.Nodes ?? [])
-            .Where(static node => node is not null)
-            .ToArray();
-        IReadOnlyList<Finding> findingRows = findings.Findings ?? [];
-        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions = manifest.Decisions ?? [];
+        IReadOnlyList<GraphNode> graphNodes = (graph.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<Finding> findingRows = (findings.Findings ?? []).OfType<Finding>().ToArray();
+        IReadOnlyList<ResolvedArchitectureDecision> manifestDecisions =
+            (manifest.Decisions ?? []).OfType<ResolvedArchitectureDecision>().ToArray();
+        IReadOnlyList<SynthesizedArtifact> artifactRows = artifacts.OfType<SynthesizedArtifact>().ToArray();
 
         DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
@@ -91,7 +91,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
 
 
-        foreach (SynthesizedArtifact a in artifacts)
+        foreach (SynthesizedArtifact a in artifactRows)
 
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -133,8 +133,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             foreach (string fk in decisionGroup
-                         .SelectMany(d => d.SupportingFindingIds)
+                         .SelectMany(d => d.SupportingFindingIds ?? [])
+                         .Where(static id => id is not null)
                          .Select(NormalizeId)
+                         .Where(static id => id.Length > 0)
                          .Distinct(StringComparer.OrdinalIgnoreCase)
                          .Select(fId => $"finding:{fId}"))
             {
@@ -158,8 +160,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             foreach (string relatedId in findingGroup
-                         .SelectMany(f => f.RelatedNodeIds)
+                         .SelectMany(f => f.RelatedNodeIds ?? [])
+                         .Where(static id => id is not null)
                          .Select(NormalizeId)
+                         .Where(static id => id.Length > 0)
                          .Distinct(StringComparer.OrdinalIgnoreCase))
 
             {
@@ -199,7 +203,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         // Decisions → Artifacts (bundle payloads may repeat the same artifact row)
 
-        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifacts.GroupBy(static artifact => artifact.ArtifactId))
+        foreach (IGrouping<Guid, SynthesizedArtifact> artifactGroup in artifactRows.GroupBy(static artifact => artifact.ArtifactId))
         {
             SynthesizedArtifact representative =
                 ProvenanceSnapshotRevisionHasher.SelectRevisionArtifactRepresentative(artifactGroup);
@@ -210,8 +214,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 continue;
 
             IEnumerable<string> contributingDecisionIds = artifactGroup
-                .SelectMany(static artifact => artifact.ContributingDecisionIds)
+                .SelectMany(static artifact => artifact.ContributingDecisionIds ?? [])
+                .Where(static id => id is not null)
                 .Select(NormalizeId)
+                .Where(static id => id.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
             foreach (string dId in contributingDecisionIds)
@@ -329,6 +335,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         static IEnumerable<string> DistinctAppliedRuleIds(IEnumerable<string>? appliedRuleIds) =>
             (appliedRuleIds ?? [])
+                .Where(static ruleId => ruleId is not null)
                 .Select(NormalizeId)
                 .Where(static ruleId => ruleId.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase);

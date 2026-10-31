@@ -13,6 +13,7 @@ function runSummaryActivityFingerprint(summary: RunSummary): string {
     summary.authorityLifecyclePhase ?? "unknown-phase",
     summary.hasGoldenManifest === true ? "manifest" : "no-manifest",
     summary.runDegradedExecution === true ? "degraded" : "stable",
+    summary.legacyRunStatus ?? "unknown-status",
   ].join("|");
 }
 
@@ -84,9 +85,8 @@ export function ReviewWorkspaceStaleBanner(props: ReviewWorkspaceStaleBannerProp
           void query.refetch().then((result) => {
             if (result.data !== undefined) {
               baselineFingerprintRef.current = runSummaryActivityFingerprint(result.data);
+              setShowBanner(false);
             }
-
-            setShowBanner(false);
           });
         }}
       >

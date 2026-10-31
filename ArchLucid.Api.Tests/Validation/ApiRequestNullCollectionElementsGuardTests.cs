@@ -143,6 +143,78 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_list_without_body_parameter()
+    {
+        IReadOnlyList<ArchitectureRequest> requests = new List<ArchitectureRequest> { null! };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_hashset_without_body_parameter()
+    {
+        HashSet<string> ids = new(StringComparer.Ordinal) { null! };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(ids).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_queue_without_body_parameter()
+    {
+        Queue<string> queue = new();
+        queue.Enqueue(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(queue).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_linked_list_without_body_parameter()
+    {
+        LinkedList<string> linked = new();
+        linked.AddLast((string)null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(linked).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property()
+    {
+        ObservableCollectionRequest request = new()
+        {
+            Tags = new System.Collections.ObjectModel.ObservableCollection<string> { "ok", null! },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property()
+    {
+        ReadOnlyCollectionRequest request = new()
+        {
+            Tags = new System.Collections.ObjectModel.ReadOnlyCollection<string>(new List<string> { "ok", null! }),
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter()
+    {
+        ArchitectureRequest?[] requests = [null];
+
+        MethodInfo batchMethod = typeof(RunsController).GetMethod(
+            nameof(RunsController.CreateRunBatch),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunsController.CreateRunBatch));
+
+        ParameterInfo bodyParameter = batchMethod.GetParameters().Single(static parameter =>
+            parameter.GetCustomAttribute<FromBodyAttribute>() is not null);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests, bodyParameter).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_false_for_valid_root_batch_request_list_without_body_parameter()
     {
         IReadOnlyList<ArchitectureRequest> requests = [new ArchitectureRequest { Description = new string('x', 32) }];
@@ -164,6 +236,17 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     private sealed class NestedStringListRequest
     {
         public List<List<string>> Buckets { get; set; } = [];
+    }
+
+    private sealed class ReadOnlyCollectionRequest
+    {
+        public System.Collections.ObjectModel.ReadOnlyCollection<string> Tags { get; set; } =
+            new(Array.Empty<string>());
+    }
+
+    private sealed class ObservableCollectionRequest
+    {
+        public System.Collections.ObjectModel.ObservableCollection<string> Tags { get; set; } = [];
     }
 
     private sealed class NullableStringListRequest

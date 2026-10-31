@@ -25,6 +25,14 @@ export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not st
 
 export const RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL = "Artifact count was not stored." as const;
 
+function omittedSnapshotFlagLabel(flag: boolean | undefined, label: string): string | null {
+  return flag === undefined ? label : null;
+}
+
+function isPresentSnapshotFlagLabel(token: string | null): token is string {
+  return token !== null;
+}
+
 export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   const fc = run.findingCount;
   const wc = run.warningCount;
@@ -131,13 +139,10 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
   }
 
   const omittedSnapshotFlags = [
-    run.hasContextSnapshot === undefined ? CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
-    run.hasGraphSnapshot === undefined ? GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
-    run.hasFindingsSnapshot === undefined ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
-  ].filter(
-    // `as const` labels make `token is string` too wide for the literal union (TS2677).
-    (token): token is NonNullable<typeof token> => token !== null,
-  );
+    omittedSnapshotFlagLabel(run.hasContextSnapshot, CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+    omittedSnapshotFlagLabel(run.hasGraphSnapshot, GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+    omittedSnapshotFlagLabel(run.hasFindingsSnapshot, FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+  ].filter(isPresentSnapshotFlagLabel);
 
   const reviewTrailSummary =
     run.hasContextSnapshot === true &&

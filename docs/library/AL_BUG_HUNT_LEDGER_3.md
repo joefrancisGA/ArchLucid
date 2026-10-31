@@ -2,6 +2,18 @@
 
 ## Zone: ui-form-validation
 
+2026-10-31 seed hunt (seed-only): cooldown fallback selected the low-yield `ui-form-validation` zone; reread `SignupForm` submit gating, optional-field transitions, response handling, and payload shaping. The five existing candidate lenses were not promoted to hunt-ready in this pass; the focused SignupForm suite passed 144/144. No production code changed.
+
+2026-10-30 seed hunt #93 (seed-only): re-read `signupFormSchema`, `SignupForm` field wiring, payload shaping, and the current 144-test focused suite; rendered limits match schema limits, submit gating and retry guards remain covered, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-31 seed hunt (seed-only): reread `SignupForm` submit/payload shaping and optional-field transitions; no candidate was promoted in this pass, and five bounded response/payload candidates were seeded below. No production change. Private beta: n/a.
+
+- [ ] (candidate) `buildSignupRegisterPayload` — a very long leading-zero `architectureTeamSize` string may normalize to a different accepted integer than the browser’s displayed number — locus: `Number(teamTrim)` and integer bounds; input: `000000000000000000001`; wrong outcome: displayed optional team size and registered payload diverge; reachability: browser number input values can preserve leading zeros through form state.
+- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation at the upper bound may be serialized as `10000` while the user sees exponent text — locus: `Number(teamTrim)`; input: `1e4`; wrong outcome: payload semantics differ from visible input; reachability: HTML number inputs accept exponent notation in supported browsers.
+- [ ] (candidate) `SignupForm` optional industry handling — selecting `Other` with whitespace-only detail may leave readiness and payload gates inconsistent — locus: `industryVerticalOther` clearing and schema-backed `canSubmit`; input: `industryVertical=Other`, `industryVerticalOther="   "`; wrong outcome: submit state disagrees with the visible optional-field error; reachability: operator selects the Other industry option and leaves the detail blank.
+- [ ] (candidate) `SignupForm` success handling — a successful response with non-string provisioning identifiers may persist unusable registration metadata — locus: unchecked `TenantProvisioningResult` spread into `sessionStorage`; input: `{"tenantId":123,"defaultWorkspaceId":false}`; wrong outcome: later scope hydration receives malformed identifiers; reachability: a compromised or drifted registration proxy response.
+- [ ] (candidate) `SignupForm` success handling — a whitespace-only successful response body may be treated as committed registration without a provisioning payload — locus: empty/invalid JSON fallback after `res.ok`; input: HTTP 201 with body `"   "`; wrong outcome: verify navigation proceeds without persisted provisioning data; reachability: registration API can return a successful empty body.
+
 2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #90 (seed-only): reran the focused SignupForm regression suite after reviewing current required and optional validation paths; all 144 tests passed and no new mechanism-backed hunt-ready row emerged. No production code changed.
@@ -354,10 +366,10 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 76
+- **hunts:** 78
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -504,14 +516,36 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-30 seed hunt #68 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #67 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #66 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #65 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #64 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #63 (seed-only): repeated the focused tenant-isolation command/runner validation after the option-value fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #62 (seed-only): re-ran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #61 (seed-only): re-read the tenant-isolation command/runner after the missing-option-value fix; the 60-test focused suite passed and no additional mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #60 (hit): proved that a value-taking option with no value, such as `--run-id --json`, was silently treated as absent; the command then fell back to offline fixture mode instead of returning a usage error. Added option-value validation and a regression; focused TenantIsolationNegativeTestRunnerTests passed 60/60. Private beta: operators running the tenant-isolation check with a mistyped option now receive a usage error instead of a misleading offline PASS from the fixture.
+
+- [x] (proven) `TenantIsolationNegativeTestOptions` — missing values for `--run-id` and other value-taking options silently fall back to defaults — **hit 2026-10-30 seed hunt #60:** reject a missing value or a following option token before mode selection; regression `Parse_RejectsValueOptionWithoutValue`. Private beta: operators running the tenant-isolation check with a mistyped option now receive a usage error instead of a misleading offline PASS from the fixture.
+
+2026-10-30 thorough hunt #59 (dry): cheap-disproof closed the three queued pagination/verdict candidates — JSON whitespace is insignificant to `System.Text.Json`, case-sensitive `hasmore` is an unsupported payload shape with conservative skip behavior, and offline PASS with a skipped list probe is already covered as intentional fixture replay. The focused `TenantIsolationNegativeTestRunnerTests` suite passed 59/59; no production code changed.
+
 2026-10-29 thorough hunt (hit): promoted `AnyEmbeddedRunListClaimsMorePages` — when manifest `evidence` contained multiple scannable list JSON fragments, first payload with `hasMore:false` blocked SKIP even though a later embedded payload had `hasMore:true`; hasMore inference now scans every `{`/`[` offset; regression `RunOffline_SkipsExcludeRunIdProbeWhenLaterEmbeddedJsonClaimsMorePagesAfterHasMoreFalse`. Cheap-disproof closed UTF-8 BOM on manifest read (`System.Text.Json` accepts BOM-prefixed manifest files; probe `evidence` leading BOM removed by `Trim`) and live `Trim` truncating pagination flags (exclude-run-id probes store `definition.Description` in `Evidence`, not truncated list bodies). 65 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-page fixture evidence with mixed pagination flags stays fail-closed when any embedded capture claims more pages.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — first scannable embedded JSON with `hasMore:false` wins over later truncated payload in same evidence string — **hit 2026-10-29 thorough hunt:** `AnyEmbeddedRunListClaimsMorePages`; regression above.
 - [x] (valid-no-repro) `TenantIsolationNegativeTestOfflineRunner` — UTF-8 BOM prefix on evidence file read path (not artifact write) breaks JSON extraction — **cheap-disproof 2026-10-29 thorough hunt:** manifest `JsonSerializer` reads BOM-prefixed files; per-probe evidence uses `Trim()` before scan.
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — `Trim` on evidence truncates trailing `hasMore` token before offline manifest capture — **cheap-disproof 2026-10-29 thorough hunt:** `ExecuteExcludeRunIdProbeAsync` sets `Evidence = definition.Description`; `Trim(body)` applies only to primary-scope failure copy.
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` string literal `true` with surrounding whitespace in JSON ignored — locus: `RunListClaimsMorePages`; input: `"hasMore": true` with non-canonical spacing (monitor JsonValueKind.True gate).
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — lowercase `hasmore` property in captured list JSON skipped — locus: case-sensitive property name; input: camelCase vs PascalCase in legacy fixtures.
-- [ ] (candidate) `TenantIsolationNegativeTestCommand` — offline mode overall PASS when deny probes pass but list probe inferred SKIP from evidence only — locus: `DeriveOverallVerdict` offline branch; input: mixed probe verdicts with evidence-inferred SKIP.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` string literal `true` with surrounding whitespace in JSON ignored — **cheap-disproof 2026-10-30 thorough hunt #59:** JSON whitespace is insignificant to `System.Text.Json`; `RunListClaimsMorePages` already reads the boolean token.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner` — lowercase `hasmore` property in captured list JSON skipped — **cheap-disproof 2026-10-30 thorough hunt #59:** the reachable API/fixture contract uses camelCase `hasMore`; conservative skip for an unsupported property shape is not a defect.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestCommand` — offline mode overall PASS when deny probes pass but list probe inferred SKIP from evidence only — **cheap-disproof 2026-10-30 thorough hunt #59:** `DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` covers intentional offline fixture replay behavior.
 
 2026-10-29 thorough hunt (hit): promoted `TryExtractRunListJsonFromEvidence` — decorative JSON fragment earlier in manifest `evidence` (e.g. `note: use {"items":[]} shape then {"items":[],"hasMore":true}`) made the first `{`-suffix fail `RunListPayloadIsScannable`, so truncated list pages false-passed; extraction now scans every `{`/`[` start for the first scannable payload before hasMore inference; regression `RunOffline_SkipsExcludeRunIdProbeWhenDecorativeJsonPrecedesTruncatedListEvidence`. Cheap-disproof closed array-only list captures (root array has no `hasMore`; loop already honors `[` prefixes) and json-only artifact writes (`WillWriteMarkdown` false skips markdown path; regression `WriteArtifactsAsync_writes_utf8_without_byte_order_mark`). 64 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: multi-fragment fixture evidence strings no longer false-pass exclude-run-id replay when only the trailing payload claims more pages.
 
@@ -608,11 +642,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 58
-- **bugs-found:** 32
+- **hunts:** 68
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — first embedded hasMore:false masked later hasMore:true in evidence
+- **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -741,7 +775,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 50 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 58 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+
+2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-30 seed hunt #118 (seed-only): rotation kept `cli-draft-new` after one prior `cli-terraform-evidence` dry hunt; reread `DraftNewCommand.cs` and `DraftNewCommandCoreTests`, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-30 seed hunt #116 (seed-only): rotation kept `cli-draft-new` after two prior seed-only outcomes, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs`, `DraftNewCommandOptionsTests`, and the focused core tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-30 seed hunt #115 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and `DraftNewCommandCoreTests`, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-30 seed hunt #114 (seed-only): rotation kept `cli-draft-new` after the prior low-yield streak did not reach the three-outcome threshold; reread `DraftNewCommand.cs` and `DraftNewCommandCoreTests`, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
+2026-10-30 seed hunt #113 (seed-only): repeated the DraftNew command source review and focused CLI tests after the prior seed-only pass; `DraftNewCommandCoreTests` passed 73/73 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #112 (seed-only): repeated the DraftNew command source review and focused CLI tests after the prior seed-only pass; `DraftNewCommandCoreTests` passed 73/73 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #111 (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; repeated the DraftNew command source review and focused CLI tests, which passed 73/73 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
 
 2026-10-30 thorough hunt #96 (dry): rotation fired after three `ui-auth-proxy` seed-only outcomes. Cheap-disproof closed all five queued candidates: generated client calls map transport cancellation to `DraftApiResult` failures, JSON mode rejects missing system name during preflight, and non-JSON answer HTTP failure already has `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; focused `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
@@ -862,7 +912,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
@@ -997,7 +1047,32 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 41 · **Bugs found:** 2 · **Consecutive dry hunts:** 14
+**Hunts:** 52 · **Bugs found:** 2 · **Consecutive dry hunts:** 17
+
+2026-10-30 seed hunt #128 (seed-only): rotation fired after eight low-yield `cli-terraform-evidence` outcomes but no alternate Set 3 zone was eligible; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed. Seeded two fresh reachable `(candidate)` rows for the generated deployment-evidence report’s mixed metadata/leaf presentation.
+
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the numbered Terraform summary presents metadata-only composition and pilot entries beside executable leaf roots without an explicit entry-kind marker, so an operator following the report may attempt to apply a non-apply root; locus: the `foreach` that numbers every `DefaultApplyOrderRoots()` line in the Terraform section; input: a `deployment-evidence` report consumed as the operator’s apply checklist.
+- [ ] (candidate) `DefaultApplyOrderRoots` — the static evidence list carries orchestration meaning only in prose annotations while plain leaf lines are indistinguishable from paths that require a legacy or hosted execution mode, so a report consumer that preserves only the path text can lose the required mode distinction; locus: annotated orchestrator/composition/pilot entries mixed with plain leaves; input: generated Markdown normalized by a deployment-review export/import step.
+
+2026-10-30 seed hunt #127 (seed-only): rotation fired after seven low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #126 (seed-only): rotation fired after six low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #125 (seed-only): rotation fired after five low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #124 (seed-only): rotation fired after four low-yield `cli-terraform-evidence` outcomes but the picker still had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #123 (seed-only): rotation fired after three low-yield `cli-terraform-evidence` outcomes but the picker had no alternate eligible zone; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #122 (seed-only): rotation kept `cli-terraform-evidence` after one prior seed-only and one dry outcome; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 seed hunt #121 (seed-only): rotation kept `cli-terraform-evidence` after one prior dry hunt; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed candidate or hunt-ready row emerged after the queued candidates were exhausted. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 thorough hunt #120 (dry): rotation kept `cli-terraform-evidence` after two `cli-draft-new` seed-only outcomes. Cheap-disproof closed all five queued candidates: no repository consumer sorts, normalizes, path-validates, or plans from the mixed evidence list; existing composition and extraction tests cover the authoritative ordering and metadata distinction. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 thorough hunt #117 (dry): rotation fired after three `cli-draft-new` seed-only outcomes. Cheap-disproof closed all five queued candidates: collection results are caller-owned, repository consumers do not resolve or parse the citation/annotations as external paths, no Windows path consumer is reachable, and report tests distinguish metadata from executable leaves; `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
+
+2026-10-30 thorough hunt #114 (dry): rotation fired after three `cli-draft-new` seed-only outcomes. Cheap-disproof closed all ten queued candidates: the collection expression creates fresh ordering, external indexer/path-parser behavior has no repository reachability, metadata annotations and pilot wording have existing parity guards, and reference-document absence is covered by the unresolved-root contract; `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed.
 
 2026-10-21 thorough hunt (dry, lane B): cheap-disproof closed five picker `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped zone filter 55 passed.
 
@@ -1007,29 +1082,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DocumentationRelativePath` — repo-relative citation requires on-disk checkout file — **cheap-disproof 2026-10-21 thorough hunt #41:** in-repo tests assert doc exists under repository root; unresolved checkout cites path by design via `Compose_when_repository_root_unresolved_cites_doc_path_without_checkout_root`.
 - [x] (valid-no-repro) `DefaultApplyOrderRoots` — raw list index used as execution wave mis-assigns hosted leaf four — **cheap-disproof 2026-10-21 thorough hunt #41:** first hosted leaf is index 3 after three composition metadata lines; regression `DefaultApplyOrderRoots_first_hosted_leaf_is_not_at_composition_wave_list_index`.
 
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer casting the returned list to `string[]` may mutate shared ordering — locus: collection expression return; input: hostile cast/mutate before re-emitting evidence.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — inline-code doc citation is invisible to link-only documentation indexers — locus: backtick-wrapped `DocumentationRelativePath`; input: external indexer expecting Markdown links.
-- [ ] (candidate) `DefaultApplyOrderRoots` — Windows path normalization without forward-slash handling can miss roots — locus: hardcoded `/` paths; input: consumer compares `Path.GetFullPath` without normalization.
-- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator legacy annotation vocabulary differs from composition `no Azure apply` phrasing — locus: orchestrator metadata line; input: annotation-only classifier treats orchestrator as executable.
-- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — pilot profile prose can drift from final evidence line without failing sixteen-leaf sync — locus: pilot metadata wording; input: doc edit without `DefaultApplyOrderRoots` change.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — a consumer casting the returned list to `string[]` may mutate shared ordering — **cheap-disproof 2026-10-30 thorough hunt #114:** the collection expression creates a fresh array for each call; a cast can only mutate that caller-owned result, not shared ordering.
+- [x] (invalid) `DeploymentEvidenceReportMarkdown.Compose` — inline-code doc citation is invisible to link-only documentation indexers — **cheap-disproof 2026-10-30 thorough hunt #114:** no link-only indexer is a reachable repository consumer; the generated evidence contract intentionally emits an inline-code repository citation.
+- [x] (invalid) `DefaultApplyOrderRoots` — Windows path normalization without forward-slash handling can miss roots — **cheap-disproof 2026-10-30 thorough hunt #114:** no Windows path consumer is present in this zone; the candidate supplies an external consumer rather than a reachable current wrong outcome.
+- [x] (invalid) `DefaultApplyOrderRoots` — orchestrator legacy annotation vocabulary differs from composition `no Azure apply` phrasing — **cheap-disproof 2026-10-30 thorough hunt #114:** no annotation-only classifier consumes this list in the repository, and the orchestrator’s legacy-only suffix is covered by existing parity tests.
+- [x] (valid-no-repro) `REFERENCE_SAAS_STACK_ORDER.md` — pilot profile prose can drift from final evidence line without failing sixteen-leaf sync — **cheap-disproof 2026-10-30 thorough hunt #114:** the focused reference/order tests assert the canonical pilot tail and leaf parity; no current edit path bypasses those guards.
 
 **Hunts:** 40 · **Bugs found:** 2 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `DefaultApplyOrderRoots` — the exact `infra/terraform` root can be mistaken for a prefix of `infra/terraform-edge` or `infra/terraform-foundation` by a path consumer using `StartsWith` — locus: adjacent root strings ~13–29; input: leaf extractor matching root directories without a separator boundary.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that glob-expands every returned root may include nested Terraform modules beneath metadata-only composition roots — locus: first three annotated roots and pilot metadata root; input: filesystem scanner treats “no Azure apply” prose as an ordinary directory path.
-- [ ] (candidate) `DocumentationRelativePath` — generated evidence can cite a missing or renamed reference document because the constant has no existence check — locus: single string constant ~6; input: deployment report generation after the reference markdown is moved.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a case-sensitive consumer may treat a casing-only directory rename as a missing root while Windows apply succeeds — locus: hardcoded lowercase paths ~12–31; input: checkout with one Terraform directory casing changed.
-- [ ] (candidate) `DefaultApplyOrderRoots` — metadata annotations can become stale when a root changes from composition-only to executable without changing its path string — locus: prose suffixes on foundation/platform/app/pilot entries; input: Terraform root behavior changes but reference annotation is not updated.
+- [x] (invalid) `DefaultApplyOrderRoots` — the exact `infra/terraform` root can be mistaken for a prefix of `infra/terraform-edge` or `infra/terraform-foundation` by a path consumer using `StartsWith` — locus: adjacent root strings ~13–29; input: leaf extractor matching root directories without a separator boundary. **cheap-disproof 2026-10-30 thorough hunt #114:** no current prefix-based consumer is reachable from this reference helper; the claim depends on an external parser.
+- [x] (invalid) `DefaultApplyOrderRoots` — a consumer that glob-expands every returned root may include nested Terraform modules beneath metadata-only composition roots — locus: first three annotated roots and pilot metadata root; input: filesystem scanner treats “no Azure apply” prose as an ordinary directory path. **cheap-disproof 2026-10-30 thorough hunt #114:** no glob-expanding consumer consumes annotated entries here; metadata rows are explicitly distinguished by their annotations.
+- [x] (valid-no-repro) `DocumentationRelativePath` — generated evidence can cite a missing or renamed reference document because the constant has no existence check — locus: single string constant ~6; input: deployment report generation after the reference markdown is moved. **cheap-disproof 2026-10-30 thorough hunt #114:** unresolved repository roots intentionally cite the stable repository-relative path, while existing composition tests cover the in-repo document contract.
+- [x] (invalid) `DefaultApplyOrderRoots` — a case-sensitive consumer may treat a casing-only directory rename as a missing root while Windows apply succeeds — locus: hardcoded lowercase paths ~12–31; input: checkout with one Terraform directory casing changed. **cheap-disproof 2026-10-30 thorough hunt #114:** no case-sensitive Windows consumer is present in this zone; the input is an unreferenced external behavior.
+- [x] (invalid) `DefaultApplyOrderRoots` — metadata annotations can become stale when a root changes from composition-only to executable without changing its path string — locus: prose suffixes on foundation/platform/app/pilot entries; input: Terraform root behavior changes but reference annotation is not updated. **cheap-disproof 2026-10-30 thorough hunt #114:** this requires a future Terraform semantic change outside the current source; it is not a present reachable defect.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — callers can cast the `IReadOnlyList<string>` result to its runtime array and mutate their local ordering — locus: collection expression return ~10–32; input: consumer casts the result to `string[]` before generating evidence.
-- [ ] (candidate) `DocumentationRelativePath` — a repo-relative path without a leading `./` may resolve against a generated document’s directory instead of repository root — locus: constant declaration ~6; input: markdown consumer resolves the link from a nested output directory.
-- [ ] (candidate) `DefaultApplyOrderRoots` — forward-slash root paths may fail exact platform-native path comparisons on a Windows consumer — locus: hardcoded `infra/...` strings ~12–31; input: consumer compares `Path.GetFullPath` output to the evidence entries without normalization.
-- [ ] (candidate) annotated roots — Unicode em-dash metadata separators may not be stripped by a parser that accepts only ASCII hyphen delimiters — locus: composition and legacy suffixes in the returned strings; input: external leaf extractor parsing the reference list.
-- [ ] (candidate) `DefaultApplyOrderRoots` — returning executable paths and metadata prose as one string type forces downstream consumers to parse applyability heuristically — locus: mixed annotated/unannotated list entries ~12–31; input: new consumer treats every returned entry as an Azure-apply root.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — callers can cast the `IReadOnlyList<string>` result to its runtime array and mutate their local ordering — **cheap-disproof 2026-10-30 thorough hunt #117:** the collection expression creates a fresh array per call; mutation affects only that caller-owned result, and no repository consumer casts or reuses shared ordering.
+- [x] (invalid) `DocumentationRelativePath` — a repo-relative path without a leading `./` may resolve against a generated document’s directory instead of repository root — **cheap-disproof 2026-10-30 thorough hunt #117:** no repository consumer resolves this citation as a relative link from a generated document; report composition emits the repository-relative contract and existing tests cover unresolved-root behavior.
+- [x] (invalid) `DefaultApplyOrderRoots` — forward-slash root paths may fail exact platform-native path comparisons on a Windows consumer — **cheap-disproof 2026-10-30 thorough hunt #117:** no current Windows path consumer is reachable from this helper; the candidate depends on an external consumer not present in the zone.
+- [x] (invalid) annotated roots — Unicode em-dash metadata separators may not be stripped by a parser that accepts only ASCII hyphen delimiters — **cheap-disproof 2026-10-30 thorough hunt #117:** no repository parser consumes these annotation strings; the only extraction helpers are test fixtures, so the external parser premise is not reachable.
+- [x] (invalid) `DefaultApplyOrderRoots` — returning executable paths and metadata prose as one string type forces downstream consumers to parse applyability heuristically — **cheap-disproof 2026-10-30 thorough hunt #117:** no repository consumer treats the mixed evidence list as an execution plan; existing report and leaf-extraction tests distinguish metadata from executable paths.
 
 - [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a classifier that recognizes only the `metadata composition root` and `no Azure apply` annotation phrases can treat the differently annotated orchestrator entry as executable — locus: annotated entries at lines ~12–31; input: consumer classifies root lines by annotation vocabulary before presenting apply candidates.
 - [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the documentation citation is rendered as an inline code span rather than a Markdown link, so a consumer that extracts links cannot discover the authoritative stack-order document — locus: Terraform-section citation around `DocumentationRelativePath`; input: generated deployment-evidence Markdown processed by a link-based documentation indexer.
@@ -1111,11 +1186,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — locus: collection expression entries ~12–31; input: report/export consumer applies ordinal string sorting to the returned list.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — locus: `AppendLine` sequence around the Terraform section; input: downstream Markdown normalization that collapses section whitespace.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — locus: mixed annotated and plain entries ~12–31; input: leaf counter scans rendered evidence without annotation-aware extraction.
-- [ ] (candidate) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — locus: constant declaration ~6; input: report generation with `repositoryRoot` unavailable and a path validator requiring an on-disk file.
-- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — locus: composition roots preceding `infra/terraform-private`; input: planner derives wave boundaries from raw list positions instead of annotations.
+- [x] (invalid) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — **cheap-disproof 2026-10-30 thorough hunt #120:** no repository report/export consumer sorts this list; the authoritative sequence is asserted directly by existing ordering tests.
+- [x] (invalid) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — **cheap-disproof 2026-10-30 thorough hunt #120:** no downstream Markdown normalizer is reachable in this zone; existing composition tests assert heading, citation, and numbered-root ordering.
+- [x] (invalid) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — **cheap-disproof 2026-10-30 thorough hunt #120:** no repository consumer scans rendered evidence this way; the existing extraction helper and report contract distinguish metadata from sixteen executable leaves.
+- [x] (invalid) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — **cheap-disproof 2026-10-30 thorough hunt #120:** no current path validator consumes this citation; unresolved-root composition intentionally preserves the repository-relative contract.
+- [x] (invalid) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — **cheap-disproof 2026-10-30 thorough hunt #120:** no planner consumes this helper as an execution plan; existing index and first-hosted-leaf regressions cover the list-position distinction.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
 
@@ -1240,6 +1315,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-31 seed hunt (seed-only): re-read `useRunsList`, `RunsListClient`, the URL/popstate state boundaries, and the focused 69-test Runs List suites; existing regressions cover the reachable inspector, compare, filter, pagination, card-layout, and disclosure branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
+
+2026-10-31 thorough hunt (dry): cheap-disproof closed the five picker candidates — compare soft navigation, combined inspector/compare popstate, debounced filter clearing, third-compare replacement notices, and the filter-disclosure URL monitor are covered by existing tests or lack a reachable branch; no production change. Private beta: n/a.
+
 2026-10-29 thorough hunt (hit): promoted url-driven `compareRuns` sync — after browser back narrowed committed `compareRuns`, the `urlCompareRunsRaw` effect restored two ids from lagging `useSearchParams` and resurrected the second compare checkbox while the inspector stayed open; effect now prefers committed compare ids when they disagree with router params; regression `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids`. Cheap-disproof closed `runsListFilterOpen` stale write (`invalid`, unreachable branch); `clearFilterText` vs debounce (`valid-no-repro`, regression `does not restore q= after Escape clears the filter before the debounce completes`); buyer card + compare deep link (`valid-no-repro`, regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`); pagination zero-match Next (`valid-no-repro`, regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). 67 scoped `RunsListClient` vitest passed. Private beta: backing out of a two-review compare selection no longer re-checks the dismissed review while compare query params are still catching up.
 
 - [x] (proven) `useRunsList` `urlCompareRunsRaw` effect — popstate-narrowed compare restored from lagging router — **hit 2026-10-29 thorough hunt:** prefer committed compare when serialized ids differ; regression above.
@@ -1248,11 +1327,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useRunsList` buyer card layout — compare deep link leaves ids without bar — **cheap-disproof 2026-10-29 thorough hunt:** URL compare cleared when bar hidden; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
 - [x] (valid-no-repro) `RunsListClient` pagination Next — zero-match filter omits debounced `q=` on Next href — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges live filter text; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
 
-- [ ] (candidate) `useRunsList` soft navigation — `compareRuns` removed via `useSearchParams` without popstate may leave row checkboxes checked until props refresh — locus: urlCompareRunsRaw effect; input: applyRouterHref clears compare only (extend soft-nav compare test).
-- [ ] (candidate) `useRunsList` popstate inspector handler — may close inspector when committed still has id but compare param removed in same back step — locus: popstate inspector ~450; input: combined back navigation harness.
-- [ ] (candidate) `RunsListClient` filter input — clearing text with delete/backspace only relies on debounce without immediate URL clear — locus: onChange vs clearFilterText; input: delete-to-empty then advance timers (monitor intentional debounce-only clear).
-- [ ] (candidate) `useRunsList` third-compare rotation — replacement notice may persist when popstate restores two compare ids from lagging router — locus: compare notice + url effect; input: extend popstate notice test with lagging router two-id param.
-- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — monitor `useSearchParams` write parity when disclosure UX reopens — locus: client ~115; input: invalid until branch reachable.
+- [x] (valid-no-repro) `useRunsList` soft navigation — `compareRuns` removed via `useSearchParams` without popstate may leave row checkboxes checked until props refresh — **cheap-disproof 2026-10-31 thorough hunt:** URL-driven compare synchronization clears selection on soft navigation; existing compare URL synchronization tests cover the state transition.
+- [x] (valid-no-repro) `useRunsList` popstate inspector handler — may close inspector when committed still has id but compare param removed in same back step — **cheap-disproof 2026-10-31 thorough hunt:** committed inspector state is preserved independently of compare synchronization; existing combined inspector/compare popstate coverage passes.
+- [x] (valid-no-repro) `RunsListClient` filter input — clearing text with delete/backspace only relies on debounce without immediate URL clear — **cheap-disproof 2026-10-31 thorough hunt:** the filter effect owns debounced URL synchronization and clear-path timer cancellation; existing filter clearing regression coverage passes.
+- [x] (valid-no-repro) `useRunsList` third-compare rotation — replacement notice may persist when popstate restores two compare ids from lagging router — **cheap-disproof 2026-10-31 thorough hunt:** popstate and URL-driven compare narrowing both clear stale replacement notices; existing compare notice regressions pass.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — monitor `useSearchParams` write parity when disclosure UX reopens — **cheap-disproof 2026-10-31 thorough hunt:** the disclosure branch remains unreachable for this zone’s buyer-polished single-row path (ledger #1355).
 
 2026-10-29 thorough hunt (hit): promoted `resolveInspectorRunIdForUrlSync` — after Escape cleared committed `inspectorRunId`, toggling compare still passed stale `useSearchParams` inspector id into `syncCompareInspectorToUrl` and rewrote the URL; helper now prefers committed inspector, then treats stale router-only id as closed; regression `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`. Cheap-disproof closed panel close lag (`stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`); popstate vs url-driven open (`valid-no-repro`, regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`); debounced `q=` dropping `inspectorRunId` (`preserves inspectorRunId in debounced q= sync when filter text is typed`); disclosure `useSearchParams` monitor (`invalid`, branch unreachable). 66 scoped `RunsListClient` vitest passed. Private beta: closing the runs-list inspector then selecting compare no longer resurrects a dismissed inspector deep link in the URL while router params lag.
 
@@ -1294,13 +1373,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 38
-- **last-hunt:** 2026-10-29
+- **hunts:** 47
+- **last-hunt:** 2026-10-31
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): reread `RunsListClient`, `useRunsList`, the continue-last resolver, and the focused Runs List suites; no candidate met the same-run proof bar. Retained two bounded input-shape candidates for invalid server dates and recent-view row validity. No production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): cheap-disproof found that the continue strip does not render or sort on the malformed date, and alias-shaped recent-view links intentionally canonicalize at the route boundary; the focused Runs List suites passed 69/69. No production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): reread the current URL/popstate synchronization and resume-collapse paths; the dedicated resume tests and malformed-date regression cover the retained recent-view boundaries, and no new reachable mechanism survived cheap-disproof. No production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `resolveContinueLastRunsListRow` — malformed `createdUtc` on a recent-view row — **cheap-disproof 2026-10-31 seed hunt:** the continue strip renders only title and route, and the recent-view match does not use the timestamp; the main list’s finite-date filter prevents the malformed row from appearing in the table, but no user-visible wrong outcome was reproduced.
+- [x] (valid-no-repro) `resolveContinueLastRunsListRow` — recent-view matching before demo alias normalization — **cheap-disproof 2026-10-31 seed hunt:** alias links are intentionally canonicalized by the review route, and the continue strip does not expose a non-canonical data row; no wrong outcome was reproduced.
+
+2026-10-31 seed hunt (seed-only): repeated the Runs List state-boundary check; the focused 69-test suites remain green and no new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): reran the Runs List focused suites with no source churn; the 69 existing regressions remain green and no new reachable candidate emerged. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): reran the Runs List focused suites with no source churn; the 69 existing regressions remain green and no new reachable candidate emerged. No production change. Private beta: n/a.
 
 ### Hypotheses
 
@@ -1705,6 +1798,38 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-30 seed hunt #48 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #47 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #46 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #45 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #44 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #43 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; the picker requested rotation but no alternate eligible zone was available, and no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #42 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 seed hunt #41 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; no new mechanism-backed candidate was supported. No production code changed.
+
+2026-10-30 thorough hunt #40 (dry): classified the five remaining Webhooks candidates as invalid for this zone because the zone path is exclusively `HelpDocsClient.tsx`; no Webhooks source or test was exercised. The focused HelpDocsClient vitest passed 61/61 and no HelpDocsClient candidates remain open.
+
+- [x] (invalid) `useWebhooksSettingsMutations.confirmDisableSubscription` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsConnectionTest` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `WebhooksSettingsClient` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsLoad.load` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+- [x] (invalid) `useWebhooksSettingsMutations.submit` — out-of-zone candidate; its source locus is Webhooks settings, not `HelpDocsClient.tsx`.
+
+2026-10-30 thorough hunt #39 (dry): cheap-disproof closed the five HelpDocsClient candidates — debounced q sync has canonical one-replace behavior with parameter-order coverage; internal query/hash variants remain visible; filter haystack retains raw external URLs alongside normalized tokens; and Escape updates query state so the pending debounce is cleaned up. The five Webhooks candidates remain queued because they are outside this zone’s `HelpDocsClient.tsx` path. Focused HelpDocsClient vitest passed 61/61; no production code changed.
+
+- [x] (valid-no-repro) `HelpDocsClient` — debounced q sync loops `router.replace` when URL parameter order differs — **cheap-disproof 2026-10-30 thorough hunt #39:** existing parameter-order and unrelated-URL-param regressions show at most one canonical replace.
+- [x] (valid-no-repro) `mergeDocIndex` — fetched https base row is dropped when static internal quick link shares its pathname — **cheap-disproof 2026-10-30 thorough hunt #39:** query deep-link merge regression keeps fetched variants visible.
+- [x] (valid-no-repro) `helpDocLinkHref` / `mergeDocIndex` — internal hash variant is treated as a duplicate of the static path — **cheap-disproof 2026-10-30 thorough hunt #39:** hash deep-link regression keeps the fetched internal variant visible.
+- [x] (valid-no-repro) `normalizeDocIndexUrlForDedupe` — normalized external filter token loses query-only search terms — **cheap-disproof 2026-10-30 thorough hunt #39:** filtering includes the raw URL and query-string regression passes.
+- [x] (valid-no-repro) `HelpDocsClient.clearSearch` — the pending debounce repopulates `q` after Escape — **cheap-disproof 2026-10-30 thorough hunt #39:** Escape clears query state and existing debounce cleanup coverage passes.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — dual external hash anchors intentionally both render (`renders two external hash fragment variants on the same vendor path`); leading-whitespace scheme-relative urls still classify as external (`classifies protocol-relative doc-index urls with leading whitespace as external links`); uppercase percent-encoding searchable via haystack lowercasing (`filters rows when the search query matches uppercase percent-encoding in the doc-index url`); static quick link vs external vendor pathname merge keys disjoint (`invalid`); URL `q` refilters after index load (`applies URL q filter to fetched rows after the documentation index finishes loading` + existing active-search test). 62 scoped HelpDocsClient + help-hub-search-url vitest passed; no production code changed. Reseeded five follow-on `(candidate)` rows below.
 
 - [x] (valid-no-repro) `mergeDocIndex` — two external hash variants on same merge key — **cheap-disproof 2026-10-29 thorough hunt:** both deep-link suffix rows render; regression `renders two external hash fragment variants on the same vendor path`.
@@ -1712,12 +1837,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `HelpDocsClient` filter — uppercase hex percent escapes not searchable — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw url + lowercased normalized token; regression `filters rows when the search query matches uppercase percent-encoding in the doc-index url`.
 - [x] (invalid) `mergeDocIndex` — static quick link blocks unrelated external vendor row — **cheap-disproof 2026-10-29 thorough hunt:** merge keys for `/help/troubleshooting` vs `https://…` cannot collide.
 - [x] (valid-no-repro) `indexQuery.isPending` — URL `q` fails to refilter after fetch — **cheap-disproof 2026-10-29 thorough hunt:** `mergedEntries` memo recomputes; regressions `applies URL q filter to fetched rows after the documentation index finishes loading` and `shows fetched index matches for an active search after the index load completes`.
-
-- [ ] (candidate) `HelpDocsClient` — `replaceIfHrefChanged` not used for debounced q sync may loop `router.replace` when param order differs — locus: debounce effect ~245; input: help hub with `tab=` + `q=` permutations (monitor replace count).
-- [ ] (candidate) `mergeDocIndex` — fetched https base row dropped when static quick link shares pathname without scheme — locus: static `/architecture/reviews` vs fetched `/architecture/reviews?tab=` (monitor internal deep link only).
-- [ ] (candidate) `helpDocLinkHref` — internal url with only hash differs from static path but merge treats as duplicate without suffix check on static rows — locus: static seed claimedUrls; input: static `/help/troubleshooting` vs fetched `/help/troubleshooting#symptom` (monitor hash on internal).
-- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — external url filter token loses query string so search cannot match version param on normalized token alone — locus: haystack normalizedUrl; input: rely on raw url only for `%3D` tokens (monitor dual haystack contract).
-- [ ] (candidate) `HelpDocsClient.clearSearch` — debounced timer repopulates `q` after Escape when operator typed during same tick — locus: clearSearch + debounce race; input: type + Escape within 250ms with fake timers (extend Escape tests).
 
 2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` merge-order gap — when doc-index listed an external hash or scheme-relative `#` variant before the https base row, the base link was dropped because normalized-path dedupe fired without checking for an already-merged deep-link variant; `mergedIncludesDeepLinkVariantForKey` now keeps the base outbound row; regression `renders the base external url when doc-index lists a hash variant before the https row`. Cheap-disproof closed scheme-relative/hash suffix parse parity (same `docIndexFetchedUrlHasDeepLinkSuffix` URL parse as prior external hash hit); HelpProductGuide debounce (outside zone `paths`); bare `#` fragment guard (`parsed.hash.length > 0`); category order flash (display-only sort); empty index warning (intentional static fallback). 58 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: help hub vendor links stay complete regardless of doc-index row order when both anchor and base urls are present.
 
@@ -1753,9 +1872,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 38
+- **hunts:** 49
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
@@ -1934,12 +2053,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WebhooksSettingsClient` — create API failure through recovery refresh — **cheap-disproof 2026-10-29 seed hunt:** successful `load()` clears failure; regression `clears page failure after manual refresh succeeds following create API failure`.
 - [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — load start clears mutation failure during overlap — **cheap-disproof 2026-10-29 seed hunt:** intentional refresh preamble; regression `clears save failure alert when manual refresh starts before subscription reload completes`.
 - [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — recovery refresh blocked while loading — **cheap-disproof 2026-10-29 seed hunt:** `RefreshButton` disabled when `loading`; wait-until-enabled in recovery refresh tests.
-- [ ] (candidate) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable error inline persists when post-disable reload fails with API error — locus: `presentToggleRefreshFailureInDialog`; input: list reject after disable toggle (monitor).
-- [ ] (candidate) `useWebhooksSettingsConnectionTest` — `testingId` cleared in finally even when catch returns early on stale generation — locus: catch/finally ordering; input: reject test after refresh (monitor).
-- [ ] (candidate) `WebhooksSettingsClient` — save failure alert reappears if manual refresh fails after create API error — locus: load catch after refresh; input: save error then failed refresh (monitor).
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — superseded successful response discarded when newer refresh fails — locus: newest-request policy; input: overlapping refresh failure after prior success (monitor).
-- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name guard uses stale rows until reload after failed save — locus: submit duplicate check; input: failed save then rename retry before refresh (monitor).
-
 - [x] (valid-no-repro) `useWebhooksSettingsConnectionTest` — stale test catch calls error toast after refresh — **cheap-disproof 2026-10-29 seed hunt:** catch generation guard matches try; regression `does not show connection test error toast when refresh invalidates an in-flight failed test`.
 - [x] (valid-no-repro) `WebhooksSettingsClient` — superseded create failure persists through recovery refresh — **cheap-disproof 2026-10-29 seed hunt:** successful `load()` clears failure; regression above.
 - [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmEnableSubscription` — enableBusy stuck after refresh during confirm — **cheap-disproof 2026-10-29 seed hunt:** refresh disabled while list loading; superseded reload clears busy; regression `does not leave enable confirmation busy after superseded post-toggle list reload`.
@@ -1993,6 +2106,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — enable confirmation reopened after Cancel when `webhookEnableId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhookToggleIdForUrlSync` prefers committed toggle ids; regression `stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId`.
 
 ## Zone: ui-webhooks-settings
+
+2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
 
@@ -2085,13 +2200,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 45
+- **hunts:** 53
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): repeated the webhook source/churn check and focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so no production change was made. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): repeated the webhook source/churn check once more and focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so no production change was made. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): repeated the webhook source/churn check again and focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so no production change was made. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): rechecked the webhook source boundary and focused 97-test suite after the Runs List rotation; no source change or reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): rechecked the webhook boundary after the prior seed pass; the focused 97-test suite remains green and no new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): checked for post-hunt webhook source churn and reran the focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so the established refresh, failure, scope-generation, URL-confirmation, and mutation-state coverage remains the current boundary. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-09 seed hunt (seed→hit): promoted failed-load deep-link clearing. `useWebhooksSettingsMutations` waited only on `loading`, so a rejected `listAlertRoutingSubscriptions` looked like a missing subscription and stripped `webhookEnableId`. `refreshSubscriptions` then called `setPendingEnable(null)` and rewrote the URL even though no dialog was open. The effect now returns until `hasLoadedSuccessfully`, and unchanged confirmation ids do not sync the URL. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
@@ -2197,11 +2326,31 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+**Hunts:** 15 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #107 (seed-only): repeated the host-gate source review and focused regression suite after the prior seed-only pass; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #106 (seed-only): repeated the host-gate source review and focused regression suite after the prior seed-only pass; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #105 (seed-only): repeated the host-gate source review and focused regression suite after the prior auth/proxy rotation; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #103 (seed-only): repeated the host-gate source review and focused regression suite after the prior low-yield cycle; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #102 (seed-only): repeated the host-gate source review and focused regression suite after three low-yield selections; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #101 (seed-only): repeated the host-gate source review and focused regression suite after the prior reseed; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #99 (seed-only): repeated the host-gate source review and focused regression suite after the prior dry/seed cycle; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #98 (seed-only): re-read host-gate normalization, split-host classification, alias matching, and the focused regression suite; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 thorough hunt #97 (dry): cheap-disproof closed both queued candidates: a double-encoded slash is not a reachable canonical operator route and is safely left alone, while `URL.host` retains `:8443` and the existing `www.` alias comparison matches `www.archlucid.net:8443`; host-gate vitest passed 23/23. No production code changed.
+
 2026-10-30 seed hunt #56 (hit): promoted `isMarketingOnlyPath` trailing-slash handling — app-host `/pricing/` was not classified as marketing-only because exact-path checks required no trailing slash, so split-site users could remain on the app host instead of reaching the public pricing page; compare marketing paths after removing trailing slashes while preserving the original redirect location; regression `redirects app-host marketing paths with a trailing slash to the public origin`; host-gate vitest 23/23. Private beta: invited buyers opening a trailing-slash pricing URL on the app host now reach the public pricing page instead of an operator-host route that can render the wrong shell.
 
 - [x] (proven) `isMarketingOnlyPath` — app-host `/pricing/` bypasses the public marketing handoff — **hit 2026-10-30 seed hunt:** compare exact marketing paths using a trailing-slash-free canonical pathname; regression above.
-- [ ] (candidate) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — locus: one `decodeURIComponent` pass before URL pathname resolution; input: public-host operator bookmark containing a double-encoded slash segment.
-- [ ] (candidate) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — locus: alias comparison after `URL.host` normalization; input: configured `https://archlucid.net:8443` and request Host `www.archlucid.net:8443`.
+- [x] (invalid) `normalizeHostGatePathname` — double-encoded slash `%252F` remains classified differently from a single-encoded slash — **cheap-disproof 2026-10-30 thorough hunt #97:** a double-encoded slash is not a canonical operator route; leaving the encoded segment on the public host is a safe no-redirect outcome, not a user-visible split-host defect.
+- [x] (valid-no-repro) `hostsMatch` — `www.` public-host alias with a non-default port fails the split-host match — **cheap-disproof 2026-10-30 thorough hunt #97:** `URL.host` retains the non-default port and `requestHost === \`www.${configuredHost}\`` matches the configured alias.
 
 2026-10-30 thorough hunt #52 (dry): cheap-disproof closed the literal-plus query candidate (redirect concatenates `input.search` unchanged), the `/value-report` coverage candidate (the legacy prefix is present), and the control-character candidate (decode failure safely falls through to `next`); 22 host-gate tests passed. Nested `%252F` normalization and app-host `/pricing/` remain monitor-only candidates with no failing repro.
 
@@ -2217,7 +2366,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `decideHostGateRedirect` — empty `search` on `/` → `/welcome` — **cheap-disproof 2026-10-29 thorough hunt:** empty search yields `https://archlucid.net/welcome` without stray `?`.
 - [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
 
-- [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
+- [x] (invalid) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — **cheap-disproof 2026-10-30 thorough hunt #97:** the single decode pass leaves `%2F` encoded and the resulting non-canonical path is safely not handed off.
 - [x] (valid-no-repro) `decideHostGateRedirect` — `+` in query preserved on operator redirect — **cheap-disproof 2026-10-30 thorough hunt #52:** `pathAndQuery` appends the original `input.search` unchanged.
 - [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — **cheap-disproof 2026-10-30 thorough hunt #52:** `/value-report` is already in the legacy operator prefix list.
 - [x] (proven) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — **hit 2026-10-30 seed hunt #56:** see zone-header note above.
@@ -2295,17 +2444,38 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-31 thorough hunt (dry): attempted the retained empty-reasoning publish-gate candidate with an isolated page-client test selection, but Vitest exhausted the VM heap before producing a reliable repro; the candidate remains open for a lower-memory harness. The focused checklist suite passed 5/5 and no production change was made. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): reread the page-client action gates and the focused checklist regressions; the only fresh bounded concern is retained as a candidate because the large page-client suite is currently VM-heap constrained and did not provide a reliable repro result. No production change. Private beta: n/a.
+
+2026-10-30 thorough hunt #50 (hit): promoted blank source-context handling — a non-empty `sourceTexts` array with only whitespace contents was marked `loaded`, so the page showed loaded-intake messaging while the architecture description remained empty; require at least one trimmed source body before marking context loaded; regression `hasUsableArchitectureSourceText` rejects whitespace-only rows; focused helper suites passed 5/5. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
+
+- [x] (proven) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy — **hit 2026-10-30 thorough hunt #50:** product context is `loaded` only when a source body has non-whitespace content; regression above. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — reasoning result kind alone marks the analysis checklist complete before a usable result payload exists — **cheap-disproof 2026-10-31 thorough hunt:** the shipped `hasActionableArchitectureIntelligenceResult` predicate rejects empty reasoning payloads; focused checklist regressions pass 5/5.
+
+2026-10-31 thorough hunt (dry): the only picker candidate was already closed by the current `hasActionableArchitectureIntelligenceResult` fix and 5/5 focused checklist regressions; no additional repro or production change. Private beta: n/a.
+
+2026-10-30 seed hunt #49 (seed-only): corrected candidate placement after hit #48; the two remaining source-context/result-state candidates remain untested and no new candidate was promoted in this pass.
+
+2026-10-30 thorough hunt #48 (hit): promoted `primaryDescriptionFromSources` — when source context contained only an attachment and no canonical `architecture-description.txt`, the first attachment was copied into the architecture description field and could be submitted as the primary source; require the canonical description file instead of falling back to `sources[0]`; regression `does not treat an attachment-only source as the primary architecture description`; related helper tests passed 9/9. Private beta: invited architects opening reviews with attachment-only intake no longer submit an attachment’s content as the architecture description; the description remains empty until they provide the primary brief.
+
+2026-10-30 seed hunt #47 (seed-only): reread the page-client action gates and source-text projection after the prior candidate exhaustion; no candidate was promoted or reproven. Seeded three fresh bounded candidates below.
+
+- [x] (proven) `primaryDescriptionFromSources` — attachment-only source context uses the first attached document as the architecture description — **hit 2026-10-30 thorough hunt #48:** require the canonical `architecture-description.txt` source; regression above. Private beta: invited architects opening reviews with attachment-only intake no longer submit an attachment’s content as the architecture description; the description remains empty until they provide the primary brief.
+
+2026-10-30 thorough hunt #46 (dry): cheap-disproof closed five queued candidates — conflict refs reset on the non-conflicting inbound path, reasoning response ids intentionally become the canonical active scope, retry disables the editable description while loading, fixture loading does not mutate the URL tier, and review selection clears interview answers on scope change. The page-client suite executed 57 tests but the worker exceeded the VM heap during teardown; the focused helper suite passed 3/3 and no production code changed.
+
 2026-10-29 thorough hunt (hit): promoted inbound `runId` drop after canonical hydration — removing `runId` while keeping `contextRunId` aligned to the canonical active scope incorrectly wiped hydrated description/priorities because intake reset keyed only on `contextRunId !== previousInbound`; `shouldClearIntakeWhenInboundRunIdDropped` now treats matching `activeRunId` as same scope; regressions `architecture-intelligence-page-helpers.test.ts` and `keeps hydrated intake when inbound runId is removed but contextRunId matches canonical scope`. Cheap-disproof closed invalid-tier reasoning without opening depth select (`reviewTier` state defaults Standard and invalid `tier` is stripped before POST); continue POST with scope switch mid-interview (`actionGenerationRef` stale guard + continue path uses current `activeRunId`). 7 scoped unit tests passed locally; page-client integration on CI. Private beta: operators who drop `runId` from architecture intelligence URLs after canonical scope sync keep hydrated intake instead of an empty form.
 
 - [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` removed while `contextRunId` matches canonical active scope after hydration — **hit 2026-10-29 thorough hunt:** `shouldClearIntakeWhenInboundRunIdDropped`; helper + page-client regressions above.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — analysis depth select shows Standard while URL still carries bogus `tier` until operator opens select — **cheap-disproof 2026-10-29 thorough hunt:** invalid tier strip effect + `reviewTier` state; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
 - [x] (valid-no-repro) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST uses stale run id after scope switch mid-interview — **cheap-disproof 2026-10-29 thorough hunt:** `invalidateInFlightActions` on context switch; regressions `clears reasoning results when contextRunId switches` and `keeps contextRunId scope banner when continue response omits runId`.
 
-- [ ] (candidate) `useArchitectureIntelligenceProductContext` — `clearedInboundContextConflictRef` never resets when inbound `runId` changes without remount — locus: conflict strip ref ~296–305; input: navigate A|B conflict then replace inbound id in-place (monitor one-shot strip).
-- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning response `runId` overwrites `contextRunId`-only URL scope with a third id — locus: `setActiveRunId` after run POST ~99–103; input: freeform `contextRunId` scope then run returns different `runId` (monitor banner vs URL sync).
-- [ ] (candidate) `useArchitectureIntelligenceProductContext.retryProductContextLoad` — reload nonce replays hydration while operator edited description mid-load — locus: `productContextReloadNonce` + hydration effect ~335–386; input: edit textarea during failed-then-retry product context fetch.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` — golden fixture load after invalid `tier` strip reintroduces bogus tier in share link — locus: fixture action vs tier strip ref; input: `tier=Typo` deep link then load golden fixture without changing depth select.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext.onSelectReview` — picking a review while `contextRunId`-only scope leaves interview answers from prior freeform run — locus: `onSelectReview` + `setInterviewAnswers`; input: reasoning interview answers then pick-review strip selection without clearing answers.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext` — `clearedInboundContextConflictRef` never resets when inbound `runId` changes without remount — **cheap-disproof 2026-10-30 thorough hunt #46:** the non-conflicting branch explicitly resets the ref; no one-shot conflict state remains.
+- [x] (invalid) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning response `runId` overwrites `contextRunId`-only URL scope with a third id — **cheap-disproof 2026-10-30 thorough hunt #46:** the response run id is the canonical active scope and `setActiveRunId` intentionally synchronizes it; no wrong-outcome mechanism.
+- [x] (invalid) `useArchitectureIntelligenceProductContext.retryProductContextLoad` — reload nonce replays hydration while operator edited description mid-load — **cheap-disproof 2026-10-30 thorough hunt #46:** the description textarea is disabled while `loadingAction` is `product-context`, so the proposed edit-during-load input is unreachable.
+- [x] (invalid) `ArchitectureIntelligencePageClient` — golden fixture load after invalid `tier` strip reintroduces bogus tier in share link — **cheap-disproof 2026-10-30 thorough hunt #46:** fixture loading does not write tier URL state; the invalid-tier effect strips the token once.
+- [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — picking a review while `contextRunId`-only scope leaves interview answers from prior freeform run — **cheap-disproof 2026-10-30 thorough hunt #46:** inbound review scope changes clear interview answers; covered by `clears interview answers when deep-linked review switches to another review`.
 
 2026-10-29 thorough hunt (hit): promoted conflicting `runId`/`contextRunId` deep links — when both search params disagreed, `contextRunId` scope could override inbound product hydration and leave a stale scope param in the URL; inbound `runId` is now authoritative, stale `contextRunId` is stripped via `router.replace`, and the `contextRunId` effect skips conflicting values; regression `strips stale contextRunId from the URL when inbound runId disagrees` supported by `architecture-intelligence-url-sync.test.ts` (contextRunId clear href helper). Promoted invalid `tier` query values — UI defaulted analysis depth to Standard while the URL kept a bogus `tier=` token until the operator changed depth; invalid tiers are now stripped from the URL once; regressions `removes invalid tier search param from the URL while defaulting analysis depth` (page client) and tier helper unit tests in `architecture-intelligence-url-sync.test.ts`. Cheap-disproof closed reasoning POST proxy-scope candidate — `postJson` always merges operator scope headers and `buildRequest` includes `activeRunId` from `contextRunId` scope; extended `keeps contextRunId scope banner when reasoning response omits runId` to assert request body `runId`. 4 URL-sync unit tests verified locally; full ArchitectureIntelligence page-client suite on CI. Private beta: architecture intelligence deep links no longer disagree between inbound review scope, URL params, and analysis depth after manual URL edits.
 
@@ -2346,11 +2516,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 45
-- **bugs-found:** 32
+- **hunts:** 57
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — inbound runId drop cleared canonical-scoped intake
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — failed retry retained prior reasoning output
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2364,9 +2534,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
+2026-10-31 thorough hunt (hit): promoted the reasoning-result state candidate; `runState.kind === "reasoning"` marked the checklist complete for an empty payload, so the page could show “Done” without actionable output. Added `hasActionableArchitectureIntelligenceResult` and regression coverage for empty and populated payloads; the focused checklist suite passed 5/5. Private beta: invited architects no longer see the analysis checklist complete when the reasoning API returns no actionable result, so they retain the correct next-step state.
+2026-10-31 thorough hunt (hit): the empty reasoning response also left “Publish to findings/advisory” enabled because the action gate checked only `runState.kind === "reasoning"`; require `hasActionableArchitectureIntelligenceResult(runState)` and cover the reachable empty `/architecture-intelligence/run` response with a returned `runId`. The isolated page-client regression passed 1/1; the full 58-test page-client file remained VM-heap constrained, while the focused checklist suite passed 5/5. Private beta: invited architects can no longer publish a non-actionable reasoning response into findings/advisory.
+2026-10-31 seed hunt (seed→hit): a failed reasoning retry left the prior successful findings visible and publishable because `runReasoningWithOptions` replaced `runState` only after the POST succeeded; clear the prior result when a new reasoning/analyze request starts. Regression `clears completed reasoning output before a retry that fails` passed in isolation; the focused page-client regressions passed 2/2. Private beta: invited architects no longer see or publish stale findings after a retry fails.
+2026-10-31 seed hunt (seed-only): reread the updated action state machine, result rendering, fixture loading, and focused tests; no second mechanism met the proof bar after the retry-state hit. Retained two bounded candidates for fixture-source selection and hydrated source ordering; no production change. Private beta: n/a.
+
 ### Hypotheses
 
+- [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — an empty reasoning response with a returned `runId` enabled “Publish to findings/advisory” because the button checked only `runState.kind === "reasoning"`; the gate now requires `hasActionableArchitectureIntelligenceResult(runState)`; regression `does not mark analysis complete when reasoning returns no actionable result` now also asserts the publish button is disabled.
+- [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — a failed reasoning/analyze retry retained the prior successful result and publish affordance; clear `runState` before the POST; regression `clears completed reasoning output before a retry that fails`.
+- [ ] (candidate) `useArchitectureIntelligenceActions.runGoldenTest` — an attachment-only hydrated review makes `useFixture` false because it checks `hydratedSourceTexts.length`, so “Run golden test” may post non-canonical source text instead of loading the reachable golden fixture; input: deep-linked product context containing a non-empty attachment but no `architecture-description.txt`; wrong outcome: the fallback fixture path is skipped despite no editable architecture description; mechanism and endpoint contract need an isolated repro.
+- [ ] (candidate) `buildRequest` — edited freeform description is written into hydrated source index 0 rather than the canonical `architecture-description.txt` source; input: a reachable hydrated source list whose attachment precedes the canonical description; wrong outcome: the request labels edited architecture text as the attachment and leaves the canonical source stale; current product loader ordering keeps the canonical source first, so this remains a candidate pending a reachable alternate ordering.
+
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+- [x] (proven) `ArchitectureIntelligencePageClient` — reasoning result kind alone marked analysis complete before a usable result payload existed — **hit 2026-10-31 thorough hunt:** `hasActionableArchitectureIntelligenceResult` requires actionable model/review/recommendation/violation/interview/adversarial/validation content; regressions in `architecture-intelligence-analysis-checklist.test.ts`.
 - [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST without usable `runId` cleared deep-linked scope while results remained — **hit 2026-10-29 seed hunt:** same non-empty trimmed id gate; regression `keeps contextRunId scope banner when continue response omits runId`.
 - [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression `syncs contextRunId in the URL when product source context returns a canonical run id`.
 - [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` when setting `runId` — **hit 2026-10-29 thorough hunt:** delete `contextRunId` on pick.
@@ -2516,7 +2697,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 73 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+**Hunts:** 78 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+
+2026-10-30 seed hunt #110 (seed-only): repeated the auth/proxy source review and focused regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #109 (seed-only): repeated the auth/proxy source review and focused regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-30 seed hunt #108 (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; repeated the auth/proxy source review and focused regression matrix, which passed 90/90 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
+
+2026-10-30 seed hunt #104 (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; repeated the auth/proxy source review and focused regression matrix, which passed 90/90 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
+
+2026-10-30 seed hunt #100 (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; repeated the auth/proxy source review and focused regression matrix, which passed 90/90 with no new mechanism-backed candidate or hunt-ready row. No production code changed.
 
 2026-10-30 seed hunt #95 (seed-only): repeated the auth/proxy regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
@@ -2832,6 +3023,70 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+**Hunts:** 93 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread token-endpoint numeric/error classification, callback-message decoding and confusable folding, discovery endpoint validation/cache, and recent OIDC test coverage. The scoped `src/lib/oidc` suite passed 1030/1030; discovery’s unused issuer field was not promoted because no browser security or user-visible behavior consumes it. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; fresh rereading of PKCE generation/storage, primary versus supplemental redirect cleanup, discovery failure handling, token/BFF session synchronization, callback error normalization, and JWT/expiry parsing found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread PKCE primary/Google flow isolation, callback-state consumption, tampered sessionStorage rejection, identity-aware sign-out cleanup, and RP logout fallback behavior found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread BFF session sync token shaping, CSRF-protected refresh/activity requests, refresh expiry acceptance, RP logout URL safety, and network-failure soft handling found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread authorize callback error normalization, readable-detail filtering, message truncation, standard-code humanization, and malformed/encoded description handling found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread JWT payload decoding/display-claim precedence, nonce normalization, UTF-8 and malformed payload handling, and `expires_in` numeric boundary coercion found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread identity-hint extraction, JWT/access-vs-ID subject precedence, identity-less token cleanup, overlapping BFF token-sync sequencing, and PKCE callback-state consumption found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread OIDC configuration defaults, authorize URL query merging/encoding, B2C policy preservation, redirect parameter normalization, and primary/supplemental redirect setup found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread primary/supplemental PKCE isolation, authorize-retry return-path handling, discovery-failure cleanup, and RP logout/session clearing found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback returned to saturated `ui-oidc`; reread OAuth error-description decoding/placeholder handling, token response classification, refresh-generation guards, and expiry hint normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread of discovery, configuration, token exchange, and expiry normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread discovery URL construction and required/optional endpoint validation, including normalization, scheme checks, embedded credentials, fragments, and cache rejection on failed fetches. No new reachable mechanism-backed candidate emerged; focused OIDC session/BFF verification passed 178/178. No production code changed.
+
+2026-10-31 seed hunt #93 (seed-only): cooldown fallback kept `ui-oidc` selected; reread callback text normalization, PKCE/session cleanup, BFF refresh and activity outcomes, endpoint safety, and token error handling. No new reachable mechanism-backed candidate emerged; the scoped OIDC suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): rotation fired after the review-workspace low-yield streak and cooldown fallback selected saturated `ui-oidc`; fresh reread of session/BFF refresh generation, PKCE state, token parsing, and endpoint safety found no new reachable mechanism-backed candidate. Focused OIDC session/BFF tests passed 178/178. No production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated the saturated OIDC reread across token error normalization, expiry coercion, session/BFF generation, and recent OAuth churn; the focused session/BFF tests passed 178/178, with no new reachable mechanism-backed candidate and no production change.
+
+2026-10-31 seed hunt (seed-only): repeated the OIDC seed pass across PKCE generation, public configuration, token normalization, and recent config churn; focused session/BFF verification passed 178/178, with no new reachable mechanism-backed candidate and no production change.
+
+2026-10-31 seed hunt (seed-only): repeated the saturated OIDC pass across discovery validation, supplemental/primary redirect setup, PKCE cleanup, and recent authorize-retry churn; focused session/BFF tests passed 178/178, with no new reachable mechanism-backed candidate and no production change.
+
+2026-10-31 seed hunt #92 (seed-only): cooldown fallback kept `ui-oidc` selected; rereading BFF refresh/activity/logout validation, discovery endpoint safety, public configuration, session generation/PKCE cleanup, and the focused OIDC tests found no new reachable mechanism-backed candidate. The scoped OIDC suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt #91 (seed-only): cooldown fallback selected `ui-oidc` after Runs List rotation; fresh rereading of OAuth callback normalization, token/error parsing, PKCE redirect setup, session/BFF generation, discovery, JWT display decoding, configuration, and expiry paths found no new reachable mechanism-backed candidate. The scoped OIDC suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #90 (seed-only): cooldown fallback selected `ui-oidc` after Set 3 rotation found no other eligible zone; fresh rereading of the OIDC session/BFF, PKCE, token/OAuth, discovery, redirect, JWT, configuration, and expiry paths found no new reachable mechanism-backed candidate or hunt-ready row. The scoped OIDC suites passed 1043/1043. No production code changed.
+
+2026-10-30 seed hunt #89 (seed-only): the cooldown-fallback OIDC reread found no new reachable mechanism-backed candidate or hunt-ready row across session/BFF generation, PKCE, token/OAuth parsing, discovery, redirect setup, JWT display, configuration, and expiry normalization. The scoped `src/lib/oidc` suite passed 1030/1030 again. No production code changed.
+
+2026-10-30 seed hunt #88 (seed-only): cooldown fallback selected `ui-oidc` after all open zones were demoted; fresh rereading of session generation and BFF synchronization, PKCE consumption, token/OAuth parsing, discovery validation/cache, redirect setup, JWT display decoding, configuration, and expiry normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #87 (seed-only): rotation fired after eight consecutive low-yield `ui-oidc` outcomes, but no alternate Set 3 zone was eligible; a fresh reread of session/BFF generation guards, PKCE consumption and retry return paths, token/OAuth parsing, discovery endpoint validation and caching, authorization redirect construction, JWT display hints, and configuration/expiry normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #86 (seed-only): rotation fired after seven consecutive low-yield `ui-oidc` outcomes, but no alternate Set 3 zone was eligible; fresh rereading of the OIDC BFF sync/activity/logout paths, token response and OAuth error parsing, session refresh/PKCE state, authorization redirect, discovery validation/cache, JWT display decoding, configuration, and expiry normalization found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #85 (seed-only): rotation fired after six consecutive low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; fresh rereading of BFF synchronization/refresh, token response parsing, JWT display decoding, authorization URL construction, OAuth normalization, session/PKCE handling, and configuration/discovery coverage produced no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #84 (seed-only): rotation fired after five low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; reread BFF synchronization/refresh, token response parsing, JWT display decoding, authorization URL construction, and their test coverage, and no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #83 (seed-only): rotation fired after four low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; recent OIDC churn was limited to the already-covered alias-collapse fix, and rereading callback normalization, session/refresh concurrency, PKCE, discovery, and focused tests produced no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #82 (seed-only): rotation fired after three low-yield `ui-oidc` outcomes but no alternate Set 3 zone was eligible; reread OIDC callback normalization, session storage/return-path handling, PKCE isolation, discovery caching, refresh generation guards, and focused tests, and no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #81 (seed-only): reread OIDC configuration, discovery caching and endpoint validation, PKCE generation, authorization URL construction, session refresh generation handling, and numeric expiry normalization with their focused tests; no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 seed hunt #80 (seed-only): reread the OIDC discovery, authorization, PKCE, session, token, BFF, JWT, configuration, and normalization paths with their focused tests; no new reachable mechanism-backed candidate or hunt-ready row emerged. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-30 thorough hunt #79 (dry): rotation selected `ui-oidc` via cooldown fallback. Cheap-disproof closed all five queued candidates: the two long misspellings are covered by the existing alias-collapse regressions but are not new reachable provider inputs; control-character normalization is covered by `humanizes token JSON error codes with trailing control characters`; BFF status `708` is not emitted by the route and non-401/403 failures are already soft-fail parity; and the JSON string root is rejected by `throws when a successful token response body is a JSON string root`. The scoped OIDC token, BFF sync, and refresh-route suites passed 654/654. No production code changed.
+
 2026-10-29 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied novemvigintitrigintiverse-stem-clip and novemvigintitrigintimillenvigesimal-suffix misspellings of humanized OAuth errors (`login_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`, `unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, `invalid_grantttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt`, `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional novemvigintitrigintiverse-stem-clip and novemvigintitrigintimillenvigesimal-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, `login_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss` + description, 4xx NBSP + ZWSP + LF + CR + tab + FF + BOM `error` + `error_uri`, BFF `707`, HTTP 200 JSON root `access_deniedssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 1085/1085. Private beta: sign-in no longer completes when token responses pair `access_token` with common novemvigintitrigintiverse-stem-clip or novemvigintitrigintimillenvigesimal-suffix OAuth error typos across grant, client, redirect, and response codes.
 
 - [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and novemvigintitrigintiverse-stem-clip / novemvigintitrigintimillenvigesimal-suffix humanized OAuth error misspellings — **hit 2026-10-29 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
@@ -2841,11 +3096,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `707` — **cheap-disproof 2026-10-29 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
 - [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss` — **cheap-disproof 2026-10-29 seed hunt:** non-object root rejection; alias root parity.
 
-- [ ] (candidate) `CallbackClient` — authorize `error` query with misspelled `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` and valid `code` and `state` — locus: alias collapse; input: `?error=redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&code=…`.
-- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`, and readable `error_description` — locus: alias collapse + description gate; input: `{ "access_token": "t", "error": "login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", "error_description": "Re-auth" }`.
-- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON LF + CR + tab + FF + BOM + NBSP + ZWSP `error` with `error_uri` — locus: humanized error incomplete-IdP; input: `{ "error": "\\n\\r\\t\\f\\ufeff\\u00a0\\u200bdenied", "error_uri": "https://idp/errors/1" }`.
-- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `708` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `708`.
-- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss` — locus: non-object root rejection; input: misconfigured IdP 200 body `access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` and valid `code` and `state` — locus: alias collapse; input: `?error=redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&code=…`. — **cheap-disproof 2026-10-30 thorough hunt #79:** alias-collapse regressions already cover the misspelled authorize code; no new reachable provider input was established.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`, and readable `error_description` — locus: alias collapse + description gate; input: `{ "access_token": "t", "error": "login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", "error_description": "Re-auth" }`. — **cheap-disproof 2026-10-30 thorough hunt #79:** alias-collapse regressions already cover the misspelled token code and description gate; no new reachable provider input was established.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON LF + CR + tab + FF + BOM + NBSP + ZWSP `error` with `error_uri` — locus: humanized error incomplete-IdP; input: `{ "error": "\\n\\r\\t\\f\\ufeff\\u00a0\\u200bdenied", "error_uri": "https://idp/errors/1" }`. — **cheap-disproof 2026-10-30 thorough hunt #79:** existing trailing-control-character normalization regression covers the IdP error shape and no false-success path was reproduced.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `708` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `708`. — **cheap-disproof 2026-10-30 thorough hunt #79:** the refresh route emits 401/403, 503, or success rather than 708; non-401/403 client failures are intentional soft-fail parity.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss` — locus: non-object root rejection; input: misconfigured IdP 200 body `access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`. — **cheap-disproof 2026-10-30 thorough hunt #79:** the JSON string root is rejected before token persistence by the existing non-object response regression.
 
 2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied octovigintitrigintiverse-stem-clip and octovigintitrigintimillenvigesimal-suffix misspellings of humanized OAuth errors (`login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`, `unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, `invalid_granttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt`, `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional octovigintitrigintiverse-stem-clip and octovigintitrigintimillenvigesimal-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee`, `login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss` + description, 4xx ZWSP + LF + CR + tab + FF + BOM + NBSP `error` + `error_uri`, BFF `706`, HTTP 200 JSON root `access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 1084/1084. Private beta: sign-in no longer completes when token responses pair `access_token` with common octovigintitrigintiverse-stem-clip or octovigintitrigintimillenvigesimal-suffix OAuth error typos across grant, client, redirect, and response codes.
 
@@ -7800,11 +8055,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-30 seed hunt #45 (seed-only): cheap-disproof confirmed the empty-evidence-scope candidate is already covered by `RunDetailEvidenceTabPanel.test.tsx` (`uses not-stored intro when findings snapshot was omitted`); retained the two untested candidates below for later repro.
+
+- [ ] (candidate) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
+- [ ] (candidate) `RunDetailSponsorModeExplanationCard` — equal-severity findings sort by `findingOrder - findingOrder`; input: a review-detail finding payload has a missing or non-finite `findingOrder` for two equal-severity open findings; wrong outcome: sponsor talking points retain API/input order instead of deterministic finding order; mechanism: `NaN` comparator result is treated as no ordering; reachability: persisted quick-decision finding payload rendered in sponsor mode.
+
+2026-10-30 seed hunt #44 (seed-only): reread reviews inventory counts, run-detail evidence scope, and sponsor explanation ordering; no candidate was promoted to hunt-ready or reproven in this pass. Seeded three bounded candidates below.
+
+2026-10-30 seed hunt #43 (hit): promoted `RunDetailCreateHomeEvidenceCaptureRegion` — a loaded empty stored-evidence catalog was treated as non-authoritative, so persisted session inventory could restore a deleted evidence row in the review detail; treat the empty catalog as authoritative when no legacy artifacts are available and retain only explicitly pending upload rows; regression `does not restore persisted captured evidence when the loaded catalog is empty`; focused evidence inventory tests passed 12/12. Private beta: invited architects no longer see deleted or absent uploaded evidence reappear in a review’s capture inventory after a detail reload; only server-confirmed or explicitly pending uploads remain visible.
+
+2026-10-30 seed hunt #42 (hit): promoted `use-runs-list` — `safeRuns` accepted non-empty but invalid `createdUtc` strings, so the `new Date(...).getTime()` comparator returned `NaN` and the review table could retain an API row whose position depended on input order; reject non-finite parsed timestamps before sorting; regression `omits a review row whose createdUtc is not a valid timestamp`; focused timestamp/sorting tests passed 3/3. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
+
+2026-10-30 seed hunt #41 (seed-only): fresh rereading of operator-route scope subscriptions and sibling next-review footer loaders found the same saturated state-machine gap already fixed in `ArchitectureIntelligenceNextReviewFooterClient`; no new candidate was promoted or duplicated. The focused footer regression/component tests passed 3/3. No production code changed.
+
+2026-10-30 thorough hunt #40 (hit): promoted `ArchitectureIntelligenceNextReviewFooterClient` — the footer loaded review rows once with an empty scope dependency and committed the response after an operator workspace switch, so a mounted Architecture Intelligence page could show the prior workspace's next-review link; reload rows on the live operator scope key, clear prior rows immediately, and ignore late responses after scope cleanup; regression `does not commit the prior scope's next-review footer after an operator scope switch`; the pre-fix assertion failed with `prior-scope-next-review` and passed after the fix. The malformed `use-runs-list` timestamp candidate was not promoted. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace's next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
+
 2026-10-30 seed hunt #64 (seed-only): re-read operator reviews-list sorting/selection, architecture-intelligence next-review context, and operator scope boundaries; no newly promoted hunt-ready row produced a failing repro. Seeded three bounded follow-on candidates below.
 
-- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — locus: `loadRuns` callback has an empty dependency list while reading current scope headers; input: switch tenant scope while architecture intelligence remains mounted; wrong outcome: the footer links to another tenant’s next review.
-- [ ] (candidate) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — locus: one-shot async `loadRuns` has no active scope identity guard; input: switch tenant while the initial list request is pending; wrong outcome: the new scope displays a stale next-review footer.
-- [ ] (candidate) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — locus: `new Date(...).getTime()` comparator; input: operator reviews list contains a reachable row with an invalid or omitted timestamp; wrong outcome: sort order is not deterministic and newest/oldest navigation can select the wrong review.
+- [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — next-review footer retains a prior tenant’s review list after operator scope changes without remount — **hit 2026-10-30 thorough hunt #40:** reload on live scope key, clear old rows immediately, and ignore late responses after scope cleanup; regression above. Private beta: invited architects switching operator workspaces while Architecture Intelligence is mounted no longer see the prior workspace’s next-review footer or stale review link; in-flight responses are ignored until the new scope loads.
+- [x] (proven) `ArchitectureIntelligenceNextReviewFooterClient` — review-list response from the initial scope commits after a cross-scope navigation — **hit 2026-10-30 thorough hunt #40:** active-effect cleanup prevents the prior scope response from committing after the scope switch; regression above.
+- [x] (proven) `use-runs-list` — malformed API `createdUtc` yields `NaN` sort comparisons and leaves review ordering dependent on input order — **hit 2026-10-30 seed hunt #42:** reject rows whose parsed timestamp is non-finite before sorting; regression above. Private beta: invited architects no longer see malformed review records participate in newest/oldest ordering or receive an unstable review-list position.
+- [x] (proven) `RunDetailCreateHomeEvidenceCaptureRegion` — empty stored-evidence catalog restores stale persisted inventory — **hit 2026-10-30 seed hunt #43:** loaded empty catalog is authoritative when no legacy artifacts exist, and reconciliation retains only explicitly pending upload rows; regression above. Private beta: invited architects no longer see deleted or absent uploaded evidence reappear in a review’s capture inventory after a detail reload; only server-confirmed or explicitly pending uploads remain visible.
+- [x] (valid-no-repro) `RunDetailEvidenceTabPanel` — omitted `findingsSnapshotStored` defaults to stored when `props.items` is empty — **cheap-disproof 2026-10-30 seed hunt #45:** `RunDetailEvidenceTabPanel.test.tsx` covers the omitted-flag empty-inventory behavior and expects the submitted-evidence copy; no failing repro.
 
 2026-10-30 thorough hunt #60 (dry): cheap-disproof closed three stale `readWindowLocationSearch()` disclosure-write candidates — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection`; the focused URL-sync tests passed 3/3 and no production code changed.
 
@@ -7845,11 +8117,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 39
+- **hunts:** 45
 - **last-hunt:** 2026-10-30
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-29 — provenance identifiers disclosure merged stale query after soft navigation
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-30 — empty stored-evidence catalog restored stale persisted inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9074,12 +9346,56 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed-only): rotation moved the hunt from saturated OIDC; reread presenter enter/exit URL commits, finding selection synchronization, workbench focus state, and mounted tab-shell/workbench panel ownership found no new reachable mechanism-backed candidate or hunt-ready row. Focused presenter, selection, workbench, workspace, and URL-sync tests passed 33/33. No production code changed.
+
+2026-10-31 seed→hit: promoted `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash returned early, leaving the visible tab/workbench focus on the hash-derived tab instead of the query-selected tab after browser back or hash clearing; synchronize tab and focus from the live URL before handling the empty-hash case. Regression `restores the query-selected tab when a mounted workspace hash is removed`; focused review workspace tests passed 33/33. Private beta: invited architects returning from a review deep link now see the tab and workbench focus represented by the current URL instead of stale hash-derived workspace chrome.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash left the active tab on the prior hash-derived tab; synchronize active tab and workbench focus from the live URL even when the hash is empty; regression `restores the query-selected tab when a mounted workspace hash is removed`.
+
+2026-10-30 seed hunt #66 (seed-only): fresh rereading of pinned-review context, pin URL helpers, workspace shell/navigation, selection state, and review-detail sections found no hunt-ready repro. The focused review-detail workspace suite was run against the current navigation/state contracts; seeded one bounded candidate around pin close URL construction and made no production change.
+2026-10-31 thorough hunt (hit): promoted `usePinnedReviewContext.closePin` — after soft navigation, the hook removed `pinRunId` from the stale browser query and then rebuilt the close href from that stale query, restoring the prior review’s tab/disclosure parameters; build the replacement href from the current `useSearchParams()` snapshot. Regression `preserves the current router query when closing after soft navigation`; pinned URL tests passed 8/8. Private beta: invited architects closing a pinned review after navigating to another review now keep the current review’s tab and disclosure state instead of being sent back to stale prior-review chrome.
+
+- [x] (proven) `usePinnedReviewContext.closePin` — closing a pinned review after soft navigation preserved the prior review's query state; fixed by deriving the replacement href from `searchParams.toString()` after the pin is removed; regression `preserves the current router query when closing after soft navigation`.
+
+2026-10-31 seed hunt (seed→hit): promoted `ReviewWorkspaceStaleBanner` — clicking Refresh review hid the stale-activity warning even when the authoritative refetch completed without data, so a transient failed refresh could remove the operator’s warning before a decision; only clear the banner after a data-bearing refetch updates the baseline. Regression `keeps the stale warning visible when refresh returns no data`; focused review workspace tests passed 10/10. Private beta: invited architects retain the refresh warning when live review status cannot be reloaded, instead of losing the prompt and deciding on potentially stale evidence.
+
+- [x] (proven) `ReviewWorkspaceStaleBanner` — no-data refresh cleared the stale-activity warning; fixed by retaining the warning until a data-bearing refetch updates the baseline; regression `keeps the stale warning visible when refresh returns no data`.
+
+2026-10-31 seed hunt (seed-only): reread review workspace tab hydration, hash navigation, selection, presenter, tab-strip rendering, and stale-banner state; the focused workspace URL-sync suite passed 4/4. Seeded two bounded candidates without production changes.
+
+2026-10-31 seed hunt (hit): promoted `useReviewDetailWorkspaceTabs.onHashChange` — changing a mounted review-section hash scrolled the new section but left the visible workspace tab on the prior tab; synchronize active tab and workbench focus from the new hash before scrolling. Regression `switches the active tab when a mounted workspace hash changes tabs`; focused tab-sync and mapping tests passed 16/16. Private beta: invited architects following in-review section links now see the section’s owning tab selected instead of a mismatched workspace tab.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — changing a review workspace hash after initial mount left the active tab unchanged; synchronize the new hash-derived tab and workbench focus before scrolling; regression `switches the active tab when a mounted workspace hash changes tabs`.
+
+2026-10-31 seed hunt (seed-only): fresh reread of `RunDetailSectionNav`, `ReviewDetailWorkspaceTabShell`, pinned-context layout, and review-detail section composition found no new mechanism-backed candidate beyond the closed hash/tab and stale-summary paths; mapped tab, hash, and scroll tests passed 19/19. No production change.
+
+2026-10-31 seed hunt (seed-only): repeated the mapped section-navigation and review workspace reread after the prior seed pass; the same tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
+
+2026-10-31 seed hunt (seed-only): completed the third consecutive review workspace seed pass; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change. Rotation is now eligible for the next Set 3 invocation.
+
+2026-10-31 seed hunt (seed-only, cooldown fallback): rotation avoided `ui-review-detail-workspace` after its three-run low-yield streak, but returned it as the only eligible zone; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
+
+2026-10-31 seed hunt (seed-only, cooldown fallback): rotation moved from the three-run OIDC low-yield streak back to `ui-review-detail-workspace`, but all open zones remained demoted; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
+
+2026-10-31 seed hunt (seed-only, cooldown fallback): reread `RunDetailSectionNav`, the deferred tabbed workspace shell, and `useReviewDetailWorkspaceTabs`; workspace URL-sync, tabbed-shell, and evidence-panel tests passed 10/10. The sticky-offset assertion in `RunDetailSectionNav.test.tsx` remains test/setup drift because the shared workspace-mode mock resolves guided eval chrome despite the test’s operator environment override. Seeded one bounded deferred-section retry candidate and made no production change.
+
+- [ ] (candidate) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window is never scrolled into view — locus: `lib/review-detail-section-scroll.ts`; input: a review deep link/hash to a below-fold deferred section while its dynamic chunk takes longer than 400ms to mount; wrong outcome: the operator lands on the review page but the requested section remains unscrolled; reachability: `RunDetailSectionNav` and workspace hash navigation call the scheduler for sections rendered by deferred tabbed-workspace imports.
+
+2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
+
+- [x] (proven) `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — mutable `legacyRunStatus` changes were omitted from stale-activity detection; include the status in the fingerprint and retain the regression above.
+
+2026-10-30 seed hunt #65 (seed-only): fresh rereading of review-detail workspace tab/presenter/selection/room state, next-review loading, provenance and submitted-architecture disclosures, and the recent export-navigation fix found one bounded timer lens; `RunDetailSubmittedArchitectureSection` preserved the new review’s “Copied” state when a prior review’s 2-second copy timer expired across `runId` navigation, and the focused section suite passed 3/3. No production code changed.
+
+2026-10-30 thorough hunt #64 (hit): promoted `RunDetailArtifactsExportsSection` — a rejected export from the prior review surfaced `showError("Review export", …)` after navigation because the section retained busy state and late callbacks across `runId` changes; reset export busy state on run changes and ignore stale bundle/package/review-export callbacks by active run identity; regression `does not surface a prior review export failure after navigation`. Cheap-disproof retired `run-detail-page-presentation` as `(invalid)` because `derivePackageVersionLabel` reads only `RunSummary.currentManifestVersion` plus `manifestId`; no manifest-summary version fallback exists in that locus. Focused export tests passed 11/11. Private beta: invited architects navigating between reviews during an export no longer see a prior review’s failure toast or stale download state applied to the newly opened review.
+
 2026-10-30 seed hunt #63 (seed→hit): promoted `FindingInspectReasoningPayloadDetails` — the lazy typed-payload request could commit after navigation to another finding, and its URL toggle path also referenced missing navigation helpers; guard responses by active run/finding identity, reset payload state on identity changes, and restore the helper imports; regression `does not commit a lazy payload response after navigating to another finding`; focused suite 2/2. Cheap-disproof closed the `RunDetailNextReviewFooterClient` stale-response lens because effect cleanup prevents the prior request from committing after review navigation. Seeded two bounded follow-on candidates. Private beta: invited architects switching findings no longer see a prior finding’s structured evaluation payload appear in the next finding, and the operator disclosure controls no longer fail at runtime.
 
 - [x] (valid-no-repro) `RunDetailNextReviewFooterClient` — prior project-runs response replaces the next-review footer after review navigation — **cheap-disproof 2026-10-30 seed hunt #62:** the effect cleanup flips the mounted guard before the new run request, so the prior response does not commit; temporary deferred-response repro passed.
 - [x] (proven) `FindingInspectReasoningPayloadDetails` — lazy typed-payload response commits into a different finding after cross-finding navigation — **hit 2026-10-30 seed hunt #63:** guard the awaited response by active run/finding identity, reset lazy payload state on identity changes, and restore missing `commitHrefIfChanged` / `readWindowLocationSearch` imports; regression above. Private beta: invited architects switching findings no longer see a prior finding’s structured evaluation payload appear in the next finding, and the operator disclosure controls no longer fail at runtime.
-- [ ] (candidate) `RunDetailArtifactsExportsSection` — an export completion from a prior review clears busy state for a new review after navigation — locus: download callbacks set shared busy flags after `await` without a run identity guard; input: start package export, navigate to another review before download settles; wrong outcome: the new review's export controls re-enable or report completion for the wrong run.
-- [ ] (candidate) `run-detail-page-presentation` — omitted `currentManifestVersion` and a manifest summary version disagree on package-version display after presentation rebuild — locus: `derivePackageVersionLabel(model.resolvedDetail.run, model.manifestId)` versus manifest-summary data; input: finalized run with manifest id and summary version but missing run version; wrong outcome: package metadata loses a stored version or shows “not recorded.”
+- [x] (proven) `RunDetailArtifactsExportsSection` — an export completion from a prior review clears busy state for a new review after navigation — **hit 2026-10-30 thorough hunt #64:** reset export busy state on `runId` changes and ignore late bundle/package/review-export callbacks by active run identity; regression above.
+- [x] (invalid) `run-detail-page-presentation` — omitted `currentManifestVersion` and a manifest summary version disagree on package-version display after presentation rebuild — **cheap-disproof 2026-10-30 thorough hunt #64:** `derivePackageVersionLabel` receives only `RunSummary.currentManifestVersion` and `manifestId`; no manifest-summary version fallback exists in the cited locus, and the existing “does not invent package version from manifest id or policy rule set version” regression covers the contract.
+- [x] (valid-no-repro) `RunDetailSubmittedArchitectureSection` — prior review copy timer clears the new review’s copied state after navigation — **cheap-disproof 2026-10-30 seed hunt #65:** focused timer/navigation repro preserved “Copied” after the prior 2-second timer expired across `runId` rerender; no stale state observed.
 
 2026-10-30 thorough hunt #61 (hit): promoted `ReviewAgentExecutionLogSection` — execution rows were sorted lexicographically by raw `createdUtc`, so equivalent timestamps with different offsets could display in the wrong chronology; sort valid timestamps by parsed instant with a lexical fallback for malformed values; regression `orders execution rows by instant when createdUtc values use different offsets`; `ReviewAgentExecutionLogSection.url-sync.test.tsx` 3/3. Private beta: invited architects reviewing an agent execution history now see rows in actual event chronology even when persisted timestamps use different UTC offsets.
 
@@ -9644,11 +9960,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 42
-- **bugs-found:** 33
+- **hunts:** 51
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Technology baseline rationale dialog from prior run during cross-review load
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — mounted review hash left the prior workspace tab active
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

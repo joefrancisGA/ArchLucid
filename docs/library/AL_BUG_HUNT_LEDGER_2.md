@@ -262,6 +262,20 @@
 
 ## Zone: email-otp-auth
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows at zone top; failed verify intentionally returns bare `401` for anti-enumeration (`VerifyAsync_does_not_log_email_otp_code_requested_audit`); whitespace-only challenge email rejected in `EmailOtpRequestFlow` before rate limit (`RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`; duplicate of 2026-09-30 zone diary); omitted `challengeId` binds `Guid.Empty` and returns RFC 7807 400 (`VerifyAsync_returns_bad_request_when_challenge_id_is_empty`); null `ClientIp` skips IP bucket only while email hourly limit remains (`AuthRateLimitHelper` ~55–57; seed hunt #1493); JWT lifetime clamp documented on controller + issuer (`VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`; hot-reload not product contract per seed #353); seeded five follow-on `(candidate)` rows; **49** `EmailOtpAuthServiceTests` + concurrency + **16** `EmailOtpAuthController*` tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — failed verification returns bare `401 Unauthorized` without RFC 7807 problem body — **cheap-disproof 2026-10-31 thorough hunt:** intentional fail-closed verify surface; wrong-code path returns `UnauthorizedResult` without leaking challenge state (`VerifyAsync_does_not_log_email_otp_code_requested_audit`).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — `body?.Email is null` guard does not reject whitespace-only email before service — **cheap-disproof 2026-10-31 thorough hunt:** duplicate of 2026-09-30 zone diary; `IdentityEmailNormalizer.TryNormalize` fails in `EmailOtpRequestFlow` with neutral envelope (`RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`).
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` challenge rejected but omitted `challengeId` JSON may bind as empty guid — **cheap-disproof 2026-10-31 thorough hunt:** model binding default + controller guard returns 400 before service (`VerifyAsync_returns_bad_request_when_challenge_id_is_empty`).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — forwards `ClientIp` from `RemoteIpAddress` when null — **cheap-disproof 2026-10-31 thorough hunt:** `HashOptional(null)` skips IP hourly bucket only; per-email limit still enforced (`AuthRateLimitHelper`; seed hunt #1493).
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — JWT lifetime clamp uses controller `_emailOtpOptions` while service verify flow uses separate options snapshot — **cheap-disproof 2026-10-31 thorough hunt:** controller clamp + issuer lifetime covered (`VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`); separate flow options snapshots not a hot-reload contract (seed hunt #353).
+
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — per-email verify rate limit counts failures across unrelated challenge ids for the same mailbox — locus: `IsEmailOtpVerificationRateLimitedAsync` before `TryCompleteAsync`; input: rotate wrong codes against one active challenge; reachability: credential-stuffing against sign-in verify endpoint (monitor).
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — `ResendCooldownSeconds` compares `GetLatestRequestUtcByEmailAsync` without excluding challenges deleted after delivery failure — locus: cooldown gate ~151–158; input: delivery failure cleanup then immediate resend; reachability: operator retry after SMTP outage (monitor; partial coverage in `RequestCodeAsync_retries_immediately_after_email_delivery_failure_despite_resend_cooldown`).
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — maps `EmailDeliverySucceeded` null from service as successful challenge id exposure path — locus: `emailDeliveryFailed = result.EmailDeliverySucceeded == false` ~69; input: service returns null delivery flag; reachability: misconfigured notifier result DTO (monitor).
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — enterprise SSO redirect re-evaluated on verify after challenge creation allowed email OTP — locus: domain policy on verify ~31; input: domain policy flips to RequireEnterpriseSso between challenge and verify; reachability: IdP config change during OTP entry (monitor).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationToken` forwarded to service without controller trim while hasher trims elsewhere — locus: verify request mapping ~107; input: padded invitation token on verify POST; reachability: OpenAPI clients copying tokens with surrounding whitespace (monitor; prior hits trimmed at hasher).
+
 2026-10-27 seed hunt (seed-only #353): picker rotated from saturated `scim-users`; re-read `EmailOtpAuthController` and `EmailOtpAuthService`; cheap-disproof closed five stale open `(candidate)` rows (challenge id leak already proven; SSO pair is service-owned; `CreateWorkspace` trial defaulting is intentional; flow option snapshots are documented; invitation id is verify-flow output); seeded five follow-on `(candidate)` rows; 49 scoped `EmailOtpAuthServiceTests` + concurrency tests passed (`RunAnalyzers=false`).
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed delivery exposed `ChallengeId` — **cheap-disproof 2026-10-27 seed hunt #353:** duplicate of proven hit; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
@@ -269,12 +283,6 @@
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace on success — **cheap-disproof 2026-10-27 seed hunt #353:** `CreateWorkspace` seeds trial defaults when empty (~126–136); intentional onboarding.
 - [x] (valid-no-repro) `EmailOtpAuthService` — separate `IOptions` snapshots per flow — **cheap-disproof 2026-10-27 seed hunt #353:** constructed at service startup; hot-reload not a product contract.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` copied without controller re-check — **cheap-disproof 2026-10-27 seed hunt #353:** value produced by `EmailOtpVerifyFlow`; controller fail-closed guards cover identity fields (~111–117).
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed verification returns bare `401 Unauthorized` without RFC 7807 problem body — locus: `return Unauthorized()` ~117; input: wrong OTP code; reachability: buyer sign-in error UX vs other auth endpoints.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `body?.Email is null` guard does not reject whitespace-only email before service — locus: ~53–56; input: `"   "` email string; reachability: mistyped sign-in form (service may normalize/fail downstream).
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` challenge rejected but omitted `challengeId` JSON may bind as empty guid — locus: ~97–99; input: `{}` verify body; reachability: OpenAPI client omitting `challengeId`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — forwards `ClientIp` from `RemoteIpAddress` when null — locus: ~64; input: challenge behind reverse proxy without forwarded headers; reachability: rate-limit / audit attribution in `EmailOtpRequestFlow`.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — JWT lifetime clamp uses controller `_emailOtpOptions` while service verify flow uses separate options snapshot — locus: `Math.Clamp` ~139 vs `EmailOtpVerifyFlow` construction; input: options change between service construction and request (theoretical hot-reload).
 
 2026-10-21 seed hunt (seed→hit, lane-C): promoted `EmailOtpAuthController.RequestChallengeAsync` leaking `ChallengeId` when service marks `EmailDeliverySucceeded=false`; controller now omits challenge id on failed delivery; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`; 51 scoped OTP tests passed (46 `EmailOtpAuthServiceTests` + concurrency, 5 `EmailOtpAuthControllerChallengeTests`).
 
@@ -360,10 +368,10 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1180,6 +1188,33 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-31 thorough hunt (dry #350): cheap-disproof closed five open `(candidate)` rows — stored-proc `CommandType` gate (no `CommandType` handling in analyzer; `ARCH006_does_not_analyze_stored_procedure_name_when_command_type_is_stored_procedure` passes because proc name is not SQL text with `dbo.Runs`); `ref readonly` / `scoped ref` SQL locals (no Persistence reachability citation); params-array Dapper SQL overload (no cataloged invocation; `TryGetSqlArgumentExpression` walks named/indexed parameters only); `global::Dapper.SqlMapper` qualification (probe `global::Dapper.SqlMapper.Query` produced ARCH006 on unscoped SQL — line-span only mismatch in exploratory run); method-level blank `[TenantScopeExempt]` (probe on `BadMethodExemptionRepository.Load` produced ARCH006b — `AnalyzeMethodDeclaration` already validates); reseeded five follow-on `(candidate)` rows; scoped regressions from recent hits **2/2** passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryAsync` with `CommandType.StoredProcedure` only — **cheap-disproof 2026-10-31 thorough hunt #350:** no stored-proc gate; proc-name arguments are not tenant-table SQL literals.
+- [x] (invalid) `TenantScopedSqlExpressionResolver` — `ref readonly` or `scoped ref` locals holding SQL — **cheap-disproof 2026-10-31 thorough hunt #350:** no reachable Persistence pattern cited.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgumentExpression` — params-array SQL overload — **cheap-disproof 2026-10-31 thorough hunt #350:** no Dapper params-SQL overload in repo; indexer walk covers normal overloads.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `global::Dapper.SqlMapper` alias qualification — **cheap-disproof 2026-10-31 thorough hunt #350:** `global::Dapper.SqlMapper.Query` still reports ARCH006 for unscoped SQL.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — blank justification skips exemption but does not report ARCH006b on method-only attribute — **cheap-disproof 2026-10-31 thorough hunt #350:** `AnalyzeMethodDeclaration` + `ValidateExemptionAttributes` report ARCH006b on method attributes (probe run this hunt).
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` with `CommandType.StoredProcedure` — locus: object-creation path; input: `new CommandDefinition(proc, commandType: StoredProcedure)` where proc name embeds scoped table token (monitor).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — collection-expression SQL fragments — locus: static folding; input: C# 12 collection expr building SQL (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `Dapper.SqlMapper` nested in another static class — locus: `IsDapperSqlMapperMethod` containing type name only; input: type-forwarding wrapper (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — generic `Query<T>` extension on `IDbConnection` via interface-typed receiver — locus: extension method symbol; input: connection typed as interface only (monitor).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper.ValidateExemptionAttributes` — attribute applied via `[module: TenantScopeExempt]` or assembly attribute — locus: not registered on module/assembly syntax (monitor).
+
+2026-10-31 thorough hunt (hit #349): promoted `(candidate)` `QueryUnbufferedAsync` omitted from `DapperQueryMethodNames` — prior dry hunts noted production `DapperAuditRepository.StreamFilteredExportAsync` SQL is scope-bound, but the analyzer must still flag unscoped static SQL on that invocation shape; probe `await foreach` over `connection.QueryUnbufferedAsync<int>(… dbo.Runs …)` produced **0** diagnostics before fix; added `QueryUnbufferedAsync` to monitored set; regression `ARCH006_reports_unscoped_static_sql_for_query_unbuffered_async`; adjusted `ARCH006b_reports_empty_exemption_justification_on_record_declaration` span after SharedStubs growth; cheap-disproof closed four sibling rows (`StructDeclarationSyntax` — `[TenantScopeExempt]` is `AttributeTargets.Class | Method` only; non-`SqlMapper` extension receivers — no Persistence wrapper pattern; inherited blank exempt on derived record — `ValidateExemptionAttributes` runs on each type declaration including base; partial record exempt in secondary file — same `RecordDeclaration` callback per partial file); reseeded five follow-on `(candidate)` rows; scoped regressions **2/2** passed (`RunAnalyzers=false`). Private beta: no direct pilot-path change today; Persistence builds treat streaming Dapper queries like other monitored shapes so a future unscoped audit/export stream fails CI before it ships.
+
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted — **hit 2026-10-31 thorough hunt #349:** add to immutable set; regression `ARCH006_reports_unscoped_static_sql_for_query_unbuffered_async`.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — `StructDeclarationSyntax` never analyzed for ARCH006b — **cheap-disproof 2026-10-31 thorough hunt #349:** attribute cannot target structs today.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — extension-method invocations on non-SqlMapper receivers — **cheap-disproof 2026-10-31 thorough hunt #349:** `IsDapperSqlMapperMethod` requires `Dapper.SqlMapper`; no repo wrapper bypass found.
+- [x] (invalid) `TenantScopeExemptSymbolHelper.ValidateExemptionAttributes` — inherited blank justification on derived record — **cheap-disproof 2026-10-31 thorough hunt #349:** base `record` declaration is analyzed independently.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — partial type declarations across files — **cheap-disproof 2026-10-31 thorough hunt #349:** partial `RecordDeclaration` in each file registers the same analyzer callback (same pattern as partial class SQL test).
+
+2026-10-31 thorough hunt (hit #348): promoted `(candidate)` `RecordDeclarationSyntax` ARCH006b gap — `#347` closed record monitoring as `(invalid)` because no production `record` carries `[TenantScopeExempt]`, but Roslyn `record` declarations use `RecordDeclarationSyntax`, not `ClassDeclarationSyntax`, so blank type-level exemptions on future record repositories bypassed `AnalyzeTypeDeclaration`; register `SyntaxKind.RecordDeclaration` and analyze `TypeDeclarationSyntax`; regression `ARCH006b_reports_empty_exemption_justification_on_record_declaration` (repro failed with 0 diagnostics before fix); cheap-disproof closed four sibling `(candidate)` rows (`QueryUnbufferedAsync` — 2026-10-02 valid-no-repro / scoped export SQL; `TenantScopedSqlExpressionResolver` format SQL — regressions `ARCH006a_reports_unanalyzable_sql_for_string_format_table_reference` and `ARCH006_reports_unscoped_sql_for_string_format_with_format_provider`; `ExecuteAsync(CommandDefinition)` — regressions `ARCH006_reports_unscoped_sql_for_execute_async_*`; `LoadRegistry` suffix — `ArchLucid.Persistence.csproj` links `tenant_scoped_tables.v1.json`); reseeded five follow-on `(candidate)` rows; scoped regression **1/1** passed on cloud VM for new test (`RunAnalyzers=false`; legacy suite still has +5 line-span harness drift vs SharedStubs — see #347). Private beta: no direct pilot-path change; Persistence contributors get ARCH006b on `record` types with blank `[TenantScopeExempt]` justifications at build time before unscoped SQL exemptions ship.
+
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — `RecordDeclarationSyntax` never analyzed for ARCH006b empty justification — **hit 2026-10-31 thorough hunt #348:** register `RecordDeclaration` and use `TypeDeclarationSyntax`; regression `ARCH006b_reports_empty_exemption_justification_on_record_declaration`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted from monitored invocations — **superseded hit 2026-10-31 thorough hunt #349:** see #349 diary row.
+
 2026-10-30 thorough hunt #347 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #354 — record/struct exemption syntax registration (no Persistence `record` carries `[TenantScopeExempt]`; ARCH006 exemption lookup walks containing symbols), `QueryUnbufferedAsync` coverage (2026-10-02 dry hunt / scoped audit export SQL), missing registry additional file fail-open (CI supplies `tenant_scoped_tables.v1.json`), `CommandDefinition` named `commandText` (handled at ~239–241; regression `ARCH006_reports_unscoped_sql_for_command_definition_named_command_argument`), and `GeneratedCodeAnalysisFlags.None` (intentional; no codegen Persistence SQL today); reseeded five `(candidate)` rows; cloud VM analyzer harness span mismatches (2/32 pass) — verification via code review and cited regressions. Private beta: n/a.
 
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption validation on `ClassDeclaration` only, not `record`/`struct` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
@@ -1187,12 +1222,6 @@
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable registry disables ARCH006 — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL only `command`/`commandText` — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — skips generated sources — **cheap-disproof 2026-10-30 thorough hunt #347:** see diary row.
-
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeTypeDeclaration` — `RecordDeclarationSyntax` never analyzed for ARCH006b empty justification — locus: `SyntaxKind.ClassDeclaration` only ~71–73; input: blank `[TenantScopeExempt]` on persistence `record` type; reachability: future record repositories with type-level exemptions (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted from monitored invocations — locus: immutable set ~17–36; input: new streaming query against tenant table without scope predicates; reachability: audit export if SQL changes (monitor).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — format/interpolated dynamic SQL may stay ARCH006a-only — locus: unanalyzable path; input: format-built SQL referencing `dbo.Runs`; reachability: dynamic repository helpers (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — `ExecuteAsync(CommandDefinition)` overloads skip invocation SQL extraction — locus: member-access name filter; input: SQL only inside `CommandDefinition` variable; reachability: local command pattern (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — suffix mismatch on additional file path silently disables ARCH006 — locus: `EndsWith("tenant_scoped_tables.v1.json")`; input: misconfigured local analyzer additional file; reachability: contributor Persistence inner loop (monitor).
 
 2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; scoped `TenantScopedQueryScopeBindingAnalyzerTests` on cloud VM: 2/32 passed (`RunAnalyzers=false` — 30 failures are diagnostic line-position mismatches in the harness, not a ledger-promoted defect; no analyzer code changed this run).
 
@@ -1208,11 +1237,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 40
-- **bugs-found:** 24
+- **hunts:** 43
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — ARCH006 skipped Dapper QueryUnbufferedAsync invocations
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
@@ -1713,6 +1742,12 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — kebab-case `semantic-support-band` is a different JSON key than camelCase `semanticSupportBand` with no documented producer path (case-insensitive match is not kebab aliasing); trailing format characters on treatment enum strings are stripped by `NormalizeInspectEnumToken` (same helper as leading-edge hits); corrupt payload with whitespace-only title/rationale intentionally yields null metadata (`ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_whitespace_only_fields`); numeric severity string `"2"` maps via existing mapper contract (`ParseFindingSeverity_maps_defined_numeric_string_two_to_error`); interior format characters in finding ids are not stripped by `NormalizeFindingId` trim-only by design so mismatched ids fail lookup rather than cross-finding reads; reseeded five follow-on `(candidate)` rows; **435/435** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+2026-10-31 thorough hunt (hit): proved typed-payload density resolvers ignored PascalCase JSON property names (`Classification`, `Treatment`, `semanticSupportBand`) while camelCase keys parsed; `TryGetTypedPayloadProperty` resolves inspect payload keys case-insensitively for all three enum resolvers; regression `ResolveInspectClassification_parses_pascal_case_typed_payload_property`; cheap-disproof closed numeric-string `treatment` with leading format char (`ResolveInspectTreatment_parses_numeric_string_typed_payload_after_leading_invisible_format_characters` — normalize + enum parse already handles `\u200B1`), corrupt-payload metadata vs relational storage (`ResolveInspectClassification` storage-first in Dapper map), in-memory overlay trailing format char (in-memory path uses `Finding` fields, not SQL overlay column), and `CreatedUtc` tie run selection (`ORDER BY r.CreatedUtc DESC, r.RunId DESC`); reseeded five follow-on `(candidate)` rows; **435/435** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: Finding inspect shows density fields from older PascalCase `PayloadJson` blobs instead of null after the camelCase migration.
+
+2026-10-31 thorough hunt (hit): proved typed-payload `classification`, `treatment`, and `semanticSupportBand` string tokens with leading Unicode format characters failed `Enum.TryParse` while the relational overlay band path already used `NormalizeInspectEnumToken` (2026-10-21); apply the same normalizer on all three `Resolve*FromTypedPayload` string branches; regressions `ResolveInspectClassification_parses_typed_payload_after_leading_invisible_format_characters`, `ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters`, and `ResolveInspectSemanticSupportBand_parses_typed_payload_after_leading_invisible_format_characters`; cheap-disproof closed whitespace-only `findingId` rejection (`GetInspectAsync_throws_when_finding_id_is_whitespace`) and embedded format characters inside severity tokens (intentional fail-closed enum contract; leading-edge normalization only); reseeded five follow-on `(candidate)` rows; **433/433** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: Invited operators opening finding inspect on payload-backed density fields see classification, treatment, and semantic support band instead of null when legacy JSON enum strings carried invisible paste prefixes.
+
 2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 430/430 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
 
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
@@ -1723,11 +1758,11 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 88
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
+- **hunts:** 91
+- **bugs-found:** 28
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — PascalCase typed-payload property names ignored on inspect read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2263,11 +2298,29 @@
 
 2026-10-05 seed hunt (seed→hit): proved in-memory cyclic Payload JsonException inspect failure; reseeded three in-memory/SQL parity candidates; 434 scoped Persistence inspect tests passed.
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters fail `Enum.TryParse` without `NormalizeInspectEnumToken`, so inspect omits classification while overlay-band storage already normalizes tokens — locus: ~320–328; input: typed payload `{"classification":"\u200BSupported"}` when relational `Treatment`/`Classification` storage bytes are null.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — locus: ~353–361; input: payload `treatment` value prefixed with invisible format char after corrupt/missing relational storage.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` does not use `NormalizeInspectEnumToken` even though relational overlay band path does — locus: ~386–394 vs `ResolveInspectSemanticSupportBand` ~296–300; input: payload band string with leading ZWSP when overlay column absent.
-- [ ] (candidate) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` while non-blank ids are trimmed only at SQL bind time via `NormalizeFindingId` — locus: ~30–31 vs `MainLoad` parameter; input: inspect API with `"   "` finding id (distinct from padded ids like `" finding-1 "`).
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format/control characters inside otherwise valid severity tokens throw `InvalidDataException` instead of edge-trimming like `NormalizeInspectEnumToken` — locus: mapper ~14–20 vs core token helper ~180–221; input: persisted `Severity` column `Crit\u200Bical` on relational inspect row.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters failed `Enum.TryParse` without `NormalizeInspectEnumToken` — **hit 2026-10-31 thorough hunt:** parity with overlay band path; regression `ResolveInspectClassification_parses_typed_payload_after_leading_invisible_format_characters`.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — **hit 2026-10-31 thorough hunt:** regression `ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters`.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` omitted `NormalizeInspectEnumToken` — **hit 2026-10-31 thorough hunt:** regression `ResolveInspectSemanticSupportBand_parses_typed_payload_after_leading_invisible_format_characters`.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` — **cheap-disproof 2026-10-31 thorough hunt:** intentional input validation before SQL; padded non-blank ids trim via `NormalizeFindingId`; regression `GetInspectAsync_throws_when_finding_id_is_whitespace`.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format characters inside severity tokens throw `InvalidDataException` — **cheap-disproof 2026-10-31 thorough hunt:** intentional fail-closed contract; `NormalizeInspectEnumToken` trims edges only; regressions `ParseFindingSeverity_parses_after_leading_invisible_format_characters` and `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters` for embedded format rejection class.
+
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — PascalCase JSON property `Classification` ignored while camelCase `classification` parses — **hit 2026-10-31 thorough hunt:** `TryGetTypedPayloadProperty` case-insensitive lookup for classification/treatment/semanticSupportBand; regression `ResolveInspectClassification_parses_pascal_case_typed_payload_property`.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — numeric JSON `treatment` accepted while string enum tokens with leading format chars on numeric strings omit normalization — **cheap-disproof 2026-10-31 thorough hunt:** regression `ResolveInspectTreatment_parses_numeric_string_typed_payload_after_leading_invisible_format_characters`.
+- [x] (invalid) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — corrupt-payload metadata fallback never surfaces classification/treatment from relational columns — **cheap-disproof 2026-10-31 thorough hunt:** Dapper inspect calls `ResolveInspectClassification(row.Classification, typed)` storage-first; metadata fallback is typed-only by design.
+- [x] (invalid) `InMemoryFindingInspectReadRepository.GetInspectAsync` — typed-payload density resolution diverges from Dapper when in-memory record stores overlay band with trailing format char only — **cheap-disproof 2026-10-31 thorough hunt:** in-memory inspect uses hydrated `Finding` fields, not SQL overlay column strings.
+- [x] (valid-no-repro) `FindingInspectReadSql.MainInspectWithTypedPayload` — `@FindingId` bind trims padded ids but archived-run `TOP 1` ordering may prefer wrong rerun when `CreatedUtc` ties — **cheap-disproof 2026-10-31 thorough hunt:** deterministic `RunId DESC` tiebreak; regression family `MainInspect_uses_top_one_for_deterministic_run_selection`.
+
+- [x] (invalid) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — kebab-case JSON property `semantic-support-band` ignored — **cheap-disproof 2026-10-31 thorough hunt:** hyphenated key is not a case variant of `semanticSupportBand`; no reachability-backed producer in repo contract.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — string treatment token with trailing invisible format characters after enum name — **cheap-disproof 2026-10-31 thorough hunt:** `NormalizeInspectEnumToken` strips trailing format/control characters (same class as 2026-10-21 overlay hit).
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect` — corrupt payload with only whitespace title/rationale returns null — **cheap-disproof 2026-10-31 thorough hunt:** regression `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_whitespace_only_fields`.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — numeric string severity `"2"` throws — **cheap-disproof 2026-10-31 thorough hunt:** regression `ParseFindingSeverity_maps_defined_numeric_string_two_to_error`.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` — padded finding id with interior format characters may not match SQL bind — **cheap-disproof 2026-10-31 thorough hunt:** `NormalizeFindingId` is trim-only; interior format prevents match (fail-closed) rather than wrong-finding inspect.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — JSON property names with surrounding whitespace may not match camelCase keys — locus: `EnumerateObject` exact name compare after case-insensitive equality; input: `" classification "` key in payload object; reachability: pretty-printed support exports.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — numeric JSON `semanticSupportBand` accepted while string `"2\\u200B"` string form fails — locus: number branch vs string normalize path; input: string numeric token with trailing format char; reachability: hand-edited payload JSON.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — `includeWhyThisMattersWhenTitleMissing` copies rationale into `whyThisMatters` even when rationale is whitespace-only after trim — locus: metadata builder; input: corrupt payload fallback with whitespace rationale; reachability: slim inspect first paint.
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition subquery may surface pointer metadata when `LatestDisposition` enum string is undefined numeric — locus: mapper `ParseDisposition`; input: stored disposition `"99"`; reachability: legacy review event rows (monitor — #1243 class).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — action string with only format characters may pass `IsNullOrWhiteSpace` before format rejection — locus: recommended-action filter ordering; input: `"\u200B"` action entry; reachability: SQL follow-up batch recommended actions.
 
 ---
 
@@ -2759,6 +2812,20 @@
 
 ## Zone: scim-users
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from seed hunt #352 (duplicate live `externalId` 409 matches operator-documented-safe-retry honesty from hunt #349; tombstoned `externalId` reactivates in service by design; PATCH `ScimConflictException` catch order is intentional with `PatchAsync_tombstoned_external_id_throws_conflict`; list filter parse messages are operator-facing `invalidFilter` copy; post-replace/patch GET null → 404 is the tombstone race class from hunts #346/#350; `ScimErrorResultFactory.Create` sets `application/scim+json; charset=utf-8` on all SCIM errors); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — **cheap-disproof 2026-10-31 thorough hunt:** safe-retry means honest 409 on duplicate live row, not silent replay (`CreateAsync_duplicate_user_name_throws_conflict` family); hunt #349 diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — **cheap-disproof 2026-10-31 thorough hunt:** ordering maps typed exceptions only; conflict regressions `PatchAsync_tombstoned_external_id_throws_conflict` / `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — **cheap-disproof 2026-10-31 thorough hunt:** intentional operator-facing filter failure envelope (same class as hunt #348 parse/SQL `invalidFilter` parity).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — **cheap-disproof 2026-10-31 thorough hunt:** directory-removed/tombstone visibility between write and reload; no failing repro; hunts #346/#350.
+- [x] (invalid) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` — **cheap-disproof 2026-10-31 thorough hunt:** `ScimErrorResultFactory.Create` line 37 sets `application/scim+json; charset=utf-8` for all SCIM error bodies.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — directory-removed `externalId` reprovision returns HTTP 201 (reactivation) rather than 409 replay — locus: `ScimUserService.Crud` tombstone branch ~39–46; input: POST same `externalId` after directory-removed row; reachability: Entra reprovision after connector delete.
+- [ ] (candidate) `ScimUsersController.ListAsync` — HTTP `count` query has no controller max while service clamps to 200 — locus: ~36–47 vs `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; input: `count=10000`; reachability: oversized list pages vs RFC pagination expectations.
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — success `NoContent()` omits explicit SCIM content-type on HTTP 204 — locus: ~222; input: DELETE existing user; reachability: strict clients expecting `application/scim+json` on every Users response including 204.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimErrorResultFactory.FromParseException` may return HTTP 501 for `notImplemented` scimType — locus: factory ~15–18; input: patch body triggering `notImplemented` parse path; reachability: Entra unsupported PATCH operations.
+- [ ] (candidate) `ScimUsersController.GetAsync` — deactivated users remain HTTP 200 with `active:false` until directory-removed — locus: GET after soft deactivate; input: Entra reconcile inactive user; reachability: filter/list vs direct GET visibility.
+
 2026-10-27 seed hunt (seed-only #352): cheap-disproof closed five open `(candidate)` rows from hunt #351 (seat reserve/release lives in `ScimUserService`; controller intentionally maps only typed SCIM exceptions; oversized filters are repository/SQL boundary; `meta.location` optional; DELETE soft-deactivate + GET read-back is Entra contract); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit on create not on delete controller path — **cheap-disproof 2026-10-27 seed hunt #352:** seat transitions in service (`DeactivateAsync_restores_seat_when_persistence_fails` family); controller maps `ScimSeatLimitExceededException` only where thrown.
@@ -2767,11 +2834,11 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 body without `meta.location` — **cheap-disproof 2026-10-27 seed hunt #352:** optional SCIM metadata; `id` in body suffices for Entra.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 deactivate vs subsequent GET — **cheap-disproof 2026-10-27 seed hunt #352:** soft deactivate until directory-removed; intentional SCIM lifecycle.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — locus: idempotency comment ~73 vs `ScimConflictException` ~102–104; input: Entra retry same `externalId`; reachability: connector idempotency expectations vs uniqueness errors.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — locus: ~194–208; input: patch changing `externalId` to taken value; reachability: `PatchAsync_tombstoned_external_id_throws_conflict` service regression path.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — locus: ~51–53; input: syntactically invalid filter; reachability: Entra operator debugging (information disclosure lens).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — locus: ~142–144; input: directory-removed between write and reload (theoretical); reachability: same class as prior post-mutation GET races, controller-only locus.
-- [ ] (candidate) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` depending on `ScimErrorResultFactory` — locus: error factory content type; input: any 400/404 SCIM error; reachability: strict SCIM content-type clients.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (invalid) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` depending on `ScimErrorResultFactory` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
 
 2026-10-27 seed hunt (seed-only #351): cheap-disproof closed five open `(candidate)` rows from hunt #350 (`Consumes` not required for `JsonSerializer.DeserializeAsync`; missing-user PUT/PATCH 404 before body validation conflicts is correct; PATCH parse errors use `FromParseException`; list cancel propagates; GET inactive users is SCIM-expected); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
@@ -2886,10 +2953,10 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -2995,6 +3062,20 @@
 
 ## Zone: identity-provider-config
 
+2026-10-31 thorough hunt (dry #346): cheap-disproof closed five open `(candidate)` monitor rows from hunt #345 reseed (same-protocol null `KeyVaultSecretName`/`MetadataXml` preservation is documented `ResolveOptionalPersistedField` contract and SSO wizard `trim() || null`; GET runs `EnsureIssuerUriFits` only when issuer canonicalizes to HTTP(S) so legacy non-canonical stored issuers remain readable without width guard by design; test-login whitespace/empty `SampleClaimValues` intentionally yield sandbox `Success:false` without HTTP 400 per #345; GET returns persisted `ClaimMappingJson` verbatim with activate/test-login enforcing mapping on write — regressions `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`, `TestLogin_rejects_invalid_protocol`, `ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage`, `ActivateAsync_rejects_unsupported_arch_lucid_role_in_mapping`); reseeded five follow-on `(candidate)` rows; **117/117** scoped activation/controller/matrix/test-login tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — same-protocol OIDC reactivate with omitted `KeyVaultSecretName` preserves stored secret — **cheap-disproof 2026-10-31 thorough hunt #346:** null preserves / whitespace clears by design; regression family `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted` and wizard null sends.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET skips `EnsureIssuerUriFits` when stored issuer is not canonical HTTP(S) — **cheap-disproof 2026-10-31 thorough hunt #346:** guard runs only after successful canonicalization (~225–234); legacy rows remain readable; activate/discover still validate on write.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — whitespace-only `SampleClaimValues` entries — **cheap-disproof 2026-10-31 thorough hunt #346:** sandbox `Success:false` contract; see hunt #345 diary.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` preserves stored XML — **cheap-disproof 2026-10-31 thorough hunt #346:** intentional wizard re-save; invalid preserved XML still rejected on activate via `EnsureSamlMetadataValidWhenProvided` (`ActivateAsync_rejects_saml_reactivate_that_preserves_invalid_metadata_xml_from_storage`).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET returns malformed `ClaimMappingJson` verbatim — **cheap-disproof 2026-10-31 thorough hunt #346:** read path returns persisted wizard state; activate/test-login enforce mapping (#78 valid-no-repro).
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — stored issuer that canonicalizes to HTTP(S) but exceeds NVARCHAR width after canonicalization returns HTTP 400 on GET while row remains in repository — locus: read-time `EnsureIssuerUriFits`; input: legacy oversize canonical issuer; reachability: operator opens SSO wizard against unmigrated row (monitor: fail-closed read).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol reactivate with null optional fields when configuration row `IsActive=false` — locus: `sameProtocol` preservation without active guard; input: deactivated tenant + omitted metadata/secret; reachability: admin re-enable without resubmitting SAML/OIDC optional fields.
+- [ ] (candidate) `IdentityProviderConfigurationController.PrepareConfigurationResponse` — GET omits cross-protocol columns but still returns raw `ClaimMappingJson` that may reference prior protocol mapping shape — locus: projection vs JSON content; input: protocol switch in DB with stale mapping JSON; reachability: wizard reload before mapping edit.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — failed discovery envelope may echo non-canonical operator metadata URL while successful path canonicalizes issuer/JWKS — locus: `WithCanonicalWizardUris` only on success; input: discover failure with padded metadata URL; reachability: SSO wizard step-1 error display.
+- [ ] (candidate) `SsoWizardTestLoginService.Execute` — `SampleClaimValues` array with invisible-Unicode-only entry fails substantive role resolution — locus: shared claim guards vs role extraction; input: `["\u200B"]`; reachability: sandbox JWT preview with paste-hidden sample claim.
+
 2026-10-30 thorough hunt #345 (dry): cheap-disproof closed five open `(candidate)` rows seeded in #344 — cross-protocol optional-field clearing on protocol switch (`ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted`, `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`; by design since 2026-08-24), GET issuer length parity on canonical stored rows (`GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`), discover issuer length guard (`DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`), test-login sandbox delegation for blank sample claim entries (intentional `Success:false` via `ResolveRoles`; regressions `TestLogin_rejects_invalid_protocol`, `Execute_returns_failure_when_custom_group_claim_regex_is_whitespace_only`), and claim-mapping JSON serialization order (`ActivateAsync_persists_claim_mapping_json_with_wizard_property_names`; persisted JSON is not read before serialize). Reseeded five `(candidate)` rows; **117** scoped activation/controller/matrix/test-login tests passed. Private beta: n/a.
 
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — **cheap-disproof 2026-10-30 thorough hunt #345:** regressions above; clearing is intentional on SAML↔OIDC switch.
@@ -3002,12 +3083,6 @@
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 — **cheap-disproof 2026-10-30 thorough hunt #345:** regression `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard — **cheap-disproof 2026-10-30 thorough hunt #345:** sandbox contract; empty/whitespace sample values yield `Success:false` without HTTP 400 (by design).
 - [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized before optional-field resolution — **cheap-disproof 2026-10-30 thorough hunt #345:** serialization uses request `ClaimMapping` only; `TryGetAsync` resolves metadata/key vault fields, not claim JSON casing.
-
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol OIDC reactivate with omitted `KeyVaultSecretName` preserves stored secret — locus: `ResolveOptionalPersistedField`; input: populated secret + null request field; reachability: SSO wizard step-2 re-save (`use-sso-wizard-page.ts`) (monitor).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET skips `EnsureIssuerUriFits` when stored issuer is not canonical HTTP(S) — locus: GET guard ~225–234; input: legacy non-normalized issuer string; reachability: `GET /v1/admin/identity/configuration` reload (monitor).
-- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — whitespace-only `SampleClaimValues` entries return `Success:false` without controller-level substantive guard — locus: `SsoWizardTestLoginService.Execute`; input: `[""]` or `["   "]`; reachability: sandbox JWT preview step (monitor).
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol SAML reactivate with omitted `MetadataXml` preserves stored XML without re-parse when unchanged — locus: `sameProtocol` + `EnsureActivateFields`; input: valid stored XML + null request metadata; reachability: SAML settings re-activate (monitor).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET may return malformed `ClaimMappingJson` verbatim — locus: read path has no schema re-validation; input: corrupt JSON in repository row; reachability: wizard `parsePersistedClaimMappingJson` on reload (monitor).
 
 2026-10-27 seed hunt (seed-only #344): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService`; no hunt-ready promotion after prior OIDC/SAML strip and field-limit hits; seeded five mechanism-backed `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` passed (`RunAnalyzers=false`).
 
@@ -3064,10 +3139,10 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 80
+- **hunts:** 81
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -3301,6 +3376,34 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-10-31 thorough hunt (dry #7): cheap-disproof closed five open `(candidate)` rows from seed hunt #6 (split `CheckoutSecretKey` vs wallet `SecretKey` is documented host wiring — resolver/gateway/guard PM retrieve all use `SecretKey`; mis-split fails closed on guard null linked customer per seed #6; `PendingRefillCredits` and `LlmWalletSettlementQueue` are in-process retry hints while `ApplyWebhookPaymentIntentSucceededAsync` credits succeeded intents idempotently after recycle; guard customer-only PUT omitting PM is intentional — auto-replenish enable with null persisted PM rejected by `UpdateWalletAsync_rejects_enabling_auto_replenish_when_no_payment_method_is_persisted` and `TryAutoRefillAsync` requires both persisted ids before charge; optional wallet PUT row version is documented optional OCC per seed #6); seeded five follow-on `(candidate)` rows; scoped filter **7/7** Persistence guard + **10/10** Application wallet auto-refill/update tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — checkout `CheckoutSecretKey` vs resolver `SecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** split-key checkout is intentional; wallet paths share `SecretKey`; see seed hunt #6 diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — charges always use `SecretKey` after checkout used `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** same host-config contract as resolver; not reachable wrong-account charge without mis-wiring both keys.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage` — `PendingRefillCredits` lost on restart — **cheap-disproof 2026-10-31 thorough hunt #7:** webhook `ApplyWebhookPaymentIntentSucceededAsync` + payment-intent idempotency credits async completion; in-memory map is same-process optimization only.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — customer-id-only update when PM omitted — **cheap-disproof 2026-10-31 thorough hunt #7:** auto-refill and enable-with-persisted-ids paths require PM; guard skip is partial PUT contract.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable auto-replenish without fresh `ExpectedRowVersion` — **cheap-disproof 2026-10-31 thorough hunt #7:** optional OCC by design; SQL substitutes current row version when expected length zero (2026-08-24 proven hit).
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — single PUT sets `AutoReplenishEnabled=true` with linked `StripeCustomerId` but no payment method — locus: enable re-validation ~77-100 runs only when both stripe fields omitted; input: enable + customer in one request; wrong outcome: auto-replenish enabled without charge-ready PM; reachability: staged wallet onboarding UX.
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — `StripeException` swallowed to null — locus: catch ~42-44; input: transient Stripe outage during wallet PUT; wrong outcome: guard blocks updates without distinguishing outage vs unlinked tenant; reachability: operator retry semantics.
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — deferred `processing` intent relies on webhook while wallet route signing secret misconfigured — locus: defer path ~120-127 vs webhook ingress; input: processing PI + missing wallet webhook secret; wrong outcome: balance stays low with no credit path; reachability: split webhook secret configuration.
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.IsPaymentMethodAttachedToCustomerAsync` — uses `paymentMethod.CustomerId` only when PM expanded object omits id — locus: ~82 ordinal compare; input: Stripe retrieve shape with empty `CustomerId`; wrong outcome: valid PM rejected; reachability: API version / expand differences (recycle seed #5 invalid class unless new repro).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills customer from resolver after guard allowed omitted customer — locus: ~103-110; input: PUT `pm_` only for tenant whose linked customer differs from PM attachment; wrong outcome: persisted customer backfill bypasses explicit customer guard intent; reachability: operator partial updates.
+
+2026-10-31 seed hunt #6 (seed-only): cheap-disproof closed five open `(candidate)` rows from seed hunt #5; seeded five follow-on `(candidate)` rows; scoped filter passed (7 Persistence `StripeWalletPaymentIdentifierGuard` tests + 1 Application `UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks`, `RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `StripeWalletPaymentIdentifierGuard` vs `StripeBillingProvider.CreateCheckoutSessionAsync` — payment-method retrieve uses `SecretKey` while checkout may use `CheckoutSecretKey` — **cheap-disproof 2026-10-31 seed hunt #6:** split-key misconfiguration fails closed on guard PM retrieve; resolver and gateway also use `SecretKey`; restricted checkout key is an intentional checkout-surface option, not wallet guard drift without host mis-wiring.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — `PendingRefillCredits` settlement credits without re-running guard — **cheap-disproof 2026-10-31 seed hunt #6:** credits an already-authorized payment intent enqueued after guard-passing `ChargeRefillAsync`; `TryAutoRefillAsync_defers_credit_without_second_charge_when_stripe_returns_processing_payment_intent`.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills `StripeCustomerId` from linked resolver — **cheap-disproof 2026-10-31 seed hunt #6:** guard treats omitted customer as linked id (~45-47) before persist; backfill (~103-110) is intentional operator UX.
+- [x] (valid-no-repro) `StripeWalletGateway.ChargeRefillAsync` — off-session `Confirm=true` surfaces SCA failures only as Stripe errors — **cheap-disproof 2026-10-31 seed hunt #6:** `StripeException` and non-succeeded intents map to `StripeWalletChargeResult.Failed`; processing defers without double charge.
+- [x] (valid-no-repro) `WalletController.PutAsync` — blank `RowVersionBase64` skips optimistic concurrency — **cheap-disproof 2026-10-31 seed hunt #6:** optional OCC; SQL substitutes current `RowVersion` when expected length is zero (`SqlLlmTenantWalletRepository.Consume.cs` ~55-82); malformed base64 remains 400 per proven 2026-08-24 hit.
+
+- [x] (invalid) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — subscription/checkout resolution always uses `Billing:Stripe:SecretKey` while checkout creation may use `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — wallet charges always use `SecretKey` even when checkout used `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage` — static in-process `PendingRefillCredits` is lost on restart — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — customer-id-only update allowed when payment method omitted — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish with null Stripe fields without fresh `ExpectedRowVersion` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+
 2026-10-30 seed hunt #5 (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-27; seeded five follow-on `(candidate)` rows; scoped filter passed (7 Persistence `StripeWalletPaymentIdentifierGuard` tests + 2 Application guard/refill regressions, `RunAnalyzers=false`). Private beta: n/a.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-23 reseed; seeded five follow-on `(candidate)` rows; scoped guard + wallet regression filter passed (`RunAnalyzers=false`). Private beta: n/a.
@@ -3311,13 +3414,13 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 5
+- **hunts:** 7
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
 
@@ -3333,11 +3436,11 @@
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — disabling auto-replenish leaves persisted Stripe ids for re-enable — **cheap-disproof 2026-10-30 seed hunt #5:** intentional; enabling auto-replenish re-validates persisted ids (~77-100) and auto-refill re-runs guard before charge (2026-10-21 hit).
 - [x] (invalid) `StripeBillingProvider.CreateCheckoutSessionAsync` — `ClientReferenceId` uses `"D"` GUID while resolver accepts any `Guid.TryParse` form — **cheap-disproof 2026-10-30 seed hunt #5:** metadata and checkout both emit `"D"` tenant ids; `Guid.TryParse` accepts equivalent forms so no resolver mismatch for production checkout paths.
 
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard` vs `StripeBillingProvider.CreateCheckoutSessionAsync` — payment-method retrieve uses `Billing:Stripe:SecretKey` while checkout session creation may use `CheckoutSecretKey` when set — locus: guard ~55-58 vs `ResolveCheckoutApiKey`; input: host configures split Stripe accounts (reachability: linked customer from subscription API key A, PM retrieve with key B).
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — `PendingRefillCredits` settlement path credits wallet without re-running `IStripeWalletPaymentIdentifierGuard` — locus: ~58-73; input: processing payment intent enqueued after an earlier guard-passing charge before billing unlink or ledger drift.
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills `StripeCustomerId` from linked resolver after guard allowed null explicit customer — locus: ~103-110; input: OpenAPI `PUT /v1/billing/wallet` with `StripePaymentMethodId` only (reachability: persist linked `cus_` without operator typing customer id).
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — omits `PaymentMethodTypes` / on-session confirmation options so declined off-session charges surface only as Stripe errors — locus: `Confirm=true`, `OffSession=true` ~35-42; input: saved PM requires SCA on off-session refill (reachability: tenant auto-replenish enqueue).
-- [ ] (candidate) `WalletController.PutAsync` — empty decoded row version (`TryDecodeRowVersion` accepts blank) allows wallet PUT without optimistic concurrency token — locus: ~131-137; input: `RowVersionBase64` omitted or whitespace on concurrent admin updates (reachability: `PUT /v1/billing/wallet`).
+- [x] (invalid) `StripeWalletPaymentIdentifierGuard` vs `StripeBillingProvider.CreateCheckoutSessionAsync` — payment-method retrieve uses `Billing:Stripe:SecretKey` while checkout session creation may use `CheckoutSecretKey` when set — **cheap-disproof 2026-10-31 seed hunt #6:** see zone diary above.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — `PendingRefillCredits` settlement path credits wallet without re-running `IStripeWalletPaymentIdentifierGuard` — **cheap-disproof 2026-10-31 seed hunt #6:** see zone diary above.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills `StripeCustomerId` from linked resolver after guard allowed null explicit customer — **cheap-disproof 2026-10-31 seed hunt #6:** see zone diary above.
+- [x] (valid-no-repro) `StripeWalletGateway.ChargeRefillAsync` — omits `PaymentMethodTypes` / on-session confirmation options so declined off-session charges surface only as Stripe errors — **cheap-disproof 2026-10-31 seed hunt #6:** see zone diary above.
+- [x] (valid-no-repro) `WalletController.PutAsync` — empty decoded row version (`TryDecodeRowVersion` accepts blank) allows wallet PUT without optimistic concurrency token — **cheap-disproof 2026-10-31 seed hunt #6:** see zone diary above.
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
@@ -3352,13 +3455,27 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from seed hunt #68 (marketplace JWT null rejects before `TryInsertWebhookEventAsync` ~25–47 same class as missing-bearer regression; replay-guard whitespace `providerName` throws fail-closed like `eventId`/`RememberAsync`; Stripe controller `413` before `HandleWebhookAsync` is TB-967 hostile-input contract; in-memory `HasSeenAsync` before ledger insert is intentional with `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected` proving no ledger write); seeded five follow-on `(candidate)` rows; 39 scoped billing webhook unit tests passed (24 Persistence + 15 Application, `RunAnalyzers=false`); 2 Api architecture-order tests passed; Api SQL integration HTTP suites not run (no SQL Server on cloud VM).
+
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** `validated is null` returns rejected at ~25–26 before replay guard/ledger ~41–47; complements `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** `ThrowIfNullOrWhiteSpace(providerName)` fail-closed; symmetric to `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only` and `RememberAsync_throws_when_provider_name_is_whitespace_only`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** same guard as `eventId`; not a replay bypass defect.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — **cheap-disproof 2026-10-31 thorough hunt:** intentional bounded reader before signature verification; reaffirmed 2026-10-07 zone diary and `WebhookMiddlewareOrderingTests`.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** intentional ordering per `BILLING_WEBHOOK_REPLAY_GUARD.md`; regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected` verifies ledger insert never runs.
+
+- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — malformed JSON after JWT validation throws before `TryInsertWebhookEventAsync` — locus: `JsonDocument.Parse` ~28 after `ValidateAsync`; input: bearer-valid body that is not JSON; reachability: hostile or truncated marketplace POST.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — oversize payload returns `413` before provider dispatch — locus: `InboundWebhookBoundedBodyReader` failure branch; input: body over `InboundWebhookBodyLimits.DefaultMaxUtf8Bytes`; reachability: parity with Stripe controller TB-967 contract.
+- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — invalid Stripe signature rejects in `ConstructEvent` before ledger insert — locus: `StripeException` catch ~44–46 before ~55; input: tampered body with syntactically present signature header; reachability: webhook secret rotation / replay attacks.
+- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — in-memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — locus: ~41–47; input: duplicate marketplace dedupe key within 24h window; reachability: Entra/marketplace redelivery semantics vs ledger idempotency.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — non-positive amount metadata skips wallet credit without surfacing provider-level failure — locus: amount guard before wallet call; input: `payment_intent.succeeded` with zero/negative amount fields; reachability: Stripe test-mode misconfiguration.
+
 2026-10-15 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing`, `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`, `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only`, `RememberAsync_throws_when_provider_name_is_whitespace_only`, and `TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed`; 68 scoped billing webhook unit tests passed (53 Persistence + 15 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
 - [x] (valid-no-repro) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` returns HTTP `200 Ok` without body — **cheap-disproof 2026-10-15 seed hunt #68:** intentional Stripe ack contract; reaffirmed `BillingStripeWebhookReplayHttpTests.Duplicate_stripe_event_returns_ok_without_reprocessing` and prior hunt #62 classification.
@@ -3367,11 +3484,11 @@
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — `ChangePlan` with `GaEnabled` true does not set `Returns202Accepted` — **cheap-disproof 2026-10-15 seed hunt #68:** GA-on synchronous mutation; regression `ChangePlan_ga_on_invokes_ledger_change_plan` (`Returns202Accepted` false).
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — failed handler marks ledger `Failed` without `RememberAsync` — **cheap-disproof 2026-10-15 seed hunt #68:** intentional Stripe retry after failure; regression `HandleWebhookAsync_wallet_payment_intent_missing_tenant_id_marks_failed_without_credit`.
 
-- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — locus: `validated is null` (`AzureMarketplaceBillingProvider.WebhookDispatch.cs` ~25–26); input: verifier returns null with non-empty bearer.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — locus: `ThrowIfNullOrWhiteSpace(providerName)` (`MemoryCacheBillingWebhookReplayGuard.cs` ~65); input: `TryRegisterEventAsync("   ", "evt_1")`.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — locus: `ThrowIfNullOrWhiteSpace(providerName)` ~26; input: `HasSeenAsync("   ", "evt_1")`.
-- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — locus: `InboundWebhookBoundedBodyReader` failure branch (`BillingStripeWebhookController.cs` ~46–50); input: body over `InboundWebhookBodyLimits.DefaultMaxUtf8Bytes`.
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — locus: ordering ~49–55 (`StripeBillingProvider.Webhook.cs`); input: `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`.
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -3611,6 +3728,8 @@
 
 ## Zone: api-key-auth
 
+2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
 2026-10-30 thorough hunt (hit #142): promoted `(candidate)` `ApiKeyMaterialNormalizer` paste corruption monitor — ill-formed UTF-16 lone surrogate in configured `AdminKey` (`sec\uD800ret-admin`) surfaced as embedded `U+FFFD` via `Rune` enumeration and broke auth against visible `X-Api-Key`; strip `U+FFFD` replacement characters in `IsInvisibleKeyMaterialBmpChar`/`IsInvisibleKeyMaterialRune`; regressions `When_admin_key_config_has_ill_formed_utf16_lone_surrogate_still_authenticates`, `Normalize_strips_replacement_char_embedded_in_key_material`, `Normalize_strips_ill_formed_utf16_lone_surrogate_from_key_material`, `GetSnapshot_treats_replacement_char_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #141 (duplicate-header language-tag-only first via `When_enabled_true_and_duplicate_api_key_headers_skip_language_tag_only_first_value`; variation-selector-supplement-only rotate replace via `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_variation_selector_supplement_only`; comma-segment supplementary paste via per-segment normalize + existing comma regressions; expired admin messaging via `When_admin_key_is_expired_returns_failure_with_expiry_message`; rotation audit plaintext via hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 95/97 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators whose deployment or paste path injects replacement characters or ill-formed UTF-16 into configured key material can authenticate with the visible secret the admin settings screen already shows as configured.
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — replacement character from ill-formed UTF-16 breaks config/header parity — **hit 2026-10-30 thorough hunt #142:** strip `\uFFFD`; regressions above.
@@ -3685,8 +3804,6 @@
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production bypass guard — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate invalidate — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization hit suite — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
-
-2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 79/81 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — combining grapheme joiner paste breaks config/header parity — **hit 2026-10-30 thorough hunt #137:** strip `\u034F`; regressions above.
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-10-30 thorough hunt #137:** intentional timing-safe digest compare ~225–233.
@@ -4657,6 +4774,14 @@
 
 ---
 
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `Authorization`-style API key headers with invisible-only first value — locus: first-wins skip; input: two `X-Api-Key` lines; reachability: proxy duplicate-header monitor.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when current slot is invisible-only material — locus: `HasConfiguredKeyMaterial`; input: CGJ-only slot; reachability: rotate replace monitor.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
+- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
+- **hunts:** 137
+- **bugs-found:** 26
+- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
 ## Zone: scope-binding-middleware
 
 2026-10-30 seed hunt (seed-only): re-read scope-binding middleware and route filter after post-#5156 integration churn; cheap-disproof closed unparseable-first `tenant_id` header-steering candidate (`ValidateHeaderOnlyScopeEscalation` still rejects Bearer steering), custom `IAuthorizeData` platform-deletion skip shape, and `Guid`-typed route `tenantId` binding; retired four reachability-limited candidates as `(invalid)`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_when_find_first_tenant_claim_unparseable`, `OnActionExecutionAsync_custom_authorize_data_platform_deletion_policy_skips_binding`, and `OnActionExecutionAsync_guid_object_route_tenant_enforces_binding`; 108 scoped unit tests passed (6 SQL-backed integration tests unavailable).
@@ -10136,6 +10261,14 @@
 
 ## Zone: persistence-identity
 
+2026-10-31 seed hunt (seed-only): re-read `ArchLucid.Persistence/Identity/` after sync (authentication identity lifecycle and lookup, email OTP rate-limit predicates/SQL, tenant IdP and sign-in domain cache decorators, link proposals, platform recovery grants, workspace membership MERGE); no hunt-ready row promoted this pass; seeded five `(candidate)` rows below; scoped Persistence identity suites **46/51** passed (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository` plus EmailOtp/InMemory identity coverage; 5 SQL integration tests skipped on cloud VM, `RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share identical `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts or bulk replay with identical timestamp; wrong outcome: resend cooldown anchored to the wrong active row; reachability: high-volume OTP request bursts.
+- [ ] (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: active-replacement probe uses only unexpired actives; input: expired active row plus lockout-invalidated predecessor within hourly verification window; wrong outcome: verification rate limit under-counts prior failures; reachability: resend after expiry without new code request.
+- [ ] (candidate) `DapperAuthenticationIdentityRepository.FindAnyByExternalKeyAsync` — disabled identity returned when multiple disabled rows share an external key — locus: `ORDER BY CASE WHEN DisabledUtc IS NULL THEN 0 ELSE 1 END, CreatedUtc DESC`; input: relink history with several disabled rows; wrong outcome: stale disabled row chosen over newer disabled snapshot; reachability: admin identity relink diagnostics.
+- [ ] (candidate) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — global normalized-domain cache entry may survive tenant-scoped domain removal if eviction misses a list key — locus: `HotPathCacheEviction.InvalidateTenantSignInEmailDomainAsync`; input: remove sign-in domain then immediate lookup by normalized domain; wrong outcome: SSO routing reads removed domain until TTL; reachability: tenant domain admin changes under cache load.
+- [ ] (candidate) `SqlTenantIdentityProviderConfigurationRepository.UpsertAsync` — MERGE overwrites configuration without row-version guard — locus: upsert statement; input: concurrent admin saves from two SSO wizard tabs with stale payload; wrong outcome: last writer silently drops IdP metadata fields; reachability: tenant SSO configuration saves.
+
 2026-10-21 seed hunt (seed→hit, lane C): invalidated OTP challenges excluded from hourly request counts; 27 scoped persistence tests + EmailOtp auth regression.
 
 2026-09-14 seed hunt #2912 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -11940,13 +12073,13 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 928
+- **hunts:** 929
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 seed hunt (seed→hit): hourly verification SQL treated expired unused challenges as active replacements, so a later lockout was omitted from the hourly failure count; the active probe now requires `ExpiresUtc > @NowUtc`; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
@@ -12045,12 +12178,6 @@
 
 2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
-
-- (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share the same `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts with identical timestamp from bulk migration replay.
-- (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: `emailHasActiveChallenge` probe uses only unexpired actives; input: expired active plus lockout-invalidated predecessor within hourly verification window.
-- (candidate) `DapperAuthenticationIdentityRepository.Lookup` — normalized email lookup case-folding diverges from `IdentityEmailNormalizer` for IDN domains — locus: SQL `NormalizedEmail` compare; input: sign-in email with mixed-script homoglyph rejected at app layer but alternate normalization in legacy row.
-- (candidate) `InMemoryPlatformUserRepository` — concurrent `TryAdd` duplicate external id returns stale row instead of conflict — locus: `ConcurrentDictionary` add path; input: parallel self-service trial sign-ups sharing external subject.
-- (candidate) `SqlTenantIdentityProviderConfigurationRepository` — MERGE without rowversion check allows silent overwrite when admin saves stale ETag — locus: optimistic concurrency; input: two admin saves with same provider id from SSO wizard tabs.
 
 ## Zone: api-authority-admin-controllers
 
@@ -17164,6 +17291,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-tenancy-workspaces
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows at zone top; foreign-delete idempotent retry and active-in-caller retention guard covered by `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`, `DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`, and `DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`; list default vs recycle display parity covered by `ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active` and recycle-bin `preferInactiveScopedInventoryRow` regressions; recycle-bin `!` non-null when `FindWorkspace` preflight passes (`FindWorkspace` fallback in `ResolveScopedWorkspaceInventoryRow`); baseline GET tenant/workspace preflight by design (`TenantWorkspaceBaselineArtifactsControllerTests`); seeded five follow-on `(candidate)` rows; **70** scoped `TenantWorkspaces` tests passed. Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin retention guard skipped when active catalog is empty and deleted project is not active in caller workspace — **cheap-disproof 2026-10-31 thorough hunt:** intentional idempotent retry when project no longer active in caller (`DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`); fail-closed when still active (`DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`).
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — scoped soft-deleted project still drives `DefaultProjectId` via duplicate inventory rows while recycle bin uses `preferInactiveScopedInventoryRow` — **cheap-disproof 2026-10-31 thorough hunt:** list omits inactive defaults (`ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active`, `ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`); recycle bin display name path tested separately (`ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`).
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — `ResolveScopedWorkspaceInventoryRow(...)!` assumes non-null row when scoped workspace exists in coalesced inventory — **cheap-disproof 2026-10-31 thorough hunt:** preflight `FindWorkspace(workspaces, scope.WorkspaceId)` matches coalesced list; helper always falls back to `FindWorkspace` (~170); no failing repro.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — `ForeignWorkspaceMetadataProtectsFromRetentionPurge` not evaluated when foreign branch skips due to inactive project in caller catalog — **cheap-disproof 2026-10-31 thorough hunt:** delete vs purge asymmetry is documented stale-metadata behavior (`DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`); retention protection still applied on recycle-bin GET (`ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`).
+- [x] (valid-no-repro) `TenantWorkspaceBaselineArtifactsController.GetAsync` — baseline artifact probe without verifying scoped project still active in workspace catalog — **cheap-disproof 2026-10-31 thorough hunt:** endpoint mirrors workspace list preflight only (`TenantWorkspaceScopePreflight`); project-active guard belongs to scope middleware / workspace list contracts, not baseline presence read.
+
+- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — restore succeeds while duplicate inventory rows disagree on default project metadata for the restored id — locus: restore path skips default-pin revalidation after `TryRestoreAsync`; input: soft-deleted project restored with stale sibling row still pinning another default; reachability: recycle-bin restore after partial metadata cleanup (monitor).
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `protectsDeletedProjectFromPurge` treats stale caller default pin like resolved default when `defaultProjectId` is empty but workspace still has active projects — locus: purge guard ~103–106; input: duplicate rows pin deleted id while active default moved; reachability: recycle-bin retention badge after operator delete (monitor).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch uses nullable `ListActiveByTenantAsync` while foreign branch coalesces null to empty — locus: lines 52–73 asymmetry; input: null active list with caller default pin on duplicate row; reachability: delete retry when repository returns null catalog (monitor).
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ResolveScopedWorkspaceInventoryRow` returns scoped inactive pin row before active fallback when JWT project is soft-deleted and no active default resolves — locus: list GET ~62–67 without `preferInactiveScopedInventoryRow`; input: scoped soft-delete with empty active project list; reachability: workspace switcher load with stale JWT (monitor).
+- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — migration banner GET ignores workspace scope while other tenancy reads preflight inventory — locus: tenant-only GET ~40–48; input: JWT workspace rotated off tenant inventory during migration; reachability: operator maintenance banner during catalog migration (monitor).
+
 2026-10-30 seed hunt (seed-only #346): re-read `TenantWorkspacesController` delete/list/recycle paths, `TenantCatalogMigrationStatusController`, `CorePilotTeamChecklistController`, and `TenantHomepageSettingsController` after hunt #345 on `identity-provider-config`; cheap-disproof closed five stale open `(candidate)` rows at zone top; no hunt-ready promotion with failing repro; seeded five `(candidate)` rows; **70** scoped `TenantWorkspaces` tests passed. Private beta: n/a.
 
 - [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign-workspace default pin guard when `ListActiveByTenantAsync` returns empty catalog — **cheap-disproof 2026-10-30 seed hunt #346:** fail-closed caller-default parity when catalog empty (`DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`); foreign branch requires active row in caller workspace before retention pin block.
@@ -17171,12 +17312,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant GET without workspace inventory preflight — **cheap-disproof 2026-10-30 seed hunt #346:** endpoint is tenant-scoped maintenance status; missing tenant returns 404 before service read (proven `GetCatalogMigrationStatusAsync_returns_not_found_when_tenant_missing`).
 - [x] (invalid) `CorePilotTeamChecklistController.GetAsync` — null checklist `ListAsync` before projection — **cheap-disproof 2026-10-30 seed hunt #346:** checklist repositories materialize lists; saturated null-deref class (zone diary #7).
 - [x] (invalid) `TenantHomepageSettingsController.PutAsync` — `SelectedRunId` required rejects nullable clear-body — **cheap-disproof 2026-10-30 seed hunt #346:** sealed-manifest and out-of-scope run ordering documented in `PutAsync_returns_not_found_when_selected_run_is_out_of_scope`.
-
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign-pin retention guard skipped when active catalog is empty and deleted project is not active in caller workspace — locus: `ForeignWorkspacePinsProjectAsDefault` + `projectIsActiveInCallerWorkspace` gate ~69–78; input: foreign metadata pin + empty `ListActiveByTenantAsync` + soft-delete idempotent retry; reachability: cross-workspace default metadata delete retry (monitor).
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — scoped soft-deleted project still drives `DefaultProjectId` via duplicate inventory rows while recycle bin uses `preferInactiveScopedInventoryRow` — locus: `ResolveScopedWorkspaceDefaultProjectId` vs recycle-bin display path; input: scoped project soft-deleted with active sibling default; reachability: workspace list after operator delete (monitor).
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `ResolveScopedWorkspaceInventoryRow(...)!` assumes non-null row when scoped workspace exists in coalesced inventory — locus: recycle-bin GET ~59–65; input: workspace present in JWT scope but no matching inventory row after duplicate-row coalesce edge; reachability: recycle-bin UI load (monitor).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ForeignWorkspaceMetadataProtectsFromRetentionPurge` not evaluated when foreign branch skips due to inactive project in caller catalog — locus: foreign branch ~69–94; input: sibling workspace pins default while caller workspace no longer lists project active; reachability: retention purge vs delete parity (monitor).
-- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — baseline artifact probe without verifying scoped project still active in workspace catalog — locus: `TenantWorkspaceScopePreflight` then repository read; input: JWT project soft-deleted but scope not yet rotated; reachability: sponsor dashboard baseline nudge (monitor).
 
 2026-10-21 thorough hunt (hit): lane B; DeleteProject empty active catalog fail-closed; 62/62 TenantWorkspaces tests.
 
@@ -17192,10 +17327,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -17373,6 +17508,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-31 thorough hunt (dry #212): cheap-disproof closed five open `(candidate)` rows from thorough hunt #211 (bulk simulate `EnumerateDistinctBulkSimulateRunIds` dedupes with `GovernanceRunIdNormalizer.AreEquivalent`, so invisible-Unicode opaque paste variants collapse like padded keys per `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent` and `TrySimulateBulkAsync_deduplicates_padded_run_ids_before_evaluation`; dry-run `EvaluateAsync` accepts dashed/N/trimmed GUID `targetRunId` via `Guid.TryParse` before scoped run load; preview activation binds manifest with `AreEquivalent` while operator notes intentionally echo trimmed caller `runId` (same diagnostic-only class as compare-environment notes in hunt #211); mutation correction finalize and approval subjects use `AreEquivalent` on stored rows (#210); HTTP `SimulateBulkAsync` forwards raw bulk strings but workflow trims before dedupe); seeded five follow-on `(candidate)` rows; scoped filter **835/844** PolicyPack/Governance Application (`RunAnalyzers=false`, 9 pre-existing unrelated Docx export VM failures). Private beta: n/a.
+
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — opaque run ids with invisible Unicode not deduped when not GUID-equivalent — **cheap-disproof 2026-10-31 thorough hunt #212:** `AreEquivalent` normalizes opaque ids (#210); bulk loop uses `AreEquivalent` before add; regressions above.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest-target simulate vs run-target GUID format drift — **cheap-disproof 2026-10-31 thorough hunt #212:** `Guid.TryParse` on trimmed `targetRunId` accepts dashed and N forms; manifest branch uses stored `manifest.RunId` Guid directly.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — notes echo dashed run id while diff uses equivalent manifest — **cheap-disproof 2026-10-31 thorough hunt #212:** manifest gate uses `AreEquivalent`; note text is operator-facing echo only (hunt #211 compare-environment class).
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService` — bulk correction subjects vs approval row GUID format — **cheap-disproof 2026-10-31 thorough hunt #212:** approval and finalize paths use `AreEquivalent(trimmedSubjectId, normalizedRunId)` (#210).
+- [x] (valid-no-repro) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP layer passes run ids without trim before workflow dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** trim and dedupe live in `EnumerateDistinctBulkSimulateRunIds`; HTTP boundary intentionally thin.
+
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — NFC vs NFD Unicode-normalized opaque bulk ids treated as distinct runs — locus: `AreEquivalent` ordinal compare after `Normalize`; input: decomposed vs composed accent on opaque key; reachability: bulk simulate after invisible-Unicode parity #210.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService` / `PolicyPackSimulateSealedManifestGuard` — uppercase hex in N-format `targetRunId` fails sealed-manifest hash guard while lowercase succeeds — locus: hash guard string formatting; input: mixed-case GUID text; reachability: simulate after run resolve.
+- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — environment comparison notes quote raw activation `RunId` while governance diff uses normalized manifest facets — locus: operator notes vs comparer; input: dashed activation row with N-format manifest run id; reachability: cross-env preview.
+- [ ] (candidate) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — committed source run id with leading/trailing format characters fails validation before repository lookup — locus: run id trim/normalize; input: paste-hidden Unicode on recurrence source run; reachability: schedule create after #210 normalizer elsewhere.
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder` — execute-time snapshot omits assignment when pack display name differs only by trailing whitespace from catalog allowlist — locus: display-name trim; input: padded org pack name on pinned assignment; reachability: focused review execute snapshot.
+
 2026-10-31 thorough hunt (hit #211): promoted `(candidate)` `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — bulk simulate deduped only with `Distinct(StringComparer.OrdinalIgnoreCase)`, so the same logical run in dashed `D` and canonical-N `N` GUID strings consumed two bulk slots and double-invoked dry-run evaluation; `EnumerateDistinctBulkSimulateRunIds` now dedupes with `GovernanceRunIdNormalizer.AreEquivalent` plus case-insensitive fallback for opaque ids; regression `TrySimulateBulkAsync_deduplicates_dashed_and_canonical_n_guid_run_ids`; cheap-disproof closed four sibling `(candidate)` rows (non-GUID simulate returns null by contract per `EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`; compare-environment notes are operator-facing echo only; recurrence `LegacyRunStatus` uses commit-pipeline enum names; integration events resolve GUID keys today); reseeded five follow-on `(candidate)` rows; scoped filter **8/8** on touched bulk/normalizer tests plus prior zone baseline **834/843** PolicyPack/Governance Application filter (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: invited operators running bulk policy-pack simulate with mixed GUID string formats see one evaluation per run, not inflated counts from dashed vs canonical-N duplicates.
 
 - [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — dashed vs canonical-N GUID dedupe — **hit 2026-10-31 thorough hunt #211:** `EnumerateDistinctBulkSimulateRunIds`; regression above.
@@ -17380,12 +17529,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernancePreviewService.CompareEnvironmentsAsync` — raw activation `RunId` in notes — **cheap-disproof 2026-10-31 thorough hunt #211:** manifest load uses `AreEquivalent`; note text is diagnostic only.
 - [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` — **cheap-disproof 2026-10-31 thorough hunt #211:** persistence stores canonical enum name from commit pipeline.
 - [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — opaque run ids on events — **cheap-disproof 2026-10-31 thorough hunt #211:** integration payloads use GUID run keys; future opaque support is out of scope for this path.
-
-- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — opaque run ids with invisible Unicode not deduped when not GUID-equivalent — locus: bulk dedupe loop; input: two paste-variant opaque keys; reachability: bulk simulate after #210 normalizer.
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest-target simulate vs run-target GUID format drift — locus: manifest resolution; input: dashed manifest run id with N-format caller.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — notes echo dashed run id while diff uses equivalent manifest — locus: operator notes; input: format mismatch in preview copy.
-- [ ] (candidate) `GovernanceMutationCorrectionService` — bulk correction subjects vs approval row GUID format — locus: subject equivalence; input: mixed-format approval store.
-- [ ] (candidate) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP layer passes run ids without trim before workflow dedupe — locus: controller/facade boundary; input: padded bulk payload strings.
 
 2026-10-30 seed hunt (seed-only): re-read `GovernanceRunIdNormalizer`, preview/mutation-correction run-id paths, policy-pack simulate bulk dedupe, and recurrence validation after #210 opaque equivalence hit; cheap-disproof closed five stale `(candidate)` rows that lived outside `### Hypotheses`; seeded five new mechanism-backed `(candidate)` rows below; scoped PolicyPack/Governance filter **834/843** passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: n/a.
 
@@ -17401,9 +17544,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — bulk policy-pack simulate double-counted dashed vs canonical-N GUID duplicates
 - **related-pd-tb:** none
@@ -17417,7 +17560,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 - [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 
-**Hunts:** 44 · **Bugs found:** 37 · **Consecutive dry hunts:** 0
+**Hunts:** 45 · **Bugs found:** 37 · **Consecutive dry hunts:** 1
+
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — invisible Unicode opaque bulk dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest vs run-target GUID format drift — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — notes vs equivalent manifest — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService` — mixed-format approval subjects — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP trim before bulk dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
 
 2026-10-29 thorough hunt (hit #210): promoted `(candidate)` `GovernanceRunIdNormalizer.AreEquivalent` — opaque architecture run keys and finalize subjects compared ordinally without `Normalize`, so padded or paste-hidden Unicode run ids failed correction/preview subject checks even after inbound normalization; `AreEquivalent` now compares `Normalize(left)` to `Normalize(right)` for non-GUID ids; regressions `AreEquivalent_treats_outer_whitespace_on_opaque_run_ids_as_equivalent` and `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent`; scoped PolicyPack/Governance filter 834/843 passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: governance correction and preview flows accept the same opaque run id when vendors or operators paste padded run keys, so invited architects are not blocked by whitespace-only drift on non-GUID run identifiers.
 
@@ -18631,6 +18780,59 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-31 thorough hunt (hit #350): promoted `(candidate)` root `LinkedList<T>` without `ParameterInfo` (#348 parity); extended root collection recognition to `LinkedList<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_linked_list_without_body_parameter`; cheap-disproof closed four sibling rows (`ObservableCollection<T>` property walk trips guard — `ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property`; `PriorityQueue<,>` does not implement non-generic `IEnumerable` so root walk is unreachable and no cataloged `[FromBody]` priority-queue root; no `[FromBody] CancellationToken`/`Stream` parameters — ct uses default binding source; no `FrozenDictionary`/`ImmutableHashSet` on cataloged DTOs; `TryVisitRootBodyCollection` `IsInstanceOfType` gate is intentional when runtime body does not match parameter type); reseeded five follow-on `(candidate)` rows; scoped filter **34/34** passed (`RunAnalyzers=false`). Private beta: linked-list-shaped batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `LinkedList<T>` / `PriorityQueue<,>` root without `ParameterInfo` — **hit 2026-10-31 thorough hunt #350:** `LinkedList<>` root recognition + regression above; **PriorityQueue<,> split invalid** (see below).
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ObservableCollection<T>` on request DTO properties — **cheap-disproof 2026-10-31 thorough hunt #350:** regression `ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property`.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` `CancellationToken` or `Stream` parameters skipped vs collection guard — **cheap-disproof 2026-10-31 thorough hunt #350:** cataloged `[FromBody]` parameters bind DTO/JSON types; `CancellationToken` uses default binding source, not `BindingSource.Body`.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `FrozenDictionary<,>` / `ImmutableHashSet<>` leaves — **cheap-disproof 2026-10-31 thorough hunt #350:** no cataloged request model exposes frozen/immutable hash set properties.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard` — `TryVisitRootBodyCollection` when parameter type is interface but runtime body is incompatible proxy — **cheap-disproof 2026-10-31 thorough hunt #350:** fail-open skip when `IsInstanceOfType` is false is correct; ASP.NET deserializes batch roots to `List<T>`/`T[]` matching architecture probes.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `PriorityQueue<,>` root — **cheap-disproof 2026-10-31 thorough hunt #350:** `PriorityQueue<,>` does not implement non-generic `IEnumerable`; root walk cannot enumerate; no cataloged batch root (monitor closed).
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentBag<T>` / `ConcurrentQueue<T>` root without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future concurrent collection batch root (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IImmutableList<T>` property on request DTOs — locus: property walk + probe factory; input: immutable list surface if added (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — multiple `[FromBody]` parameters on one action — locus: filter foreach parameters; input: rare dual-body actions if introduced (monitor).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `SortedDictionary<,>` values — locus: dictionary value walk; input: sorted map property on future DTO (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — `PriorityQueue<,>` root via `UnorderedItems` tuple walk — locus: non-`IEnumerable` root collections; input: `[FromBody] PriorityQueue<,>` if JSON binder adds support (monitor).
+
+2026-10-31 thorough hunt (hit #349): promoted `(candidate)` root `Queue<T>` without `ParameterInfo` (#348 parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to `Queue<>` and `Stack<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_queue_without_body_parameter`; cheap-disproof closed four sibling rows (`ReadOnlyCollection<T>` property walk trips guard — `ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property`; `PolicyPacksController.Validate` `[FromBody] JsonElement` uses dedicated mapper not collection guard; no `ImmutableDictionary<,>` cataloged properties; nullable value-type collections covered by `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`); reseeded five follow-on `(candidate)` rows; scoped filter **32/32** passed (`RunAnalyzers=false`). Private beta: queue/stack-shaped batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Queue<T>` / `Stack<T>` root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #349:** `Queue<>` / `Stack<>` added to root collection recognition; regression above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ReadOnlyCollection<T>` property instances from deserializer — **cheap-disproof 2026-10-31 thorough hunt #349:** property `VisitCollection` detects null slots; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property`.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound to `JsonElement` or `JsonNode` before guard — **cheap-disproof 2026-10-31 thorough hunt #349:** `PolicyPacksController.Validate` uses `PolicyPackValidateContentHttpMapper`; guard walks CLR properties on `JsonElement`, not JSON array contents by design.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — **cheap-disproof 2026-10-31 thorough hunt #349:** no cataloged request model exposes `ImmutableDictionary<,>` (same class as #348 ConcurrentDictionary).
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — struct collection properties boxed as `object` with null nullable value-type elements — **cheap-disproof 2026-10-31 thorough hunt #349:** `AllowsNullElements` honors nullable value annotations; regression `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`.
+
+2026-10-31 thorough hunt (hit #348): promoted `(candidate)` root `HashSet<T>` without `ParameterInfo` — single-arg `ContainsNullCollectionElement` skipped `HashSet<>` roots because `IsRootLevelCollectionType` only recognized list-shaped interfaces (#347 parity); extended root collection recognition to `ISet<>` / `HashSet<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_hashset_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped filter **30/30** passed (`RunAnalyzers=false`). Private beta: if a future batch endpoint binds a JSON set root, null entries are rejected at validation instead of reaching controller code when the guard is invoked without action parameter metadata.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `HashSet<T>` root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #348:** `IsRootLevelCollectionType` / `TryGetEnumerableElementType` include `HashSet<>` and `ISet<>`; regression above.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` property with default struct slots — **cheap-disproof 2026-10-31 thorough hunt #348:** no cataloged `[FromBody]` property uses `ImmutableArray<>`; default struct is empty, not null-element slots.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — model binder succeeds with empty `ActionArguments` entry — **cheap-disproof 2026-10-31 thorough hunt #348:** filter skips missing/null body arguments (~36–37); optional body omission is intentional; malformed JSON fails binding before filter.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ConcurrentDictionary<,>` on request models — **cheap-disproof 2026-10-31 thorough hunt #348:** no cataloged request model exposes `ConcurrentDictionary<,>`; guard dictionary walk unchanged when absent.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — cyclic object graphs through collection elements — **cheap-disproof 2026-10-31 thorough hunt #348:** `visited` reference set breaks cycles; STJ max depth bounds attacker graphs; null slots still detected on first visit.
+
+2026-10-31 thorough hunt (dry): cheap-disproof closed five reseeded `(candidate)` rows after failing-repro attempts; no production code change; reseeded five follow-on `(candidate)` rows; scoped filter **29/29** (`FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests`, `RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — root `List<string?>` without `ParameterInfo` rejects null slots — **cheap-disproof 2026-10-31 thorough hunt (dry):** intentional fail-closed on single-arg path when `ParameterInfo` absent (#347); no cataloged `[FromBody] List<string?>` root; filter path supplies parameter nullability for real batch bodies.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IReadOnlySet<>` null element — **cheap-disproof 2026-10-31 thorough hunt (dry):** JSON object graphs do not deserialize null into set slots on cataloged DTO properties; architecture probes skip immutable set construction by design.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — non-`ControllerParameterDescriptor` body parameters — **cheap-disproof 2026-10-31 thorough hunt (dry):** all cataloged `[FromBody]` actions are MVC controller actions with `ControllerParameterDescriptor`; filter still validates with `bodyParameter: null` plus #347 root walk.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog` — nested dictionary map-of-list shapes — **cheap-disproof 2026-10-31 thorough hunt (dry):** catalog recurses non-enumerable nested types; no cataloged map-of-array property missing guard coverage today.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — custom enumerable wrapper DTO — **cheap-disproof 2026-10-31 thorough hunt (dry):** no cataloged `[FromBody]` type is a non-collection-class `IEnumerable` wrapper; filter `TryVisitRootBodyCollection` covers enumerable parameter types including wrappers.
+
+2026-10-31 thorough hunt (hit #347): promoted `(candidate)` `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skipped root `List<T>`/`T[]` bodies because `VisitObject` only walks properties, so direct callers and defense-in-depth missed null slots after filter gained `ParameterInfo` path in hunt #343; `TryVisitRootCollectionWithoutBodyParameter` now walks root-level collection types when `bodyParameter` is null; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_list_without_body_parameter`, `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter`, architecture array-instance probe in `All_root_from_body_enumerable_parameters_reject_null_elements`; cheap-disproof closed four sibling `(candidate)` rows (architecture `List<T>` probe already covered `IReadOnlyList<T>` parameters; dictionary null keys impossible on `Dictionary<,>`; `IReadOnlyDictionary` catalog leaf is future-shape monitor; filter `ActionArguments` key matches `ParameterDescriptor.Name` on cataloged controllers); reseeded five follow-on `(candidate)` rows; scoped filter **24/24** ApiRequestNullCollectionElements + prior zone baseline (`RunAnalyzers=false`). Private beta: JSON batch array roots and guard callers using the single-arg overload no longer miss null slots when metadata is absent—clients still get HTTP 400 validation on the private-beta API path.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #347:** `TryVisitRootCollectionWithoutBodyParameter`; regressions above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — `T[]` vs `List<T>` architecture probe — **cheap-disproof 2026-10-31 thorough hunt #347:** array instance probe + existing `ParameterInfo` root path; guard uses `IsInstanceOfType`.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null dictionary keys on nullable key types — **cheap-disproof 2026-10-31 thorough hunt #347:** `Dictionary<,>` rejects null keys; guard validates entry values.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` leaf — **cheap-disproof 2026-10-31 thorough hunt #347:** no cataloged read-only dictionary body property today; guard dictionary value walk unchanged.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `ActionArguments` key alias — **cheap-disproof 2026-10-31 thorough hunt #347:** cataloged `[FromBody]` parameters use matching argument keys.
+
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — root `List<string?>` without `ParameterInfo` rejects null slots — **cheap-disproof 2026-10-31 thorough hunt (dry):** see dry diary above.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IReadOnlySet<>` property deserialized with null element — **cheap-disproof 2026-10-31 thorough hunt (dry):** see dry diary above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` on `ControllerBase` subclass with non-standard parameter descriptor — **cheap-disproof 2026-10-31 thorough hunt (dry):** see dry diary above.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog` — nested dictionary values in map-of-list shapes — **cheap-disproof 2026-10-31 thorough hunt (dry):** see dry diary above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — custom DTO implementing `IEnumerable` without being root-level collection type — **cheap-disproof 2026-10-31 thorough hunt (dry):** see dry diary above.
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows (root proxy, catalog parity, dictionary null keys, immutable probe skip, BindingSource miswire); no failing repro on remaining open rows; reseeded five new `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — concrete `List<T>` vs `IReadOnlyList<T>` parameter — **cheap-disproof 2026-10-30 thorough hunt (dry):** ASP.NET deserializes batch roots to `List<T>`; `IsInstanceOfType` succeeds; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list` and `All_root_from_body_enumerable_parameters_reject_null_elements`.
@@ -18639,11 +18841,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ApiRequestNullCollectionProbeFactory.CreateCollectionWithNullElement` — `IReadOnlySet<>` / immutable collection probes — **cheap-disproof 2026-10-30 thorough hunt (dry):** architecture test skips unconstructable property types by design; runtime guard still validates deserialized instances on DTO properties.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` without `BindingSource.Body` — **cheap-disproof 2026-10-30 thorough hunt (dry):** filter skips non-Body parameters; host miswire is not reachable via OpenAPI JSON payloads.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root body parameter typed as `T[]` array vs architecture probe using `List<T>` only — locus: `TryVisitRootBodyCollection` + `All_root_from_body_enumerable_parameters_reject_null_elements`; input: `[FromBody] ArchitectureRequest[]` batch if added (reachability: future batch shape parity).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null **key** in `KeyValuePair` when key type is nullable reference — locus: `TryVisitDictionaryEntryValue`; input: `Dictionary<string?, string>` property with null key slot (reachability: STJ may still reject; verify nullable key annotation path).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skips root enumerable when body is collection-typed DTO implementing `IEnumerable` without `ParameterInfo` — locus: overload without `bodyParameter`; input: custom DTO that is itself an enumerable wrapper (reachability: no cataloged `[FromBody]` type today).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` properties treated as enumerable leaf without nested value walk — locus: catalog enumeration vs guard dictionary value null checks; input: future DTO with read-only dictionary property (reachability: OpenAPI map shapes).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound but `ActionArguments` uses different key than `ParameterDescriptor.Name` — locus: `TryGetValue(parameter.Name)`; input: custom `IActionDescriptor` edge (reachability: framework contract; verify no controller uses alias binding).
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skips root enumerable when body is collection-typed DTO implementing `IEnumerable` without `ParameterInfo` — **hit 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root body parameter typed as `T[]` array vs architecture probe using `List<T>` only — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null **key** in `KeyValuePair` when key type is nullable reference — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` properties treated as enumerable leaf without nested value walk — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound but `ActionArguments` uses different key than `ParameterDescriptor.Name` — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
 
 2026-10-30 thorough hunt (hit): promoted `(candidate)` bare `[FromBody] IReadOnlyList<T>` batch root on `RunsController.CreateRunBatch`; `ApiRequestNullCollectionElementsGuard` only walked DTO properties so JSON array roots with null slots bypassed the filter; guard now accepts optional `ParameterInfo` and validates root enumerables using parameter element nullability; filter passes action parameter metadata; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list`, `OnActionExecutionAsync_rejects_batch_from_body_with_null_array_element`, and architecture test `All_root_from_body_enumerable_parameters_reject_null_elements`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: batch architecture run create no longer accepts `[null]` array elements that could reach orchestration with a null slot—clients get HTTP 400 validation on the private-beta API path.
 
@@ -18661,11 +18863,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 6
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — batch `[FromBody]` array root null element bypassed guard
+- **hunts:** 11
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — single-arg guard skipped LinkedList root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

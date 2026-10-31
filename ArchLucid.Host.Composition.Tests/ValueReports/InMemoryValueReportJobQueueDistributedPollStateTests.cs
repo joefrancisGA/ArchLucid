@@ -898,6 +898,54 @@ public sealed class InMemoryValueReportJobQueueDistributedPollStateTests
     }
 
     [Fact]
+    public void TryPoll_prefers_distributed_pending_over_local_failed()
+    {
+        ServiceCollection services = BuildValueReportJobServices();
+        DictionaryPollStateCache pollStateCache = new();
+        services.AddSingleton<IValueReportJobPollStateCache>(pollStateCache);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+
+        InMemoryValueReportJobQueue instance =
+            new(scopeFactory, pollStateCache, NullLogger<InMemoryValueReportJobQueue>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid jobId = Guid.NewGuid();
+        DateTimeOffset from = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset to = DateTimeOffset.UtcNow;
+        ValueReportJobRequest request = new(tenantId, workspaceId, projectId, from, to);
+        const string localError =
+            "Value report job could not be enqueued for cross-instance polling because poll state could not be persisted — retry the async export.";
+
+        ReplaceLocalJobEntry(
+            instance,
+            jobId,
+            request,
+            "Failed",
+            null,
+            "report.docx",
+            localError);
+
+        string payload =
+            $$"""
+              {"tenantId":"{{tenantId}}","workspaceId":"{{workspaceId}}","projectId":"{{projectId}}","fromUtcInclusive":"{{from:O}}","toUtcExclusive":"{{to:O}}","phase":"Pending","bytesBase64":null,"fileName":"report.docx","errorMessage":null}
+              """;
+
+        pollStateCache.Set(
+            $"archlucid:value-report-job:{jobId:N}",
+            System.Text.Encoding.UTF8.GetBytes(payload),
+            new DistributedCacheEntryOptions());
+
+        ValueReportJobPollResult poll = instance.TryPoll(jobId, tenantId);
+
+        poll.Found.Should().BeTrue();
+        poll.Completed.Should().BeFalse();
+        poll.ErrorMessage.Should().BeNull();
+    }
+
+    [Fact]
     public void TryPoll_prefers_distributed_failure_when_local_completed_has_no_document_bytes()
     {
         ServiceCollection services = BuildValueReportJobServices();

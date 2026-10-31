@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
-  coerceStoredFindingClassification,
   countFindingsByClassificationBand,
   filterFindingsByClassificationBand,
   isUncitedFinding,
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
+  parseKnownFindingClassification,
 } from "@/lib/findings/review-detail-findings-classification-band";
 
 function finding(
@@ -65,6 +65,18 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
     expect(counts.unclassified).toBe(2);
   });
 
+  it("narrows stored classification to the known ADR 0070 pair", () => {
+    expect(parseKnownFindingClassification(FINDING_CLASSIFICATION_DECISION_GRADE)).toBe(
+      FINDING_CLASSIFICATION_DECISION_GRADE,
+    );
+    expect(parseKnownFindingClassification(FINDING_CLASSIFICATION_CHECKLIST_COVERAGE)).toBe(
+      FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+    );
+    expect(parseKnownFindingClassification("LegacyGate")).toBeNull();
+    expect(parseKnownFindingClassification(null)).toBeNull();
+    expect(parseKnownFindingClassification(undefined)).toBeNull();
+  });
+
   it("does not treat omitted evidenceRefCount as uncited (P-06)", () => {
     const omitted = finding({ findingId: "omit-1", evidenceRefCount: null, classification: FINDING_CLASSIFICATION_DECISION_GRADE });
     const zero = finding({ findingId: "zero-1", evidenceRefCount: 0, classification: FINDING_CLASSIFICATION_DECISION_GRADE });
@@ -79,14 +91,4 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
     });
   });
 
-  it("coerces wire classification to stored gate values for work-item export", () => {
-    expect(coerceStoredFindingClassification(FINDING_CLASSIFICATION_DECISION_GRADE)).toBe(
-      FINDING_CLASSIFICATION_DECISION_GRADE,
-    );
-    expect(coerceStoredFindingClassification(FINDING_CLASSIFICATION_CHECKLIST_COVERAGE)).toBe(
-      FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
-    );
-    expect(coerceStoredFindingClassification("LegacyGate")).toBeNull();
-    expect(coerceStoredFindingClassification(null)).toBeNull();
-  });
 });

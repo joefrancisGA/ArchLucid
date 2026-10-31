@@ -47,6 +47,7 @@ public sealed partial class InMemoryValueReportJobQueue(
                                     distributed.Phase == JobPhase.Pending => distributed,
             JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
                                     distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            JobPhase.Failed when distributed.Phase == JobPhase.Pending => distributed,
             JobPhase.Failed when distributed.Phase is JobPhase.Completed or JobPhase.Failed => distributed,
             _ => local,
         };
