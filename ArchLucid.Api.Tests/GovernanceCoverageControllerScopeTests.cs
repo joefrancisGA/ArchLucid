@@ -401,6 +401,45 @@ public sealed class GovernanceCoverageControllerScopeTests
     }
 
     [Fact]
+    public async Task PreviewCoverage_reaches_preview_service_when_committed_run_catalog_is_empty()
+    {
+        Mock<ICoveragePreviewService> preview = new(MockBehavior.Strict);
+        preview
+            .Setup(service => service.PreviewAsync(
+                Scope,
+                It.IsAny<CoveragePreviewInput>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CoveragePreviewResult());
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        GovernanceCoverageController controller = new(
+            Mock.Of<ICoverageQueryService>(),
+            preview.Object,
+            Mock.Of<IPolicyPackRepository>(),
+            scopeProvider.Object,
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        CoveragePreviewRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            FocusedPilotModeEnabled = true,
+        };
+
+        IActionResult action = await controller.PreviewCoverage(request, CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        preview.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict()
     {
         Guid committedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

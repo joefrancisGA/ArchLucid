@@ -165,6 +165,50 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                runId.ToString("D"),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+            });
+
+        Mock<IAuthorityQueryService> authorityQuery = new(MockBehavior.Strict);
+        authorityQuery
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                Scope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        GovernanceController sut = CreateController(
+            policyPackHttpFacade: httpFacade.Object,
+            authorityQueryService: authorityQuery.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = runId.ToString("D"),
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        httpFacade.VerifyAll();
+        authorityQuery.VerifyAll();
+    }
+
+    [Fact]
     public async Task Simulate_returns_conflict_when_scoped_run_has_no_golden_manifest_before_facade()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
