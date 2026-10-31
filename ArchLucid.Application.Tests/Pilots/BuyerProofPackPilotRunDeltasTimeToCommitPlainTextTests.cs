@@ -1,4 +1,5 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
 
@@ -27,5 +28,23 @@ public sealed class BuyerProofPackPilotRunDeltasTimeToCommitPlainTextTests
         PilotRunDeltasTimeToCommitFormatter.FormatPlainText(new PilotRunDeltas { TimeToCommittedManifest = null })
             .Should()
             .Be(PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain);
+    }
+
+    [Fact]
+    public void FormatPlainText_when_run_not_committed_matches_proof_package_not_wall_clock_prose()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            TimeToCommittedManifestResolved = false,
+        };
+
+        string plain = PilotRunDeltasTimeToCommitFormatter.FormatPlainText(
+            new PilotRunDeltas { TimeToCommittedManifest = null },
+            proof);
+
+        plain.Should().Be(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+        plain.Should().NotBe(PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain);
     }
 }

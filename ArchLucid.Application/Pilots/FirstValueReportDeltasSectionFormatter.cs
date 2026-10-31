@@ -145,16 +145,8 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas, ProofPackageCompletenessResponse? proofCompleteness)
-    {
-        if (proofCompleteness is not null
-            && proofCompleteness is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
-        {
-            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
-        }
-
-        return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
-    }
+    private static string FormatTimeToCommit(PilotRunDeltas deltas, ProofPackageCompletenessResponse? proofCompleteness) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness);
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);

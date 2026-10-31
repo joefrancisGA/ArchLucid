@@ -215,7 +215,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                     }
 
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
-                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
+                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas, sponsorGate.ProofPackageCompleteness));
                     column.Item().PaddingTop(4)
                         .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
@@ -276,7 +276,10 @@ public sealed class SponsorOnePagerPdfBuilder(
     ///     Renders the four computed-delta rows (time-to-commit, findings total, LLM calls, audit rows) as a 2-column
     ///     table.
     /// </summary>
-    private static void RenderComputedDeltasTable(IContainer column, PilotRunDeltas deltas)
+    private static void RenderComputedDeltasTable(
+        IContainer column,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse? proofCompleteness)
     {
         column.PaddingTop(4).Table(table =>
         {
@@ -285,7 +288,10 @@ public sealed class SponsorOnePagerPdfBuilder(
                 c.RelativeColumn(2);
                 c.RelativeColumn(3);
             });
-            AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
+            AddDeltaRow(
+                table,
+                "Time to committed manifest",
+                PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas, proofCompleteness));
             AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
             AddDeltaRow(table, "Findings by severity", PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
@@ -298,9 +304,6 @@ public sealed class SponsorOnePagerPdfBuilder(
         table.Cell().Padding(2).Text(label);
         table.Cell().Padding(2).Text(value).Bold();
     }
-
-    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
-        PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas);
 
     private static string FormatAuditRows(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatPlainText(deltas);
