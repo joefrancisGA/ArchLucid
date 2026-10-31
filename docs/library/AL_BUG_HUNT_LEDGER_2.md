@@ -5091,6 +5091,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #34): promoted comma-folded `Authorization` with Unicode hyphen (`U+2010`), figure dash (`U+2012`), and small em dash (`U+FE58`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2010`, `U+2012`, and `U+FE58`; regressions `HandleAuthenticateAsync_succeeds_when_unicode_hyphen_only_bearer_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_succeeds_when_figure_dash_only_bearer_segment_precedes_valid_comma_folded_credential`, and `HandleAuthenticateAsync_succeeds_when_small_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed two open `(candidate)` rows from seed hunt #33 (fresh `iat` without `auth_time` via `HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time`; zero-minute lifetime via `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a Unicode hyphen, figure dash, or CJK small em-dash placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — hyphen (`U+2010`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #34:** regression `HandleAuthenticateAsync_succeeds_when_unicode_hyphen_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — figure dash (`U+2012`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #34:** regression `HandleAuthenticateAsync_succeeds_when_figure_dash_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — small em dash (`U+FE58`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #34:** regression `HandleAuthenticateAsync_succeeds_when_small_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — fresh `iat` only when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #34:** regression `HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — zero-minute lifetime request clamps to five minutes — **cheap-disproof 2026-10-31 seed hunt #34:** regression `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — non-breaking hyphen (`U+2011`) glued after `Bearer` — locus: placeholder set; input: `Bearer‑, Bearer <valid>`; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — double vertical line (`U+2016`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — small vertical bar (`U+FE57`) glued after `Bearer` — locus: CJK presentation forms; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `iat` exactly at max-age boundary when `auth_time` absent — locus: iat fallback boundary; reachability: step-up monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — inbound role claim with surrounding whitespace deduped against trimmed surface claim — locus: role promotion; reachability: SAML monitor.
+
 2026-10-31 seed hunt (seed→hit #33): promoted comma-folded `Authorization` with em dash (`U+2014`) and presentation-form vertical em dash (`U+FE31`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard on `Bearer—, Bearer <valid>` and `Bearer︱, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2014` and `U+FE31`; regressions `HandleAuthenticateAsync_succeeds_when_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_presentation_form_vertical_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from seed hunt #32 (stale `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_stale_iat_is_present_without_auth_time`; five-minute inclusive floor via `IssueAccessToken_honors_five_minute_floor_when_exactly_five_minutes_requested`; matching auth-version on Guid `sub` via existing `ValidateAsync_accepts_current_auth_version`); reseeded five follow-on `(candidate)` rows; regression filter 4/4 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an em-dash or CJK presentation em-dash placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — em dash (`U+2014`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #33:** regression `HandleAuthenticateAsync_succeeds_when_em_dash_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5438,11 +5452,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 60
-- **bugs-found:** 49
+- **hunts:** 61
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected em-dash and presentation em-dash placeholders before valid comma-folded token
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected Unicode hyphen, figure dash, and small em-dash placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses

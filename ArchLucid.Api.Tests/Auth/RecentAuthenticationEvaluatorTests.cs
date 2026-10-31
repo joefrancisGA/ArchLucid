@@ -249,6 +249,27 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long freshIat = now.AddMinutes(-(maxAgeMinutes - 1)).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, freshIat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary()
     {
         const int maxAgeMinutes = 15;
