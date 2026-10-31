@@ -190,8 +190,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     constraintsEntries.length > 0 && constraintsEntries.some((c) => c.trim().length === 0);
 
   const identityStepReached = props.stepIndex >= 1;
-  const constraintsTouched = formState.touchedFields.constraints === true;
-  const capabilitiesTouched = formState.touchedFields.requiredCapabilities === true;
+  const constraintsTouched = isWizardFormFieldDirty(formState.touchedFields.constraints);
+  const capabilitiesTouched = isWizardFormFieldDirty(formState.touchedFields.requiredCapabilities);
   const constraintsStoredEmpty =
     constraintsTouched && constraintsNonEmpty.length === 0 && !hasBlankConstraintEntry;
   const capabilitiesStoredEmpty =

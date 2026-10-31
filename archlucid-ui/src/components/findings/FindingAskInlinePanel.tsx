@@ -348,7 +348,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   ) : null}
                   {citesOpenFinding ? (
                     <AskCitedFindingsSemanticSupportBandFootnote
-                      referencedFindingIds={turn.referencedFindings}
+                      referencedFindingIds={turn.referencedFindings ?? []}
                       findingBandIndex={askCitedFindingBandIndexForFinding(
                         props.findingId,
                         props.semanticSupportBand,

@@ -11,6 +11,7 @@ import {
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_DRAFT_BANNER,
   WHY_SECURENOW_DRAFT_PITCH,
+  WHY_SECURENOW_PILOT_DECISION_BODY,
   WHY_SECURENOW_REVIEWER_PACK_BODY,
 } from "@/lib/marketing/why-securenow-draft-copy";
 
@@ -58,5 +59,16 @@ describe("Why SecureNow draft (SN-MKT-02)", () => {
     const reviewerSection = document.getElementById("reviewer-pack");
     expect(reviewerSection).not.toBeNull();
     expect(reviewerSection).toHaveTextContent(WHY_SECURENOW_REVIEWER_PACK_BODY);
+  });
+
+  it("renders the pilot decision anchor with the three human outcomes", () => {
+    render(<WhySecureNowDraftView />);
+
+    const decisionSection = document.getElementById("pilot-decision");
+    expect(decisionSection).not.toBeNull();
+    expect(decisionSection).toHaveTextContent(WHY_SECURENOW_PILOT_DECISION_BODY);
+    expect(decisionSection).toHaveTextContent(/proceed to commercial discussion/i);
+    expect(decisionSection).toHaveTextContent(/extend with bounded scope/i);
+    expect(decisionSection).toHaveTextContent(/\bstop\b/i);
   });
 });
