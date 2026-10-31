@@ -23,7 +23,8 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        GoldenManifest? manifest = null)
+        GoldenManifest? manifest = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(gate);
@@ -54,7 +55,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine("**Concrete gaps (automated)**");
         sb.AppendLine();
 
-        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run, manifest))
+        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run, manifest, roiClaimGate))
             sb.AppendLine(CultureInfo.InvariantCulture, $"- {bullet}");
 
         sb.AppendLine();
@@ -84,15 +85,17 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        GoldenManifest? manifest = null) =>
-        EnumerateConcreteGaps(disposition, proof, deltas, run, manifest);
+        GoldenManifest? manifest = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null) =>
+        EnumerateConcreteGaps(disposition, proof, deltas, run, manifest, roiClaimGate);
 
     private static IEnumerable<string> EnumerateConcreteGaps(
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        GoldenManifest? manifest)
+        GoldenManifest? manifest,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
             yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
@@ -130,10 +133,12 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         else if (deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
             yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = roiClaimGate?.EvidenceConfidence ?? proof.RoiEvidenceConfidence;
+
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             yield return SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine();
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             yield return PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow();
 
         if (!deltas.IsDemoTenant && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe != true)

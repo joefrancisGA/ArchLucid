@@ -4003,4 +4003,39 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofRow.Should().NotContain("**Strong**");
         proofRow.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_stale_proof_strong_but_roi_claim_gate_low_uses_gate_not_proof()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            RoiConfidenceLabel = "Strong",
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "Hold",
+            "Hold narrative");
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                new PilotRunDeltas(),
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest: null,
+                roiClaimGate)
+            .ToList();
+
+        string prose = PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain;
+        gaps.Should().Contain(prose);
+        gaps.Should().Contain(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
+    }
 }
