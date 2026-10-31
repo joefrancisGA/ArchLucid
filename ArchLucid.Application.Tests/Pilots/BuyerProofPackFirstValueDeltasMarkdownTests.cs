@@ -62,6 +62,29 @@ public sealed class BuyerProofPackFirstValueDeltasMarkdownTests
     }
 
     [Fact]
+    public void Computed_deltas_and_elapsed_section_when_no_wall_clock_share_skip_prose()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TimeToCommittedManifest = null,
+            FindingsBySeverity = [],
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+        };
+
+        StringBuilder computed = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(computed, deltas);
+
+        StringBuilder elapsed = new();
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(elapsed, deltas);
+
+        string prose = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+        computed.ToString().Should().Contain(prose);
+        elapsed.ToString().Should().Contain(prose);
+        computed.ToString().Should().NotContain("Time to committed manifest was not stored.");
+    }
+
+    [Fact]
     public void Elapsed_section_when_created_timestamp_present_wraps_inline_code()
     {
         DateTime created = new(2026, 3, 1, 10, 0, 0, DateTimeKind.Utc);

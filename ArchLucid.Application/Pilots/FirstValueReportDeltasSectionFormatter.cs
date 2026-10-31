@@ -114,7 +114,8 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
         if (deltas.TimeToCommittedManifest is not { } wall)
         {
-            sb.AppendLine("_(Run has no committed manifest — elapsed time not computed.)_");
+            sb.AppendLine(
+                FormattableString.Invariant($"_({PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain})_"));
             sb.AppendLine();
             return;
         }
@@ -126,12 +127,8 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas)
-    {
-        return deltas.TimeToCommittedManifest is not { } wall
-            ? "Time to committed manifest was not stored."
-            : $"**{wall:c}** (committed {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.ManifestCommittedUtc?.ToString("O", CultureInfo.InvariantCulture) ?? "Committed time was not stored.")})";
-    }
+    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);

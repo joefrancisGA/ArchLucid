@@ -20,4 +20,12 @@ public sealed class BuyerProofPackPilotRunDeltasTimeToCommitPlainTextTests
             .Should()
             .Contain("Committed time was not stored.");
     }
+
+    [Fact]
+    public void FormatPlainText_when_wall_clock_missing_uses_shared_no_manifest_prose()
+    {
+        PilotRunDeltasTimeToCommitFormatter.FormatPlainText(new PilotRunDeltas { TimeToCommittedManifest = null })
+            .Should()
+            .Be(PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain);
+    }
 }
