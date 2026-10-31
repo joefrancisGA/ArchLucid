@@ -66,8 +66,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (run.RealModeFellBackToSimulator)
         {
-            softGapMessages.Add(
-                "Run recorded **simulator substitution** — disclose when claiming real LLM / production agent evidence.");
+            softGapMessages.Add(PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
