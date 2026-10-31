@@ -155,6 +155,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
         gate.SoftGaps.Should().Contain(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
+        gate.SoftGaps.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow());
     }
 
     [Fact]

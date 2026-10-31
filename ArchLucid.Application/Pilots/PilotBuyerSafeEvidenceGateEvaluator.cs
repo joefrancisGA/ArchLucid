@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Pilots;
@@ -101,6 +102,13 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)
         {
             softGapMessages.Add(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
+        }
+
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidenceResolver.Resolve(valueWindowSnapshot);
+
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+        {
+            softGapMessages.Add(PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow());
         }
 
         (PilotBuyerSafeEvidencePublishingTier tier, ProofPackageSendability sendability) =
