@@ -322,7 +322,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {
-                c.Item().Text("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)").Italic();
+                c.Item().Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfUnavailableItalicLine()).Italic();
                 return;
             }
 
