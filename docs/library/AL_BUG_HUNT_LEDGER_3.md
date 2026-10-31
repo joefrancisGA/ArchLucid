@@ -2410,6 +2410,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-31 thorough hunt (dry): attempted the retained empty-reasoning publish-gate candidate with an isolated page-client test selection, but Vitest exhausted the VM heap before producing a reliable repro; the candidate remains open for a lower-memory harness. The focused checklist suite passed 5/5 and no production change was made. Private beta: n/a.
+
 2026-10-31 seed hunt (seed-only): reread the page-client action gates and the focused checklist regressions; the only fresh bounded concern is retained as a candidate because the large page-client suite is currently VM-heap constrained and did not provide a reliable repro result. No production change. Private beta: n/a.
 
 2026-10-30 thorough hunt #50 (hit): promoted blank source-context handling — a non-empty `sourceTexts` array with only whitespace contents was marked `loaded`, so the page showed loaded-intake messaging while the architecture description remained empty; require at least one trimmed source body before marking context loaded; regression `hasUsableArchitectureSourceText` rejects whitespace-only rows; focused helper suites passed 5/5. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
@@ -2480,9 +2482,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — empty reasoning payload marked analysis complete
 - **related-pd-tb:** none
