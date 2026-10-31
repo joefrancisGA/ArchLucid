@@ -38,7 +38,100 @@ public static class ApiRequestNullCollectionElementsGuard
             return true;
         }
 
+        if (bodyParameter is null
+            && TryVisitRootCollectionWithoutBodyParameter(root, visited, out bool rootWithoutParameterInvalid)
+            && rootWithoutParameterInvalid)
+        {
+            return true;
+        }
+
         return VisitObject(root, visited);
+    }
+
+    private static bool TryVisitRootCollectionWithoutBodyParameter(
+        object root,
+        HashSet<object> visited,
+        out bool invalid)
+    {
+        invalid = false;
+        Type rootType = root.GetType();
+
+        if (!IsRootLevelCollectionType(rootType) || root is not IEnumerable enumerable)
+            return false;
+
+        Type? elementType = TryGetEnumerableElementType(rootType);
+        bool allowNullElements = elementType is not null && Nullable.GetUnderlyingType(elementType) is not null;
+
+        foreach (object? element in enumerable)
+        {
+            if (element is null)
+            {
+                if (!allowNullElements)
+                {
+                    invalid = true;
+
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (VisitObject(element, visited))
+            {
+                invalid = true;
+
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    private static Type? TryGetEnumerableElementType(Type type)
+    {
+        if (type.IsArray)
+            return type.GetElementType();
+
+        if (type.IsGenericType)
+        {
+            Type genericDefinition = type.GetGenericTypeDefinition();
+
+            if (genericDefinition == typeof(IEnumerable<>)
+                || genericDefinition == typeof(IList<>)
+                || genericDefinition == typeof(IReadOnlyList<>)
+                || genericDefinition == typeof(ICollection<>)
+                || genericDefinition == typeof(List<>))
+            {
+                return type.GetGenericArguments()[0];
+            }
+        }
+
+        foreach (Type interfaceType in type.GetInterfaces())
+        {
+            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+                continue;
+
+            return interfaceType.GetGenericArguments()[0];
+        }
+
+        return null;
+    }
+
+    private static bool IsRootLevelCollectionType(Type type)
+    {
+        if (type.IsArray)
+            return true;
+
+        if (!type.IsGenericType)
+            return false;
+
+        Type genericDefinition = type.GetGenericTypeDefinition();
+
+        return genericDefinition == typeof(List<>)
+               || genericDefinition == typeof(IList<>)
+               || genericDefinition == typeof(IReadOnlyList<>)
+               || genericDefinition == typeof(ICollection<>)
+               || genericDefinition == typeof(IEnumerable<>);
     }
 
     private static bool TryVisitRootBodyCollection(

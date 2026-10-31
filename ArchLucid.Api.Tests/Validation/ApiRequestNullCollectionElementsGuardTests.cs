@@ -143,6 +143,30 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_list_without_body_parameter()
+    {
+        IReadOnlyList<ArchitectureRequest> requests = new List<ArchitectureRequest> { null! };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter()
+    {
+        ArchitectureRequest?[] requests = [null];
+
+        MethodInfo batchMethod = typeof(RunsController).GetMethod(
+            nameof(RunsController.CreateRunBatch),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException(nameof(RunsController.CreateRunBatch));
+
+        ParameterInfo bodyParameter = batchMethod.GetParameters().Single(static parameter =>
+            parameter.GetCustomAttribute<FromBodyAttribute>() is not null);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(requests, bodyParameter).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_false_for_valid_root_batch_request_list_without_body_parameter()
     {
         IReadOnlyList<ArchitectureRequest> requests = [new ArchitectureRequest { Description = new string('x', 32) }];

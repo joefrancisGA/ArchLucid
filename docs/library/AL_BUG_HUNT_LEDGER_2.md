@@ -18631,6 +18631,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-31 thorough hunt (hit #347): promoted `(candidate)` `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skipped root `List<T>`/`T[]` bodies because `VisitObject` only walks properties, so direct callers and defense-in-depth missed null slots after filter gained `ParameterInfo` path in hunt #343; `TryVisitRootCollectionWithoutBodyParameter` now walks root-level collection types when `bodyParameter` is null; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_list_without_body_parameter`, `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter`, architecture array-instance probe in `All_root_from_body_enumerable_parameters_reject_null_elements`; cheap-disproof closed four sibling `(candidate)` rows (architecture `List<T>` probe already covered `IReadOnlyList<T>` parameters; dictionary null keys impossible on `Dictionary<,>`; `IReadOnlyDictionary` catalog leaf is future-shape monitor; filter `ActionArguments` key matches `ParameterDescriptor.Name` on cataloged controllers); reseeded five follow-on `(candidate)` rows; scoped filter **24/24** ApiRequestNullCollectionElements + prior zone baseline (`RunAnalyzers=false`). Private beta: JSON batch array roots and guard callers using the single-arg overload no longer miss null slots when metadata is absent—clients still get HTTP 400 validation on the private-beta API path.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #347:** `TryVisitRootCollectionWithoutBodyParameter`; regressions above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — `T[]` vs `List<T>` architecture probe — **cheap-disproof 2026-10-31 thorough hunt #347:** array instance probe + existing `ParameterInfo` root path; guard uses `IsInstanceOfType`.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null dictionary keys on nullable key types — **cheap-disproof 2026-10-31 thorough hunt #347:** `Dictionary<,>` rejects null keys; guard validates entry values.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` leaf — **cheap-disproof 2026-10-31 thorough hunt #347:** no cataloged read-only dictionary body property today; guard dictionary value walk unchanged.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `ActionArguments` key alias — **cheap-disproof 2026-10-31 thorough hunt #347:** cataloged `[FromBody]` parameters use matching argument keys.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — root `List<string?>` without `ParameterInfo` rejects null slots — locus: nullable reference element typing; input: nullable reference root batch; reachability: NRT root batch monitor.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IReadOnlySet<>` property deserialized with null element — locus: set enumeration; input: JSON set with null (STJ rejection vs guard).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` on `ControllerBase` subclass with non-standard parameter descriptor — locus: filter parameter cast; input: minimal API future parity.
+- [ ] (candidate) `ApiRequestBodyTypeCatalog` — nested dictionary values in map-of-list shapes — locus: catalog depth; input: future OpenAPI map-of-array DTO.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — custom DTO implementing `IEnumerable` without being root-level collection type — locus: `IsRootLevelCollectionType` heuristic; input: enumerable wrapper DTO.
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows (root proxy, catalog parity, dictionary null keys, immutable probe skip, BindingSource miswire); no failing repro on remaining open rows; reseeded five new `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — concrete `List<T>` vs `IReadOnlyList<T>` parameter — **cheap-disproof 2026-10-30 thorough hunt (dry):** ASP.NET deserializes batch roots to `List<T>`; `IsInstanceOfType` succeeds; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list` and `All_root_from_body_enumerable_parameters_reject_null_elements`.
@@ -18639,11 +18653,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ApiRequestNullCollectionProbeFactory.CreateCollectionWithNullElement` — `IReadOnlySet<>` / immutable collection probes — **cheap-disproof 2026-10-30 thorough hunt (dry):** architecture test skips unconstructable property types by design; runtime guard still validates deserialized instances on DTO properties.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` without `BindingSource.Body` — **cheap-disproof 2026-10-30 thorough hunt (dry):** filter skips non-Body parameters; host miswire is not reachable via OpenAPI JSON payloads.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root body parameter typed as `T[]` array vs architecture probe using `List<T>` only — locus: `TryVisitRootBodyCollection` + `All_root_from_body_enumerable_parameters_reject_null_elements`; input: `[FromBody] ArchitectureRequest[]` batch if added (reachability: future batch shape parity).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null **key** in `KeyValuePair` when key type is nullable reference — locus: `TryVisitDictionaryEntryValue`; input: `Dictionary<string?, string>` property with null key slot (reachability: STJ may still reject; verify nullable key annotation path).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skips root enumerable when body is collection-typed DTO implementing `IEnumerable` without `ParameterInfo` — locus: overload without `bodyParameter`; input: custom DTO that is itself an enumerable wrapper (reachability: no cataloged `[FromBody]` type today).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` properties treated as enumerable leaf without nested value walk — locus: catalog enumeration vs guard dictionary value null checks; input: future DTO with read-only dictionary property (reachability: OpenAPI map shapes).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound but `ActionArguments` uses different key than `ParameterDescriptor.Name` — locus: `TryGetValue(parameter.Name)`; input: custom `IActionDescriptor` edge (reachability: framework contract; verify no controller uses alias binding).
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(object)` — single-arg overload skips root enumerable when body is collection-typed DTO implementing `IEnumerable` without `ParameterInfo` — **hit 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.TryVisitRootBodyCollection` — root body parameter typed as `T[]` array vs architecture probe using `List<T>` only — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null **key** in `KeyValuePair` when key type is nullable reference — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `IReadOnlyDictionary<,>` properties treated as enumerable leaf without nested value walk — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound but `ActionArguments` uses different key than `ParameterDescriptor.Name` — **cheap-disproof 2026-10-31 thorough hunt #347:** see hunt #347 diary.
 
 2026-10-30 thorough hunt (hit): promoted `(candidate)` bare `[FromBody] IReadOnlyList<T>` batch root on `RunsController.CreateRunBatch`; `ApiRequestNullCollectionElementsGuard` only walked DTO properties so JSON array roots with null slots bypassed the filter; guard now accepts optional `ParameterInfo` and validates root enumerables using parameter element nullability; filter passes action parameter metadata; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_request_list`, `OnActionExecutionAsync_rejects_batch_from_body_with_null_array_element`, and architecture test `All_root_from_body_enumerable_parameters_reject_null_elements`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; 27 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: batch architecture run create no longer accepts `[null]` array elements that could reach orchestration with a null slot—clients get HTTP 400 validation on the private-beta API path.
 
@@ -18661,11 +18675,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 6
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — batch `[FromBody]` array root null element bypassed guard
+- **hunts:** 7
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — single-arg guard skipped root collection null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
