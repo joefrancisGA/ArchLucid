@@ -17,12 +17,12 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_MARKETABILITY_COMPOSER_PROM
 | 5 | **SN-MKT-05** | Forwardable buyer overview. Links the pack, the quote cover, and the pilot proposal. No fees. **Shipped.** |
 | 6 | **SN-MKT-06** | SecureNow Home "For reviewers" links the draft, the reviewer packet, and the conversation mailto. **Shipped.** |
 | 7 | **SN-MKT-07** | Warn-only checker for the internal draft. **Shipped.** SN-MKT-11 retargets it. |
-| 8 | **SN-MKT-08** | Index `/why-securenow`. Keep the accepted pitch, steps, refusals, and `support@archlucid.net` mailto. Replace the draft banner with a beta NO_GO status line. |
-| 9 | **SN-MKT-09** | Indexed `/securenow-sample`: one synthetic path, cited hops, and an advisory cut point. Same mailto. |
-| 10 | **SN-MKT-10** | Resources menu links Why SecureNow and SecureNow sample. Home reviewer links follow. |
-| 11 | **SN-MKT-11** | Warn-only checker requires the public pages and still rejects a price. |
+| 8 | **SN-MKT-08** | Index `/why-securenow`. Keep the accepted pitch, steps, refusals, and `support@archlucid.net` mailto. Replace the draft banner with a beta NO_GO status line. **Shipped.** |
+| 9 | **SN-MKT-09** | Indexed `/securenow-sample`: one synthetic path, cited hops, and an advisory cut point. Same mailto. **Shipped.** |
+| 10 | **SN-MKT-10** | Resources menu links Why SecureNow and SecureNow sample. Home reviewer links follow. **Shipped.** |
+| 11 | **SN-MKT-11** | Warn-only checker requires the public pages and still rejects a price. **Shipped.** |
 | — | **SN-MKT-HOLD** | Stop list. Paste only when a session drifts. |
 
-**SN-MKT-01** through **SN-MKT-07** are on trunk. Do not redo them. Run **SN-MKT-08**, then **09**, then **10**, then **11** in one pull request. **08** through **10** leave the shipped checker red on purpose until **11**. **SN-MKT-HOLD** is not a build step.
+**SN-MKT-01** through **SN-MKT-11** are on trunk. Do not redo them. **SN-MKT-HOLD** is not a build step.
 
 The accepted copy is the pitch, the audience, the six steps, and the five refusals. These prompts do not rewrite that copy. Conversation intake stays `mailto:support@archlucid.net?subject=SecureNow%20conversation`.
