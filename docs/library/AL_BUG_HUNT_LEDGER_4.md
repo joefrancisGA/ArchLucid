@@ -17011,6 +17011,14 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-tenancy-commercial
 
+2026-10-31 seed hunt #969 (seed-only): no rotation (`core-explanation-json` low-yield streak 1). Re-read `ArchLucid.Core/Identity/`, `Billing/`, and `Budgeting/` after map-based `MarketplacePlanIdTierResolver` (substring negation retired); compared `CommercialTenantEligibility` gate vs weekly-sponsor suspension checks, Marketplace ChangePlan/ChangeQuantity JSON readers, packaging tier + LLM spend plan mapping; no row met hunt-ready reachability bar; seeded five `(candidate)` rows below; picker filter **18** passed (6 Application + 12 Api `CommercialTenant`) and **46** Core resolver/reader tests in zone paths (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes commercial tier gate while `IsEligibleForWeeklySponsorReport` rejects `SuspendedUtc` — locus: gate checks tier and active trial only; input: `TenantRecord` with `Tier=Standard` and `SuspendedUtc` set; wrong outcome: Standard commercial HTTP surfaces stay reachable after suspension (monitor; contrast weekly automation eligibility).
+- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON boolean `planId` becomes `"true"`/`"false"` via `GetRawText()` — locus: boolean property branch before tier resolver; input: Azure Marketplace ChangePlan webhook root `"planId": true`; wrong outcome: `MarketplacePlanIdTierResolver` treats token as unknown plan and defaults Standard (monitor; partner SaaS webhook JSON).
+- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — `PlanIdTierMap` entries that differ only by case: first case-insensitive match wins — locus: linear scan with `OrdinalIgnoreCase` key compare; input: appsettings map with both `Contoso-Pro`→Enterprise and `contoso-pro`→Standard; wrong outcome: tier depends on config enumeration order (monitor; `Billing:AzureMarketplace:PlanIdTierMap`).
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — subscription snapshot with `SeatsPurchased=0` still satisfies Team cap inequalities — locus: `SeatsPurchased <= TeamSeatsMax` with zero purchased; input: ChangeQuantity webhook or ledger row carrying quantity zero; wrong outcome: Team commercial label (and downstream Architect LLM plan shortcut) despite empty purchase (monitor).
+- [ ] (candidate) `MarketplaceQuantityReader.ReadQuantity` — absent or unparsable `quantity` falls back to `Math.Max(1, fallback)` — locus: `ReadQuantity` default fallback path; input: webhook omits `quantity` while handler passes subscription seat count as fallback; wrong outcome: seat purchase overwritten to 1 when partner omitted quantity on a multi-seat subscription (monitor; ChangeQuantity payload).
+
 2026-10-21 thorough hunt (dry): cheap-disproof closed Marketplace `PlanIdContainsEnterpriseTierToken` candidate (`MarketplacePlanIdMapper` removed for `MarketplacePlanIdTierResolver` + `PlanIdTierMap` on trunk); closed sales-led Professional under-label candidate as intentional usage inference when no billing row (`CommercialPackagingTierResolver` comment + existing Team default test); no hunt-ready row met the bar; 38 scoped CommercialTenant / packaging / marketplace resolver tests passed.
 
 - **id:** core-tenancy-commercial
@@ -17020,13 +17028,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-12 thorough hunt #2088 (seed-only): reseeded core-tenancy-commercial; 6 scoped tests passed; no new hunt-ready rows
 
@@ -19378,7 +19386,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **last-bug:** 2026-10-23 — structured confidence array rejected all multi-entry arrays
 - **last-hunt:** 2026-10-31
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-28 thorough hunt #694 (dry): cheap-disproof closed five open `(candidate)` rows from hunt #103 reseed — intentional first-win on `[0.8, 0.9]` structured confidence arrays (regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry` parity), null-skip on `[null, 0.75]` (same array reader), faithfulness `[true, 0.55]` via poison skip then finite parse (regression `FromAggregateJson_scales_percent_suffixed_faithfulness_support_ratio_with_interior_space_before_percent` parity with confidence boolean lead), duplicate `CONFIDENCE` trailing `["75 %"]` PreferLastNonEmpty contract (regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_in_array`), and thin-space `"75\u2009%"` percent trim (regression `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent`); seeded five follow-on `(candidate)` rows; scoped RunExplanation filter 236 passed (233 Core + 3 Application, Release); no production change.
 
