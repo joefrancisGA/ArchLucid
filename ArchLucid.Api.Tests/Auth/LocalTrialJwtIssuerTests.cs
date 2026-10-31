@@ -132,6 +132,27 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
         jwt.Claims.Should().NotContain(c => c.Type == PlatformIdentityClaimTypes.AuthVersion);
     }
 
+    [SkippableFact]
+    public void IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 2000);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(24 * 60 * 60, 120);
+    }
+
     public void Dispose()
     {
         if (File.Exists(_privatePemPath))
