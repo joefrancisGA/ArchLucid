@@ -453,4 +453,78 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         computedSb.ToString().Should().Contain(expectedCell);
         auditRow.Should().NotContain("Not present on this run.");
     }
+
+    [Fact]
+    public void Proof_package_findings_by_severity_cell_when_empty_matches_findings_section_and_pdf_copy()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentResultsIncludedInDetail = true,
+            FindingsBySeverity = [],
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                FindingsBySeverityPresent = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder findingsSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendFindingsSection(findingsSb, deltas);
+
+        string plain = PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas);
+        string expectedCell = PilotRunDeltasFindingsBySeverityPlainTextFormatter.FormatMarkdownProofPackageCell(deltas);
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings by severity |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(expectedCell);
+        findingsSb.ToString().Should().Contain(plain);
+        row.Should().NotContain("| Present |");
+    }
+
+    [Fact]
+    public void Proof_package_findings_by_severity_cell_when_rows_present_matches_pdf_plain_formatter()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string expectedCell = PilotRunDeltasFindingsBySeverityPlainTextFormatter.FormatMarkdownProofPackageCell(deltas);
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Findings by severity |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(expectedCell);
+        row.Should().Contain("`Warning`: 2");
+        PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas).Should().Contain("Warning: 2");
+    }
 }

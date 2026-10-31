@@ -45,4 +45,20 @@ internal static class PilotRunDeltasFindingsBySeverityPlainTextFormatter
         return PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel;
     }
 
+    internal static string FormatMarkdownProofPackageCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.FindingsBySeverity.Count > 0)
+        {
+            return string.Join(
+                ", ",
+                deltas.FindingsBySeverity.Select(static p =>
+                    FormattableString.Invariant(
+                        $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(p.Key)}: {p.Value.ToString(CultureInfo.InvariantCulture)}")));
+        }
+
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(Format(deltas));
+    }
+
 }
