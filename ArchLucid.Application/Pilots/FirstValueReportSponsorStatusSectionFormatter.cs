@@ -72,13 +72,15 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             ? string.Empty
             : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
 
+        PilotRoiEvidenceConfidence evidenceConfidence = roiClaimGate.EvidenceConfidence;
+
         if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
-            && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
-            && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)
+            && evidenceConfidence is PilotRoiEvidenceConfidence.Strong
+            && roiClaimGate.ProjectedDollarClaimsSponsorSafe)
         {
             return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
-                proof.RoiEvidenceConfidence,
-                $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}");
+                evidenceConfidence,
+                $"**{evidenceConfidence}** — {label}.{inputsSummary}");
         }
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
@@ -86,8 +88,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
         return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
-            proof.RoiEvidenceConfidence,
-            $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}");
+            evidenceConfidence,
+            $"**{evidenceConfidence}** — {label}; {fallback}.{inputsSummary}");
     }
 
     private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)

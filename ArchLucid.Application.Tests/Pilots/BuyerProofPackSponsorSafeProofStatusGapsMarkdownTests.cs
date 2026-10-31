@@ -3831,4 +3831,39 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .NotContain(PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain);
     }
+
+    [Fact]
+    public void Sponsor_status_roi_basis_when_stale_proof_strong_uses_roi_claim_gate_confidence_not_proof()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            RoiConfidenceLabel = "Strong",
+            SupportRunIdPresent = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "review-cycle baseline: No measurement yet",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        string row = statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI basis status |", StringComparison.Ordinal));
+
+        row.Should().Contain("**Low**");
+        row.Should().NotContain("**Strong**");
+        row.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
+    }
 }
