@@ -59,8 +59,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (manifest is not null && manifest.Metadata.CreatedUtc == default)
         {
-            softGapMessages.Add(
-                "Golden manifest metadata carries a default commit UTC timestamp — timing / delta proofs are incomplete until metadata is non-default.");
+            softGapMessages.Add(PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         if (run.RealModeFellBackToSimulator)

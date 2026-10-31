@@ -248,7 +248,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
-        gate.SoftGaps.Should().Contain(g => g.Contains("default commit UTC", StringComparison.OrdinalIgnoreCase));
+        gate.SoftGaps.Should().Contain(PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
     private static ArchitectureRun CommittedRun() =>
