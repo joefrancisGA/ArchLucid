@@ -1371,13 +1371,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 40
+- **hunts:** 41
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 
 ### Hypotheses
 
