@@ -2367,12 +2367,6 @@
 - [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — undefined numeric disposition `"99"` — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
 - [x] (valid-no-repro) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — format-only actions — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — JSON property names with surrounding whitespace may not match camelCase keys — **promoted hit 2026-10-31:** see hit diary; row closed above.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — numeric JSON vs string `"2\u200B"` — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — whitespace rationale on corrupt fallback — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition `"99"` — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — `\u200B` action — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
-
 ---
 
 ## Zone: llm-wallet
