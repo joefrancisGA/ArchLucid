@@ -76,7 +76,7 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine();
         if (deltas.TopFindingId is null)
         {
-            sb.AppendLine("_(No findings on this run; evidence-chain excerpt skipped.)_");
+            sb.AppendLine(FormattableString.Invariant($"_({PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain})_"));
             sb.AppendLine();
             return;
         }

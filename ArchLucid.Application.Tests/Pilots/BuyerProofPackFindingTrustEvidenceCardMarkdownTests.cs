@@ -74,6 +74,23 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
         md.Should().NotContain("did not resolve to a persisted chain");
     }
 
+    [Fact]
+    public void Evidence_card_when_no_top_finding_aligns_with_trace_section_skip_prose()
+    {
+        PilotRunDeltas deltas = new() { TopFindingId = null };
+
+        StringBuilder traceSb = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(traceSb, deltas);
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, MinimalProof());
+
+        string prose = PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain;
+        traceSb.ToString().Should().Contain(prose);
+        cardSb.ToString().Should().Contain(prose);
+        cardSb.ToString().Should().NotContain("no top-severity evidence card");
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

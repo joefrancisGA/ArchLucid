@@ -15,4 +15,12 @@ public sealed class BuyerProofPackTopFindingEvidenceChainHonestyCopyTests
         line.Should().Be($"({PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse})");
         line.Should().NotBe("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)");
     }
+
+    [Fact]
+    public void Pdf_no_findings_skip_line_wraps_shared_prose()
+    {
+        PilotTopFindingEvidenceChainHonestyCopy.FormatPdfNoFindingsSkipItalicLine()
+            .Should()
+            .Be($"({PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain})");
+    }
 }

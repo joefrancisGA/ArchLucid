@@ -312,7 +312,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     {
         if (deltas.TopFindingId is null)
         {
-            column.Text("(No findings on this run; evidence-chain excerpt skipped.)").Italic();
+            column.Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfNoFindingsSkipItalicLine()).Italic();
             return;
         }
 
