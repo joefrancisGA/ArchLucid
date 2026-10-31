@@ -402,9 +402,10 @@ internal static class RequestConstraintTokenMatcher
             return haystack;
 
         if (!ContainsConstraintNormalizationCharacters(haystack))
-            return NormalizeSpacedListSeparators(
-                NormalizeSpacedAsciiSolidus(
-                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack))));
+        return NormalizeSpacedListSeparators(
+            NormalizeSpacedAsciiSolidus(
+                NormalizeSpacedAsciiHyphen(
+                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack)))));
 
         StringBuilder builder = new(haystack.Length);
 
@@ -422,8 +423,9 @@ internal static class RequestConstraintTokenMatcher
 
         return NormalizeSpacedListSeparators(
             NormalizeSpacedAsciiSolidus(
-                NormalizeSpacedAsciiBackslash(
-                    NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString())))));
+                NormalizeSpacedAsciiHyphen(
+                    NormalizeSpacedAsciiBackslash(
+                        NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString()))))));
     }
 
     private static string NormalizeSpacedListSeparators(string haystack)
@@ -464,6 +466,32 @@ internal static class RequestConstraintTokenMatcher
             char character = haystack[index];
 
             if (character == '/'
+                && ((index > 0 && haystack[index - 1] == ' ')
+                    || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
+            {
+                normalized.Append(' ');
+            }
+            else
+            {
+                normalized.Append(character);
+            }
+        }
+
+        return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+    }
+
+    private static string NormalizeSpacedAsciiHyphen(string haystack)
+    {
+        if (!haystack.Contains('-'))
+            return haystack;
+
+        StringBuilder normalized = new(haystack.Length);
+
+        for (int index = 0; index < haystack.Length; index++)
+        {
+            char character = haystack[index];
+
+            if (character == '-'
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
