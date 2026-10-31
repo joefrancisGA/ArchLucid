@@ -14,6 +14,8 @@ export const GRAPH_EDGE_LABEL_NOT_STORED = "Edge label was not stored." as const
 
 export const GRAPH_EDGE_REASONING_NOT_STORED = "Reasoning narration was not stored." as const;
 
+export const GRAPH_EDGE_INFERENCE_SOURCE_NOT_STORED = "Inference source was not stored." as const;
+
 export type GraphViewerEdgeOrTrailDetailProps = {
   readonly selectedEdge: GraphEdgeVm;
   readonly buyerTrailPanel: boolean;
@@ -70,16 +72,17 @@ export function GraphViewerEdgeOrTrailDetail({
           <p className="m-0">
             <strong>Relationship:</strong> {relationshipLabel}
           </p>
+          <p className="m-0">
+            <strong>Inference source:</strong>{" "}
+            {selectedEdge.inferenceSource !== undefined &&
+            selectedEdge.inferenceSource !== null &&
+            selectedEdge.inferenceSource.trim().length > 0
+              ? selectedEdge.inferenceSource.trim()
+              : GRAPH_EDGE_INFERENCE_SOURCE_NOT_STORED}
+          </p>
           {edgeLabel !== null ? (
             <p className="m-0">
               <strong>Label:</strong> {edgeLabel}
-            </p>
-          ) : null}
-          {selectedEdge.inferenceSource !== undefined &&
-          selectedEdge.inferenceSource !== null &&
-          selectedEdge.inferenceSource.trim().length > 0 ? (
-            <p className="m-0">
-              <strong>Inference rule:</strong> {selectedEdge.inferenceSource.trim()}
             </p>
           ) : null}
         </>

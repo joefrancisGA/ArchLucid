@@ -15,6 +15,13 @@ const baseEdge: GraphEdgeVm = {
 };
 
 describe("GraphViewerEdgeOrTrailDetail", () => {
+  it("labels omitted inference source in operator mode (P-16)", () => {
+    render(<GraphViewerEdgeOrTrailDetail selectedEdge={baseEdge} buyerTrailPanel={false} />);
+
+    expect(screen.getByText(/Inference source:/)).toBeInTheDocument();
+    expect(screen.getByText("Inference source was not stored.")).toBeInTheDocument();
+  });
+
   it("labels empty relationship types in operator mode (P-10)", () => {
     render(<GraphViewerEdgeOrTrailDetail selectedEdge={baseEdge} buyerTrailPanel={false} />);
 

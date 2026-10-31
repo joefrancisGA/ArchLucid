@@ -695,6 +695,53 @@ public sealed class DerivedMutatingPostController : ExcludedVirtualBaseControlle
     }
 
     [Fact]
+    public async Task AL0003_is_absent_when_default_interface_body_calls_LogAsync_on_concrete_audit_service()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class ConcreteAuditService : IAuditService
+{
+    public System.Threading.Tasks.Task LogAsync(AuditEvent auditEvent, System.Threading.CancellationToken ct) =>
+        System.Threading.Tasks.Task.CompletedTask;
+}
+
+public interface IDefaultConcreteAuditedApi
+{
+    [HttpPost("x")]
+    async System.Threading.Tasks.Task<IActionResult> Post(
+        ConcreteAuditService auditService,
+        System.Threading.CancellationToken cancellationToken)
+    {
+        await auditService.LogAsync(
+            new AuditEvent { EventType = "Probe" },
+            cancellationToken);
+
+        return null!;
+    }
+}
+
+public sealed class DefaultInterfaceConcreteAuditedController(ConcreteAuditService auditService)
+    : ControllerBase, IDefaultConcreteAuditedApi
+{
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task AL0003_is_absent_when_LogAsync_is_called_on_concrete_audit_service()
     {
         const string testCode = AuditAndMvcStubs +
@@ -1214,6 +1261,42 @@ public sealed class InterfaceMethodExcludedController(IAuditService auditService
     {
         return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
     }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Mutating_audit_excluded_on_default_interface_method_suppresses_AL0003()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public interface IDefaultMutatingApi
+{
+    [HttpPost("x")]
+    [MutatingAuditExcluded("default-interface exclusion")]
+    System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+    }
+}
+
+public sealed class DefaultInterfaceMethodExcludedController(IAuditService auditService)
+    : ControllerBase, IDefaultMutatingApi
+{
 }
 }
 """;
@@ -3202,6 +3285,86 @@ public sealed class {|#0:DefaultInterfaceCatchFilterAuditController|}(IAuditServ
         {
             TestCode = testCode,
             ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_LogAsync_only_in_switch_default_arm_never_selected_by_constant()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class SwitchDefaultArmAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> {|#0:Post|}(System.Threading.CancellationToken cancellationToken)
+    {
+        switch (1)
+        {
+            case 1:
+                return Ok();
+            default:
+                await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+                return Ok();
+        }
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                Al0003MutatingControllerAuditDescriptor.Rule)
+            .WithLocation(0)
+            .WithArguments("ArchLucid.Api.Probe.SwitchDefaultArmAuditController.Post");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_is_absent_when_LogAsync_in_finally_after_try_return()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class FinallyAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPost("x")]
+    public async System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok();
+        }
+        finally
+        {
+            await auditService.LogAsync(new AuditEvent { EventType = "Probe" }, cancellationToken);
+        }
+    }
+}
+}
+""";
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { MarkAssemblyAsArchLucidApi }
         }.RunAsync();

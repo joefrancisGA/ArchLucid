@@ -89,4 +89,24 @@ public sealed class FindingArchitectRestatementExportComposerTests
             .Should()
             .Be(FindingArchitectRestatementExportComposer.NotTrailBackedHonestyLabel);
     }
+
+    [Fact]
+    public void AppendMarkdownSection_uses_not_stored_when_occurred_at_default()
+    {
+        StringBuilder sb = new();
+
+        FindingArchitectRestatementExportComposer.AppendMarkdownSection(
+            sb,
+            [
+                new FindingArchitectRestatementExportRow
+                {
+                    FindingTitle = "Title",
+                    Restatement = "Restatement text.",
+                    OccurredAtUtc = default,
+                    IsTrailBacked = false,
+                },
+            ]);
+
+        sb.ToString().Should().Contain(FindingArchitectRestatementExportComposer.OccurredAtUtcNotStoredLabel);
+    }
 }

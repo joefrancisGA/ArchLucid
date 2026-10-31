@@ -124,6 +124,17 @@ public sealed class ApiRequestNullCollectionElementsArchitectureTests
                     ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(list, parameter)
                         .Should()
                         .BeTrue($"null element in root body enumerable {controllerType.Name}.{method.Name} must trip the guard");
+
+                    if (parameterType.IsArray)
+                    {
+                        Array array = Array.CreateInstance(elementType, 1);
+                        array.SetValue(null, 0);
+
+                        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(array, parameter)
+                            .Should()
+                            .BeTrue(
+                                $"null element in root body array {controllerType.Name}.{method.Name} must trip the guard");
+                    }
                 }
             }
         }

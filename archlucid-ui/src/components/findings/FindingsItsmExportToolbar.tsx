@@ -84,8 +84,13 @@ export function FindingsItsmExportToolbar({
         })
       : null;
   const hiddenAdvisoryCount = Math.max(0, (totalFindingCount ?? findings.length) - findings.length);
-  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
-  const checklistScopeLabel = formatItsmExportScopeLabel(exportableFindings.length, omittedChecklistCount);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
+  const checklistScopeLabel = formatItsmExportScopeLabel(
+    exportableFindings.length,
+    omittedChecklistCount,
+    omittedUnclassifiedCount,
+  );
   const advisoryScopeLabel = resolveExportScopeLabel(findings.length, totalFindingCount, hiddenAdvisoryCount);
   const scopeLabel = checklistScopeLabel ?? advisoryScopeLabel;
   const exportOptions = packageCommitted === false ? { packageCommitted: false as const } : undefined;

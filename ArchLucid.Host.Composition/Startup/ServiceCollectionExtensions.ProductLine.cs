@@ -4,6 +4,7 @@ using ArchLucid.Core.ProductLine;
 using ArchLucid.Host.Core.ProductLine;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -14,7 +15,7 @@ public static partial class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.Configure<ProductLineDeploymentOptions>(configuration.GetSection(ProductLineDeploymentOptions.SectionName));
-        services.AddSingleton<IProductLineRequestAccessor, ProductLineRequestAccessor>();
-        services.AddSingleton<IProductCapabilityControllerCatalog, ProductCapabilityControllerCatalog>();
+        services.TryAddSingleton<IProductLineRequestAccessor, ProductLineRequestAccessor>();
+        services.TryAddSingleton<IProductCapabilityControllerCatalog, ProductCapabilityControllerCatalog>();
     }
 }

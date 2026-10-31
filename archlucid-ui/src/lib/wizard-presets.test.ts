@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   applyWizardPreset,
+  isWizardFormFieldDirty,
   resolveWizardPresetLabel,
   resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
@@ -54,6 +55,13 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
   it("resolveWizardPresetLabel uses not-stored copy for unknown ids", () => {
     expect(resolveWizardPresetLabel("missing-preset")).toBe("Starter preset label was not stored.");
     expect(resolveWizardPresetLabel("")).toBe("Starter preset was not stored yet.");
+  });
+
+  it("treats scalar true and any truthy array element as dirty or touched", () => {
+    expect(isWizardFormFieldDirty(true)).toBe(true);
+    expect(isWizardFormFieldDirty(undefined)).toBe(false);
+    expect(isWizardFormFieldDirty([false, true])).toBe(true);
+    expect(isWizardFormFieldDirty([false, undefined])).toBe(false);
   });
 
   it("handles sparse react-hook-form dirty field arrays without treating missing indices as dirty", () => {

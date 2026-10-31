@@ -65,9 +65,9 @@ export type ReviewAskDockProps = {
 type AskTurn = {
   question: string;
   answer: string | null;
-  referencedFindings: readonly string[];
-  referencedDecisions: readonly string[];
-  referencedArtifacts: readonly string[];
+  referencedFindings: readonly string[] | null;
+  referencedDecisions: readonly string[] | null;
+  referencedArtifacts: readonly string[] | null;
   citationRefsOmitted: boolean;
 };
 
@@ -78,7 +78,11 @@ function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
 
   const ids = new Set<string>();
 
-  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+  for (const id of [
+    ...(turn.referencedFindings ?? []),
+    ...(turn.referencedDecisions ?? []),
+    ...(turn.referencedArtifacts ?? []),
+  ]) {
     const trimmed = id.trim();
 
     if (trimmed.length > 0) {
@@ -302,9 +306,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         {
           question: trimmed,
           answer: normalizeAskWireAnswerForTurn(response.answer),
-          referencedFindings: response.referencedFindings ?? [],
-          referencedDecisions: response.referencedDecisions ?? [],
-          referencedArtifacts: response.referencedArtifacts ?? [],
+          referencedFindings: citationRefsOmitted ? [] : response.referencedFindings ?? null,
+          referencedDecisions: citationRefsOmitted ? [] : response.referencedDecisions ?? null,
+          referencedArtifacts: citationRefsOmitted ? [] : response.referencedArtifacts ?? null,
           citationRefsOmitted,
         },
       ]);

@@ -6,20 +6,32 @@ import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
-
-export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 export { runListPrimaryTitle };
 
+export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
+
 export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
+
+export const CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Context snapshot flag was not stored." as const;
+
+export const GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Graph snapshot flag was not stored." as const;
 
 export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
 
 export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not stored." as const;
 
 export const RUN_LIST_ARTIFACT_COUNT_NOT_STORED_LABEL = "Artifact count was not stored." as const;
+
+function omittedSnapshotFlagLabel(flag: boolean | undefined, label: string): string | null {
+  return flag === undefined ? label : null;
+}
+
+function isPresentSnapshotFlagLabel(token: string | null): token is string {
+  return token !== null;
+}
 
 export function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   const fc = run.findingCount;
@@ -126,14 +138,20 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
     tokens.push("Artifacts bundled");
   }
 
+  const omittedSnapshotFlags = [
+    omittedSnapshotFlagLabel(run.hasContextSnapshot, CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+    omittedSnapshotFlagLabel(run.hasGraphSnapshot, GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+    omittedSnapshotFlagLabel(run.hasFindingsSnapshot, FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL),
+  ].filter(isPresentSnapshotFlagLabel);
+
   const reviewTrailSummary =
     run.hasContextSnapshot === true &&
     run.hasGraphSnapshot === true &&
     run.hasFindingsSnapshot === true &&
     run.hasGoldenManifest === true
       ? "Review trail complete"
-      : run.hasFindingsSnapshot === undefined
-        ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL
+      : omittedSnapshotFlags.length > 0
+        ? omittedSnapshotFlags.join(" · ")
         : run.hasContextSnapshot === true ||
             run.hasGraphSnapshot === true ||
             run.hasFindingsSnapshot === true ||

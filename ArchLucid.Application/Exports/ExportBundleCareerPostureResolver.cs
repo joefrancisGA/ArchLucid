@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -161,6 +163,10 @@ public static class ExportBundleCareerPostureResolver
                 return false;
 
             text = text.Trim();
+            text = RemoveInvisibleBooleanTokenChars(text);
+
+            if (text.Length == 0)
+                return false;
 
             if (string.Equals(text, "true", StringComparison.OrdinalIgnoreCase))
                 return true;
@@ -281,5 +287,51 @@ public static class ExportBundleCareerPostureResolver
 
         value = default;
         return false;
+    }
+
+    private static string RemoveInvisibleBooleanTokenChars(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        Span<char> buffer = value.Length <= 64 ? stackalloc char[value.Length] : new char[value.Length];
+        int writeIndex = 0;
+
+        foreach (Rune rune in value.EnumerateRunes())
+        {
+            if (IsInvisibleBooleanTokenRune(rune))
+                continue;
+
+            writeIndex += rune.EncodeToUtf16(buffer[writeIndex..]);
+        }
+
+        return writeIndex == 0 ? string.Empty : new string(buffer[..writeIndex]);
+    }
+
+    private static bool IsInvisibleBooleanTokenRune(Rune rune)
+    {
+        if (rune.IsBmp)
+            return IsInvisibleBooleanTokenBmpChar((char)rune.Value);
+
+        UnicodeCategory category = Rune.GetUnicodeCategory(rune);
+
+        return category is UnicodeCategory.Format
+            or UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark;
+    }
+
+    private static bool IsInvisibleBooleanTokenBmpChar(char character)
+    {
+        UnicodeCategory category = char.GetUnicodeCategory(character);
+
+        if (category is UnicodeCategory.Format
+            or UnicodeCategory.NonSpacingMark
+            or UnicodeCategory.SpacingCombiningMark
+            or UnicodeCategory.EnclosingMark
+            or UnicodeCategory.Control)
+            return true;
+
+        return category is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator;
     }
 }

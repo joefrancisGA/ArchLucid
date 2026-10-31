@@ -7,15 +7,15 @@ import unittest
 WORKFLOW = Path(__file__).resolve().parents[3] / ".github" / "workflows" / "ci.yml"
 
 
-class Rc39CiWiringTests(unittest.TestCase):
-    def test_full_non_deploying_ci_pushes_target_rc39_only(self) -> None:
+class Rc40CiWiringTests(unittest.TestCase):
+    def test_full_non_deploying_ci_pushes_target_rc40_only(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC39\]$")
+        self.assertRegex(workflow, r"(?m)^  push:\n    branches: \[RC40\]$")
         self.assertNotIn("branches: [RC36]", workflow)
 
-    def test_live_azure_openai_cannot_run_on_rc39(self) -> None:
+    def test_live_azure_openai_cannot_run_on_rc40(self) -> None:
         workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("github.ref != 'refs/heads/RC39'", workflow)
+        self.assertIn("github.ref != 'refs/heads/RC40'", workflow)
         self.assertNotIn("refs/heads/RC36", workflow)
 
 

@@ -103,7 +103,7 @@ public sealed class InventoryDiagramDataFlowNsgAnnotationApplierTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge edge = ast.Edges.Should().ContainSingle().Subject;
-        edge.Label.Should().Contain("NSG annotation skipped — connector endpoint is not on this diagram.");
+        edge.Label.Should().Contain("To endpoint seed id was stored empty");
     }
 
     [Fact]

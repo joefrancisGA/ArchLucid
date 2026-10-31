@@ -44,8 +44,29 @@ public static class AzureInventoryNsgAssociationParser
                 index,
                 InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationTargetSuffix);
 
+            bool hasTargetProperty = properties.Keys.Any(key =>
+                key.StartsWith(
+                    $"{InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationPrefix}{index}",
+                    StringComparison.OrdinalIgnoreCase)
+                && key.EndsWith(
+                    InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationTargetSuffix,
+                    StringComparison.OrdinalIgnoreCase));
+
             if (string.IsNullOrWhiteSpace(targetArmId))
             {
+                if (hasTargetProperty)
+                {
+                    associations.Add(new AzureInventoryNsgAssociation
+                    {
+                        TargetArmId = string.Empty,
+                        TargetKind = ReadAssociationProperty(
+                            properties,
+                            index,
+                            InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationKindSuffix)
+                            ?? string.Empty,
+                    });
+                }
+
                 continue;
             }
 

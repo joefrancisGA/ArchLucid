@@ -91,7 +91,7 @@ const WIZARD_RECAP_PRESET_TRACKED_FIELDS = [
   "requiredCapabilities",
 ] as const satisfies readonly (keyof WizardFormValues)[];
 
-/** True when React Hook Form marked a scalar or array field dirty. */
+/** True when React Hook Form marked a scalar or array field dirty or touched. */
 export function isWizardFormFieldDirty(dirty: unknown): boolean {
   if (Array.isArray(dirty)) {
     return dirty.some(Boolean);

@@ -1,6 +1,7 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
 import type { InfraEvidenceDiffSummary, InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { isInfraEvidenceSnapshotCapturePending } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 export function formatInfraEvidenceSnapshotCapturedLabel(
@@ -22,7 +23,12 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
 
 export function formatInfraEvidenceSnapshotResourceCountLabel(
   resourceCount: number | null | undefined,
+  captureStatus?: number | string | null,
 ): string {
+  if (isInfraEvidenceSnapshotCapturePending(captureStatus)) {
+    return "Resource count was not stored — inventory capture is still in progress.";
+  }
+
   if (typeof resourceCount === "number" && Number.isFinite(resourceCount)) {
     return `${resourceCount} resources`;
   }
@@ -84,7 +90,7 @@ export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshot
   const parts: string[] = [
     ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
     captured,
-    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount),
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount, snapshot.captureStatus),
   ];
 
   return parts.join(" · ");
@@ -95,7 +101,7 @@ export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnap
   const parts: string[] = [
     ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
     `captured ${captured}`,
-    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount),
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount, snapshot.captureStatus),
   ];
 
   return parts.join(" · ");

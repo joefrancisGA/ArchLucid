@@ -67,8 +67,8 @@ export type QuickDecisionFinding = {
   humanReviewStatusStored?: boolean;
   /** False when the run-detail finding row omitted `severity` (default enum is not a stored fact). */
   severityStored?: boolean;
-  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
-  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage (or unrecognized wire value). */
+  classification?: string | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
   /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
@@ -215,7 +215,15 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const findingId = findingIdRaw;
 
-      const category = typeof fr.category === "string" ? fr.category.trim() : "";
+      const categoryRaw = fr.category;
+      let category: string | null = null;
+
+      if (categoryRaw === null || categoryRaw === undefined) {
+        category = null;
+      } else if (typeof categoryRaw === "string") {
+        const trimmed = categoryRaw.trim();
+        category = trimmed.length > 0 ? trimmed : "";
+      }
       const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
@@ -314,10 +322,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         : null;
 
       const classificationRaw = fr.classification;
-      const classification =
-        classificationRaw === "DecisionGradeFinding" || classificationRaw === "ChecklistCoverage"
-          ? classificationRaw
-          : null;
+      let classification: string | null = null;
+
+      if (classificationRaw !== null && classificationRaw !== undefined) {
+        if (typeof classificationRaw === "string") {
+          const trimmed = classificationRaw.trim();
+          classification = trimmed.length > 0 ? trimmed : null;
+        } else {
+          classification = String(classificationRaw);
+        }
+      }
 
       const treatmentRaw = fr.treatment;
       const treatment =
@@ -333,7 +347,12 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       out.push({
         findingId,
         title,
-        category: category.length > 0 ? category : null,
+        category:
+          category === null
+            ? null
+            : category.length > 0
+              ? category
+              : "",
         recommendation,
         severityValue,
         severityStored,

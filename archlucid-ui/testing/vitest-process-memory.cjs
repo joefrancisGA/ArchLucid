@@ -5,7 +5,9 @@
 // NODE_OPTIONS --require loads this in the coordinating Node process as well.
 // No changes to test selection, worker count, heap limits, assertions or GC policy.
 if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_PROCESS_TELEMETRY === "1") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS preload required by Node --require, before Vitest initializes.
   const { PerformanceObserver } = require("node:perf_hooks");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS preload required by Node --require, before Vitest initializes.
   const { getHeapStatistics } = require("node:v8");
   const started = process.hrtime.bigint();
   const intervalMs = 5000;

@@ -1,5 +1,9 @@
+using System.Text;
+
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inventory;
@@ -322,12 +326,12 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
         node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithTrailingSlash));
     }
 
     [Fact]
-    public void BuildOverlay_stamps_resource_type_label_when_final_arm_name_segment_is_whitespace_only()
+    public void BuildOverlay_labels_missing_name_when_final_arm_name_segment_is_whitespace_only()
     {
         const string resourceType = "Microsoft.Sql/servers";
         const string armIdWithWhitespaceNameSegment =
@@ -363,11 +367,11 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 
     [Fact]
-    public void BuildOverlay_stamps_resource_type_label_when_arm_resource_id_has_no_name_segment()
+    public void BuildOverlay_labels_missing_name_when_arm_resource_id_has_no_name_segment()
     {
         const string armIdWithoutSlash = "legacy-resource-name";
         const string resourceType = "Microsoft.Sql/servers";
@@ -402,12 +406,12 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(resourceType);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
         node.Properties["arm.id"].Should().Be(ArmResourceIdNormalizer.Normalize(armIdWithoutSlash));
     }
 
     [Fact]
-    public void BuildOverlay_stamps_trimmed_arm_id_label_when_resource_type_is_whitespace_only_and_arm_id_has_no_slash()
+    public void BuildOverlay_labels_missing_name_when_resource_type_is_whitespace_only_and_arm_id_has_no_slash()
     {
         const string armIdWithoutSlash = "legacy-resource-name";
 
@@ -441,7 +445,7 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
-        node.Label.Should().Be(armIdWithoutSlash);
+        node.Label.Should().Be(InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 
     [Fact]
@@ -1116,6 +1120,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
 
         merged.Warnings.Should().Equal(baseWarning, overlayWarning);
+    }
+
+    [Fact]
+    public void Merge_skips_null_graph_node_and_edge_entries_in_base_and_overlay_lists()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-node",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "Context",
+                },
+                null!,
+            ],
+            Edges =
+            [
+                null!,
+            ],
+            Warnings = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                null!,
+                new GraphNode
+                {
+                    NodeId = CloudResourceId.ToString("D"),
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                },
+            ],
+            Edges =
+            [
+                null!,
+            ],
+            Warnings = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Select(static node => node.NodeId).Should().Equal("context-node", CloudResourceId.ToString("D"));
+        merged.Edges.Should().BeEmpty();
     }
 
     [Fact]
@@ -5709,6 +5767,61 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_categories_when_base_category_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-category-case";
+        const string category = GraphTopologyCategories.Compute;
+        string categoryUpper = category.ToUpperInvariant();
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Category = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Category = category,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Category = categoryUpper,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.Category.Should().Be(category);
+    }
+
+    [Fact]
     public void Merge_backfills_base_graph_edge_inference_source_from_first_overlay_row_when_base_inference_source_is_whitespace_only()
     {
         const string NodeA = "node-a";
@@ -5858,6 +5971,168 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_source_types_when_base_source_type_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-source-type-case";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot.ToUpperInvariant(),
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.SourceType
+            .Should().Be(ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot);
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_source_ids_when_base_source_id_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-source-id-case";
+        const string sourceIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-primary";
+        const string sourceIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/SQL-PRIMARY";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceId = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceId = sourceIdLower,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceId = sourceIdUpper,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.SourceId.Should().Be(sourceIdLower);
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_labels_when_base_label_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-label-case";
+        const string label = "Azure SQL logical server";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = label,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = label.ToUpperInvariant(),
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.Label.Should().Be(label);
+    }
+
+    [Fact]
     public void Merge_backfills_base_graph_edge_provenance_kind_from_first_overlay_row_when_base_provenance_kind_is_whitespace_only()
     {
         const string NodeA = "node-a";
@@ -5948,6 +6223,60 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
                     NodeType = GraphNodeTypes.TopologyResource,
                     Label = "SQL",
                     ReasoningTrace = reasoningTrace,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.ReasoningTrace.Should().Be(reasoningTrace);
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_reasoning_traces_when_base_reasoning_trace_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-reasoning-trace-case";
+        const string reasoningTrace = "inventory snapshot resource linkage";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = "   ",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = reasoningTrace,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    ReasoningTrace = reasoningTrace.ToUpperInvariant(),
                 },
             ],
             Edges = [],
@@ -6224,6 +6553,58 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
 
         merged.Nodes.Should().ContainSingle().Which.NodeType.Should().Be(GraphNodeTypes.TopologyResource);
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_node_types_when_base_node_type_is_whitespace_only_and_overlay_rows_differ_only_by_casing()
+    {
+        const string SharedNodeId = "inventory-node-base-whitespace-node-type-case";
+        const string nodeTypeLower = GraphNodeTypes.TopologyResource;
+        string nodeTypeUpper = nodeTypeLower.ToUpperInvariant();
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = "   ",
+                    Label = "SQL",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = nodeTypeLower,
+                    Label = "SQL",
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = nodeTypeUpper,
+                    Label = "SQL",
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.NodeType.Should().Be(nodeTypeLower);
     }
 
     [Fact]
@@ -9105,6 +9486,108 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_backfills_subscription_id_from_duplicate_row_when_first_row_omits_subscription_id_with_case_variant()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("27272727-2727-2727-2727-272727272727"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "   ",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("28282828-2828-2828-2828-282828282828"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "SUB",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["arm.subscriptionId"].Should().Be("SUB");
+    }
+
+    [Fact]
+    public void BuildOverlay_backfills_resource_group_from_duplicate_row_when_first_row_omits_resource_group_with_case_variant()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("29292929-2929-2929-2929-292929292929"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "   ",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("30303030-3030-3030-3030-303030303030"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "RG",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["arm.resourceGroup"].Should().Be("RG");
+    }
+
+    [Fact]
     public void BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_cloud_resource_id()
     {
         const string armIdLower =
@@ -9215,6 +9698,461 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void BuildOverlay_emits_relationship_when_relationship_references_case_variant_arm_and_duplicate_row_backfills_cloud_resource_id()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        const string peerArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod";
+        Guid cloudIdFromDuplicate = Guid.Parse("20202020-2020-2020-2020-202020202020");
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("21212121-2121-2121-2121-212121212121"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = peerArmId,
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("23232323-2323-2323-2323-232323232323"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = cloudIdFromDuplicate,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peerArmId,
+                    ToAzureResourceId = armIdLower,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Edges.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_edge_labels_when_labels_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "   ",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "INVENTORY-LINK",
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "inventory-link",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.Label.Should().Be("INVENTORY-LINK");
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_edge_inference_sources_when_inference_sources_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string inferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild;
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = "   ",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = inferenceSource.ToUpperInvariant(),
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = inferenceSource.ToLowerInvariant(),
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.InferenceSource.Should().Be(inferenceSource.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_edge_provenance_kinds_when_provenance_kinds_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string provenanceKind = StructuredDiagramGraphProvenanceKinds.ObservedFact;
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ProvenanceKind = "   ",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ProvenanceKind = provenanceKind.ToUpperInvariant(),
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ProvenanceKind = provenanceKind.ToLowerInvariant(),
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.ProvenanceKind.Should().Be(provenanceKind.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_edge_declared_connection_ids_when_declared_connection_ids_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string declaredConnectionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    DeclaredConnectionId = "   ",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    DeclaredConnectionId = declaredConnectionId.ToUpperInvariant(),
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    DeclaredConnectionId = declaredConnectionId.ToLowerInvariant(),
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.DeclaredConnectionId
+            .Should().Be(declaredConnectionId.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void Merge_coalesces_base_graph_overlay_duplicate_edge_reasoning_traces_when_reasoning_traces_differ_only_by_casing()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string reasoningTrace = "inventory explicit parent-child link";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ReasoningTrace = "   ",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ReasoningTrace = reasoningTrace.ToUpperInvariant(),
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ReasoningTrace = reasoningTrace.ToLowerInvariant(),
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.ReasoningTrace
+            .Should().Be(reasoningTrace.ToUpperInvariant());
+    }
+
+    [Fact]
+    public void BuildOverlay_emits_relationship_when_endpoints_use_mixed_subscription_casing_on_duplicate_arm_rows()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        const string peerArmIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql-prod";
+        const string peerArmIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Sql/servers/SQL-PROD";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("24242424-2424-2424-2424-242424242424"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "SUB",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("25252525-2525-2525-2525-252525252525"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = peerArmIdLower,
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("26262626-2626-2626-2626-262626262626"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peerArmIdUpper,
+                    ToAzureResourceId = armIdUpper,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Edges.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void BuildOverlay_throws_when_duplicate_resource_rows_disagree_on_resource_type()
     {
         const string armIdLower =
@@ -9316,6 +10254,59 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
         node.Properties["arm.type"].Should().Be(resourceType);
         node.Category.Should().Be(GraphTopologyCategories.Network);
+    }
+
+    [Fact]
+    public void BuildOverlay_accepts_duplicate_resource_rows_when_resource_type_differs_only_by_casing()
+    {
+        const string armIdLower =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+        const string armIdUpper =
+            "/subscriptions/SUB/resourceGroups/RG/providers/Microsoft.Network/virtualNetworks/VNET-PROD";
+        const string resourceTypeLower = "microsoft.network/virtualnetworks";
+        const string resourceTypeUpper = "Microsoft.Network/virtualNetworks";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("1d1d1d1d-1d1d-1d1d-1d1d-1d1d1d1d1d1d"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdUpper,
+                    ResourceType = resourceTypeUpper,
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("1e1e1e1e-1e1e-1e1e-1e1e-1e1e1e1e1e1e"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = armIdLower,
+                    ResourceType = resourceTypeLower,
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships = [],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        GraphNode node = overlay.Nodes.Should().ContainSingle().Subject;
+        node.Properties["arm.type"].Should().Be(resourceTypeUpper);
     }
 
     [Fact]
@@ -9886,6 +10877,201 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
             ContextSnapshotId);
 
         overlay.Edges.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void BuildOverlay_emits_relationship_edges_when_duplicate_resource_row_sorts_after_canonical_arm_row()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string duplicateArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/SA1";
+        const string peerArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = canonicalArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = peerArmId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = duplicateArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                    CloudResourceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = peerArmId,
+                    ToAzureResourceId = duplicateArmId,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Edges.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void BuildOverlay_emits_relationship_edges_when_canonical_arm_row_follows_whitespace_only_skipped_row()
+    {
+        const string validFromArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string validToArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/subnets/subnet1";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = "   ",
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = validFromArmId,
+                    ResourceType = "Microsoft.Network/virtualNetworks",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = validToArmId,
+                    ResourceType = "Microsoft.Network/subnets",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = validFromArmId,
+                    ToAzureResourceId = validToArmId,
+                    RelationshipType = GraphEdgeTypes.ContainsResource,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().HaveCount(2);
+        overlay.Edges.Should().ContainSingle(e => e.EdgeType == GraphEdgeTypes.ContainsResource);
+    }
+
+    [Fact]
+    public void Merge_appends_overlay_edge_when_base_graph_edge_type_normalizes_empty_and_overlay_specifies_populated_type()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = "   ",
+                    Label = "base",
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Label = "inventory",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Should().Contain(e => string.IsNullOrWhiteSpace(e.EdgeType) || e.EdgeType.Trim().Length == 0);
+        merged.Edges.Should().Contain(e => e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
 
     [Fact]
@@ -10492,6 +11678,212 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
         merged.Nodes.Should().Contain(node => node.NodeId == "context-node");
         merged.Nodes.Should().Contain(node =>
             node.Properties.GetValueOrDefault("cloudResourceId") == CloudResourceId.ToString("D"));
+    }
+
+    [Fact]
+    public void Merge_skips_null_base_graph_node_entries_from_deserialized_snapshot()
+    {
+        GraphSnapshot? baseGraph = GraphJsonSerialization.DeserializeSnapshot(
+            Encoding.UTF8.GetBytes("""{"nodes":[null,{"nodeId":"ctx","nodeType":"Service","label":"Ctx"}],"edges":[]}"""));
+
+        baseGraph.Should().NotBeNull();
+        baseGraph!.Nodes.Any(static node => node is null).Should().BeTrue();
+
+        GraphSnapshot overlay = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "ctx");
+    }
+
+    [Fact]
+    public void Merge_skips_null_inventory_overlay_node_entries()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "ctx", NodeType = "Service", Label = "Ctx" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [null!, new GraphNode { NodeId = "inv", NodeType = "Resource", Label = "Inv" }],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().HaveCount(2);
+        merged.Nodes.Should().Contain(n => n.NodeId == "inv");
+    }
+
+    [Fact]
+    public void Merge_skips_null_graph_edge_entries_in_base_and_overlay_lists()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+                new GraphNode { NodeId = "b", NodeType = "Service", Label = "B" },
+            ],
+            Edges =
+            [
+                null!,
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges = [null!],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle(e => e.FromNodeId == "a" && e.ToNodeId == "b");
+    }
+
+    [Fact]
+    public void BuildOverlay_skips_relationship_edges_when_either_endpoint_resource_was_skipped_for_empty_arm_id()
+    {
+        const string validArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/pay-sql-prod";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CreatedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    CloudResourceId = CloudResourceId,
+                    AzureResourceId = validArmId,
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                    SnapshotId = SnapshotId,
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    AzureResourceId = "   ",
+                    ResourceType = "Microsoft.Sql/servers",
+                    ResourceGroup = "rg",
+                    SubscriptionId = "sub",
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = "   ",
+                    ToAzureResourceId = validArmId,
+                    RelationshipType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay(
+            snapshot,
+            RunId,
+            ContextSnapshotId);
+
+        overlay.Nodes.Should().ContainSingle();
+        overlay.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Merge_appends_both_overlay_edges_when_directed_keys_differ_only_by_edge_type()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+                new GraphNode { NodeId = "b", NodeType = "Service", Label = "B" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-connects",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "e-contains",
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = GraphEdgeTypes.ContainsResource,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().HaveCount(2);
+        merged.Edges.Select(e => e.EdgeType).Should().BeEquivalentTo(
+            [GraphEdgeTypes.ConnectsTo, GraphEdgeTypes.ContainsResource]);
+    }
+
+    [Fact]
+    public void Merge_skips_overlay_edges_when_endpoint_node_ids_normalize_to_empty()
+    {
+        GraphSnapshot baseGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "Service", Label = "A" },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "orphan-blank-endpoints",
+                    FromNodeId = "   ",
+                    ToNodeId = "a",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().BeEmpty();
     }
 
     private static AzureInventorySnapshotDetailReadModel CreateSnapshotFixture()

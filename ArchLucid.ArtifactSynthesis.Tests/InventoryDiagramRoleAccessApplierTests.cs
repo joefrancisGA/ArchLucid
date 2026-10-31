@@ -131,6 +131,33 @@ public sealed class InventoryDiagramRoleAccessApplierTests
     }
 
     [Fact]
+    public void Apply_duplicate_role_name_on_same_line_labels_assignment_count()
+    {
+        DiagramAst ast = CreateAst();
+        GraphSnapshot graph = new()
+        {
+            Nodes = [CreateNode("vm", "vm"), CreateNode("vault", "vault")],
+            Edges =
+            [
+                CreateRoleEdge("vm", "vault", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/vault", "Reader"),
+                CreateRoleEdge("vm", "vault", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/vault", "Reader"),
+            ],
+        };
+
+        InventoryDiagramRoleAccessApplier.Apply(
+            ast,
+            graph,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["vm"] = "vm",
+                ["vault"] = "vault",
+            });
+
+        ast.Edges.Should().ContainSingle(edge =>
+            edge.Label.Contains("(2 assignments on this line.)", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Apply_without_role_edges_does_nothing()
     {
         DiagramAst ast = CreateAst();

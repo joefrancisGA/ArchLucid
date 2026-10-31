@@ -37,7 +37,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
-        sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
+        sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas, c)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
@@ -86,11 +86,30 @@ public static class FirstValueReportProofPackageSectionFormatter
         return $"Present — `{committedUtc:O}` (`GoldenManifest.Metadata.CreatedUtc`).";
     }
 
+    private static string FormatFindingsBySeverityProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
+    {
+        if (c.FindingsBySeverityPresent)
+            return FormatProofStatus(true);
+
+        if (!deltas.AgentResultsIncludedInDetail && !deltas.FindingsCountsFromSnapshot)
+            return "Not present on this run — findings severity breakdown was not stored (agent results omitted and no findings snapshot).";
+
+        return FormatProofStatus(false);
+    }
+
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
     {
         if (deltas.TopFindingId is null)
+        {
+            if (!deltas.FindingsCountsFromSnapshot && !deltas.AgentResultsIncludedInDetail)
+                return "Not applicable — findings snapshot and agent results were not stored on this run.";
+
             return "Not applicable — no findings on this run.";
-        return deltas.TopFindingEvidenceChain is not null ? "Present" : "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
+        }
+
+        return deltas.TopFindingEvidenceChain is not null
+            ? "Present"
+            : "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
     }
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)

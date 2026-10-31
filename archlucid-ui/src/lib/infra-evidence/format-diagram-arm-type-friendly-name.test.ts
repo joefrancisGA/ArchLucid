@@ -39,4 +39,9 @@ describe("formatDiagramArmTypeForOutline", () => {
       "Microsoft.Example/widgetFarms",
     );
   });
+
+  it("uses stored-empty copy for blank outline arm types", () => {
+    expect(formatDiagramArmTypeForOutline("")).toBe("Resource type was stored empty.");
+    expect(formatDiagramArmTypeForOutline(null)).toBe("Resource type was not stored.");
+  });
 });

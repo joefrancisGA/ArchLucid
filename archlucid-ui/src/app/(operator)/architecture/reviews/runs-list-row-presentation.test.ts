@@ -49,4 +49,14 @@ describe("runs-list-row-presentation work queue honesty", () => {
     expect(line).toContain(RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL);
     expect(line).not.toMatch(/\b0 findings\b/);
   });
+
+  it("labels omitted context and graph snapshot flags on the review trail (P-18)", () => {
+    const line = runRowOutputReadinessLine(
+      baseRun({ hasContextSnapshot: undefined, hasGraphSnapshot: undefined, hasFindingsSnapshot: undefined }),
+    );
+
+    expect(line).toContain("Context snapshot flag was not stored.");
+    expect(line).toContain("Graph snapshot flag was not stored.");
+    expect(line).toContain("Findings snapshot flag was not stored.");
+  });
 });

@@ -77,6 +77,7 @@ public sealed class DiagramDataFlowCaptionBuilderTests
 
         captions.Should().Contain(line =>
             line.StartsWith(DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix, StringComparison.Ordinal));
+        captions.Should().Contain(line => line.Contains("stage classification", StringComparison.Ordinal));
         captions.Should().Contain(line => line.Contains("Source", StringComparison.Ordinal));
     }
 

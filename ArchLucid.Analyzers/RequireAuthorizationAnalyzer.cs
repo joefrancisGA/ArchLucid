@@ -184,7 +184,26 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             return;
 
         if (foundPublicApiAction && !symbol.IsAbstract)
+        {
+            if (HasUnauthorizedDefaultInterfaceApiAction(
+                    symbol,
+                    authorizeAttribute,
+                    allowAnonymousAttribute,
+                    nonActionAttribute))
+            {
+                Location? authorizedDeclaredButUnsecuredDefaultLocation = symbol.Locations.FirstOrDefault();
+
+                if (authorizedDeclaredButUnsecuredDefaultLocation is not null)
+                {
+                    context.ReportDiagnostic(
+                        Al0001Descriptor.Create(
+                            authorizedDeclaredButUnsecuredDefaultLocation,
+                            symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+                }
+            }
+
             return;
+        }
 
         if (!hasAnyDeclaredPublicMethods)
         {
@@ -335,6 +354,53 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         }
 
         return foundDefaultInterfaceApiAction;
+    }
+
+    private static bool HasUnauthorizedDefaultInterfaceApiAction(
+        INamedTypeSymbol controllerType,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        foreach (INamedTypeSymbol iface in controllerType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod ||
+                    interfaceMethod.MethodKind != MethodKind.Ordinary ||
+                    interfaceMethod.IsAbstract ||
+                    interfaceMethod.IsStatic)
+                {
+                    continue;
+                }
+
+                IMethodSymbol? implementation =
+                    controllerType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null ||
+                    !SymbolEqualityComparer.Default.Equals(implementation, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (!IsDeclaredPublicApiAction(interfaceMethod, nonActionAttribute))
+                {
+                    continue;
+                }
+
+                if (!MethodHasAspNetCoreActionMarkerAttribute(interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (!ActionHasAuthorization(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static bool NestedDerivedControllerTypesSatisfyEmptyOuterShell(
