@@ -76,8 +76,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (!deltas.LlmCallCountResolved)
         {
-            softGapMessages.Add(
-                "LLM / agent execution trace count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no calls.");
+            softGapMessages.Add(PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine());
         }
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved)

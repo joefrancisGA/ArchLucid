@@ -211,7 +211,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.SoftGaps.Should().Contain(g => g.Contains("not attested", StringComparison.OrdinalIgnoreCase));
+        gate.SoftGaps.Should().Contain(PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine());
     }
 
     [Fact]
