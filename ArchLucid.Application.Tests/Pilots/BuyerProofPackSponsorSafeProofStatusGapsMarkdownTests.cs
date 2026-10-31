@@ -601,6 +601,46 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_safe_status_structural_execution_mode_matches_execution_mode_section()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            RealModeFellBackToSimulator = false,
+        };
+
+        StringBuilder execSb = new();
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(execSb, run);
+
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new PilotBuyerSafeEvidenceGateResult(
+                PilotBuyerSafeEvidencePublishingTier.Partial,
+                ProofPackageSendability.SendableWithCaveats,
+                [],
+                [],
+                []),
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Incomplete),
+            },
+            new PilotRunDeltas(),
+            run);
+
+        string expected = SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run);
+        execSb.ToString().Should().Contain(expected);
+        statusSb.ToString().Should().Contain($"**Structural execution mode:** {expected}");
+        statusSb.ToString().Should().Contain("**Not real-mode AI**");
+    }
+
+    [Fact]
     public void Sponsor_proof_readiness_when_unresolved_matches_proof_package_row()
     {
         ProofPackageCompletenessResponse proof = new()

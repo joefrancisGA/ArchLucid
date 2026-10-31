@@ -36,7 +36,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Structural execution mode:** **{StructuralExecutionModeLabels.ToDisplayLabel(run.StructuralExecutionMode)}** — {StructuralExecutionModeLabels.ToOperatorDetail(run.StructuralExecutionMode)}");
+            $"**Structural execution mode:** {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)}");
         sb.AppendLine();
 
         if (Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification sponsorReadiness))
