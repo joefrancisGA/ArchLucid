@@ -373,4 +373,84 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         computedRow.Should().Contain(expectedCell);
         timeRow.Should().NotContain("| Present |");
     }
+
+    [Fact]
+    public void Proof_package_audit_row_cell_when_unresolved_matches_computed_deltas_cell()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AuditRowCountResolved = false,
+            AuditRowCount = 0,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                AuditRowCountResolved = false,
+                AuditRowsPresentOrLowerBound = false,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            deltas with { FindingsBySeverity = [], LlmCallCountResolved = true });
+
+        string expectedCell = PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
+        string auditRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Audit-row count or lower bound |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        auditRow.Should().Contain(expectedCell);
+        computedSb.ToString().Should().Contain(expectedCell);
+        auditRow.Should().NotContain("Not present on this run.");
+    }
+
+    [Fact]
+    public void Proof_package_audit_row_cell_when_resolved_zero_matches_computed_deltas_cell()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AuditRowCountResolved = true,
+            AuditRowCount = 0,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                AuditRowCountResolved = true,
+                AuditRowsPresentOrLowerBound = false,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            deltas with { FindingsBySeverity = [], LlmCallCountResolved = true });
+
+        string expectedCell = PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
+        string auditRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Audit-row count or lower bound |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        auditRow.Should().Contain(expectedCell);
+        computedSb.ToString().Should().Contain(expectedCell);
+        auditRow.Should().NotContain("Not present on this run.");
+    }
 }

@@ -39,7 +39,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");
         sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
-        sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
+        sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
         sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {FormatRoiConfidenceLabel(c.RoiConfidenceLabel)} |");
 
@@ -105,6 +105,14 @@ public static class FirstValueReportProofPackageSectionFormatter
         }
 
         return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+    }
+
+    private static string FormatAuditRowsProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(c);
+
+        return PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
     }
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
