@@ -36,6 +36,7 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
             BuildGate());
 
         result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
+        result.EvidenceClassLabel.Should().NotContain("PilotStrict posture attested");
         result.ConfidenceBasisSummary.Should().Contain("audit row count resolved: no");
     }
 
