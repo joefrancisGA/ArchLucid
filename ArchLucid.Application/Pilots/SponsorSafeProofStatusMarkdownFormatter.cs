@@ -120,8 +120,10 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
             yield return "Top finding has **no resolved evidence-chain pointer** — sponsors cannot reconstruct the decision fingerprint.";
 
-        if (!proof.AuditRowsPresentOrLowerBound)
-            yield return "Scoped audit-event count for this run is **zero** — durable audit continuity is not demonstrated.";
+        if (!proof.AuditRowCountResolved)
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        else if (!proof.AuditRowsPresentOrLowerBound)
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
 
         if (!proof.LlmCallCountResolved)
             yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();

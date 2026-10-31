@@ -90,4 +90,46 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString().Should().Contain(tableCell);
         computedSb.ToString().Should().Contain(tableCell);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_audit_row_count_unresolved_matches_proof_package_and_computed_deltas_prose()
+    {
+        PilotRunDeltas deltas = new() { AuditRowCountResolved = false, AuditRowCount = 0 };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AuditRowCountResolved = false,
+            AuditRowsPresentOrLowerBound = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotRunDeltasAuditRowCountFormatter.NotAttestedPlain;
+        gaps.Should().Contain(prose);
+        gaps.Should().NotContain("Scoped audit-event count for this run is **zero**");
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            deltas with { FindingsBySeverity = [], LlmCallCountResolved = true });
+
+        proofSb.ToString().Should().Contain(prose);
+        computedSb.ToString().Should().Contain(prose);
+    }
 }
