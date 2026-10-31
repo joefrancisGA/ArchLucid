@@ -109,13 +109,15 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
 
     private static string ResolveFreshnessToken(string costEvidenceFreshnessStatus)
     {
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Fresh, StringComparison.OrdinalIgnoreCase))
+        string normalized = costEvidenceFreshnessStatus.Trim();
+
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Fresh, StringComparison.OrdinalIgnoreCase))
             return "fresh";
 
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Stale, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Stale, StringComparison.OrdinalIgnoreCase))
             return "stale";
 
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Missing, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Missing, StringComparison.OrdinalIgnoreCase))
             return "missing";
 
         return "not-collected";
