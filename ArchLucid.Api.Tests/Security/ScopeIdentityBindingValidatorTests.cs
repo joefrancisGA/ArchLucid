@@ -493,6 +493,42 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_lowercase_bearer_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "bearer"))
+        };
+        http.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "bearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-workspace-id");
+    }
+
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_jwt_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "JWT"))
+        };
+        http.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "JWT");
+
+        result.IsValid.Should().BeTrue(
+            "JwtBearer registers AuthenticationType Bearer; JWT is not a production registered scheme for TB-072");
+    }
+
+    [Fact]
     public void ValidateHeaderOnlyScopeEscalation_allows_project_header_for_lowercase_apikey_when_tenant_claim_bound()
     {
         DefaultHttpContext http = new()

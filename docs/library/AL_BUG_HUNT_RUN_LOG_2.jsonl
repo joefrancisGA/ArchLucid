@@ -2307,3 +2307,4 @@
 {"at":"2026-10-31T19:56:15.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T20:00:07.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T20:08:30.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T20:12:00.0000000Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
