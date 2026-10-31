@@ -7,6 +7,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static partial class AzureInventoryAppSettingHostRedactor
 {
+    private const int InventoryHostPercentEncodingMaxDepth = 8;
+
     private static readonly string[] SecretMarkerSubstrings =
     [
         "Password=",
@@ -218,7 +220,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
         {
             string encodedToken = delimiterToken;
 
-            for (int depth = 0; depth < 6; depth++)
+            for (int depth = 0; depth < InventoryHostPercentEncodingMaxDepth; depth++)
             {
                 if (vaultHost.Contains(encodedToken, StringComparison.OrdinalIgnoreCase))
                 {
@@ -243,7 +245,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
     {
         string decoded = value;
 
-        for (int pass = 0; pass < 6 && decoded.Contains('%', StringComparison.Ordinal); pass++)
+        for (int pass = 0; pass < InventoryHostPercentEncodingMaxDepth && decoded.Contains('%', StringComparison.Ordinal); pass++)
         {
             string next = Uri.UnescapeDataString(decoded);
 
