@@ -9341,6 +9341,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only, cooldown fallback): rotation avoided `ui-review-detail-workspace` after its three-run low-yield streak, but returned it as the only eligible zone; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
 
+2026-10-31 seed hunt (seed-only, cooldown fallback): rotation moved from the three-run OIDC low-yield streak back to `ui-review-detail-workspace`, but all open zones remained demoted; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
+
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
 - [x] (proven) `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — mutable `legacyRunStatus` changes were omitted from stale-activity detection; include the status in the fingerprint and retain the regression above.
@@ -9920,7 +9922,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
