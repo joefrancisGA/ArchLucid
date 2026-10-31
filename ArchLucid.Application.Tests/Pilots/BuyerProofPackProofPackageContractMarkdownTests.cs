@@ -147,6 +147,41 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
     }
 
     [Fact]
+    public void Proof_package_llm_call_cell_when_unresolved_matches_computed_deltas_cell()
+    {
+        PilotRunDeltas deltas = new() { LlmCallCountResolved = false, LlmCallCount = 0 };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                LlmCallCountResolved = false,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            deltas with { FindingsBySeverity = [], AuditRowCountResolved = true, AuditRowCount = 0 });
+
+        string expectedCell = PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM-call count |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(expectedCell);
+        computedSb.ToString().Should().Contain(expectedCell);
+        row.Should().NotContain("Missing — execution trace query failed");
+    }
+
+    [Fact]
     public void Proof_package_section_when_redaction_profile_contains_backtick_preserves_inline_code()
     {
         StringBuilder sb = new();

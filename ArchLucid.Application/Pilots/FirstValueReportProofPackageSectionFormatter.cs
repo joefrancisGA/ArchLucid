@@ -127,8 +127,13 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
-        if (!c.LlmCallCountResolved)
-            return "Missing — execution trace query failed; count is not attested.";
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(c);
+
+        if (!deltas.LlmCallCountResolved)
+        {
+            return PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
+        }
 
         string countDisplay =
             FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
