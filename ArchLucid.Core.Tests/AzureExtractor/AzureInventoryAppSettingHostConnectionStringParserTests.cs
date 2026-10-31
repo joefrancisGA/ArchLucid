@@ -3721,4 +3721,67 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("myaccount.documents.azure.com");
     }
+
+    [Fact]
+    public void ParseSettingValues_explicit_file_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;FileEndpoint=https://%73tarch.file.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_prefixed_cosmos_account_endpoint_percent_encoding_yields_single_decoded_host()
+    {
+        const string value =
+            "SiteMetadata=prod;AccountEndpoint=https://%6d%79account.documents.azure.com/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_standalone_https_cosmos_url_percent_encoding_yields_single_decoded_host()
+    {
+        const string value = "https://%6d%79account.documents.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_with_userinfo_yields_host_without_userinfo()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://user@starch.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_uppercase_suffix_yields_host()
+    {
+        const string value = "MYACCOUNT.REDIS.CACHE.WINDOWS.NET,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.redis.cache.windows.net");
+    }
 }
