@@ -3031,6 +3031,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): fresh reread covered callback-message normalization, JWT payload and expiry parsing, BFF session synchronization/refresh/logout, and the scoped OIDC test boundary; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
 2026-10-31 seed hunt (seed-only, rotation): rotation avoided `ui-form-validation` after three consecutive seed-only outcomes and selected saturated `ui-oidc`; fresh rereading of discovery endpoint validation/cache, authorize URL construction, PKCE generation/storage, OIDC configuration defaults, and current test coverage found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 **Hunts:** 93 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
@@ -6053,7 +6055,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
