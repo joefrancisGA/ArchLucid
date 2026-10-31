@@ -159,6 +159,26 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_queue_without_body_parameter()
+    {
+        Queue<string> queue = new();
+        queue.Enqueue(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(queue).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property()
+    {
+        ReadOnlyCollectionRequest request = new()
+        {
+            Tags = new System.Collections.ObjectModel.ReadOnlyCollection<string>(new List<string> { "ok", null! }),
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter()
     {
         ArchitectureRequest?[] requests = [null];
@@ -196,6 +216,12 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     private sealed class NestedStringListRequest
     {
         public List<List<string>> Buckets { get; set; } = [];
+    }
+
+    private sealed class ReadOnlyCollectionRequest
+    {
+        public System.Collections.ObjectModel.ReadOnlyCollection<string> Tags { get; set; } =
+            new(Array.Empty<string>());
     }
 
     private sealed class NullableStringListRequest

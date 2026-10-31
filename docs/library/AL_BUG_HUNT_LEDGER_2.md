@@ -18751,6 +18751,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-31 thorough hunt (hit #349): promoted `(candidate)` root `Queue<T>` without `ParameterInfo` (#348 parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to `Queue<>` and `Stack<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_queue_without_body_parameter`; cheap-disproof closed four sibling rows (`ReadOnlyCollection<T>` property walk trips guard — `ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property`; `PolicyPacksController.Validate` `[FromBody] JsonElement` uses dedicated mapper not collection guard; no `ImmutableDictionary<,>` cataloged properties; nullable value-type collections covered by `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`); reseeded five follow-on `(candidate)` rows; scoped filter **32/32** passed (`RunAnalyzers=false`). Private beta: queue/stack-shaped batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Queue<T>` / `Stack<T>` root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #349:** `Queue<>` / `Stack<>` added to root collection recognition; regression above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ReadOnlyCollection<T>` property instances from deserializer — **cheap-disproof 2026-10-31 thorough hunt #349:** property `VisitCollection` detects null slots; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property`.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound to `JsonElement` or `JsonNode` before guard — **cheap-disproof 2026-10-31 thorough hunt #349:** `PolicyPacksController.Validate` uses `PolicyPackValidateContentHttpMapper`; guard walks CLR properties on `JsonElement`, not JSON array contents by design.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — **cheap-disproof 2026-10-31 thorough hunt #349:** no cataloged request model exposes `ImmutableDictionary<,>` (same class as #348 ConcurrentDictionary).
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — struct collection properties boxed as `object` with null nullable value-type elements — **cheap-disproof 2026-10-31 thorough hunt #349:** `AllowsNullElements` honors nullable value annotations; regression `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `LinkedList<T>` / `PriorityQueue<,>` root without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future `[FromBody]` linked-list or priority-queue batch root (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ObservableCollection<T>` on request DTO properties — locus: property walk; input: WPF-style collection property if introduced to API models (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` `CancellationToken` or `Stream` parameters skipped vs collection guard — locus: filter binding-source gate; input: non-JSON body parameters mixed on actions (monitor).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `FrozenDictionary<,>` / `ImmutableHashSet<>` leaves — locus: catalog + probe factory; input: frozen collection properties on future DTOs (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — `TryVisitRootBodyCollection` when parameter type is interface but runtime body is incompatible proxy — locus: `IsInstanceOfType` gate ~146–147; input: dynamic/proxy batch body (monitor).
+
 2026-10-31 thorough hunt (hit #348): promoted `(candidate)` root `HashSet<T>` without `ParameterInfo` — single-arg `ContainsNullCollectionElement` skipped `HashSet<>` roots because `IsRootLevelCollectionType` only recognized list-shaped interfaces (#347 parity); extended root collection recognition to `ISet<>` / `HashSet<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_hashset_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped filter **30/30** passed (`RunAnalyzers=false`). Private beta: if a future batch endpoint binds a JSON set root, null entries are rejected at validation instead of reaching controller code when the guard is invoked without action parameter metadata.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `HashSet<T>` root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #348:** `IsRootLevelCollectionType` / `TryGetEnumerableElementType` include `HashSet<>` and `ISet<>`; regression above.
@@ -18758,12 +18772,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsFilter` — model binder succeeds with empty `ActionArguments` entry — **cheap-disproof 2026-10-31 thorough hunt #348:** filter skips missing/null body arguments (~36–37); optional body omission is intentional; malformed JSON fails binding before filter.
 - [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ConcurrentDictionary<,>` on request models — **cheap-disproof 2026-10-31 thorough hunt #348:** no cataloged request model exposes `ConcurrentDictionary<,>`; guard dictionary walk unchanged when absent.
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — cyclic object graphs through collection elements — **cheap-disproof 2026-10-31 thorough hunt #348:** `visited` reference set breaks cycles; STJ max depth bounds attacker graphs; null slots still detected on first visit.
-
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `Queue<T>` / `Stack<T>` root enumerable without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future `[FromBody] Queue<T>` batch root (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ReadOnlyCollection<T>` property instances from deserializer — locus: property walk; input: immutable list wrapper with null element if constructible (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter bound to `JsonElement` or `JsonNode` before guard — locus: filter type assumptions; input: raw JSON node actions if introduced (monitor).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — locus: catalog recursion; input: immutable map property if added to request DTOs (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — struct collection properties boxed as `object` with null nullable value-type elements — locus: `VisitCollection` value-type element rules; input: `List<int?>` with null vs `List<int>` (monitor; partially covered).
 
 2026-10-31 thorough hunt (dry): cheap-disproof closed five reseeded `(candidate)` rows after failing-repro attempts; no production code change; reseeded five follow-on `(candidate)` rows; scoped filter **29/29** (`FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests`, `RunAnalyzers=false`). Private beta: n/a.
 
@@ -18817,11 +18825,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 9
-- **bugs-found:** 6
+- **hunts:** 10
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — single-arg guard skipped HashSet root null slots
+- **last-bug:** 2026-10-31 — single-arg guard skipped Queue/Stack root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
