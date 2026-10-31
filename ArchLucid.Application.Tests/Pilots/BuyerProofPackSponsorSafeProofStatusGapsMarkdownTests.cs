@@ -53,6 +53,47 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_demo_tenant_uses_deltas_not_stale_proof_demo_flag()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = false,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                new PilotRunDeltas { IsDemoTenant = true },
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_support_run_id_missing_uses_run_not_stale_proof_flag()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                new PilotRunDeltas(),
+                new ArchitectureRun { RunId = "  ", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
     public void Concrete_gaps_when_llm_count_unresolved_matches_proof_package_and_computed_deltas_prose()
     {
         PilotRunDeltas deltas = new() { LlmCallCountResolved = false };
@@ -836,12 +877,14 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             RunInCommittedStatus = true,
         };
 
+        ArchitectureRun run = new() { RunId = "", Status = ArchitectureRunStatus.Committed };
+
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NotSponsorSafeYet,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                run)
             .ToList();
 
         string prose = PilotSupportRunIdHonestyCopy.MissingPlain;
@@ -853,7 +896,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             deltas,
             proof,
             manifest: null,
-            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+            run);
 
         string row = proofSb.ToString()
             .Split('\n')

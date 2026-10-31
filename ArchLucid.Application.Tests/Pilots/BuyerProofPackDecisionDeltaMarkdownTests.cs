@@ -129,6 +129,41 @@ public sealed class BuyerProofPackDecisionDeltaMarkdownTests
         result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
     }
 
+    [Fact]
+    public void BuyerProofPack_novelty_not_strong_when_llm_unresolved_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail(
+            category: "Security",
+            message: "Rotate keys");
+
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            LlmCallCountResolved = false,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            BuildGate());
+
+        result.NoveltyConfidence.Should().NotBe(SponsorNoveltyConfidence.Strong);
+        result.NoveltyConfidence.Should().BeOneOf(
+            SponsorNoveltyConfidence.Partial,
+            SponsorNoveltyConfidence.Low);
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail(string category, string message)
     {
         GoldenManifest manifest = new()

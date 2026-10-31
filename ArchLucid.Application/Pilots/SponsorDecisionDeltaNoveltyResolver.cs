@@ -150,8 +150,8 @@ public static class SponsorDecisionDeltaNoveltyResolver
 
         if (scoredFindings >= 2
             && deltas.TopFindingEvidenceChain is not null
-            && proof.LlmCallCountResolved
-            && proof.AuditRowCountResolved)
+            && deltas.LlmCallCountResolved
+            && deltas.AuditRowCountResolved)
             return SponsorNoveltyConfidence.Strong;
 
         if (findings.Any(static finding => finding.EvidenceRefs.Count > 0))

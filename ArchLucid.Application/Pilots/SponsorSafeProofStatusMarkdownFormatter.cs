@@ -97,10 +97,10 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         PilotRunDeltas deltas,
         ArchitectureRun run)
     {
-        if (proof.DemoTenantWarningRequired)
+        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
             yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.SupportRunIdPresent)
+        if (string.IsNullOrWhiteSpace(run.RunId))
             yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
