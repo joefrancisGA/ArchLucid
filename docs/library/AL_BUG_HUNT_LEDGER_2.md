@@ -5091,6 +5091,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #41): promoted comma-folded `Authorization` with box drawings heavy triple dash vertical (`U+2507`) and light quadruple dash vertical (`U+2508`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2507` and `U+2508`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #40 (whitespace-only `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_whitespace_iat_is_present_without_auth_time`; empty-string email via `IssueAccessToken_throws_when_email_is_empty_string`; conflicting direct `oid` via existing `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus existing oid-strip test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a heavy triple-dash or light quadruple-dash vertical placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings heavy triple dash vertical (`U+2507`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #41:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings light quadruple dash vertical (`U+2508`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #41:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — whitespace-only `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #41:** regression `HasRecentAuthentication_returns_false_when_only_whitespace_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty-string email rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #41:** regression `IssueAccessToken_throws_when_email_is_empty_string`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — conflicting direct `oid` claims stripped when values differ — **cheap-disproof 2026-10-31 seed hunt #41:** regression `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy quadruple dash vertical (`U+2509`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings down light horizontal (`U+2574`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — negative `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — empty-string role rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes `oid` from configured source when direct claim absent — locus: inbound promotion; reachability: SAML monitor.
+
 2026-10-31 seed hunt (seed→hit #40): promoted comma-folded `Authorization` with box drawings light triple dash vertical (`U+2506`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard on `Bearer┆, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2506`; regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed hunt #39 (empty `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_empty_iat_is_present_without_auth_time`; whitespace-only role via existing `IssueAccessToken_throws_when_role_is_whitespace_only`; duplicate `oid` casing via `Apply_collapses_duplicate_direct_oid_claims_with_same_value_different_casing`; proxy-only row deferred); reseeded five follow-on `(candidate)` rows; regression filter 2/2 new tests plus two existing cheap-disproof tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a light triple-dash vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings light triple dash vertical (`U+2506`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #40:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5534,11 +5548,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 67
-- **bugs-found:** 56
+- **hunts:** 68
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected light triple-dash vertical placeholder before valid comma-folded token
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected heavy triple-dash and light quadruple-dash vertical placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
