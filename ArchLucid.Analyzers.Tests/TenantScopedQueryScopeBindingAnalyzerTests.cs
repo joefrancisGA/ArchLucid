@@ -1286,6 +1286,50 @@ public sealed class CommandDefinitionStoredProcSqlTextRepository
         await RunPersistenceAnalyzerTestAsync(testCode);
     }
 
+    [Fact]
+    public async Task ARCH006_does_not_analyze_execute_async_string_when_command_type_is_stored_procedure()
+    {
+        const string executeAsyncStub = """
+
+namespace Dapper
+{
+    public static partial class SqlMapper
+    {
+        public static System.Threading.Tasks.Task<int> ExecuteAsync(
+            this System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null,
+            System.Data.IDbTransaction? transaction = null,
+            int? commandTimeout = null,
+            System.Data.CommandType? commandType = null) =>
+            throw null!;
+    }
+}
+""";
+
+        const string testCode = SharedStubs + executeAsyncStub +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class ExecuteAsyncStoredProcSqlRepository
+{
+    public System.Threading.Tasks.Task LoadAsync(IDbConnection connection)
+    {
+        return connection.ExecuteAsync(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
+            commandType: CommandType.StoredProcedure);
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
     private static async Task RunPersistenceAnalyzerTestAsync(
         string testCode,
         params DiagnosticResult[] expectedDiagnostics)

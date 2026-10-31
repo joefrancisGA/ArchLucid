@@ -133,6 +133,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (!TryGetSqlArgument(invocation, context.SemanticModel, out ExpressionSyntax? sqlExpression))
             return;
 
+        if (IsStoredProcedureDapperInvocation(invocation, context.SemanticModel))
+            return;
+
         AnalyzeSqlExpression(context, registry, sqlExpression, invocation.GetLocation());
     }
 
@@ -269,6 +272,39 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
                 if (argumentIndex >= 0 && argumentIndex < constructor.Parameters.Length)
                     parameterName = constructor.Parameters[argumentIndex].Name;
+            }
+
+            if (parameterName is null ||
+                !string.Equals(parameterName, "commandType", StringComparison.Ordinal))
+                continue;
+
+            if (TryGetConstantCommandType(argument.Expression, semanticModel) == System.Data.CommandType.StoredProcedure)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsStoredProcedureDapperInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel)
+    {
+        if (invocation.ArgumentList?.Arguments.Count is not > 0)
+            return false;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is null)
+            {
+                int argumentIndex = invocation.ArgumentList.Arguments.IndexOf(argument);
+
+                if (argumentIndex >= 0 && argumentIndex < method.Parameters.Length)
+                    parameterName = method.Parameters[argumentIndex].Name;
             }
 
             if (parameterName is null ||
