@@ -193,6 +193,23 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_clamps_negative_max_age_minutes_to_one()
+    {
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        long authTime = now.AddSeconds(-30).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [new Claim("auth_time", authTime.ToString(System.Globalization.CultureInfo.InvariantCulture))],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System,
+                maxAgeMinutes: -5));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip()
     {
         long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

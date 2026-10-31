@@ -4,6 +4,7 @@ using System.Text;
 
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 
 using FluentAssertions;
 
@@ -110,6 +111,25 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
             Guid.NewGuid());
 
         act.Should().Throw<ArgumentException>();
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_omits_auth_version_claim_when_auth_version_is_empty_guid()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+        Guid userId = Guid.NewGuid();
+
+        string token = issuer.IssueAccessToken(
+            userId,
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            authVersion: Guid.Empty);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        jwt.Claims.Should().NotContain(c => c.Type == PlatformIdentityClaimTypes.AuthVersion);
     }
 
     public void Dispose()
