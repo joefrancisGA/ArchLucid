@@ -5274,6 +5274,20 @@
 
 ## Zone: tenant-data-export
 
+2026-10-31 thorough hunt (hit #946): promoted `(candidate)` `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside hand-edited `is_sample_run` string tokens (for example zero-width joiner in `"tr\u200Due"`) evaded exact `"true"` equality and bypassed CLI proof-packet sample-workspace block; strip format/combining/control invisibles from string boolean tokens after trim; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_has_interior_format_char`; cheap-disproof closed four sibling `(candidate)` rows (null `architectureDetail` replay gate matches `AuditExportCareerPostureGate.AllowedWithoutStamp` by design; metadata vs replay honesty-loader throw parity both fail closed through `CareerArtifactExportCompletenessGate`; HTML sendable cover via `ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml`; blob SAS host suffix enforced before DNS so non-Azure CNAME labels never reach resolver); reseeded five follow-on `(candidate)` rows; scoped filter **68/70** passed — 44 Application + 11 Api + 13 Core (`RunAnalyzers=false`; 1 pre-existing `ArchitectureReviewExportServiceTests` HTML copy assertion; 1 unrelated Core IPv4 blob-label expectation on VM). Private beta: CLI proof-packet bundles from hand-edited pilot deltas no longer slip past sample-workspace blocks when boolean tokens embed invisible format characters between visible letters.
+
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior format chars in `"true"`/`"false"` tokens — **hit 2026-10-31 thorough hunt #946:** `RemoveInvisibleBooleanTokenChars` before string boolean coercion; regression above.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null — **cheap-disproof 2026-10-31 thorough hunt #946:** matches `AuditExportCareerPostureGate` allow-without-stamp when architecture run detail is absent; facade `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` uses same gate before byte replay.
+- [x] (valid-no-repro) `RunExportCareerPostureGate` — metadata vs byte replay on transient honesty-loader errors — **cheap-disproof 2026-10-31 thorough hunt #946:** both paths invoke `CareerExportCoverageHonestyMaterialLoader` + `CareerArtifactExportCompletenessGate`; loader exceptions propagate (no silent allow on replay).
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — HTML sendable cover stamp parity — **cheap-disproof 2026-10-31 thorough hunt #946:** `BuildMinimalHtml` calls `ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml`; regression `AppendHtml_includes_sendable_export_cover_when_plain_text_present`.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist — **cheap-disproof 2026-10-31 thorough hunt #946:** sync guard requires `*.blob.core.windows.net` / `*.blob.storage.azure.net` on `uri.IdnHost` before DNS; non-blob hostnames reject without lookup.
+
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — homoglyph Latin/Cyrillic `"true"` tokens on `is_demo_tenant` — locus: string equality after invisible strip; input: Cyrillic homoglyph spellings; reachability: CLI bundle deltas monitor.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — consulting DOCX replay ignores career gate when `architectureDetail` loads but honesty material empty — locus: `CareerArtifactExportCompletenessGate` on non-null detail; input: stripped run graph with persisted export record.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — career gate after sealed-hash when run detail appears mid-request — locus: TOCTOU between guards; input: concurrent run deletion (reachability: metadata read race monitor).
+- [ ] (candidate) `ArchitectureReviewExportService` — PDF export sendable cover parity vs DOCX/HTML — locus: PDF builder cover path; input: rehearsal-incomplete allowed export.
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded host labels vs `IdnHost` normalization — locus: `Uri.TryCreate` host parsing; input: encoded dot segments in blob hostname.
+
 2026-10-30 thorough hunt (hit): promoted `(candidate)` `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `is_sample_run` values with leading Unicode whitespace (for example NBSP before `"1"`) skipped exact `"1"` / numeric coercion and bypassed sample-workspace CLI bundle block; string branch now trims before parse; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_has_unicode_whitespace_padding`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; scoped filter **23/24** passed — 10 `ExportBundleCareerPostureResolver` + 13 Api export tests (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML assertion on VM). Private beta: CLI proof-packet bundles from hand-edited pilot deltas no longer slip past sample-workspace export blocks when boolean tokens carry invisible Unicode padding.
 
 - [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — NBSP-padded `"1"` for `is_sample_run` — **hit 2026-10-30 thorough hunt:** `text.Trim()` before string boolean coercion; regression above.
@@ -5282,11 +5296,11 @@
 - [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — HTML/PDF vs DOCX career ordering — **cheap-disproof 2026-10-30 thorough hunt:** `EnsureCanExportFromHonestyMaterial` runs before format-specific builders (~110).
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy` — IDN blob hosts vs ASCII allowlist — **cheap-disproof 2026-10-30 thorough hunt:** validation uses `uri.IdnHost` after `Uri.TryCreate`; Azure blob suffix check applies to punycode labels the same as ASCII hosts; no SSRF bypass repro.
 
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside `"true"`/`"false"` tokens (for example zero-width joiner) may evade case-insensitive equality — locus: string branch after trim; input: hand-edited deltas JSON; reachability: CLI proof-packet bundle deltas.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null after sealed-hash guard — locus: ~129–147; input: run deleted after export record persisted; reachability: orphan export record row.
-- [ ] (candidate) `RunExportCareerPostureGate` — metadata-only export paths vs byte replay disagree when honesty material loader throws transient errors — locus: facade career gate vs `ExportReplayService`; input: compare failure modes on partial authority material.
-- [ ] (candidate) `ArchitectureReviewExportService` — `GenerateReportAsync` HTML export uses `ArchitectureReviewHtmlBuilder` after career gate but omits sendable cover stamp parity with DOCX — locus: HTML branch only; input: rehearsal-incomplete simulator run allowed export.
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist pass — locus: DNS guard vs sync host suffix; input: operator SAS URL resolving to non-Azure target.
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside `"true"`/`"false"` tokens (for example zero-width joiner) may evade case-insensitive equality — **hit 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `RunExportCareerPostureGate` — metadata-only export paths vs byte replay disagree when honesty material loader throws transient errors — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `ArchitectureReviewExportService` — `GenerateReportAsync` HTML export uses `ArchitectureReviewHtmlBuilder` after career gate but omits sendable cover stamp parity with DOCX — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist pass — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
 
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (export-record metadata career gate, replay lifecycle re-check, review export HTTP mapping, padded CLI boolean strings, RunsExport career 409); reseeded five follow-on `(candidate)` rows; scoped filter **22/23** passed — 13 `ArchLucid.Api.Tests` + 9 `ArchLucid.Application.Tests` (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML copy assertion failure on VM). Private beta: n/a.
 
@@ -5302,11 +5316,11 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 945
-- **bugs-found:** 58
+- **hunts:** 946
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — NBSP-padded is_sample_run string bypassed CLI bundle block
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — interior format characters in CLI boolean tokens bypassed sample-workspace block
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
