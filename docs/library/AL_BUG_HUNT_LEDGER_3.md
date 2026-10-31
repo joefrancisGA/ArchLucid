@@ -1371,7 +1371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 47
+- **hunts:** 48
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
@@ -9326,6 +9326,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-31 seed hunt (hit): promoted `useReviewDetailWorkspaceTabs.onHashChange` — changing a mounted review-section hash scrolled the new section but left the visible workspace tab on the prior tab; synchronize active tab and workbench focus from the new hash before scrolling. Regression `switches the active tab when a mounted workspace hash changes tabs`; focused tab-sync and mapping tests passed 16/16. Private beta: invited architects following in-review section links now see the section’s owning tab selected instead of a mismatched workspace tab.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — changing a review workspace hash after initial mount left the active tab unchanged; synchronize the new hash-derived tab and workbench focus before scrolling; regression `switches the active tab when a mounted workspace hash changes tabs`.
+
+2026-10-31 seed hunt (seed-only): fresh reread of `RunDetailSectionNav`, `ReviewDetailWorkspaceTabShell`, pinned-context layout, and review-detail section composition found no new mechanism-backed candidate beyond the closed hash/tab and stale-summary paths; mapped tab, hash, and scroll tests passed 19/19. No production change.
 
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
