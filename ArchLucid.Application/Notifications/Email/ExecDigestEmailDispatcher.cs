@@ -42,7 +42,7 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
-        string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
+        string normalizedIsoWeekKey = WeeklyDigestIsoWeekIdempotencyKeyValidator.NormalizeOrThrow(isoWeekIdempotencyKey);
         ArgumentNullException.ThrowIfNull(composition);
 
         if (string.IsNullOrWhiteSpace(composition.WeekLabel))
