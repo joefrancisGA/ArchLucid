@@ -9,6 +9,9 @@ namespace ArchLucid.Application.Pilots;
 /// <summary>ROI evidence-confidence block appended to sponsor first-value-report Markdown alongside baseline tables.</summary>
 public static class RoiEvidenceCompletenessMarkdownFormatter
 {
+    internal const string PartialTierSponsorSavingsWarningPlain =
+        "**Do not quote customer-specific savings** without tenant-captured baselines.";
+
     /// <summary>Appends a conservative sponsor-facing completeness section derived from persisted tenant ROI baseline posture.</summary>
     public static void AppendMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
@@ -60,7 +63,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
             PilotRoiEvidenceConfidence.Strong => BuildStrongTierBody(snapshot),
             PilotRoiEvidenceConfidence.Partial =>
                 "Baseline hours **default from repository ROI model assumptions** (`docs/library/PILOT_ROI_MODEL.md`). "
-                + "**Do not quote customer-specific savings** without tenant-captured baselines.",
+                + PartialTierSponsorSavingsWarningPlain,
             PilotRoiEvidenceConfidence.Low or _ =>
                 "No tenant baseline measurements were captured for this cohort window; treat ROI tables as "
                 + "**illustrative / internal planning only** unless operators attach external baseline artefacts.",

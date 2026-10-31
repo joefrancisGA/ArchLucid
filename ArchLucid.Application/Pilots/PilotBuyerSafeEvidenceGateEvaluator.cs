@@ -87,8 +87,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)
         {
-            softGapMessages.Add(
-                "ROI comparative narrative uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+            softGapMessages.Add(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
         }
 
         (PilotBuyerSafeEvidencePublishingTier tier, ProofPackageSendability sendability) =

@@ -13,6 +13,10 @@ public static class SponsorProofReadinessClassifier
     /// </summary>
     internal const string ComparativeBaselineNarrativeSoftGapToken = "ROI comparative narrative";
 
+    internal static string FormatComparativeBaselineBuyerSafeGateSoftGapLine() =>
+        FormattableString.Invariant(
+            $"{ComparativeBaselineNarrativeSoftGapToken} uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+
     public static SponsorProofReadinessClassification Classify(PilotRunDeltas deltas, PilotBuyerSafeEvidenceGateResult gate)
     {
         ArgumentNullException.ThrowIfNull(deltas);
