@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import {
   buildAdvisoryScheduleCronExpression,
@@ -74,7 +74,16 @@ export function useAdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormP
     setAdvancedOpenState(parseAdvisorySchedulesAdvancedOpenFromSearch(searchParams.get("advanced")));
   }, [searchParams]);
 
+  // A new useRouter/useSearchParams wrapper can recreate syncAdvancedToUrl
+  // without a new reset request. Rebuilding the form object in that case
+  // caused an unbounded render/effect cycle (and potential worker OOM).
+  const handledFormResetKeyRef = useRef<number | null>(null);
   useEffect(() => {
+    if (handledFormResetKeyRef.current === props.formResetKey) {
+      return;
+    }
+
+    handledFormResetKeyRef.current = props.formResetKey;
     setForm(createDefaultAdvisoryScheduleFormState());
     setAdvancedOpenState(false);
     syncAdvancedToUrl(false);
