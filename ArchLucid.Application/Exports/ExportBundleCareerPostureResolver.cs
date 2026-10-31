@@ -301,7 +301,7 @@ public static class ExportBundleCareerPostureResolver
         for (int i = 0; i < value.Length; i++)
             buffer[i] = UnicodeLatinHomoglyphMapper.MapToLatinLookalike(value[i]);
 
-        return new string(buffer[..value.Length]);
+        return new string(buffer[..value.Length]).Normalize(NormalizationForm.FormKC);
     }
 
     private static string RemoveInvisibleBooleanTokenChars(string value)
