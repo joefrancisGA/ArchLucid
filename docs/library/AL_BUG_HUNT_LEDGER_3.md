@@ -3109,6 +3109,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-review-detail-workspace` is **1/3** after prior seed-only — below `minLowYieldStreak` 3); cooldown fallback kept saturated `ui-oidc` selected. Reread `ensureAccessTokenFresh` BFF refresh when identity hints exist without access token, session-generation invalidation during in-flight refresh, `persistTokenResponse` access-token trim before BFF sync, and authorize-callback `error`/`error_description` readable-detail guards. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `src/lib/oidc` tests passed **1030/1030**. No production code changed.
+
 2026-10-31 seed hunt (seed-only): no rotation (`lowYieldStreak` 2/3 on `ui-oidc`); cooldown fallback kept saturated `ui-oidc` selected. Reread authorize-callback error code normalization, operator-facing humanization branches, mixed numeric/string OAuth metadata handling, and sanitized user-facing message assembly. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): no rotation (`lowYieldStreak` 1 on `ui-oidc`); cooldown fallback kept saturated `ui-oidc` selected. Reread Google supplemental authorize redirect wiring, discovery failure cleanup of stored return URLs, PKCE state persistence per flow, and unsafe returnUrl rejection at sign-in start. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed.
@@ -6187,7 +6189,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
