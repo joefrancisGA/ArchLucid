@@ -5091,6 +5091,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #42): promoted comma-folded `Authorization` with box drawings heavy quadruple dash vertical (`U+2509`) and down light horizontal (`U+2574`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2509` and `U+2574`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_down_light_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #41 (negative `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_negative_iat_is_present_without_auth_time`; empty-string role via `IssueAccessToken_throws_when_role_is_empty_string`; `oid` promotion via existing `Apply_promotes_opaque_directory_object_identifier_onto_oid`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus existing oid-promotion test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a heavy quadruple-dash vertical or down light horizontal placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings heavy quadruple dash vertical (`U+2509`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #42:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings down light horizontal (`U+2574`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #42:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_down_light_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — negative `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #42:** regression `HasRecentAuthentication_returns_false_when_only_negative_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — empty-string role rejected before lifetime clamp — **cheap-disproof 2026-10-31 seed hunt #42:** regression `IssueAccessToken_throws_when_role_is_empty_string`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — promotes `oid` from configured source when direct claim absent — **cheap-disproof 2026-10-31 seed hunt #42:** regression `Apply_promotes_opaque_directory_object_identifier_onto_oid`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings up light horizontal (`U+2575`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy down horizontal (`U+2576`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — fractional-string `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — null auth-version omits claim — locus: optional claim; reachability: hunt #12 monitor (existing regression).
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — promotes scope claims when source type differs by case — locus: inbound promotion; reachability: SAML monitor (existing regression).
+
 2026-10-31 seed hunt (seed→hit #41): promoted comma-folded `Authorization` with box drawings heavy triple dash vertical (`U+2507`) and light quadruple dash vertical (`U+2508`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2507` and `U+2508`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_quadruple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #40 (whitespace-only `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_whitespace_iat_is_present_without_auth_time`; empty-string email via `IssueAccessToken_throws_when_email_is_empty_string`; conflicting direct `oid` via existing `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus existing oid-strip test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a heavy triple-dash or light quadruple-dash vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings heavy triple dash vertical (`U+2507`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #41:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_triple_dash_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5548,11 +5562,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 68
-- **bugs-found:** 57
+- **hunts:** 69
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected heavy triple-dash and light quadruple-dash vertical placeholders before valid comma-folded token
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected heavy quadruple-dash vertical and down light horizontal placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
