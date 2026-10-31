@@ -115,7 +115,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
 
         if (!proof.ArtifactDescriptorCountResolved)
-            yield return "Artifact descriptor inventory did not resolve — package completeness cannot be attested.";
+            yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
             yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();

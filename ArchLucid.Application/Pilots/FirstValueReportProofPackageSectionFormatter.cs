@@ -35,7 +35,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
         sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
-        sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
+        sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");
         sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
@@ -70,11 +70,6 @@ public static class FirstValueReportProofPackageSectionFormatter
     {
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
         return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
-    }
-
-    private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
-    {
-        return !c.ArtifactDescriptorCountResolved ? "Missing — committed architecture manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing)." : $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ArtifactDescriptorCount.GetValueOrDefault().ToString(CultureInfo.InvariantCulture))} descriptor(s) for this committed architecture manifest.";
     }
 
     private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)

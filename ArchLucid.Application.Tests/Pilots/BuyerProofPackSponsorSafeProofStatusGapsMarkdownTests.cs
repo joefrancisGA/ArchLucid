@@ -178,4 +178,39 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString().Should().Contain(prose);
         traceSb.ToString().Should().Contain(prose);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_artifact_descriptor_unresolved_matches_proof_package_prose()
+    {
+        PilotRunDeltas deltas = new() { SynthesizedArtifactDescriptorCountResolved = false };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            ArtifactDescriptorCountResolved = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotArtifactDescriptorCountHonestyCopy.UnresolvedPlain;
+        gaps.Should().Contain(prose);
+        gaps.Should().NotContain("Artifact descriptor inventory did not resolve");
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        proofSb.ToString().Should().Contain(prose);
+    }
 }
