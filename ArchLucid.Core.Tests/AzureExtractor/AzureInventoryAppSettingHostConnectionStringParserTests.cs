@@ -5277,4 +5277,15 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
     }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_nonuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525252525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
 }
