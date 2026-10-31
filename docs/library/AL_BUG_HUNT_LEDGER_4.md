@@ -27958,10 +27958,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-06 — retrieval/cosmos skip paths logged before mark-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -28032,6 +28032,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 thorough hunt (dry): cheap-disproved both candidates; the export package builder converts reachable persisted-state outcomes into `RunExportPackageResult` values, while provenance materialization explicitly no-ops when the run detail lacks a manifest. No failing repro was warranted. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests.
 
 ### Hypotheses
+
+2026-10-31 seed hunt #1048 (seed-only): re-read `RecoverableOutboxProcessorBase`, `RecoverableOutboxFailureHandler`, retry/option verification, and the Cosmos, retrieval, projection, and export processors. No hunt-ready promotion; existing 21-test coordination/outbox coverage exercises the current failure and cancellation contracts. Seeded five mechanism-backed `(candidate)` rows below; no production change. Private beta: n/a.
+
+- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessEntryWithIsolationAsync` — a logger failure in `LogProcessingFailure` may escape before failure persistence — locus: logging call before `RecoverableOutboxFailureHandler.HandleAsync`; input: processor fault plus throwing production logging sink; wrong outcome: leased outbox row skips backoff/dead-letter persistence; reachability: hosted outbox processing with an unavailable logging provider.
+- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — shutdown cancellation during retry/dead-letter persistence may leave a faulted leased row without terminal or backoff state — locus: cancellation token passed through repository failure handling; input: host shutdown after processor exception and before failure metadata commit; wrong outcome: row waits for lease expiry instead of durable recovery; reachability: normal graceful shutdown during outbox drain.
+- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — parallel batch cancellation may leave dequeued entries that never began processing leased until timeout — locus: `BoundedBatchParallelism.ForEachAsync` cancellation after `DequeuePendingAsync`; input: batch over parallelism limit with host cancellation; wrong outcome: unstarted rows are delayed until lease expiry; reachability: worker shutdown during a populated outbox batch.
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor.ProcessPendingBatchAsync` — sequential Cosmos processing may create a materially different lease-expiry window from sibling parallel processors — locus: `UsesParallelBatchProcessing` false; input: large Cosmos snapshot backlog during mixed processor drain; wrong outcome: Cosmos rows remain leased while parallel siblings clear their batches; reachability: Cosmos graph snapshot outbox backlog.
+- [ ] (candidate) `OutboxProcessorOptionsVerifier.Verify` — option normalization may clamp a configured lease/retry value for one processor but leave sibling option snapshots inconsistent — locus: shared verifier versus per-processor `VerifyOptions`; input: production configuration with boundary lease/retry values; wrong outcome: retry timing differs across outbox processors despite shared operator settings; reachability: `PostCommitProjectionOutbox`, retrieval, Cosmos, and export configuration sections.
 
 - [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` / `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so observability failures blocked skip-as-processed on orphan rows (parity gap vs post-commit/export Oct 2026-10-05 fixes) — **hit 2026-10-06 seed hunt (seed→hit):** `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`.
 

@@ -2981,3 +2981,4 @@
 {"at":"2026-10-31T00:00:34.6225812Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T00:03:58.3188400Z","zoneId":"host-composition","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T00:09:53.1931197Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T00:14:48.2466630Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared"}
