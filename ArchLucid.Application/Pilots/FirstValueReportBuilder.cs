@@ -286,7 +286,7 @@ public sealed class FirstValueReportBuilder(
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas, proofCompleteness, run, manifest);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
-        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run);
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run, buyerSafeGate);
         FirstValueReportBaselineSectionFormatter.AppendMarkdownSection(sb);
         sb.AppendLine();
         sb.AppendLine("---");

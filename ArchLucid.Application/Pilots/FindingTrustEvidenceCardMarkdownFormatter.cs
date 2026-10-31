@@ -18,7 +18,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         StringBuilder sb,
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
-        ArchitectureRun? run = null)
+        ArchitectureRun? run = null,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -97,7 +98,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {FormatSponsorProofReadiness(proof.SponsorProofReadiness)} |");
+            $"| Sponsor-proof readiness | {FormatSponsorProofReadinessCell(proof, deltas, buyerSafeGate)} |");
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -146,6 +147,24 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
         return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatSponsorProofReadinessCell(
+        ProofPackageCompletenessResponse proof,
+        PilotRunDeltas deltas,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate)
+    {
+        ArgumentNullException.ThrowIfNull(proof);
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (buyerSafeGate is not null)
+        {
+            SponsorProofReadinessClassification readiness =
+                SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate);
+            return SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness);
+        }
+
+        return FormatSponsorProofReadiness(proof.SponsorProofReadiness);
     }
 
     private static string FormatSponsorProofReadiness(string? value) =>

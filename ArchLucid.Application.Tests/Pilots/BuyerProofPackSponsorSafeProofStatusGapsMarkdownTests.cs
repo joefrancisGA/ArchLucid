@@ -3373,6 +3373,44 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Evidence_card_readiness_when_stale_sendable_on_proof_but_demo_on_deltas_uses_gate_classify_not_proof_string()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            DemoTenantWarningRequired = false,
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            IsDemoTenant = true,
+            TopFindingId = "f-demo",
+            TopFindingSeverity = "Warning",
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.DemoOnly,
+            ProofPackageSendability.NotSendable,
+            ["Seeded/demo tenant"],
+            [],
+            []);
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof, buyerSafeGate: gate);
+
+        string row = cardSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Sponsor-proof readiness |", StringComparison.Ordinal));
+
+        row.Should().Contain("**DemoOnly**");
+        row.Should().NotContain("**Sendable**");
+    }
+
+    [Fact]
     public void Concrete_gaps_when_sendable_matches_proof_package_sendability_row()
     {
         PilotRunDeltas deltas = new()
