@@ -2186,7 +2186,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
@@ -2201,6 +2201,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-31 seed hunt (seed-only): repeated the webhook source/churn check again and focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so no production change was made. Private beta: n/a.
 
 2026-10-31 seed hunt (seed-only): rechecked the webhook source boundary and focused 97-test suite after the Runs List rotation; no source change or reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
+
+2026-10-31 seed hunt (seed-only): rechecked the webhook boundary after the prior seed pass; the focused 97-test suite remains green and no new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 
 2026-10-31 seed hunt (seed-only): checked for post-hunt webhook source churn and reran the focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so the established refresh, failure, scope-generation, URL-confirmation, and mutation-state coverage remains the current boundary. No production change. Private beta: n/a.
 
