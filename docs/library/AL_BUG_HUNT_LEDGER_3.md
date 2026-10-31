@@ -368,7 +368,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 78
+- **hunts:** 79
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
@@ -6003,6 +6003,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five follow-on candidates: authorize URL construction is parser-gated, malformed callback descriptions are intentionally tolerant, oversized provider details have no demonstrated wrong outcome, Web Crypto absence is an environment prerequisite, and incomplete PKCE storage has no reachable production caller. No failing repro or fix was established. The focused OIDC suite passed 71/71.
 
+2026-10-31 seed hunt (seed-only): rotation returned saturated `ui-oidc` via cooldown fallback; reread discovery URL construction and validation, authorization URL assembly, primary/supplemental PKCE state isolation, token-response error classification, BFF refresh generation guards, and retry return-path restoration. No fresh reachable mechanism-backed candidate met the hunt-ready bar; the scoped OIDC suite passed 1030/1030. No production code changed.
+
 2026-10-10 seed hunt (seed-only): re-read OIDC configuration, discovery URL construction, PKCE storage, and session cleanup boundaries. No new row met the full hunt-ready bar; seeded five bounded candidates for configuration URL validation, redirect URI shape, stale PKCE lifetime, missing browser storage, and callback state reuse. The focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five configuration/session candidates: discovery normalization is deterministic, redirect URI validation is deployment configuration, stale PKCE has no wrong outcome without state reuse, malformed storage has no production writer, and cross-provider selection requires an unreachable state collision. No failing repro or fix was established. The focused OIDC suite passed 71/71.
@@ -6046,7 +6048,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 78
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-16 — hex/octal/binary epoch-ms hint literals in session and BFF refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
