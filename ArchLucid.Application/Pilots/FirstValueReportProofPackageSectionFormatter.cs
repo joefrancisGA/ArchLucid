@@ -53,7 +53,7 @@ public static class FirstValueReportProofPackageSectionFormatter
 
         sb.AppendLine($"| Buyer-safe redaction profile | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.BuyerSafeRedactionProfile)} |");
         sb.AppendLine(
-            $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
+            $"| PilotStrict agent-output posture | {PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(c.AgentOutputPilotStrictEvidenceSatisfied)} |");
         sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
         sb.AppendLine(
             $"| Proof sendability (API mirror) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ProofSendability ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.PublishingTier ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.EvidenceCompleteness ?? string.Empty)} |");

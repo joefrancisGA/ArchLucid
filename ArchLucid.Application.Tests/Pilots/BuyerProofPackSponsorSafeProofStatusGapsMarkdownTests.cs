@@ -362,4 +362,44 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         row.Should().Contain(prose);
         row.Should().NotContain("Not present on this run.");
     }
+
+    [Fact]
+    public void Concrete_gaps_when_pilot_strict_failed_matches_proof_package_row()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FailedPlain;
+        gaps.Should().Contain(prose);
+        gaps.Should().NotContain("do not circulate sponsor-grade real-mode assertions");
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(prose);
+    }
 }

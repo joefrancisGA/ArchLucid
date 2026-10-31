@@ -128,7 +128,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
-            yield return "PilotStrict agent-output quality gate failed — do not circulate sponsor-grade real-mode assertions until traces read clean.";
+            yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             yield return "**Tenant comparative baseline is incomplete or defaulted** — keep sponsor wording qualitative and avoid bespoke dollar narratives.";
