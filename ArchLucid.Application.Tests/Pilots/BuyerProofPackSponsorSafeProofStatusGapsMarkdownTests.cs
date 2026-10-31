@@ -3480,6 +3480,40 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_status_evidence_source_when_deltas_demo_uses_deltas_not_stale_proof_flag()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = false,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NotSponsorSafeYet,
+            proof,
+            new PilotRunDeltas { IsDemoTenant = true },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence source |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
+    }
+
+    [Fact]
     public void Sponsor_status_evidence_source_matches_proof_discipline_when_demo_tenant()
     {
         ProofPackageCompletenessResponse proof = new()

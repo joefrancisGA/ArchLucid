@@ -97,4 +97,29 @@ public sealed class SponsorFirstValuePdfGateTests
         act.Should().Throw<SponsorFirstValuePdfBlockedException>()
             .WithMessage("*PilotStrict*");
     }
+
+    [Fact]
+    public void EnsureCanGenerate_skips_projected_dollar_block_when_demo_on_deltas_not_stale_proof_flag()
+    {
+        FirstValueReportBuildResult built = new(
+            Markdown: "# report",
+            EvidenceCompleteness: FirstValueEvidenceCompletenessLevel.Strong,
+            SponsorProofReadiness: SponsorProofReadinessClassification.Sendable,
+            ProofPackageCompleteness: new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = false,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                RoiBaselineInputs = null,
+            },
+            PilotRunDeltas: new PilotRunDeltas
+            {
+                IsDemoTenant = true,
+                AgentOutputPilotStrictSignalsResolved = true,
+                AgentOutputPilotStrictViolatesSponsorEvidence = false,
+            });
+
+        Action act = () => SponsorFirstValuePdfGate.EnsureCanGenerate(built);
+
+        act.Should().NotThrow();
+    }
 }

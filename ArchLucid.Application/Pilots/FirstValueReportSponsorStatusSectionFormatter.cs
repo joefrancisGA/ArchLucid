@@ -36,7 +36,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine();
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
+        sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof, deltas)} |");
         sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof, deltas)} |");
         sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
@@ -51,8 +51,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof) =>
-        PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof);
+    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
+        PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof, deltas);
 
     private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
         PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas);

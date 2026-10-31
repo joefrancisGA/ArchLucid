@@ -15,11 +15,14 @@ internal static class PilotDemoTenantDisciplineHonestyCopy
 
     internal static string FormatSponsorSafeConcreteGapLine() => FailedPlain;
 
-    internal static string FormatSponsorFirstPageEvidenceSourceCell(ProofPackageCompletenessResponse proof)
+    internal static string FormatSponsorFirstPageEvidenceSourceCell(
+        ProofPackageCompletenessResponse proof,
+        PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(proof);
+        ArgumentNullException.ThrowIfNull(deltas);
 
-        if (proof.DemoTenantWarningRequired)
+        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
             return FailedPlain;
 
         return proof.BuyerSafeRedactionProfile.Length > 0
