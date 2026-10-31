@@ -284,7 +284,12 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 return;
             }
 
-            await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken);
+            if (!await repository.MarkPendingRetryAsync(jobId, nextRetry, ex.Message, stoppingToken))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
 
             int baseDelayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
             int jitterSpan = baseDelayMs * 20 / 100;

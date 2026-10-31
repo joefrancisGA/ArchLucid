@@ -443,15 +443,23 @@
 
 ## Zone: host-core-jobs
 
-2026-10-31 thorough hunt #1109 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `core-authority-runs` is **1/3** after hunt #1108 dry — below `minLowYieldStreak` 3). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #960 — **invalid** `HandleFailureAsync` `MarkPendingRetryAsync` after watchdog reclaim (dual `IsRunningJobRow` re-reads immediately before `MarkPendingRetryAsync`; SQL `State = N'Running'` on retry update; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure`; hit #1108 ledger family), **invalid** watchdog exhausted stale `Running` re-notified as `Pending` (`ResetStaleRunningJobsOlderThanAsync` marks `Failed` when `RetryCount >= MaxRetries`; `requeuedJobIds` is `Pending` only; hunts #955/#959), **valid-no-repro** enqueue-abort cancel cleanup orphan `Pending` for watchdog (`TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` best-effort; operational SQL fault injection only; hunt #1108 lane B), **valid-no-repro** in-memory shutdown-interrupted retry backoff terminal (`TryAssignUnlessCanceled` on terminal `Failed`; hunt #1108 lane B), **invalid** invalid-payload `row.RetryCount + 1` without re-read (single-thread prepare snapshot on one processor poll; hunts #959/#1108 lane B). Reseeded five `(candidate)` rows; scoped filter **77/77** Host.Core tests passed (`RunAnalyzers=false`). No production change. Private beta: n/a.
+2026-10-31 thorough hunt #961 (hit): no rotation. Promoted `(candidate)` narrow race where pre-`MarkPendingRetryAsync` re-reads still saw `Running` but watchdog reclaim moved the row to `Pending` first — SQL update no-op left `ShouldAbortRetryNotification` treating `Pending` as notify-eligible after backoff, duplicating watchdog queue delivery. `MarkPendingRetryAsync` now returns whether the `Running` guard matched; `HandleFailureAsync` deletes the stale Azure message and skips retry notify when the update did not apply. Regression `ProcessOneMessageAsync_does_not_send_retry_when_mark_pending_retry_noops_after_watchdog_reclaim`. Cheap-disproof closed four sibling `(candidate)` rows from #960 — **invalid** exhausted-retry stale reclaim (`ResetStaleRunningJobsOlderThanAsync` `ELSE N'Failed'`; only `Pending` ids notify), **valid-no-repro** enqueue-abort cancel cleanup orphan `Pending` (watchdog re-notify is recovery; `DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails` covers notify fault), **invalid** in-memory shutdown backoff capacity terminal (post-log `_info` re-read before `Failed` at lines 274–276; 2026-10-30 #955), **invalid** invalid-payload `RetryCount + 1` without third re-read (dual `IsRunningJobRow` + SQL `Running` terminal guard; single prepare claim). Reseeded five `(candidate)` rows; scoped filter **77** Host.Core + **31** processor Api tests passed (`RunAnalyzers=false`). Private beta: background report/export jobs are less likely to receive duplicate queue notifications after a stale worker and watchdog both react to the same stuck run, so invited operators see steadier job completion under JwtBearer production-like hosting.
 
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — exhausted-retry `MarkFailedTerminalAsync` when row is `Pending` after watchdog reclaim without latest `IsRunningJobRow` (monitor; parity with retry path guards).
-- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — notify failure handler uses first `GetAsync` `RetryCount` snapshot for `MarkFailedTerminalFromQueuedStateAsync` without re-read after cancel checks (monitor).
-- [ ] (candidate) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — duplicate queue notification for terminal `Failed` row deletes message without executor when stale `Running` duplicate arrives first (monitor; #960 family).
-- [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — retry scheduling assigns `Pending` after post-log cancel re-read when shutdown `stoppingToken` cancels `Task.Delay` mid-backoff (monitor).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — registry-cancel path deletes Azure message when `MarkCanceledAsync` is no-op on already-terminal row (monitor; stale notification cleanup).
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` no-op after watchdog reclaim still sent post-backoff retry notification — **hit 2026-10-31 thorough hunt #961:** `MarkPendingRetryAsync` returns `bool`; regression above. Private beta: duplicate queue notify after stale worker plus watchdog reclaim is removed for durable background jobs on the pilot host path.
+- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed stale `Running` rows already at `RetryCount == MaxRetries` are moved to `Pending` and re-notified — **cheap-disproof 2026-10-31 thorough hunt #961:** stale reset SQL marks exhausted rows `Failed`; OUTPUT filter returns only `Pending` reclaims.
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` after caller-cancelled enqueue leaves orphan `Pending` — **cheap-disproof 2026-10-31 thorough hunt #961:** operational recovery via watchdog re-notify; enqueue notify-failure terminal covered by existing regression.
+- [x] (invalid) `InMemoryBackgroundJobQueue.ExecuteAsync` — capacity-exhausted retry terminal assigns `Failed` before second `_info` read on shutdown-interrupted backoff — **cheap-disproof 2026-10-31 thorough hunt #961:** writer-rejected and capacity paths re-read `_info` after log (#955).
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload terminal uses prepare-snapshot `row.RetryCount + 1` without re-reading `RetryCount` after dual `IsRunningJobRow` checks — **cheap-disproof 2026-10-31 thorough hunt #961:** terminal SQL updates only `Running`; concurrent mutation while still `Running` is the supported prepare-claim contract.
 
-- [x] (invalid) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` after watchdog reclaim without immediate `IsRunningJobRow` — **cheap-disproof 2026-10-31 thorough hunt #1109:** regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure`.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — capacity-exhausted retry terminal may call `MarkFailedTerminalAsync` when SQL `Running` guard no-ops after watchdog reclaim to `Pending`, leaving stale Azure message visibility without duplicate terminal write.
+- [ ] (candidate) `BackgroundJobRepository.MarkFailedTerminalAsync` — return-value parity with `MarkPendingRetryAsync` so processor can skip message delete vs notify decisions when terminal update does not apply.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — exhausted-retry terminal branch may invoke `MarkFailedTerminalAsync` when pre-terminal re-reads still show `Running` but concurrent reclaim moved row to `Pending` with `Failed` pending SQL race (symmetry with #961 pre-fix notify path).
+- [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — shutdown `OperationCanceledException` during retry backoff delay may leave `_info` `Pending` without matching durable queue message delete semantics.
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — notify failure `MarkFailedTerminalFromQueuedStateAsync` uses post-fault `GetAsync` snapshot `RetryCount` when watchdog and stale worker both incremented retries in the same window.
+
+2026-10-31 thorough hunt #1109 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `core-authority-runs` is **1/3** after hunt #1108 dry — below `minLowYieldStreak` 3). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #960 — **invalid** pre-#961 `HandleFailureAsync` `MarkPendingRetryAsync` race (later **proven hit #961**), **invalid** watchdog exhausted stale `Running` re-notified as `Pending` (`ResetStaleRunningJobsOlderThanAsync` marks `Failed` when `RetryCount >= MaxRetries`; hunts #955/#959), **valid-no-repro** enqueue-abort cancel cleanup orphan `Pending` (`TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` best-effort; hunt #1108 lane B), **valid-no-repro** in-memory shutdown-interrupted retry backoff terminal (`TryAssignUnlessCanceled`; hunt #1108 lane B), **invalid** invalid-payload `row.RetryCount + 1` without re-read (hunts #959/#1108 lane B). Reseeded five monitor `(candidate)` rows superseded by #961 reseed; scoped filter **77/77** Host.Core tests passed (`RunAnalyzers=false`). No production change. Private beta: n/a.
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` after watchdog reclaim without immediate `IsRunningJobRow` — **cheap-disproof 2026-10-31 thorough hunt #1109** then **proven hit #961** (post-re-read reclaim during SQL no-op duplicate notify).
 - [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork` — exhausted stale `Running` at `RetryCount == MaxRetries` re-notified as `Pending` — **cheap-disproof 2026-10-31 thorough hunt #1109:** hunts #955/#959 stale-reset SQL.
 - [x] (valid-no-repro) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` leaves orphan `Pending` — **cheap-disproof 2026-10-31 thorough hunt #1109:** best-effort cleanup; hunt #1108 lane B.
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.ExecuteAsync` — shutdown-interrupted retry backoff terminal without second `_info` read — **cheap-disproof 2026-10-31 thorough hunt #1109:** `TryAssignUnlessCanceled`; hunt #1108 lane B.
@@ -465,11 +473,11 @@
 - [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification when row already terminal but Azure message still visible — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
 - [x] (valid-no-repro) `AzureBlobBackgroundJobResultBlobAccessor` — partial blob upload before cancel re-read leaves bytes without `ResultBlobName` on canceled row — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
 
-- [x] (invalid) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` after watchdog reclaim without immediate `IsRunningJobRow` — **cheap-disproof 2026-10-31 thorough hunt #1109:** see hunt #1109 diary row.
-- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed stale `Running` rows already at `RetryCount == MaxRetries` moved to `Pending` and re-notified — **cheap-disproof 2026-10-31 thorough hunt #1109:** see hunt #1109 diary row.
-- [x] (valid-no-repro) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` after caller-cancelled enqueue — **cheap-disproof 2026-10-31 thorough hunt #1109:** see hunt #1109 diary row.
-- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.ExecuteAsync` — capacity-exhausted retry terminal shutdown backoff branch — **cheap-disproof 2026-10-31 thorough hunt #1109:** see hunt #1109 diary row.
-- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload terminal uses prepare-snapshot `row.RetryCount + 1` — **cheap-disproof 2026-10-31 thorough hunt #1109:** see hunt #1109 diary row.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` may run after watchdog reclaim to `Pending` when only pre-SQL cancel re-reads passed — **hit 2026-10-31 thorough hunt #961:** see diary row above.
+- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed stale `Running` rows already at `RetryCount == MaxRetries` are moved to `Pending` and re-notified — **cheap-disproof 2026-10-31 thorough hunt #961:** see diary row above.
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` after caller-cancelled enqueue leaves a `Pending` row — **cheap-disproof 2026-10-31 thorough hunt #961:** see diary row above.
+- [x] (invalid) `InMemoryBackgroundJobQueue.ExecuteAsync` — capacity-exhausted retry terminal assigns `Failed` after post-log cancel re-reads but before second `_info` read — **cheap-disproof 2026-10-31 thorough hunt #961:** see diary row above.
+- [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload terminal uses prepare-snapshot `row.RetryCount + 1` without re-reading `RetryCount` — **cheap-disproof 2026-10-31 thorough hunt #961:** see diary row above.
 
 2026-10-30 thorough hunt #959 (dry): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); cheap-disproof closed five `(candidate)` rows from hunt #955 — valid-no-repro `TryPrepareQueuedJobAsync` cancel during claim (`UPDATE … AND State = N'Pending'` loses when cancel lands first; `ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`), valid-no-repro in-memory `TryGetWorkUnitAsync` on terminal `Failed` rows (tenant access only; execution requires `Pending` claim), invalid invalid-payload `RetryCount + 1` on zero-retry jobs (single-thread prepare snapshot; 2026-10-04 dry), invalid watchdog exhausted stale reset without queue notify (SQL marks `Failed` with exhausted-retry error; poll-visible), invalid durable enqueue notify failure orphan `Pending` (`DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails`); reseeded five `(candidate)` rows; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
@@ -501,11 +509,11 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 54
-- **bugs-found:** 34
-- **consecutive-dry-hunts:** 3
+- **hunts:** 55
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
+- **last-bug:** 2026-10-31 — duplicate retry queue notify after watchdog reclaim during stale worker failure handling
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -593,11 +601,11 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 54
-- **bugs-found:** 34
-- **consecutive-dry-hunts:** 3
+- **hunts:** 55
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
+- **last-bug:** 2026-10-31 — duplicate retry queue notify after watchdog reclaim during stale worker failure handling
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
