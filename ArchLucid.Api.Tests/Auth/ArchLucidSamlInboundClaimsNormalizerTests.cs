@@ -100,6 +100,44 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles" && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+    }
+
+    [Fact]
+    public void Apply_does_not_duplicate_role_surface_claims_when_inbound_role_has_surrounding_whitespace()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", $"  {ArchLucidRoles.Operator}  "),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles" && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+    }
+
+    [Fact]
     public void Apply_skips_non_guid_scope_values_when_promoting_tenant_workspace_project()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
@@ -306,6 +344,43 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
                 TenantIdClaimType = "http://idp.example/tenant",
             });
 
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_does_not_promote_tenant_id_when_configured_source_claim_is_empty_string()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(new Claim("http://idp.example/tenant", string.Empty));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+            });
+
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_promotes_workspace_id_when_inbound_tenant_source_is_absent()
+    {
+        Guid workspaceId = Guid.NewGuid();
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/workspace", workspaceId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+            });
+
+        identity.FindFirst("workspace_id")!.Value.Should().Be(workspaceId.ToString("D"));
         identity.FindFirst("tenant_id").Should().BeNull();
     }
 

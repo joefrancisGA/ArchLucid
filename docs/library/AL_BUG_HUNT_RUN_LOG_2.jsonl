@@ -2288,3 +2288,13 @@
 {"at":"2026-10-31T17:54:11.1068550Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:06:53.6177202Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:12:09.4657338Z","zoneId":"persistence-identity","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:27:58.1163622Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:34:53.0968575Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:43:34.2148125Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:51:11.0080318Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:00:30.5667367Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:01:27.5712803Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:08:28.4769626Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:19:57.8283907Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:24:26.0221985Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T19:28:47.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
