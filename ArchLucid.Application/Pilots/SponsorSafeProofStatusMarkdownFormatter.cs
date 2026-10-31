@@ -132,6 +132,9 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+            yield return SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine();
+
+        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             yield return PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow();
 
         if (proof.RoiBaselineInputs is { ProjectedDollarClaimsSponsorSafe: false })
