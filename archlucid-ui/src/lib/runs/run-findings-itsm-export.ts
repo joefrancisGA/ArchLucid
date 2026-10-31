@@ -17,6 +17,7 @@ import {
   ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY,
 } from "@/lib/architecture/architecture-risk-register-csv";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
+import { parseKnownFindingClassification } from "@/lib/findings/review-detail-findings-classification-band";
 import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
@@ -301,7 +302,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
       trustLabelReason: finding.trustLabelReason ?? null,
-      classification: finding.classification ?? null,
+      classification: parseKnownFindingClassification(finding.classification),
       semanticSupportBand: finding.semanticSupportBand ?? null,
       semanticSupportBandScorerVersion: finding.semanticSupportBandScorerVersion ?? null,
     });

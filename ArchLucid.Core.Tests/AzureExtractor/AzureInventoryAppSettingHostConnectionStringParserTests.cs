@@ -36,6 +36,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_storage_endpoint_with_port_yields_host_without_port()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://starch.blob.core.windows.net:443/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
     public void ParseSettingValues_service_bus_endpoint_with_port_yields_host_including_port()
     {
         const string value =
@@ -98,6 +111,31 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_documents_host_with_fragment_yields_host_without_fragment()
+    {
+        const string value = "https://myaccount.documents.azure.com#fragment/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_blob_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=contoso;BlobEndpoint=https://%63ontoso.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("contoso.blob.core.windows.net");
     }
 
     [Fact]
@@ -3623,6 +3661,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
             AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
 
         parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_endpoint_suffix_with_query_yields_blob_host_without_query_fragment()
+    {
+        const string value =
+            "AccountName=shadow;AccountKey=abc;EndpointSuffix=core.windows.net?region=west";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.blob.core.windows.net");
     }
 
     [Fact]
