@@ -62,10 +62,10 @@ public sealed class MarketingPricingQuoteSalesNotifier(
             return;
         }
 
-        string safeCompany = WebUtility.HtmlEncode(companyName);
-        string safeTier = WebUtility.HtmlEncode(tierInterest);
-        string safeEmail = WebUtility.HtmlEncode(workEmail);
-        string safeMessage = WebUtility.HtmlEncode(message);
+        string safeCompany = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(companyName));
+        string safeTier = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(tierInterest));
+        string safeEmail = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(workEmail));
+        string safeMessage = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(message));
         string textWorkEmail = EmailHeaderFragmentSanitizer.Sanitize(workEmail);
         string textCompany = EmailHeaderFragmentSanitizer.Sanitize(companyName);
         string textTier = EmailHeaderFragmentSanitizer.Sanitize(tierInterest);

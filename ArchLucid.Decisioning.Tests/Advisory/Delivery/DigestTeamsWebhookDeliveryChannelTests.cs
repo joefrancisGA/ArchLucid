@@ -123,6 +123,37 @@ public sealed class DigestTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_preserves_form_feed_in_digest_title_after_html_encode()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Digest.Title = "Sprint\f digest";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+
+        title.Should().Contain("\f");
+    }
+
+    [Fact]
     public async Task SendAsync_WhenPayloadIsNull_ThrowsArgumentNullException()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();

@@ -324,6 +324,36 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.HtmlBody.Should().Contain($"here ({encodedUrl})");
     }
 
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_strips_vertical_tab_from_app_role_in_html_and_text_bodies()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader\u000B",
+            14,
+            personalMessage: null,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.HtmlBody.Should().Contain("Reader");
+        sentMessage.HtmlBody.Should().NotContain("\u000B");
+        sentMessage.TextBody.Should().Contain("Reader");
+        sentMessage.TextBody.Should().NotContain("\u000B");
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptions(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();

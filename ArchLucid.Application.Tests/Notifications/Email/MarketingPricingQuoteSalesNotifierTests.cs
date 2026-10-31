@@ -177,6 +177,40 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task NotifyAsync_strips_form_feed_from_company_and_message_in_html_body()
+    {
+        EmailMessage? captured = null;
+        Mock<IEmailProvider> email = new();
+        email.SetupGet(x => x.ProviderName).Returns(EmailProviderNames.Smtp);
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => captured = message)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptionsMonitor(
+            new EmailNotificationOptions { PricingQuoteSalesInbox = "sales@archlucid.net" });
+
+        MarketingPricingQuoteSalesNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<MarketingPricingQuoteSalesNotifier>.Instance);
+
+        await sut.NotifyAsync(
+            SampleInsert,
+            "buyer@example.com",
+            "Contoso\fLtd",
+            "Team",
+            "Need\fpricing",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.HtmlBody.Should().Contain("Contoso Ltd");
+        captured.HtmlBody.Should().Contain("Need pricing");
+        captured.HtmlBody.Should().NotContain("\f");
+        captured.TextBody.Should().NotContain("\f");
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptionsMonitor(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();

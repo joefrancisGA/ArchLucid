@@ -62,13 +62,14 @@ public sealed class UserInvitationEmailNotifier(
 
         string normalizedAcceptUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(acceptUrl.Trim());
         string? normalizedPersonalMessage = NormalizePersonalMessage(personalMessage);
+        string displayAppRole = EmailHeaderFragmentSanitizer.Sanitize(appRole);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"You're invited to {productName}";
-        string text = BuildTextBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
-        string html = BuildHtmlBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
+        string text = BuildTextBody(productName, normalizedAcceptUrl, displayAppRole, expiryDays, normalizedPersonalMessage);
+        string html = BuildHtmlBody(productName, normalizedAcceptUrl, displayAppRole, expiryDays, normalizedPersonalMessage);
 
         EmailMessage message = new()
         {
