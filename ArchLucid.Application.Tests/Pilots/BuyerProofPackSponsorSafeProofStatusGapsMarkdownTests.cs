@@ -3305,9 +3305,12 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
             buyerSafeGate: gate);
 
-        string prose = PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain;
-        statusSb.ToString().Should().Contain(prose);
         statusSb.ToString().Should().NotContain("classification unavailable");
+
+        statusSb.ToString()
+            .Should()
+            .Contain(SponsorProofReadinessClassifier.DescribeForMarkdownTable(
+                SponsorProofReadinessClassification.Incomplete));
 
         proofSb.ToString()
             .Split('\n')
@@ -3318,7 +3321,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
-    public void Proof_package_readiness_when_stale_sendable_on_proof_but_demo_on_deltas_uses_gate_classify_not_proof_string()
+    public void Sponsor_safe_status_readiness_when_stale_sendable_on_proof_but_demo_on_deltas_uses_gate_classify_not_proof_string()
     {
         ProofPackageCompletenessResponse proof = new()
         {
@@ -3339,6 +3342,15 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             [],
             []);
 
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.NotSponsorSafeYet,
+            gate,
+            proof,
+            deltas,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
@@ -3348,12 +3360,16 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
             buyerSafeGate: gate);
 
-        string row = proofSb.ToString()
+        string statusMd = statusSb.ToString();
+        statusMd.Should().Contain("**DemoOnly**");
+        statusMd.Should().NotContain("**Sendable** — structural proof fields");
+
+        string proofRow = proofSb.ToString()
             .Split('\n')
             .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal));
 
-        row.Should().Contain("**DemoOnly**");
-        row.Should().NotContain("**Sendable**");
+        proofRow.Should().Contain("**DemoOnly**");
+        proofRow.Should().NotContain("**Sendable**");
     }
 
     [Fact]

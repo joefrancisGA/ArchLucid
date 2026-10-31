@@ -42,18 +42,11 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             $"**Structural execution mode:** {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)}");
         sb.AppendLine();
 
-        if (Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification sponsorReadiness))
-        {
-            sb.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.DescribeForMarkdownTable(sponsorReadiness)}");
-        }
-        else
-        {
-            sb.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"**Sponsor-proof readiness:** {PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatSponsorSafeStatusSectionLine()}");
-        }
+        SponsorProofReadinessClassification sponsorReadiness =
+            SponsorProofReadinessClassifier.Classify(deltas, gate);
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.DescribeForMarkdownTable(sponsorReadiness)}");
 
         sb.AppendLine();
         sb.AppendLine(
