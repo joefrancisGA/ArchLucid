@@ -16632,6 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-31 seed hunt (hunt 241, seed→hit): reseeded `application-pilots` after hunt 240; promoted proof-package **Projected dollar claims sponsor-safe** row and sponsor-safe status projected-dollar **Concrete gaps** bullet still reading stale `proof.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe` while sponsor ROI claim gate and first-page narrative use `SponsorRoiClaimDispositionResult.ProjectedDollarClaimsSponsorSafe` (hunts 231–240 family)—stale proof **true** with gate **false** omitted automated gap copy and showed **Yes** in checklist; prefer `roiClaimGate.ProjectedDollarClaimsSponsorSafe` with proof fallback; regression `Concrete_gaps_when_stale_proof_projected_dollar_safe_but_roi_claim_gate_not_uses_gate`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 240 reseed — sendability API mirror monitor retained (by design), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, sufficiency vs heuristic badge monitor retained, mapper cache monitor retained; scoped **260** BuyerProofPack/BoardPack-filter tests passed. Private beta: Projected-dollar sponsor-safe checklist and gap bullets follow the ROI claim gate—not lagging proof baseline inputs alone.
+
+- [x] (proven) `FirstValueReportProofPackageSectionFormatter` / `SponsorSafeProofStatusMarkdownFormatter` — projected dollar sponsor-safe vs roi claim gate — **hit 2026-10-31 seed hunt (hunt 241):** `roiClaimGate.ProjectedDollarClaimsSponsorSafe`; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingTrustEvidenceCardMarkdownFormatter` — sendability API mirror vs gate — **cheap-disproof 2026-10-31 seed hunt (hunt 241):** API checklist mirror by design; monitor retained.
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — per-field basis inline-code — **cheap-disproof 2026-10-31 seed hunt (hunt 241):** monitor retained.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown vs PDF quoting — **cheap-disproof 2026-10-31 seed hunt (hunt 241):** monitor retained.
+- [x] (valid-no-repro) `TopFindingEvidenceSufficiencyClassifier` — heuristic badge without Estimate path — **cheap-disproof 2026-10-31 seed hunt (hunt 241):** monitor retained.
+- [x] (valid-no-repro) `PilotProofPackageCompletenessMapper` — cached completeness JSON monitor — **cheap-disproof 2026-10-31 seed hunt (hunt 241):** builder rebuild path; monitor retained.
+
+- (candidate) `FindingTrustEvidenceCardMarkdownFormatter` — evidence card **Buyer-safe proof sendability (API checklist)** mirrors only `ProofPackageCompletenessResponse` while sponsor-safe disposition derives from `PilotBuyerSafeEvidenceGateEvaluator` — locus: `FormatProofSendabilityMirrorCell(proof)`; input: API DTO `Sendable` with demo-tenant deltas contradicting gate `NotSendable` (monitor).
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — locus: computed deltas surfaces; input: monitor.
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — projected dollar disposition PASS/WARN/HOLD vs proof-package row when stale inputs object — locus: `DescribeProjectedDollarDisposition`; input: monitor.
+- (candidate) `SponsorFirstValuePdfGate` — PDF gate projected-dollar block vs roi claim gate when stale proof inputs — locus: `EnsureCanGenerate`; input: monitor.
+
 2026-10-31 seed hunt (hunt 240, seed→hit): reseeded `application-pilots` after hunt 239; promoted `SponsorEvidenceBasisLabelResolver.ResolveLabels` **Estimate** label still keyed off stale `proof.RoiEvidenceConfidence` while proof checklist and sponsor status use `SponsorRoiClaimDispositionResult` (hunts 231–239 family)—stale proof **Strong** with gate **Low** emitted **Evidence-backed** only in proof-package **Evidence-basis labels**, **Evidence basis** verdict, and top-finding evidence card; thread optional `roiClaimGate` through resolver, proof-package formatter, verdict formatter, evidence card, and `TopFindingEvidenceSufficiencyClassifier` (treat **Estimate** as low sufficiency); regression `ResolveLabels_when_stale_proof_strong_but_roi_claim_gate_low_includes_estimate`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 239 reseed — sendability API mirror monitor retained (by design), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, whitespace-only freshness monitor retained, ROI catalog cross-surface monitor retained; scoped **264** BuyerProofPack/BoardPack-filter tests passed. Private beta: Evidence-basis labels and top-finding sufficiency follow ROI claim gate posture—not lagging proof confidence alone.
 
 - [x] (proven) `SponsorEvidenceBasisLabelResolver.ResolveLabels` — Estimate label vs roi claim gate — **hit 2026-10-31 seed hunt (hunt 240):** `roiClaimGate.EvidenceConfidence`; regression above. [class:fail-open-validation]
@@ -18951,11 +18966,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 82
-- **bugs-found:** 60
+- **hunts:** 83
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — evidence-basis Estimate label vs roi claim gate
+- **last-bug:** 2026-10-31 — projected dollar sponsor-safe vs roi claim gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
