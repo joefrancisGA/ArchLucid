@@ -2167,3 +2167,4 @@
 {"at":"2026-10-31T16:24:07.7155230Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:27:26.6163292Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:29:44.6070648Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-31T16:31:30.1241512Z","zoneId":"ui-host-gate","outcome":"seed-only","productLine":"archlucid-shared"}

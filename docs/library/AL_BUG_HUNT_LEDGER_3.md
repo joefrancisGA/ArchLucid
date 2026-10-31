@@ -2336,6 +2336,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
+
 **Hunts:** 15 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
 
 2026-10-30 seed hunt #107 (seed-only): repeated the host-gate source review and focused regression suite after the prior seed-only pass; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
@@ -2428,7 +2430,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
