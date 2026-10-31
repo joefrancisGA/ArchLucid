@@ -64,9 +64,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             sb.AppendLine(CultureInfo.InvariantCulture, $"- {bullet}");
 
         sb.AppendLine();
-        sb.AppendLine(
-            CultureInfo.InvariantCulture,
-            $"**Gate mirrors (structured):** ProofSendability = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.ProofSendability.ToString())}** · Publishing tier = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.PublishingTier.ToString())}** · Evidence completeness = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.EvidenceCompleteness ?? string.Empty)}**.");
+        sb.AppendLine(PilotSponsorSafeSendableAllClearHonestyCopy.FormatGateMirrorsStructuredMarkdownLine(proof));
         sb.AppendLine();
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable

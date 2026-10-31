@@ -657,4 +657,75 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .Contain(prose);
     }
+
+    [Fact]
+    public void Gate_mirrors_when_sendable_matches_proof_package_sendability_mirror_suffix()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AuditRowCount = 3,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            SynthesizedArtifactDescriptorCount = 1,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            CommittedManifestTimestampResolved = true,
+            RunInCommittedStatus = true,
+            ArtifactDescriptorCount = 1,
+            ArtifactDescriptorCountResolved = true,
+            TimeToCommittedManifestResolved = true,
+            TopFindingEvidenceChainPresentOrNotApplicable = true,
+            AuditRowsPresentOrLowerBound = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+            PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Complete,
+            ProofPackageSendability.Sendable,
+            [],
+            [],
+            []);
+
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.Sendable,
+            gate,
+            proof,
+            deltas,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: new GoldenManifest { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string mirrorCell = PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(proof);
+        string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
+
+        statusSb.ToString().Should().Contain("**Gate mirrors (structured):**");
+        statusSb.ToString().Should().Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(mirrorCell);
+
+        statusSb.ToString().Should().Contain("`Sendable`");
+        statusSb.ToString().Should().Contain("`Complete`");
+    }
 }
