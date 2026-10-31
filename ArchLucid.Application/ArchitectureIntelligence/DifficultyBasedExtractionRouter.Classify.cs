@@ -16,6 +16,7 @@ public sealed partial class DifficultyBasedExtractionRouter
         "hipaa",
         "ccpa",
         "soc 2",
+        "soc-2",
         "pci",
         "pci-dss",
         "iso 27001",
@@ -172,6 +173,17 @@ public sealed partial class DifficultyBasedExtractionRouter
                 continue;
             }
 
+            if (needle[needleIndex] == '-')
+            {
+                if (position >= text.Length || !MatchesAsciiHyphenNeedle(text[position]))
+                {
+                    return false;
+                }
+
+                position++;
+                continue;
+            }
+
             if (position >= text.Length
                 || char.ToUpperInvariant(text[position]) != char.ToUpperInvariant(needle[needleIndex]))
             {
@@ -184,6 +196,9 @@ public sealed partial class DifficultyBasedExtractionRouter
         matchLength = position - startIndex;
         return true;
     }
+
+    private static bool MatchesAsciiHyphenNeedle(char c) =>
+        c == '-' || c == '\u2011';
 
     private static bool ContainsAny(string sourceText, params string[] needles)
     {
