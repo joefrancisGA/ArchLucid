@@ -205,7 +205,8 @@ public static partial class AzureInventoryAppSettingHostRedactor
     internal static string StripDecodedInventoryHostPathSeparators(string decoded)
     {
         return decoded.Replace("\\", string.Empty, StringComparison.Ordinal)
-            .Replace("/", string.Empty, StringComparison.Ordinal);
+            .Replace("/", string.Empty, StringComparison.Ordinal)
+            .Replace("?", string.Empty, StringComparison.Ordinal);
     }
 
     private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
@@ -274,7 +275,8 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return (null, null);
         }
 
-        string vaultName = vaultNameMatch.Groups["vault"].Value.Trim().ToLowerInvariant();
+        string vaultNameRaw = vaultNameMatch.Groups["vault"].Value.Trim();
+        string vaultName = vaultNameRaw.ToLowerInvariant();
         string vaultNameSecret = vaultNameMatch.Groups["secret"].Value.Trim();
 
         if (string.IsNullOrWhiteSpace(vaultName) || string.IsNullOrWhiteSpace(vaultNameSecret))
@@ -286,6 +288,11 @@ public static partial class AzureInventoryAppSettingHostRedactor
             || vaultName.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase)
             ? vaultName
             : $"{vaultName}.vault.azure.net";
+
+        if (ShouldNormalizeKeyVaultSecretUriHost(vaultNameRaw))
+        {
+            resolvedVaultHost = NormalizeHttpsInventoryHost(resolvedVaultHost);
+        }
 
         return (resolvedVaultHost, vaultNameSecret);
     }
