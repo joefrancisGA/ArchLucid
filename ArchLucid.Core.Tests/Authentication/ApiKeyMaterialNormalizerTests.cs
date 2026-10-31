@@ -90,6 +90,15 @@ public sealed class ApiKeyMaterialNormalizerTests
     }
 
     [Fact]
+    public void Normalize_compose_nfd_key_material_to_nfc_before_invisible_char_stripping()
+    {
+        const string nfc = "architecture-caf\u00e9-key";
+        const string nfd = "architecture-cafe\u0301-key";
+
+        ApiKeyMaterialNormalizer.Normalize(nfd).Should().Be(ApiKeyMaterialNormalizer.Normalize(nfc));
+    }
+
+    [Fact]
     public void Normalize_preserves_case_for_non_hex_key_material()
     {
         ApiKeyMaterialNormalizer.Normalize("api-key-bdr-Admin-aB3x").Should().Be("api-key-bdr-Admin-aB3x");

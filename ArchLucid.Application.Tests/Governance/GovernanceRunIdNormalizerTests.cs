@@ -35,4 +35,16 @@ public sealed class GovernanceRunIdNormalizerTests
             .Should()
             .BeTrue("ApiKeyMaterialNormalizer strips format characters used in pasted run-id fields");
     }
+
+    [Fact]
+    public void AreEquivalent_treats_nfc_and_nfd_opaque_run_ids_as_equivalent()
+    {
+        const string nfc = "architecture-caf\u00e9-key";
+        const string nfd = "architecture-cafe\u0301-key";
+
+        GovernanceRunIdNormalizer
+            .AreEquivalent(nfc, nfd)
+            .Should()
+            .BeTrue("bulk simulate dedupes opaque ids with GovernanceRunIdNormalizer.AreEquivalent");
+    }
 }
