@@ -325,6 +325,27 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
         identity.FindFirst("tenant_id").Should().BeNull();
     }
 
+    [Fact]
+    public void Apply_promotes_workspace_id_when_inbound_tenant_source_is_absent()
+    {
+        Guid workspaceId = Guid.NewGuid();
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/workspace", workspaceId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+            });
+
+        identity.FindFirst("workspace_id")!.Value.Should().Be(workspaceId.ToString("D"));
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
     private static ClaimsIdentity CreateSamlIdentity(params Claim[] claims) =>
         new(claims, Saml2Constants.AuthenticationScheme);
 }

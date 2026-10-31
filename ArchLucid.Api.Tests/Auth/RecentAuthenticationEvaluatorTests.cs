@@ -228,6 +228,25 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long authTime = now.AddMinutes(-maxAgeMinutes).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [new Claim("auth_time", authTime.ToString(System.Globalization.CultureInfo.InvariantCulture))],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip()
     {
         long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -248,5 +267,10 @@ public sealed class RecentAuthenticationEvaluatorTests
         ClaimsPrincipal principal = new(new ClaimsIdentity(roundTripped.Claims, "Bearer"));
 
         Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }
