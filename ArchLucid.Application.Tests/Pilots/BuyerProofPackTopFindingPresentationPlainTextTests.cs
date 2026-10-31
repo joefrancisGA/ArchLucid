@@ -34,4 +34,17 @@ public sealed class BuyerProofPackTopFindingPresentationPlainTextTests
             .Should()
             .Be("Selected finding: Subnet drift (severity 'O''Brien').");
     }
+
+    [Fact]
+    public void Selected_finding_plain_line_when_severity_whitespace_only_uses_not_stored_copy()
+    {
+        PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingPlainLine(
+                new PilotRunDeltas
+                {
+                    TopFindingTitle = "Gap",
+                    TopFindingSeverity = "   ",
+                })
+            .Should()
+            .Contain(PilotTopFindingPresentationHonestyCopy.SeverityNotStored);
+    }
 }

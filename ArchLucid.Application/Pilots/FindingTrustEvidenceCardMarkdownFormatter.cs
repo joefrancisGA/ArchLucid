@@ -46,7 +46,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"| Finding id | {FormatInlineCodeCell(string.IsNullOrWhiteSpace(deltas.TopFindingId) ? "Finding id was not stored." : deltas.TopFindingId.Trim())} |");
         sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Severity (selected for excerpt) | {FormatInlineCodeCell(deltas.TopFindingSeverity ?? "Severity was not stored.")} |");
+            $"| Severity (selected for excerpt) | {FormatInlineCodeCell(PilotTopFindingPresentationHonestyCopy.ResolveTopFindingSeverity(deltas))} |");
 
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 

@@ -23,6 +23,19 @@ public sealed class BuyerProofPackTopFindingPresentationMarkdownTests
     }
 
     [Fact]
+    public void Selected_finding_line_when_severity_empty_uses_not_stored_copy()
+    {
+        PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingMarkdownLine(
+                new PilotRunDeltas
+                {
+                    TopFindingTitle = "Gap",
+                    TopFindingSeverity = string.Empty,
+                })
+            .Should()
+            .Contain(PilotTopFindingPresentationHonestyCopy.SeverityNotStored);
+    }
+
+    [Fact]
     public void Evidence_chain_excerpt_when_title_contains_backtick_preserves_selected_finding_line()
     {
         System.Text.StringBuilder sb = new();

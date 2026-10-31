@@ -91,6 +91,23 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
         cardSb.ToString().Should().NotContain("no top-severity evidence card");
     }
 
+    [Fact]
+    public void Evidence_card_when_severity_empty_uses_not_stored_copy()
+    {
+        StringBuilder sb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingTitle = "Gap",
+                TopFindingSeverity = "",
+            },
+            MinimalProof());
+
+        sb.ToString().Should().Contain(PilotTopFindingPresentationHonestyCopy.SeverityNotStored);
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {
