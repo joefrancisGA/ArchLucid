@@ -151,6 +151,14 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_hashset_without_body_parameter()
+    {
+        HashSet<string> ids = new(StringComparer.Ordinal) { null! };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(ids).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_batch_array_with_body_parameter()
     {
         ArchitectureRequest?[] requests = [null];

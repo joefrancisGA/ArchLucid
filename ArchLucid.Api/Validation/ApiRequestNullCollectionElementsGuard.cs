@@ -100,7 +100,9 @@ public static class ApiRequestNullCollectionElementsGuard
                 || genericDefinition == typeof(IList<>)
                 || genericDefinition == typeof(IReadOnlyList<>)
                 || genericDefinition == typeof(ICollection<>)
-                || genericDefinition == typeof(List<>))
+                || genericDefinition == typeof(List<>)
+                || genericDefinition == typeof(ISet<>)
+                || genericDefinition == typeof(HashSet<>))
             {
                 return type.GetGenericArguments()[0];
             }
@@ -131,7 +133,9 @@ public static class ApiRequestNullCollectionElementsGuard
                || genericDefinition == typeof(IList<>)
                || genericDefinition == typeof(IReadOnlyList<>)
                || genericDefinition == typeof(ICollection<>)
-               || genericDefinition == typeof(IEnumerable<>);
+               || genericDefinition == typeof(IEnumerable<>)
+               || genericDefinition == typeof(ISet<>)
+               || genericDefinition == typeof(HashSet<>);
     }
 
     private static bool TryVisitRootBodyCollection(
