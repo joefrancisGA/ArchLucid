@@ -5,6 +5,7 @@ import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/whe
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 const tabValue: { current: string | null } = { current: null };
+const unstableQueryRender = vi.hoisted(() => ({ calls: 0, ruleCount: 1 }));
 const push = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -72,12 +73,19 @@ vi.mock(
 );
 
 vi.mock("@/components/alerts/use-alert-rules-hub-queries", () => ({
-  useAlertRulesListQuery: () => ({
-    items: [{ id: "rule-1" }],
-    loading: false,
-    failure: null,
-    refresh: vi.fn(async () => undefined),
-  }),
+  useAlertRulesListQuery: () => {
+    if (++unstableQueryRender.calls > 30) {
+      throw new Error("AlertRulesHubTabCountsBootstrap query identity render loop");
+    }
+    return {
+      items: Array.from({ length: unstableQueryRender.ruleCount }, (_, index) => ({
+        id: `rule-${index + 1}`,
+      })),
+      loading: false,
+      failure: null,
+      refresh: vi.fn(async () => undefined),
+    };
+  },
   useAlertRoutingSubscriptionsQuery: () => ({
     items: [],
     loading: false,
@@ -110,6 +118,19 @@ describe("AlertRulesHubClient buyer-polished shell (SAX)", () => {
   beforeEach(() => {
     push.mockReset();
     tabValue.current = "test-alerts";
+    unstableQueryRender.calls = 0;
+    unstableQueryRender.ruleCount = 1;
+  });
+
+  it("stays bounded on fresh-but-equivalent query arrays and reacts to a changed count", () => {
+    const view = render(<AlertRulesHubClient />);
+    expect(unstableQueryRender.calls).toBeLessThanOrEqual(30);
+    expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("(1)");
+
+    unstableQueryRender.ruleCount = 2;
+    view.rerender(<AlertRulesHubClient />);
+    expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("(2)");
+    expect(unstableQueryRender.calls).toBeLessThanOrEqual(30);
   });
 
   it("renders skip link, workspace before follow-ups, buyer subtitle, and hides contextual help", () => {
