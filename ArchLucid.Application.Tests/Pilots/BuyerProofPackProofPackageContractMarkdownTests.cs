@@ -329,4 +329,48 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         timeRow.Should().Contain(prose);
         timeRow.Should().NotContain("Not present on this run.");
     }
+
+    [Fact]
+    public void Proof_package_time_to_commit_cell_when_wall_clock_present_matches_computed_deltas_cell()
+    {
+        DateTime committed = new(2026, 3, 1, 12, 0, 0, DateTimeKind.Utc);
+        PilotRunDeltas deltas = new()
+        {
+            TimeToCommittedManifest = TimeSpan.FromHours(2),
+            ManifestCommittedUtc = committed,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                TimeToCommittedManifestResolved = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            deltas with { FindingsBySeverity = [], LlmCallCountResolved = true, AuditRowCountResolved = true });
+
+        string expectedCell = PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
+        string timeRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .TrimEnd();
+        string computedRow = computedSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        timeRow.Should().Contain(expectedCell);
+        computedRow.Should().Contain(expectedCell);
+        timeRow.Should().NotContain("| Present |");
+    }
 }

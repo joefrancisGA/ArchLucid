@@ -101,7 +101,7 @@ public static class FirstValueReportProofPackageSectionFormatter
 
         if (c.TimeToCommittedManifestResolved)
         {
-            return FormatProofStatus(true);
+            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
         }
 
         return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
