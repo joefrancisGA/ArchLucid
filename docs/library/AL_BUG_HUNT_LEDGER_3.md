@@ -9382,6 +9382,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed→hit): promoted `scheduleScrollToReviewDetailSection` — a deferred review section mounting after the scheduler's fixed eight retries (400ms) was never scrolled into view, leaving a valid review hash deep link at the top of the workspace; extend the bounded retry window to cover slow deferred imports. Regression `keeps retrying until a deferred review section mounts`; the baseline failed 1/4 and the focused workspace suite passed 48/48 after the fix. Private beta: invited architects following a deep link into a deferred review section can now reach the requested evidence or findings content even when its client chunk loads slowly.
+
+- [x] (proven) `scheduleScrollToReviewDetailSection` — deferred review sections mounting after the fixed eight retries were never scrolled into view — **hit 2026-10-31 seed hunt:** extended the bounded retry window from 400ms to 2s; regression `keeps retrying until a deferred review section mounts`.
+
 2026-10-31 seed hunt (seed→hit): promoted `RunDetailReviewPackageStampViewport` — the sealed `hasGoldenManifest && feasibilityVerdict !== null` branch omitted `runId` when rendering `RunDetailFirstReviewSpineBand`, so an open decision-grade finding rendered “Review id was not stored.” instead of the Findings next-action link; pass the review id through the sealed stamp. Regression `keeps the findings next-action link on the sealed stamp`; focused regression passed 1/1. The full viewport file had one unrelated test-drift failure for the measurement-copy assertion. Private beta: invited architects viewing a finalized review package with open decision-grade findings can now follow the disposition action into that review’s Findings tab instead of seeing “Review id was not stored.”
 
 - [x] (proven) `RunDetailReviewPackageStampViewport` — sealed package stamps dropped `runId` when rendering the first-review spine, so disposition actions could not link to the review Findings tab; pass `runId={props.runId}` through the sealed branch; regression `keeps the findings next-action link on the sealed stamp`.
@@ -9419,7 +9423,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only, cooldown fallback): reread `RunDetailSectionNav`, the deferred tabbed workspace shell, and `useReviewDetailWorkspaceTabs`; workspace URL-sync, tabbed-shell, and evidence-panel tests passed 10/10. The sticky-offset assertion in `RunDetailSectionNav.test.tsx` remains test/setup drift because the shared workspace-mode mock resolves guided eval chrome despite the test’s operator environment override. Seeded one bounded deferred-section retry candidate and made no production change.
 
-- [ ] (candidate) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window is never scrolled into view — locus: `lib/review-detail-section-scroll.ts`; input: a review deep link/hash to a below-fold deferred section while its dynamic chunk takes longer than 400ms to mount; wrong outcome: the operator lands on the review page but the requested section remains unscrolled; reachability: `RunDetailSectionNav` and workspace hash navigation call the scheduler for sections rendered by deferred tabbed-workspace imports.
+- [x] (proven) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window was never scrolled into view — **hit 2026-10-31 seed hunt:** extended the bounded retry window to 40 attempts (2s); regression `keeps retrying until a deferred review section mounts`.
 
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
@@ -10000,11 +10004,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 52
-- **bugs-found:** 38
+- **hunts:** 53
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — sealed review package stamp dropped run id from findings disposition action
+- **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

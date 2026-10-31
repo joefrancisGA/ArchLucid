@@ -49,7 +49,10 @@ export function scrollToReviewDetailSection(sectionId: string): boolean {
 export function scheduleScrollToReviewDetailSection(sectionId: string, attempt = 0): void {
   const scrolled = scrollToReviewDetailSection(sectionId);
 
-  if (scrolled || attempt >= 8) {
+  // Deferred review sections can arrive after the initial 400 ms retry window
+  // while their client chunk is still loading. Keep the retry window bounded,
+  // but long enough to cover a slow deferred import.
+  if (scrolled || attempt >= 40) {
     return;
   }
 
