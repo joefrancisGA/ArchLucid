@@ -456,6 +456,24 @@ public sealed class ScopeIdentityBindingValidatorTests
         result.FailureMessage.Should().Contain("x-tenant-id");
     }
 
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_saml2_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("workspace_id", Guid.NewGuid().ToString("D"))],
+                "saml2"))
+        };
+        http.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "saml2");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-tenant-id");
+    }
+
     [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_development_bypass_auth_type()
     {

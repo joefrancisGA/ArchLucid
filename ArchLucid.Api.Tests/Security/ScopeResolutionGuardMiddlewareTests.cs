@@ -414,6 +414,57 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_openapi_prefix_path()
+    {
+        DefaultHttpContext context = CreateContext("/openapi%2Fv1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /openapi prefix skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_even_when_project_scope_uses_default()
+    {
+        Guid tenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspace = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        DefaultHttpContext context = CreateContext("/openapi/v1.json");
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", tenant.ToString("D")),
+                new Claim("workspace_id", workspace.ToString("D")),
+            ],
+            "Bearer"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "contract-probe skips run before TB-304 even when project scope is still default");
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
     {
         DefaultHttpContext context = CreateContext("/openapifoo");
