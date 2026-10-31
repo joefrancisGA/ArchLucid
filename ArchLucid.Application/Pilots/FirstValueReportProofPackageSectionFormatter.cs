@@ -36,7 +36,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
-        sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
+        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");
         sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
@@ -90,6 +90,21 @@ public static class FirstValueReportProofPackageSectionFormatter
         DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
         return
             $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(committedUtc.ToString("O", CultureInfo.InvariantCulture))} ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.Metadata.CreatedUtc")}).";
+    }
+
+    private static string FormatTimeToCommittedManifestProofCell(
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse c)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(c);
+
+        if (c.TimeToCommittedManifestResolved)
+        {
+            return FormatProofStatus(true);
+        }
+
+        return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
     }
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)

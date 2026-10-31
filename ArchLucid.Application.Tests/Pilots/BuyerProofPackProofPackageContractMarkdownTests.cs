@@ -285,4 +285,48 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         row.Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain);
         row.Should().NotContain("Not applicable — no findings on this run.");
     }
+
+    [Fact]
+    public void Proof_package_time_to_commit_cell_when_wall_clock_missing_matches_computed_deltas_prose()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TimeToCommittedManifest = null,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+                TimeToCommittedManifestResolved = false,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            computedSb,
+            new PilotRunDeltas
+            {
+                TimeToCommittedManifest = null,
+                FindingsBySeverity = [],
+                LlmCallCountResolved = true,
+                AuditRowCountResolved = true,
+            });
+
+        string prose = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+        proofSb.ToString().Should().Contain(prose);
+        computedSb.ToString().Should().Contain(prose);
+        string timeRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .TrimEnd();
+        timeRow.Should().Contain(prose);
+        timeRow.Should().NotContain("Not present on this run.");
+    }
 }
