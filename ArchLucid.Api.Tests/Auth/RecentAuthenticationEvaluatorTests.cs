@@ -114,6 +114,21 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_a_later_parseable_iat_claim_is_used_even_if_first_is_garbage_without_auth_time()
+    {
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, "garbage"));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, fresh.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable()
     {
         long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -193,6 +208,178 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_clamps_negative_max_age_minutes_to_one()
+    {
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        long authTime = now.AddSeconds(-30).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [new Claim("auth_time", authTime.ToString(System.Globalization.CultureInfo.InvariantCulture))],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System,
+                maxAgeMinutes: -5));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_auth_time_is_one_second_past_max_age_boundary()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        long authTime = now.AddMinutes(-maxAgeMinutes).AddSeconds(-1).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [new Claim("auth_time", authTime.ToString(System.Globalization.CultureInfo.InvariantCulture))],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System,
+                maxAgeMinutes));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_stale_iat_is_present_without_auth_time()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long staleIat = now.AddMinutes(-(maxAgeMinutes + 1)).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, staleIat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long freshIat = now.AddMinutes(-(maxAgeMinutes - 1)).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, freshIat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_only_iat_is_exactly_at_max_age_boundary_without_auth_time()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long iat = now.AddMinutes(-maxAgeMinutes).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, iat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_iat_is_one_second_past_max_age_boundary_without_auth_time()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long staleIat = now.AddMinutes(-maxAgeMinutes).AddSeconds(-1).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, staleIat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time()
+    {
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long futureIat = now.AddHours(1).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, futureIat.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_unparseable_iat_is_present_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, "not-a-number"),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary()
+    {
+        const int maxAgeMinutes = 15;
+        DateTimeOffset now = new(2026, 6, 1, 12, 0, 0, TimeSpan.Zero);
+        FixedUtcTimeProvider clock = new(now);
+        long authTime = now.AddMinutes(-maxAgeMinutes).ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new(
+            [new Claim("auth_time", authTime.ToString(System.Globalization.CultureInfo.InvariantCulture))],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                clock,
+                maxAgeMinutes));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip()
     {
         long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -213,5 +400,10 @@ public sealed class RecentAuthenticationEvaluatorTests
         ClaimsPrincipal principal = new(new ClaimsIdentity(roundTripped.Claims, "Bearer"));
 
         Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }
