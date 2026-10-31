@@ -223,7 +223,11 @@ public static partial class AzureInventoryAppSettingHostRedactor
                || vaultHost.Contains("%252523", StringComparison.OrdinalIgnoreCase)
                || vaultHost.Contains("%25252f", StringComparison.OrdinalIgnoreCase)
                || vaultHost.Contains("%25255c", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%25253f", StringComparison.OrdinalIgnoreCase);
+               || vaultHost.Contains("%25253f", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%25252523", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%2525252f", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%2525255c", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%2525253f", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string DecodeInventoryHostPercentEncoding(string value)
