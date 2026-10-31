@@ -96,6 +96,22 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
         act.Should().Throw<ArgumentException>();
     }
 
+    [SkippableFact]
+    public void IssueAccessToken_throws_when_role_is_whitespace_only()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        Action act = () => issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "   ",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        act.Should().Throw<ArgumentException>();
+    }
+
     public void Dispose()
     {
         if (File.Exists(_privatePemPath))
