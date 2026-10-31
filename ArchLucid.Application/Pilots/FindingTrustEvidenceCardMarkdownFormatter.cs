@@ -153,17 +153,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         return id is null ? missingValue : id.Value.ToString("D");
     }
 
-    private static string FormatSponsorProofReadiness(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return "Sponsor-proof readiness was not stored.";
-        }
-
-        return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
-            ? $"**{readiness}**"
-            : $"**Unrecognized** — persisted value {FormatInlineCodeCell(value.Trim())} is not a known classification.";
-    }
+    private static string FormatSponsorProofReadiness(string? value) =>
+        PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(value);
 
     private static string FormatInlineCodeCell(string value)
         => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);

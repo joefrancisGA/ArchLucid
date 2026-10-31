@@ -1,7 +1,9 @@
 using System.Text;
 
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -33,7 +35,7 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
     }
 
     [Fact]
-    public void Evidence_card_when_unrecognized_readiness_contains_backtick_preserves_inline_code()
+    public void Evidence_card_when_unrecognized_readiness_matches_proof_package_unresolved_copy()
     {
         StringBuilder sb = new();
         PilotRunDeltas deltas = new()
@@ -52,7 +54,25 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("``tier`broken``");
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun
+            {
+                RunId = "r1",
+                Status = ArchitectureRunStatus.Committed,
+            });
+
+        string prose = PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain;
+        sb.ToString().Should().Contain(prose);
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
     }
 
     [Fact]

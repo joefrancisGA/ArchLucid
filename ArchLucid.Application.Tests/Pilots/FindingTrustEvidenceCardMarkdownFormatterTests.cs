@@ -127,11 +127,12 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("**Missing**");
+        sb.ToString().Should().Contain("**Insufficient**");
+        sb.ToString().Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse);
     }
 
     [Fact]
-    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_PreservesPersistedValue()
+    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_UsesSharedUnresolvedCopy()
     {
         StringBuilder sb = new();
         PilotRunDeltas deltas = new()
@@ -149,10 +150,8 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        string md = sb.ToString();
-        md.Should().Contain("**Unrecognized**");
-        md.Should().Contain("`not-a-classification`");
-        md.Should().NotContain("Sponsor-proof readiness was not stored.");
+        sb.ToString().Should().Contain(PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain);
+        sb.ToString().Should().NotContain("**Unrecognized**");
     }
 
     [Fact]
@@ -192,7 +191,7 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("Sponsor-proof readiness was not stored.");
+        sb.ToString().Should().Contain(PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain);
     }
 
     private static ProofPackageCompletenessResponse MinimalProof() =>
