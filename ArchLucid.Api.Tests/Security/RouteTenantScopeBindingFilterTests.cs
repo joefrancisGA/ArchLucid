@@ -344,6 +344,32 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_n_format_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantA.ToString("N"),
+            "/v1/value-report/" + TenantA.ToString("N") + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+        executing.Result.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_allow_anonymous_metadata_skips_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

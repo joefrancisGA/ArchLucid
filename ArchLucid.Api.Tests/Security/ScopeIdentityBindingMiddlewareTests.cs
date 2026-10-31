@@ -506,6 +506,42 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer()
+    {
+        Guid tokenTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/SCIM/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.Request.Headers["x-tenant-id"] = tokenTenant.ToString("D");
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", tokenTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+        authentication.Verify(
+            service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_scim_path_without_authentication_service_calls_next()
     {
         DefaultHttpContext context = CreateContext();

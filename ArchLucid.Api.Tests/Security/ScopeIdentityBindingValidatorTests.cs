@@ -323,6 +323,26 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void Validate_allows_tenant_header_when_first_segment_unparseable_and_second_matches_claim()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", tenantId.ToString("D"))],
+                "Bearer"))
+        };
+        http.Request.Headers.Append("x-tenant-id", "not-a-guid");
+        http.Request.Headers.Append("x-tenant-id", tenantId.ToString("D"));
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_when_find_first_tenant_claim_unparseable()
     {
         Guid steeredTenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
