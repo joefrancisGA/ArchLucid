@@ -105,7 +105,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Support run id missing — this export cannot be anchored to a persisted architecture review identity.";
 
         if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
-            yield return "No committed architecture manifest or run is not Committed — there is nothing sponsor-complete to ship yet.";
+            yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();

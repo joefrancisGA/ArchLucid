@@ -33,7 +33,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine(
             $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(c.DemoTenantWarningRequired)} |");
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
-        sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
+        sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(c)} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");

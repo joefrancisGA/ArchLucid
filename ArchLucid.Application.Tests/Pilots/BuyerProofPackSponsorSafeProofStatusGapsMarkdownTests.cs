@@ -284,4 +284,43 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         proofSb.ToString().Should().Contain(failed);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_manifest_or_status_missing_matches_proof_package_row()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Created })
+            .ToList();
+
+        string prose = PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        gaps.Should().Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Created });
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Committed manifest + status |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(prose);
+        row.Should().NotContain("Not present on this run.");
+    }
 }
