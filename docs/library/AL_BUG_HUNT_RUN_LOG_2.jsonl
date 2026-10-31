@@ -2249,3 +2249,4 @@
 {"at":"2026-10-31T00:09:33.8650805Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T00:12:34.1956174Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T00:22:44.9625459Z","zoneId":"api-request-null-collection-elements","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-31T00:29:12.7059250Z","zoneId":"api-request-null-collection-elements","outcome":"dry","productLine":"archlucid-shared"}
