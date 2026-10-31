@@ -3109,6 +3109,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` was **2/3** before this hunt — below `minLowYieldStreak` 3); cooldown fallback kept saturated `ui-oidc` selected. Reread BFF session sync optional token field trimming, working-mode gating on refresh/activity posts, `initiateOidcRedirect` abandoned return-url cleanup vs idle-desk restore, and authorize-retry return-path snapshot consumption before PKCE storage. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034**. No production code changed. Rotation should apply `-AvoidZoneId ui-oidc` on the next default Set 3 invocation (third consecutive `ui-oidc` seed-only recorded).
+
 2026-10-31 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **2/3** after prior seed-only — below `minLowYieldStreak` 3); cooldown fallback kept saturated `ui-oidc` selected. Reread PKCE verifier/challenge generation, opaque OAuth state/nonce normalization (`normalizeOidcOpaqueOAuthString`), numeric hint edge stripping without merging interior ZWSP digits, and authorize callback error-code collapse before humanization. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed. Rotation is eligible on the next Set 3 invocation when the third consecutive `ui-oidc` seed-only lands.
 
 2026-10-31 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-review-detail-workspace` is **1/3** after prior seed-only — below `minLowYieldStreak` 3); cooldown fallback kept saturated `ui-oidc` selected. Reread `ensureAccessTokenFresh` BFF refresh when identity hints exist without access token, session-generation invalidation during in-flight refresh, `persistTokenResponse` access-token trim before BFF sync, and authorize-callback `error`/`error_description` readable-detail guards. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `src/lib/oidc` tests passed **1030/1030**. No production code changed.
@@ -6191,7 +6193,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
