@@ -2871,6 +2871,28 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectClassification_parses_pascal_case_typed_payload_property()
+    {
+        using JsonDocument document = JsonDocument.Parse("{\"Classification\":\"ChecklistCoverage\"}");
+        JsonElement? typed = document.RootElement.Clone();
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_parses_numeric_string_typed_payload_after_leading_invisible_format_characters()
+    {
+        using JsonDocument document = JsonDocument.Parse("{\"treatment\":\"\\u200B1\"}");
+        JsonElement? typed = document.RootElement.Clone();
+
+        FindingTreatment? treatment = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed);
+
+        treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+    }
+
+    [Fact]
     public void ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters()
     {
         JsonElement? typed = JsonSerializer.SerializeToElement(new { treatment = "\u200BDemoteToChecklist" });

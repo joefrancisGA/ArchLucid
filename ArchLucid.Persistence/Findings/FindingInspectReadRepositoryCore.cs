@@ -305,6 +305,31 @@ internal static class FindingInspectReadRepositoryCore
         return ResolveSemanticSupportBandFromTypedPayload(typedPayload);
     }
 
+    private static bool TryGetTypedPayloadProperty(
+        JsonElement payload,
+        string propertyName,
+        out JsonElement value)
+    {
+        if (payload.TryGetProperty(propertyName, out value))
+        {
+            return true;
+        }
+
+        foreach (JsonProperty property in payload.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
+    }
+
     private static FindingClassification? ResolveClassificationFromTypedPayload(JsonElement? typedPayload)
     {
         if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
@@ -312,7 +337,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("classification", out JsonElement classificationElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "classification", out JsonElement classificationElement))
         {
             return null;
         }
@@ -347,7 +372,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("treatment", out JsonElement treatmentElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "treatment", out JsonElement treatmentElement))
         {
             return null;
         }
@@ -382,7 +407,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("semanticSupportBand", out JsonElement bandElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "semanticSupportBand", out JsonElement bandElement))
         {
             return null;
         }
