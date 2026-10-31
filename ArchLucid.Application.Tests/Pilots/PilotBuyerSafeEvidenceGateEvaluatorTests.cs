@@ -267,6 +267,29 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.SoftGaps.Should().Contain(PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
+    [Fact]
+    public void Evaluate_UnresolvedTimeToCommittedManifest_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+        run.CompletedUtc = null;
+
+        GoldenManifest manifest = MinimalManifest();
+        manifest.Metadata.CreatedUtc = default;
+
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            ManifestCommittedUtc = null,
+            TimeToCommittedManifest = null,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
+    }
+
     private static ArchitectureRun CommittedRun() =>
         new()
         {

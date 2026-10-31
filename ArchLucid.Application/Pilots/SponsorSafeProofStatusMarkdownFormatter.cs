@@ -110,7 +110,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
-            yield return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+            yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
         if (!proof.ArtifactDescriptorCountResolved)
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();

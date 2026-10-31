@@ -62,6 +62,13 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
             softGapMessages.Add(PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
+        if (manifest is not null
+            && run.Status == ArchitectureRunStatus.Committed
+            && deltas.TimeToCommittedManifest is null)
+        {
+            softGapMessages.Add(PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
+        }
+
         if (run.RealModeFellBackToSimulator)
         {
             softGapMessages.Add(PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine());

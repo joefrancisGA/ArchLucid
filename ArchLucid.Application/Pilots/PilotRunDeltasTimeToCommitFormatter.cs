@@ -39,4 +39,6 @@ internal static class PilotRunDeltasTimeToCommitFormatter
         return FormattableString.Invariant(
             $"**{wall:c}** (committed {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(committedLabel)})");
     }
+
+    internal static string FormatSponsorSafeConcreteGapLineWhenUnresolved() => NoCommittedManifestWallClockPlain;
 }
