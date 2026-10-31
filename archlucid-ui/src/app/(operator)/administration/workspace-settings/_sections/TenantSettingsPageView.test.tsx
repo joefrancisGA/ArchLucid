@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
@@ -36,13 +36,32 @@ vi.mock("@/hooks/use-tenant-workspaces-list-query", () => ({
   }),
 }));
 
-vi.mock("@/hooks/use-work-ownership-delete-policy-query", () => ({
-  useWorkOwnershipDeletePolicyQuery: () => ({
-    isError: false,
-    isPending: false,
-    data: { allowCreatorDeleteOwnedWork: false },
-  }),
-}));
+// Keep query data referentially stable, as React Query does between unchanged
+// renders. A new policy object on every hook call retriggers the consumer's
+// [policyQuery.data] effect, causing a render loop and ~8 GiB worker OOM.
+// Fail fast if a future test-mock regression reintroduces an unbounded loop.
+const workPolicyMock = vi.hoisted(() => ({ calls: 0 }));
+
+vi.mock("@/hooks/use-work-ownership-delete-policy-query", () => {
+  const stablePolicy = Object.freeze({ allowCreatorDeleteOwnedWork: false });
+  return {
+    useWorkOwnershipDeletePolicyQuery: () => {
+      workPolicyMock.calls += 1;
+      if (workPolicyMock.calls > 200) {
+        throw new Error("TenantSettingsPageView: policy query mock render loop exceeded 200 calls");
+      }
+      return {
+        isError: false,
+        isPending: false,
+        data: stablePolicy,
+      };
+    },
+  };
+});
+
+beforeEach(() => {
+  workPolicyMock.calls = 0;
+});
 
 vi.mock("./TenantCostSettingsCard", () => ({
   TenantCostSettingsCard: () => <div data-testid="tenant-cost-settings-card-stub" />,
