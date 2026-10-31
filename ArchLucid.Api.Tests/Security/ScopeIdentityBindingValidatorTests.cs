@@ -102,6 +102,24 @@ public sealed class ScopeIdentityBindingValidatorTests
         result.FailureMessage.Should().Contain("x-workspace-id");
     }
 
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_lowercase_apikey_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Name, "key-user")],
+                "apikey"))
+        };
+        http.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "apikey");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-workspace-id");
+    }
+
     [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_scim_bearer()
     {

@@ -465,6 +465,46 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_openapi_document_path()
+    {
+        DefaultHttpContext context = CreateContext("/OpenAPI/v1.json");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_on_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/ready/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
     {
         DefaultHttpContext context = CreateContext("/openapifoo");

@@ -637,6 +637,35 @@ public sealed class ScopeIdentityBindingMiddlewareTests
         nextCalled.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_invokes_next_with_forged_header_when_scim_authentication_fails()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Fail("invalid token"));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue(
+            "scope binding validates only authenticated principals; SCIM bearer auth at authorization rejects unauthenticated steering");
+    }
+
     private static DefaultHttpContext CreateContext()
     {
         DefaultHttpContext context = new() { Request = { Path = "/v1/runs" } };
