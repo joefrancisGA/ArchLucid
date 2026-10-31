@@ -6061,6 +6061,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-31 thorough hunt (hunt 252, hit): no rotation (`shouldRotate: false`; run-log low-yield streak on `application-pilots` is **1/3** — below `minLowYieldStreak` 3). Promoted CJK corner brackets `【owner】` matching bounded `owner` while `unowned` appeared elsewhere; U+3010/U+3011 added to ownership label delimiters (parity with fullwidth parentheses hunt 46); matrix case `cjk-corner-bracket-owner`; regression `Extract_does_not_emit_ownership_gap_for_cjk_corner_bracket_owner_label_with_unowned`. Cheap-disproof closed four sibling header `(candidate)` rows — **valid-no-repro** zero-width space inside `as is` (`char.IsWhiteSpace` includes ZWSP as format separator in flexible phrase match; regression `Extract_tags_target_lifecycle_scope_after_zero_width_space_as_is_header`), **valid-no-repro** slash-spaced `as / is` with ASCII `to be` (`to be` still establishes dual lifecycle; regression `Classify_returns_ambiguous_for_slash_spaced_as_is_with_ascii_to_be`), **valid-no-repro** dotted `soc\u00A02` (hunt 45 regression `Classify_returns_human_review_for_soc_2_with_no_break_space`), **valid-no-repro** uppercase `AS IS` / `TO BE` headers (case-insensitive `TryMatchBoundedMarker`; regression `Extract_tags_current_lifecycle_scope_after_uppercase_as_is_header`). Reseeded five `(candidate)` rows; scoped filter **106/106** passed (`RunAnalyzers=false`). Private beta: localized runbooks with CJK corner-bracket RACI labels no longer invent operational-ownership gaps when legacy capacity is described as unowned elsewhere.
+
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner brackets `【owner】` CJK emphasis labels — **hit 2026-10-31 thorough hunt (hunt 252):** U+3010/U+3011 delimiters; regressions above. [class:fail-open-validation]
+- [x] (valid-no-repro) `ContainsPhraseMarker` — zero-width space `\u200B` inside spaced lifecycle phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** flexible phrase whitespace; regression above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — slash-separated `as / is` export spacing — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** dual lifecycle from ASCII `to be`; regression above.
+- [x] (valid-no-repro) `ContainsHumanReviewMarker` — dotted `soc\u00A02` variant with NBSP before digit — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** hunt 45 regression family.
+- [x] (valid-no-repro) `InferLifecycleScopeForIndex` — case-variant `AS IS` uppercase headers — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** case-insensitive phrase match; regression above.
+
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — lenticular brackets `〔owner〕` (U+3014/U+3015) CJK labels — locus: delimiter set; input: localized RACI paste with `unowned` elsewhere.
+- [ ] (candidate) `ContainsPhraseMarker` — hair space `\u200A` inside spaced regulatory phrases — locus: flexible whitespace; input: compliance paste variant (monitor).
+- [ ] (candidate) `FindBoundedMarkerIndex` — em dash `\u2014` between `as` and `is` in export headings — locus: phrase needles; input: slide-deck lifecycle typo (monitor).
+- [ ] (candidate) `ContainsHumanReviewMarker` — `soc-2` hyphenated variant — locus: marker list; input: checklist shorthand (monitor).
+- [ ] (candidate) `InferLifecycleScopeForIndex` — narrow no-break hyphen in `to‑be` (U+2011) token header — locus: token vs phrase marker split; input: PDF export (monitor).
+
 2026-10-30 thorough hunt (hit): promoted localized RACI `（owner）` (fullwidth parentheses U+FF08/U+FF09) matching bounded `owner` while `unowned` appeared elsewhere; fullwidth parens added to ownership label delimiters; matrix case `fullwidth-paren-owner`; cheap-disproof closed four sibling `(candidate)` rows (ideographic space in `data protection` already matches via `char.IsWhiteSpace`; multiplication-sign `as×is` typo remains literal hyphen token contract; composed `to be\u0301` already matches phrase marker; plural-only `Owners` with `unowned` emits gap via plural fallback); **101** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: localized runbooks with fullwidth-parenthesis RACI labels no longer invent operational-ownership gaps when legacy capacity is described as unowned elsewhere.
 
 - [x] (valid-no-repro) `TryMatchBoundedMarker` — ideographic space in `data protection` — **cheap-disproof 2026-10-30 thorough hunt (hunt 46):** flexible phrase whitespace; regression `Classify_returns_human_review_for_data_protection_with_ideographic_space`.
@@ -6069,11 +6083,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `FindBoundedMarkerIndex` — combining acute on `to be` — **cheap-disproof 2026-10-30 thorough hunt (hunt 46):** phrase matcher accepts composed sequence; regression `Extract_tags_target_lifecycle_scope_after_composed_to_be_acute_header`.
 - [x] (invalid) `Extract` — plural-only `Owners` with `unowned` — **cheap-disproof 2026-10-30 thorough hunt (hunt 46):** plural fallback by design; regression `Extract_emits_ownership_gap_when_only_plural_owners_mentions_unowned`.
 
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — corner brackets `【owner】` CJK emphasis labels — locus: delimiter set lacks U+3010/U+3011; input: localized RACI paste with `unowned` elsewhere.
-- [ ] (candidate) `ContainsPhraseMarker` — zero-width space `\u200B` inside spaced lifecycle phrases — locus: `char.IsWhiteSpace` excludes ZWSP; input: web-copy lifecycle headers; mechanism: boundary missed while visual spacing looks normal.
-- [ ] (candidate) `FindBoundedMarkerIndex` — slash-separated `as / is` export spacing — locus: phrase needles require contiguous words; input: slide-deck lifecycle headings; wrong outcome: dual-lifecycle assumption skipped.
-- [ ] (candidate) `ContainsHumanReviewMarker` — dotted `soc\u00A02` variant with NBSP before digit — locus: regulatory marker list; input: compliance checklist paste; wrong outcome: human-review not required.
-- [ ] (candidate) `InferLifecycleScopeForIndex` — case-variant `AS IS` uppercase headers — locus: case-insensitive char match without case-folding for multi-char markers; input: shout-case workshop boards; mechanism: lifecycle scope stays unspecified.
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner brackets `【owner】` CJK emphasis labels — **hit 2026-10-31 thorough hunt (hunt 252):** see zone-header diary row above.
+- [x] (valid-no-repro) `ContainsPhraseMarker` — zero-width space `\u200B` inside spaced lifecycle phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** see zone-header diary row above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — slash-separated `as / is` export spacing — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** see zone-header diary row above.
+- [x] (valid-no-repro) `ContainsHumanReviewMarker` — dotted `soc\u00A02` variant with NBSP before digit — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** see zone-header diary row above.
+- [x] (valid-no-repro) `InferLifecycleScopeForIndex` — case-variant `AS IS` uppercase headers — **cheap-disproof 2026-10-31 thorough hunt (hunt 252):** see zone-header diary row above.
 
 2026-10-30 thorough hunt (hit): promoted localized RACI `owner：team` (fullwidth colon U+FF1A) matching bounded `owner` while `unowned` appeared elsewhere; fullwidth colon added to ownership label delimiters; matrix case `fullwidth-colon-owner`; cheap-disproof closed four sibling `(candidate)` rows (figure space `\u2007` and NBSP regulatory/lifecycle parity covered by flexible phrase whitespace hunt 44; soft hyphen `as\u00ADis` token still intentional literal hyphen contract—target scope follows ASCII `to be` only; dual lifecycle with NBSP `as is` already emits transition once phrase matching is used in tests); **95** scoped `DifficultyBasedExtractionRouter` tests passed (`RunAnalyzers=false`). Private beta: localized architecture paste with fullwidth-colon RACI labels no longer invents operational-ownership gaps when legacy capacity is described as unowned elsewhere.
 
@@ -6179,13 +6193,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 46
-- **bugs-found:** 26
+- **hunts:** 47
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — fullwidth-parenthesis `owner` false ownership token
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — CJK corner-bracket `owner` false ownership token
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
