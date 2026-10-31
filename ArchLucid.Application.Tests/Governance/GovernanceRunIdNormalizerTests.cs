@@ -68,4 +68,13 @@ public sealed class GovernanceRunIdNormalizerTests
             .Should()
             .BeFalse("opaque governance run ids keep ordinal identity beyond ASCII case-insensitive dedupe");
     }
+
+    [Fact]
+    public void AreEquivalent_treats_ascii_case_only_opaque_run_ids_as_distinct()
+    {
+        GovernanceRunIdNormalizer
+            .AreEquivalent("Run-A", "run-a")
+            .Should()
+            .BeFalse("mutation correction finalize subjects use ordinal opaque identity; bulk simulate adds a separate ASCII case-insensitive dedupe pass");
+    }
 }
