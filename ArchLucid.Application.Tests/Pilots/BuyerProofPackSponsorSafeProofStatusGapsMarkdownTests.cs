@@ -132,4 +132,50 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString().Should().Contain(prose);
         computedSb.ToString().Should().Contain(prose);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_evidence_chain_missing_matches_proof_package_and_trace_prose()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingTitle = "Gap",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = null,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            TopFindingEvidenceChainPresentOrNotApplicable = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse;
+        gaps.Should().Contain(prose);
+        gaps.Should().NotContain("no resolved evidence-chain pointer");
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder traceSb = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(traceSb, deltas);
+
+        proofSb.ToString().Should().Contain(prose);
+        traceSb.ToString().Should().Contain(prose);
+    }
 }

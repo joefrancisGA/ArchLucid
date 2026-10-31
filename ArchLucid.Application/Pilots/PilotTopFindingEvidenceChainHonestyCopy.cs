@@ -40,4 +40,6 @@ internal static class PilotTopFindingEvidenceChainHonestyCopy
         return FormattableString.Invariant(
             $"Present — decision trace {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(decisionTraceLabel)}");
     }
+
+    internal static string FormatSponsorSafeConcreteGapLineWhenUnavailable() => UnavailableProse;
 }

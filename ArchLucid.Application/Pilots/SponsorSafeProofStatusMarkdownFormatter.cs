@@ -118,7 +118,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Artifact descriptor inventory did not resolve — package completeness cannot be attested.";
 
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
-            yield return "Top finding has **no resolved evidence-chain pointer** — sponsors cannot reconstruct the decision fingerprint.";
+            yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();
 
         if (!proof.AuditRowCountResolved)
             yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
