@@ -323,4 +323,43 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         row.Should().Contain(prose);
         row.Should().NotContain("Not present on this run.");
     }
+
+    [Fact]
+    public void Concrete_gaps_when_support_run_id_missing_matches_proof_package_row()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = false,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotSupportRunIdHonestyCopy.MissingPlain;
+        gaps.Should().Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Support run id |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(prose);
+        row.Should().NotContain("Not present on this run.");
+    }
 }

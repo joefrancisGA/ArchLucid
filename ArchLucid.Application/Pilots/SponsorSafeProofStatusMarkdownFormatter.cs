@@ -102,7 +102,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.SupportRunIdPresent)
-            yield return "Support run id missing — this export cannot be anchored to a persisted architecture review identity.";
+            yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
             yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
