@@ -165,7 +165,7 @@ function normalizeRequestHost(hostHeader: string | null): string | null {
   // Keep host:port so local split hosting (localhost:3000 vs :3001) matches
   // hostnameFromOrigin, which uses URL.host (includes non-default ports).
   try {
-    return new URL(`http://${trimmed}`).host.toLowerCase();
+    return new URL(`http://${trimmed}`).host.toLowerCase().replace(/\.(?=(:\d+)?$)/, "");
   } catch {
     return trimmed;
   }

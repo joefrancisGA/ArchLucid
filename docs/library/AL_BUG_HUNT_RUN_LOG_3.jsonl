@@ -2170,3 +2170,4 @@
 {"at":"2026-10-31T16:31:30.1241512Z","zoneId":"ui-host-gate","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:32:35.8532439Z","zoneId":"ui-host-gate","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:33:52.5090239Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-31T16:44:58.1607393Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}
