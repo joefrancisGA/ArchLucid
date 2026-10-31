@@ -55,7 +55,8 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         SponsorRoiClaimDispositionResult? disposition)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        PilotRoiEvidenceConfidence tier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
+        PilotRoiEvidenceConfidence tier = disposition?.EvidenceConfidence
+            ?? PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
         string headline = tier.ToString();
 
         string body = tier switch

@@ -189,6 +189,30 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
         sb.ToString().Should().Contain("## ROI evidence completeness");
     }
 
+    [Fact]
+    public void Describe_when_disposition_confidence_low_but_snapshot_strong_uses_gate_not_snapshot_tier()
+    {
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-04-01T12:00:00Z");
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5.25m,
+            capturedUtc: captured);
+
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "HOLD — stale gate posture.",
+            "Hold narrative.");
+
+        (string headline, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap, disposition);
+
+        headline.Should().Be("Low");
+        body.Should().Contain("illustrative / internal planning only");
+        body.Should().NotContain("Tenant maintained baseline inputs via baseline settings");
+    }
+
     private static ValueReportSnapshot CreateMinimalSnapshot(
         ReviewCycleBaselineProvenance provenance,
         decimal? manualPrep = null,
