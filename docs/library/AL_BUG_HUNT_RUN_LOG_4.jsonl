@@ -3037,3 +3037,4 @@
 {"at":"2026-10-31T06:41:14.3942848Z","zoneId":"archlucid-core","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T06:45:31.1401296Z","zoneId":"archlucid-core","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T06:48:50.6799677Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-31T06:53:39.1083029Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
