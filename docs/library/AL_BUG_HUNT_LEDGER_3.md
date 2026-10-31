@@ -1371,7 +1371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 45
+- **hunts:** 46
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
@@ -1381,9 +1381,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 2026-10-31 seed hunt (seed-only): reread `RunsListClient`, `useRunsList`, the continue-last resolver, and the focused Runs List suites; no candidate met the same-run proof bar. Retained two bounded input-shape candidates for invalid server dates and recent-view row validity. No production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): cheap-disproof found that the continue strip does not render or sort on the malformed date, and alias-shaped recent-view links intentionally canonicalize at the route boundary; the focused Runs List suites passed 69/69. No production change. Private beta: n/a.
 
-- [ ] (candidate) `resolveContinueLastRunsListRow` — a reachable server row with a non-empty but invalid `createdUtc` can be selected for the Continue last viewed strip even though `useRunsList.safeRuns` rejects it; input: malformed API `createdUtc` plus a matching recent-view run id; wrong outcome: the strip offers an invalid row that the actual table omits; existing valid-date tests do not exercise this cross-component boundary.
-- [ ] (candidate) `resolveContinueLastRunsListRow` — recent-view matching uses raw `runId` while the list normalizes and deduplicates demo aliases; input: a stored recent-view href for a canonical demo alias with an alias-shaped row; wrong outcome: Continue last viewed pins a row that is not the canonical row displayed in the list; reachability is the operator recent-view localStorage path, pending an alias-specific repro.
+- [x] (valid-no-repro) `resolveContinueLastRunsListRow` — malformed `createdUtc` on a recent-view row — **cheap-disproof 2026-10-31 seed hunt:** the continue strip renders only title and route, and the recent-view match does not use the timestamp; the main list’s finite-date filter prevents the malformed row from appearing in the table, but no user-visible wrong outcome was reproduced.
+- [x] (valid-no-repro) `resolveContinueLastRunsListRow` — recent-view matching before demo alias normalization — **cheap-disproof 2026-10-31 seed hunt:** alias links are intentionally canonicalized by the review route, and the continue strip does not expose a non-canonical data row; no wrong outcome was reproduced.
 
 2026-10-31 seed hunt (seed-only): repeated the Runs List state-boundary check; the focused 69-test suites remain green and no new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 
