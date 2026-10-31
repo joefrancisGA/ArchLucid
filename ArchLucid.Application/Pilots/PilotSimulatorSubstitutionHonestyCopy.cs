@@ -7,6 +7,8 @@ internal static class PilotSimulatorSubstitutionHonestyCopy
 
     internal static string FormatSponsorSafeConcreteGapLine() => ConcreteGapPlain;
 
+    internal static string FormatExecutionModeBlockquoteLine() => ConcreteGapPlain;
+
     internal static string AppendToProofPackageEvidenceBasisCell(string evidenceBasisLabelsCell) =>
         string.IsNullOrEmpty(evidenceBasisLabelsCell)
             ? ConcreteGapPlain

@@ -44,7 +44,8 @@ public static class SponsorExecutionModeMarkdownFormatter
         {
             sb.AppendLine();
             sb.AppendLine(
-                "> **Simulator substitution:** This run recorded fallback from a real model path. Do not describe outputs as unqualified live-model proof.");
+                FormattableString.Invariant(
+                    $"> {PilotSimulatorSubstitutionHonestyCopy.FormatExecutionModeBlockquoteLine()}"));
         }
 
         sb.AppendLine();

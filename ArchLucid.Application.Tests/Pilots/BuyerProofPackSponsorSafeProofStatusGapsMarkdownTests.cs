@@ -534,4 +534,22 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         row.Should().Contain(prose);
     }
+
+    [Fact]
+    public void Execution_mode_blockquote_when_simulator_matches_concrete_gap_prose()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            RealModeFellBackToSimulator = true,
+        };
+
+        StringBuilder execSb = new();
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(execSb, run);
+
+        string prose = PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain;
+        execSb.ToString().Should().Contain(prose);
+        execSb.ToString().Should().NotContain("unqualified live-model proof");
+    }
 }

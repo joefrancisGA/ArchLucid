@@ -206,7 +206,7 @@ public sealed class ApplicationPackageCoverageBatch13Tests
 
         string markdown = sb.ToString();
         markdown.Should().Contain("Simulator substitution");
-        markdown.Should().Contain("Do not describe outputs as unqualified live-model proof");
+        markdown.Should().Contain(PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain);
     }
 
     [Theory]
