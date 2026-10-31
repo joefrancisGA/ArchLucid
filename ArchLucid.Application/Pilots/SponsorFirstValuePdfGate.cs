@@ -44,10 +44,15 @@ public static class SponsorFirstValuePdfGate
         bool demoScope = proof.DemoTenantWarningRequired
             || built.PilotRunDeltas?.IsDemoTenant == true;
 
-        if (!demoScope
-            && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe != true)
+        if (!demoScope)
         {
-            return "Sponsor PDF export is blocked until buyer-provided ROI baselines make projected-dollar claims sponsor-safe.";
+            bool projectedDollarClaimsSponsorSafe = built.RoiClaimGate?.ProjectedDollarClaimsSponsorSafe
+                ?? proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true;
+
+            if (!projectedDollarClaimsSponsorSafe)
+            {
+                return "Sponsor PDF export is blocked until buyer-provided ROI baselines make projected-dollar claims sponsor-safe.";
+            }
         }
 
         if (built.SponsorProofReadiness == SponsorProofReadinessClassification.NeedsBaseline)

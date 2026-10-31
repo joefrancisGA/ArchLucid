@@ -155,6 +155,38 @@ public sealed class BuyerProofPackSponsorStatusTopFindingsMarkdownTests
             .WithMessage("*PilotStrict*");
     }
 
+    [Fact]
+    public void BuyerProofPack_sponsor_pdf_gate_blocks_projected_dollar_from_roi_claim_gate_when_stale_proof_inputs_safe()
+    {
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: Defaulted from ROI model options",
+            false,
+            "WARN",
+            "WARN narrative");
+
+        FirstValueReportBuildResult built = new(
+            Markdown: "# report",
+            EvidenceCompleteness: FirstValueEvidenceCompletenessLevel.Strong,
+            SponsorProofReadiness: SponsorProofReadinessClassification.Sendable,
+            ProofPackageCompleteness: new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = false,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse
+                {
+                    ProjectedDollarClaimsSponsorSafe = true,
+                },
+            },
+            RoiClaimGate: roiClaimGate);
+
+        Action act = () => SponsorFirstValuePdfGate.EnsureCanGenerate(built);
+
+        act.Should().Throw<SponsorFirstValuePdfBlockedException>()
+            .WithMessage("*projected-dollar*");
+    }
+
     private static void AppendMinimalSection(StringBuilder sb, ArchitectureRunDetail detail) =>
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
             sb,

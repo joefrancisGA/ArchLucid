@@ -320,7 +320,8 @@ public sealed class FirstValueReportBuilder(
             proofCompleteness,
             careerArtifactBlock?.Message,
             careerArtifactBlock?.Code,
-            deltas);
+            deltas,
+            roiClaimGate);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

@@ -12,4 +12,5 @@ public sealed record FirstValueReportBuildResult(
     ProofPackageCompletenessResponse? ProofPackageCompleteness = null,
     string? CareerArtifactBlockedReason = null,
     string? CareerArtifactBlockedReasonCode = null,
-    PilotRunDeltas? PilotRunDeltas = null);
+    PilotRunDeltas? PilotRunDeltas = null,
+    SponsorRoiClaimDispositionResult? RoiClaimGate = null);
