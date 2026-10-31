@@ -354,6 +354,35 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.TextBody.Should().NotContain("\u000B");
     }
 
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_strips_form_feed_from_personal_message_in_html_body()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            "Welcome\faboard",
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.HtmlBody.Should().Contain("Welcome aboard");
+        sentMessage.HtmlBody.Should().NotContain("\f");
+        sentMessage.TextBody.Should().NotContain("\f");
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptions(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();

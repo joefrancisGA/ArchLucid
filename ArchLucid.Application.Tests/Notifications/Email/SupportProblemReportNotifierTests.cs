@@ -136,6 +136,38 @@ public sealed class SupportProblemReportNotifierTests
     }
 
     [SkippableFact]
+    public async Task NotifySupportInboxAsync_strips_vertical_tab_from_actor_id_in_html_and_text_bodies()
+    {
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+
+        EmailMessage? captured = null;
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => captured = message)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptions(
+            new EmailNotificationOptions { SupportInbox = "support@example.com" });
+
+        SupportProblemReportNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<SupportProblemReportNotifier>.Instance);
+
+        await sut.NotifySupportInboxAsync(
+            BuildReport(),
+            "jwt:t1:oid\u000B",
+            false,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.HtmlBody.Should().Contain("jwt:t1:oid");
+        captured.HtmlBody.Should().NotContain("\u000B");
+        captured.TextBody.Should().NotContain("\u000B");
+    }
+
+    [SkippableFact]
     public async Task NotifySupportInboxAsync_skips_send_when_support_inbox_has_embedded_line_breaks()
     {
         Mock<IEmailProvider> email = new();

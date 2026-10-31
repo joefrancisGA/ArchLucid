@@ -135,6 +135,32 @@ public sealed class MarketingEarlyAccessSalesNotifierTests
         captured.TextBody.Should().NotContain("\f");
     }
 
+    [SkippableFact]
+    public async Task NotifyAsync_strips_form_feed_from_role_in_html_body()
+    {
+        Mock<IEmailProvider> email = new();
+        email.SetupGet(x => x.ProviderName).Returns(EmailProviderNames.Smtp);
+        EmailMessage? captured = null;
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((m, _) => captured = m)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptionsMonitor(
+            new EmailNotificationOptions { PricingQuoteSalesInbox = "sales@archlucid.net" });
+
+        MarketingEarlyAccessSalesNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<MarketingEarlyAccessSalesNotifier>.Instance);
+
+        await sut.NotifyAsync(SampleInsert, "buyer@example.com", "Contoso", "Architect\f", CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.HtmlBody.Should().Contain("Architect");
+        captured.HtmlBody.Should().NotContain("\f");
+    }
+
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptionsMonitor(EmailNotificationOptions value)
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> mock = new();

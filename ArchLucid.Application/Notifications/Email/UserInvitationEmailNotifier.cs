@@ -160,6 +160,8 @@ public sealed class UserInvitationEmailNotifier(
 
     private static string FormatPersonalMessageHtml(string personalMessage)
     {
+        personalMessage = EmailHeaderFragmentSanitizer.Sanitize(personalMessage);
+
         int lastIndex = 0;
         System.Text.StringBuilder builder = new();
 
