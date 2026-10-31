@@ -100,6 +100,25 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles" && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+    }
+
+    [Fact]
     public void Apply_skips_non_guid_scope_values_when_promoting_tenant_workspace_project()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
