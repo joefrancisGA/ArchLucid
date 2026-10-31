@@ -171,10 +171,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
         if (!IsBuyerSafeSendAllowed(buyerSafeGate))
             return "Internal review only — buyer-safe send gate failed";
 
-        if (!proof.LlmCallCountResolved)
+        if (!deltas.LlmCallCountResolved)
             return "Persisted run proof — LLM call basis unresolved";
 
-        if (!proof.AuditRowCountResolved)
+        if (!deltas.AuditRowCountResolved)
             return "Persisted run proof — audit row basis unresolved";
 
         if (PilotStrictPostureSatisfied(deltas))
@@ -194,8 +194,8 @@ public static class SponsorDecisionDeltaNoveltyResolver
             $"active findings: {findings.Count.ToString(CultureInfo.InvariantCulture)}",
             $"PilotStrict posture: {(PilotStrictPostureSatisfied(deltas) ? "satisfied" : "failed")}",
             $"buyer-safe send gate: {(IsBuyerSafeSendAllowed(buyerSafeGate) ? "allowed" : "blocked")}",
-            $"LLM trace rows resolved: {(proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
-            $"audit row count resolved: {(proof.AuditRowCountResolved ? "yes" : "no")}",
+            $"LLM trace rows resolved: {(deltas.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
+            $"audit row count resolved: {(deltas.AuditRowCountResolved ? "yes" : "no")}",
             "blind principal-architect sessions: not inferred — see repository `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`",
         ];
 

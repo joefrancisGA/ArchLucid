@@ -184,6 +184,33 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_evidence_chain_missing_uses_deltas_not_stale_proof_chain_flag()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingEvidenceChain = null,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            TopFindingEvidenceChainPresentOrNotApplicable = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_artifact_descriptor_unresolved_matches_proof_package_prose()
     {
         PilotRunDeltas deltas = new() { SynthesizedArtifactDescriptorCountResolved = false };

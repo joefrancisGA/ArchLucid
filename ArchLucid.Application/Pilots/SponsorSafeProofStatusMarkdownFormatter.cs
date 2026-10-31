@@ -115,7 +115,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (proof is { CommittedManifestPresent: true, RunInCommittedStatus: true, ArtifactDescriptorCountResolved: false })
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
+        if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
             yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();
 
         if (!deltas.AuditRowCountResolved)

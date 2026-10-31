@@ -106,6 +106,29 @@ public sealed class BuyerProofPackDecisionDeltaMarkdownTests
         result.ConfidenceBasisSummary.Should().Contain("PilotStrict posture: failed");
     }
 
+    [Fact]
+    public void BuyerProofPack_novelty_evidence_class_when_audit_unresolved_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail(
+            category: "Security",
+            message: "Rotate keys");
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas() with { AuditRowCountResolved = false },
+            new ProofPackageCompletenessResponse
+            {
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                LlmCallCountResolved = true,
+                AuditRowCountResolved = true,
+                DemoTenantWarningRequired = false,
+                BuyerSafeRedactionProfile = "tenant-default",
+            },
+            BuildGate());
+
+        result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail(string category, string message)
     {
         GoldenManifest manifest = new()
