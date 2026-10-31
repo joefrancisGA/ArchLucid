@@ -52,6 +52,7 @@ public sealed class AzureRetailPricesSkuMatchersWeekMeterTests
         "10 / weekk",
         "10 / weekkk",
         "10 / weekkkk",
+        "10 / weeks",
     ];
 
     [Theory]
