@@ -16546,11 +16546,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 35
-- **bugs-found:** 50
+- **hunts:** 36
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — em/three-per-em Jaccard spaces, did/will not comply conflict wording, blocked-from negation
+- **last-bug:** 2026-10-31 — en/em quad Jaccard spaces, would/must-not comply conflict wording, banned-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17081,13 +17081,21 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-tenancy-commercial
 
+2026-10-31 thorough hunt #1072 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **1/3** in run log after findings-advice hit streak). Cheap-disproof closed five header `(candidate)` rows from hunt #1067 — **valid-no-repro** suspended Standard passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` (intentional automation split — hunt #970), **valid-no-repro** `TrialStatus=Converted` on Standard tier eligible for weekly sponsor while only **Active** trials blocked (`IsEligibleForWeeklySponsorReport` — hunt #1067 monitor), **invalid** Team label with 1-seat subscription mapping Architect (`FromCommercialPackaging` Architect shortcut is intentional — hunt #972), **invalid** sales-led `(seatsUsed=8, workspacesUsed=1)` returning Team label (8 seats within Team max — hunt #1056), **valid-no-repro** JSON `"planId":null` (`ValueKind.Null` returns false from `TryGetPlanId`; no empty-string coercion — hunt #970 object parity). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **67** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — offboarded Standard tenant passes HTTP tier gate while weekly sponsor rejects `OffboardedUtc` — locus: gate vs automation split; input: offboarded checkout (monitor; hunt #971).
+- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Expired` on Standard tier eligible while Active trial blocked — locus: non-Active lifecycle; input: expired converted checkout (monitor; hunt #1072).
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Enterprise label with 1-seat subscription returns null spend plan — locus: Enterprise unlimited policy; input: Enterprise + 1 seat (monitor; hunt #1052).
+- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON boolean `true` planId surfaces unknown `"true"` token — locus: malformed webhook default; input: `"planId":true` (monitor; hunt #970).
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — `(seats=10, workspaces=1)` subscription returns Team at boundary — locus: Team max seats; input: 10+1 caps (monitor; hunt #971).
+
 2026-10-31 thorough hunt #1067 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **3/3** in run log after hunt #1066 — next `/4` should `-AvoidZoneId` rotate). Cheap-disproof closed five header `(candidate)` rows from hunt #1066 — **valid-no-repro** Pending Standard tenant eligible for weekly sponsor while only **Active** trials blocked (`IsEligibleForWeeklySponsorReport` — hunt #1063), **invalid** empty-string `PlanIdTierMap` value mapping Enterprise (`NormalizeConfiguredTier` defaults **Standard** — hunt #1063), **valid-no-repro** null commercial label with 5-seat subscription yielding null spend plan (`FromCommercialPackaging` requires explicit label — hunt #1063), **invalid** `(seats=0, workspaces=1)` subscription returning Team label (zero-seat cap math — hunt #1063), **valid-no-repro** string `"1e2"` vs JSON `1e2` quantity (both whole **100** — hunt #1063). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **67** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — locus: gate vs automation split; input: suspended checkout (monitor; hunt #970).
-- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Converted` on Standard tier eligible while Active trial blocked — locus: non-Active trial lifecycle; input: converted checkout (monitor; hunt #1067).
-- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Team label with 1-seat subscription maps Architect before Team bundle inference — locus: label ordering; input: Team + 1 seat (monitor; hunt #972).
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=8, workspacesUsed=1)` returns Team label — locus: below Professional caps; input: 8 seats usage (monitor; hunt #1056).
-- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON `null` `planId` property coerces empty plan id — locus: null token handling; input: `"planId":null` (monitor; hunt #970).
+- [x] (valid-no-repro) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — **cheap-disproof 2026-10-31 thorough hunt #1072:** regression above.
+- [x] (valid-no-repro) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Converted` on Standard tier eligible while Active trial blocked — **cheap-disproof 2026-10-31 thorough hunt #1072:** regression above.
+- [x] (invalid) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Team label with 1-seat subscription maps Architect before Team bundle inference — **cheap-disproof 2026-10-31 thorough hunt #1072:** regression above.
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=8, workspacesUsed=1)` returns Team label — **cheap-disproof 2026-10-31 thorough hunt #1072:** regression above.
+- [x] (valid-no-repro) `MarketplaceChangePlanReader.TryGetPlanId` — JSON `null` `planId` property coerces empty plan id — **cheap-disproof 2026-10-31 thorough hunt #1072:** regression above.
 
 2026-10-31 thorough hunt #1066 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **2/3** in run log after hunt #1065). Cheap-disproof closed five header `(candidate)` rows from hunt #1065 — **invalid** Pending on Standard enum passing Enterprise gate (`(int)Standard >= Enterprise` false — hunt #1058), **valid-no-repro** JSON object `planId` (`ValueKind` not String/Number/Boolean returns false — hunt #1058), **invalid** Professional label with 5-seat subscription mapping Architect (`FromCommercialPackaging` returns **Professional** — hunt #1058), **invalid** sales-led `(seatsUsed=11, workspacesUsed=1)` returning Team (`seatsUsed > TeamSeatsMax` → Professional — hunt #1058), **invalid** `ReadQuantity` subscription fallback on GA ChangeQuantity (`TryReadQuantity`-only defer — hunt #970/#1058). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -17196,9 +17204,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
