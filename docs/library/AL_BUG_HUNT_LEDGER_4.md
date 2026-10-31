@@ -411,6 +411,20 @@
 
 ## Zone: host-core-jobs
 
+2026-10-31 thorough hunt #960 (dry): no rotation (`core-costing` low-yield streak 1). Cheap-disproof closed five open `(candidate)` rows from hunt #959 — **valid-no-repro** terminal `Failed` queue redelivery (`TryPrepareQueuedJobAsync` treats `IsTerminalJobState` as immediate message delete without executor; `ProcessOneMessageAsync_skips_when_ShouldDeleteQueueMessageImmediately_is_true`), **valid-no-repro** processor receive-loop cooperative cancel (executor `OperationCanceledException` is handled in `ProcessOneMessageAsync`/`HandleFailureAsync`; outer loop only breaks on shutdown `stoppingToken`, otherwise fault backoff without deleting in-flight work — 2026-10-06 contract), **valid-no-repro** in-memory enqueue cancel at pending-capacity gate (`EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`; `OperationCanceledException` path removes `_info`/`_workUnits`), **valid-no-repro** post-backoff retry notify when row already `Failed` (`ShouldAbortRetryNotification`; `ProcessOneMessageAsync_does_not_send_retry_notification_when_failed_visible_before_send_after_backoff`), **valid-no-repro** partial result blob before cancel re-read (cancel-wins skips `MarkSucceededAsync`; download APIs require `Succeeded` + `ResultBlobName` — storage hygiene only per 2026-10-07); reseeded five `(candidate)` rows at zone metadata; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
+
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — duplicate Azure notification for terminal `Failed` row may invoke executor when stale `Running` claim wins before SQL terminal guard — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — receive loop backoff on non-shutdown `OperationCanceledException` may delete in-flight message while row remains `Pending` retry — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.EnqueueAsync` — `OperationCanceledException` during pending-capacity `WaitAsync` after `_info` insert — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification when row already terminal but Azure message still visible — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
+- [x] (valid-no-repro) `AzureBlobBackgroundJobResultBlobAccessor` — partial blob upload before cancel re-read leaves bytes without `ResultBlobName` on canceled row — **cheap-disproof 2026-10-31 thorough hunt #960:** regression above.
+
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` may run after watchdog reclaim to `Pending` when only pre-SQL cancel re-reads passed and `IsRunningJobRow` was not re-checked immediately before the retry update (narrow race vs durable `State = N'Running'` SQL guard).
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed stale `Running` rows already at `RetryCount == MaxRetries` are moved to `Pending` and re-notified instead of failing terminal without queue delivery.
+- [ ] (candidate) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` after caller-cancelled enqueue leaves a `Pending` row that a later watchdog pass may re-notify as reclaimed work.
+- [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — capacity-exhausted retry terminal assigns `Failed` after post-log cancel re-reads but before second `_info` read parity on the shutdown-interrupted backoff branch (symmetry with 2026-09-27 capacity-exhausted fix).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload terminal uses prepare-snapshot `row.RetryCount + 1` without re-reading `RetryCount` after dual `IsRunningJobRow` checks when concurrent retry mutation is in flight.
+
 2026-10-30 thorough hunt #959 (dry): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); cheap-disproof closed five `(candidate)` rows from hunt #955 — valid-no-repro `TryPrepareQueuedJobAsync` cancel during claim (`UPDATE … AND State = N'Pending'` loses when cancel lands first; `ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable`), valid-no-repro in-memory `TryGetWorkUnitAsync` on terminal `Failed` rows (tenant access only; execution requires `Pending` claim), invalid invalid-payload `RetryCount + 1` on zero-retry jobs (single-thread prepare snapshot; 2026-10-04 dry), invalid watchdog exhausted stale reset without queue notify (SQL marks `Failed` with exhausted-retry error; poll-visible), invalid durable enqueue notify failure orphan `Pending` (`DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails`); reseeded five `(candidate)` rows; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
 - [x] (valid-no-repro) `BackgroundJobRepository.TryPrepareQueuedJobAsync` — concurrent `MarkCanceledAsync` on `Pending` row between claim read and `Running` assignment — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
@@ -418,12 +432,6 @@
 - [x] (invalid) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid `WorkUnitJson` terminal assigns `RetryCount + 1` from prepare snapshot when `MaxRetries` is zero — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
 - [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — exhausted stale reset returns only `Pending` while `Failed` rows skip queue notify — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
 - [x] (invalid) `DurableBackgroundJobQueue.EnqueueAsync` — notify failure after insert leaves orphan `Pending` — **cheap-disproof 2026-10-30 thorough hunt #959:** regression above.
-
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — duplicate Azure notification for terminal `Failed` row may invoke executor when stale `Running` claim wins before SQL terminal guard — locus: `TryPrepareQueuedJobAsync` vs terminal states; input: redelivered message after terminal failure; wrong outcome: second execution after row already failed.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — receive loop backoff on non-shutdown `OperationCanceledException` may delete in-flight message while row remains `Pending` retry — locus: processor main loop fault handling; input: executor throws cooperative cancel not tied to `stoppingToken`; wrong outcome: lost queue notification with retry scheduled.
-- [ ] (candidate) `InMemoryBackgroundJobQueue.EnqueueAsync` — `OperationCanceledException` during pending-capacity `WaitAsync` after `_info` insert — locus: enqueue cancel cleanup; input: caller cancel at capacity gate; wrong outcome: orphan `Pending` row without channel work item.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff retry notification when row already terminal but Azure message still visible — locus: `ShouldAbortRetryNotification`; input: duplicate notification after another worker marked job `Failed`; wrong outcome: spurious retry queue message (monitor; lane C hit covered pre-send abort — verify no regression gap).
-- [ ] (candidate) `AzureBlobBackgroundJobResultBlobAccessor` — partial blob upload before cancel re-read leaves bytes without `ResultBlobName` on canceled row — locus: success-path blob hygiene; input: cancel during upload; wrong outcome: operator download path exposes orphan blob (storage hygiene vs poll contract).
 
 2026-10-30 seed hunt #955 (seed-only): rotation avoided `knowledge-graph-provenance` after three consecutive dry hunts (dry, dry, dry); re-read `ArchLucid.Host.Core/Jobs/` and `ArchLucid.Host.Core/Hosted/`; cheap-disproof closed four open `(candidate)` rows from lane B — invalid exhausted-retry stale reset (`ResetStaleRunningJobsOlderThanAsync` already marks `Failed` when `RetryCount >= MaxRetries`), invalid in-memory queue-writer-rejected retry terminal (post-log `_info` re-read before `Failed` assignment at lines 274–276), valid-no-repro watchdog leader lease lost mid-batch trailing notify (reclaimed ids wait for next leader pass), valid-no-repro durable capacity-exhausted retry terminal deleting Azure message after `MarkFailedTerminalAsync` (intentional notification cleanup on terminal row); no hunt-ready promotion; reseeded five `(candidate)` rows below; scoped filter **77** Host.Core tests passed (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
@@ -447,10 +455,10 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -539,10 +547,10 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -17322,7 +17330,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-costing
 
-2026-10-31 seed hunt (dry): **Zone rotation** after 3 consecutive low-yield hunts on `archlucid-core` (seed-only, dry, dry). Cheap-disproof closed five open `(candidate)` rows from hunt #951 — **valid-no-repro** GCP `"HOUR"` hourly token (`IsHourlyUsageUnit` matches `hour` with `OrdinalIgnoreCase`; parity `TryParseComputeEngineMonthlyUsdAsync_parses_hour_synonym_hourly_usage_unit`), **valid-no-repro** keep-list week UOM `10 / wek` (`AzureRetailPricesSkuMatchersWeekMeterTests.LooksLikeConsumptionUsd_accepts_week_unit_of_measure_synonyms`), **valid-no-repro** AWS+GCP blend sole-family scan (`ResolveSoleCloudFamily` returns null; `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`), **valid-no-repro** tier with positive `units` and negative `nanos` netting below zero (`TryReadTieredRateUsd` requires `hourlyUsd > 0` before accepting a tier), **valid-no-repro** negative manifest `InstanceCount` (`NormalizeQuantity` maps `<1` to `0`; `FromGoldenTopology_uses_not_stored_labels_and_zero_quantity_for_missing_names`); reseeded five `(candidate)` rows at zone metadata; scoped Costing filter **290/296** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`); no production change. Private beta: n/a.
+2026-10-31 seed hunt (dry): **Zone rotation** after 3 consecutive low-yield hunts on `archlucid-core` (seed-only, dry, dry). Cheap-disproof closed five open `(candidate)` rows from hunt #951 — **valid-no-repro** GCP `"HOUR"` hourly token (`IsHourlyUsageUnit` matches `hour` with `OrdinalIgnoreCase`; parity `TryGetComputeEngineMonthlyUsdAsync_parses_hour_synonym_hourly_usage_unit`), **valid-no-repro** keep-list week UOM `10 / wek` (`AzureRetailPricesSkuMatchersWeekMeterTests.LooksLikeConsumptionUsd_accepts_week_unit_of_measure_synonyms`), **valid-no-repro** AWS+GCP blend sole-family scan (`ResolveSoleCloudFamily` returns null; `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`), **valid-no-repro** tier with positive `units` and negative `nanos` netting below zero (`TryReadTieredRateUsd` requires `hourlyUsd > 0` before accepting a tier), **valid-no-repro** negative manifest `InstanceCount` (`NormalizeQuantity` maps `<1` to `0`; `FromGoldenTopology_uses_not_stored_labels_and_zero_quantity_for_missing_names`); reseeded five `(candidate)` rows at zone metadata; scoped Costing filter **290/296** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
 2026-10-30 seed hunt #951 (seed-only): rotation avoided `knowledge-graph-provenance` after three consecutive low-yield outcomes (dry, seed-only, dry); re-read `ArchLucid.Core/Costing/` and cheap-disproof closed five `(candidate)` rows from hunt #695 — invalid illustrative `ScaleByQuantity` vs live `Math.Max(1, quantity)` mismatch for normalized zero quantity (both paths bill one unit-month), invalid GCP `"1 h"` hourly unit token (allow-list uses `h`/`hr`/`hours` only; unsupported catalog shape not a same-run promotion), invalid spaced-slash week UOM `10 / weks` (`ContainsSpacedSlashWeksToken` accepts keep-list meter), invalid `ResolveSoleCloudFamily` Unknown+Azure blend (`RuntimePlatformCloudFamily` maps Unknown-class platforms to Azure so sole-family stays Azure), invalid nano-only GCP tier rate (`TryReadTieredRateUsd` already sums `units + nanos/1e9`); no hunt-ready promotion; reseeded five `(candidate)` rows at zone header; scoped Costing filter **289** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`); no production change. Private beta: n/a.
 
