@@ -7,6 +7,7 @@ import {
   isUncitedFinding,
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
+  parseKnownFindingClassification,
 } from "@/lib/findings/review-detail-findings-classification-band";
 
 function finding(
@@ -62,6 +63,18 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
     ]);
 
     expect(counts.unclassified).toBe(2);
+  });
+
+  it("narrows stored classification to the known ADR 0070 pair", () => {
+    expect(parseKnownFindingClassification(FINDING_CLASSIFICATION_DECISION_GRADE)).toBe(
+      FINDING_CLASSIFICATION_DECISION_GRADE,
+    );
+    expect(parseKnownFindingClassification(FINDING_CLASSIFICATION_CHECKLIST_COVERAGE)).toBe(
+      FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+    );
+    expect(parseKnownFindingClassification("LegacyGate")).toBeNull();
+    expect(parseKnownFindingClassification(null)).toBeNull();
+    expect(parseKnownFindingClassification(undefined)).toBeNull();
   });
 
   it("does not treat omitted evidenceRefCount as uncited (P-06)", () => {
