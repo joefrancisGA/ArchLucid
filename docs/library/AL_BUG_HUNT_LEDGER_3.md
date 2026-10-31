@@ -9330,6 +9330,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed-only): rotation moved the hunt from saturated OIDC; reread presenter enter/exit URL commits, finding selection synchronization, workbench focus state, and mounted tab-shell/workbench panel ownership found no new reachable mechanism-backed candidate or hunt-ready row. Focused presenter, selection, workbench, workspace, and URL-sync tests passed 33/33. No production code changed.
+
 2026-10-31 seed→hit: promoted `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash returned early, leaving the visible tab/workbench focus on the hash-derived tab instead of the query-selected tab after browser back or hash clearing; synchronize tab and focus from the live URL before handling the empty-hash case. Regression `restores the query-selected tab when a mounted workspace hash is removed`; focused review workspace tests passed 33/33. Private beta: invited architects returning from a review deep link now see the tab and workbench focus represented by the current URL instead of stale hash-derived workspace chrome.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash left the active tab on the prior hash-derived tab; synchronize active tab and workbench focus from the live URL even when the hash is empty; regression `restores the query-selected tab when a mounted workspace hash is removed`.
