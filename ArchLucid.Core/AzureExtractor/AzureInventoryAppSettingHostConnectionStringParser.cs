@@ -101,7 +101,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
             return;
         }
 
-        string host = NormalizeHost(match.Groups["host"].Value);
+        string host = NormalizeServiceBusHost(match.Groups["host"].Value);
 
         if (!string.IsNullOrWhiteSpace(host))
         {
@@ -218,7 +218,26 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
             trimmed = trimmed[..queryOrFragmentStart];
         }
 
-        return trimmed.Trim();
+        return Uri.UnescapeDataString(trimmed.Trim());
+    }
+
+    private static string NormalizeServiceBusHost(string host)
+    {
+        string normalized = NormalizeHost(host);
+        string decoded = Uri.UnescapeDataString(normalized);
+
+        int portSeparatorIndex = decoded.LastIndexOf(':');
+
+        if (portSeparatorIndex > 0
+            && portSeparatorIndex < decoded.Length - 1
+            && int.TryParse(decoded.AsSpan(portSeparatorIndex + 1), out _))
+        {
+            return decoded.ToLowerInvariant();
+        }
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded;
     }
 
     private static Regex StorageEndpointRegex(string endpointKey)

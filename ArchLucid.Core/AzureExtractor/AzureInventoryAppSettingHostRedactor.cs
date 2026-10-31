@@ -125,7 +125,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return null;
         }
 
-        return host;
+        return NormalizeSqlInventoryHost(host);
     }
 
     public static string? TryParseSqlCatalog(string? connectionString, out string? warningCode)
@@ -200,6 +200,15 @@ public static partial class AzureInventoryAppSettingHostRedactor
         }
 
         return NormalizeHttpsInventoryHost(host);
+    }
+
+    private static string NormalizeSqlInventoryHost(string host)
+    {
+        string decoded = Uri.UnescapeDataString(host);
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded;
     }
 
     private static string NormalizeHttpsInventoryHost(string host)
