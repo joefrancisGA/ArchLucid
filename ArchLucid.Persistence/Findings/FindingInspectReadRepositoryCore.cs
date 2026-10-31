@@ -320,8 +320,10 @@ internal static class FindingInspectReadRepositoryCore
         if (classificationElement.ValueKind is JsonValueKind.String)
         {
             string? raw = classificationElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -353,8 +355,10 @@ internal static class FindingInspectReadRepositoryCore
         if (treatmentElement.ValueKind is JsonValueKind.String)
         {
             string? raw = treatmentElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -386,8 +390,10 @@ internal static class FindingInspectReadRepositoryCore
         if (bandElement.ValueKind is JsonValueKind.String)
         {
             string? raw = bandElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingSemanticSupportBand parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;

@@ -1713,6 +1713,8 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-31 thorough hunt (hit): proved typed-payload `classification`, `treatment`, and `semanticSupportBand` string tokens with leading Unicode format characters failed `Enum.TryParse` while the relational overlay band path already used `NormalizeInspectEnumToken` (2026-10-21); apply the same normalizer on all three `Resolve*FromTypedPayload` string branches; regressions `ResolveInspectClassification_parses_typed_payload_after_leading_invisible_format_characters`, `ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters`, and `ResolveInspectSemanticSupportBand_parses_typed_payload_after_leading_invisible_format_characters`; cheap-disproof closed whitespace-only `findingId` rejection (`GetInspectAsync_throws_when_finding_id_is_whitespace`) and embedded format characters inside severity tokens (intentional fail-closed enum contract; leading-edge normalization only); reseeded five follow-on `(candidate)` rows; **433/433** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: Invited operators opening finding inspect on payload-backed density fields see classification, treatment, and semantic support band instead of null when legacy JSON enum strings carried invisible paste prefixes.
+
 2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 430/430 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
 
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
@@ -1723,11 +1725,11 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 88
-- **bugs-found:** 26
+- **hunts:** 89
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — typed-payload enum strings skipped NormalizeInspectEnumToken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2263,11 +2265,17 @@
 
 2026-10-05 seed hunt (seed→hit): proved in-memory cyclic Payload JsonException inspect failure; reseeded three in-memory/SQL parity candidates; 434 scoped Persistence inspect tests passed.
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters fail `Enum.TryParse` without `NormalizeInspectEnumToken`, so inspect omits classification while overlay-band storage already normalizes tokens — locus: ~320–328; input: typed payload `{"classification":"\u200BSupported"}` when relational `Treatment`/`Classification` storage bytes are null.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — locus: ~353–361; input: payload `treatment` value prefixed with invisible format char after corrupt/missing relational storage.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` does not use `NormalizeInspectEnumToken` even though relational overlay band path does — locus: ~386–394 vs `ResolveInspectSemanticSupportBand` ~296–300; input: payload band string with leading ZWSP when overlay column absent.
-- [ ] (candidate) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` while non-blank ids are trimmed only at SQL bind time via `NormalizeFindingId` — locus: ~30–31 vs `MainLoad` parameter; input: inspect API with `"   "` finding id (distinct from padded ids like `" finding-1 "`).
-- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format/control characters inside otherwise valid severity tokens throw `InvalidDataException` instead of edge-trimming like `NormalizeInspectEnumToken` — locus: mapper ~14–20 vs core token helper ~180–221; input: persisted `Severity` column `Crit\u200Bical` on relational inspect row.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters failed `Enum.TryParse` without `NormalizeInspectEnumToken` — **hit 2026-10-31 thorough hunt:** parity with overlay band path; regression `ResolveInspectClassification_parses_typed_payload_after_leading_invisible_format_characters`.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — **hit 2026-10-31 thorough hunt:** regression `ResolveInspectTreatment_parses_typed_payload_string_after_leading_invisible_format_characters`.
+- [x] (proven) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` omitted `NormalizeInspectEnumToken` — **hit 2026-10-31 thorough hunt:** regression `ResolveInspectSemanticSupportBand_parses_typed_payload_after_leading_invisible_format_characters`.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` — **cheap-disproof 2026-10-31 thorough hunt:** intentional input validation before SQL; padded non-blank ids trim via `NormalizeFindingId`; regression `GetInspectAsync_throws_when_finding_id_is_whitespace`.
+- [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format characters inside severity tokens throw `InvalidDataException` — **cheap-disproof 2026-10-31 thorough hunt:** intentional fail-closed contract; `NormalizeInspectEnumToken` trims edges only; regressions `ParseFindingSeverity_parses_after_leading_invisible_format_characters` and `NormalizeInspectDisplayText_returns_null_when_model_metadata_contains_format_characters` for embedded format rejection class.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — PascalCase JSON property `Classification` ignored while camelCase `classification` parses — locus: `TryGetProperty("classification")` only; input: legacy PascalCase typed payload after camelCase migration; reachability: older persisted `PayloadJson` blobs before wizard camelCase write.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectTreatment` — numeric JSON `treatment` accepted while string enum tokens with trailing-only format chars still omit normalization on numeric path — locus: dual string/number branches; input: `"treatment": "\u200B1"` string form vs numeric `1`; reachability: hand-edited payload JSON in support tooling.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — corrupt-payload metadata fallback never surfaces classification/treatment from relational columns when `PayloadJson` invalid — locus: metadata slim payload vs `ResolveInspectClassification` storage-first; input: corrupt JSON with null classification storage byte; reachability: operator inspect after partial migration.
+- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — typed-payload density resolution diverges from Dapper when in-memory record stores overlay band with trailing format char only — locus: in-memory vs SQL overlay column parity; input: trailing ZWSP on semantic support band string; reachability: dev/demo in-memory storage mode.
+- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `@FindingId` bind trims padded ids but archived-run `TOP 1` ordering may prefer wrong rerun when `CreatedUtc` ties — locus: `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; input: two active reruns with identical `CreatedUtc`; reachability: rapid double-commit on same finding id.
 
 ---
 
