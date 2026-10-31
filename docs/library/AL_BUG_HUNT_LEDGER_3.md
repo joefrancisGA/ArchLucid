@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-10-31 seed hunt (seed-only): cooldown fallback selected the low-yield `ui-form-validation` zone; reread `SignupForm` submit gating, optional-field transitions, response handling, and payload shaping. The five existing candidate lenses were not promoted to hunt-ready in this pass; the focused SignupForm suite passed 144/144. No production code changed.
+
 2026-10-30 seed hunt #93 (seed-only): re-read `signupFormSchema`, `SignupForm` field wiring, payload shaping, and the current 144-test focused suite; rendered limits match schema limits, submit gating and retry guards remain covered, and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-31 seed hunt (seed-only): reread `SignupForm` submit/payload shaping and optional-field transitions; no candidate was promoted in this pass, and five bounded response/payload candidates were seeded below. No production change. Private beta: n/a.
@@ -3022,6 +3024,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 **Hunts:** 93 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread token-endpoint numeric/error classification, callback-message decoding and confusable folding, discovery endpoint validation/cache, and recent OIDC test coverage. The scoped `src/lib/oidc` suite passed 1030/1030; discovery’s unused issuer field was not promoted because no browser security or user-visible behavior consumes it. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; fresh rereading of PKCE generation/storage, primary versus supplemental redirect cleanup, discovery failure handling, token/BFF session synchronization, callback error normalization, and JWT/expiry parsing found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread PKCE primary/Google flow isolation, callback-state consumption, tampered sessionStorage rejection, identity-aware sign-out cleanup, and RP logout fallback behavior found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread BFF session sync token shaping, CSRF-protected refresh/activity requests, refresh expiry acceptance, RP logout URL safety, and network-failure soft handling found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread authorize callback error normalization, readable-detail filtering, message truncation, standard-code humanization, and malformed/encoded description handling found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread JWT payload decoding/display-claim precedence, nonce normalization, UTF-8 and malformed payload handling, and `expires_in` numeric boundary coercion found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
@@ -9364,6 +9376,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-31 seed hunt (seed-only, cooldown fallback): rotation avoided `ui-review-detail-workspace` after its three-run low-yield streak, but returned it as the only eligible zone; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
 
 2026-10-31 seed hunt (seed-only, cooldown fallback): rotation moved from the three-run OIDC low-yield streak back to `ui-review-detail-workspace`, but all open zones remained demoted; the mapped tab, hash, and scroll suite passed 19/19, with no new reachable mechanism and no production change.
+
+2026-10-31 seed hunt (seed-only, cooldown fallback): reread `RunDetailSectionNav`, the deferred tabbed workspace shell, and `useReviewDetailWorkspaceTabs`; workspace URL-sync, tabbed-shell, and evidence-panel tests passed 10/10. The sticky-offset assertion in `RunDetailSectionNav.test.tsx` remains test/setup drift because the shared workspace-mode mock resolves guided eval chrome despite the test’s operator environment override. Seeded one bounded deferred-section retry candidate and made no production change.
+
+- [ ] (candidate) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window is never scrolled into view — locus: `lib/review-detail-section-scroll.ts`; input: a review deep link/hash to a below-fold deferred section while its dynamic chunk takes longer than 400ms to mount; wrong outcome: the operator lands on the review page but the requested section remains unscrolled; reachability: `RunDetailSectionNav` and workspace hash navigation call the scheduler for sections rendered by deferred tabbed-workspace imports.
 
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
