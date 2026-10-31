@@ -3846,4 +3846,54 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("starch.blob.core.windows.net");
     }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoding_with_port_yields_decoded_host_including_port()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders.servicebus.windows.net:5671/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders.servicebus.windows.net:5671");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "Host=tcp:%70g.postgres.database.azure.com,5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_us_gov_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.us;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.us");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoding_yields_decoded_catalog()
+    {
+        const string value = "Host=pg.postgres.database.azure.com;Database=%61pp;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().Be("app");
+    }
 }

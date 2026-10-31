@@ -144,7 +144,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return null;
         }
 
-        string catalog = match.Groups["catalog"].Value.Trim();
+        string catalog = Uri.UnescapeDataString(match.Groups["catalog"].Value.Trim());
 
         if (string.IsNullOrWhiteSpace(catalog))
         {
