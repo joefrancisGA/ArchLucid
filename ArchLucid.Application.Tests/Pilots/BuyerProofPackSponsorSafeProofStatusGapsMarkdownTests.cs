@@ -1277,6 +1277,34 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_pilot_strict_failed_uses_deltas_not_stale_proof_satisfied_flag()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+        };
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_pilot_strict_unresolved_matches_proof_package_row()
     {
         PilotRunDeltas deltas = new() { AgentOutputPilotStrictSignalsResolved = false, };

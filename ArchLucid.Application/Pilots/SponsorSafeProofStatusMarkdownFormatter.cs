@@ -128,7 +128,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved)
             yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved();
-        else if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        else if (deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
             yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
