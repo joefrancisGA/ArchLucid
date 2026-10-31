@@ -785,9 +785,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-10-31 seed hunt (seed-only): reread `DraftNewCommand` wrapper delegation, `DraftNewCommandOptions`/`ArgParser`, JSON preflight in `DraftNewCommandIntakeLoop`, connect/admit/must-question stage boundaries, and submit/execute cancellation handling. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
 2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; reread `DraftNewCommand.cs` and its focused core-test contract, including option parsing, cancellation delegation, interactive/JSON intake handoff, and the `DraftNewCommandIntakeLoop` boundary. The wrapper has no additional reachable mechanism beyond the covered delegation path; `DraftNewCommandCoreTests` passed 73/73 and no production code changed.
 
-**Hunts:** 59 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 60 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
 
 2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
