@@ -402,4 +402,45 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         row.Should().Contain(prose);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_roi_partial_matches_proof_package_row()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Partial,
+            RoiConfidenceLabel = "Defaulted from ROI model options",
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain;
+        gaps.Should().Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI evidence confidence |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(prose);
+        row.Should().Contain("Defaulted from ROI model options");
+    }
 }

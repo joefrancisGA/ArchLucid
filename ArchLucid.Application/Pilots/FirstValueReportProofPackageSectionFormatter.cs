@@ -41,7 +41,8 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
-        sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {FormatRoiConfidenceLabel(c.RoiConfidenceLabel)} |");
+        sb.AppendLine(
+            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(c.RoiEvidenceConfidence, c.RoiConfidenceLabel)} |");
 
         if (c.RoiBaselineInputs is not null)
         {
