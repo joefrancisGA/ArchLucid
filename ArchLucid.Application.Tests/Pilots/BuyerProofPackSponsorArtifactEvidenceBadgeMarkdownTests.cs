@@ -24,6 +24,41 @@ public sealed class BuyerProofPackSponsorArtifactEvidenceBadgeMarkdownTests
         badges.WarnBeforeSponsorSend.Should().BeFalse();
     }
 
+    [Fact]
+    public void BuyerProofPack_badge_pricing_basis_when_stale_proof_strong_but_roi_claim_gate_low_uses_heuristic_fallback()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "Hold",
+            "Hold narrative");
+
+        string savingsBasis = FirstValueReportBuilder.ResolveSavingsPricingBasisForBadges(
+            proof,
+            new PilotRunDeltas(),
+            hasUploadedCostEvidence: false,
+            roiClaimGate);
+
+        savingsBasis.Should().Be(SponsorRoiSavingsPricingBasis.HeuristicFallback);
+
+        SponsorArtifactEvidenceBadgeSummary badges = SponsorArtifactEvidenceBadgeMarkdownFormatter.Resolve(
+            new PilotRunDeltas(),
+            proof,
+            CreateSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions),
+            savingsBasis,
+            RoiCostEvidenceFreshness.Fresh);
+
+        badges.SourceToken.Should().Be("heuristic-fallback");
+        badges.WarnBeforeSponsorSend.Should().BeTrue();
+    }
+
     private static ValueReportSnapshot CreateSnapshot(ReviewCycleBaselineProvenance provenance)
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

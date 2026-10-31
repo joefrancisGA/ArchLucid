@@ -243,7 +243,7 @@ public sealed class FirstValueReportBuilder(
             deltas,
             proofCompleteness,
             valueWindowSnapshot,
-            ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
+            ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence, roiClaimGate),
             costEvidenceFreshnessForBadges);
         SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(
             sb,
@@ -332,16 +332,23 @@ public sealed class FirstValueReportBuilder(
             llmCompletionTraceCount);
     }
 
-    private static string ResolveSavingsPricingBasisForBadges(
+    internal static string ResolveSavingsPricingBasisForBadges(
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        bool hasUploadedCostEvidence)
+        bool hasUploadedCostEvidence,
+        SponsorRoiClaimDispositionResult roiClaimGate)
     {
+        ArgumentNullException.ThrowIfNull(proof);
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(roiClaimGate);
+
+        PilotRoiEvidenceConfidence roiConfidence = roiClaimGate.EvidenceConfidence;
+
         return SponsorRoiSavingsPricingBasis.Resolve(
             1.0m,
             hasUploadedCostEvidence,
             hasHeuristicCostEvidence: !hasUploadedCostEvidence
-                && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low
+                && roiConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low
                 && !deltas.IsDemoTenant);
     }
 
