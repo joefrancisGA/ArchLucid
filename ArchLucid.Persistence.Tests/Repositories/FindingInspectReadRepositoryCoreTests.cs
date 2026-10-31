@@ -3041,4 +3041,61 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.NormalizeFindingId("\u200Bfinding-1").Should().Be("\u200Bfinding-1");
     }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement camel = JsonSerializer.SerializeToElement(new { classification = "ChecklistCoverage" });
+        JsonElement snakeCaseKey = JsonDocument.Parse("""{"checklist_coverage":"ChecklistCoverage"}""").RootElement;
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, camel)
+            .Should().Be(FindingClassification.ChecklistCoverage);
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, snakeCaseKey).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement camel = JsonSerializer.SerializeToElement(new { treatment = 1 });
+        JsonElement snakeCaseKey = JsonDocument.Parse("""{"demote_to_checklist":1}""").RootElement;
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, camel)
+            .Should().Be(FindingTreatment.DemoteToChecklist);
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, snakeCaseKey).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { treatment = 1 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"treatment":"1\u200B"}""").RootElement;
+
+        FindingTreatment? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, numeric);
+        FindingTreatment? fromString = FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingTreatment.DemoteToChecklist);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_corrupt_payload_and_title_is_invisible_unicode()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "\u200B",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void NormalizeFindingId_preserves_trailing_format_character()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");
+    }
 }

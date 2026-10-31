@@ -257,6 +257,14 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
     public void ParseHumanReview_parses_after_leading_invisible_format_characters()
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("\u200BPending");
