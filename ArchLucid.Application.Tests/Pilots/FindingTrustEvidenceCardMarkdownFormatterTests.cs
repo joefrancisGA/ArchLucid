@@ -169,7 +169,8 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
-        sb.ToString().Should().Contain("Proof sendability and publishing tier were not stored.");
+        sb.ToString().Should().Contain("`Partial`");
+        sb.ToString().Should().NotContain("Proof sendability and publishing tier were not stored.");
     }
 
     [Fact]

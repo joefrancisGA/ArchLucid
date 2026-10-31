@@ -128,6 +128,50 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
         sb.ToString().Should().Contain(PilotTopFindingPresentationHonestyCopy.SeverityNotStored);
     }
 
+    [Fact]
+    public void Evidence_card_sendability_row_matches_proof_package_mirror_when_sendable()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Error",
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+            PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+        };
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string expected =
+            PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(proof);
+
+        cardSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Buyer-safe proof sendability (API checklist) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

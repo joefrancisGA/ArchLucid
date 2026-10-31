@@ -93,7 +93,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Buyer-safe proof sendability (API checklist) | {FormatProofSendabilityPublishingTier(proof)} |");
+            $"| Buyer-safe proof sendability (API checklist) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(proof)} |");
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -158,27 +158,4 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
     private static string FormatInlineCodeCell(string value)
         => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
-
-    private static string FormatProofSendabilityPublishingTier(ProofPackageCompletenessResponse proof)
-    {
-        string sendability = proof.ProofSendability?.Trim() ?? string.Empty;
-        string tier = proof.PublishingTier?.Trim() ?? string.Empty;
-
-        if (sendability.Length == 0 && tier.Length == 0)
-        {
-            return "Proof sendability and publishing tier were not stored.";
-        }
-
-        if (sendability.Length == 0)
-        {
-            return $"Proof sendability was not stored. Publishing tier: {FormatInlineCodeCell(tier)}.";
-        }
-
-        if (tier.Length == 0)
-        {
-            return $"Proof sendability: {FormatInlineCodeCell(sendability)}. Publishing tier was not stored.";
-        }
-
-        return $"{FormatInlineCodeCell(sendability)} · {FormatInlineCodeCell(tier)}";
-    }
 }
