@@ -19963,6 +19963,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-31 thorough hunt #1085 (dry): no rotation (`shouldRotate: false`; `context-ingestion` low-yield streak **3/3** in run log after this dry — next `/4` should `-AvoidZoneId` rotate away). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #1084 — same monitor class as #924/#1084: **invalid** multiline block-comment redact (hunt #920 regression), **valid-no-repro** inline block-comment suffix (hunt #920), **valid-no-repro** unclosed heredoc EOF masking (hunt #908), **invalid** duplicate diagram node ids without intake path (hunt #908), **valid-no-repro** decoy resource header inside multiline string property scan (hunt #920). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). No production change. Private beta: n/a.
+
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — `#` or `//` comment lines containing `<<` may start heredoc masking before line-comment stripping — locus: scan order vs `MaskLineComments`; input: commented heredoc example followed by real `resource` header (monitor; hunt #908 regression family).
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — double-quoted assignment values containing `<<` may start heredoc masking on the assignment line — locus: quote-aware opener detection; input: `description = "see <<EOF"` before a real resource (monitor; hunt #912 regression family).
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — trimmed whole-line `/* … */` block comments may still be scanned as assignment keys — locus: whole-line block-comment skip before key scan; input: `/* password = secret */` only row in block (monitor; hunt #916 regression family).
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.ParseAsync` — heredoc body text containing decoy `resource "type" "name"` may promote a second resource — locus: masked body vs `ExtractBlocks`; input: heredoc-embedded example header (monitor; hunt #856/#916 regression family).
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.ResourceHeaderRegex` — single-quoted Terraform resource headers may parse as zero resources — locus: header alternation; input: `resource 'azurerm_virtual_network' 'core'` (monitor; hunt #55 regression family).
+
+- [x] (invalid) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` may still redact when comment spans lines — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #920 regression above.
+- [x] (valid-no-repro) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on an assignment line — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #920 regression above.
+- [x] (valid-no-repro) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — reachable Terraform with an unclosed heredoc may leave post-opener lines masked through EOF — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #908 conservative EOF masking.
+- [x] (invalid) `ArchitectureDiagramCanonicalObjectMapper.Map` — duplicate trimmed diagram node IDs — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #908 intake-path monitor.
+- [x] (valid-no-repro) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header text inside a non-heredoc multiline string — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #920 property-scan monitor.
+
 2026-10-31 thorough hunt #1084 (dry): no rotation (`shouldRotate: false`; `knowledge-graph-provenance` low-yield streak **1/3** in run log — below `minLowYieldStreak` 3). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #924 — **invalid** multiline `/* */` password false-positive redact (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment`; hunt #920), **valid-no-repro** inline `/* password = … */` suffix non-redacting (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_inline_block_comment_suffix`; hunt #920), **valid-no-repro** unclosed heredoc EOF masking on malformed uploads (conservative by design; hunt #908), **invalid** duplicate trimmed diagram node IDs without supported intake path (hunt #908), **valid-no-repro** decoy `resource` header text inside non-heredoc multiline strings emits properties only (`ParseBodyIntoProperties` does not promote string literals to resources; hunt #920). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). No production change. Private beta: n/a.
 
 - [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — reachable Terraform with an unclosed heredoc may leave post-opener lines masked through EOF — locus: heredoc terminator state at EOF; input: truncated upload with valid resource after opener (monitor).
@@ -22098,9 +22112,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1065
+- **hunts:** 1066
 - **bugs-found:** 432
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — multiline block-comment false-positive whole-block redaction
 - **related-pd-tb:** none
