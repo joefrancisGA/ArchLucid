@@ -2943,4 +2943,61 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         treatment.Should().Be(FindingTreatment.DemoteToChecklist);
     }
+
+    [Fact]
+    public void ResolveInspectClassification_parses_typed_payload_when_property_name_has_surrounding_whitespace()
+    {
+        JsonElement typed = JsonDocument.Parse("""{" classification " : "ChecklistCoverage"}""").RootElement;
+
+        FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed);
+
+        classification.Should().Be(FindingClassification.ChecklistCoverage);
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { semanticSupportBand = 2 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"semanticSupportBand":"2\u200B"}""").RootElement;
+
+        FindingSemanticSupportBand? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, numeric);
+        FindingSemanticSupportBand? fromString = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingSemanticSupportBand.Unsupported);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_rationale_is_whitespace_only()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{not-json",
+            title: null,
+            rationale: "   ");
+
+        typed.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_undefined_numeric_ninety_nine_while_preserving_pointer_metadata()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            "99",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            reviewerUserId: "reviewer-1",
+            rowVersionStamp: [1, 2, 3]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionEventId.Should().Be(Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-1");
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_drops_invisible_format_character_only_entries()
+    {
+        FindingInspectReadRepositoryCore.FilterRecommendedActions(["\u200B", "Enable TLS"]).Should().Equal("Enable TLS");
+    }
 }

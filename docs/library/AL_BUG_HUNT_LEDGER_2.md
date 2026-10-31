@@ -1773,6 +1773,20 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-31 thorough hunt (hit): proved `TryGetTypedPayloadProperty` matched typed-payload keys with case-insensitive ordinal compare only, so pretty-printed JSON property names with surrounding ASCII whitespace (for example `" classification "`) never resolved `classification`, `treatment`, or `semanticSupportBand` on inspect read; trim payload property names before case-insensitive compare; regression `ResolveInspectClassification_parses_typed_payload_when_property_name_has_surrounding_whitespace`; cheap-disproof closed four sibling `(candidate)` rows (trailing format char on string numeric `semanticSupportBand` — `NormalizeInspectEnumToken` parity with numeric JSON — regression `ResolveInspectSemanticSupportBand_parses_string_numeric_token_with_trailing_format_character_like_numeric_json`; corrupt payload with whitespace-only rationale — regression `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_rationale_is_whitespace_only`; undefined numeric disposition `"99"` — #1243 class — regression `MapDispositionPointerProjection_returns_null_disposition_for_undefined_numeric_ninety_nine_while_preserving_pointer_metadata`; format-only recommended actions — regression `FilterRecommendedActions_drops_invisible_format_character_only_entries`); reseeded five follow-on `(candidate)` rows; **440/440** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: Invited operators opening finding inspect on support-exported or hand-edited `PayloadJson` with padded property names see classification, treatment, and semantic support band instead of null.
+
+- [x] (proven) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — JSON property names with surrounding whitespace — **hit 2026-10-31 thorough hunt:** trim property names on case-insensitive match; regression above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — string `"2\u200B"` vs numeric `2` — **cheap-disproof 2026-10-31 thorough hunt:** `NormalizeInspectEnumToken`; regression above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — whitespace-only rationale with corrupt fallback — **cheap-disproof 2026-10-31 thorough hunt:** both fields normalize to null; regression above.
+- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` / `ParseDisposition` — undefined numeric `"99"` — **cheap-disproof 2026-10-31 thorough hunt:** #1243 `Enum.IsDefined` guard; regression above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — format-only action entries — **cheap-disproof 2026-10-31 thorough hunt:** `NormalizeInspectText`; regression above.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — snake_case typed-payload keys (`semantic_support_band`) not aliased to camelCase — locus: property name compare; input: `semantic_support_band` key; reachability: only if exporter emits snake_case (monitor).
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveInspectClassification` — numeric JSON classification accepted while string `"1\u200B"` fails — locus: string vs number branches; input: padded numeric string token; reachability: hand-edited payload JSON.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — `whyThisMatters` key emitted with null value when title is non-null whitespace-only — locus: `title is not null` guard ~127; input: whitespace title + valid rationale on corrupt fallback; reachability: slim inspect metadata paint.
+- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — severity token with only combining marks after trim rejected while overlay enums strip format chars — locus: `NormalizeInspectEnumToken` vs severity path; input: severity string with trailing ZWSP; reachability: persisted `FindingRecords.Severity`.
+- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` — `@FindingId` bind trim vs stored id with leading format character may miss row — locus: `NormalizeFindingId` trim-only; input: finding id with leading U+200B in DB; reachability: keyboard paste persistence (fail-closed monitor).
+
 2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — kebab-case `semantic-support-band` is a different JSON key than camelCase `semanticSupportBand` with no documented producer path (case-insensitive match is not kebab aliasing); trailing format characters on treatment enum strings are stripped by `NormalizeInspectEnumToken` (same helper as leading-edge hits); corrupt payload with whitespace-only title/rationale intentionally yields null metadata (`ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_whitespace_only_fields`); numeric severity string `"2"` maps via existing mapper contract (`ParseFindingSeverity_maps_defined_numeric_string_two_to_error`); interior format characters in finding ids are not stripped by `NormalizeFindingId` trim-only by design so mismatched ids fail lookup rather than cross-finding reads; reseeded five follow-on `(candidate)` rows; **435/435** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-10-31 thorough hunt (hit): proved typed-payload density resolvers ignored PascalCase JSON property names (`Classification`, `Treatment`, `semanticSupportBand`) while camelCase keys parsed; `TryGetTypedPayloadProperty` resolves inspect payload keys case-insensitively for all three enum resolvers; regression `ResolveInspectClassification_parses_pascal_case_typed_payload_property`; cheap-disproof closed numeric-string `treatment` with leading format char (`ResolveInspectTreatment_parses_numeric_string_typed_payload_after_leading_invisible_format_characters` — normalize + enum parse already handles `\u200B1`), corrupt-payload metadata vs relational storage (`ResolveInspectClassification` storage-first in Dapper map), in-memory overlay trailing format char (in-memory path uses `Finding` fields, not SQL overlay column), and `CreatedUtc` tie run selection (`ORDER BY r.CreatedUtc DESC, r.RunId DESC`); reseeded five follow-on `(candidate)` rows; **435/435** scoped inspect mapper/sql/repository-core tests passed (`RunAnalyzers=false`). Private beta: Finding inspect shows density fields from older PascalCase `PayloadJson` blobs instead of null after the camelCase migration.
@@ -1789,11 +1803,11 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 91
-- **bugs-found:** 28
-- **consecutive-dry-hunts:** 1
+- **hunts:** 92
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — PascalCase typed-payload property names ignored on inspect read
+- **last-bug:** 2026-10-31 — typed-payload JSON property names with surrounding whitespace ignored on inspect read
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2347,11 +2361,17 @@
 - [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` — numeric string severity `"2"` throws — **cheap-disproof 2026-10-31 thorough hunt:** regression `ParseFindingSeverity_maps_defined_numeric_string_two_to_error`.
 - [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` — padded finding id with interior format characters may not match SQL bind — **cheap-disproof 2026-10-31 thorough hunt:** `NormalizeFindingId` is trim-only; interior format prevents match (fail-closed) rather than wrong-finding inspect.
 
-- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — JSON property names with surrounding whitespace may not match camelCase keys — locus: `EnumerateObject` exact name compare after case-insensitive equality; input: `" classification "` key in payload object; reachability: pretty-printed support exports.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — numeric JSON `semanticSupportBand` accepted while string `"2\\u200B"` string form fails — locus: number branch vs string normalize path; input: string numeric token with trailing format char; reachability: hand-edited payload JSON.
-- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — `includeWhyThisMattersWhenTitleMissing` copies rationale into `whyThisMatters` even when rationale is whitespace-only after trim — locus: metadata builder; input: corrupt payload fallback with whitespace rationale; reachability: slim inspect first paint.
-- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition subquery may surface pointer metadata when `LatestDisposition` enum string is undefined numeric — locus: mapper `ParseDisposition`; input: stored disposition `"99"`; reachability: legacy review event rows (monitor — #1243 class).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — action string with only format characters may pass `IsNullOrWhiteSpace` before format rejection — locus: recommended-action filter ordering; input: `"\u200B"` action entry; reachability: SQL follow-up batch recommended actions.
+- [x] (proven) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — padded JSON property names — **hit 2026-10-31 thorough hunt:** see hit diary above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — string numeric with trailing format char — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — whitespace-only rationale on corrupt fallback — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
+- [x] (valid-no-repro) `FindingInspectReadSql.FollowUpBatch` — undefined numeric disposition `"99"` — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — format-only actions — **cheap-disproof 2026-10-31 thorough hunt:** see hit diary above.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.TryGetTypedPayloadProperty` — JSON property names with surrounding whitespace may not match camelCase keys — **promoted hit 2026-10-31:** see hit diary; row closed above.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — numeric JSON vs string `"2\u200B"` — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildMetadataTypedPayload` — whitespace rationale on corrupt fallback — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
+- [ ] (candidate) `FindingInspectReadSql.FollowUpBatch` — disposition `"99"` — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.FilterRecommendedActions` — `\u200B` action — **cheap-disproof 2026-10-31:** see hit diary; row closed above.
 
 ---
 
