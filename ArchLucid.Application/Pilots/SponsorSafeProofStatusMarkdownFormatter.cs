@@ -109,10 +109,10 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
+        if (proof is { CommittedManifestPresent: true, RunInCommittedStatus: true, TimeToCommittedManifestResolved: false })
             yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
-        if (!proof.ArtifactDescriptorCountResolved)
+        if (proof is { CommittedManifestPresent: true, RunInCommittedStatus: true, ArtifactDescriptorCountResolved: false })
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
