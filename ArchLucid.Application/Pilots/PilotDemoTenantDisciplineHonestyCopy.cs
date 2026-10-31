@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Pilots;
+
 namespace ArchLucid.Application.Pilots;
 
 internal static class PilotDemoTenantDisciplineHonestyCopy
@@ -12,4 +14,16 @@ internal static class PilotDemoTenantDisciplineHonestyCopy
         demoTenantWarningRequired ? FailedPlain : PassPlain;
 
     internal static string FormatSponsorSafeConcreteGapLine() => FailedPlain;
+
+    internal static string FormatSponsorFirstPageEvidenceSourceCell(ProofPackageCompletenessResponse proof)
+    {
+        ArgumentNullException.ThrowIfNull(proof);
+
+        if (proof.DemoTenantWarningRequired)
+            return FailedPlain;
+
+        return proof.BuyerSafeRedactionProfile.Length > 0
+            ? $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.BuyerSafeRedactionProfile)} — tenant-scoped persisted proof fields."
+            : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
+    }
 }

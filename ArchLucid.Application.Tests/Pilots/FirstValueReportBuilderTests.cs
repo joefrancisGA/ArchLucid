@@ -306,7 +306,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("## Sponsor first-page status");
         md.Should().Contain("## Sponsor-safe proof status");
         md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
-        md.Should().Contain("| Evidence source | **Demo-derived** — illustrative sample output; do not present as buyer outcome. |");
+        md.Should().Contain("| Evidence source | " + PilotDemoTenantDisciplineHonestyCopy.FailedPlain + " |");
         md.Should().Contain("| Recommended next action | Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send. |");
         md.Should().Contain("| ROI claim gate | **HOLD**");
         md.Should().Contain("Demo or sample tenant scope");

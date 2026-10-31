@@ -51,15 +51,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof)
-    {
-        if (proof.DemoTenantWarningRequired)
-            return "**Demo-derived** — illustrative sample output; do not present as buyer outcome.";
-
-        return proof.BuyerSafeRedactionProfile.Length > 0
-            ? $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.BuyerSafeRedactionProfile)} — tenant-scoped persisted proof fields."
-            : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
-    }
+    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof) =>
+        PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof);
 
     private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof) =>
         PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(proof.AgentOutputPilotStrictEvidenceSatisfied);

@@ -918,4 +918,54 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .Contain(expected);
     }
+
+    [Fact]
+    public void Sponsor_status_evidence_source_matches_proof_discipline_when_demo_tenant()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = true,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NotSponsorSafeYet,
+            proof,
+            new PilotRunDeltas { IsDemoTenant = true },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas { IsDemoTenant = true },
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotDemoTenantDisciplineHonestyCopy.FailedPlain;
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence source |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Non-demo / external-share discipline |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
 }
