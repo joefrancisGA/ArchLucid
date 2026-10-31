@@ -6061,6 +6061,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: extraction-router
 
+2026-10-31 thorough hunt (hunt 255, hit): no rotation (`shouldRotate: false`; streak zone `extraction-router` has no qualifying low-yield streak). Promoted corner quotes `「owner」` (U+300C/U+300D) to ownership label delimiters; added `fedramp-moderate` human-review marker; extended hyphen needles with U+2013 en dash for PDF `to–be` token headers; matrix case `corner-quote-owner`; regressions in `DifficultyBasedExtractionRouterHunt255ProbeTests`. Cheap-disproof closed two sibling `(candidate)` rows — **valid-no-repro** punctuation space `\u2008` inside `data protection` (flexible phrase whitespace; regression `Classify_returns_human_review_for_data_protection_with_punctuation_space`), **valid-no-repro** horizontal bar `\u2015` between `as` and `is` with ASCII `to be` (dual lifecycle; regression `Classify_returns_ambiguous_for_horizontal_bar_as_is_typo_with_ascii_to_be`). Reseeded five `(candidate)` rows; scoped filter **124/124** passed (`RunAnalyzers=false`). Private beta: FedRAMP moderate checklist shorthand routes to human review; PDF en-dash lifecycle headers tag target-state components; corner-quote RACI paste no longer spurious ownership gaps when legacy capacity is unowned elsewhere.
+
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner quotes `「owner」` (U+300C/U+300D) CJK labels — **hit 2026-10-31 thorough hunt (hunt 255):** U+300C/U+300D delimiters; matrix `corner-quote-owner`; regression `Extract_does_not_emit_ownership_gap_for_corner_quote_owner_label_with_unowned`.
+- [x] (valid-no-repro) `ContainsPhraseMarker` — punctuation space `\u2008` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** flexible phrase whitespace; regression above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — horizontal bar `\u2015` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** dual lifecycle from ASCII `to be`; regression above.
+- [x] (proven) `ContainsHumanReviewMarker` — `fedramp-moderate` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 255):** marker list; regression `Classify_returns_human_review_for_fedramp_moderate_hyphenated_shorthand`.
+- [x] (proven) `InferLifecycleScopeForIndex` — en dash `\u2013` inside `to–be` token header — **hit 2026-10-31 thorough hunt (hunt 255):** U+2013 in `MatchesAsciiHyphenNeedle`; regression `Extract_tags_target_lifecycle_scope_after_en_dash_to_be_header`.
+
+- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — white corner brackets `『owner』` (U+300E/U+300F) CJK labels — locus: delimiter set; input: localized RACI paste with `unowned` elsewhere.
+- [ ] (candidate) `ContainsPhraseMarker` — four-per-em space `\u2005` inside spaced regulatory phrases — locus: flexible whitespace; input: typography-export compliance paste (monitor).
+- [ ] (candidate) `FindBoundedMarkerIndex` — em dash `\u2014` inside `as—is` token header paired with ASCII `to be` — locus: phrase vs token split; input: deck lifecycle typo (monitor).
+- [ ] (candidate) `ContainsHumanReviewMarker` — `nist-800-171` hyphenated checklist shorthand — locus: marker list; input: audit workbook paste (monitor).
+- [ ] (candidate) `InferLifecycleScopeForIndex` — minus sign `\u2212` inside `to−be` token header — locus: hyphen needle set; input: PDF minus-sign export (monitor).
+
 2026-10-31 thorough hunt (hunt 254, hit): no rotation (`shouldRotate: false`; streak zone `extraction-router` has no qualifying low-yield streak). Promoted double angle brackets `《owner》` (U+300A/U+300B) to ownership label delimiters; added `iso-27001` human-review marker; extended hyphen needles with U+2012 figure dash for PDF `to‐be` token headers; matrix case `double-angle-bracket-owner`; regressions in `DifficultyBasedExtractionRouterHunt254ProbeTests`. Cheap-disproof closed two sibling `(candidate)` rows — **valid-no-repro** thin space `\u2009` inside `data protection` (flexible phrase whitespace; regression `Classify_returns_human_review_for_data_protection_with_thin_space`), **valid-no-repro** en dash `\u2013` between `as` and `is` with ASCII `to be` (dual lifecycle; regression `Classify_returns_ambiguous_for_en_dash_as_is_typo_with_ascii_to_be`). Reseeded five `(candidate)` rows; scoped filter **118/118** passed (`RunAnalyzers=false`). Private beta: audit workbook `iso-27001` shorthand and PDF figure-dash lifecycle headings classify for human review and tag target-state components; book-title bracket RACI paste no longer spurious ownership gaps when legacy capacity is unowned elsewhere.
 
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — double angle brackets `《owner》` (U+300A/U+300B) CJK book-title labels — **hit 2026-10-31 thorough hunt (hunt 254):** U+300A/U+300B delimiters; matrix `double-angle-bracket-owner`; regression `Extract_does_not_emit_ownership_gap_for_double_angle_bracket_owner_label_with_unowned`.
@@ -6069,11 +6083,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 254):** marker list; regression `Classify_returns_human_review_for_iso_27001_hyphenated_shorthand`.
 - [x] (proven) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — **hit 2026-10-31 thorough hunt (hunt 254):** U+2012 in `MatchesAsciiHyphenNeedle`; regression `Extract_tags_target_lifecycle_scope_after_figure_dash_to_be_header`.
 
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — corner quotes `「owner」` (U+300C/U+300D) CJK labels — locus: delimiter set; input: localized RACI paste with `unowned` elsewhere.
-- [ ] (candidate) `ContainsPhraseMarker` — punctuation space `\u2008` inside spaced regulatory phrases — locus: flexible whitespace; input: typography-export compliance paste (monitor).
-- [ ] (candidate) `FindBoundedMarkerIndex` — horizontal bar `\u2015` between `as` and `is` in slide headings — locus: phrase needles; input: deck lifecycle typo (monitor).
-- [ ] (candidate) `ContainsHumanReviewMarker` — `fedramp-moderate` hyphenated checklist shorthand — locus: marker list; input: audit workbook paste (monitor).
-- [ ] (candidate) `InferLifecycleScopeForIndex` — en dash `\u2013` inside `to–be` token header — locus: hyphen needle set; input: PDF en-dash export (monitor).
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner quotes `「owner」` (U+300C/U+300D) CJK labels — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (valid-no-repro) `ContainsPhraseMarker` — punctuation space `\u2008` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — horizontal bar `\u2015` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (proven) `ContainsHumanReviewMarker` — `fedramp-moderate` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (proven) `InferLifecycleScopeForIndex` — en dash `\u2013` inside `to–be` token header — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
 
 2026-10-31 thorough hunt (hunt 253, hit): no rotation (`shouldRotate: false`; run-log low-yield streak on `application-pilots` is **1/3** — below `minLowYieldStreak` 3). Promoted lenticular brackets `〔owner〕` (U+3014/U+3015) to ownership label delimiters; added `soc-2` to human-review regulatory markers; extended `TryMatchBoundedMarker` hyphen needles to accept U+2011 narrow no-break hyphen so PDF `to‑be` token headers establish target-state lifecycle boundaries; matrix case `lenticular-bracket-owner`; regressions in `DifficultyBasedExtractionRouterHunt253ProbeTests`. Cheap-disproof closed three sibling `(candidate)` rows — **valid-no-repro** hair space `\u200A` inside `data protection` (flexible phrase whitespace; regression `Classify_returns_human_review_for_data_protection_with_hair_space`), **valid-no-repro** em dash `\u2014` between `as` and `is` with ASCII `to be` (dual lifecycle; regression `Classify_returns_ambiguous_for_em_dash_as_is_typo_with_ascii_to_be`), **valid-no-repro** narrow hyphen regulatory token family already covered once `soc-2` hyphen needle ships. Reseeded five `(candidate)` rows; scoped filter **112/112** passed (`RunAnalyzers=false`). Private beta: PDF-export lifecycle headings with narrow no-break hyphens and checklist `soc-2` shorthand route to human review and correct target-state component tagging; localized lenticular-bracket RACI labels no longer invent ownership gaps when legacy capacity is unowned elsewhere.
 
@@ -6083,17 +6097,23 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `ContainsHumanReviewMarker` — `soc-2` hyphenated variant — **hit 2026-10-31 thorough hunt (hunt 253):** marker list + bounded hyphen match; regression `Classify_returns_human_review_for_soc_2_hyphenated_shorthand`.
 - [x] (proven) `InferLifecycleScopeForIndex` — narrow no-break hyphen in `to‑be` (U+2011) token header — **hit 2026-10-31 thorough hunt (hunt 253):** `MatchesAsciiHyphenNeedle` in `TryMatchBoundedMarker`; regression `Extract_tags_target_lifecycle_scope_after_narrow_no_break_hyphen_to_be_header`.
 
-- [ ] (candidate) `FindBoundedOwnershipMarkerIndex` — double angle brackets `《owner》` (U+300A/U+300B) CJK book-title labels — locus: delimiter set; input: localized RACI paste with `unowned` elsewhere.
-- [ ] (candidate) `ContainsPhraseMarker` — thin space `\u2009` inside spaced regulatory phrases — locus: flexible whitespace; input: typography-export compliance paste (monitor).
-- [ ] (candidate) `FindBoundedMarkerIndex` — en dash `\u2013` between `as` and `is` in slide headings — locus: phrase needles; input: deck lifecycle typo (monitor).
-- [ ] (candidate) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — locus: marker list; input: audit workbook paste (monitor).
-- [ ] (candidate) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — locus: hyphen needle set; input: PDF figure-dash export (monitor).
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — double angle brackets `《owner》` (U+300A/U+300B) CJK book-title labels — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
+- [x] (valid-no-repro) `ContainsPhraseMarker` — thin space `\u2009` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — en dash `\u2013` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
+- [x] (proven) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
+- [x] (proven) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — double angle brackets `《owner》` (U+300A/U+300B) CJK book-title labels — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 - [x] (valid-no-repro) `ContainsPhraseMarker` — thin space `\u2009` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 - [x] (valid-no-repro) `FindBoundedMarkerIndex` — en dash `\u2013` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 - [x] (proven) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 - [x] (proven) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
+
+- [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner quotes `「owner」` (U+300C/U+300D) CJK labels — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (valid-no-repro) `ContainsPhraseMarker` — punctuation space `\u2008` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` — horizontal bar `\u2015` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (proven) `ContainsHumanReviewMarker` — `fedramp-moderate` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
+- [x] (proven) `InferLifecycleScopeForIndex` — en dash `\u2013` inside `to–be` token header — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
 
 2026-10-31 thorough hunt (hunt 252, hit): no rotation (`shouldRotate: false`; run-log low-yield streak on `application-pilots` is **1/3** — below `minLowYieldStreak` 3). Promoted CJK corner brackets `【owner】` matching bounded `owner` while `unowned` appeared elsewhere; U+3010/U+3011 added to ownership label delimiters (parity with fullwidth parentheses hunt 46); matrix case `cjk-corner-bracket-owner`; regression `Extract_does_not_emit_ownership_gap_for_cjk_corner_bracket_owner_label_with_unowned`. Cheap-disproof closed four sibling header `(candidate)` rows — **valid-no-repro** zero-width space inside `as is` (`char.IsWhiteSpace` includes ZWSP as format separator in flexible phrase match; regression `Extract_tags_target_lifecycle_scope_after_zero_width_space_as_is_header`), **valid-no-repro** slash-spaced `as / is` with ASCII `to be` (`to be` still establishes dual lifecycle; regression `Classify_returns_ambiguous_for_slash_spaced_as_is_with_ascii_to_be`), **valid-no-repro** dotted `soc\u00A02` (hunt 45 regression `Classify_returns_human_review_for_soc_2_with_no_break_space`), **valid-no-repro** uppercase `AS IS` / `TO BE` headers (case-insensitive `TryMatchBoundedMarker`; regression `Extract_tags_current_lifecycle_scope_after_uppercase_as_is_header`). Reseeded five `(candidate)` rows; scoped filter **106/106** passed (`RunAnalyzers=false`). Private beta: localized runbooks with CJK corner-bracket RACI labels no longer invent operational-ownership gaps when legacy capacity is described as unowned elsewhere.
 
@@ -6239,11 +6259,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 49
-- **bugs-found:** 29
+- **hunts:** 50
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — book-title RACI brackets, `iso-27001` shorthand, figure-dash `to-be` lifecycle
+- **last-bug:** 2026-10-31 — corner-quote RACI, `fedramp-moderate` shorthand, en-dash `to-be` lifecycle
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
