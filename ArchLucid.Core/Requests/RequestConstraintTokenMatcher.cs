@@ -430,7 +430,9 @@ internal static class RequestConstraintTokenMatcher
 
     private static string NormalizeSpacedListSeparators(string haystack)
     {
-        if (!haystack.Contains(',') && !haystack.Contains(';'))
+        if (!haystack.Contains(',')
+            && !haystack.Contains(';')
+            && !haystack.Contains('\uFF0C'))
             return haystack;
 
         StringBuilder normalized = new(haystack.Length);
@@ -439,7 +441,9 @@ internal static class RequestConstraintTokenMatcher
         {
             char character = haystack[index];
 
-            if ((character == ',' || character == ';')
+            if ((character == ','
+                    || character == ';'
+                    || character == '\uFF0C')
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
