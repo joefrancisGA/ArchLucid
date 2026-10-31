@@ -25,7 +25,7 @@ public static class SponsorEvidenceBasisLabelResolver
         if (deferredScopePresent)
             labels.Add("Deferred scope");
 
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             labels.Add("Demo-derived");
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved || deltas.AgentOutputPilotStrictViolatesSponsorEvidence)

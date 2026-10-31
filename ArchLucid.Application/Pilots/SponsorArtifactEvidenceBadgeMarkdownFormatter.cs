@@ -87,7 +87,7 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
         ValueReportSnapshot snapshot,
         string savingsPricingBasis)
     {
-        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return "demo-derived";
 
         if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))

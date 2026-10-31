@@ -13,6 +13,13 @@ internal static class PilotDemoTenantDisciplineHonestyCopy
     internal static string FormatProofPackageCell(bool demoTenantWarningRequired) =>
         demoTenantWarningRequired ? FailedPlain : PassPlain;
 
+    /// <summary>Demo discipline follows persisted run deltas — not lagging proof-package JSON flags.</summary>
+    internal static bool RequiresDemoDisciplineWarning(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+        return deltas.IsDemoTenant;
+    }
+
     internal static string FormatSponsorSafeConcreteGapLine() => FailedPlain;
 
     internal static string FormatSponsorFirstPageEvidenceSourceCell(
@@ -22,7 +29,7 @@ internal static class PilotDemoTenantDisciplineHonestyCopy
         ArgumentNullException.ThrowIfNull(proof);
         ArgumentNullException.ThrowIfNull(deltas);
 
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (RequiresDemoDisciplineWarning(deltas))
             return FailedPlain;
 
         return proof.BuyerSafeRedactionProfile.Length > 0

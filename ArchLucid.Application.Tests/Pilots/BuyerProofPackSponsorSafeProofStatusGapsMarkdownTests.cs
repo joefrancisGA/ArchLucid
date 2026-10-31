@@ -3763,6 +3763,64 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_status_evidence_source_when_stale_proof_demo_flag_but_not_demo_on_deltas_uses_tenant_evidence_not_failed()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = true,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            BuyerSafeRedactionProfile = "Tenant-scoped operator export",
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            new PilotRunDeltas { IsDemoTenant = false },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Warn,
+                PilotRoiEvidenceConfidence.Partial,
+                "",
+                false,
+                "WARN",
+                "WARN narrative"));
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence source |", StringComparison.Ordinal))
+            .Should()
+            .Contain("tenant-scoped persisted proof fields");
+        statusSb.ToString()
+            .Should()
+            .NotContain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_stale_proof_demo_flag_but_not_demo_on_deltas_omits_demo_gap()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = true,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        IEnumerable<string> gaps = SponsorSafeProofStatusMarkdownFormatter.EnumerateConcreteGapsEnumerable(
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            new PilotRunDeltas { IsDemoTenant = false },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        gaps.Should().NotContain(PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
     public void Sponsor_status_evidence_source_when_deltas_demo_uses_deltas_not_stale_proof_flag()
     {
         ProofPackageCompletenessResponse proof = new()

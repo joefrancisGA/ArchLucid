@@ -34,7 +34,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
-            $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(c.DemoTenantWarningRequired || deltas.IsDemoTenant)} |");
+            $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))} |");
         sb.AppendLine(
             $"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(!string.IsNullOrWhiteSpace(run.RunId))} |");
         sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(run, manifest)} |");
@@ -56,7 +56,7 @@ public static class FirstValueReportProofPackageSectionFormatter
                 $"| ROI baseline inputs (per field) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
         }
 
-        if (!c.DemoTenantWarningRequired && !deltas.IsDemoTenant)
+        if (!PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
         {
             bool projectedDollarClaimsSponsorSafe = roiClaimGate?.ProjectedDollarClaimsSponsorSafe
                 ?? c.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true;

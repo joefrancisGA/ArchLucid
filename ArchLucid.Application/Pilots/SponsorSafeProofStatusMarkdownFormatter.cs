@@ -97,7 +97,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         GoldenManifest? manifest,
         SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
-        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (string.IsNullOrWhiteSpace(run.RunId))

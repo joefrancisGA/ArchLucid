@@ -41,8 +41,9 @@ public static class SponsorFirstValuePdfGate
             return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
         }
 
-        bool demoScope = proof.DemoTenantWarningRequired
-            || built.PilotRunDeltas?.IsDemoTenant == true;
+        bool demoScope = built.PilotRunDeltas is not null
+            ? PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(built.PilotRunDeltas)
+            : proof.DemoTenantWarningRequired;
 
         if (!demoScope)
         {

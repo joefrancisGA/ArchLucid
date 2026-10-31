@@ -368,7 +368,7 @@ public sealed class FirstValueReportBuilder(
 
         return PilotCostEvidenceFreshnessBadgeResolver.Resolve(
             extractorCollectionTimestampUtc,
-            deltas.IsDemoTenant || proof.DemoTenantWarningRequired,
+            PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas),
             TimeProvider.System.UtcNowDateTime(),
             staleAfterDays);
     }

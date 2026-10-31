@@ -102,7 +102,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof)
     {
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
         {
             return "Demo-derived output — treat as illustrative only; novelty is not attested for buyer outcomes.";
         }
@@ -135,7 +135,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ProofPackageCompletenessResponse proof,
         PilotBuyerSafeEvidenceGateResult buyerSafeGate)
     {
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return SponsorNoveltyConfidence.NotAssessed;
 
         if (!IsBuyerSafeSendAllowed(buyerSafeGate) || PilotStrictPostureBlocksSponsorGradeClaims(deltas))
@@ -165,7 +165,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         PilotBuyerSafeEvidenceGateResult buyerSafeGate,
         PilotRunDeltas deltas)
     {
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return "Demo-derived (not buyer outcome evidence)";
 
         if (!IsBuyerSafeSendAllowed(buyerSafeGate))
