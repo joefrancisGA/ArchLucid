@@ -15605,6 +15605,20 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-31 thorough hunt (dry #333): cheap-disproof closed five open `(candidate)` rows — `DeleteProjectAsync` caller-default vs foreign-branch null active catalog asymmetry is intentional fail-closed vs idempotent retry (`DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`, `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`; parity with `api-tenancy-workspaces` dry #36); `PreviewCoverage` scope posture sealed guard no-ops when committed-run catalog empty (`GovernancePostureSealedManifestHashGuard` early return; regression `PreviewCoverage_reaches_preview_service_when_committed_run_catalog_is_empty`); `GovernanceController.Simulate` skips run-scoped sealed guard when manifest-compare detail is null so facade returns 404 (`EnsureGovernanceSimulateRunSealedManifestAllowedAsync`; regression `Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check`); bulk disposition sealed guard skips null inspect rows before 404 on foreign ids (`EnsureBulkDispositionSealedManifestAllowedAsync`; `RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`); list/recycle null coalesce vs delete branches documented on list GET (`ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`, `ListAsync_returns_not_found_when_workspace_list_is_null`). Seeded five follow-on `(candidate)` rows; scoped filter **150/168** (`RunAnalyzers=false`; 18 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch vs foreign branch on null `ListActiveByTenantAsync` — **cheap-disproof 2026-10-31 thorough hunt #333:** intentional asymmetry; regressions above.
+- [x] (valid-no-repro) `GovernanceCoverageController.PreviewCoverage` — scope posture sealed-manifest guard with empty committed-run catalog — **cheap-disproof 2026-10-31 thorough hunt #333:** guard returns before hash check; regression above.
+- [x] (valid-no-repro) `GovernanceController` policy-pack simulate — sealed guard skips when manifest-compare detail is null — **cheap-disproof 2026-10-31 thorough hunt #333:** 404 vs 409 ordering by design; regression above.
+- [x] (valid-no-repro) `GovernanceStickinessController` bulk disposition sealed guard — partial finding id list skips guard when inspect miss — **cheap-disproof 2026-10-31 thorough hunt #333:** unknown ids reach 404 handler; regression above.
+- [x] (valid-no-repro) `TenantWorkspacesController` — null coalesce on list/recycle vs delete guard branches — **cheap-disproof 2026-10-31 thorough hunt #333:** list coalesce + delete fail-closed documented; regressions above.
+
+- [ ] (candidate) `GovernanceController.GetDashboard` / `GetComplianceDriftTrend` — scope posture sealed guard when committed-run catalog empty vs first-run greenfield — locus: insights scope guard; input: no committed summaries in scope (monitor).
+- [ ] (candidate) `GovernanceMutationCorrectionController` — run-scoped sealed guard ordering vs manifest-compare miss on mutation-correction POST — locus: correction POST guard; input: unknown run id after normalization (monitor).
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklist` — sealed guard when manifest-compare returns detail with null golden manifest — locus: checklist GET guard; input: committed run row without golden blob (monitor).
+- [ ] (candidate) `GovernanceStickinessController.RecordBulkDisposition` — sealed guard evaluates only resolved inspect run ids — locus: bulk guard loop; input: in-scope findings tied to runs failing sealed hash while foreign ids absent (monitor).
+- [ ] (candidate) `GovernanceCoverageController.PreviewCoverage` — scope posture guard blocks preview when latest committed run fails sealed hash unrelated to draft intake — locus: preview POST guard; input: committed run hash mismatch with valid preview body (monitor).
+
 2026-10-30 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/` and `ArchLucid.Api/Controllers/Tenancy/` plus scoped `GovernanceController`/`TenancyController` tests; no hunt-ready row promoted after falsification pass; seeded five mechanism-backed follow-on candidates; 149/167 scoped unit tests passed — 18 integration tests skipped/failed without SQL (`ARCHLUCID_SQL_TEST`) (`RunAnalyzers=false`). Private beta: n/a.
 
 - **id:** api-governance-tenancy-controllers
@@ -15613,20 +15627,20 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 332
-- **last-hunt:** 2026-10-30
+- **hunts:** 333
+- **last-hunt:** 2026-10-31
 - **bugs-found:** 526
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch treats null `ListActiveByTenantAsync` as empty via BadRequest while foreign-metadata branch coalesces null — locus: `ProjectCrud.cs` ~50–73; input: repository returns null on both branches (reachability: soft-delete guard parity).
-- [ ] (candidate) `GovernanceCoverageController.PreviewCoverage` — scope posture sealed-manifest guard when committed-run catalog is empty — locus: `EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync`; input: preview with no committed runs (reachability: coverage preview before first run).
-- [ ] (candidate) `GovernanceController` policy-pack simulate — run-scoped sealed guard skips when manifest-compare detail is null — locus: `EnsureGovernanceSimulateRunSealedManifestAllowedAsync`; input: simulate POST with unknown run id (reachability: 404 vs 409 ordering).
-- [ ] (candidate) `GovernanceStickinessController` bulk disposition sealed guard — partial finding id list skips guard when run lookup fails — locus: `EnsureBulkDispositionSealedManifestAllowedAsync`; input: bulk disposition with mixed in-scope and foreign finding ids.
-- [ ] (candidate) `TenantWorkspacesController` workspace inventory list — `ListActiveByTenantAsync` null coalesce on list endpoints vs delete guard branches — locus: `WorkspaceList.cs` / `RetentionPurge.cs` vs `ProjectCrud.cs`; input: compare null-catalog handling across tenancy routes.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller-default branch treats null `ListActiveByTenantAsync` as empty via BadRequest while foreign-metadata branch coalesces null — **cheap-disproof 2026-10-31 thorough hunt #333:** see zone hunt note above.
+- [x] (valid-no-repro) `GovernanceCoverageController.PreviewCoverage` — scope posture sealed-manifest guard when committed-run catalog is empty — **cheap-disproof 2026-10-31 thorough hunt #333:** see zone hunt note above.
+- [x] (valid-no-repro) `GovernanceController` policy-pack simulate — run-scoped sealed guard skips when manifest-compare detail is null — **cheap-disproof 2026-10-31 thorough hunt #333:** see zone hunt note above.
+- [x] (valid-no-repro) `GovernanceStickinessController` bulk disposition sealed guard — partial finding id list skips guard when run lookup fails — **cheap-disproof 2026-10-31 thorough hunt #333:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantWorkspacesController` workspace inventory list — `ListActiveByTenantAsync` null coalesce on list endpoints vs delete guard branches — **cheap-disproof 2026-10-31 thorough hunt #333:** see zone hunt note above.
 
 2026-10-21 seed hunt (seed→hit): promoted recurrence schedule create sealed guard 409-vs-404 for missing source run; regression `CreateRecurrenceSchedule_returns_not_found_for_missing_run_before_sealed_manifest_check`.
 
