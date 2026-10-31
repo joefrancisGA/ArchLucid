@@ -100,10 +100,6 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
             or ReviewCycleBaselineProvenance.TenantSuppliedViaSettings)
             return "buyer-provided";
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
-            && !string.IsNullOrWhiteSpace(proof.RoiConfidenceLabel))
-            return "buyer-provided";
-
         if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.Retail, StringComparison.Ordinal)
             || string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.EaAdjusted, StringComparison.Ordinal))
             return "azure-retail";

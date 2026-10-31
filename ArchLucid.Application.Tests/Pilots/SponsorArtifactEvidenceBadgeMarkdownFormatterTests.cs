@@ -81,6 +81,24 @@ public sealed class SponsorArtifactEvidenceBadgeMarkdownFormatterTests
         badges.WarnBeforeSponsorSend.Should().BeTrue();
     }
 
+    [Fact]
+    public void Resolve_when_stale_proof_strong_but_snapshot_no_measurement_uses_value_window_not_proof()
+    {
+        SponsorArtifactEvidenceBadgeSummary badges = SponsorArtifactEvidenceBadgeMarkdownFormatter.Resolve(
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+                RoiConfidenceLabel = "Strong",
+            },
+            CreateSnapshot(ReviewCycleBaselineProvenance.NoMeasurementYet),
+            SponsorRoiSavingsPricingBasis.Retail,
+            RoiCostEvidenceFreshness.Fresh);
+
+        badges.SourceToken.Should().Be("azure-retail");
+        badges.SourceToken.Should().NotBe("buyer-provided");
+    }
+
     private static ValueReportSnapshot CreateSnapshot(ReviewCycleBaselineProvenance provenance)
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
