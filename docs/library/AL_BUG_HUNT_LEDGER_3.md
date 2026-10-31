@@ -368,7 +368,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 79
+- **hunts:** 78
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
@@ -6045,7 +6045,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
+- **hunts:** 80
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
