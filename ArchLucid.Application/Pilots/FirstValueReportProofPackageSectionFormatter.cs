@@ -48,7 +48,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| LLM-call count | {PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, c)} |");
         PilotRoiEvidenceConfidence roiConfidenceForProofRow = roiClaimGate?.EvidenceConfidence ?? c.RoiEvidenceConfidence;
         sb.AppendLine(
-            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(roiConfidenceForProofRow, c.RoiConfidenceLabel)} |");
+            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(roiConfidenceForProofRow, PilotRoiEvidenceConfidenceHonestyCopy.ResolveDisplayLabel(c, roiClaimGate))} |");
 
         if (c.RoiBaselineInputs is not null)
         {

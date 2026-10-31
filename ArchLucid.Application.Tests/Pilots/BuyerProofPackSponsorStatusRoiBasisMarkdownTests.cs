@@ -63,7 +63,7 @@ public sealed class BuyerProofPackSponsorStatusRoiBasisMarkdownTests
             new SponsorRoiClaimDispositionResult(
                 SponsorRoiClaimDisposition.Hold,
                 PilotRoiEvidenceConfidence.Low,
-                "",
+                "review-cycle baseline: Low|estimate",
                 false,
                 "Hold",
                 "Hold narrative"));
@@ -73,7 +73,7 @@ public sealed class BuyerProofPackSponsorStatusRoiBasisMarkdownTests
             .Single(line => line.Contains("ROI basis status", StringComparison.Ordinal))
             .TrimEnd();
 
-        row.Should().Contain("`Low\\|estimate`");
+        row.Should().Contain("Low\\|estimate");
     }
 
     [Fact]

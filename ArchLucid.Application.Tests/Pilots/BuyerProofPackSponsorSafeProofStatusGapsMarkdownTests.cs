@@ -3984,6 +3984,8 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         row.Should().Contain("**Low**");
         row.Should().NotContain("**Strong**");
+        row.Should().NotContain("`Strong`");
+        row.Should().Contain("No measurement yet");
         row.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
 
         StringBuilder proofSb = new();
@@ -4001,6 +4003,8 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         proofRow.Should().Contain("**Low**");
         proofRow.Should().NotContain("**Strong**");
+        proofRow.Should().NotContain("`Strong`");
+        proofRow.Should().Contain("No measurement yet");
         proofRow.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
     }
 

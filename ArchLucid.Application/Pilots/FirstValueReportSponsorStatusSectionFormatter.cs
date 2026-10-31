@@ -67,7 +67,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         ProofPackageCompletenessResponse proof,
         SponsorRoiClaimDispositionResult roiClaimGate)
     {
-        string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
+        string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(
+            FormatRoiConfidenceLabel(PilotRoiEvidenceConfidenceHonestyCopy.ResolveDisplayLabel(proof, roiClaimGate)));
         string inputsSummary = proof.RoiBaselineInputs is null
             ? string.Empty
             : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";

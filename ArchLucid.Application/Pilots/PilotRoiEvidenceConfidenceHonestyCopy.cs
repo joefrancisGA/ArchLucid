@@ -20,6 +20,20 @@ internal static class PilotRoiEvidenceConfidenceHonestyCopy
             : core;
     }
 
+    internal static string ResolveDisplayLabel(
+        ProofPackageCompletenessResponse proof,
+        SponsorRoiClaimDispositionResult? roiClaimGate)
+    {
+        ArgumentNullException.ThrowIfNull(proof);
+
+        if (roiClaimGate is not null)
+            return roiClaimGate.BasisClassSummary;
+
+        return string.IsNullOrWhiteSpace(proof.RoiConfidenceLabel)
+            ? "ROI confidence label was not stored."
+            : proof.RoiConfidenceLabel.Trim();
+    }
+
     internal static string FormatSponsorSafeConcreteGapLineWhenPartialOrLow() => PartialOrLowSponsorWordingPlain;
 
     internal static string EnsurePartialOrLowSponsorWording(PilotRoiEvidenceConfidence confidence, string cell)
