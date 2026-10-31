@@ -9324,6 +9324,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed→hit: promoted `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash returned early, leaving the visible tab/workbench focus on the hash-derived tab instead of the query-selected tab after browser back or hash clearing; synchronize tab and focus from the live URL before handling the empty-hash case. Regression `restores the query-selected tab when a mounted workspace hash is removed`; focused review workspace tests passed 33/33. Private beta: invited architects returning from a review deep link now see the tab and workbench focus represented by the current URL instead of stale hash-derived workspace chrome.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash left the active tab on the prior hash-derived tab; synchronize active tab and workbench focus from the live URL even when the hash is empty; regression `restores the query-selected tab when a mounted workspace hash is removed`.
+
 2026-10-30 seed hunt #66 (seed-only): fresh rereading of pinned-review context, pin URL helpers, workspace shell/navigation, selection state, and review-detail sections found no hunt-ready repro. The focused review-detail workspace suite was run against the current navigation/state contracts; seeded one bounded candidate around pin close URL construction and made no production change.
 2026-10-31 thorough hunt (hit): promoted `usePinnedReviewContext.closePin` — after soft navigation, the hook removed `pinRunId` from the stale browser query and then rebuilt the close href from that stale query, restoring the prior review’s tab/disclosure parameters; build the replacement href from the current `useSearchParams()` snapshot. Regression `preserves the current router query when closing after soft navigation`; pinned URL tests passed 8/8. Private beta: invited architects closing a pinned review after navigating to another review now keep the current review’s tab and disclosure state instead of being sent back to stale prior-review chrome.
 

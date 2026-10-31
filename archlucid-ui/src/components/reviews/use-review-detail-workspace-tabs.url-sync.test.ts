@@ -177,4 +177,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
     expect(result.current.activeTab).toBe("findings");
   });
+
+  it("restores the query-selected tab when a mounted workspace hash is removed", () => {
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview#run-explanation");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+  });
 });

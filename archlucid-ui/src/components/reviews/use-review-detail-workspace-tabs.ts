@@ -247,10 +247,6 @@ export function useReviewDetailWorkspaceTabs(
     const onHashChange = () => {
       const hash = window.location.hash.slice(1);
 
-      if (hash.length === 0) {
-        return;
-      }
-
       const nextTab = readReviewDetailTabFromWindowLocation();
       setActiveTab((current) => (current === nextTab ? current : nextTab));
 
@@ -262,6 +258,10 @@ export function useReviewDetailWorkspaceTabs(
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;
         setWorkbenchFocusColumnState(normalizedFocus);
+      }
+
+      if (hash.length === 0) {
+        return;
       }
 
       scheduleScrollToReviewDetailSection(hash);
