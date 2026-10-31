@@ -100,6 +100,44 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_does_not_duplicate_role_surface_claims_when_inbound_source_emits_identical_role_twice()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles" && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+    }
+
+    [Fact]
+    public void Apply_does_not_duplicate_role_surface_claims_when_inbound_role_has_surrounding_whitespace()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", $"  {ArchLucidRoles.Operator}  "),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.Claims.Count(static c => c.Type == "roles" && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+        identity.Claims.Count(static c => c.Type == ClaimTypes.Role && c.Value == ArchLucidRoles.Operator).Should().Be(1);
+    }
+
+    [Fact]
     public void Apply_skips_non_guid_scope_values_when_promoting_tenant_workspace_project()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
@@ -244,6 +282,57 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing()
+    {
+        Guid tenantId = ScopeIds.DefaultTenant;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("tenant_id", tenantId.ToString("D")),
+            new Claim("tenant_id", tenantId.ToString("N")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "tenant_id").Should().Be(1);
+        identity.FindFirst("tenant_id")!.Value.Should().Be(tenantId.ToString("D"));
+    }
+
+    [Fact]
+    public void Apply_collapses_duplicate_direct_workspace_id_claims_with_same_guid_different_casing()
+    {
+        Guid workspaceId = ScopeIds.DefaultWorkspace;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("workspace_id", workspaceId.ToString("D")),
+            new Claim("workspace_id", workspaceId.ToString("N")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "workspace_id").Should().Be(1);
+        identity.FindFirst("workspace_id")!.Value.Should().Be(workspaceId.ToString("D"));
+    }
+
+    [Fact]
+    public void Apply_collapses_duplicate_direct_project_id_claims_with_same_guid_different_casing()
+    {
+        Guid projectId = ScopeIds.DefaultProject;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("project_id", projectId.ToString("D")),
+            new Claim("project_id", projectId.ToString("N")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "project_id").Should().Be(1);
+        identity.FindFirst("project_id")!.Value.Should().Be(projectId.ToString("D"));
+    }
+
+    [Fact]
     public void Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
@@ -272,6 +361,24 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
 
         identity.Claims.Count(static c => c.Type == "oid").Should().Be(1);
         identity.FindFirst("oid")!.Value.Should().Be(directoryKey);
+    }
+
+    [Fact]
+    public void Apply_collapses_duplicate_direct_oid_claims_with_same_value_different_casing()
+    {
+        const string directoryKeyLower = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string directoryKeyUpper = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA";
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("oid", directoryKeyLower),
+            new Claim("oid", directoryKeyUpper));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "oid").Should().Be(1);
+        identity.FindFirst("oid")!.Value.Should().BeOneOf(directoryKeyLower, directoryKeyUpper);
     }
 
     [Fact]
@@ -306,6 +413,43 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
                 TenantIdClaimType = "http://idp.example/tenant",
             });
 
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_does_not_promote_tenant_id_when_configured_source_claim_is_empty_string()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(new Claim("http://idp.example/tenant", string.Empty));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+            });
+
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_promotes_workspace_id_when_inbound_tenant_source_is_absent()
+    {
+        Guid workspaceId = Guid.NewGuid();
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/workspace", workspaceId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+            });
+
+        identity.FindFirst("workspace_id")!.Value.Should().Be(workspaceId.ToString("D"));
         identity.FindFirst("tenant_id").Should().BeNull();
     }
 
