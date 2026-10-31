@@ -5236,6 +5236,17 @@
 - [x] (invalid) `SamlMetadataValidUntilParser` — signing cert `NotAfter` vs entity `validUntil` — **cheap-disproof 2026-10-23 seed hunt #3:** metadata diagnostics only; not runtime auth bypass.
 - [x] (invalid) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version enforcement — **cheap-disproof 2026-10-23 seed hunt #3:** intentional for opaque CIAM subjects outside platform-user GUID contract.
 
+2026-10-28 seed hunt (seed-only): repro-first on five open `(candidate)` rows; no hunt-ready promotion — cheap-disproof closed duplicate `Authorization` header values with revoked-then-valid Bearer parity (`HandleAuthenticateAsync_succeeds_when_duplicate_authorization_header_values_list_revoked_token_before_valid_one`), lowercase `bearer` scheme prefix with required space (`HandleAuthenticateAsync_succeeds_when_bearer_scheme_uses_lowercase_prefix_with_space`; glued `bearertoken` segments remain non-Bearer by design), SAML scope source GUID N/D duplicate strings skipped as ambiguous (`Apply_skips_promoting_tenant_id_when_source_claim_emits_same_guid_in_N_and_D_formats`), `SamlMetadataValidUntilParser` `KeyDescriptor` / cert `NotAfter` vs entity `validUntil` as diagnostics-only reachability `(invalid)`, and opaque non-Guid JWT `sub` skipping auth-version enforcement as intentional CIAM contract (`PlatformUserAuthVersionJwtBearerPostConfigureTests` / `AuthenticatedPlatformUserResolverTests`); seeded five follow-on `(candidate)` rows below; scoped `FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer` Api filter **107/109** passed (Release, `RunAnalyzers=false`; two pre-existing admin SAML diagnostics integration failures on `bugsmash` Linux VM); Application SCIM filter **2/2** passed; no production code changed.
+
+
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — duplicate Authorization header values with revoked then valid Bearer — **cheap-disproof 2026-10-28 seed hunt:** regression above.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — lowercase `bearer` scheme prefix — **cheap-disproof 2026-10-28 seed hunt:** regression above; scheme without separating space stays non-Bearer.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — source scope GUID N vs D duplicate strings — **cheap-disproof 2026-10-28 seed hunt:** regression above.
+- [x] (invalid) `SamlMetadataValidUntilParser` — `KeyDescriptor` signing cert `NotAfter` vs entity `validUntil` — **cheap-disproof 2026-10-28 seed hunt:** metadata diagnostics only; not runtime auth bypass.
+- [x] (invalid) `PlatformUserAuthVersionValidator` — non-Guid JWT `sub` skips auth-version stamp — **cheap-disproof 2026-10-28 seed hunt:** intentional opaque CIAM subjects; existing JWT resolver/post-configure regressions.
+
+
+
 2026-10-21 thorough hunt (hit): `saml-jwt-bearer` — promoted comma-folded `Authorization` with revoked/invalid first Bearer segment and valid second segment (`ScimBearerAuthenticationHandler.TryEnumerateBearerTokens` stopped after first token); authenticate each parsed Bearer until `IScimBearerTokenAuthenticator` succeeds; regression `HandleAuthenticateAsync_succeeds_when_comma_folded_header_lists_revoked_token_before_valid_one`; cheap-disproof closed open `(candidate)` rows (SamlSpConfigurationDiagnostics “No root validUntil” copy is intentional when attribute absent; `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` already honored via `long.TryParse` + `HasRecentAuthentication_returns_true_when_later_iat_is_fresh_among_multiple_values_without_auth_time`; duplicate `archlucid_auth_ver` not injectable on signed JWT principals; `SamlMetadataDiscoveryParser` multi-`EntityDescriptor` throw intentional); `ScimBearerAuthenticationHandlerTests` 3/3 + `ScimBearer` Application tests 2/2 + scoped SAML/JWT/SCIM Api filter 98 passed (4 SQL/integration baseline failures on Linux VM); seeded five follow-on `(candidate)` rows.
 
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
@@ -5262,8 +5273,7 @@
 - **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected fullwidth and big solidus placeholders before valid comma-folded token
-- **related-pd-tb:** none
+- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected fullwidth and big solidus placeholders before valid comma-folded token- **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
