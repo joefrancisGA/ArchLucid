@@ -20,10 +20,10 @@
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -32,7 +32,13 @@
 
 2026-09-12 seed hunt #2079 (seed-only): reseeded weekly-digest-email; no new hunt-ready rows
 
-2026-10-31 thorough hunt (dry): cheap-disproved the five prior coordination candidates — processing-failure logging is outside the persistence contract and logger failures remain a retryable infrastructure failure; cancellation during failure persistence intentionally leaves the lease for redrive; bounded parallel cancellation has the same at-least-once lease semantics as other worker shutdown paths; sequential Cosmos draining is an explicit processor choice with idempotent stable-id writes; and all four processor option snapshots use the shared normalization boundaries. The scoped coordination/outbox filter passed 21/21. Seeded five fresh mechanism-backed `(candidate)` rows; no production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): reread `WeeklyExecutiveSummaryEmailDispatcher` and the focused weekly job tests. Existing validation covers tenant, week-key, URL, header-fragment, recipient, idempotency, and feature-disabled behavior; no fresh mechanism met the same-run failing-repro bar. The focused job filter passed 2/2. Seeded five mechanism-backed `(candidate)` rows; no production change. Private beta: n/a.
+
+- [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — `EmailProductDisplayNameResolver.Resolve` output may carry header-breaking characters into the weekly subject — locus: product name interpolation at subject construction; input: operator-configured `EmailNotificationOptions.ProductDisplayName` containing CR/LF or Unicode separators; wrong outcome: weekly subject gains attacker/operator-controlled header fragments; reachability: the product display name is read from production email configuration.
+- [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — a throwing template renderer after mailbox normalization may prevent the job from attempting otherwise valid recipients without a durable per-week outcome — locus: `RenderHtmlAsync`/`RenderTextAsync` before `MultiRecipientEmailDispatch`; input: valid weekly report plus a transient Razor/template provider failure; wrong outcome: the job records no sends and retries the whole delivery, potentially repeating already completed external work; reachability: hosted weekly sponsor report dispatch depends on the configured template renderer.
+- [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — `EmailBrandingUrls.SanitizeOperatorNavigableUrl` may accept a non-HTTP operator-relative URL and emit an unusable run-detail link — locus: `normalizedRunDetailUrl` construction; input: a production `runDetailUrl` generated as an unsupported scheme or relative path; wrong outcome: invited recipients receive a weekly report whose primary run link cannot navigate to the operator workspace; reachability: the scanner supplies persisted run-detail URLs and the operator base URL is configurable.
+- [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — normalized mailbox deduplication may occur after template rendering, so duplicate or invalid-only recipient lists still incur rendering side effects — locus: template rendering precedes `MultiRecipientEmailDispatch.DistinctValidNormalizedMailboxes`; input: a production recipient preference list containing duplicate or invalid addresses; wrong outcome: a renderer failure can block a list that would ultimately send once or return false, without a corresponding send outcome; reachability: recipient lookup returns operator-configured mailbox lists.
+- [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — cancellation between the two template renders and the per-recipient send path may leave a partially prepared weekly dispatch with no ledger record — locus: shared cancellation token passed to both render calls and `TrySendToMailboxesAsync`; input: host shutdown after HTML render or after one recipient sends; wrong outcome: retry behavior differs between rendered-but-unsent and partially sent recipients; reachability: the weekly job receives the host cancellation token during scheduled execution.
 
 ### Hypotheses
 
@@ -28032,6 +28038,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-04 seed hunt (seed-only): reread coordination processor isolation, retry/dead-letter handling, export package failure boundaries, and post-commit provenance dispatch; no new hunt-ready defect met the reachable-input bar. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests; source rebuild remained blocked by unrelated ARCH006/ARCH006a analyzer errors.
 
 2026-10-04 thorough hunt (dry): cheap-disproved both candidates; the export package builder converts reachable persisted-state outcomes into `RunExportPackageResult` values, while provenance materialization explicitly no-ops when the run detail lacks a manifest. No failing repro was warranted. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests.
+
+2026-10-31 thorough hunt (dry): cheap-disproved the five prior coordination candidates — processing-failure logging is outside the persistence contract and logger failures remain a retryable infrastructure failure; cancellation during failure persistence intentionally leaves the lease for redrive; bounded parallel cancellation has the same at-least-once lease semantics as other worker shutdown paths; sequential Cosmos draining is an explicit processor choice with idempotent stable-id writes; and all four processor option snapshots use the shared normalization boundaries. The scoped coordination/outbox filter passed 21/21. Seeded five fresh mechanism-backed `(candidate)` rows; no production change. Private beta: n/a.
 
 ### Hypotheses
 
