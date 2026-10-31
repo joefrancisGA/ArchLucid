@@ -50,8 +50,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         }
         else if (deltas.AuditRowCount == 0)
         {
-            hardGapMessages.Add(
-                "Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
+            hardGapMessages.Add(PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero());
         }
 
         if (deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true })

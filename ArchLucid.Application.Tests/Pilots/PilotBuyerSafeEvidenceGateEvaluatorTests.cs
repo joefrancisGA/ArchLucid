@@ -116,7 +116,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
-        gate.HardGaps.Should().Contain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
+        gate.HardGaps.Should().Contain(PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero());
     }
 
     [Fact]
