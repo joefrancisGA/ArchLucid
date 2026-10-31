@@ -18774,12 +18774,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — **cheap-disproof 2026-10-31 thorough hunt #349:** no cataloged request model exposes `ImmutableDictionary<,>` (same class as #348 ConcurrentDictionary).
 - [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard` — struct collection properties boxed as `object` with null nullable value-type elements — **cheap-disproof 2026-10-31 thorough hunt #349:** `AllowsNullElements` honors nullable value annotations; regression `ContainsNullCollectionElement_allows_null_elements_in_nullable_value_type_array`.
 
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `LinkedList<T>` / `PriorityQueue<,>` root without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future `[FromBody]` linked-list or priority-queue batch root (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ObservableCollection<T>` on request DTO properties — locus: property walk; input: WPF-style collection property if introduced to API models (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` `CancellationToken` or `Stream` parameters skipped vs collection guard — locus: filter binding-source gate; input: non-JSON body parameters mixed on actions (monitor).
-- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `FrozenDictionary<,>` / `ImmutableHashSet<>` leaves — locus: catalog + probe factory; input: frozen collection properties on future DTOs (monitor).
-- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — `TryVisitRootBodyCollection` when parameter type is interface but runtime body is incompatible proxy — locus: `IsInstanceOfType` gate ~146–147; input: dynamic/proxy batch body (monitor).
-
 2026-10-31 thorough hunt (hit #348): promoted `(candidate)` root `HashSet<T>` without `ParameterInfo` — single-arg `ContainsNullCollectionElement` skipped `HashSet<>` roots because `IsRootLevelCollectionType` only recognized list-shaped interfaces (#347 parity); extended root collection recognition to `ISet<>` / `HashSet<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_hashset_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on `(candidate)` rows; scoped filter **30/30** passed (`RunAnalyzers=false`). Private beta: if a future batch endpoint binds a JSON set root, null entries are rejected at validation instead of reaching controller code when the guard is invoked without action parameter metadata.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `HashSet<T>` root enumerable without `ParameterInfo` — **hit 2026-10-31 thorough hunt #348:** `IsRootLevelCollectionType` / `TryGetEnumerableElementType` include `HashSet<>` and `ISet<>`; regression above.
@@ -18840,11 +18834,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 10
-- **bugs-found:** 7
+- **hunts:** 11
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — single-arg guard skipped Queue/Stack root null slots
+- **last-bug:** 2026-10-31 — single-arg guard skipped LinkedList root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
