@@ -3039,6 +3039,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread covered PKCE generation, JWT payload/display-claim decoding, BFF token sync/refresh/activity/logout, numeric expiry boundaries, and remaining callback/session normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
 2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread covered public OIDC configuration defaults, authorize query construction and provider parameters, BFF refresh deduplication, session-expiry recovery, PKCE cleanup, and callback error normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc` after the auth-proxy low-yield streak; fresh reread covered session/BFF generation, PKCE state cleanup, discovery endpoint safety/cache failure handling, authorize retry return paths, and token error/expiry normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
@@ -6069,7 +6071,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 85
+- **hunts:** 86
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
