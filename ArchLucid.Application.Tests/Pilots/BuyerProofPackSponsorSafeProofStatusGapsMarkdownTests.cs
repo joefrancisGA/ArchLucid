@@ -1545,6 +1545,20 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
                 new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
             .Should()
             .Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: new GoldenManifest { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain);
     }
 
     [Fact]

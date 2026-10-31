@@ -48,8 +48,12 @@ public static class FirstValueReportProofPackageSectionFormatter
         {
             sb.AppendLine(
                 $"| ROI baseline inputs (per field) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
+        }
+
+        if (!c.DemoTenantWarningRequired && !deltas.IsDemoTenant)
+        {
             sb.AppendLine(
-                $"| Projected dollar claims sponsor-safe | {PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatProofPackageCell(c.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe)} |");
+                $"| Projected dollar claims sponsor-safe | {PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatProofPackageCell(c.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)} |");
         }
 
         sb.AppendLine($"| Buyer-safe redaction profile | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.BuyerSafeRedactionProfile)} |");
