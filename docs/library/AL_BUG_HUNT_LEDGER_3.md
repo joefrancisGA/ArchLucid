@@ -2733,6 +2733,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-10-31 seed hunt (seed-only): reread idle-desk restore parsing/consumption, sign-in destination safety, proxy forwarding timeout and method branches, and BFF session idle/CSRF/public-anonymous handling after the prior auth/proxy pass. Existing regressions cover the reachable state transitions and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
+
 2026-10-31 seed hunt (seed-only): repeated the auth/proxy reread after the prior rotated pass, checking recent idle-desk/OIDC return-path churn, proxy forwarding and method coverage, BFF session/CSRF enforcement, bootstrap invitation/workspace requests, OTP failure mapping, and scope-header behavior. Existing tests cover the reachable branches and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
 
 2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; fresh auth/proxy reread covered proxy route forwarding, BFF session/CSRF guards, auth bootstrap and OTP clients, scope-header precedence, return-path encoding, host-gate ordering, and recent auth URL-writer churn. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
@@ -2745,7 +2747,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): fresh reread covered proxy path canonicalization and forwarding, host-gate and demo-alias ordering, BFF/CSRF session guards, post-auth bootstrap and invitation clients, scope-header merging, correlation/error handling, and the current auth/proxy tests. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
 
-**Hunts:** 81 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+**Hunts:** 82 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
 
 2026-10-30 seed hunt #110 (seed-only): repeated the auth/proxy source review and focused regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
