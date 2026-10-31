@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-10-31 seed hunt (seed-only): cooldown fallback selected the low-yield `ui-form-validation` zone; reread `SignupForm` submit gating, optional-field transitions, response handling, and payload shaping. The five existing candidate lenses were not promoted to hunt-ready in this pass; the focused SignupForm suite passed 144/144. No production code changed.
+
 2026-10-30 seed hunt #93 (seed-only): re-read `signupFormSchema`, `SignupForm` field wiring, payload shaping, and the current 144-test focused suite; rendered limits match schema limits, submit gating and retry guards remain covered, and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-31 seed hunt (seed-only): reread `SignupForm` submit/payload shaping and optional-field transitions; no candidate was promoted in this pass, and five bounded response/payload candidates were seeded below. No production change. Private beta: n/a.
