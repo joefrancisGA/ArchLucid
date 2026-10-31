@@ -38,8 +38,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
-            hardGapMessages.Add(
-                "Committed architecture manifest absent or run not in Committed status — finalize before external sponsor distribution.");
+            hardGapMessages.Add(PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         List<string> softGapMessages = [];

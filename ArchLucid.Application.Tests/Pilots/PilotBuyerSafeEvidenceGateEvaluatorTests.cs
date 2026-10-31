@@ -96,7 +96,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
-        gate.HardGaps.Should().Contain(g => g.Contains("Committed architecture manifest", StringComparison.Ordinal));
+        gate.HardGaps.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
     }
 
     [Fact]
