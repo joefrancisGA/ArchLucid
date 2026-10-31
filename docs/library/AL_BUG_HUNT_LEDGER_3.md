@@ -3025,6 +3025,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 **Hunts:** 93 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
 
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; fresh rereading of PKCE generation/storage, primary versus supplemental redirect cleanup, discovery failure handling, token/BFF session synchronization, callback error normalization, and JWT/expiry parsing found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
 2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread PKCE primary/Google flow isolation, callback-state consumption, tampered sessionStorage rejection, identity-aware sign-out cleanup, and RP logout fallback behavior found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
 2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread BFF session sync token shaping, CSRF-protected refresh/activity requests, refresh expiry acceptance, RP logout URL safety, and network-failure soft handling found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
