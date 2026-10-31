@@ -229,7 +229,7 @@ public sealed class FirstValueReportBuilderTests
         proofStatusHeading.Should().BeGreaterThan(firstPageStatusHeading);
         md.Should().Contain("| Evidence source |");
         md.Should().Contain("| Execution mode | **Simulator**");
-        md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
+        md.Should().Contain("| Quality disposition | " + PilotAgentOutputPilotStrictHonestyCopy.SatisfiedPlain);
         md.Should().Contain("| ROI basis status | **Strong**");
         md.Should().Contain("## ROI narrative claim gate");
         md.Should().Contain("| ROI claim gate |");

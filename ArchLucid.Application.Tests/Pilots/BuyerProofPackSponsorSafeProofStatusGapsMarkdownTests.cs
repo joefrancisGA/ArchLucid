@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -762,6 +763,56 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString()
             .Split('\n')
             .Single(line => line.Contains("| Evidence-basis labels |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
+    public void Sponsor_status_quality_disposition_matches_proof_package_pilot_strict_row()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NotSponsorSafeYet,
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FailedPlain;
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Quality disposition |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
             .Should()
             .Contain(prose);
     }

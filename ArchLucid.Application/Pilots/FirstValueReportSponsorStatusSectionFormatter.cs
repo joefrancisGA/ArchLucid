@@ -61,12 +61,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
     }
 
-    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof)
-    {
-        return proof.AgentOutputPilotStrictEvidenceSatisfied
-            ? "PilotStrict posture satisfied — no rejecting trace/faithfulness signals attested for this run."
-            : "**HOLD** — PilotStrict posture failed; do not use sponsor-safe real-mode wording yet.";
-    }
+    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof) =>
+        PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(proof.AgentOutputPilotStrictEvidenceSatisfied);
 
     private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
     {
