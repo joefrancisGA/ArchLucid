@@ -2707,6 +2707,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-10-31 seed hunt (seed-only): fresh reread covered proxy path canonicalization and forwarding, host-gate and demo-alias ordering, BFF/CSRF session guards, post-auth bootstrap and invitation clients, scope-header merging, correlation/error handling, and the current auth/proxy tests. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
+
 **Hunts:** 78 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
 
 2026-10-30 seed hunt #110 (seed-only): repeated the auth/proxy source review and focused regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
@@ -2825,7 +2827,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-08
