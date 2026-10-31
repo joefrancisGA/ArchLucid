@@ -10192,6 +10192,14 @@
 
 ## Zone: persistence-identity
 
+2026-10-31 seed hunt (seed-only): re-read `ArchLucid.Persistence/Identity/` after sync (authentication identity lifecycle and lookup, email OTP rate-limit predicates/SQL, tenant IdP and sign-in domain cache decorators, link proposals, platform recovery grants, workspace membership MERGE); no hunt-ready row promoted this pass; seeded five `(candidate)` rows below; scoped Persistence identity suites **46/51** passed (`FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository` plus EmailOtp/InMemory identity coverage; 5 SQL integration tests skipped on cloud VM, `RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share identical `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts or bulk replay with identical timestamp; wrong outcome: resend cooldown anchored to the wrong active row; reachability: high-volume OTP request bursts.
+- [ ] (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: active-replacement probe uses only unexpired actives; input: expired active row plus lockout-invalidated predecessor within hourly verification window; wrong outcome: verification rate limit under-counts prior failures; reachability: resend after expiry without new code request.
+- [ ] (candidate) `DapperAuthenticationIdentityRepository.FindAnyByExternalKeyAsync` — disabled identity returned when multiple disabled rows share an external key — locus: `ORDER BY CASE WHEN DisabledUtc IS NULL THEN 0 ELSE 1 END, CreatedUtc DESC`; input: relink history with several disabled rows; wrong outcome: stale disabled row chosen over newer disabled snapshot; reachability: admin identity relink diagnostics.
+- [ ] (candidate) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — global normalized-domain cache entry may survive tenant-scoped domain removal if eviction misses a list key — locus: `HotPathCacheEviction.InvalidateTenantSignInEmailDomainAsync`; input: remove sign-in domain then immediate lookup by normalized domain; wrong outcome: SSO routing reads removed domain until TTL; reachability: tenant domain admin changes under cache load.
+- [ ] (candidate) `SqlTenantIdentityProviderConfigurationRepository.UpsertAsync` — MERGE overwrites configuration without row-version guard — locus: upsert statement; input: concurrent admin saves from two SSO wizard tabs with stale payload; wrong outcome: last writer silently drops IdP metadata fields; reachability: tenant SSO configuration saves.
+
 2026-10-21 seed hunt (seed→hit, lane C): invalidated OTP challenges excluded from hourly request counts; 27 scoped persistence tests + EmailOtp auth regression.
 
 2026-09-14 seed hunt #2912 (seed-only): reseeded persistence-identity with `-Hint persistence-identity`; no new hunt-ready rows.
@@ -11996,13 +12004,13 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 928
+- **hunts:** 929
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 seed hunt (seed→hit): hourly verification SQL treated expired unused challenges as active replacements, so a later lockout was omitted from the hourly failure count; the active probe now requires `ExpiresUtc > @NowUtc`; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
@@ -12101,12 +12109,6 @@
 
 2026-09-12 seed hunt #1920 (seed-only): reseeded persistence-identity; scoped identity repository tests passed; no new hunt-ready defect proven this pass.
 ---
-
-- (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — SQL `ORDER BY CreatedUtc DESC` without tie-break when two active challenges share the same `CreatedUtc` — locus: TOP (1) selection; input: concurrent inserts with identical timestamp from bulk migration replay.
-- (candidate) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` — lockout-invalidated row still counts when a newer active challenge exists but is expired — locus: `emailHasActiveChallenge` probe uses only unexpired actives; input: expired active plus lockout-invalidated predecessor within hourly verification window.
-- (candidate) `DapperAuthenticationIdentityRepository.Lookup` — normalized email lookup case-folding diverges from `IdentityEmailNormalizer` for IDN domains — locus: SQL `NormalizedEmail` compare; input: sign-in email with mixed-script homoglyph rejected at app layer but alternate normalization in legacy row.
-- (candidate) `InMemoryPlatformUserRepository` — concurrent `TryAdd` duplicate external id returns stale row instead of conflict — locus: `ConcurrentDictionary` add path; input: parallel self-service trial sign-ups sharing external subject.
-- (candidate) `SqlTenantIdentityProviderConfigurationRepository` — MERGE without rowversion check allows silent overwrite when admin saves stale ETag — locus: optimistic concurrency; input: two admin saves with same provider id from SSO wizard tabs.
 
 ## Zone: api-authority-admin-controllers
 
