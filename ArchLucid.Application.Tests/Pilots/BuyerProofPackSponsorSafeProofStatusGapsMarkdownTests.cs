@@ -3494,6 +3494,46 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Gate_mirrors_when_stale_proof_sendable_but_gate_not_sendable_omits_all_clear_suffix()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+            PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Partial,
+            ProofPackageSendability.SendableWithCaveats,
+            [],
+            [],
+            ["caveat"]);
+
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            gate,
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
+        string mirrors = statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("**Gate mirrors (structured):**", StringComparison.Ordinal));
+
+        mirrors.Should().Contain("`Sendable`");
+        mirrors.Should().NotContain(prose);
+        statusSb.ToString().Should().NotContain(PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenSendable());
+    }
+
+    [Fact]
     public void Gate_mirrors_when_sendable_matches_proof_package_sendability_mirror_suffix()
     {
         PilotRunDeltas deltas = new()

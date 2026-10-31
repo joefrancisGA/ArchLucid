@@ -30,14 +30,23 @@ internal static class PilotSponsorSafeSendableAllClearHonestyCopy
     internal static string FormatSendabilityNoteWhenNotSendable() =>
         FormattableString.Invariant($"**Sendability note:** {NotSendableSendabilityNotePlain}");
 
-    internal static string FormatGateMirrorsStructuredMarkdownLine(ProofPackageCompletenessResponse proof)
+    internal static string FormatGateMirrorsStructuredMarkdownLine(
+        ProofPackageCompletenessResponse proof,
+        PilotBuyerSafeEvidenceGateResult? gate = null)
     {
         ArgumentNullException.ThrowIfNull(proof);
 
         string body = FormattableString.Invariant(
             $"ProofSendability = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.ProofSendability ?? string.Empty)}** · Publishing tier = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.PublishingTier ?? string.Empty)}** · Evidence completeness = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.EvidenceCompleteness ?? string.Empty)}**");
 
-        if (string.Equals(proof.ProofSendability, nameof(ProofPackageSendability.Sendable), StringComparison.Ordinal))
+        bool sendablePosture = gate?.ProofSendability is ProofPackageSendability.Sendable
+            || (gate is null
+                && string.Equals(
+                    proof.ProofSendability,
+                    nameof(ProofPackageSendability.Sendable),
+                    StringComparison.Ordinal));
+
+        if (sendablePosture)
             body = FormattableString.Invariant($"{body}; {AllClearConcreteGapPlain}");
 
         return FormattableString.Invariant($"**Gate mirrors (structured):** {body}.");

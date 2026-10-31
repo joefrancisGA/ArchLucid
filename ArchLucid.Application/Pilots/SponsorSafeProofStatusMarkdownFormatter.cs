@@ -59,7 +59,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             sb.AppendLine(CultureInfo.InvariantCulture, $"- {bullet}");
 
         sb.AppendLine();
-        sb.AppendLine(PilotSponsorSafeSendableAllClearHonestyCopy.FormatGateMirrorsStructuredMarkdownLine(proof));
+        sb.AppendLine(PilotSponsorSafeSendableAllClearHonestyCopy.FormatGateMirrorsStructuredMarkdownLine(proof, gate));
         sb.AppendLine();
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable
