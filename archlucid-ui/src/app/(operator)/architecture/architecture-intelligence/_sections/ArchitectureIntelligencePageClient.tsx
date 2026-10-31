@@ -247,7 +247,7 @@ export function ArchitectureIntelligencePageClient() {
               disabled={
                 isBusy ||
                 activeRunId === null ||
-                runState?.kind !== "reasoning" ||
+                !analysisComplete ||
                 productContextLoadFailed ||
                 blocksLlmExecution
               }

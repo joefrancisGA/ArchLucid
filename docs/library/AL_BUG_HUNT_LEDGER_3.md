@@ -2508,11 +2508,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 54
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 2
+- **hunts:** 55
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — empty reasoning payload marked analysis complete
+- **last-bug:** 2026-10-31 — empty reasoning payload enabled publish
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2527,10 +2527,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
 2026-10-31 thorough hunt (hit): promoted the reasoning-result state candidate; `runState.kind === "reasoning"` marked the checklist complete for an empty payload, so the page could show “Done” without actionable output. Added `hasActionableArchitectureIntelligenceResult` and regression coverage for empty and populated payloads; the focused checklist suite passed 5/5. Private beta: invited architects no longer see the analysis checklist complete when the reasoning API returns no actionable result, so they retain the correct next-step state.
+2026-10-31 thorough hunt (hit): the empty reasoning response also left “Publish to findings/advisory” enabled because the action gate checked only `runState.kind === "reasoning"`; require `hasActionableArchitectureIntelligenceResult(runState)` and cover the reachable empty `/architecture-intelligence/run` response with a returned `runId`. The isolated page-client regression passed 1/1; the full 58-test page-client file remained VM-heap constrained, while the focused checklist suite passed 5/5. Private beta: invited architects can no longer publish a non-actionable reasoning response into findings/advisory.
 
 ### Hypotheses
 
-- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action gate — an empty reasoning response with a returned `runId` may still enable “Publish to findings/advisory” because the button checks only `runState.kind === "reasoning"` rather than `hasActionableArchitectureIntelligenceResult`; input: reachable empty `/architecture-intelligence/run` response with `runId` (existing empty-result fixture); wrong outcome: publish affordance accepts a non-actionable result. Large page-client repro was inconclusive because the VM hit the worker heap limit; keep as candidate until an isolated test can prove or disprove it.
+- [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — an empty reasoning response with a returned `runId` enabled “Publish to findings/advisory” because the button checked only `runState.kind === "reasoning"`; the gate now requires `hasActionableArchitectureIntelligenceResult(runState)`; regression `does not mark analysis complete when reasoning returns no actionable result` now also asserts the publish button is disabled.
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
 - [x] (proven) `ArchitectureIntelligencePageClient` — reasoning result kind alone marked analysis complete before a usable result payload existed — **hit 2026-10-31 thorough hunt:** `hasActionableArchitectureIntelligenceResult` requires actionable model/review/recommendation/violation/interview/adversarial/validation content; regressions in `architecture-intelligence-analysis-checklist.test.ts`.

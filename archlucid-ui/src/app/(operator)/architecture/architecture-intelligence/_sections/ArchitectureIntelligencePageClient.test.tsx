@@ -206,6 +206,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).toHaveTextContent("In progress");
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
   });
 
   it("keeps publish disabled for a deep-linked review before analysis produces a result", async () => {
