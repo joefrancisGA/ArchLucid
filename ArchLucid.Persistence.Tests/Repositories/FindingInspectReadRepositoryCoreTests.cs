@@ -3000,4 +3000,45 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.FilterRecommendedActions(["\u200B", "Enable TLS"]).Should().Equal("Enable TLS");
     }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_snake_case_typed_payload_property_name()
+    {
+        JsonElement typed = JsonSerializer.SerializeToElement(new { semantic_support_band = "Unsupported" });
+
+        FindingSemanticSupportBand? band = FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed);
+
+        band.Should().BeNull("exporters persist camelCase semanticSupportBand; snake_case is not aliased");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_parses_string_numeric_token_with_trailing_format_character_like_numeric_json()
+    {
+        JsonElement numeric = JsonSerializer.SerializeToElement(new { classification = 1 });
+        JsonElement withTrailingFormat = JsonDocument.Parse("""{"classification":"1\u200B"}""").RootElement;
+
+        FindingClassification? fromNumeric = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, numeric);
+        FindingClassification? fromString = FindingInspectReadRepositoryCore.ResolveInspectClassification(null, withTrailingFormat);
+
+        fromNumeric.Should().Be(FindingClassification.ChecklistCoverage);
+        fromString.Should().Be(fromNumeric);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_sets_why_this_matters_from_rationale_when_corrupt_payload_and_title_is_whitespace_only()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "   ",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void NormalizeFindingId_preserves_leading_format_character()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("\u200Bfinding-1").Should().Be("\u200Bfinding-1");
+    }
 }
