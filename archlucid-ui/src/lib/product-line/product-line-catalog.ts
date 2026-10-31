@@ -125,6 +125,10 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
   "/integrations/itsm/oauth/callback": "both",
   "/integrations/cloud-connections/aws": "architecture",
   "/integrations/cloud-connections/gcp": "architecture",
+  "/administration/securenow-first-hour": "security",
+  "/administration/securenow-return-reasons": "security",
+  "/administration/securenow-pilot-decision": "security",
+  "/administration/securenow-accessibility": "security",
 };
 
 /** Nested URL trees that inherit the parent catalog assignment. */
