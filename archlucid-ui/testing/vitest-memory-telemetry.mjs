@@ -12,6 +12,8 @@ if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_MEMORY_TELEMETRY !
   let peakObservedRssBytes = 0;
   let gcEvents = 0;
   let gcDurationMs = 0;
+  const heartbeatIntervalMs = 5_000;
+  let heartbeatInterval = null;
 
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
@@ -29,6 +31,21 @@ if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_MEMORY_TELEMETRY !
     return memory;
   }
 
+  function emitLiveWorkerSample() {
+    const memory = sample();
+    // The worker can OOM before afterAll. Emit in-process samples while the
+    // file is running, rather than sampling only the Vitest coordinator.
+    console.info("VITEST_MEMORY_FILE_SAMPLE " + JSON.stringify({
+      testPath, pid: process.pid,
+      elapsedMs: Number(process.hrtime.bigint() - start) / 1e6,
+      samples, rssBytes: memory.rss, heapUsedBytes: memory.heapUsed,
+      peakObservedRssBytes, peakObservedHeapUsedBytes,
+      heapLimitBytes: getHeapStatistics().heap_size_limit,
+      processMaxRssKiB: process.resourceUsage().maxRSS,
+      gcEvents, gcDurationMs,
+    }));
+  }
+
   beforeAll(() => {
     sample();
     // Log the identity before a test runs, so an OOM that kills its worker
@@ -36,6 +53,8 @@ if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_MEMORY_TELEMETRY !
     const state = expect.getState();
     if (typeof state.testPath === "string") testPath = state.testPath;
     console.info("VITEST_MEMORY_FILE_START " + JSON.stringify({ testPath, pid: process.pid }));
+    heartbeatInterval = setInterval(emitLiveWorkerSample, heartbeatIntervalMs);
+    heartbeatInterval.unref();
   });
   afterEach(() => {
     sample();
@@ -43,6 +62,10 @@ if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_MEMORY_TELEMETRY !
     if (typeof state.testPath === "string") testPath = state.testPath;
   });
   afterAll(() => {
+    if (heartbeatInterval !== null) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
     const memory = sample();
     observer.disconnect();
     // processMaxRssKiB is a process-lifetime peak; unlike observed peaks it is NOT a file peak.
