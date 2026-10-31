@@ -22,6 +22,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         policyRuleId: "rule-1",
         trustLabel: "DeterministicRule",
         trustLabelReason: "Matched egress policy.",
@@ -39,7 +40,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.findingCount).toBe(1);
     expect(document.workItems[0]?.schema).toBe("archlucid.work-item.v1");
     expect(document.workItems[0]?.findingId).toBe("f1");
-    expect(document.workItems[0]?.severity).toBe("High");
+    expect(document.workItems[0]?.severity).toBe("Error");
     expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/evidence-trace");
     expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
     expect(document.workItems[0]?.trustLabelReason).toBe("Matched egress policy.");
@@ -151,6 +152,62 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
+  it("distinguishes absent and empty ITSM linkage cells (P-07)", () => {
+    const csvAbsent = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+      },
+    ]);
+
+    expect(csvAbsent).toContain("ITSM linkage was not stored.");
+
+    const csvEmpty = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f2",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        itsmLinkedTicketsSummary: "",
+      },
+    ]);
+
+    expect(csvEmpty).toContain("ITSM linkage was stored empty.");
+  });
+
+  it("writes explicit absence copy for omitted finding titles (P-08)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-null-title",
+        title: null as unknown as string,
+        recommendation: "Fix it.",
+        severityValue: 1,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+      },
+    ]);
+
+    expect(csv).toContain("Finding title was not stored.");
+  });
+
   it("writes explicit absence copy for omitted finding fields", () => {
     const csv = buildQuickDecisionFindingsCsv("run-a", [{
       findingId: "f-missing",
@@ -162,14 +219,38 @@ describe("buildQuickDecisionFindingsCsv", () => {
       isMuted: false,
       muteReason: null,
       enforcementTier: "PolicyViolation",
+      classification: FINDING_CLASSIFICATION_DECISION_GRADE,
     }]);
 
     expect(csv).toContain("Recommended action was stored empty.");
-    expect(csv).toContain("Policy rule was not stored");
+    expect(csv).toContain("Policy rule id was not stored.");
     expect(csv).toContain("Trust label was not stored");
     expect(csv).toContain("Trust label reason was not stored");
     expect(csv).toContain("Semantic support band was not stored");
     expect(csv).toContain("Semantic support band scorer version was not stored");
+  });
+
+  it("exports scorer version when the band was stored empty but version was present", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-band-empty",
+        title: "Gap",
+        recommendation: "Fix.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        semanticSupportBand: "",
+        semanticSupportBandScorerVersion: "as099-llm-finalize-v1",
+      } as QuickDecisionFinding,
+    ]);
+
+    expect(csv).toContain("Semantic support band was stored empty.");
+    expect(csv).toContain("as099-llm-finalize-v1");
+    expect(csv).not.toContain("Semantic support band scorer version was not stored");
   });
 
   it("exports only decision-grade findings rows", () => {
@@ -187,6 +268,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
         confidenceLevel: "Low",
         trustLabel: "DeterministicRule",
         trustLabelReason: "Matched egress policy.",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
       {
         findingId: "checklist",
@@ -209,7 +291,29 @@ describe("buildQuickDecisionFindingsCsv", () => {
     expect(csv).toContain("TrustLabel");
     expect(csv).toContain("DeterministicRule");
     expect(csv).not.toContain("checklist");
-    expect(csv.split("\n")).toHaveLength(2);
+    expect(csv).toContain("Checklist coverage rows omitted from this file: 1");
+    expect(csv).toContain("No unclassified classification rows were omitted.");
+    expect(csv.split("\n")).toHaveLength(4);
+  });
+
+  it("states when no checklist coverage rows were omitted", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+      },
+    ]);
+
+    expect(csv.startsWith("No checklist coverage rows were omitted.")).toBe(true);
+    expect(csv.split("\n")[1]).toBe("No unclassified classification rows were omitted.");
   });
 
   it("quotes CSV cells that contain carriage returns", () => {
@@ -224,10 +328,55 @@ describe("buildQuickDecisionFindingsCsv", () => {
         isMuted: false,
         muteReason: null,
         enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
       },
     ]);
 
     expect(csv).toContain('"Row break\rhere"');
+  });
+
+  it("does not label default human review when status was omitted on the wire (P-03)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-no-review",
+        title: "Gap",
+        recommendation: "Fix.",
+        severityValue: 2,
+        severityStored: true,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        humanReviewStatus: 0,
+        humanReviewStatusStored: false,
+      },
+    ]);
+
+    expect(csv).toContain("Human review status was not stored");
+    expect(csv).not.toContain("No human review required");
+  });
+
+  it("does not label default severity Info when severity was omitted on the wire (P-02)", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f-no-severity",
+        title: "Gap",
+        recommendation: "Fix.",
+        severityValue: 0,
+        severityStored: false,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+      },
+    ]);
+
+    expect(csv).toContain("Severity was not stored");
+    expect(csv).not.toContain(",Info,");
   });
 });
 

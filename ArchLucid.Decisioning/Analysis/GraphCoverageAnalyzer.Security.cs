@@ -19,17 +19,21 @@ partial class GraphCoverageAnalyzer
             .Select(x => x.ToNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        List<string> protectedResources = topologyNodes
+        List<GraphNode> protectedNodes = topologyNodes
             .Where(x => protectedIds.Contains(x.NodeId))
-            .Select(x => x.Label)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .ToList();
+
+        List<GraphNode> unprotectedNodes = topologyNodes
+            .Where(x => !protectedIds.Contains(x.NodeId))
+            .ToList();
+
+        List<string> protectedResources = protectedNodes
+            .Select(x => GraphNodeReviewerLabel.ForFindingTitle(x.Label))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        List<string> unprotectedResources = topologyNodes
-            .Where(x => !protectedIds.Contains(x.NodeId))
-            .Select(x => x.Label)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
+        List<string> unprotectedResources = unprotectedNodes
+            .Select(x => GraphNodeReviewerLabel.ForFindingTitle(x.Label))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -39,7 +43,11 @@ partial class GraphCoverageAnalyzer
             ProtectedResourceCount = protectedResources.Count,
             UnprotectedResourceCount = unprotectedResources.Count,
             ProtectedResources = protectedResources,
-            UnprotectedResources = unprotectedResources
+            UnprotectedResources = unprotectedResources,
+            UnprotectedResourceNodeIds = unprotectedNodes
+                .Select(static x => x.NodeId)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
         };
     }
 }

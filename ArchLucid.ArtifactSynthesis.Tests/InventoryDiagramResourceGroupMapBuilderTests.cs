@@ -30,6 +30,13 @@ public sealed class InventoryDiagramResourceGroupMapBuilderTests
         map.Edges.Should().HaveCount(2);
         map.Edges.Select(edge => (edge.FromNodeId, edge.ToNodeId)).Should().BeEquivalentTo(
             [("rg-map:rg-0", "rg-map:rg-1"), ("rg-map:rg-1", "rg-map:rg-2")]);
+        map.Edges.Should().AllSatisfy(edge =>
+        {
+            edge.Properties.Should().ContainKey(
+                InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey);
+            edge.Properties[InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey]
+                .Should().Be("true");
+        });
     }
 
     [Fact]

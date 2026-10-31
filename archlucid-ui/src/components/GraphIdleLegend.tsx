@@ -21,7 +21,7 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
       </p>
       {buyerPolished ? (
         <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Shapes how reviewed context, findings, and deliverables connect to the finalized review record for this review.
+          Sample layout only. Stored graph nodes were not loaded for this review.
         </p>
       ) : (
         <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -47,5 +47,5 @@ export const GRAPH_MODE_NATIVE_TITLES: Record<string, string> = {
   "decision-subgraph": "Neighborhood focused on one decision id and its connected evidence.",
   "node-neighborhood": "Expand a specific graph node by id up to the selected depth.",
   architecture:
-    "Architecture-oriented graph: components and relationships (may paginate on reviews with very large evidence graphs).",
+    "Architecture-oriented graph: components and relationships (may paginate on reviews with very large reviews).",
 };

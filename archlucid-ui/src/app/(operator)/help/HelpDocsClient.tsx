@@ -142,20 +142,21 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
 }
 
 function helpDocLinkHref(url: string): string {
-  const trimmed = url.trim();
-
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return normalizeDocIndexUrlForDedupe(trimmed);
-  }
-
-  return trimmed;
+  return url.trim();
 }
 
 function docIndexFetchedUrlHasDeepLinkSuffix(url: string): boolean {
   const trimmed = url.trim();
 
   if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return false;
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      return parsed.hash.length > 0;
+    } catch {
+      return trimmed.includes("#");
+    }
   }
 
   return trimmed.includes("?") || trimmed.includes("#");
@@ -184,6 +185,17 @@ function docIndexMergeDedupeKey(url: string): string {
   return normalizeDocIndexUrlForDedupe(url);
 }
 
+function mergedIncludesDeepLinkVariantForKey(
+  merged: readonly DocIndexEntry[],
+  mergeDedupeKey: string,
+): boolean {
+  return merged.some(
+    (row) =>
+      docIndexMergeDedupeKey(row.url) === mergeDedupeKey
+      && docIndexFetchedUrlHasDeepLinkSuffix(row.url),
+  );
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -205,7 +217,8 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
     const duplicateNormalizedPath =
       mergeDedupeKey !== "/help"
       && claimedUrls.has(mergeDedupeKey)
-      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url);
+      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url)
+      && !mergedIncludesDeepLinkVariantForKey(merged, mergeDedupeKey);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;

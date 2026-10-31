@@ -72,6 +72,10 @@ export function riskPostureBadgeClass(posture: string): string {
     return enterpriseStatusTagClass("needs-attention");
   }
 
+  if (key.includes("not derived") || key.includes("not stored")) {
+    return enterpriseStatusTagClass("neutral");
+  }
+
   return enterpriseStatusTagClass("ready");
 }
 
@@ -110,6 +114,24 @@ function confidencePercent(confidence: number | string): number | null {
   }
 
   return Math.min(100, Math.max(0, pct));
+}
+
+function presentStoredStringField(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return trimmed;
 }
 
 /** FC-69 — descriptive model confidence without percent-complete authority. */
@@ -267,9 +289,6 @@ export function RunExplanationSection({
     }
 
     const expl = explanationBody(summary);
-    const confRaw = expl.confidence;
-    const showModelConfidenceBlock =
-      confRaw !== null && confRaw !== undefined && Number.isFinite(confRaw);
     const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
     const citationsMissing = summary.citations === null || summary.citations === undefined;
     const citationCount = summary.citations?.length ?? 0;
@@ -277,7 +296,7 @@ export function RunExplanationSection({
     if (citationsMissing || citationCount > 0) {
       items.push({
         id: "doc-explanation-evidence-cited",
-        label: citationsMissing ? "Evidence cited (not returned)" : "Evidence cited",
+        label: citationsMissing ? "Evidence cited was not stored." : "Evidence cited",
       });
     }
 
@@ -290,22 +309,24 @@ export function RunExplanationSection({
       });
     }
 
-    if (showModelConfidenceBlock) {
-      items.push({ id: "doc-explanation-confidence", label: "Model confidence" });
-    }
+    items.push({ id: "doc-explanation-confidence", label: "Model confidence" });
 
     items.push(
       { id: "doc-explanation-themes", label: "Themes" },
       { id: "doc-explanation-drivers", label: "Key drivers" },
       { id: "doc-explanation-risks", label: "Risk implications" },
+      { id: "doc-explanation-costs", label: "Cost implications" },
     );
 
-    if (expl.provenance !== null && expl.provenance !== undefined) {
-      items.push({
-        id: "doc-explanation-provenance",
-        label: buyerPolishedShell ? "Source attribution" : "LLM provenance",
-      });
-    }
+    items.push({
+      id: "doc-explanation-provenance",
+      label:
+        expl.provenance !== null && expl.provenance !== undefined
+          ? buyerPolishedShell
+            ? "Source attribution"
+            : "LLM provenance"
+          : "Explanation provenance was not stored.",
+    });
 
     return items;
   }, [summary, buyerPolishedShell]);
@@ -431,7 +452,7 @@ export function RunExplanationSection({
         </p>
       ) : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Faithfulness ratio not recorded for this explanation.
+          Faithfulness support ratio was not stored.
         </p>
       )}
 
@@ -487,7 +508,7 @@ export function RunExplanationSection({
               This explanation only — not the full review evidence graph.
             </span>
           </h3>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Citations not returned</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Evidence cited was not stored.</p>
         </div>
       ) : summary.citations.length > 0 ? (
         <div id="doc-explanation-evidence-cited">
@@ -528,8 +549,10 @@ export function RunExplanationSection({
             {summary.findingTraceConfidences.map((row) => {
               const findingTitle = findingTitlesById?.[row.findingId]?.trim();
               const findingLabel =
-                buyerPolishedShell && findingTitle !== undefined && findingTitle.length > 0
-                  ? findingTitle
+                buyerPolishedShell
+                  ? findingTitle !== undefined && findingTitle.length > 0
+                    ? findingTitle
+                    : "Finding title was not stored."
                   : row.findingId;
 
               return (
@@ -539,11 +562,22 @@ export function RunExplanationSection({
                 ) : (
                   <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{row.findingId}</code>
                 )}{" "}
-                — {row.traceConfidenceLabel}
+                —{" "}
+                {presentStoredStringField(
+                  row.traceConfidenceLabel,
+                  "Trace confidence label was not stored.",
+                  "Trace confidence label was stored empty.",
+                )}
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
                   : ""}
+                {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount) ? null : (
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    {" "}
+                    — Evidence ref count was not stored on this trace.
+                  </span>
+                )}
                 {row.missingTraceFields === null || row.missingTraceFields === undefined ? (
                   <span className="text-neutral-500 dark:text-neutral-400">
                     {" "}
@@ -562,22 +596,28 @@ export function RunExplanationSection({
         </div>
       ) : null}
 
-      {modelConfidencePresentation !== null ? (
-        <div id="doc-explanation-confidence" className="mb-4">
-          <p id="doc-explanation-confidence-label" className={cn("m-0 mb-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Model confidence
+      <div id="doc-explanation-confidence" className="mb-4">
+        <p id="doc-explanation-confidence-label" className={cn("m-0 mb-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Model confidence
+        </p>
+        {modelConfidencePresentation !== null ? (
+          <>
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+              aria-labelledby="doc-explanation-confidence-label"
+            >
+              {modelConfidencePresentation.headline}
+            </p>
+            <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {modelConfidencePresentation.honestyLine}
+            </p>
+          </>
+        ) : (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            Model confidence was not stored.
           </p>
-          <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
-            aria-labelledby="doc-explanation-confidence-label"
-          >
-            {modelConfidencePresentation.headline}
-          </p>
-          <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {modelConfidencePresentation.honestyLine}
-          </p>
-        </div>
-      ) : null}
+        )}
+      </div>
 
       <div className="mb-4">
         <h3 id="doc-explanation-themes" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -585,6 +625,8 @@ export function RunExplanationSection({
         </h3>
         {themesMissing ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Themes were not stored.</p>
+        ) : themeSummaries.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Themes were stored empty.</p>
         ) : (
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
             {themeSummaries.map((t) => (
@@ -604,6 +646,10 @@ export function RunExplanationSection({
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Compliance implications were not stored.
           </p>
+        ) : expl.complianceImplications.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Compliance implications were stored empty.
+          </p>
         ) : (
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
             {expl.complianceImplications.map((implication) => (
@@ -620,6 +666,10 @@ export function RunExplanationSection({
         {explanationMissing || expl.keyDrivers === null || expl.keyDrivers === undefined ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Key drivers were not stored.
+          </p>
+        ) : expl.keyDrivers.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Key drivers were stored empty.
           </p>
         ) : (
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
@@ -638,10 +688,35 @@ export function RunExplanationSection({
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Risk implications were not stored.
           </p>
+        ) : expl.riskImplications.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Risk implications were stored empty.
+          </p>
         ) : (
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
             {expl.riskImplications.map((r) => (
               <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <h3 id="doc-explanation-costs" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Cost implications
+        </h3>
+        {explanationMissing || expl.costImplications === null || expl.costImplications === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Cost implications were not stored.
+          </p>
+        ) : expl.costImplications.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Cost implications were stored empty.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.costImplications.map((costLine) => (
+              <li key={costLine}>{costLine}</li>
             ))}
           </ul>
         )}
@@ -664,16 +739,47 @@ export function RunExplanationSection({
             <dt>Agent type</dt>
             <dd className="m-0">{buyerLabelForAgentType(prov.agentType)}</dd>
             <dt>Model ID</dt>
-            <dd className="m-0">{prov.modelId}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.modelId,
+                "Model id was not stored.",
+                "Model id was stored empty.",
+              )}
+            </dd>
             <dt>Prompt template</dt>
-            <dd className="m-0">{prov.promptTemplateId ?? "Prompt template was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptTemplateId,
+                "Prompt template was not stored.",
+                "Prompt template was stored empty.",
+              )}
+            </dd>
             <dt>Prompt version</dt>
-            <dd className="m-0">{prov.promptTemplateVersion ?? "Prompt version was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptTemplateVersion,
+                "Prompt version was not stored.",
+                "Prompt version was stored empty.",
+              )}
+            </dd>
             <dt>Content hash</dt>
-            <dd className="m-0">{prov.promptContentHash ?? "Content hash was not stored."}</dd>
+            <dd className="m-0">
+              {presentStoredStringField(
+                prov.promptContentHash,
+                "Content hash was not stored.",
+                "Content hash was stored empty.",
+              )}
+            </dd>
           </dl>
         </details>
-      ) : null}
+      ) : (
+        <p
+          id="doc-explanation-provenance"
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        >
+          Explanation provenance was not stored.
+        </p>
+      )}
     </DocumentLayout>
   );
 }

@@ -1,7 +1,10 @@
 export const ARCHITECTURE_DIAGRAM_SECTION_HEADING = "Architecture diagram" as const;
 
 export const ARCHITECTURE_DIAGRAM_DRAFT_LABEL =
-  "Generated from the information provided. Review inferred components and connections." as const;
+  "Generated from the information provided. Review inferred components and lines." as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
+  "Counts list components and lines recorded in your brief versus inferred on this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;
@@ -46,7 +49,7 @@ export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
   "The architecture diagram could not be rendered. Edit the diagram or regenerate from your brief." as const;
 
 export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
-  "The diagram did not paint in the browser. Retry, switch diagram mode, or export Mermaid to inspect the source." as const;
+  "This painted view is too large for the browser viewport. Switch diagram mode or export Mermaid — the diagram source was stored and did not fail to render." as const;
 
 export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
 
@@ -64,13 +67,29 @@ export const ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE =
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED = "Solid — asserted in your brief" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
+  "Solid — asserted in your brief" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED = "Dashed — inferred; confirm or remove" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_ACCEPTED_INFERENCE =
+  "Dashed — accepted inference on this diagram (operator confirmed; not observed infrastructure evidence)" as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
+  "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE =
+  "Dashed connector — inferred relationship line, not operator-asserted; confirm or remove on the diagram" as const;
+
+export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
+  " (submitted text, not operator-asserted)" as const;
+
+export const ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX =
+  " (accepted inference on this diagram)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED = "Inferred" as const;
+
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE = "Accepted inference" as const;
 
 export const ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION = "Restore" as const;
 
@@ -84,6 +103,9 @@ export const ARCHITECTURE_DIAGRAM_SAVE_ACTION = "Save diagram" as const;
 export const ARCHITECTURE_DIAGRAM_REMOVED_INFERRED_HEADING = "Removed inferred components" as const;
 
 export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING = "Review inferred components" as const;
+
+export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER =
+  "Inferred components are suggestions from your brief. Accepting one stores your confirmation; it is not observed infrastructure evidence." as const;
 
 export const ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT =
   "Inferred review is paused while a hand-edited Mermaid version is active. Regenerate or restore a generated version to accept or remove inferred components." as const;
@@ -109,7 +131,13 @@ export const ARCHITECTURE_DIAGRAM_ZOOM_PERCENT_LABEL = "Diagram zoom percentage"
 
 export const ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL = "Fit in view" as const;
 
-export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = "Subscription map" as const;
+export const ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL = "Neighborhood map" as const;
+
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP =
+  "Subscription name was not stored on this map." as const;
+
+/** @deprecated Use {@link ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL}. */
+export const ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL = ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL;
 
 export const ARCHITECTURE_DIAGRAM_MAP_LABEL = "Map" as const;
 
@@ -117,3 +145,122 @@ export const ARCHITECTURE_DIAGRAM_PLATE_LABEL = "Full plate" as const;
 
 export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
   "Focus the diagram, then Ctrl+scroll to zoom. + / − keys zoom. 0 or Fit in view resets to the fitted 100%." as const;
+
+export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED = "Flow name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
+  "Entities were not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
+  "Entities were stored empty." as const;
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
+  "Data flow was not matched to diagram components:" as const;
+
+export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
+  "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
+
+export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
+
+export function formatArchitectureDiagramTextAlternativeOverflowNotice(
+  omittedNodeCount: number,
+  omittedEdgeCount: number,
+): string {
+  const parts: string[] = [];
+
+  if (omittedNodeCount > 0) {
+    parts.push(
+      `${omittedNodeCount} additional component${omittedNodeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  if (omittedEdgeCount > 0) {
+    parts.push(
+      `${omittedEdgeCount} additional connection${omittedEdgeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  return parts.join(" ");
+}
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
+  "Flow detail was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY =
+  "Flow detail was stored empty." as const;
+
+export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
+  const noun = entityCount === 1 ? "component" : "components";
+
+  return `The diagram includes ${entityCount} ${noun} whose names were not stored.`;
+}
+
+export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly string[]): string {
+  return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
+}
+
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED =
+  "Trust boundary name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY =
+  "Trust boundary name was stored empty." as const;
+
+export function formatTrustBoundaryDisplayLabel(label: string): string {
+  if (label.length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED;
+  }
+
+  if (label.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY;
+  }
+
+  return label.trim();
+}
+
+export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
+  return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string): string {
+  const label = actorLabel.trim();
+
+  return label.length > 0
+    ? `People and systems: ${label} was not drawn because actor kind was not stored.`
+    : "People and systems: Actor kind was not stored — not drawn on the diagram.";
+}
+
+export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
+
+export function formatUnmatchedArchitectureDataFlowEntity(
+  entity: { readonly label: string; readonly detail?: string | null },
+): string {
+  const flowText = entity.label.trim();
+
+  if (flowText.length === 0) {
+    const detailSuffix =
+      entity.detail === null || entity.detail === undefined
+        ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED
+        : entity.detail.trim().length === 0
+          ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY
+          : ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
+
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED} (${detailSuffix})`;
+  }
+
+  if (entity.detail === null || entity.detail === undefined) {
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
+  }
+
+  if (entity.detail.trim().length === 0) {
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY})`;
+  }
+
+  return formatUnmatchedArchitectureDataFlowLine(flowText);
+}
+
+export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
+  "Architecture diagram was not generated." as const;

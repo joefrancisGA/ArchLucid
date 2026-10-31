@@ -337,7 +337,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           actions={searchEmptyStateActions(scopedRunId)}
           description={
             confidence !== null && totalResultCount > 0
-              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another confidence tier or broaden your query.`
+              ? `No hits match ${retrievalHitRelevanceLabel(confidence).toLowerCase()}. Try another relevance band or broaden your query.`
               : SEARCH_EMPTY_COMPACT.description
           }
         />
@@ -345,9 +345,9 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
       {hasSearched && failure === null && totalResultCount > 0 ? (
         <FilterChipGroup
-          aria-label="Filter search results by confidence"
+          aria-label="Filter search results by relevance band"
           className="flex flex-wrap gap-2"
-          data-testid="search-review-evidence-confidence-chips"
+          data-testid="search-review-evidence-relevance-band-chips"
         >
           <FilterChip
             href={searchReviewEvidenceConfidenceHrefFromSearch(currentSearch, null, pathname)}
@@ -356,7 +356,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             aria-current={confidence === null ? "page" : undefined}
             disabled={loading}
           >
-            All confidence
+            All relevance bands
           </FilterChip>
           {SEARCH_REVIEW_EVIDENCE_CONFIDENCE_OPTIONS.map((tier) => (
             <FilterChip

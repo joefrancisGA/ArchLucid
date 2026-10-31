@@ -22,7 +22,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
         DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
 
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
-            _approvalRepository.GetPendingAsync(50, cancellationToken);
+            _approvalRepository.GetPendingAsync(DecisionsNeededPendingApprovalsPageSize, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
             _riskRegisterService.GetRegisterAsync(
                 tenantId,

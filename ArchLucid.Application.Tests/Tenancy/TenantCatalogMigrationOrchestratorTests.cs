@@ -2542,6 +2542,208 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Assert.NotNull(afterRetry?.VerificationPassedUtc);
     }
 
+    [Fact]
+    public async Task RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-trim-error",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationVerificationProbe> verification = new(MockBehavior.Strict);
+        verification
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = false,
+                    ErrorMessage = "  catalog probe timeout  ",
+                });
+
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations, verificationProbe: verification.Object);
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationVerificationProbeResult? probe) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+        Assert.Equal("catalog probe timeout", probe?.ErrorMessage);
+
+        TenantCatalogMigrationRecord? active =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+
+        Assert.Equal("catalog probe timeout", active?.LastVerificationError);
+    }
+
+    [Fact]
+    public async Task RunVerificationAsync_trims_whitespace_in_verification_failed_audit_payload()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-trim-audit-error",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationVerificationProbe> verification = new(MockBehavior.Strict);
+        verification
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = false,
+                    ErrorMessage = "  catalog probe timeout  ",
+                });
+
+        PlatformAuditEvent? captured = null;
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantCatalogMigrationVerificationFailed)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            CreateDefaultTenantRepository().Object,
+            new Mock<ITenantSuspendCommandService>(MockBehavior.Loose).Object,
+            CreateDefaultProjectionRefresh(),
+            verification.Object,
+            audit.Object,
+            new FakeTimeProvider(DateTimeOffset.UtcNow));
+
+        (TenantCatalogMigrationCommandOutcome outcome, _) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+        Assert.NotNull(captured);
+        Assert.Contains("\"ErrorMessage\":\"catalog probe timeout\"", captured!.DataJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("  catalog probe timeout  ", captured.DataJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RunVerificationAsync_trims_whitespace_probe_run_id_in_failed_audit_and_api_return()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-trim-probe-id",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationVerificationProbe> verification = new(MockBehavior.Strict);
+        verification
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = false,
+                    ErrorMessage = "probe failed",
+                    ProbeRunId = "  run-trim-id  ",
+                });
+
+        PlatformAuditEvent? captured = null;
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantCatalogMigrationVerificationFailed)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            CreateDefaultTenantRepository().Object,
+            new Mock<ITenantSuspendCommandService>(MockBehavior.Loose).Object,
+            CreateDefaultProjectionRefresh(),
+            verification.Object,
+            audit.Object,
+            new FakeTimeProvider(DateTimeOffset.UtcNow));
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationVerificationProbeResult? probe) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+        Assert.Equal("run-trim-id", probe?.ProbeRunId);
+        Assert.NotNull(captured);
+        Assert.Contains("\"ProbeRunId\":\"run-trim-id\"", captured!.DataJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("  run-trim-id  ", captured.DataJson, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task StartAsync_trims_correlation_id_on_started_migration_audit_event()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero));
+        PlatformAuditEvent? captured = null;
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ActiveTenant(clock));
+        tenants
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantCatalogMigrationStarted)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        (TenantCatalogMigrationCommandOutcome outcome, Guid? migrationId) =
+            await sut.StartAsync(TenantId, "  corr-trim-audit  ", "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.Applied, outcome);
+        Assert.NotNull(migrationId);
+        Assert.NotNull(captured);
+        Assert.Equal(AuditEventTypes.TenantCatalogMigrationStarted, captured!.EventType);
+        Assert.Equal("corr-trim-audit", captured.CorrelationId);
+
+        TenantCatalogMigrationRecord? active =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+
+        Assert.Equal("corr-trim-audit", active?.CorrelationId);
+    }
+
     private static TenantCatalogMigrationOrchestrator CreateOrchestrator(
         InMemoryTenantCatalogMigrationRepository migrations,
         ITenantRepository? tenantRepository = null,

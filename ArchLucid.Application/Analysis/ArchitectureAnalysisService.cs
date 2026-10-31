@@ -54,7 +54,7 @@ public sealed class ArchitectureAnalysisService(
         string primaryRunId = CanonicalRunIdForLookup(request.RunId);
 
         await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-            request.RunId,
+            primaryRunId,
             scope,
             _authorityQueryService,
             _manifestHashService,
@@ -64,7 +64,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (primaryDetail is not null)
         {
-            if (!RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
+            if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(primaryDetail.Run.RunId, request.RunId))
                 throw new ArgumentException("PreloadedRunDetail.Run.RunId must match RunId.", nameof(request));
 
             run = primaryDetail.Run;
@@ -81,7 +81,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(primaryRunId, cancellationToken);
+            report.Evidence = await TryLoadEvidencePackageAsync(primaryRunId, cancellationToken);
 
             if (report.Evidence is null)
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -89,42 +89,54 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken)).ToList();
+            report.ExecutionTraces = await TryLoadExecutionTracesAsync(scope, primaryRunId, cancellationToken);
 
             if (report.ExecutionTraces.Count == 0)
-                report.Warnings.Add("No execution traces were found for this run.");
+                report.Warnings.Add("Execution traces were stored as an empty list for this run.");
+        }
+
+        bool needsManifest = request.IncludeManifest
+            || request.IncludeDiagram
+            || request.IncludeSummary
+            || request.IncludeManifestCompare;
+        string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+            ? $"v1-{run.RunId}"
+            : run.CurrentManifestVersion.Trim();
+        GoldenManifest? loadedManifest = null;
+
+        if (needsManifest)
+        {
+            loadedManifest = primaryDetail?.Manifest;
+
+            if (loadedManifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(loadedManifest.RunId, run.RunId))
+                loadedManifest = null;
+
+            if (loadedManifest is null)
+            {
+                loadedManifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
+
+                if (loadedManifest is not null && !AnalysisRunIdCanonicalization.RunIdsReferToSameRun(loadedManifest.RunId, run.RunId))
+                    loadedManifest = null;
+            }
         }
 
         if (request.IncludeManifest)
         {
-            report.Manifest = primaryDetail?.Manifest;
-
-            if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
-                report.Manifest = null;
-
-            string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{run.RunId}" : run.CurrentManifestVersion;
-
-            if (report.Manifest is null)
-            {
-                report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
-
-                if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
-                    report.Manifest = null;
-            }
+            report.Manifest = loadedManifest;
 
             if (report.Manifest is null)
                 report.Warnings.Add($"Manifest '{manifestVersionKey}' was not found.");
         }
 
         if (request.IncludeDiagram)
-            if (report.Manifest is not null)
-                report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
+            if (loadedManifest is not null)
+                report.Diagram = diagramGenerator.GenerateMermaid(loadedManifest);
             else
                 report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
 
         if (request.IncludeSummary)
-            if (report.Manifest is not null)
-                report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
+            if (loadedManifest is not null)
+                report.Summary = summaryGenerator.GenerateMarkdown(loadedManifest, report.Evidence);
             else
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
 
@@ -145,21 +157,23 @@ public sealed class ArchitectureAnalysisService(
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
                 report.Warnings.Add("Manifest comparison was requested but CompareManifestVersion was not provided.");
-            else if (report.Manifest is null)
+            else if (loadedManifest is null)
                 report.Warnings.Add("Manifest comparison was requested but the primary manifest is not available.");
             else
             {
-                GoldenManifest? compareManifest = await unifiedGoldenManifestReader.GetByVersionAsync(request.CompareManifestVersion, cancellationToken);
+                string compareManifestVersion = request.CompareManifestVersion.Trim();
+                GoldenManifest? compareManifest =
+                    await unifiedGoldenManifestReader.GetByVersionAsync(compareManifestVersion, cancellationToken);
 
                 if (compareManifest is null)
-                    report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
-                else if (!RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
+                    report.Warnings.Add($"Compare manifest '{compareManifestVersion}' was not found.");
+                else if (!AnalysisRunIdCanonicalization.RunIdsReferToSameRun(compareManifest.RunId, loadedManifest.RunId))
                 {
                     report.Warnings.Add(
-                        $"Compare manifest '{request.CompareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
+                        $"Compare manifest '{compareManifestVersion}' does not belong to run '{loadedManifest.RunId}'.");
                 }
                 else
-                    report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
+                    report.ManifestDiff = manifestDiffService.Compare(loadedManifest, compareManifest);
             }
 
         if (!request.IncludeAgentResultCompare)
@@ -183,10 +197,22 @@ public sealed class ArchitectureAnalysisService(
                     _manifestHashService,
                     cancellationToken);
 
-                IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
-                    ? primaryDetail.Results
-                    : await resultRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken);
-                List<AgentResult> rightResults = compareDetail.Results;
+                IReadOnlyList<AgentResult> leftResults =
+                    await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                        resultRepository,
+                        scope,
+                        primaryDetail?.Results ?? [],
+                        primaryRunId,
+                        useRollupProjection: true,
+                        cancellationToken).ConfigureAwait(false);
+                IReadOnlyList<AgentResult> rightResults =
+                    await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                        resultRepository,
+                        scope,
+                        compareDetail.Results,
+                        compareRunId,
+                        useRollupProjection: true,
+                        cancellationToken).ConfigureAwait(false);
                 report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
@@ -197,17 +223,26 @@ public sealed class ArchitectureAnalysisService(
     /// <summary>
     ///     Route parameters may use dashed GUIDs while persisted run rows use canonical N-format ids.
     /// </summary>
-    private static bool RunIdsReferToSameRun(string preloadedRunId, string requestRunId)
+    private Task<AgentEvidencePackage?> TryLoadEvidencePackageAsync(
+        string primaryRunId,
+        CancellationToken cancellationToken) =>
+        AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+            evidenceRepository,
+            primaryRunId,
+            cancellationToken);
+
+    private async Task<List<AgentExecutionTrace>> TryLoadExecutionTracesAsync(
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
     {
-        if (string.Equals(preloadedRunId, requestRunId, StringComparison.Ordinal))
-            return true;
+        IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization
+            .LoadExecutionTracesByRunIdAsync(traceRepository, scope, primaryRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-        if (Guid.TryParse(preloadedRunId, out Guid preloadedGuid) && Guid.TryParse(requestRunId, out Guid requestGuid))
-            return preloadedGuid == requestGuid;
-
-        return false;
+        return traces.ToList();
     }
 
     private static string CanonicalRunIdForLookup(string runId) =>
-        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
+        AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 }

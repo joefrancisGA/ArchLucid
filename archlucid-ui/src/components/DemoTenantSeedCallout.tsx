@@ -12,7 +12,7 @@ type DemoTenantSeedCalloutProps = {
 
 const DEFAULT_TITLE = "See the sponsor ROI dashboard now";
 const DEFAULT_DESCRIPTION =
-  "Load the Retail baseline sample workspace — committed reviews, findings, and portfolio savings populate instantly for pilot walkthroughs.";
+  "Load the Retail baseline sample workspace — committed reviews, findings, and portfolio savings populate instantly for pilot walkthroughs. Sample workspace data is not your tenant's live reviews.";
 
 /** Front-and-center demo seed CTA for empty tenant surfaces (improvement #2). */
 export function DemoTenantSeedCallout({

@@ -61,6 +61,20 @@ public sealed class CuratedComplianceRuleMapperTests
     }
 
     [Fact]
+    public void TryMapToComplianceRule_WhenSeverityMissing_UsesNotStoredLabel()
+    {
+        CuratedRulesRuleEntry entry = new()
+        {
+            Id = "tenant-002",
+            Title = "Control title",
+        };
+
+        ComplianceRule? mapped = CuratedComplianceRuleMapper.TryMapToComplianceRule(entry);
+
+        mapped!.Severity.Should().Be("Severity was not stored.");
+    }
+
+    [Fact]
     public void TryMapToComplianceRule_AppendsExtendedFieldsToDescription()
     {
         CuratedRulesRuleEntry entry = new()

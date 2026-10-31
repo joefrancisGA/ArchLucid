@@ -29,6 +29,7 @@ import {
 import {
   formatRunRetrievalCitationCoverage,
   formatRunRetrievalGroundingScoresLabel,
+  RUN_RETRIEVAL_DOCUMENT_METADATA_MALFORMED_LABEL,
 } from "@/lib/runs/run-retrieval-grounding-display";
 
 type RunRetrievalGroundingPanelProps = {
@@ -39,9 +40,10 @@ type RunRetrievalGroundingPanelProps = {
   title?: string;
 };
 
-function optionalNumber(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value))
-    return value === null || value === undefined ? "Token count was not stored." : "-";
+function formatTokenCount(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "Token count was not stored.";
+  }
 
   return String(value);
 }
@@ -164,7 +166,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
             className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
             data-testid="run-retrieval-grounding-rows-not-returned"
           >
-            Retrieval rows not returned for this review.
+            Retrieval grounding rows were not stored for this review.
           </p>
         ) : null}
 
@@ -257,13 +259,25 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {row.corpusKind === null || row.corpusKind === undefined
                       ? "Corpus kind was not stored."
-                      : row.corpusKind}
+                      : row.corpusKind.trim().length === 0
+                        ? "Corpus kind was stored empty."
+                        : row.corpusKind}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
+                    {row.retrievedChunkIds == null
+                      ? "Chunk ids were not stored."
+                      : row.retrievedChunkIds.length > 0
+                        ? row.retrievedChunkIds.join(", ")
+                        : "Chunk ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.documentMetadataMalformed ? "degraded" : row.documentIds.length > 0 ? row.documentIds.join(", ") : "-"}
+                    {row.documentMetadataMalformed
+                      ? RUN_RETRIEVAL_DOCUMENT_METADATA_MALFORMED_LABEL
+                      : row.documentIds == null
+                        ? "Document ids were not stored."
+                        : row.documentIds.length > 0
+                          ? row.documentIds.join(", ")
+                          : "Document ids were stored empty."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {formatRunRetrievalGroundingScoresLabel(row.scoreMetadataMalformed, row.scoreSummaries)}
@@ -272,16 +286,18 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                     {formatRunRetrievalCitationCoverage(row.citationCoverage)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
-                    {row.tokensIn === null || row.tokensIn === undefined
-                      ? "Input token count was not stored."
-                      : `${optionalNumber(row.tokensIn)} in`}{" / "}
-                    {row.tokensOut === null || row.tokensOut === undefined
-                      ? "Output token count was not stored."
-                      : `${optionalNumber(row.tokensOut)} out`}
+                    {formatTokenCount(row.tokensIn)} in / {formatTokenCount(row.tokensOut)} out
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>
+                    <span>{graphRagSummary(row)}</span>
+                    <span className={cn("mt-1 block font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
+                      Neighbor, seed, and expansion latency when stored on this trace.
+                    </span>
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
-                    {row.agentExecutionTraceId?.trim() || row.traceId}
+                    {row.agentExecutionTraceId?.trim()
+                      ? row.agentExecutionTraceId.trim()
+                      : "Agent execution trace id was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {formatInstantForLocale(row.createdUtc)}

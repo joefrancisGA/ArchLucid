@@ -69,11 +69,11 @@ export function resolveContinueLastArchitectureIdentityTarget(): ContinueLastArc
   }
 
   const recent = readRecentArchitectureEntry(architectureId);
-  const label = recent?.label.trim() ?? "Architecture";
+  const recentLabel = recent?.label.trim() ?? "";
 
   return {
     architectureId,
-    label: label.length > 0 ? label : "Architecture",
+    label: recentLabel.length > 0 ? recentLabel : "Architecture name was not stored.",
     href: architectureIdentityPath(architectureId),
     visitedAtUtc: recent?.visitedAtUtc ?? new Date().toISOString(),
   };

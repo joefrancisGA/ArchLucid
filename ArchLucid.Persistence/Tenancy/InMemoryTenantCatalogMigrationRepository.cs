@@ -81,6 +81,7 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
                     existing,
                     verificationPassedUtc: passed ? utcNow : null,
                     lastVerificationError: passed ? null : errorMessage,
+                    overwriteLastVerificationError: true,
                     stage: TenantCatalogMigrationStage.Verification);
             }
         }
@@ -111,7 +112,8 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
         TenantCatalogMigrationStage? stage = null,
         DateTimeOffset? completedUtc = null,
         DateTimeOffset? verificationPassedUtc = null,
-        string? lastVerificationError = null) =>
+        string? lastVerificationError = null,
+        bool overwriteLastVerificationError = false) =>
         new()
         {
             MigrationId = record.MigrationId,
@@ -122,6 +124,8 @@ public sealed class InMemoryTenantCatalogMigrationRepository : ITenantCatalogMig
             CompletedUtc = completedUtc ?? record.CompletedUtc,
             MaintenanceMessage = record.MaintenanceMessage,
             VerificationPassedUtc = verificationPassedUtc ?? record.VerificationPassedUtc,
-            LastVerificationError = lastVerificationError ?? record.LastVerificationError,
+            LastVerificationError = overwriteLastVerificationError
+                ? lastVerificationError
+                : lastVerificationError ?? record.LastVerificationError,
         };
 }

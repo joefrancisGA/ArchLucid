@@ -149,6 +149,7 @@ vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
     canSuggestFromEvidence: true,
     suggestAnswersFromEvidence,
     markQuestionEdited: vi.fn(),
+    droppedClarificationExtractSummary: null,
     evidenceExtractionProgress: {
       begin: vi.fn(),
       reportStage: vi.fn(),

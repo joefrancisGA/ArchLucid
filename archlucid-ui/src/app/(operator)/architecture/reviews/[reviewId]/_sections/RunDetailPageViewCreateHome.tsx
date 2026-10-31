@@ -68,6 +68,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     deferredContext,
     evidenceCoverageSummary,
     evidenceInventoryItems,
+    findingsCiteEvidenceWithoutSourceNames,
+    hasFindingsSnapshot,
     evidenceReviewDateLabel,
     findingCoverageSummary,
     findingsTriageVisibleCount,
@@ -193,9 +195,12 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 linkedFindingCount={evidenceCoverageSummary.linkedCount}
                 openFindingCount={evidenceCoverageSummary.totalCount}
                 items={evidenceInventoryItems}
+                findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
+                findingsSnapshotStored={hasFindingsSnapshot === true}
                 artifacts={m.artifacts}
                 runId={m.resolvedDetail.run.runId}
                 buyerPolished={m.buyerPolishedArtifactTable ?? false}
+                architectureDiagramStored={m.resolvedDetail.run.hasGraphSnapshot === true}
               />
             ),
             governance: (
@@ -212,7 +217,8 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                   governanceGateLabel={m.governanceGateLabel}
                   governanceGateOperatorLabel={m.governanceGateOperatorLabel}
                   blockingFindingCount={blockingApprovalCount}
-                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                  manifestUnresolvedIssueCount={m.manifestSummary?.unresolvedIssueCount ?? null}
+                  hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings}
                   pagePrimaryOwnedElsewhere
                 />
                 {m.manifestId ? (

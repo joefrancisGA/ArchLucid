@@ -55,9 +55,11 @@ public sealed class BoardPackPdfBuilder(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         (DateTimeOffset qStart, DateTimeOffset qEnd) = BoardPackQuarterWindow.Resolve(year, quarter, overrideStartUtc, overrideEndUtc);
         (DateTime digestStart, DateTime digestEnd) = BoardPackQuarterWindow.DigestWeekInsideQuarter(qStart, qEnd);
-        string baseUrl = string.IsNullOrWhiteSpace(operatorBaseUrl) ? "http://localhost:3000" : operatorBaseUrl.Trim().TrimEnd('/');
+        PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(operatorBaseUrl, out string baseUrl);
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? baseUrl : emailOptions.OperatorBaseUrl.Trim();
+        string operatorBase = PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(emailOptions.OperatorBaseUrl, out string configuredBase)
+            ? configuredBase
+            : operatorBaseUrl;
         ExecDigestComposition digest = await _execDigestComposer.ComposeAsync(scope.TenantId, digestStart, digestEnd, scope, operatorBase, cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(digest.LatestCommittedRunIdHex)

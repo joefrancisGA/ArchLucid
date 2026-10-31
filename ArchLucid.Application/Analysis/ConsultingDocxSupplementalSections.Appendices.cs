@@ -24,7 +24,7 @@ internal static partial class ConsultingDocxSupplementalSections
 
             else
 
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No Mermaid diagram source was available.",
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored,
                     "BodyText");
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
@@ -34,19 +34,28 @@ internal static partial class ConsultingDocxSupplementalSections
         {
             ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix B. Execution Trace Index", 1);
 
-            if (report.ExecutionTraces.Count > 0)
-
+            if (report.ExecutionTraces is null)
+            {
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                    body,
+                    ConsultingDocxAppendixHonestyCopy.ExecutionTraceIndexNotStored,
+                    "BodyText");
+            }
+            else if (report.ExecutionTraces.Count > 0)
+            {
                 foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType)
                              .ThenBy(x => x.CreatedUtc))
-
                     ConsultingDocxOpenXmlPrimitives.AddBullet(
                         body,
-                        $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
-
+                        $"{trace.AgentType} | Task {(string.IsNullOrWhiteSpace(trace.TaskId) ? "Task id was not stored." : trace.TaskId.Trim())} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
+            }
             else
-
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available.",
+            {
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                    body,
+                    "Execution traces were stored as an empty list for this run.",
                     "BodyText");
+            }
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
@@ -62,6 +71,11 @@ internal static partial class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
+        }
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored,
+                "BodyText");
         }
 
         if (report.ManifestDiff is not null)
@@ -87,9 +101,21 @@ internal static partial class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                 $"Manifest Warnings: {report.ManifestDiff.Warnings.Count}");
         }
+        else
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.ManifestDiffNotStored,
+                "BodyText");
+        }
 
         if (report.AgentResultDiff is null)
+        {
+            ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored,
+                "BodyText");
+
             return;
+        }
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Agent Result Diff", "Strong");

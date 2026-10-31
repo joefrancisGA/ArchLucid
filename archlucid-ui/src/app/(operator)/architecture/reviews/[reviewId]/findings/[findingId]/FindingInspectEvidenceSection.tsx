@@ -19,8 +19,11 @@ import {
   findingInspectDiagramCitationPreviewHrefFromSearch,
   parseDiagramCitationPreviewParam,
 } from "@/lib/findings/finding-inspect-diagram-citation-preview-url";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import {
+  findingInspectEvidenceExcerptTitle,
+  type FindingPolicyEvidenceCitationModel,
+} from "@/lib/findings/finding-policy-evidence-citations";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
 import { FindingInspectPolicyRuleCallout } from "./FindingInspectPolicyRuleCallout";
@@ -31,43 +34,58 @@ export type FindingInspectEvidenceSectionProps = {
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
   readonly evidence: FindingInspectEvidence[];
+  readonly evidenceListReturned?: boolean;
   readonly citationModel?: FindingPolicyEvidenceCitationModel | null;
 };
 
+const FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED = "Evidence excerpt was not stored." as const;
+const FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY = "Evidence excerpt was stored empty." as const;
+
 function evidenceCitationTitle(row: FindingInspectEvidence): string {
-  const excerpt = row.excerpt?.trim() ?? "";
-
-  if (excerpt.length > 0) {
-    const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
-
-    if (firstClause.length > 0 && firstClause.length <= 80) {
-      return firstClause;
-    }
-
-    return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
+  if (row.excerpt === null || row.excerpt === undefined) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
   }
 
-  return "Evidence excerpt was not stored.";
+  if (row.excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
+
+  const excerpt = row.excerpt.trim();
+
+  if (excerpt.length === 0) {
+    return FINDING_INSPECT_EVIDENCE_EXCERPT_STORED_EMPTY;
+  }
+
+  if (excerpt.length > 0) {
+    return findingInspectEvidenceExcerptTitle(excerpt);
+  }
+
+  return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
 }
 
 const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
 function evidenceLinkLabel(
   row: FindingInspectEvidence,
-  fallbackLabel: string,
+  _fallbackLabel: string,
   hasDiagramCitation: boolean,
+  hasHref: boolean,
 ): string {
   const artifact = row.artifactId?.trim() ?? "";
 
-  if (artifact.length > 0 && !hasDiagramCitation) {
+  if (artifact.length > 0 && !hasHref) {
     return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
   }
 
-  if (artifact.length > 0) {
-    return `Open ${artifact}`;
+  if (artifact.length > 0 && hasHref) {
+    return `Open evidence artifact ${artifact}`;
   }
 
-  return fallbackLabel;
+  if (!hasHref) {
+    return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  }
+
+  return _fallbackLabel;
 }
 
 function evidenceCitationSlug(row: FindingInspectEvidence, idx: number): string {
@@ -127,10 +145,13 @@ function EvidenceCitationList(props: {
                 diagramCitation,
                 props.pathname,
               )
-            : (citationRow?.href ?? reviewContextHref);
+            : citationRow?.href ?? null;
+        const hasHref = href !== null;
+        const citationLabel = citationRow?.label?.trim() ?? "";
         const linkLabel =
-          citationRow?.label
-          ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
+          citationLabel.length > 0
+            ? citationLabel
+            : evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null, hasHref);
         const citationSlug = evidenceCitationSlug(row, idx);
         const citationOpen = props.openCitationArtifactId === citationSlug;
 
@@ -201,15 +222,24 @@ function EvidenceCitationList(props: {
               </>
             )}
             <div className="mt-2">
-              <Link
-                href={href}
-                className={OPERATOR_LINK.optional}
-                data-testid={
-                  diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
-                }
-              >
-                {linkLabel}
-              </Link>
+              {href !== null ? (
+                <Link
+                  href={href}
+                  className={OPERATOR_LINK.optional}
+                  data-testid={
+                    diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
+                  }
+                >
+                  {linkLabel}
+                </Link>
+              ) : (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="finding-source-evidence-link-missing"
+                >
+                  {linkLabel}
+                </p>
+              )}
             </div>
           </li>
         );
@@ -225,11 +255,12 @@ export function FindingInspectEvidenceSection({
   reviewContextHref,
   reviewContextLabel,
   evidence,
+  evidenceListReturned,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const searchParamsString = readWindowLocationSearch();
+  const searchParamsString = searchParams.toString();
   const urlOpenCitationArtifactId = parseFindingInspectEvidenceCitationArtifactIdFromSearch(
     searchParams.get(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM),
   );
@@ -259,11 +290,11 @@ export function FindingInspectEvidenceSection({
   const syncDiagramCitationPreviewToUrl = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
       commitHrefIfChanged(
-        findingInspectDiagramCitationPreviewHrefFromSearch(readWindowLocationSearch(), citation, pathname),
+        findingInspectDiagramCitationPreviewHrefFromSearch(searchParams.toString(), citation, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setDiagramPreviewCitation = useCallback(
     (citation: DiagramEvidenceCitation | null) => {
@@ -280,11 +311,11 @@ export function FindingInspectEvidenceSection({
   const syncOpenCitationArtifactIdToUrl = useCallback(
     (artifactId: string | null) => {
       commitHrefIfChanged(
-        findingInspectEvidenceCitationDisclosureHrefFromSearch(readWindowLocationSearch(), artifactId, pathname),
+        findingInspectEvidenceCitationDisclosureHrefFromSearch(searchParams.toString(), artifactId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setOpenCitationArtifactId = useCallback(
     (artifactId: string | null) => {
@@ -379,9 +410,13 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidence.length === 0 ? (
+      {evidenceListReturned === false ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          No evidence citations were stored.
+          Evidence list was not stored.
+        </p>
+      ) : evidence.length === 0 ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Evidence list was stored empty.
         </p>
       ) : (
         <EvidenceCitationList {...citationListProps} />

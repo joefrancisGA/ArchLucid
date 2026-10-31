@@ -51,7 +51,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             graphNodesById.TryGetValue(edge.FromNodeId, out GraphNode? fromNode);
             graphNodesById.TryGetValue(edge.ToNodeId, out GraphNode? toNode);
 
-            InventoryDiagramEvidenceCurrency evidenceCurrency = ResolveEvidenceCurrency(edge, fromNode);
+            InventoryDiagramEvidenceCurrency? evidenceCurrency = ResolveEvidenceCurrency(edge, fromNode);
             string relationshipLabel = ResolveRelationshipLabel(edge, fromNode, toNode);
             string resolvedKey = BuildResolvedKey(fromDiagramNodeId, toDiagramNodeId, edge.InferenceSource);
 
@@ -84,7 +84,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
         return resolved;
     }
 
-    public static InventoryDiagramEvidenceCurrency ResolveEvidenceCurrency(
+    public static InventoryDiagramEvidenceCurrency? ResolveEvidenceCurrency(
         GraphEdge edge,
         GraphNode? fromNode)
     {
@@ -123,7 +123,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return parsedNodeCurrency;
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 
     public static bool IsCitedEdge(GraphEdge edge)
@@ -244,9 +244,9 @@ public static class InventoryDiagramIndirectRelationshipResolver
                     FromDiagramNodeId = vmDiagramNodeId,
                     ToDiagramNodeId = subnetDiagramNodeId,
                     InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.IndirectDerivedRelationship,
-                    RelationshipLabel = $"via NIC: {nicName}",
+                    RelationshipLabel = FormatDerivedThroughNicLabel(nicName),
                     EvidenceCurrency = InventoryDiagramEvidenceCurrency.Derived,
-                    DerivedHopLabels = [$"NIC {nicName}"],
+                    DerivedHopLabels = [FormatDerivedThroughNicLabel(nicName)],
                 });
             }
         }
@@ -271,10 +271,12 @@ public static class InventoryDiagramIndirectRelationshipResolver
                 AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
                 StringComparison.OrdinalIgnoreCase))
         {
-            string targetName = ReadResourceName(
-                toNode is null ? string.Empty : ReadArmId(toNode),
-                toNode?.Label ?? string.Empty);
-            return $"private endpoint → {targetName}";
+            string privateEndpointName = ReadResourceName(
+                fromNode is null ? string.Empty : ReadArmId(fromNode),
+                fromNode?.Label ?? string.Empty);
+
+            return InventoryDiagramRelationshipLabelTexts.FormatPrivateEndpointStoredLinkEdgeLabel(
+                string.IsNullOrWhiteSpace(privateEndpointName) ? null : privateEndpointName);
         }
 
         if (string.Equals(
@@ -307,7 +309,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
                 toNode?.Label ?? string.Empty);
-            return $"mount → {targetName}";
+            return $"property ARM ID reference → {targetName}";
         }
 
         if (!string.IsNullOrWhiteSpace(edge.Label))
@@ -454,5 +456,12 @@ public static class InventoryDiagramIndirectRelationshipResolver
         }
 
         return armResourceId[(lastSlash + 1)..];
+    }
+
+    private static string FormatDerivedThroughNicLabel(string nicName)
+    {
+        string resolvedName = string.IsNullOrWhiteSpace(nicName) ? "Resource name was not stored." : nicName.Trim();
+
+        return $"Derived through NIC {resolvedName}. This is not observed traffic.";
     }
 }

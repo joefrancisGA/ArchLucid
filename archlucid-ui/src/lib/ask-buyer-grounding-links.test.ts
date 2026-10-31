@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
+import {
+  buildAskAnswerCitationSourceLinks,
+  buyerAskGroundingLinksForRun,
+} from "@/lib/ask-buyer-grounding-links";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("buyerAskGroundingLinksForRun", () => {
@@ -32,6 +35,80 @@ describe("buyerAskGroundingLinksForRun", () => {
   it("returns null when the run id is empty", () => {
     expect(buyerAskGroundingLinksForRun("")).toBeNull();
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
+  });
+
+  it("buildAskAnswerCitationSourceLinks labels missing review id", () => {
+    const links = buildAskAnswerCitationSourceLinks("", {
+      referencedFindings: ["f-1"],
+      referencedDecisions: [],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toEqual([{ label: "Review id was not stored." }]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks does not fabricate decision deep links", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: ["decision-9"],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toHaveLength(1);
+    expect(links[0]?.label).toBe("Decision citation decision-9. A link to that decision was not stored.");
+    expect(links[0]?.href).toBeUndefined();
+  });
+
+  it("buildAskAnswerCitationSourceLinks keeps Open review for review id artifacts only", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: ["run-a", "artifact-other"],
+    });
+
+    expect(links).toEqual([
+      { label: "Review id run-a", href: "/architecture/reviews/run-a" },
+      {
+        label: "Artifact id artifact-other. A link to that artifact was not stored.",
+      },
+    ]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks labels empty decision citations", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: ["  "],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toEqual([{ label: "Decision citation was stored empty." }]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks labels empty artifact citations", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: [""],
+    });
+
+    expect(links).toEqual([{ label: "Artifact citation was stored empty." }]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks omits href when finding is missing from index", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: ["missing-finding"],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      },
+      { indexedFindingIds: new Set(["known-finding"]) },
+    );
+
+    expect(links).toHaveLength(1);
+    expect(links[0]?.href).toBeUndefined();
+    expect(links[0]?.label).toContain("missing-finding");
+    expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
   });
 
   it("normalizes known demo aliases to the showcase spine", () => {

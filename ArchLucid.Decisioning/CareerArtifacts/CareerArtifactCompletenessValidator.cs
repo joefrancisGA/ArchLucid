@@ -350,7 +350,7 @@ public sealed class CareerArtifactCompletenessValidator : ICareerArtifactComplet
         StructuralExecutionMode structuralExecutionMode,
         bool isSampleRun,
         string? hostAgentExecutionMode,
-        AgentOutputQualityGateMode hostQualityGateMode,
+        AgentOutputQualityGateMode? hostQualityGateMode,
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome)
     {
         if (isSampleRun)

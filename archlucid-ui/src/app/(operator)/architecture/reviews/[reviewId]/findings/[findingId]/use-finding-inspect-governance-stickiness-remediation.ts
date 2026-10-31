@@ -80,7 +80,7 @@ export function useFindingInspectGovernanceStickinessRemediation({
         remediationDueUtc:
           remediationDueUtc.trim().length > 0 ? new Date(remediationDueUtc).toISOString() : null,
       });
-      setRemediationLastSavedUtc(new Date().toISOString());
+      setRemediationLastSavedUtc("");
       setRemediationBaseline(
         createFindingInspectRemediationBaseline(assignedToUserId, remediationDueUtc),
       );

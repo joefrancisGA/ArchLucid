@@ -14,7 +14,7 @@ export function secureNowQuestionAnswerLabel(answerCode: string): string {
   const trimmed = answerCode.trim();
 
   if (trimmed.length === 0) {
-    return "Stored answer was not on this question";
+    return "Stored answer was stored empty.";
   }
 
   const label = ANSWER_LABELS[trimmed];

@@ -24,7 +24,7 @@ public static partial class DeclarationPremiseConflictClassifier
 
         if (applicableIntentNodes.Count == 0) return [];
 
-        string resourceLabel = string.IsNullOrWhiteSpace(topologyNode.Label) ? topologyNode.NodeId : topologyNode.Label;
+        string resourceLabel = GraphNodeReviewerLabel.ForFindingTitle(topologyNode.Label, topologyNode.NodeId);
         IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> baselineSignals =
             DeclarationSecurityBaselineClassifier.Classify(resourceLabel, topologyNode.Properties);
 

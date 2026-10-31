@@ -31,4 +31,10 @@ public class SecurityCoverageResult
         get;
         set;
     } = [];
+
+    public List<string> UnprotectedResourceNodeIds
+    {
+        get;
+        set;
+    } = [];
 }

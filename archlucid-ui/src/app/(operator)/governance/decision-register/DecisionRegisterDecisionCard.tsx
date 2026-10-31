@@ -9,13 +9,26 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 
-import { DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED, DECISION_REGISTER_OPEN_DECISION_LABEL } from "./decision-register-copy";
+import {
+  DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL,
+  formatBuyerConfidenceSourceLabel,
+  formatRecordedDecisionConfidence,
+} from "@/lib/decision-explainability-buyer-copy";
+
+import {
+  DECISION_REGISTER_CATEGORY_NOT_STORED_LABEL,
+  DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL,
+  DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED,
+  DECISION_REGISTER_OPEN_DECISION_LABEL,
+  DECISION_REGISTER_SUPPORTING_FINDINGS_NOT_STORED_LABEL,
+  DECISION_REGISTER_SUPPORTING_FINDINGS_STORED_EMPTY_LABEL,
+} from "./decision-register-copy";
 
 function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "Not recorded";
+    return "Decision recorded time was not stored.";
   }
 
   const ms = Date.parse(raw);
@@ -28,21 +41,25 @@ function formatRecordedAt(value: string | null | undefined): string {
 }
 
 function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
-  if (decision.confidence != null) {
-    const basis = decision.buyerConfidenceSource ?? decision.confidenceSource;
+  const basisLabel = formatBuyerConfidenceSourceLabel(
+    decision.buyerConfidenceSource ?? decision.confidenceSource,
+  );
 
-    if (basis !== null && basis !== undefined && basis.trim().length > 0) {
-      return `${decision.confidence} (${basis})`;
+  if (decision.confidence != null) {
+    const confidenceLabel = formatRecordedDecisionConfidence(decision.confidence);
+
+    if (basisLabel !== DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL) {
+      return `${confidenceLabel} (${basisLabel})`;
     }
 
-    return String(decision.confidence);
+    return confidenceLabel;
   }
 
-  if (decision.buyerConfidenceSource !== null && decision.buyerConfidenceSource !== undefined) {
-    return `Unknown (${decision.buyerConfidenceSource})`;
+  if (basisLabel !== DECISION_CONFIDENCE_SOURCE_NOT_STORED_LABEL) {
+    return `${DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL} (${basisLabel})`;
   }
 
-  return "Not recorded";
+  return DECISION_REGISTER_CONFIDENCE_NOT_STORED_LABEL;
 }
 
 type DecisionRegisterDecisionCardProps = {
@@ -76,7 +93,9 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
                 The recorded category of this decision.
               </span>
             </dt>
-            <dd className="m-0 font-medium text-al-text-primary">{decision.category || "Not returned"}</dd>
+            <dd className="m-0 font-medium text-al-text-primary">
+              {decision.category?.trim() || DECISION_REGISTER_CATEGORY_NOT_STORED_LABEL}
+            </dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">
@@ -110,7 +129,11 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
           <div>
             <dt className="text-al-text-secondary">Supporting findings</dt>
             <dd className="m-0 font-medium text-al-text-primary">
-              {finiteIntegerCountDisplay(findingCount, { missingLabel: "not-returned" })}
+              {findingCount === null
+                ? DECISION_REGISTER_SUPPORTING_FINDINGS_NOT_STORED_LABEL
+                : findingCount === 0
+                  ? DECISION_REGISTER_SUPPORTING_FINDINGS_STORED_EMPTY_LABEL
+                  : finiteIntegerCountDisplay(findingCount)}
             </dd>
             <dd className="m-0 text-al-text-secondary text-xs">
               These are findings linked to the recorded decision.
@@ -135,9 +158,11 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             </dd>
           </div>
         </dl>
-        {decision.rationale.trim().length > 0 ? (
-          <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{decision.rationale}</p>
-        ) : null}
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {decision.rationale?.trim().length > 0
+            ? decision.rationale
+            : "Decision rationale was not stored."}
+        </p>
       </CardContent>
     </Card>
   );

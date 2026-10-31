@@ -42,10 +42,15 @@ import { deriveHighestUnresolvedSeverityLabel } from "./finding-metrics";
 import { countFindingsAwaitingAction } from "./finding-metrics";
 import { derivePrimaryConcernLabel } from "./finding-metrics";
 import { filterUnresolvedFindings } from "./finding-metrics";
+function primaryFindingTitleForCopy(title: string): string {
+  return title.trim().length > 0 ? title.trim() : "Finding title was not stored.";
+}
+
 export function deriveReviewNextActionLabel(input: {
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly primaryConcernFinding: QuickDecisionFinding | null;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
+  readonly hasFindingsSnapshot?: boolean;
 }): string {
   const primary = input.primaryConcernFinding;
 
@@ -54,25 +59,18 @@ export function deriveReviewNextActionLabel(input: {
     const isUnresolved = status?.label !== "Approved" && status?.label !== "Overridden";
 
     if (isUnresolved) {
-      if (primary.severityValue === null) {
-        return "Confirm evidence and remediation ownership for the open finding. Severity was not stored.";
+      const evidenceRefCount = primary.evidenceRefCount;
+
+      if (evidenceRefCount === null || evidenceRefCount === undefined) {
+        return `Evidence reference count was not stored for ${primaryFindingTitleForCopy(primary.title)}.`;
       }
 
-      const severity = severityBadgeLabel(primary.severityValue).toLowerCase();
-
-      return `Confirm evidence and remediation ownership for the open ${severity}-severity finding`;
+      if (evidenceRefCount > 0) {
+        // Evidence is linked — do not invent a missing-evidence next action.
+      } else {
+        return `No evidence references were stored for ${primaryFindingTitleForCopy(primary.title)}.`;
+      }
     }
-  }
-
-  if (
-    primary !== null &&
-    (primary.evidenceRefCount === null || primary.evidenceRefCount === undefined)
-  ) {
-    return `Evidence reference count was not stored for ${primary.title}. Confirm remediation ownership when counts are available.`;
-  }
-
-  if (primary !== null && primary.evidenceRefCount === 0) {
-    return `Confirm evidence and remediation ownership for ${primary.title}`;
   }
 
   const evidenceAction = input.recommendedActions.find((action) => action.id === "add-evidence");
@@ -93,13 +91,39 @@ export function deriveReviewNextActionLabel(input: {
     return `${first.actionLabel} — ${first.reason}`;
   }
 
+  if (input.hasFindingsSnapshot === false) {
+    return "Next action was not stored.";
+  }
+
+  if (input.hasFindingsSnapshot === undefined) {
+    return "Findings snapshot was not stored, so no next action is recorded.";
+  }
+
   return "No immediate actions required — monitor findings and evidence coverage.";
+}
+
+export function deriveReviewDoThisNextRecommendedActionCountLabel(input: {
+  readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
+  readonly hasFindingsSnapshot?: boolean;
+}): string {
+  if (input.hasFindingsSnapshot === false) {
+    return "Do-this-next action count was not stored.";
+  }
+
+  const count = input.recommendedActions.length;
+
+  if (count === 0) {
+    return "No do-this-next actions are listed for this review.";
+  }
+
+  return `${count} do-this-next ${count === 1 ? "action is" : "actions are"} listed.`;
 }
 export function deriveReviewStatusSummary(input: {
   readonly reviewOutcome: string;
   readonly findings: readonly QuickDecisionFinding[];
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
+  readonly hasFindingsSnapshot?: boolean;
 }): ReviewStatusSummary {
   const primaryConcernFinding = derivePrimaryConcernFinding(input.findings);
 
@@ -113,6 +137,7 @@ export function deriveReviewStatusSummary(input: {
       recommendedActions: input.recommendedActions,
       primaryConcernFinding,
       blockingFindingCount: input.blockingFindingCount,
+      hasFindingsSnapshot: input.hasFindingsSnapshot,
     }),
   };
 }
@@ -120,7 +145,7 @@ export function deriveSponsorBottomLineContent(input: {
   readonly governanceDecisionLabel: string;
   readonly governanceDecisionRationale: string | null | undefined;
   readonly overallPosture: string;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
   readonly highestSeverity: string | null;
   readonly themeSummaries: readonly string[] | null | undefined;
 }): SponsorBottomLineContent | null {
@@ -159,7 +184,7 @@ function formatReviewPageH1Title(architectureName: string): string {
   const normalized = stripInlineMarkdownFromReviewText(architectureName).trim();
 
   if (normalized.length === 0) {
-    return "Architecture review";
+    return "Review title was not stored.";
   }
 
   const lower = normalized.toLowerCase();
@@ -190,7 +215,7 @@ function formatWorkingInstrumentArchitectureH1Title(architectureDisplayName: str
   const normalized = stripInlineMarkdownFromReviewText(architectureDisplayName).trim();
 
   if (normalized.length === 0) {
-    return "Architecture";
+    return "Architecture name was not stored.";
   }
 
   const lower = normalized.toLowerCase();
@@ -261,9 +286,13 @@ export function deriveReviewHeaderPresentation(input: {
   }
 
   if (hasManifest && templateLabel.length > 0) {
+    const templateEyebrow = templateLabel.startsWith("Review template:")
+      ? templateLabel
+      : `Review template: ${templateLabel}`;
+
     return {
-      h1Title: formatReviewPageH1Title(templateLabel),
-      eyebrowLabel: "Architecture review",
+      h1Title: "Review title was not stored.",
+      eyebrowLabel: templateEyebrow,
       reviewIdentifierLabel: runId,
     };
   }
@@ -277,26 +306,40 @@ export function deriveReviewHeaderPresentation(input: {
   }
 
   return {
-    h1Title: "Architecture review",
+    h1Title: "Review title was not stored.",
     eyebrowLabel: "Architecture review",
     reviewIdentifierLabel: runId,
   };
 }
 export function derivePackageVersionLabel(
-  manifestSummary: ManifestSummary | null,
-  _manifestId?: string | null | undefined,
+  run: Pick<RunSummary, "currentManifestVersion"> | null | undefined,
+  manifestId?: string | null | undefined,
 ): string | null {
-  const version = manifestSummary?.ruleSetVersion?.trim() ?? "";
+  const hasManifest = (manifestId ?? "").trim().length > 0;
+
+  if (!hasManifest) {
+    return null;
+  }
+
+  const version = run?.currentManifestVersion?.trim() ?? "";
 
   return version.length > 0 ? version : null;
 }
 export function deriveEvidenceCoverageSummary(
   findings: readonly QuickDecisionFinding[],
+  options?: { readonly hasFindingsSnapshot?: boolean },
 ): EvidenceCoverageSummary {
   const unresolved = filterUnresolvedFindings(findings);
   const totalCount = unresolved.length;
-
   if (totalCount === 0) {
+    if (options?.hasFindingsSnapshot !== true) {
+      return {
+        linkedCount: 0,
+        totalCount: 0,
+        summaryLine: "Evidence coverage was not stored.",
+      };
+    }
+
     return {
       linkedCount: 0,
       totalCount: 0,
@@ -304,7 +347,21 @@ export function deriveEvidenceCoverageSummary(
     };
   }
 
-  const linkedCount = unresolved.filter((finding) => (finding.evidenceRefCount ?? 0) > 0).length;
+  const hasMissingEvidenceRefCount = unresolved.some(
+    (finding) => finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
+  );
+
+  if (hasMissingEvidenceRefCount) {
+    return {
+      linkedCount: 0,
+      totalCount,
+      summaryLine: "Evidence link count was not stored.",
+    };
+  }
+
+  const linkedCount = unresolved.filter(
+    (finding) => typeof finding.evidenceRefCount === "number" && finding.evidenceRefCount > 0,
+  ).length;
   const noun = totalCount === 1 ? "finding has" : "findings have";
 
   return {
@@ -322,12 +379,12 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
 
   const normalizedHeadline = toReviewDisplayTitle(headline);
 
-  return normalizedHeadline.length > 0 ? normalizedHeadline : "Architecture review";
+  return normalizedHeadline.length > 0 ? normalizedHeadline : "Review title was not stored.";
 }
 export function deriveOverallPostureLabel(
   riskPosture: string | null | undefined,
-  governanceGateLabel: string | null | undefined,
-  highestSeverity: string | null,
+  _governanceGateLabel: string | null | undefined,
+  _highestSeverity: string | null,
 ): string {
   const posture = riskPosture?.trim() ?? "";
 
@@ -335,11 +392,5 @@ export function deriveOverallPostureLabel(
     return posture;
   }
 
-  const gate = governanceGateLabel?.trim() ?? "";
-
-  if (gate.length > 0) {
-    return gate;
-  }
-
-  return highestSeverity ?? "Not assessed";
+  return "Risk posture was not stored.";
 }

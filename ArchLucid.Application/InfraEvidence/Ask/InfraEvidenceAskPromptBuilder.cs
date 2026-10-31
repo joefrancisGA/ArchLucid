@@ -34,24 +34,46 @@ internal static class InfraEvidenceAskPromptBuilder
         builder.AppendLine("allowedCitationIds:");
 
         foreach (InfraEvidenceAskCitation citation in bundle.Citations)
-            builder.AppendLine($"  {FormatCitationKey(citation)}");
+            builder.AppendLine($"  {FormatCitationKey(citation)} ({FormatCitationLabelForPrompt(citation)})");
 
         builder.AppendLine("evidenceRows:");
 
         foreach (string line in bundle.EvidenceLines)
             builder.AppendLine($"  {line}");
 
+        string bundleCapLine = FormatBundleCitationCapLine(bundle);
+
+        if (bundleCapLine.Length > 0)
+            builder.AppendLine(bundleCapLine);
+
         return builder.ToString();
     }
+
+    internal static string FormatBundleCitationCapLine(InfraEvidenceAskEvidenceBundle bundle)
+    {
+        if (bundle.Citations.Count < AskEvidenceRowCap)
+            return string.Empty;
+
+        return $"bundleCitationCap={AskEvidenceRowCap} additional structured rows may exist beyond this ask bundle cap.";
+    }
+
+    internal const int AskEvidenceRowCap = 50;
 
     public static string BuildSimulatorAnswer(string question, InfraEvidenceAskEvidenceBundle bundle)
     {
         if (bundle.Citations.Count == 0)
             return "Insufficient structured evidence is available to answer this question.";
 
-        string cited = string.Join(", ", bundle.Citations.Take(5).Select(FormatCitationKey));
+        const int MaxCitedInSummary = 5;
+        IReadOnlyList<InfraEvidenceAskCitation> citedRows = SelectSimulatorCitations(bundle);
+        string cited = string.Join(", ", citedRows.Select(FormatCitationKey));
+        int omitted = bundle.Citations.Count - citedRows.Count;
+        string omissionNote = omitted > 0
+            ? $" This summary cites the first {MaxCitedInSummary} citation ids; {omitted} additional citation id(s) were omitted from the grounded list."
+            : string.Empty;
+
         return $"Based on {bundle.Citations.Count} structured evidence row(s), the answer to \"{question.Trim()}\" "
-            + $"is grounded on: {cited}. No ARM resources were invented beyond cited rows.";
+            + $"is grounded on: {cited}.{omissionNote} No ARM resources were invented beyond cited rows.";
     }
 
     public static IReadOnlyList<InfraEvidenceAskCitation> SelectSimulatorCitations(InfraEvidenceAskEvidenceBundle bundle)
@@ -116,7 +138,7 @@ internal static class InfraEvidenceAskPromptBuilder
         else if (ContainsAny(normalizedQuestion, "full"))
             plan.MermaidMode = "full";
         else
-            plan.MermaidMode = "executive";
+            return null;
 
         if (!DiagramViewPlanValidator.TryValidate(plan, allowedSeeds, out _))
             return null;
@@ -187,6 +209,23 @@ internal static class InfraEvidenceAskPromptBuilder
 
     public static string FormatCitationKey(InfraEvidenceAskCitation citation)
         => $"{citation.Kind}:{citation.Id}";
+
+    internal static string FormatCitationLabelForPrompt(InfraEvidenceAskCitation citation)
+    {
+        if (!string.IsNullOrWhiteSpace(citation.Label))
+            return citation.Label.Trim();
+
+        return citation.Kind switch
+        {
+            InfraEvidenceAskCitationKinds.FindingId => InfraEvidenceAskCitationHonestyCopy.FindingTitleNotStored,
+            InfraEvidenceAskCitationKinds.RemediationInstanceId or InfraEvidenceAskCitationKinds.PatternKey =>
+                InfraEvidenceAskCitationHonestyCopy.RemediationPatternKeyNotStored,
+            InfraEvidenceAskCitationKinds.ChangeId => InfraEvidenceAskCitationHonestyCopy.ChangeTypeNotStored,
+            InfraEvidenceAskCitationKinds.DiagramCorrespondenceId =>
+                InfraEvidenceAskCitationHonestyCopy.DiagramNodeLabelNotStored,
+            _ => InfraEvidenceAskCitationHonestyCopy.CorrespondenceIdNotStored,
+        };
+    }
 
     private static HashSet<string> ExtractOutlineLabels(InfraEvidenceAskEvidenceBundle bundle)
     {

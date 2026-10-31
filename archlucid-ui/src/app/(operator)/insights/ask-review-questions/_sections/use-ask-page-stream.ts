@@ -17,7 +17,7 @@ export type UseAskPageStreamOptions = {
   readonly setSelectedThreadId: (threadId: string) => void;
   readonly setMessages: React.Dispatch<React.SetStateAction<ConversationMessage[]>>;
   readonly setActionFailure: (failure: ApiLoadFailureState | null) => void;
-  readonly setRetrievalDegraded: (value: boolean) => void;
+  readonly setRetrievalDegraded: (value: boolean | null) => void;
   readonly setLastAskReferencedFindings: (value: readonly string[]) => void;
   readonly setLastAskReferencedDecisions: (value: readonly string[]) => void;
   readonly setLastAskReferencedArtifacts: (value: readonly string[]) => void;
@@ -77,7 +77,6 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
       }
 
       resetAskStream();
-      setRetrievalDegraded(false);
       setLoading(true);
       const pendingUserMessage: ConversationMessage = {
         messageId: `pending-user-${Date.now()}`,
@@ -108,10 +107,20 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
         }
 
         setSelectedThreadId(result.threadId);
-        setRetrievalDegraded(result.retrievalDegraded === true);
-        setLastAskReferencedFindings(result.referencedFindings ?? []);
-        setLastAskReferencedDecisions(result.referencedDecisions ?? []);
-        setLastAskReferencedArtifacts(result.referencedArtifacts ?? []);
+        if (result.retrievalDegraded === undefined) {
+          setRetrievalDegraded(null);
+        } else {
+          setRetrievalDegraded(result.retrievalDegraded === true);
+        }
+        if (result.referencedFindings !== undefined) {
+          setLastAskReferencedFindings(result.referencedFindings);
+        }
+        if (result.referencedDecisions !== undefined) {
+          setLastAskReferencedDecisions(result.referencedDecisions);
+        }
+        if (result.referencedArtifacts !== undefined) {
+          setLastAskReferencedArtifacts(result.referencedArtifacts);
+        }
         setQuestion("");
         await loadThreads();
         await loadMessages(result.threadId);

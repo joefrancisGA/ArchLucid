@@ -68,8 +68,33 @@ public sealed class SendableExportCoverComposerTests
             $"Semantic support: {SendableExportCoverComposer.SemanticSupportBandLaneBAsyncHonestyLine}");
     }
 
+    [Fact]
+    public void RenderPlainTextLines_splits_missing_policy_pack_id_and_version()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(ruleSetId: "azure-waf", ruleSetVersion: "  ");
+
+        IReadOnlyList<string> lines = SendableExportCoverComposer.RenderPlainTextLines(input);
+
+        lines.Should().Contain($"Policy pack: {SendableExportCoverComposer.PolicyPackVersionNotStoredLine}");
+        lines.Should().NotContain($"Policy pack: {SendableExportCoverComposer.PolicyPackNotStoredLine}");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_includes_review_record_status_line()
+    {
+        StringBuilder sb = new();
+        CareerExportCoverageHonestyInput input = CreateInput(reviewRecordStatus: "Committed");
+
+        SendableExportCoverComposer.AppendMarkdownSection(sb, input);
+
+        sb.ToString().Should().Contain("**Review record status:** Committed");
+    }
+
     private static CareerExportCoverageHonestyInput CreateInput(
-        FindingsSnapshot? findingsSnapshot = null) =>
+        FindingsSnapshot? findingsSnapshot = null,
+        string? ruleSetId = "azure-waf",
+        string? ruleSetVersion = "2024.1",
+        string? reviewRecordStatus = null) =>
         new(
             new SponsorReviewCoverageHonestyContext(
                 RunId: "run-1",
@@ -87,7 +112,8 @@ public sealed class SendableExportCoverComposerTests
             PreCommitGateEnabled: true,
             StructuralExecutionMode: StructuralExecutionMode.Simulator,
             IsSampleRun: false,
-            RuleSetId: "azure-waf",
-            RuleSetVersion: "2024.1",
-            FindingsSnapshot: findingsSnapshot);
+            RuleSetId: ruleSetId,
+            RuleSetVersion: ruleSetVersion,
+            FindingsSnapshot: findingsSnapshot,
+            ReviewRecordStatus: reviewRecordStatus);
 }

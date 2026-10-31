@@ -37,4 +37,28 @@ public sealed class AuditEventCsvLineFormatterTests
 
         line.Should().EndWith("Simulator,rehearsal,True");
     }
+
+    [Fact]
+    public void FormatEventLine_labels_blank_scalar_fields_and_missing_posture_stamp()
+    {
+        ExportFormatterService formatter = new();
+        AuditEvent auditEvent = new()
+        {
+            EventId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"),
+            OccurredUtc = DateTime.UtcNow,
+            EventType = "RunCreated",
+            TenantId = Guid.Empty,
+            WorkspaceId = Guid.Empty,
+            ProjectId = Guid.Empty,
+        };
+
+        string line = AuditEventCsvLineFormatter.FormatEventLine(formatter, auditEvent, postureStamp: null);
+
+        line.Should().Contain(AuditEventCsvLineFormatter.ActorUserIdNotStoredLabel);
+        line.Should().Contain(AuditEventCsvLineFormatter.RunIdNotStoredLabel);
+        line.Should().EndWith(
+            $"{AuditEventCsvLineFormatter.StructuralExecutionModeNotStoredLabel},"
+            + $"{AuditEventCsvLineFormatter.WorkingCareerRehearsalDoorNotStoredLabel},"
+            + $"{AuditEventCsvLineFormatter.RehearsalIncompleteNotStoredLabel}");
+    }
 }

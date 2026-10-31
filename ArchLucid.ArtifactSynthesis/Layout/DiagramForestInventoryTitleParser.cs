@@ -42,14 +42,23 @@ internal static class DiagramForestInventoryTitleParser
 
         if (title.Contains(separator, StringComparison.Ordinal))
         {
-            string suffix = title[(title.IndexOf(separator, StringComparison.Ordinal) + separator.Length)..].Trim();
+            string rawSuffix = title[(title.IndexOf(separator, StringComparison.Ordinal) + separator.Length)..];
+
+            if (rawSuffix.Length == 0)
+            {
+                return "Subscription name was not stored.";
+            }
+
+            string suffix = rawSuffix.Trim();
 
             if (suffix.Length > 0)
             {
                 return suffix;
             }
+
+            return "Subscription name was stored empty.";
         }
 
-        return "Subscription";
+        return "Subscription name was not stored.";
     }
 }

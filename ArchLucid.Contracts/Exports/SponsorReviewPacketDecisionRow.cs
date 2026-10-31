@@ -26,4 +26,16 @@ public sealed class SponsorReviewPacketDecisionRow
         get;
         set;
     } = string.Empty;
+
+    public string? SupportingFindingIdsSummary
+    {
+        get;
+        set;
+    }
+
+    public string? Rationale
+    {
+        get;
+        set;
+    }
 }

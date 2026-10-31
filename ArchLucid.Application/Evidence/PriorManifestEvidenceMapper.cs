@@ -27,7 +27,7 @@ public static class PriorManifestEvidenceMapper
             : manifest.Metadata.ManifestVersion.Trim();
 
         string systemLabel = string.IsNullOrWhiteSpace(manifest.SystemName)
-            ? "Unknown system"
+            ? "System name was not stored"
             : manifest.SystemName.Trim();
 
         IReadOnlyList<ManifestService> services = manifest.Services;
@@ -69,7 +69,7 @@ public static class PriorManifestEvidenceMapper
         IReadOnlyList<ManifestDatastore> datastores,
         ManifestMetadata metadata)
     {
-        string versionPart = string.IsNullOrEmpty(manifestVersion) ? "(no version label)" : manifestVersion;
+        string versionPart = string.IsNullOrEmpty(manifestVersion) ? "Manifest version was not stored" : manifestVersion;
         string baseSummary = FormattableString.Invariant(
             $"{systemLabel} committed manifest {versionPart} ({services.Count} services, {datastores.Count} datastores).");
 
@@ -79,7 +79,7 @@ public static class PriorManifestEvidenceMapper
         string change = metadata.ChangeDescription.Trim();
 
         if (change.Length > MaxChangeDescriptionChars)
-            change = change.Substring(0, MaxChangeDescriptionChars) + "…";
+            return baseSummary + " Change note shortened; full text was not stored.";
 
         return baseSummary + " Change note: " + change;
     }

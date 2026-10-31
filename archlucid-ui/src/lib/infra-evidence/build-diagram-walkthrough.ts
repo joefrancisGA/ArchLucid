@@ -4,6 +4,11 @@ import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-inf
 export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): string {
   const nodeCount = outline.nodes.length;
   const edgeCount = outline.edges.length;
+
+  if (nodeCount === 0) {
+    return "Stored inventory resources were not listed on this diagram snapshot.";
+  }
+
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
   const componentLabel = componentCount === 1 ? "component" : "components";
@@ -20,11 +25,11 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const notObservedSentence = outline.edges.some(
     (edge) => edge.source === "declared" || edge.source === "probable" || edge.source === "inferred",
   )
-    ? " Relationships that are not observed are not inventory links."
+    ? " Declared, probable, and inferred relationships are on this inventory diagram. They are not observed Azure connections."
     : "";
   const relationshipSummary = relationshipSourceSummary.length > 0
     ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
     : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
+  return `${nodeCount} resources in stored inventory across ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
 }

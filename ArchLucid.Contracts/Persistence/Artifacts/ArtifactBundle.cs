@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Artifacts;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Artifacts;
 
 public class ArtifactBundle
 {
@@ -45,22 +47,28 @@ public class ArtifactBundle
     }
 
     /// <summary>Bundle lifecycle at rest (defaults to <see cref="ArtifactBundleStatus.Available" />).</summary>
+    private ArtifactBundleStatus status = ArtifactBundleStatus.Available;
+
     public ArtifactBundleStatus Status
     {
-        get;
-        set;
-    } = ArtifactBundleStatus.Available;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceInvalidEnumZero(value, ArtifactBundleStatus.Available);
+    }
+
+    private List<SynthesizedArtifact> artifacts = [];
 
     public List<SynthesizedArtifact> Artifacts
     {
-        get;
-        set;
-    } = [];
+        get => artifacts;
+        set => artifacts = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private SynthesisTrace trace = new();
 
     public SynthesisTrace Trace
     {
-        get;
-        set;
-    } = new();
+        get => trace;
+        set => trace = value ?? new SynthesisTrace();
+    }
 }
 

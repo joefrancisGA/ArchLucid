@@ -53,6 +53,45 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
     }
 
     [Fact]
+    public void TryRead_normalizes_whole_number_float_string_state()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"sys_id":"{{SysId}}","state":"6.0"}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("6");
+    }
+
+    [Fact]
+    public void TryRead_omits_alternate_when_state_and_incident_state_canonicalize_equally()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"sys_id":"{{SysId}}","state":"6","incident_state":"06"}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("6");
+        result.AlternateStatusValue.Should().BeNull(
+            "leading-zero and whole-number float formatting must not create a synthetic divergent incident_state pair");
+    }
+
+    [Fact]
+    public void TryRead_omits_alternate_when_incident_state_is_whole_number_float_string_matching_state()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"sys_id":"{{SysId}}","state":"6","incident_state":"6.0"}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("6");
+        result.AlternateStatusValue.Should().BeNull();
+    }
+
+    [Fact]
     public void TryRead_exposes_incident_state_as_alternate_when_state_is_present_but_differs()
     {
         using JsonDocument document = JsonDocument.Parse(

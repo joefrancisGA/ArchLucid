@@ -50,10 +50,12 @@ public static class PilotProofPackageCompletenessMapper
                 deltas.SynthesizedArtifactDescriptorCountResolved ? deltas.SynthesizedArtifactDescriptorCount : null,
             ArtifactDescriptorCountResolved = deltas.SynthesizedArtifactDescriptorCountResolved,
             TimeToCommittedManifestResolved = deltas.TimeToCommittedManifest is not null,
-            FindingsBySeverityPresent = true,
+            FindingsBySeverityPresent =
+                deltas.FindingsCountsFromSnapshot || deltas.AgentResultsIncludedInDetail,
             TopFindingEvidenceChainPresentOrNotApplicable =
                 deltas.TopFindingId is null || deltas.TopFindingEvidenceChain is not null,
-            AuditRowsPresentOrLowerBound = deltas.AuditRowCount > 0 || deltas.AuditRowCountTruncated,
+            AuditRowsPresentOrLowerBound =
+                deltas.AuditRowCountResolved && (deltas.AuditRowCount > 0 || deltas.AuditRowCountTruncated),
             LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
             LlmCallCountResolved = deltas.LlmCallCountResolved,
             RoiEvidenceConfidence = roiTier,

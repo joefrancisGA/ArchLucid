@@ -27,7 +27,14 @@ import {
   resolveQuickDecisionFindingDispositionHref,
   resolveQuickDecisionFindingInspectHref,
 } from "@/lib/findings/finding-evidence-navigation";
+import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
 import { quickDecisionRecommendationSnippet } from "@/lib/quick-decision-finding-links";
+import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingOwnerDisplay,
+  isKnownQuickDecisionConfidenceLevel,
+} from "@/lib/findings/quick-decision-finding-display";
+import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import {
   parseQuickDecisionSecondaryFindingFindingIdFromSearch,
   quickDecisionSecondaryFindingDisclosureHrefFromSearch,
@@ -57,6 +64,12 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
   const finding = props.finding;
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
+  const { evidenceRefCount } = buildQuickDecisionFindingEvidenceLinks(runId, finding);
+  const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(
+    finding.assignedToUserId,
+    "Remediation owner was not stored",
+  );
+  const confidenceWorkspaceLabel = formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel);
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const { isWorkingMode } = useWorkspaceMode();
   const findingNavOptions = {
@@ -175,14 +188,18 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 />
               </>
             ) : null}
-            {finding.classification !== null && finding.classification !== undefined ? (
+            {finding.classification === null || finding.classification === undefined ? (
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Classification was not stored
+              </span>
+            ) : (
               <FindingClassificationChip
                 classification={finding.classification}
                 treatment={finding.treatment}
                 findingId={finding.findingId}
                 showReason
               />
-            ) : null}
+            )}
             {isDecisionGradeFinding(finding) ? (
               <p
                 className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
@@ -201,6 +218,32 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {quickDecisionRecommendationSnippet(finding)}
           </p>
+          <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Owner</dt>
+              <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">{ownerDisplay}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Confidence</dt>
+              <dd className="m-0 mt-0.5">
+                {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
+                  <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
+                ) : (
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                    {confidenceWorkspaceLabel}
+                  </span>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Evidence</dt>
+              <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
+                {evidenceRefCount === null
+                  ? "Evidence reference count was not stored"
+                  : `${evidenceRefCount} reference${evidenceRefCount === 1 ? "" : "s"}`}
+              </dd>
+            </div>
+          </dl>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="default" className="h-8" asChild>
               <Link

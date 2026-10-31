@@ -50,6 +50,18 @@ export const RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED = "Evidence link w
 
 export const RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED = "Finding title was not stored." as const;
 
+export const RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED = "Trace label was not stored." as const;
+
+export const RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED = "Gaps were not stored" as const;
+
+export const RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY = "Gaps were stored empty." as const;
+
+function formatExplainabilityTraceLabel(label: string | null | undefined): string {
+  const trimmed = label?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : RUN_FINDING_EXPLAINABILITY_TRACE_LABEL_OMITTED;
+}
+
 export type RunFindingExplainabilityTableProps = {
   runId: string;
   rows: FindingTraceConfidenceDto[];
@@ -59,13 +71,13 @@ export type RunFindingExplainabilityTableProps = {
 
 function gapsSummary(row: FindingTraceConfidenceDto): string {
   if (row.missingTraceFields === null || row.missingTraceFields === undefined) {
-    return "Gaps were not stored";
+    return RUN_FINDING_EXPLAINABILITY_GAPS_NOT_STORED;
   }
 
   const m = row.missingTraceFields.filter((s) => s.trim().length > 0);
 
   if (m.length === 0) {
-    return "No gaps recorded";
+    return RUN_FINDING_EXPLAINABILITY_GAPS_STORED_EMPTY;
   }
 
   if (m.length <= 2) {
@@ -474,7 +486,9 @@ export function RunFindingExplainabilityTable({
                     RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED
                   )}
                 </div>
-                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
+                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                  {formatExplainabilityTraceLabel(row.traceConfidenceLabel)}
+                </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{tracePctDisplay}</div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{confidenceSlot}</div>
                 <div className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

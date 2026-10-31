@@ -8,7 +8,7 @@ describe("resolveFindingTraceCompletenessDisplay", () => {
 
     expect(display.recorded).toBe(false);
     expect(display.ratioPct).toBeNull();
-    expect(display.summaryLine).toContain("Not recorded");
+    expect(display.summaryLine).toBe("Trace field fill was not stored.");
   });
 
   it("maps a recorded ratio to percent", () => {

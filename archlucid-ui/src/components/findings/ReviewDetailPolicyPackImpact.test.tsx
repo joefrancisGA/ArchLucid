@@ -99,4 +99,26 @@ describe("ReviewDetailPolicyPackFindingsBreakdown", () => {
       "/governance/policy-packs?packId=healthcare-claims-v3",
     );
   });
+
+  it("labels omitted unmapped finding count without implying zero", () => {
+    render(
+      <ReviewDetailPolicyPackFindingsBreakdown
+        manifestRuleSetId="healthcare-claims-v3"
+        mappedFindingCount={2}
+        unmappedFindingCount={null}
+        groups={[
+          {
+            groupKey: "security architecture baseline",
+            packDisplayName: "Security Architecture Baseline",
+            findingCount: 2,
+            packHref: "/governance/policy-packs?ruleId=sec-base-001",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("policy-pack-impact-counts")).toHaveTextContent(
+      "Unmapped finding count was not stored.",
+    );
+  });
 });

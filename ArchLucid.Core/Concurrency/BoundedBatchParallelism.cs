@@ -5,6 +5,7 @@ namespace ArchLucid.Core.Concurrency;
 /// </summary>
 public static class BoundedBatchParallelism
 {
+    public const int DefaultUnconfiguredMaxDegree = 8;
     /// <summary>Maps configured concurrency to an effective degree capped by batch size.</summary>
     public static int ResolveMaxDegree(int configuredMaxConcurrent, int batchCount)
     {
@@ -12,7 +13,7 @@ public static class BoundedBatchParallelism
             return 1;
 
         if (configuredMaxConcurrent <= 0)
-            return batchCount;
+            return Math.Min(DefaultUnconfiguredMaxDegree, batchCount);
 
         return Math.Clamp(configuredMaxConcurrent, 1, batchCount);
     }

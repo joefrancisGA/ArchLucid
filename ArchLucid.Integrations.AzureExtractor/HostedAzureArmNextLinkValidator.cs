@@ -128,6 +128,25 @@ internal static class HostedAzureArmNextLinkValidator
         }
     }
 
+    public static void EnsureTargetsExactArmRelativeListingPath(string nextLink, string listingRelativePath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
+        ArgumentException.ThrowIfNullOrWhiteSpace(listingRelativePath);
+
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
+
+        string normalizedListingPath = "/" + listingRelativePath.Trim().TrimStart('/');
+        string absolutePath = uri.AbsolutePath;
+
+        if (!absolutePath.Equals(normalizedListingPath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ARM resource listing because nextLink targets a different resource scope.");
+        }
+    }
+
     public static void EnsureTargetsFactoryResource(string nextLink, string factoryResourceId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);

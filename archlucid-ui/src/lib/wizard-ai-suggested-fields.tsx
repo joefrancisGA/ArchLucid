@@ -7,7 +7,11 @@ export type WizardAiSuggestedFieldName =
   | "requiredCapabilities"
   | "assumptions"
   | "topologyHints"
-  | "securityBaselineHints";
+  | "securityBaselineHints"
+  | "systemName"
+  | "description"
+  | "environment"
+  | "cloudProvider";
 
 function chipKey(field: WizardAiSuggestedFieldName, value: string): string {
   return `${field}:${value.trim().toLowerCase()}`;

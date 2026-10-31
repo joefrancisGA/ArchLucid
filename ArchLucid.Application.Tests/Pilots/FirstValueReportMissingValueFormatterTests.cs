@@ -2,10 +2,12 @@ using System.Text;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 
 using FluentAssertions;
 
@@ -28,6 +30,30 @@ public sealed class FirstValueReportMissingValueFormatterTests
 
         markdown.ToString().Should().Contain("Time to committed manifest was not stored.");
         markdown.ToString().Should().NotContain("pending");
+    }
+
+    [Fact]
+    public void AppendEvidenceChainSection_labels_empty_related_graph_and_trace_lists()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(
+            markdown,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingTitle = "Gap title",
+                TopFindingSeverity = "Error",
+                TopFindingEvidenceChain = new FindingEvidenceChainResponse
+                {
+                    RelatedGraphNodeIds = [],
+                    AgentExecutionTraceIds = [],
+                },
+            });
+
+        string text = markdown.ToString();
+        text.Should().Contain("Related graph node ids were stored as an empty list.");
+        text.Should().Contain("Agent execution trace ids were stored as an empty list.");
+        text.Should().Contain("Gap title");
     }
 
     [Fact]
@@ -54,6 +80,51 @@ public sealed class FirstValueReportMissingValueFormatterTests
     }
 
     [Fact]
+    public void AppendComputedDeltasSection_labels_unresolved_audit_row_count_as_not_attested()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            markdown,
+            new PilotRunDeltas
+            {
+                AuditRowCount = 0,
+                AuditRowCountResolved = false,
+                FindingsBySeverity = [],
+            });
+
+        markdown.ToString().Should().Contain("Audit row count was not attested.");
+    }
+
+    [Fact]
+    public void AppendDecisionTraceSection_labels_missing_rule_audit_fields()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(
+            markdown,
+            new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = "run-1" },
+                DecisionTraces =
+                [
+                    new RuleAuditTraceDto
+                    {
+                        RuleAudit = new RuleAuditTracePayload
+                        {
+                            RuleSetId = string.Empty,
+                            RuleSetVersion = " ",
+                        },
+                    },
+                ],
+            },
+            "run-1",
+            "https://app.example");
+
+        string text = markdown.ToString();
+        text.Should().Contain("Rule set id was not stored.");
+        text.Should().Contain("Rule set version was not stored.");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_labels_missing_manifest_as_not_stored()
     {
         StringBuilder markdown = new();
@@ -70,5 +141,31 @@ public sealed class FirstValueReportMissingValueFormatterTests
             "https://app.example");
 
         markdown.ToString().Should().Contain("Committed manifest was not stored.");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_omits_localhost_links_when_review_base_blank()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportRunSectionFormatter.AppendMarkdownSection(
+            markdown,
+            new ArchitectureRun
+            {
+                RunId = "run-1",
+                Status = ArchitectureRunStatus.Committed,
+                RequestId = "request-1",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            new GoldenManifest
+            {
+                SystemName = "Payments",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+                Governance = new ManifestGovernance(),
+            },
+            string.Empty);
+
+        string text = markdown.ToString();
+        text.Should().Contain(PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored);
+        text.Should().NotContain("localhost");
     }
 }

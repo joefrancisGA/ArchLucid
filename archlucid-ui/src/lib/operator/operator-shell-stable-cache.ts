@@ -7,6 +7,7 @@ import { buildOperatorQueryPersistBuster } from "@/lib/query/operator-query-pers
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
+import { normalizeOperatorHomeNonNegativeCount } from "@/lib/operator/run-home-status";
 import type { TenantTrialStatusClientPayload } from "@/lib/tenant-trial-status-client";
 
 const OPERATOR_SHELL_STABLE_CACHE_STORAGE_KEY = "archlucid:operator-shell-stable:v1";
@@ -41,6 +42,18 @@ function isStableLlmBudgetStatus(status: LlmMonthlyDollarBudgetStatus | undefine
   return status?.monthlyBudgetMonitoringActive !== true;
 }
 
+function normalizeStableCacheAlertsInboxSummary(
+  summary: AlertsInboxSummaryCounts,
+): AlertsInboxSummaryCounts {
+  return {
+    open: normalizeOperatorHomeNonNegativeCount(summary.open),
+    acknowledged: normalizeOperatorHomeNonNegativeCount(summary.acknowledged),
+    resolved: normalizeOperatorHomeNonNegativeCount(summary.resolved),
+    blocking: normalizeOperatorHomeNonNegativeCount(summary.blocking),
+    lastEvaluatedUtc: summary.lastEvaluatedUtc ?? null,
+  };
+}
+
 /** Drop session stable shell snapshots when operator scope changes — scope match alone is not enough after tenant switch-back. */
 export function clearOperatorShellStableCache(): void {
   if (typeof window === "undefined") {
@@ -70,6 +83,7 @@ export function readOperatorShellStableCache(): OperatorShellStableCachePayload 
 
     if (
       typeof parsed.writtenAtMs !== "number" ||
+      !Number.isFinite(parsed.writtenAtMs) ||
       Date.now() - parsed.writtenAtMs > OPERATOR_SHELL_STABLE_CACHE_MAX_AGE_MS
     ) {
       window.sessionStorage.removeItem(OPERATOR_SHELL_STABLE_CACHE_STORAGE_KEY);
@@ -84,7 +98,14 @@ export function readOperatorShellStableCache(): OperatorShellStableCachePayload 
       return null;
     }
 
-    return parsed;
+    if (parsed.alertsInboxSummary === undefined) {
+      return parsed;
+    }
+
+    return {
+      ...parsed,
+      alertsInboxSummary: normalizeStableCacheAlertsInboxSummary(parsed.alertsInboxSummary),
+    };
   } catch {
     return null;
   }
@@ -124,7 +145,7 @@ export function writeOperatorShellStableCache(args: {
       ? { llmMonthlyBudgetStatus: args.llmMonthlyBudgetStatus }
       : {}),
     ...(hasStableSnapshot && args.alertsInboxSummary !== undefined
-      ? { alertsInboxSummary: args.alertsInboxSummary }
+      ? { alertsInboxSummary: normalizeStableCacheAlertsInboxSummary(args.alertsInboxSummary) }
       : {}),
   };
 

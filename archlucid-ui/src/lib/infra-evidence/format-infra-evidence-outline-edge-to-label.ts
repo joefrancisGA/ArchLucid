@@ -1,4 +1,4 @@
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { formatDiagramArmTypeForOutline } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
 
@@ -23,13 +23,13 @@ export function formatInfraEvidenceOutlineEdgeToLabel(input: {
     return toName;
   }
 
-  const friendlyType = formatDiagramArmTypeFriendlyName(input.toResourceType);
+  const typeCaption = formatDiagramArmTypeForOutline(input.toResourceType);
 
-  if (friendlyType == null || friendlyType.trim().length === 0) {
+  if (typeCaption === "Resource type was not stored.") {
     return `${toName} (Resource type was not stored)`;
   }
 
-  const suffix = ` (${friendlyType})`;
+  const suffix = ` (${typeCaption})`;
 
   if (toName.toLowerCase().endsWith(suffix.toLowerCase())) {
     return toName;

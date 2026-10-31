@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -55,7 +56,7 @@ public sealed class GovernanceLineageServiceTests
     }
 
     [SkippableFact]
-    public async Task GetApprovalRequestLineageAsync_When_run_id_is_not_32_char_hex_does_not_query_authority()
+    public async Task GetApprovalRequestLineageAsync_When_run_id_is_not_a_guid_does_not_query_authority()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
         Mock<IGovernancePromotionRecordRepository> promotions = new();
@@ -63,7 +64,7 @@ public sealed class GovernanceLineageServiceTests
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
         Mock<IScopeContextProvider> scope = new();
 
-        GovernanceApprovalRequest approval = new() { RunId = "00000000-0000-0000-0000-000000000000" };
+        GovernanceApprovalRequest approval = new() { RunId = "opaque-workflow-run-key" };
         approvals
             .Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -82,6 +83,77 @@ public sealed class GovernanceLineageServiceTests
 
         result.Should().NotBeNull();
         result.TopFindings.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task GetApprovalRequestLineageAsync_queries_authority_when_approval_run_id_uses_dashed_guid()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runD = runGuid.ToString("D");
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+
+        ManifestDocument sealedManifest = PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateSealedGoldenManifest(
+            scope,
+            runGuid);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        Mock<IRunDetailQueryService> runQuery = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        GovernanceApprovalRequest approval = new() { RunId = runD };
+        approvals
+            .Setup(r => r.GetByIdAsync("req-dashed-run", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        runQuery
+            .Setup(r => r.GetRunDetailAsync(runD, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runD, Status = ArchitectureRunStatus.Committed } });
+
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runD, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new()
+                {
+                    Category = "c",
+                    EngineType = "e",
+                    FindingId = "f-1",
+                    FindingType = "t",
+                    Rationale = "r",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Dashed run lineage",
+                    Trace = new ExplainabilityTrace()
+                }
+            ]
+        };
+
+        IAuthorityQueryService authority = CreateAuthorityWithManifestAndFindings(
+            scope,
+            runGuid,
+            sealedManifest,
+            snapshot);
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(
+                PolicyPackGovernanceDryRunSealedManifestTestSupport.SealedManifestHash));
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-dashed-run");
+
+        result.Should().NotBeNull();
+        result!.Manifest.Should().NotBeNull();
+        result.TopFindings.Should().ContainSingle(f => f.Title == "Dashed run lineage");
     }
 
     [SkippableFact]
@@ -336,6 +408,66 @@ public sealed class GovernanceLineageServiceTests
         result!.Manifest.Should().BeNull();
         result.RiskPosture.Should().BeNull();
         result.TopFindings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetApprovalRequestLineageAsync_merges_promotions_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        GovernanceApprovalRequest approval = new()
+        {
+            ApprovalRequestId = "apr-legacy-promo",
+            RunId = canonicalRunId,
+        };
+
+        GovernancePromotionRecord legacyPromotion = new()
+        {
+            PromotionRecordId = "promo-legacy-lineage",
+            RunId = legacyUpper,
+            PromotedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(repository => repository.GetByIdAsync(approval.ApprovalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        promotions
+            .Setup(repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyPromotion]);
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(service => service.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority.Object,
+            scopeProvider.Object);
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync(approval.ApprovalRequestId);
+
+        result.Should().NotBeNull();
+        result!.Promotions.Should().ContainSingle(promo => promo.PromotionRecordId == "promo-legacy-lineage");
+        promotions.Verify(
+            repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     private static IAuthorityQueryService CreateAuthorityWithManifest(

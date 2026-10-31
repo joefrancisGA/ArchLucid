@@ -20,6 +20,36 @@ class TestPrivateBetaSurfaceClaimDrift(unittest.TestCase):
     def test_repository_inventory_passes(self) -> None:
         self.assertEqual(sut.collect_violations(sut.REPO_ROOT), [])
 
+    def _fixture(self, root: Path) -> None:
+        for route, documents in sut.ROUTE_INVENTORY.items():
+            for document in documents:
+                path = root / document
+                path.parent.mkdir(parents=True, exist_ok=True)
+                previous = path.read_text(encoding="utf-8") if path.exists() else ""
+                path.write_text(previous + "\n" + route, encoding="utf-8")
+
+    def test_symlinked_claim_document_is_not_trusted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._fixture(root)
+            document = next(iter(sut.ROUTE_INVENTORY.values()))[0]
+            target = root / document
+            external = root / "external.md"
+            external.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+            target.unlink()
+            target.symlink_to(external)
+            issues = sut.collect_violations(root)
+            self.assertTrue(any("symlinked claim source" in issue for issue in issues))
+
+    def test_invalid_utf8_document_fails_as_violation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._fixture(root)
+            document = next(iter(sut.ROUTE_INVENTORY.values()))[0]
+            (root / document).write_bytes(b"\xff\xfe")
+            issues = sut.collect_violations(root)
+            self.assertTrue(any("claim source unreadable" in issue for issue in issues))
+
     def test_missing_route_is_reported(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

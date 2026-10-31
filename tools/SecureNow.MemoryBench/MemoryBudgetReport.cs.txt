@@ -1,0 +1,35 @@
+using System.Text.Json;
+using ArchLucid.Application.SecureNow;
+
+if (args.Length != 5 || !long.TryParse(args[1], out long prefixes) ||
+    !int.TryParse(args[2], out int nodes) || !long.TryParse(args[3], out long edges) ||
+    !long.TryParse(args[4], out long memoryLimitBytes) || memoryLimitBytes <= 0)
+{
+    Console.Error.WriteLine("Usage: <samples-directory> <prefixes> <nodes> <edges> <worker-limit-bytes>");
+    return 2;
+}
+var samples = new List<SecureNowPeakMemoryForecast.Sample>();
+foreach (var file in Directory.GetFiles(args[0], "*.json").Take(1001))
+{
+    if (samples.Count >= 1000 || new FileInfo(file).Length > 131072)
+        throw new InvalidOperationException("Calibration input budget exceeded");
+    using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(file));
+    var parsed = document.RootElement.GetProperty("sample").Deserialize<SecureNowPeakMemoryForecast.Sample>();
+    if (parsed is not null) samples.Add(parsed);
+}
+var groups = samples.GroupBy(s => s.Cohort).OrderBy(g => g.Key, StringComparer.Ordinal);
+var results = groups.Select(g =>
+{
+    int depth = g.Max(s => s.HopDepth);
+    var estimate = SecureNowPeakMemoryForecast.Estimate(g.ToArray(), g.Key,
+        prefixes, nodes, edges, depth);
+    return new { cohort = g.Key, forecast = estimate,
+        withinAdvisoryBudget = estimate.Available && estimate.AdvisoryBudgetBytes <= memoryLimitBytes,
+        workerMemoryLimitBytes = memoryLimitBytes };
+}).ToArray();
+Console.WriteLine(JsonSerializer.Serialize(new
+{
+    schemaVersion = 1, status = "ADVISORY_MEMORY_HEADROOM_NOT_VERIFIED_PEAK",
+    results, limitations = "Scenario limits are not real cgroup peak measurements or automatic admission decisions."
+}, new JsonSerializerOptions { WriteIndented = true }));
+return 0;

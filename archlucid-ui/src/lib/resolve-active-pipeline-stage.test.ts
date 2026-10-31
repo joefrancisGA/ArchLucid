@@ -86,4 +86,20 @@ describe("resolveCurrentPipelineStageLabel", () => {
       resolveCurrentPipelineStageLabel(timeline, baseSummary, true),
     ).toBe("Checking policy compliance");
   });
+
+  it("labels missing timeline and summary as not stored", () => {
+    expect(resolveCurrentPipelineStageLabel([], null)).toBe("Current stage was not stored.");
+  });
+
+  it("does not infer from snapshot flags after an empty fetched timeline (P-13)", () => {
+    expect(
+      resolveCurrentPipelineStageLabel([], baseSummary, true, { timelineFetched: true }),
+    ).toBe("Stage timeline was not stored.");
+  });
+
+  it("marks summary-only inference when timeline rows are absent (P-13)", () => {
+    expect(resolveCurrentPipelineStageLabel([], baseSummary, true)).toBe(
+      "Reading your evidence (inferred from snapshot flags; stage timeline was not stored)",
+    );
+  });
 });

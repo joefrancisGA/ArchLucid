@@ -5,6 +5,10 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import * as graphViewModelExport from "@/lib/graph-view-model-export";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
+} from "@/lib/governance/governance-infrastructure-copy";
 
 vi.mock("@/lib/security-declared-connection-api", () => ({
   listSecurityDeclaredConnections: vi.fn(async () => []),
@@ -122,7 +126,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
     expect(within(edgesTable).getByRole("columnheader", { name: "To" })).toBeTruthy();
     expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored.")).toBeTruthy();
 
     expect(within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
     expect(within(nodesTable).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
@@ -188,7 +192,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const observedGroup = screen.getByTestId("infra-diagrams-edge-source-observed");
 
     expect(within(probableGroup).getByText("Probable edges (1)")).toBeInTheDocument();
-    expect(within(observedGroup).getByText("Observed edges (1)")).toBeInTheDocument();
+    expect(within(observedGroup).getByText("Stored Azure inventory relationship edges (1) — not live traffic")).toBeInTheDocument();
     expect(within(observedGroup).getByRole("button", { name: /View connection evidence/u })).toBeInTheDocument();
     expect(probableGroup.compareDocumentPosition(observedGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -238,7 +242,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const cells = within(edgesTable).getAllByRole("cell");
 
     expect(cells.map((cell) => cell.textContent)).toEqual([
-      "Observed",
+      "Observed (inventory stored; not live traffic)",
       "cosmos-sql-account",
       "connects",
       "cosmos-sql-account (Cosmos DB)",
@@ -323,7 +327,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored.")).toBeTruthy();
     expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 
@@ -468,8 +472,8 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     const nodesTable = getNodesTable();
 
-    expect(screen.getByText("Connected on the diagram (2)")).toBeTruthy();
-    expect(within(getUnconnectedNodesList()).getByText("Stands alone (1)")).toBeTruthy();
+    expect(screen.getByText(`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION} (2)`)).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("No line on this diagram was stored. (1)")).toBeTruthy();
     expect(
       countNodeDataRows(nodesTable)
       + countNodeDataRows(within(getUnconnectedNodesList()).getByRole("table")),
@@ -528,7 +532,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const nodesTable = getNodesTable();
     const edgesTable = getEdgesTable();
 
-    expect(screen.getByText("Connected on the diagram (201)")).toBeTruthy();
+    expect(screen.getByText(`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION} (201)`)).toBeTruthy();
     expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(countNodeDataRows(nodesTable)).toBe(201);
     expect(within(edgesTable).getAllByRole("row")).toHaveLength(203);
@@ -749,7 +753,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     render(<InfraEvidenceDiagramOutline outline={unknownOutline} defaultNodesOpen={true} />);
 
     expect(screen.getByTestId("infra-diagrams-unknown-questions")).toHaveTextContent(
-      "ArchLucid has a question about 1 resource.",
+      "1 resource has connection state that was not classified on this diagram outline.",
     );
     const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
     expect(unknownSection).toHaveTextContent("Connection state was not classified. (1)");
@@ -797,7 +801,10 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(unknownSection).getByText("same-rg-peer")).toBeTruthy();
     expect(within(unknownSection).queryByText("adf-edw")).toBeNull();
     expect(screen.getByTestId("infra-diagrams-unknown-filter-summary")).toHaveTextContent(
-      "Showing 2 of 3 unknown resources.",
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY.replace("{shown}", "2").replace(
+        "{total}",
+        "3",
+      ),
     );
     expect(unknownSection).toHaveTextContent("Connection state was not classified. (2 of 3)");
   });
@@ -934,6 +941,34 @@ describe("InfraEvidenceDiagramOutline", () => {
     )).toBeInTheDocument();
   });
 
+  it("states when questionable recommended action was not stored", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_questionable",
+              label: "avd-host",
+              resourceType: "Microsoft.Compute/virtualMachines",
+              resourceGroup: "rg-desktop",
+              connectionState: "Orphaned",
+              questionableReason: "Named like an AVD host and not registered",
+              questionableAction: "",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+
+    expect(within(section).getByText(
+      "Named like an AVD host and not registered Recommended action was not stored.",
+    )).toBeInTheDocument();
+  });
+
   it("does not show questions notice for unconnected shared-service types", () => {
     const workspaceOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -1020,7 +1055,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
   });
 
-  it("treats empty type, resource group, and edge label like null omission copy (P-01)", () => {
+  it("distinguishes stored-empty from not-stored for type, resource group, and edge label", () => {
     render(
       <InfraEvidenceDiagramOutline
         outline={{
@@ -1053,11 +1088,11 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
 
     const nodesTable = within(screen.getByTestId("infra-diagrams-unconnected-nodes-list")).getByRole("table");
-    expect(within(nodesTable).getByText("Resource type was not stored")).toBeInTheDocument();
-    expect(within(nodesTable).getByText("Resource group was not stored.")).toBeInTheDocument();
+    expect(within(nodesTable).getByText("Resource type was stored empty.")).toBeInTheDocument();
+    expect(within(nodesTable).getByText("Resource group was stored empty.")).toBeInTheDocument();
 
     const edgesTable = within(screen.getByTestId("infra-diagrams-outline-edges-panel")).getByRole("table");
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeInTheDocument();
+    expect(within(edgesTable).getByText("Edge label was stored empty.")).toBeInTheDocument();
   });
 
   it("renders ledger drops when mermaid outline includes them", () => {

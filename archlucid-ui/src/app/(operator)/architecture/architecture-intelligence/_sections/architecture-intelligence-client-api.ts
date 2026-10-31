@@ -20,7 +20,11 @@ export function flattenFindings(result: ClosedLoopReasoningResult): SpecialistRe
   return result.specialistReviews.flatMap((review) => review.findings ?? []);
 }
 
-export function formatCountMap(counts: Record<string, number>): string {
+export function formatCountMap(counts: Record<string, number> | null | undefined): string {
+  if (counts === null || counts === undefined) {
+    return "Counts were not stored.";
+  }
+
   const entries = Object.entries(counts);
 
   if (entries.length === 0) {

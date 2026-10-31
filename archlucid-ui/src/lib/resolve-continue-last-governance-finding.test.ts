@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { resolveContinueLastGovernanceFinding } from "@/lib/resolve-continue-last-governance-finding";
 
 function row(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFindingQueueRow {
@@ -21,6 +22,10 @@ function row(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFind
 }
 
 describe("resolveContinueLastGovernanceFinding", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("returns null when input is not an array", () => {
     expect(resolveContinueLastGovernanceFinding(null)).toBeNull();
     expect(resolveContinueLastGovernanceFinding({})).toBeNull();
@@ -57,5 +62,30 @@ describe("resolveContinueLastGovernanceFinding", () => {
     expect(match?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-1&focusedFinding=finding-old",
     );
+  });
+
+  it("matches recent view when queue row findingId retains padding", () => {
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        entries: [
+          {
+            href: "/architecture/reviews/run-1/findings/finding-recent",
+            label: "Recent",
+            kind: "finding",
+            visitedAtUtc: "2026-10-01T00:00:00.000Z",
+          },
+        ],
+      }),
+    );
+
+    const match = resolveContinueLastGovernanceFinding([
+      row({ findingId: "finding-other", title: "Other", agingDays: 50 }),
+      row({ findingId: "  finding-recent  ", title: "Recent row", agingDays: 1 }),
+    ]);
+
+    expect(match?.title).toBe("Recent row");
+    expect(match?.findingId).toBe("  finding-recent  ");
   });
 });

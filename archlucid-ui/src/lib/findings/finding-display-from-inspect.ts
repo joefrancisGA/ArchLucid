@@ -1,8 +1,6 @@
 import {
   BUYER_FINDING_POST_APPROVAL_LEAD,
   BUYER_FINDING_POST_APPROVAL_VALIDATION,
-  resolveBuyerShowcaseResidualRiskNextReviewIso,
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -41,6 +39,61 @@ export function typedPayloadLookupString(payload: FindingInspectPayload, key: st
   return extracted.trim();
 }
 
+/** Distinguishes omitted typed-payload fields from stored empty strings for inspect display. */
+export function typedPayloadHonestyLabel(
+  payload: FindingInspectPayload,
+  key: string,
+  fieldLabel: string,
+): string {
+  const value: unknown = payload.typedPayload;
+
+  if (value === null || value === undefined || typeof value !== "object") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  if (!(key in record)) {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const extracted = record[key];
+
+  if (extracted === null || extracted === undefined || typeof extracted !== "string") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  if (extracted.length === 0 || extracted.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return extracted.trim();
+}
+
+const REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX =
+  "Typed payload remediation suggestion — not stored as a recommended action: ";
+
+function resolveFindingInspectRecommendedAction(payload: FindingInspectPayload): string | null {
+  const fromTable = payload.recommendedActions.find((action) => action.trim().length > 0);
+
+  if (fromTable !== undefined) {
+    return fromTable;
+  }
+
+  const remediationSuggestion = typedPayloadLookupString(payload, "remediationSuggestion");
+
+  if (remediationSuggestion !== null) {
+    return `${REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX}${remediationSuggestion}`;
+  }
+
+  return (
+    typedPayloadLookupString(payload, "recommendedAction") ??
+    typedPayloadLookupString(payload, "RecommendedAction") ??
+    typedPayloadLookupString(payload, "recommendation") ??
+    typedPayloadLookupString(payload, "Recommendation")
+  );
+}
+
 /** Human-visible labels derived from persisted inspect payload — primary narrative before raw JSON/explanations. */
 export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
   severityLabel: string | null;
@@ -60,13 +113,7 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       typedPayloadLookupString(payload, "impactedArea") ??
       typedPayloadLookupString(payload, "ImpactedArea") ??
       typedPayloadLookupString(payload, "impactArea"),
-    recommendedAction:
-      // Prefer structured actions from dbo.FindingRecommendedActions (populated by the finding engine).
-      // Fall back to typed-payload JSON fields for legacy findings that pre-date the relational table.
-      payload.recommendedActions.find((action) => action.trim().length > 0) ??
-      typedPayloadLookupString(payload, "recommendedAction") ??
-      typedPayloadLookupString(payload, "RecommendedAction") ??
-      typedPayloadLookupString(payload, "remediationSuggestion"),
+    recommendedAction: resolveFindingInspectRecommendedAction(payload),
     statusLabel:
       typedPayloadLookupString(payload, "status") ??
       typedPayloadLookupString(payload, "Status") ??
@@ -81,15 +128,10 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 } {
   return {
     title:
-      typedPayloadLookupString(payload, "title") ??
-      typedPayloadLookupString(payload, "Title") ??
-      typedPayloadLookupString(payload, "name") ??
-      null,
+      typedPayloadLookupString(payload, "title") ?? typedPayloadLookupString(payload, "Title") ?? null,
     description:
       typedPayloadLookupString(payload, "description") ??
       typedPayloadLookupString(payload, "Description") ??
-      typedPayloadLookupString(payload, "message") ??
-      typedPayloadLookupString(payload, "Message") ??
       typedPayloadLookupString(payload, "detail") ??
       null,
   };
@@ -152,24 +194,18 @@ function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): bo
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
-  const scenario =
-    resolveSampleScenarioByHeroFindingId(payload.findingId) ??
-    resolveSampleScenarioByRunId(payload.runId) ??
-    getActiveSampleScenario();
-
-  if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(payload.findingId) ?? scenario).primaryFindingTitle;
-  }
-
-  if (isPhiMinimizationSampleFinding(payload)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload));
-  }
-
   const narrative = findingInspectNarrativeFields(payload);
   const titleCandidate = narrative.title?.trim();
 
   if (titleCandidate !== undefined && titleCandidate.length > 0) {
     return titleCandidate;
+  }
+
+  const scenario =
+    resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
+
+  if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   return "Finding title was not stored";
@@ -180,37 +216,41 @@ export function findingDetailHeadingTitleForRoute(
   findingId: string,
   payload: FindingInspectPayload | null
 ): string {
-  const scenario =
-    resolveSampleScenarioByHeroFindingId(findingId) ??
-    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null) ??
-    getActiveSampleScenario();
+  if (payload !== null) {
+    const narrative = findingInspectNarrativeFields(payload);
+    const titleCandidate = narrative.title?.trim();
 
-  if (isShowcasePrimaryPhiFindingId(findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(findingId) ?? scenario).primaryFindingTitle;
+    if (titleCandidate !== undefined && titleCandidate.length > 0) {
+      return titleCandidate;
+    }
   }
 
-  if (isPhiMinimizationFindingId(findingId)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload, findingId));
+  const scenario =
+    resolveSampleScenarioByHeroFindingId(findingId) ??
+    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null);
+
+  if (isShowcasePrimaryPhiFindingId(findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   if (payload !== null) {
     return findingDetailHeadingTitle(payload);
   }
 
-  return BUYER_SURFACE_VOCABULARY.finding;
+  return "Finding title was not stored";
 }
 
 /** Short user-facing primer under the title when structured description is unavailable. */
 export function findingDetailLeadSentence(payload: FindingInspectPayload): string {
-  if (isPhiMinimizationSampleFinding(payload) && isBuyerPolishedOperatorShellEnv()) {
-    return BUYER_FINDING_POST_APPROVAL_LEAD;
-  }
-
   const narrative = findingInspectNarrativeFields(payload);
   const description = narrative.description?.trim();
 
   if (description !== undefined && description.length > 0) {
     return description;
+  }
+
+  if (isPhiMinimizationSampleFinding(payload) && isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_FINDING_POST_APPROVAL_LEAD;
   }
 
   return "Finding description was not stored.";
@@ -221,10 +261,15 @@ export function findingWhyThisMattersText(payload: FindingInspectPayload): strin
   return (
     typedPayloadLookupString(payload, "whyThisMatters") ??
     typedPayloadLookupString(payload, "WhyThisMatters") ??
+    null
+  );
+}
+
+/** Separate disposition rationale — not shown under the why-this-matters heading. */
+export function findingInspectTypedRationaleText(payload: FindingInspectPayload): string | null {
+  return (
     typedPayloadLookupString(payload, "rationale") ??
     typedPayloadLookupString(payload, "Rationale") ??
-    typedPayloadLookupString(payload, "businessImpact") ??
-    typedPayloadLookupString(payload, "impact") ??
     null
   );
 }
@@ -247,8 +292,11 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  * Eyebrow label for finding **detail** — distinct from the parent review frame.
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
-  if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(resolveFindingSampleScenario(payload, findingId))}`;
+  const scenario = resolveFindingSampleScenario(payload, findingId);
+  const resolvedFindingId = findingId ?? payload?.findingId ?? null;
+
+  if (isShowcasePrimaryPhiFindingId(resolvedFindingId) && scenario !== null) {
+    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(scenario)}`;
   }
 
   return "Finding summary";
@@ -269,13 +317,7 @@ export function findingInspectPageEyebrow(payload: FindingInspectPayload): strin
  * Consequence + control + monitoring framing for the PHI sample (when payload lacks richer narrative).
  */
 export function phiMinimizationBuyerConsequenceNarrative(): string {
-  return (
-    "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
-    "expanding breach impact, audit scope, and downstream processing obligations. " +
-    "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
-    "the evidence trail shows how those controls tie to this observation. " +
-    `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates. Monitoring cadence was not stored.; next review ${resolveBuyerShowcaseResidualRiskNextReviewIso()}.`
-  );
+  return "Sample finding. A stored consequence was not stored.";
 }
 
 export function phiMinimizationApprovalNarrative(): string {
@@ -283,19 +325,12 @@ export function phiMinimizationApprovalNarrative(): string {
     return BUYER_FINDING_POST_APPROVAL_VALIDATION;
   }
 
-  return (
-    "Before approval, reviewers need evidence that PHI classification occurs at ingress, adapter boundaries remain " +
-    "stateless or explicitly bounded, unstructured attachments cannot bypass the OCR/control path unnoticed, and " +
-    "post-go-live monitoring will surface exception volume before it becomes an audit or breach exposure."
-  );
+  return "A stored acceptance was not stored on this finding.";
 }
 
 /** Specific recommended actions for the PHI showcase when structured actions are unavailable. */
 export function phiMinimizationRecommendedActionFallback(): string {
-  return (
-    "Validate ingress PHI classification rules, monitor unstructured attachment exception volumes weekly, confirm OCR bypass " +
-    "handling alerts fire before volume thresholds, and schedule a post-go-live review with the privacy office."
-  );
+  return "Recommended action was not stored.";
 }
 
 export function phiMinimizationControlNarrative(): string {

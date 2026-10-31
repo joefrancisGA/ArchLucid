@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findForbiddenQualityOutagePhrases,
   plainLanguageFailureCauseSentence,
+  plainLanguageFailureClassLabel,
   plainLanguageRejectCategoryLabel,
   resolveExecutionVsQualityAxis,
   resolveLastFailureCardCopy,
@@ -49,6 +50,18 @@ describe("execution-vs-quality-outcome-copy (TB-965)", () => {
     expect(copy.axis).toBe("execution");
     expect(copy.remediation.toLowerCase()).toContain("do this next");
     expect(copy.remediation.toLowerCase()).not.toContain("intake fields");
+  });
+
+  it("labels omitted stage count and failure class without guessing zero stages", () => {
+    const sentence = plainLanguageFailureCauseSentence({
+      failureClass: "timeout",
+      completedStages: undefined,
+    });
+
+    expect(sentence).toContain("Pipeline stage count was not stored");
+    expect(sentence.toLowerCase()).not.toContain("before the first assessment stage");
+    expect(plainLanguageFailureClassLabel(null)).toBe("Failure class was not stored.");
+    expect(plainLanguageFailureClassLabel("unknown")).toBe("Unknown");
   });
 
   it("keeps buyer what-failed copy to one processing-stopped sentence without speculative scheduling jargon", () => {

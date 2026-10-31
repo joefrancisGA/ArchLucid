@@ -170,10 +170,10 @@ public sealed class SecureNowQuestionDispositionService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        string dispositionResourceId = ResolveDispositionResourceId(
-            request.SubscriptionId,
-            request.ResourceId,
-            SecureNowQuestionScopeKind.Resource);
+        string dispositionResourceId =
+            SecureNowQuestionDispositionResourceIdResolver.ResolveForReopen(
+                request.SubscriptionId,
+                request.ResourceId);
 
         string? validationError = ValidateIdentity(
             request.SubscriptionId,
@@ -572,22 +572,39 @@ public sealed class SecureNowQuestionDispositionService(
                 || IsSharedServiceType(resource.ResourceType))
                 continue;
 
-            if (!string.IsNullOrWhiteSpace(resource.ParentResourceId)
-                && !resourceIds.Contains(Normalize(resource.ParentResourceId)))
+            bool hasParentResourceId = !string.IsNullOrWhiteSpace(resource.ParentResourceId);
+            bool parentMissingFromSnapshot = hasParentResourceId
+                && !resourceIds.Contains(Normalize(resource.ParentResourceId));
+            bool citedViaOffSnapshotRelationship = snapshot.Relationships.Any(relationship =>
             {
-                continue;
-            }
+                string fromResourceId = Normalize(relationship.FromAzureResourceId);
+                string toResourceId = Normalize(relationship.ToAzureResourceId);
+
+                if (fromResourceId.Length == 0 || toResourceId.Length == 0)
+                {
+                    return false;
+                }
+
+                return (string.Equals(fromResourceId, resourceId, StringComparison.OrdinalIgnoreCase)
+                        && !resourceIds.Contains(toResourceId))
+                    || (string.Equals(toResourceId, resourceId, StringComparison.OrdinalIgnoreCase)
+                        && !resourceIds.Contains(fromResourceId));
+            });
 
             candidates.Add(new SecureNowDiagramQuestionCandidate
             {
                 SubscriptionId = Normalize(resource.SubscriptionId ?? snapshot.Header.SubscriptionId),
                 ResourceId = resourceId,
                 ResourceType = resource.ResourceType,
-                IsOrphanIntent = !string.IsNullOrWhiteSpace(resource.ParentResourceId),
-                IsUnknownEvidence = string.IsNullOrWhiteSpace(resource.ParentResourceId),
-                ProblemText = string.IsNullOrWhiteSpace(resource.ParentResourceId)
-                    ? "No cited connection, and this type is not on the shared-service list."
-                    : "Required parent relationship is not cited.",
+                IsOrphanIntent = hasParentResourceId,
+                IsUnknownEvidence = !hasParentResourceId,
+                ProblemText = citedViaOffSnapshotRelationship
+                    ? "Relationship endpoint is not in this inventory snapshot (off-snapshot edge)."
+                    : parentMissingFromSnapshot
+                    ? "Required parent is not in this inventory snapshot."
+                    : string.IsNullOrWhiteSpace(resource.ParentResourceId)
+                        ? "No cited connection, and this type is not on the shared-service list."
+                        : "Required parent relationship is not cited.",
             });
         }
 

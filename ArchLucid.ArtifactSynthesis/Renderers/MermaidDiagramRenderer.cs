@@ -1,15 +1,20 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
 public class MermaidDiagramRenderer : IDiagramRenderer
 {
+    internal const string RelationshipNotStoredEdgeLabel = "Relationship was not stored";
+
     public string Format => "mermaid";
 
     public string Render(DiagramAst ast)
@@ -27,10 +32,19 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             }
         }
 
+        if (ast.CaptionLines.Count == 0
+            && ast.Title.Contains("(Executive)", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.AppendLine($"    %% {DiagramExecutiveRegionPlanner.DefaultExecutiveInventoryCaption}");
+        }
+
         foreach (DiagramDropGateRow row in ast.DropGateRows)
         {
-            sb.AppendLine(
-                $"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {EscapeCommentToken(row.FromNodeId)} {EscapeCommentToken(row.ToNodeId)}");
+            string fromToken = EscapeCommentToken(row.FromNodeId);
+            string toToken = string.IsNullOrWhiteSpace(row.ToNodeId)
+                ? "_"
+                : EscapeCommentToken(row.ToNodeId);
+            sb.AppendLine($"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {fromToken} {toToken}");
         }
 
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))
@@ -170,7 +184,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         if (node.ConnectionState is not null)
         {
-            tokens.Add($"al-state={node.ConnectionState.Value}");
+            string stateToken = node.ConnectionState == InventoryDiagramConnectionState.Unknown
+                ? "Connection state was not stored."
+                : node.ConnectionState.Value.ToString();
+            tokens.Add($"al-state={QuoteMetadataValue(stateToken)}");
         }
 
         if (node.QuestionableAttention is not null)
@@ -255,13 +272,26 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
+                safeLabel = EscapeLabel(
+                    IsPrivateEndpointInventoryEdge(edge)
+                        ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                        : RelationshipNotStoredEdgeLabel);
             }
-            else
-            {
-                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
-            }
+
+            sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
         }
+    }
+
+    private static bool IsPrivateEndpointInventoryEdge(DiagramEdge edge)
+    {
+        return string.Equals(
+                   edge.InferenceSource,
+                   GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   edge.Label,
+                   InventoryDiagramRelationshipLabelTexts.PrivateAccess,
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveVisibleEdgeArrowToken(DiagramEdge edge)

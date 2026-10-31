@@ -30,11 +30,13 @@ function formatInferenceRuleName(ruleName: string | null | undefined): string {
     return "Rule name was not stored";
   }
 
-  if (ruleName.length === 0) {
+  const trimmed = ruleName.trim();
+
+  if (trimmed.length === 0) {
     return "Rule name was stored empty.";
   }
 
-  return ruleName;
+  return trimmed;
 }
 
 function formatInferenceQuestionText(questionText: string | null | undefined): string {
@@ -42,11 +44,13 @@ function formatInferenceQuestionText(questionText: string | null | undefined): s
     return "Question text was not stored";
   }
 
-  if (questionText.length === 0) {
+  const trimmed = questionText.trim();
+
+  if (trimmed.length === 0) {
     return "Question text was stored empty.";
   }
 
-  return questionText;
+  return trimmed;
 }
 
 function formatInferenceFromLabel(fromLabel: string | null | undefined): string {
@@ -54,11 +58,13 @@ function formatInferenceFromLabel(fromLabel: string | null | undefined): string 
     return "Source resource was not stored.";
   }
 
-  if (fromLabel.length === 0) {
+  const trimmed = fromLabel.trim();
+
+  if (trimmed.length === 0) {
     return "Source resource was stored empty.";
   }
 
-  return fromLabel;
+  return trimmed;
 }
 
 function formatInferenceToHost(toHost: string | null | undefined): string {
@@ -66,11 +72,13 @@ function formatInferenceToHost(toHost: string | null | undefined): string {
     return "Target host was not stored.";
   }
 
-  if (toHost.length === 0) {
+  const trimmed = toHost.trim();
+
+  if (trimmed.length === 0) {
     return "Target host was stored empty.";
   }
 
-  return toHost;
+  return trimmed;
 }
 
 export function InferenceQuestionnairePanel(
@@ -85,6 +93,8 @@ export function InferenceQuestionnairePanel(
   const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [listCapReached, setListCapReached] = useState(false);
+  const [listTotalCount, setListTotalCount] = useState<number | null>(null);
 
   const proposedItems = useMemo(
     () => items.filter(
@@ -111,6 +121,8 @@ export function InferenceQuestionnairePanel(
     try {
       const response = await listInferenceQuestionnaireItems(snapshotId);
       setItems(response.items);
+      setListCapReached(response.capReached);
+      setListTotalCount(response.totalCount);
       setCurrentIndex(0);
       setChoice(null);
       setSelectedCatalog("");
@@ -203,6 +215,14 @@ export function InferenceQuestionnairePanel(
       data-testid="inference-questionnaire-panel"
       aria-label="Inference questionnaire"
     >
+      {snapshotId.trim().length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="inference-questionnaire-snapshot-id-not-stored"
+        >
+          Inventory snapshot id was not stored.
+        </p>
+      ) : (
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Inference questionnaire</h2>
@@ -242,6 +262,15 @@ export function InferenceQuestionnairePanel(
 
         {currentItem != null ? (
           <>
+            {listCapReached && listTotalCount !== null && listTotalCount > proposedItems.length ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="inference-questionnaire-cap-honesty"
+              >
+                Showing {proposedItems.length} of {listTotalCount} proposed questionnaire item(s). The list cap was
+                reached; additional items were not loaded.
+              </p>
+            ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-progress">
               Question {currentIndex + 1} of {proposedItems.length}
             </p>
@@ -295,55 +324,68 @@ export function InferenceQuestionnairePanel(
                 </div>
               </>
             ) : (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "yes" ? "primary" : "outline"}
-                onClick={() => setChoice("yes")}
-                data-testid="inference-questionnaire-yes"
-              >
-                Yes
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "no" ? "primary" : "outline"}
-                onClick={() => setChoice("no")}
-                data-testid="inference-questionnaire-no"
-              >
-                No
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={choice === "skip" ? "primary" : "outline"}
-                onClick={() => setChoice("skip")}
-                data-testid="inference-questionnaire-skip"
-                aria-label="Skip is not saved. This question stays unanswered."
-              >
-                Skip
-              </Button>
-            </div>
+              <>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "yes" ? "primary" : "outline"}
+                    onClick={() => setChoice("yes")}
+                    data-testid="inference-questionnaire-yes"
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "no" ? "primary" : "outline"}
+                    onClick={() => setChoice("no")}
+                    data-testid="inference-questionnaire-no"
+                  >
+                    No
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "skip" ? "primary" : "outline"}
+                    onClick={() => setChoice("skip")}
+                    data-testid="inference-questionnaire-skip"
+                    aria-label="Skip is not saved. This question stays unanswered."
+                  >
+                    Skip
+                  </Button>
+                </div>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="inference-questionnaire-yes-no-caption"
+                >
+                  Yes confirms the inferred connection for audit export. No dismisses it. Skip leaves this question unanswered for this session.
+                </p>
+              </>
             )}
 
             {choice === "yes" && requiresCatalogChoice ? (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
-                <select
-                  id="inference-questionnaire-catalog"
-                  className="rounded-md border border-al-border bg-al-surface px-3 py-2 text-sm"
-                  value={selectedCatalog}
-                  onChange={(event) => setSelectedCatalog(event.target.value)}
-                  data-testid="inference-questionnaire-catalog"
-                >
-                  <option value="">Database name was not stored.</option>
-                  {currentItem.toCatalog != null ? (
+              currentItem.toCatalog != null ? (
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="inference-questionnaire-catalog">Database choice</Label>
+                  <select
+                    id="inference-questionnaire-catalog"
+                    className="rounded-md border border-al-border bg-al-surface px-3 py-2 text-sm"
+                    value={selectedCatalog}
+                    onChange={(event) => setSelectedCatalog(event.target.value)}
+                    data-testid="inference-questionnaire-catalog"
+                  >
                     <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
-                  ) : null}
-                  <option value="server-only">Server only</option>
-                </select>
-              </div>
+                  </select>
+                </div>
+              ) : (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="inference-questionnaire-catalog-missing"
+                >
+                  Database name was not stored.
+                </p>
+              )
             ) : null}
 
             <Button
@@ -367,6 +409,7 @@ export function InferenceQuestionnairePanel(
           </p>
         ) : null}
       </div>
+      )}
     </section>
   );
 }

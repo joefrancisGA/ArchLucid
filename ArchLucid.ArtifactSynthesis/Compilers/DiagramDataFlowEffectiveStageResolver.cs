@@ -34,19 +34,19 @@ internal static class DiagramDataFlowEffectiveStageResolver
                 continue;
             }
 
-            if (!IsDataFactoryNode(fromNode))
-            {
-                continue;
-            }
-
             if (IsAdfReadsFrom(edge))
             {
                 overrides[edge.ToNodeId] = AzureInventoryDataFlowStageNames.Source;
+
+                if (IsDataFactoryNode(fromNode))
+                {
+                    overrides[edge.FromNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+                }
             }
 
-            if (IsAdfWritesTo(edge))
+            if (IsAdfWritesTo(edge) && IsDataFactoryNode(fromNode))
             {
-                overrides[edge.ToNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
+                overrides[edge.FromNodeId] = AzureInventoryDataFlowStageNames.Ingestion;
             }
         }
 

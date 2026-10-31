@@ -133,9 +133,9 @@ export function ArchitecturePosturePillarOverview(
   }
 
   const snapshotFreshness =
-    summary.latestSnapshotCreatedUtc !== null
+    summary.latestSnapshotCreatedUtc !== null && summary.latestSnapshotCreatedUtc.trim().length > 0
       ? operatorLastRefreshedExactLabel(new Date(summary.latestSnapshotCreatedUtc))
-      : undefined;
+      : "Latest review snapshot time was not returned.";
 
   const sortedPillars = [...summary.pillars].sort((left, right) => left.displayOrder - right.displayOrder);
 
@@ -152,7 +152,7 @@ export function ArchitecturePosturePillarOverview(
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Pack-driven examination by architecture pillar — counts only, no score.
-            {snapshotFreshness !== undefined ? ` Latest review snapshot: ${snapshotFreshness}.` : null}
+            {` Latest review snapshot: ${snapshotFreshness}.`}
             {summary.uncategorizedCount > 0
               ? ` ${finiteIntegerCountDisplay(summary.uncategorizedCount)} uncategorized findings.`
               : null}

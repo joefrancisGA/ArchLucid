@@ -5,11 +5,151 @@ public static class InventoryDiagramRelationshipLabelTexts
 {
     public const string HasAccess = "Has access";
 
-    public const string PrivateAccess = "Private access";
+    public const string PrivateAccess = "Private endpoint. This is not observed traffic.";
+
+    public const string ServiceConnectorConfiguredLabel =
+        "Service connector is configured. An observed connection was not stored.";
+
+    public const string AppAuthorizedAccessLabel =
+        "Authorization may allow access. Observed use was not stored.";
+
+    public const string AppToKeyVaultRefLabel =
+        "App setting names Key Vault. Observed secret access was not stored.";
+
+    public const string ConnectionStoredObservedTrafficNotStoredLabel =
+        "Connection was stored. Observed traffic was not stored.";
+
+    public const string OperatorConfirmedConnectionLabel =
+        "Operator confirmed connection. Observed traffic was not stored.";
+
+    public const string RouteStoredObservedTrafficNotStoredLabel =
+        "Route was stored. Observed traffic was not stored.";
+
+    public const string AvdSessionHostStoredObservedSessionNotStoredLabel =
+        "AVD session host was stored. An observed session was not stored.";
+
+    public const string MemberOfStoredObservedUseNotStoredLabel =
+        "Membership was stored. Observed use of that membership was not stored.";
+
+    public const string DependencyStoredObservedUseNotStoredLabel =
+        "Dependency was stored. Observed use was not stored.";
+
+    public const string RelatesToStoredNotSpecificLabel =
+        "A relates-to link was stored. A more specific relationship was not stored.";
+
+    public const string SqlPrincipalAuthorizedAccessLabel =
+        "SQL principal authorization may allow access. An observed query was not stored.";
+
+    public const string HostnameInferredTargetLabel =
+        "App setting hostname was inferred. A stored resource link was not stored.";
+
+    public const string PeReachableTargetInferredLabel =
+        "Private endpoint target was inferred. Reachability was not stored.";
 
     public const string PublicExposureCaption = "Public IP is attached; its card is hidden on this diagram.";
 
-    public const string Peered = "Peered";
+    public const string PublicIpAddressNotStored = "Public IP address was not stored.";
+
+    public const string PublicIpAddressStoredEmpty = "Public IP address was stored empty.";
+
+    public const string MultipleHiddenPublicIpAddressesStored =
+        "Multiple rolled-up members stored public IP addresses; one member address is not shown for all.";
+
+    public const string MultiplePrivateEndpointAccessNamesStored =
+        "Multiple private endpoint access names were stored on rolled-up members.";
+
+    public const string PublicIpAttachedObservedTrafficNotStored =
+        "Public IP is attached. Observed traffic was not stored.";
+
+    public const string PrivateEndpointConnectionStatusNotStored =
+        "Private endpoint connection status was not stored.";
+
+    public const string PrivateEndpointConnectionStatusStoredEmpty =
+        "Private endpoint connection status was stored empty.";
+
+    public static string FormatHiddenPublicIpCaption(string? ipAddress, bool multipleStoredAddresses = false)
+    {
+        if (multipleStoredAddresses)
+        {
+            return $"{PublicExposureCaption} {MultipleHiddenPublicIpAddressesStored}";
+        }
+
+        if (ipAddress is null)
+        {
+            return $"{PublicExposureCaption} {PublicIpAddressNotStored}";
+        }
+
+        if (ipAddress.Length == 0 || string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return $"{PublicExposureCaption} {PublicIpAddressStoredEmpty}";
+        }
+
+        return $"{PublicExposureCaption} {ipAddress.Trim()}";
+    }
+
+    public static string FormatPrivateEndpointConnectionLabel(string? connectionStatus)
+    {
+        if (connectionStatus is null)
+        {
+            return PrivateEndpointConnectionStatusNotStored;
+        }
+
+        if (connectionStatus.Length == 0 || string.IsNullOrWhiteSpace(connectionStatus))
+        {
+            return PrivateEndpointConnectionStatusStoredEmpty;
+        }
+
+        string status = connectionStatus.Trim();
+
+        if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Private access · Approved. {PrivateAccess}";
+        }
+
+        if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Disconnected", StringComparison.OrdinalIgnoreCase)
+            || status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Private endpoint connection: {status}";
+        }
+
+        return $"Private endpoint connection: {status}";
+    }
+
+    public const string RouteNextHopConfiguredNotObservedLabel =
+        "Route next hop is configured. This is not observed traffic.";
+
+    public const string NetworkConnectionConfiguredNotObservedLabel =
+        "Network connection is configured. Observed traffic was not stored.";
+
+    public const string AccessConnectorExternalTargetConfiguredLabel =
+        "Access connector cites an external target. An observed connection was not stored.";
+
+    public const string LogicAppWorkflowActionConfiguredLabel =
+        "Logic App action is configured. An observed run was not stored.";
+
+    public const string PrivateNetworkPathNotObservedLabel =
+        "Private network path. This is not observed traffic.";
+
+    public const string Peered = "Peering is connected. Observed traffic was not stored.";
+
+    public const string PeeringStoredConnectedStateNotStored =
+        "Peering was stored. A connected peering state was not stored.";
+
+    public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
+        "A remote network id was stored. Peering state was not stored.";
+
+    public const string ProtectionLinkStoredObservedProtectionNotStored =
+        "Protection link was stored. Observed protection was not stored.";
+
+    public const string RoleLinkStoredNameAndUseNotStored =
+        "Role link was stored. Role name and use were not stored.";
+
+    public const string AppliesToLinkStoredEnforcementNotObserved =
+        "Applies-to link was stored. Enforcement was not observed.";
+
+    public const string SubnetPlacementStoredReachabilityNotObserved =
+        "Subnet placement was stored. Reachability was not observed.";
 
     public const string SendsTrafficTo = "Sends traffic to";
 
@@ -19,7 +159,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextHopResourceName);
 
-        return $"Routed through {nextHopResourceName.Trim()}";
+        return $"Default route next hop is {nextHopResourceName.Trim()}. This is not observed traffic.";
     }
 
     public static string FormatSendsTrafficTo(int? backendPort)
@@ -48,4 +188,176 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         return $"Peering to {remoteVirtualNetworkName.Trim()} is not connected";
     }
+
+    public static string FormatPeeringStateNotStored(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering state was not stored for {remoteVirtualNetworkName.Trim()}.";
+    }
+
+    public static string FormatPeeringConnectedOffCanvas(string remoteVirtualNetworkName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
+
+        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram. Observed traffic was not stored.";
+    }
+
+    public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =
+        "Backend pool membership is configured. Observed traffic was not stored.";
+
+    public const string PipelineDatasetConfiguredReadObservedReadNotStored =
+        "Pipeline dataset is configured to read. An observed read was not stored.";
+
+    public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
+        "Pipeline dataset is configured to write. An observed write was not stored.";
+
+    public const string ObservedInLogsReadLabel = "Observed in logs (read)";
+
+    public const string ObservedInLogsWriteLabel = "Observed in logs (write)";
+
+    public const string ObservedInLogsDiagnosticTimeWindowNotStored =
+        "Diagnostic time window was not stored.";
+
+    public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
+        "Event subscription names this destination. Observed delivery was not stored.";
+
+    public const string CaptureConfiguredObservedCaptureNotStored =
+        "Capture is configured. Observed capture was not stored.";
+
+    public const string AdfTriggerConfiguredObservedRunNotStored =
+        "Trigger is configured. This is not an observed run.";
+
+    public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
+        "Integration runtime in configuration. This is not an observed run.";
+
+    public const string PipelineLinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. This is not an observed run.";
+
+    public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
+
+        return $"Diagnostic setting destination is {destinationName.Trim()}. This is not observed log delivery.";
+    }
+
+    public const string PrivateEndpointTargetStoredReachabilityNotObserved =
+        "Private endpoint target was stored. Reachability was not observed.";
+
+    public const string PrivateEndpointAccessWasStoredLabel =
+        "Private endpoint was inferred. Observed access was not stored.";
+
+    public const string PrivateEndpointNameNotStoredSuffix = "Endpoint name was not stored.";
+
+    public static string FormatPrivateEndpointStoredLinkEdgeLabel(string? privateEndpointName)
+    {
+        if (string.IsNullOrWhiteSpace(privateEndpointName))
+        {
+            return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
+        }
+
+        return PrivateEndpointAccessWasStoredLabel;
+    }
+
+    public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
+        "Diagnostic setting name was not stored. Log delivery was not observed.";
+
+    public const string DiagnosticSettingNamesNotListedLogDeliveryNotObserved =
+        "Diagnostic setting names were not listed on this line. Log delivery was not observed.";
+
+    public const string ImageReferenceStoredImagePullNotObserved =
+        "Image reference was stored. An image pull was not observed.";
+
+    public const string AuthorizationMayAllowConsumeObservedMessagingNotStored =
+        "Authorization may allow consume. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowSendObservedMessagingNotStored =
+        "Authorization may allow send. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowReceiveObservedMessagingNotStored =
+        "Authorization may allow receive. Observed messaging was not stored.";
+
+    public const string LinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. An observed run was not stored.";
+
+    public const string ApiConnectionConfiguredObservedCallNotStored =
+        "API connection is configured. An observed call was not stored.";
+
+    public const string ServiceBusForwardConfiguredObservedDeliveryNotStored =
+        "Forwarding is configured. Observed delivery was not stored.";
+
+    public const string ServiceBusForwardDeadLetterConfiguredObservedDeliveryNotStored =
+        "Dead-letter forwarding is configured. Observed delivery was not stored.";
+
+    public const string KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Kubernetes service load balancer is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored =
+        "Network security perimeter association was stored. Observed enforcement was not stored.";
+
+    public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
+
+    public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+    }
+
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
+    }
+
+    public static string FormatSendsTrafficToBackend(int? backendPort)
+    {
+        return backendPort is null
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
+    }
+
+    public static string FormatBackendOffCanvasOutline(string backendName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
+
+        return $"Backend {backendName.Trim()} is not on this diagram. Observed traffic was not stored.";
+    }
+
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
+    {
+        if (string.IsNullOrWhiteSpace(targetRegion))
+        {
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region was not stored.";
+        }
+
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region: {targetRegion.Trim()}.";
+    }
+
+    public static string FormatRecoveryServicesProtectsLabel() =>
+        AzureInventoryRecoveryServices.BackupEdgeLabel;
 }

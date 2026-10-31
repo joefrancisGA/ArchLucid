@@ -78,6 +78,28 @@ public static partial class ProblemDetailsExtensions
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
+    /// <summary>Returns 429 Too Many Requests with a Problem Details body.</summary>
+    public static IActionResult TooManyRequestsProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.RateLimited,
+            Title = "Too Many Requests",
+            Status = StatusCodes.Status429TooManyRequests,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path,
+        };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
     /// <summary>Returns 429 with an explicit <c>extensions.errorCode</c> (TB-897 Quick Scan identity/abuse).</summary>
     public static IActionResult TooManyRequestsProblemWithErrorCode(
         this ControllerBase controller,

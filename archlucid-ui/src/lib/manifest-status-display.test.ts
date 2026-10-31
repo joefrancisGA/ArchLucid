@@ -13,8 +13,13 @@ describe("manifestStatusForDisplay", () => {
   });
 
   it("explains when status is omitted", () => {
-    expect(manifestStatusForDisplay("")).toBe("Status not returned");
     expect(manifestStatusForDisplay(null)).toBe("Status not returned");
+    expect(manifestStatusForDisplay(undefined)).toBe("Status not returned");
+  });
+
+  it("labels stored-empty status separately from omitted status", () => {
+    expect(manifestStatusForDisplay("")).toBe("Status was stored empty.");
+    expect(manifestStatusForDisplay("   ")).toBe("Status was stored empty.");
   });
 });
 

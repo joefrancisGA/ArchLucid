@@ -10,12 +10,36 @@ namespace ArchLucid.Application.Tests.Exports;
 public sealed class RunSummaryOnePagerMarkdownRendererTests
 {
     [Fact]
+    public void Render_omits_zero_severity_table_when_agent_findings_not_stored()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-1",
+            SystemNameDisplay = "System",
+            RunIdDisplay = "run-1",
+            AgentFindingsCountsStored = false,
+            AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
+            SponsorReport = "Summary.",
+            TopFindingsEmptyCopy = RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored,
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored);
+        markdown.Should().NotContain("| Critical | 0 |");
+    }
+
+    [Fact]
     public void Render_includes_severity_table_executive_summary_and_top_findings()
     {
         RunSummaryOnePagerDocumentModel model = new()
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 1,
             HighCount = 2,
             MediumCount = 3,
@@ -33,7 +57,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("- Missing CMK");
         markdown.Should().Contain("- Open ingress");
         markdown.Should().Contain("- Stale DR plan");
-        markdown.Should().Contain("generated with AI assistance");
+        markdown.Should().Contain("sealed snapshot copy");
         markdown.Should().Contain("Deterministic findings (sealed)");
         markdown.Should().Contain("Agent findings (advisory)");
     }
@@ -45,6 +69,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -72,6 +99,11 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
+                snapshotId,
+                12),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -96,6 +128,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 1,
             HighCount = 0,
             MediumCount = 0,
@@ -121,6 +156,9 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         {
             RunId = "run-abc",
             SystemName = "Payments",
+            SystemNameDisplay = "Payments",
+            RunIdDisplay = "run-abc",
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -135,5 +173,30 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("## Sendable export cover");
         markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
         markdown.Should().Contain("Execution mode: Simulator");
+    }
+
+    [Fact]
+    public void Render_labels_missing_system_name_and_run_id()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "",
+            SystemName = null,
+            SystemNameDisplay = RunSummaryOnePagerHonestyCopy.SystemNameNotStored,
+            RunIdDisplay = RunSummaryOnePagerHonestyCopy.RunIdNotStored,
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
+            CriticalCount = 0,
+            HighCount = 0,
+            MediumCount = 0,
+            LowCount = 0,
+            SponsorReport = "Summary.",
+            TopFindingTitles = [],
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.FindingsSnapshotIdNotStored);
     }
 }

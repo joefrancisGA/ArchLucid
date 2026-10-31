@@ -9,4 +9,5 @@ public readonly record struct InfrastructureCostQueryNode(
     RuntimePlatform Platform,
     string? ArmRegion,
     string? SkuOrTier,
-    int Quantity);
+    int Quantity,
+    bool InstanceCountWasNotStored = false);

@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Diagram;
 
 using FluentAssertions;
@@ -9,6 +10,40 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureDiagramToGraphCompilerTests
 {
+    [Fact]
+    public void Compile_trims_diagram_record_id_when_minting_diagram_node_graph_id()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "  sql  ",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        GraphNode sqlNode = result.Snapshot.Nodes.Should().ContainSingle().Subject;
+        sqlNode.NodeId.Should().Be("diagram-node:sql");
+        sqlNode.SourceId.Should().Be("sql");
+    }
+
     [Fact]
     public void Compile_maps_label_only_nodes_with_structured_parse_inference_not_observed_fact()
     {
@@ -113,6 +148,56 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_asserted_connects_to_edge_uses_structured_parse_inference_source()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "db",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "db",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Asserted,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        GraphEdge edge = result.Snapshot.Edges.Should().ContainSingle().Subject;
+        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.StructuredParse);
+    }
+
+    [Fact]
     public void Compile_label_only_confidence_is_clamped_below_one_even_when_options_are_invalid()
     {
         ArchitectureDiagramModelRecord model = new()
@@ -146,6 +231,350 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
         double confidence = double.Parse(sqlNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence]);
         confidence.Should().BeLessThan(1d);
         confidence.Should().Be(StructuredDiagramLabelOnlyInferenceDefaults.StandardConfidence);
+    }
+
+    [Fact]
+    public void Compile_retains_edge_when_source_id_differs_only_by_case()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "API",
+                    TargetId = "sql",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void Compile_trims_trust_boundary_label_when_trust_boundary_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            TrustBoundaryLabels = ["  Corporate network  "],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.NodeType == GraphNodeTypes.TrustBoundary
+            && node.Label == "Corporate network");
+    }
+
+    [Fact]
+    public void Compile_uses_not_stored_copy_when_record_label_is_whitespace_only()
+    {
+        const string PaddedTerraformAddress = "  azurerm_mssql_server.pay_sql  ";
+
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = PaddedTerraformAddress,
+                    Label = "   ",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.Label == "Resource name was not stored."
+            && node.SourceId == PaddedTerraformAddress.Trim());
+    }
+
+    [Fact]
+    public void Compile_trims_diagram_node_label_when_node_record_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "  SQL Database  ",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Nodes.Should().ContainSingle(node => node.Label == "SQL Database");
+    }
+
+    [Fact]
+    public void Compile_trims_diagram_edge_label_when_edge_record_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "api",
+                    TargetId = "sql",
+                    Label = "  reads  ",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.Label == "reads");
+    }
+
+    [Fact]
+    public void Compile_trims_diagram_edge_record_id_when_minting_diagram_edge_graph_id()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "  e1  ",
+                    SourceId = "api",
+                    TargetId = "sql",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphEdge edge = result.Snapshot.Edges.Should().ContainSingle().Subject;
+        edge.EdgeId.Should().Be("diagram-edge:e1");
+        edge.Properties[StructuredDiagramGraphPropertyKeys.DiagramEdgeId].Should().Be("e1");
+    }
+
+    [Fact]
+    public void Compile_retains_edge_when_source_and_target_ids_have_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = "SQL",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "  api  ",
+                    TargetId = "  sql  ",
+                    Label = "reads",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge =>
+            edge.EdgeType == GraphEdgeTypes.ConnectsTo
+            && edge.FromNodeId == "diagram-node:api"
+            && edge.ToNodeId == "diagram-node:sql");
+    }
+
+    [Fact]
+    public void Compile_emits_contains_edge_and_subgraph_metadata_when_subgraph_id_differs_only_by_case()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "CORP",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.Contains);
+        GraphNode apiNode = result.Snapshot.Nodes.Single(node => node.SourceId == "api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
+            .Should().Be("Corporate network");
+    }
+
+    [Fact]
+    public void Compile_trims_subgraph_record_id_when_minting_trust_boundary_subgraph_node()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "  corp  ",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "  corp  ",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphNode subgraphNode = result.Snapshot.Nodes.Should().ContainSingle(node =>
+            node.NodeType == GraphNodeTypes.TrustBoundary).Subject;
+        subgraphNode.NodeId.Should().Be("diagram-subgraph:corp");
+        subgraphNode.SourceId.Should().Be("corp");
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.Contains);
+    }
+
+    [Fact]
+    public void Compile_trims_corporate_subgraph_label_on_member_trust_boundary_metadata_when_subgraph_label_has_surrounding_whitespace()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "  Corporate network  ",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "corp",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        StructuredDiagramGraphCompileResult result = new ArchitectureDiagramToGraphCompiler().Compile(
+            model,
+            CreateDefaultCompileOptions());
+
+        GraphNode apiNode = result.Snapshot.Nodes.Single(node => node.SourceId == "api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
+            .Should().Be("Corporate network");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphLabel]
+            .Should().Be("Corporate network");
     }
 
     [Fact]
@@ -342,5 +771,16 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
         result.Warnings.Should().BeEmpty();
         result.Snapshot.Nodes.Should().BeEmpty();
         result.Snapshot.Edges.Should().BeEmpty();
+    }
+
+    private static StructuredDiagramGraphCompileOptions CreateDefaultCompileOptions()
+    {
+        return new StructuredDiagramGraphCompileOptions
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+        };
     }
 }

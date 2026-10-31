@@ -16,7 +16,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { degradedExecutionAgentsTooltip } from "@/lib/runs/degraded-execution-agents-tooltip";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -424,13 +424,7 @@ export function RunDetailPageHeader({
                 <StatusTag
                   kind="needs-attention"
                   label="Degraded execution"
-                  title={
-                    runSummary.degradedExecutionAgents?.length
-                      ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents
-                          .map((agent) => buyerLabelForAgentType(agent))
-                          .join(", ")}`
-                      : "This architecture review used simulator substitution and/or a degraded LLM execution path."
-                  }
+                  title={degradedExecutionAgentsTooltip(runSummary.degradedExecutionAgents)}
                 />
               ) : null}
               {buyerPolishedShell !== true ? (
@@ -448,13 +442,17 @@ export function RunDetailPageHeader({
                 <code className="break-all font-mono">{runId}</code>
                 <CopyIdButton value={runId} aria-label="Copy review ID" />
               </span>
-              {trimmedManifestId.length > 0 ? (
-                <span className="inline-flex min-w-0 items-center gap-1">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Review record ID</span>
-                  <code className="break-all font-mono">{trimmedManifestId}</code>
-                  <CopyIdButton value={trimmedManifestId} aria-label="Copy review record ID" />
-                </span>
-              ) : null}
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review record ID</span>
+                {trimmedManifestId.length > 0 ? (
+                  <>
+                    <code className="break-all font-mono">{trimmedManifestId}</code>
+                    <CopyIdButton value={trimmedManifestId} aria-label="Copy review record ID" />
+                  </>
+                ) : (
+                  <span>Review record ID was not stored.</span>
+                )}
+              </span>
             </div>
           ) : null}
         </div>

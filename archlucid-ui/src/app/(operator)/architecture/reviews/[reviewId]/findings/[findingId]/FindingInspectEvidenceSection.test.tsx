@@ -94,7 +94,7 @@ describe("FindingInspectEvidenceSection", () => {
           policy: null,
           evidence: [
             {
-              label: "Open diagram shape api",
+              label: "Cited shape id api. A display name was not stored.",
               detail: "diagram:evidence-mermaid-1:api",
               href: "#diagram-citation-preview",
               diagramCitation: {
@@ -110,7 +110,7 @@ describe("FindingInspectEvidenceSection", () => {
     const link = screen.getByTestId("finding-diagram-citation-link");
 
     expect(link).toHaveAttribute("href", expect.stringContaining("diagramCitationPreview=evidence-mermaid-1%7Capi"));
-    expect(link).toHaveTextContent("Open diagram shape api");
+    expect(link).toHaveTextContent("Cited shape id api. A display name was not stored.");
   });
 
   it("keeps evidence-only layout when no policy context is available", () => {
@@ -183,6 +183,54 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.queryByText("Open diagram-1")).not.toBeInTheDocument();
   });
 
+  it("labels stored artifact links when href is present", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review summary"
+        evidence={[
+          {
+            artifactId: "diagram-1",
+            lineRange: null,
+            excerpt: "Public ingress on port 443",
+          },
+        ]}
+        citationModel={{
+          pack: null,
+          policy: null,
+          evidence: [
+            {
+              label: "",
+              detail: null,
+              href: "/architecture/reviews/run-1/evidence/diagram-1",
+              diagramCitation: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Open evidence artifact diagram-1")).toBeInTheDocument();
+    expect(screen.queryByText("Evidence link was not stored.")).not.toBeInTheDocument();
+  });
+
+  it("labels omitted evidence list separately from stored-empty list", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[]}
+        evidenceListReturned={false}
+      />,
+    );
+
+    expect(screen.getByText("Evidence list was not stored.")).toBeInTheDocument();
+  });
+
   it("does not render demo citation scaffold when evidence is empty (P-09)", () => {
     render(
       <FindingInspectEvidenceSection
@@ -194,7 +242,7 @@ describe("FindingInspectEvidenceSection", () => {
       />,
     );
 
-    expect(screen.getByText("No evidence citations were stored.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence list was stored empty.")).toBeInTheDocument();
     expect(screen.queryByText("Claims intake API schema")).not.toBeInTheDocument();
     expect(screen.queryByText("Open cited evidence")).not.toBeInTheDocument();
   });

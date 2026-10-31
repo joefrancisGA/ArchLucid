@@ -7,6 +7,11 @@ import { coercePolicyRuleIdFromFindingWire } from "@/lib/findings/finding-policy
 import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-wire-snapshots";
 import {
+  readArchitectureIntelligenceHumanReviewStoredFromWire,
+  readArchitectureIntelligenceSeverityStoredFromWire,
+} from "@/lib/architecture/architecture-intelligence-finding-wire-honesty";
+import { resolveQuickDecisionFindingPresentation } from "@/lib/quick-decision-finding-wire-fields";
+import {
   coerceArchitectureFindingSeverity,
   normalizeFindingHumanReviewStatus,
 } from "@/lib/quick-decision-severity-labels";
@@ -38,6 +43,8 @@ export type QuickDecisionFinding = {
   iacStub?: string | null;
   /** Governance tier: blocking violations vs opt-in baseline guidance. */
   enforcementTier: FindingEnforcementTierKind;
+  /** False when the run-detail finding row omitted `enforcementTier` (default enum is not a stored fact). */
+  enforcementTierStored?: boolean;
   /** Normalized evidence ref excerpts for TB-385 inline display. */
   evidenceRefSnippets?: readonly string[];
   /** Persisted insight-density score when present on the wire. */
@@ -52,10 +59,16 @@ export type QuickDecisionFinding = {
   trustLabelReason?: string | null;
   /** Operator-assigned remediation owner (TB-395 `Finding.AssignedToUserId`); raw user id/email, no display-name lookup. */
   assignedToUserId?: string | null;
+  /** Summarized ITSM ticket linkage when stored on the finding row (governance queue parity). */
+  itsmLinkedTicketsSummary?: string | null;
   /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
-  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
-  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** False when the run-detail finding row omitted `humanReviewStatus` (default enum is not a stored fact). */
+  humanReviewStatusStored?: boolean;
+  /** False when the run-detail finding row omitted `severity` (default enum is not a stored fact). */
+  severityStored?: boolean;
+  /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage (or unrecognized wire value). */
+  classification?: string | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
   /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
@@ -116,7 +129,11 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
   const title = titleRaw.length > 0 ? titleRaw : "Finding title was not stored";
-  const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
+  const traceLabel =
+    typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
+      ? row.traceConfidenceLabel.trim()
+      : null;
+  const recommendation = "";
   const ruleIdRaw = typeof row.ruleId === "string" ? row.ruleId.trim() : "";
   let wireJson: string;
 
@@ -137,15 +154,12 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
     recommendation,
     severityValue: severityValueFromTraceRow(row),
     findingOrder: order,
-    aiReasoning: { wireJson, reasoningTrace: recommendation },
+    aiReasoning: { wireJson, reasoningTrace: traceLabel ?? "" },
     isMuted: false,
     muteReason: null,
     confidenceLevel: normalizeConfidenceLevelFromWire(row.confidenceLevel),
     evaluationConfidenceScore: normalizeEvaluationConfidenceScore(row.evaluationConfidenceScore),
-    traceConfidenceLabel:
-      typeof row.traceConfidenceLabel === "string" && row.traceConfidenceLabel.trim().length > 0
-        ? row.traceConfidenceLabel.trim()
-        : null,
+    traceConfidenceLabel: traceLabel,
     evidenceRefCount,
     enforcementTier: "PolicyViolation",
     policyRuleId: ruleIdRaw.length > 0 ? ruleIdRaw : null,
@@ -157,9 +171,8 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
 /**
  * Flattens agent results findings from run detail (no extra HTTP calls).
- * Title uses the stored message and does not substitute category or finding id
- * when the message is absent.
- * Recommendation prefers `reasoningTrace`.
+ * Title prefers stored `title`, then `message`. Recommendation prefers `message` when
+ * both title and message exist; otherwise `recommendedActions`, `rationale`, then `reasoningTrace`.
  */
 export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): QuickDecisionFinding[] {
   const raw = detail as Record<string, unknown>;
@@ -202,9 +215,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const findingId = findingIdRaw;
 
-      const message = typeof fr.message === "string" ? fr.message.trim() : "";
-      const category = typeof fr.category === "string" ? fr.category.trim() : "";
-      const title = message.length > 0 ? message : "Finding title was not stored";
+      const categoryRaw = fr.category;
+      let category: string | null = null;
+
+      if (categoryRaw === null || categoryRaw === undefined) {
+        category = null;
+      } else if (typeof categoryRaw === "string") {
+        const trimmed = categoryRaw.trim();
+        category = trimmed.length > 0 ? trimmed : "";
+      }
+      const { title, recommendation } = resolveQuickDecisionFindingPresentation(fr);
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
           ? fr.reasoningTrace.trim()
@@ -218,7 +238,17 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         wireJson = '{"error":"finding_payload_not_json_serializable"}';
       }
 
-      const severityValue = coerceArchitectureFindingSeverity(fr.severity);
+      const architectureIntelligenceSeverityStored =
+        readArchitectureIntelligenceSeverityStoredFromWire(wireJson);
+      const architectureIntelligenceHumanReviewStored =
+        readArchitectureIntelligenceHumanReviewStoredFromWire(wireJson);
+
+      const severityStored =
+        architectureIntelligenceSeverityStored !== undefined
+          ? architectureIntelligenceSeverityStored
+          : fr.severity !== null && fr.severity !== undefined
+          && (typeof fr.severity !== "string" || fr.severity.trim().length > 0);
+      const severityValue = severityStored ? coerceArchitectureFindingSeverity(fr.severity) : null;
 
       const isMuted = fr.isMuted === true;
 
@@ -245,7 +275,14 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const iacStub =
         typeof iacStubRaw === "string" && iacStubRaw.trim().length > 0 ? iacStubRaw.trim() : null;
 
-      const enforcementTier: FindingEnforcementTierKind = normalizeFindingEnforcementTier(fr.enforcementTier);
+      const enforcementTierStored =
+        typeof fr.enforcementTierStored === "boolean"
+          ? fr.enforcementTierStored
+          : fr.enforcementTier !== null && fr.enforcementTier !== undefined
+            && (typeof fr.enforcementTier !== "string" || fr.enforcementTier.trim().length > 0);
+      const enforcementTier: FindingEnforcementTierKind = enforcementTierStored
+        ? normalizeFindingEnforcementTier(fr.enforcementTier)
+        : null;
 
       const insightDensityRaw = fr.insightDensityScore;
       const insightDensityScore =
@@ -275,13 +312,26 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? assignedToUserIdRaw.trim()
           : null;
 
-      const humanReviewStatus = normalizeFindingHumanReviewStatus(fr.humanReviewStatus);
+      const humanReviewStatusStored =
+        architectureIntelligenceHumanReviewStored !== undefined
+          ? architectureIntelligenceHumanReviewStored
+          : fr.humanReviewStatus !== null && fr.humanReviewStatus !== undefined
+          && (typeof fr.humanReviewStatus !== "string" || fr.humanReviewStatus.trim().length > 0);
+      const humanReviewStatus = humanReviewStatusStored
+        ? normalizeFindingHumanReviewStatus(fr.humanReviewStatus)
+        : null;
 
       const classificationRaw = fr.classification;
-      const classification =
-        classificationRaw === "DecisionGradeFinding" || classificationRaw === "ChecklistCoverage"
-          ? classificationRaw
-          : null;
+      let classification: string | null = null;
+
+      if (classificationRaw !== null && classificationRaw !== undefined) {
+        if (typeof classificationRaw === "string") {
+          const trimmed = classificationRaw.trim();
+          classification = trimmed.length > 0 ? trimmed : null;
+        } else {
+          classification = String(classificationRaw);
+        }
+      }
 
       const treatmentRaw = fr.treatment;
       const treatment =
@@ -297,9 +347,15 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       out.push({
         findingId,
         title,
-        category: category.length > 0 ? category : null,
-        recommendation: reasoning,
+        category:
+          category === null
+            ? null
+            : category.length > 0
+              ? category
+              : "",
+        recommendation,
         severityValue,
+        severityStored,
         findingOrder: order++,
         aiReasoning: { wireJson, reasoningTrace: reasoning },
         isMuted,
@@ -311,6 +367,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         evidenceRefSnippets: collectEvidenceRefSnippets(evidenceRefsRaw),
         iacStub,
         enforcementTier,
+        enforcementTierStored,
         insightDensityScore,
         whyThisIsNotGeneric,
         policyRuleId,
@@ -318,6 +375,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         trustLabelReason,
         assignedToUserId,
         humanReviewStatus,
+        humanReviewStatusStored,
         classification,
         treatment,
         semanticSupportBand,

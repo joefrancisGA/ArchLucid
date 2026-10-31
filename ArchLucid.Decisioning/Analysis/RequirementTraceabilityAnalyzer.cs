@@ -20,6 +20,8 @@ public static class RequirementTraceabilityAnalyzer
 
         foreach (GraphNode requirement in requirementNodes)
         {
+            string requirementLabel = GraphNodeReviewerLabel.ForFindingTitle(requirement.Label);
+
             List<GraphNode> relatedTopology = graphSnapshot
                 .GetOutgoingTargets(
                     requirement.NodeId,
@@ -33,9 +35,9 @@ public static class RequirementTraceabilityAnalyzer
                 gaps.Add(new RequirementTraceabilityGap
                 {
                     GapCode = "requirement-without-topology-link",
-                    Title = $"Requirement '{requirement.Label}' is not linked to topology resources",
+                    Title = $"Requirement '{requirementLabel}' is not linked to topology resources",
                     Rationale = "No RELATES_TO edge connects this requirement to any TopologyResource node.",
-                    Description = $"Requirement '{requirement.Label}' cannot be traced to architecture resources in the graph.",
+                    Description = $"Requirement '{requirementLabel}' cannot be traced to architecture resources in the graph.",
                     Impact = "Reviewers cannot verify that this requirement is reflected in the scoped architecture.",
                     RelatedNodeIds = [requirement.NodeId]
                 });
@@ -46,9 +48,9 @@ public static class RequirementTraceabilityAnalyzer
                 gaps.Add(new RequirementTraceabilityGap
                 {
                     GapCode = "requirement-without-text",
-                    Title = $"Requirement '{requirement.Label}' has no requirement text",
+                    Title = $"Requirement '{requirementLabel}' has no requirement text",
                     Rationale = "The requirement node is missing non-empty text in graph properties.",
-                    Description = $"Requirement '{requirement.Label}' cannot be reviewed without captured requirement text.",
+                    Description = $"Requirement '{requirementLabel}' cannot be reviewed without captured requirement text.",
                     Impact = "Decisioning cannot compare manifest outcomes against an explicit requirement statement.",
                     RelatedNodeIds = [requirement.NodeId]
                 });

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 
@@ -15,6 +16,8 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
 
     public const string PromptConstraintPrefix =
         "Semantic support band honesty (AS-069 / ADR 0085):";
+
+    public const string FindingTitleNotStored = "Finding title was not stored.";
 
     public sealed record FindingBandIndexEntry(string FindingId, string Title, FindingSemanticSupportBand Band);
 
@@ -142,7 +145,7 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
         foreach (FindingBandIndexEntry entry in index)
         {
             lines.Add(
-                $"- {entry.FindingId}: {entry.Band} — {entry.Title}");
+                $"- {entry.FindingId}: {FormatBandForPrompt(entry.Band)} — {entry.Title}");
         }
 
         return string.Join(Environment.NewLine, lines) + Environment.NewLine;
@@ -156,7 +159,7 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
         }
 
         return
-            $"Cited findings inherit the weakest semantic support band: {weakestBand.Value}. " +
+            $"Cited findings inherit the weakest semantic support band: {FormatBandForPrompt(weakestBand.Value)}. " +
             "Ask cannot sound more certain than that band. " +
             NotSealedRecordCopy;
     }
@@ -221,16 +224,26 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
 
         if (title.Length > 0)
         {
-            return title.Length <= 96 ? title : string.Concat(title.AsSpan(0, 93), "...");
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(title, FindingTitleNotStored);
         }
 
         string rationale = finding.Rationale?.Trim() ?? string.Empty;
 
         if (rationale.Length > 0)
         {
-            return rationale.Length <= 96 ? rationale : string.Concat(rationale.AsSpan(0, 93), "...");
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(rationale, FindingTitleNotStored);
         }
 
-        return finding.FindingId?.Trim() ?? "finding";
+        return FindingTitleNotStored;
     }
+
+    public static string FormatBandForPrompt(FindingSemanticSupportBand band) =>
+        band switch
+        {
+            FindingSemanticSupportBand.Supported => "Supported",
+            FindingSemanticSupportBand.Unchecked => "Unchecked",
+            FindingSemanticSupportBand.Unsupported => "Unsupported",
+            FindingSemanticSupportBand.NotScored => "Not scored",
+            _ => "Semantic support band was not stored.",
+        };
 }

@@ -245,7 +245,7 @@ public sealed class AuditEvidenceLineageService(
             return new AuditEvidenceLineageQueryResult
             {
                 Succeeded = false,
-                ErrorMessage = ex.Message,
+                ErrorMessage = "Audit evidence lineage could not be retrieved. Contact support with the request reference.",
             };
         }
     }

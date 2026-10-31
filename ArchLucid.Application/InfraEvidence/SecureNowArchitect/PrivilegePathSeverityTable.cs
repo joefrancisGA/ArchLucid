@@ -17,13 +17,24 @@ public static class PrivilegePathSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "Medium",
-                BusinessCriticality = "Unknown",
-                BlastRadius = "Unknown",
+                Severity = string.Empty,
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 
         string normalizedRole = roleName?.Trim() ?? string.Empty;
+
+        if (normalizedRole.Length == 0)
+        {
+            return new PrivilegePathSeverityResult
+            {
+                Severity = string.Empty,
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
+            };
+        }
+
         string severity = ResolveBaseSeverity(normalizedRole);
 
         if (scopeTaggedProduction && IsElevatedRole(normalizedRole))
@@ -34,8 +45,12 @@ public static class PrivilegePathSeverityTable
         return new PrivilegePathSeverityResult
         {
             Severity = severity,
-            BusinessCriticality = scopeTaggedProduction ? "Production" : "Unknown",
-            BlastRadius = IsElevatedRole(normalizedRole) ? "Elevated" : "Standard",
+            BusinessCriticality = scopeTaggedProduction
+                ? "Production"
+                : FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+            BlastRadius = scopeTaggedProduction && IsElevatedRole(normalizedRole)
+                ? "Elevated"
+                : FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
     }
 
@@ -64,7 +79,7 @@ public static class PrivilegePathSeverityTable
             return "Medium";
         }
 
-        return "Medium";
+        return string.Empty;
     }
 
     private static bool IsElevatedRole(string roleName) =>

@@ -1,8 +1,11 @@
 import {
+  INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND,
+  INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
   INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
+  INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -50,15 +53,27 @@ export const INFRA_EVIDENCE_PNG_RESOURCE_GROUP_SCOPE_NOT_STORED =
 export const INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED =
   "Dependency neighborhood starting resource was not stored." as const;
 
+export const INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED =
+  "Starting resource name was not stored." as const;
+
 export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
   readonly completenessWarnings: readonly string[];
   readonly snapshotLabel?: string | null;
   readonly resourceGroupScopeName?: string | null;
-  readonly dependencyNeighborhoodSeedLabel?: string | null;
+  readonly dependencyNeighborhoodSeedId?: string | null;
+  readonly dependencyNeighborhoodSeedDisplayName?: string | null;
   readonly layoutSvg?: string | null;
+  readonly executiveOverflowStripped?: boolean;
+  readonly includePrivateEndpointNodes?: boolean;
 };
+
+const EXECUTIVE_OVERFLOW_PNG_READING_LINE =
+  "Executive overflow rollups and unresolved policy outlines stay in Mermaid but are not painted on this PNG." as const;
+
+const PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE =
+  "Private endpoint links show inventory reachability for all stored connection statuses — not observed traffic." as const;
 
 function pngSnapshotLabelLine(snapshotLabel: string | null | undefined): string {
   const trimmed = snapshotLabel?.trim() ?? "";
@@ -84,46 +99,63 @@ function pngResourceGroupScopeLine(resourceGroupScopeName: string | null | undef
   return `Scope: resource group ${trimmed}.`;
 }
 
-function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined): string | null {
-  if (seedLabel === null || seedLabel === undefined) {
+function pngDependencyNeighborhoodScopeLine(
+  seedId: string | null | undefined,
+  seedDisplayName: string | null | undefined,
+): string | null {
+  if (seedId === null || seedId === undefined) {
     return null;
   }
 
-  const trimmed = seedLabel.trim();
+  const trimmedId = seedId.trim();
 
-  if (trimmed.length === 0) {
+  if (trimmedId.length === 0) {
     return INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED;
   }
 
-  return `Scope: dependency neighborhood from ${trimmed}.`;
-}
+  const trimmedName = seedDisplayName?.trim() ?? "";
 
-function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
-  return (
-    outline?.edges.some(
-      (edge) =>
-        edge.source === "observed"
-        && (edge.provenanceKind?.trim().toLowerCase() ?? "") === "observedfact",
-    ) === true
-  );
+  if (trimmedName.length === 0) {
+    return `${INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED} Seed id: ${trimmedId}.`;
+  }
+
+  return `Scope: neighbors of ${trimmedName} on cited lines.`;
 }
 
 const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
   "inventory-static-site-backend",
   "inventory-fabric-capacity-workspace",
   "inventory-diagnostic-setting-storage",
+  "inventory-logic-app-connection",
+  "inventory-aks-service-lb",
+  "inventory-nsp-association",
+  "inventory-node-pool",
+  "inventory-ampls-scoped-resource",
 ]);
+
+function isConfigurationRelationshipEdge(
+  edge: InfraEvidenceMermaidOutline["edges"][number],
+): boolean {
+  const source = edge.inferenceSource?.trim().toLowerCase() ?? "";
+
+  return CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES.has(source);
+}
+
+function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
+  return (
+    outline?.edges.some(
+      (edge) =>
+        !isConfigurationRelationshipEdge(edge)
+        && edge.source === "observed"
+        && (edge.provenanceKind?.trim().toLowerCase() ?? "") === "observedfact",
+    ) === true
+  );
+}
 
 function hasConfigurationRelationshipEdges(
   outline: InfraEvidenceMermaidOutline | null | undefined,
 ): boolean {
-  return (
-    outline?.edges.some((edge) => {
-      const source = edge.inferenceSource?.trim().toLowerCase() ?? "";
-
-      return CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES.has(source);
-    }) === true
-  );
+  return outline?.edges.some((edge) => isConfigurationRelationshipEdge(edge)) === true;
 }
 
 export function buildInfraEvidencePngReadingStripLines(
@@ -141,7 +173,10 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push(resourceGroupScopeLine);
   }
 
-  const dependencyScopeLine = pngDependencyNeighborhoodScopeLine(input.dependencyNeighborhoodSeedLabel);
+  const dependencyScopeLine = pngDependencyNeighborhoodScopeLine(
+    input.dependencyNeighborhoodSeedId,
+    input.dependencyNeighborhoodSeedDisplayName,
+  );
 
   if (dependencyScopeLine !== null) {
     lines.push(dependencyScopeLine);
@@ -154,14 +189,21 @@ export function buildInfraEvidencePngReadingStripLines(
   } else if (input.mode === "dataFlow") {
     lines.push("This diagram shows what may connect. It is not observed traffic.");
   } else if (input.mode === "dataArchitecture") {
-    lines.push("This diagram shows what stores data. It is not observed traffic.");
+    lines.push(INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND);
+  } else if (input.mode === "network") {
+    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE);
+  } else if (input.mode === "businessContinuity") {
+    lines.push(INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND);
   } else if (
-    input.mode === "network" ||
     input.mode === "executive" ||
     input.mode === "identity" ||
     input.mode === "data"
   ) {
     lines.push(INVENTORY_STRUCTURE_MODE_READING_SENTENCE);
+
+    if (input.mode === "executive" && input.executiveOverflowStripped === true) {
+      lines.push(EXECUTIVE_OVERFLOW_PNG_READING_LINE);
+    }
   } else {
     const inventoryModeLine = resolveInventoryStructureModeReadingLine(input.mode);
 
@@ -200,6 +242,10 @@ export function buildInfraEvidencePngReadingStripLines(
     if (hasInfraEvidenceUnclassifiedDiagramEdges(input.outline, null)) {
       lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE);
     }
+  }
+
+  if (input.includePrivateEndpointNodes === true) {
+    lines.push(PRIVATE_ENDPOINT_ALL_STATUSES_TRAFFIC_HEDGE);
   }
 
   if (input.completenessWarnings.length > 0) {

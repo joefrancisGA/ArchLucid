@@ -66,15 +66,23 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void From_deterministic_inference_app_setting_host_returns_declared()
+    public void From_deterministic_inference_app_setting_host_returns_inferred()
     {
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
             .Should()
-            .Be(DiagramEdgeVisualKind.Declared);
+            .Be(DiagramEdgeVisualKind.Inferred);
 
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryStorageHostRef)
             .Should()
-            .Be(DiagramEdgeVisualKind.Declared);
+            .Be(DiagramEdgeVisualKind.Inferred);
+    }
+
+    [Fact]
+    public void From_blank_provenance_and_unknown_inference_returns_unclassified()
+    {
+        DiagramEdgeVisualKindResolver.From(null, "not-a-known-source")
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
     }
 
     [Fact]
@@ -98,7 +106,7 @@ public sealed class DiagramEdgeVisualKindResolverTests
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Inferred)
             .Should()
-            .Be("Relationship verb was not stored.");
+            .Be("Relationship was not stored.");
     }
 
     [Fact]
@@ -110,10 +118,20 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void Build_probable_empty_verb_uses_probable_headline()
+    public void Build_probable_empty_verb_uses_relationship_omission_sentence()
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Probable)
             .Should()
-            .Be("probable");
+            .Be("Relationship was not stored.");
+    }
+
+    [Fact]
+    public void Build_inferred_app_settings_verb_omits_likely_prefix()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build(
+                "Named in app settings. This is not a declared connection.",
+                DiagramEdgeVisualKind.Inferred)
+            .Should()
+            .Be("Named in app settings. This is not a declared connection.");
     }
 }

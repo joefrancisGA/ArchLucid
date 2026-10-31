@@ -1,3 +1,4 @@
+import { formatPeopleAndSystemsActorKindOmissionNote } from "@/lib/architecture/architecture-diagram-copy";
 import { demoteOpenQuestionsStructuredSectionProvenance } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import {
   appendEntity,
@@ -152,12 +153,20 @@ export function splitSourceIntoSectionBlocks(sourceText: string): Array<{ readon
   return blocks;
 }
 
+function isStoredPeopleAndSystemsKind(kind: string): boolean {
+  const trimmed = kind.trim();
+
+  return trimmed === "Human" || trimmed === "Machine" || trimmed === "Both";
+}
+
 export function mergeUserAssertions(
   drafts: Map<ArchitectureStructuredSectionKey, MutableSectionDraft>,
   assertions: ArchitectureCreationUserAssertions | null,
-): void {
+): readonly string[] {
+  const diagramHonestyNotes: string[] = [];
+
   if (assertions === null) {
-    return;
+    return diagramHonestyNotes;
   }
 
   const overview = assertions.architectureOverview.trim();
@@ -172,12 +181,6 @@ export function mergeUserAssertions(
       draft.provenance = "asserted";
     }
 
-    const scopeDraft = drafts.get("scope");
-
-    if (scopeDraft !== undefined && scopeDraft.narrativeLines.length === 0 && scopeDraft.entities.length === 0) {
-      scopeDraft.narrativeLines.push(overview);
-      scopeDraft.provenance = "asserted";
-    }
   }
 
   if (outcome.length > 0) {
@@ -194,6 +197,11 @@ export function mergeUserAssertions(
     const kind = entry.kind.trim();
 
     if (label.length === 0) {
+      continue;
+    }
+
+    if (!isStoredPeopleAndSystemsKind(kind)) {
+      diagramHonestyNotes.push(formatPeopleAndSystemsActorKindOmissionNote(label));
       continue;
     }
 
@@ -219,24 +227,10 @@ export function mergeUserAssertions(
         appendEntity(systemsDraft, entity);
         systemsDraft.provenance = "asserted";
       }
-
-      const integrationsDraft = drafts.get("external-integrations");
-
-      if (integrationsDraft !== undefined) {
-        appendEntity(integrationsDraft, entity);
-        integrationsDraft.provenance = "asserted";
-      }
     }
   }
 
-  if (name.length > 0 && name.toLowerCase() !== "untitled architecture") {
-    const systemsDraft = drafts.get("systems-and-services")!;
-
-    if (!systemsDraft.entities.some((entity) => entity.label.toLowerCase() === name.toLowerCase())) {
-      appendEntity(systemsDraft, { label: name, detail: "Primary system", provenance: "asserted" });
-      systemsDraft.provenance = "asserted";
-    }
-  }
+  return diagramHonestyNotes;
 }
 
 export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, MutableSectionDraft>): ArchitectureStructuredSection[] {
@@ -251,13 +245,18 @@ export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, M
       continue;
     }
 
+    const sectionProvenance =
+      draft.provenance === "asserted" && narrativeMarkdown.length === 0 && entities?.every((e) => e.provenance === "inferred") === true
+        ? "inferred"
+        : draft.provenance;
+
     sections.push(
       demoteOpenQuestionsStructuredSectionProvenance({
         key,
         title: ARCHITECTURE_STRUCTURED_SECTION_TITLES[key],
         narrativeMarkdown: narrativeMarkdown.length > 0 ? narrativeMarkdown : null,
         ...(entities === undefined ? {} : { entities }),
-        provenance: draft.provenance,
+        provenance: sectionProvenance,
       }),
     );
   }

@@ -174,7 +174,9 @@ export function ReviewPackageSponsorHandoffStrip(
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
       <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
-        {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
+        {!lowExtractionConfidenceCountKnown
+          ? "A sponsor download is not available until the low-confidence field count loads."
+          : RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
       {!lowExtractionConfidenceCountKnown ? (
@@ -204,8 +206,8 @@ export function ReviewPackageSponsorHandoffStrip(
               {EXTRACTION_FIDELITY_GATE_MESSAGE}
             </Label>
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              {lowExtractionConfidenceCount} critical finding
-              {lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence.
+              {lowExtractionConfidenceCount} high or critical finding
+              {lowExtractionConfidenceCount === 1 ? "" : "s"} were stored with Low confidence.
             </p>
           </div>
         </div>

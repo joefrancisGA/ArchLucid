@@ -45,7 +45,7 @@ describe("semantic support band presentation (AS-061)", () => {
     expect(
       findingSemanticSupportBandFromTypedPayload({ semanticSupportBand: "Supported" }, "DecisionGradeFinding"),
     ).toBe("Supported");
-    expect(findingSemanticSupportBandFromTypedPayload(null, "DecisionGradeFinding")).toBe("NotScored");
+    expect(findingSemanticSupportBandFromTypedPayload(null, "DecisionGradeFinding")).toBeNull();
     expect(findingSemanticSupportBandFromTypedPayload(null, "ChecklistCoverage")).toBeNull();
   });
 });

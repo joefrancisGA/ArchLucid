@@ -100,7 +100,22 @@ public sealed partial class PreFinalizeChecklistService
                         latestDispositionsByFindingId)))
             .ToList();
 
-        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
+        IReadOnlyList<Finding>? linkageGaps =
+            _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings);
+
+        if (linkageGaps is null)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "evidence-linkage-gaps",
+                Title = "Finding evidence linkage",
+                Detail = "Evidence linkage gap count was not returned — not the same as zero gaps after disposition.",
+                Status = PreFinalizeChecklistItemStatus.Advisory,
+                Count = 0,
+            };
+        }
+
+        int linkageGapCount = linkageGaps.Count;
 
         return new PreFinalizeChecklistItem
         {

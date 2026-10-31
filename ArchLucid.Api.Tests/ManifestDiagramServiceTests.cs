@@ -270,14 +270,13 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("Trust:");
         mermaid.Should().Contain("Requirement:");
         mermaid.Should().Contain("Decision:");
-        mermaid.Should().Contain("-.->");
+        mermaid.Should().NotContain("-.->");
     }
 
     [SkippableFact]
     public void GenerateMermaid_WithSemanticOverlay_FallsBackToGovernanceWhenDiagramSemanticsEmpty()
     {
         GoldenManifest manifest = CreateMinimalManifest();
-        manifest.Governance.PolicyConstraints.Add("Encrypt data at rest");
         manifest.Governance.RequiredControls.Add("MFA for admins");
         manifest.Metadata.DecisionTraceIds.Add("decision-trace-1");
 
@@ -287,8 +286,9 @@ public sealed class ManifestDiagramServiceTests
 
         mermaid.Should().Contain("subgraph requirements");
         mermaid.Should().Contain("subgraph decisions");
-        mermaid.Should().Contain("Encrypt data at rest");
-        mermaid.Should().Contain("Decision trace:");
+        mermaid.Should().Contain("Control: MFA for admins");
+        mermaid.Should().Contain("Decision title was not stored.");
+        mermaid.Should().Contain("Decision trace: decision-trace-1");
     }
 
     [SkippableFact]

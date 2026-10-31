@@ -13,7 +13,7 @@ export type InventoryDemoScenarioPickerLayout = "grid" | "stack";
 
 export type InventoryDemoScenarioPickerProps = {
   platform: CloudInventoryPlatform;
-  selectedScenarioId: InventoryDemoScenarioId;
+  selectedScenarioId: InventoryDemoScenarioId | null;
   onSelectScenario: (scenarioId: InventoryDemoScenarioId) => void;
   /** Use `stack` inside narrow setup asides (~17.5rem); default `grid` for full-width surfaces. */
   layout?: InventoryDemoScenarioPickerLayout;

@@ -16,4 +16,22 @@ public sealed class AwsResourceExplorerQueryStringTests
         AwsResourceExplorerQueryString.ResolveForRegion("cn-northwest-1")
             .Should().Be("arn:aws-cn:*");
     }
+
+    [Fact]
+    public void ResolveForRegion_throws_when_region_is_whitespace_only()
+    {
+        Action act = () => AwsResourceExplorerQueryString.ResolveForRegion("   ");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void ResolveForRegion_trims_bounding_whitespace_before_partition_resolution()
+    {
+        AwsResourceExplorerQueryString.ResolveForRegion("  cn-north-1  ")
+            .Should().Be("arn:aws-cn:*");
+
+        AwsResourceExplorerQueryString.ResolveForRegion("\tus-gov-west-1\n")
+            .Should().Be("arn:aws-us-gov:*");
+    }
 }

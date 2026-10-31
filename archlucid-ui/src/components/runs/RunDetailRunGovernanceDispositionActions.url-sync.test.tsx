@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -44,8 +44,10 @@ const searchParamsHarness = vi.hoisted(() => {
   };
 });
 
+const pathnameMock = vi.hoisted(() => ({ value: "/architecture/reviews/run-abc" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/architecture/reviews/run-abc",
+  usePathname: () => pathnameMock.value,
   useRouter: () => ({ refresh: vi.fn() }),
   useSearchParams: () => new URLSearchParams(searchParamsHarness.state.query),
 }));
@@ -63,6 +65,7 @@ function SearchParamsRerenderHost({ children }: { readonly children: ReactNode }
 describe("RunDetailRunGovernanceDispositionActions URL sync", () => {
   beforeEach(() => {
     searchParamsHarness.reset();
+    pathnameMock.value = "/architecture/reviews/run-abc";
     window.history.replaceState({}, "", "/architecture/reviews/run-abc");
   });
 
@@ -92,5 +95,28 @@ describe("RunDetailRunGovernanceDispositionActions URL sync", () => {
     });
 
     expect(vi.mocked(recordRunOperatorGovernanceDisposition)).not.toHaveBeenCalled();
+  });
+
+  it("writes governance disposition confirm from useSearchParams when window.location.search lags after soft navigation", async () => {
+    searchParamsHarness.state.query = "reviewTab=overview";
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-a?reviewTab=findings&q=stale-payment",
+    );
+
+    render(
+      <SearchParamsRerenderHost>
+        <RunDetailRunGovernanceDispositionActions runId="run-abc" hasCommitBlockingFailures={false} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Approve review" }));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-abc?reviewTab=overview&${RUN_GOVERNANCE_DISP_DECISION_PARAM}=approved`,
+      );
+    });
   });
 });

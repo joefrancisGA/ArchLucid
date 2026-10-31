@@ -54,7 +54,9 @@ describe("RunDetailRunMetadataSection", () => {
     );
 
     expect(screen.getByText("Description was not stored.")).toBeInTheDocument();
-    expect(screen.queryByTestId("run-detail-retry-count-not-stored")).toBeNull();
+    expect(screen.getByTestId("run-detail-retry-count-stored-zero")).toHaveTextContent(
+      "Retry count: 0. No re-attempt was stored.",
+    );
 
     rerender(
       <RunDetailRunMetadataSection
@@ -70,6 +72,23 @@ describe("RunDetailRunMetadataSection", () => {
     );
 
     expect(screen.queryByText("Description was not stored.")).toBeNull();
-    expect(screen.queryByTestId("run-detail-retry-count-not-stored")).toBeNull();
+    expect(screen.getByTestId("run-detail-retry-count-stored-zero")).toBeInTheDocument();
+  });
+
+  it("labels missing creation trace when otelTraceId is absent", () => {
+    render(
+      <RunDetailRunMetadataSection
+        run={{
+          runId: "abc",
+          projectId: "p1",
+          createdUtc: "2026-01-01T00:00:00Z",
+        }}
+        runDetailTraceId={null}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-creation-trace-not-stored")).toHaveTextContent(
+      "Creation trace was not stored.",
+    );
   });
 });

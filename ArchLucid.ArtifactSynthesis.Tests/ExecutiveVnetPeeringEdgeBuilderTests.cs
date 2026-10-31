@@ -58,9 +58,9 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge peering = ast.Edges.Single();
-        peering.Label.Should().Be("peering");
+        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringStoredConnectedStateNotStored);
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
-        peering.ProvenanceKind.Should().Be("ObservedFact");
+        peering.ProvenanceKind.Should().Be("DerivedFact");
     }
 
     [Fact]
@@ -134,7 +134,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
         GraphNode left = CreateVnetGraphNode("graph-a", vnetAArmId);
         GraphNode right = CreateVnetGraphNode("graph-b", vnetBArmId);
         left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
-            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
+            "[{\"properties\":{\"peeringState\":\"Connected\",\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
         GraphSnapshot graph = new();
         graph.Nodes.Add(left);
         graph.Nodes.Add(right);
@@ -150,9 +150,27 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             });
 
         DiagramEdge peering = ast.Edges.Should().ContainSingle().Subject;
-        peering.Label.Should().Be("peering");
+        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.Peered);
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
         peering.ProvenanceKind.Should().Be("ObservedFact");
+    }
+
+    [Fact]
+    public void Apply_preserves_peering_state_omission_label_when_stamping_provenance()
+    {
+        DiagramAst ast = CreateVirtualNetworkPairAst(
+            label: InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
+        GraphSnapshot graph = new();
+
+        ExecutiveVnetPeeringEdgeBuilder.Apply(
+            ast,
+            graph,
+            Array.Empty<GraphNode>(),
+            new Dictionary<string, string>(StringComparer.Ordinal));
+
+        DiagramEdge edge = ast.Edges.Single();
+        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
+        edge.ProvenanceKind.Should().Be("DerivedFact");
     }
 
     private static GraphNode CreateVnetGraphNode(string nodeId, string armId)

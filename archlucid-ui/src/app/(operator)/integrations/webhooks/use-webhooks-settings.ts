@@ -136,14 +136,22 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     mutations.setPendingDisable(null);
     mutations.setEnableErrorMessage(null);
     mutations.setDisableErrorMessage(null);
+    connectionTestResetRef.current();
 
-    return await loadState.load();
+    const refreshed = await loadState.load();
+
+    if (!refreshed) {
+      mutations.setSaveSuccessMessage(null);
+    }
+
+    return refreshed;
   }, [
     loadState.load,
     mutations.setPendingDisable,
     mutations.setPendingEnable,
     mutations.setDisableErrorMessage,
     mutations.setEnableErrorMessage,
+    mutations.setSaveSuccessMessage,
   ]);
 
   const watchedEventTypes = useWatch({ control, name: "eventTypes" });

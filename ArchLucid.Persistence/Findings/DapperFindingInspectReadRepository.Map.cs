@@ -29,6 +29,8 @@ public sealed partial class DapperFindingInspectReadRepository
             row.Title,
             row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
+        bool severityStored = !string.IsNullOrWhiteSpace(row.Severity);
+        bool humanReviewStatusStored = !string.IsNullOrWhiteSpace(row.HumanReviewStatus);
         FindingClassification? classification = FindingInspectReadRepositoryCore.ResolveInspectClassification(
             row.Classification,
             typed);
@@ -49,6 +51,7 @@ public sealed partial class DapperFindingInspectReadRepository
         {
             FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(row.FindingId),
             Severity = recordSeverity,
+            SeverityStored = severityStored,
             TypedPayload = typed,
             Classification = classification,
             Treatment = treatment,
@@ -67,6 +70,7 @@ public sealed partial class DapperFindingInspectReadRepository
             EvaluationConfidenceScore = row.EvaluationConfidenceScore,
             ConfidenceLevel = evaluationLevel,
             HumanReviewStatus = humanReview,
+            HumanReviewStatusStored = humanReviewStatusStored,
             IsMuted = row.IsMuted,
             MuteReason = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.MuteReason),
             ReasoningTrace = FindingInspectReadRepositoryCore.NormalizeInspectDisplayText(row.ReasoningTrace),

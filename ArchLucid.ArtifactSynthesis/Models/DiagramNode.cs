@@ -192,10 +192,38 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Stored private-endpoint resource name when <see cref="HasPrivateEndpointAccess" /> is true.</summary>
+    public string? PrivateEndpointAccessName
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     True when a hidden public IP still marks this compute resource as internet-facing (NR-21).
     /// </summary>
     public bool HasPublicInternetExposure
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Stored public IP address when the public IP card is hidden (NR-21).</summary>
+    public string? HiddenPublicIpAddress
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Data-flow rollup: members stored more than one distinct hidden public IP.</summary>
+    public bool RollupMultipleHiddenPublicIpAddresses
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Data-flow rollup: members stored more than one distinct private endpoint access name.</summary>
+    public bool RollupMultiplePrivateEndpointAccessNames
     {
         get;
         set;

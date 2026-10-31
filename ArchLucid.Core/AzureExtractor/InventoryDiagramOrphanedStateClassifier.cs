@@ -33,7 +33,7 @@ public static class InventoryDiagramOrphanedStateClassifier
 
         Dictionary<string, GraphNode> armIdToGraphNode = BuildArmIdToGraphNodeMap(graph.Nodes);
         Dictionary<string, string> properties = graphNode.Properties;
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(properties);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(properties);
 
         InventoryDiagramConnectionStateResult? orphaned = TryClassifyOrphaned(
             graphNode,
@@ -99,6 +99,17 @@ public static class InventoryDiagramOrphanedStateClassifier
                 [InventoryDiagramConnectionPostureCatalog.AccessConnectorNoWorkspaceCitationDetail]);
         }
 
+        if (armResourceType.Equals("Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase))
+        {
+            if (HasStoredVirtualMachineNetworkPlacement(graphNode, graph, armIdToGraphNode))
+            {
+                return InventoryDiagramConnectionStateResult.None;
+            }
+
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.VirtualMachineNoStoredSubnetPlacementDetail]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
@@ -114,7 +125,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         string armResourceType,
         IReadOnlyDictionary<string, string> properties,
         IReadOnlyDictionary<string, GraphNode> armIdToGraphNode,
-        InventoryDiagramEvidenceCurrency evidenceCurrency)
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         if (!IsCurrentEvidence(evidenceCurrency))
         {
@@ -185,13 +196,18 @@ public static class InventoryDiagramOrphanedStateClassifier
             return TryClassifyOrphanedHostPoolChild(properties, armResourceType, armIdToGraphNode);
         }
 
+        if (armResourceType.Equals("Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase))
+        {
+            return TryClassifyOrphanedVirtualMachine(graphNode, graph, armIdToGraphNode);
+        }
+
         return null;
     }
 
     private static InventoryDiagramConnectionStateResult ClassifyWorkflow(
         GraphNode graphNode,
         IReadOnlyDictionary<string, GraphNode> armIdToGraphNode,
-        InventoryDiagramEvidenceCurrency evidenceCurrency)
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
         if (!IsCurrentEvidence(evidenceCurrency))
         {
@@ -247,7 +263,7 @@ public static class InventoryDiagramOrphanedStateClassifier
 
             string parentName = ReadResourceName(resolved.ParentArmIds[0], "parent resource");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"parent resource {parentName} no longer exists");
+                $"parent resource {parentName} is not in this inventory snapshot.");
         }
 
         string? associatedResourceId = null;
@@ -275,11 +291,11 @@ public static class InventoryDiagramOrphanedStateClassifier
 
             string parentName = ReadResourceName(associatedResourceId, "parent resource");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"parent resource {parentName} no longer exists");
+                $"parent resource {parentName} is not in this inventory snapshot.");
         }
 
         return InventoryDiagramConnectionStateResult.Orphaned(
-            "no IP configuration or parent reference");
+            "No IP configuration or parent reference was stored.");
     }
 
     private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedRouteTable(
@@ -292,7 +308,7 @@ public static class InventoryDiagramOrphanedStateClassifier
 
         if (subnetArmIds.Count == 0)
         {
-            return InventoryDiagramConnectionStateResult.Orphaned("no subnet association");
+            return InventoryDiagramConnectionStateResult.Orphaned("No subnet association was stored.");
         }
 
         foreach (string subnetArmId in subnetArmIds)
@@ -301,7 +317,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 string subnetName = ReadResourceName(subnetArmId, "subnet");
                 return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"associated subnet {subnetName} no longer exists");
+                    $"associated subnet {subnetName} is not in this inventory snapshot.");
             }
         }
 
@@ -315,13 +331,18 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 if (RequiresResolvableNextHop(route))
                 {
+                    if (string.IsNullOrWhiteSpace(route.NextHopIpAddress)
+                        && string.IsNullOrWhiteSpace(route.NextHopType))
+                    {
+                        return InventoryDiagramConnectionStateResult.Orphaned(
+                            "Next hop type was not stored.");
+                    }
+
                     string hopLabel = string.IsNullOrWhiteSpace(route.NextHopIpAddress)
-                        ? string.IsNullOrWhiteSpace(route.NextHopType)
-                            ? "Next hop type was not stored"
-                            : route.NextHopType
+                        ? route.NextHopType!
                         : route.NextHopIpAddress;
                     return InventoryDiagramConnectionStateResult.Orphaned(
-                        $"route next hop {hopLabel} does not resolve");
+                        $"Route next hop {hopLabel} is not a resource in this inventory snapshot.");
                 }
 
                 continue;
@@ -331,7 +352,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 string hopName = ReadResourceName(nextHopArmId, "next hop");
                 return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"route next hop {hopName} no longer exists");
+                    $"route next hop {hopName} is not in this inventory snapshot.");
             }
         }
 
@@ -349,7 +370,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (associations.Count == 0)
         {
             return InventoryDiagramConnectionStateResult.Orphaned(
-                "not associated with a subnet or network interface");
+                "No subnet or network interface association was stored.");
         }
 
         Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
@@ -369,9 +390,9 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 if (!IsArmIdResolvable(association.TargetArmId, armIdToGraphNode))
                 {
-                    string targetName = ReadResourceName(association.TargetArmId, association.TargetKind ?? "target");
-                    return InventoryDiagramConnectionStateResult.Orphaned(
-                        $"associated {FormatNsgTargetKindLabel(association.TargetKind)} {targetName} no longer exists");
+                    return OrphanedNsgAssociationTargetNotInSnapshot(
+                        association.TargetArmId,
+                        association.TargetKind);
                 }
 
                 resolvedAssociation = true;
@@ -380,9 +401,9 @@ public static class InventoryDiagramOrphanedStateClassifier
 
             if (!IsArmIdResolvable(endpointArmId, armIdToGraphNode))
             {
-                string targetName = ReadResourceName(endpointArmId, association.TargetKind ?? "target");
-                return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"associated {FormatNsgTargetKindLabel(association.TargetKind)} {targetName} no longer exists");
+                return OrphanedNsgAssociationTargetNotInSnapshot(
+                    endpointArmId,
+                    association.TargetKind);
             }
 
             resolvedAssociation = true;
@@ -391,7 +412,23 @@ public static class InventoryDiagramOrphanedStateClassifier
         return resolvedAssociation
             ? null
             : InventoryDiagramConnectionStateResult.Orphaned(
-                "not associated with a subnet or network interface");
+                "No subnet or network interface association was stored.");
+    }
+
+    private static InventoryDiagramConnectionStateResult OrphanedNsgAssociationTargetNotInSnapshot(
+        string targetArmId,
+        string? targetKind)
+    {
+        string targetName = ReadResourceName(targetArmId, "target");
+
+        if (string.IsNullOrWhiteSpace(targetKind))
+        {
+            return InventoryDiagramConnectionStateResult.Orphaned(
+                $"Associated target kind was not stored. {targetName} is not in this inventory snapshot.");
+        }
+
+        return InventoryDiagramConnectionStateResult.Orphaned(
+            $"associated {FormatNsgTargetKindLabel(targetKind)} {targetName} is not in this inventory snapshot.");
     }
 
     private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedConnection(
@@ -419,14 +456,14 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string endpointName = ReadResourceName(endpoint1, "connection endpoint");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"connection source {endpointName} no longer exists");
+                $"connection source {endpointName} is not in this inventory snapshot.");
         }
 
         if (!string.IsNullOrWhiteSpace(endpoint2) && !IsArmIdResolvable(endpoint2, armIdToGraphNode))
         {
             string endpointName = ReadResourceName(endpoint2, "connection destination");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"connection destination {endpointName} no longer exists");
+                $"connection destination {endpointName} is not in this inventory snapshot.");
         }
 
         return null;
@@ -441,7 +478,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (string.IsNullOrWhiteSpace(sourceArmId))
         {
             return InventoryDiagramConnectionStateResult.Orphaned(
-                "protected virtual machine was not recorded");
+                "Protected virtual machine was not stored.");
         }
 
         if (!IsArmIdResolvable(sourceArmId, armIdToGraphNode))
@@ -454,7 +491,7 @@ public static class InventoryDiagramOrphanedStateClassifier
                 : "virtual machine";
 
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"protected {sourceKind} {sourceName} no longer exists");
+                $"protected {sourceKind} {sourceName} is not in this inventory snapshot.");
         }
 
         return null;
@@ -482,7 +519,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string targetName = ReadResourceName(targetArmId, "private link target");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"private link target {targetName} no longer exists");
+                $"private link target {targetName} is not in this inventory snapshot.");
         }
 
         return null;
@@ -520,7 +557,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string vnetName = ReadResourceName(vnetArmId, "virtual network");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"required virtual network {vnetName} no longer exists");
+                $"required virtual network {vnetName} is not in this inventory snapshot.");
         }
 
         if (string.IsNullOrWhiteSpace(subnetArmId)
@@ -644,7 +681,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 string resourceName = ReadResourceName(referencedArmId, "referenced resource");
                 return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"referenced resource {resourceName} no longer exists");
+                    $"referenced resource {resourceName} is not in this inventory snapshot.");
             }
         }
 
@@ -677,7 +714,7 @@ public static class InventoryDiagramOrphanedStateClassifier
                 {
                     string parentName = ReadResourceName(parentArmId, "parent resource");
                     return InventoryDiagramConnectionStateResult.Orphaned(
-                        $"parent resource {parentName} no longer exists");
+                        $"parent resource {parentName} is not in this inventory snapshot.");
                 }
             }
         }
@@ -688,7 +725,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string parentName = ReadResourceName(citedParentArmId, "parent resource");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"parent resource {parentName} no longer exists");
+                $"parent resource {parentName} is not in this inventory snapshot.");
         }
 
         return null;
@@ -714,10 +751,90 @@ public static class InventoryDiagramOrphanedStateClassifier
         {
             string hostPoolName = ReadResourceName(hostPoolArmId, "host pool");
             return InventoryDiagramConnectionStateResult.Orphaned(
-                $"parent host pool {hostPoolName} no longer exists");
+                $"parent host pool {hostPoolName} is not in this inventory snapshot.");
         }
 
         return null;
+    }
+
+    private static InventoryDiagramConnectionStateResult? TryClassifyOrphanedVirtualMachine(
+        GraphNode graphNode,
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        if (HasStoredVirtualMachineNetworkPlacement(graphNode, graph, armIdToGraphNode))
+        {
+            return null;
+        }
+
+        if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
+            && !string.IsNullOrWhiteSpace(ipConfigurationId))
+        {
+            string? nicArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+
+            if (!string.IsNullOrWhiteSpace(nicArmId)
+                && !IsArmIdResolvable(nicArmId, armIdToGraphNode))
+            {
+                string nicName = ReadResourceName(nicArmId, "network interface");
+                return InventoryDiagramConnectionStateResult.Orphaned(
+                    $"network interface {nicName} is not in this inventory snapshot.");
+            }
+        }
+
+        return null;
+    }
+
+    private static bool HasStoredVirtualMachineNetworkPlacement(
+        GraphNode graphNode,
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, GraphNode> armIdToGraphNode)
+    {
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (edge.FromNodeId != graphNode.NodeId && edge.ToNodeId != graphNode.NodeId)
+            {
+                continue;
+            }
+
+            if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.VmToNic, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(edge.InferenceSource, "inventory-vm-nic", StringComparison.OrdinalIgnoreCase))
+            {
+                string otherNodeId = edge.FromNodeId == graphNode.NodeId ? edge.ToNodeId : edge.FromNodeId;
+
+                if (graph.Nodes.Any(node =>
+                        string.Equals(node.NodeId, otherNodeId, StringComparison.Ordinal)
+                        && IsArmIdResolvable(ReadArmId(node), armIdToGraphNode)))
+                {
+                    return true;
+                }
+            }
+
+            GraphNode? otherNode = graph.Nodes.FirstOrDefault(node =>
+                string.Equals(node.NodeId, edge.FromNodeId == graphNode.NodeId ? edge.ToNodeId : edge.FromNodeId, StringComparison.Ordinal));
+
+            if (otherNode is not null
+                && string.Equals(
+                    ReadArmType(otherNode),
+                    "Microsoft.Network/virtualNetworks/subnets",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
+            && !string.IsNullOrWhiteSpace(ipConfigurationId))
+        {
+            string? nicArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+
+            if (!string.IsNullOrWhiteSpace(nicArmId)
+                && IsArmIdResolvable(nicArmId, armIdToGraphNode))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool TryClassifyUnconnected(string armResourceType)
@@ -732,8 +849,18 @@ public static class InventoryDiagramOrphanedStateClassifier
         return armResourceType.Equals("Microsoft.Logic/workflows", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsCurrentEvidence(InventoryDiagramEvidenceCurrency evidenceCurrency)
+    private static bool IsCurrentEvidence(InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
+        // Live inventory snapshots often omit the currency property so labels can say
+        // "not stored" instead of guessing "Current". Those nodes are still current
+        // Azure metadata (NR-05), so missing/unknown currency stays orphaned-eligible.
+        // Explicit Configured/Observed currency must not produce orphaned.
+
+        if (evidenceCurrency is null)
+        {
+            return true;
+        }
+
         return evidenceCurrency is InventoryDiagramEvidenceCurrency.Current
             or InventoryDiagramEvidenceCurrency.Derived;
     }
@@ -1081,7 +1208,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         return false;
     }
 
-    private static InventoryDiagramEvidenceCurrency ReadEvidenceCurrency(IReadOnlyDictionary<string, string> properties)
+    private static InventoryDiagramEvidenceCurrency? ReadEvidenceCurrency(IReadOnlyDictionary<string, string> properties)
     {
         foreach (string key in new[]
                  {
@@ -1099,7 +1226,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             }
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 
     private static string ReadArmId(GraphNode node)
@@ -1126,14 +1253,21 @@ public static class InventoryDiagramOrphanedStateClassifier
     {
         if (string.IsNullOrWhiteSpace(armResourceId))
         {
-            return fallbackLabel;
+            return "Resource name was not stored";
+        }
+
+        string[] segments = armResourceId.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length < 8)
+        {
+            return "Resource name was not stored";
         }
 
         int lastSlash = armResourceId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
         {
-            return fallbackLabel;
+            return "Resource name was not stored";
         }
 
         return armResourceId[(lastSlash + 1)..];

@@ -80,7 +80,9 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     confirmedScopeLines,
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
+    evidenceFiles,
     priorAttachedFileNames,
+    priorRunPrefillCopiedFromLine,
     setEvidenceFiles,
     // Draft workflow
     busy,
@@ -132,6 +134,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markQuestionEdited,
+    droppedClarificationExtractSummary,
   } = clarificationInference;
   const suggestedDraftCount = inferredQuestionKeys.size;
 
@@ -316,6 +319,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           submitError={submitError}
           systemNameAvailability={systemNameAvailability}
           priorAttachedFileNames={priorAttachedFileNames}
+          priorRunPrefillCopiedFromLine={priorRunPrefillCopiedFromLine}
           onEvidenceFilesChange={setEvidenceFiles}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}
@@ -350,6 +354,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           isSubmitBlocked={isSubmitBlocked}
           suggestAnswersFromEvidence={suggestAnswersFromEvidence}
           markQuestionEdited={markQuestionEdited}
+          droppedClarificationExtractSummary={droppedClarificationExtractSummary}
           saveAndContinue={saveAndContinue}
           skipQuestion={skipQuestion}
           reviewAnswers={reviewAnswers}
@@ -363,6 +368,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           businessOutcome={businessOutcome}
           systemName={systemName}
           guidedIntakeEvidencePresence={guidedIntakeEvidencePresence}
+          guidedIntakeAttachmentFileNames={evidenceFiles.map((file) => file.name)}
           confirmedScopeLines={confirmedScopeLines}
           submitError={submitError}
           policyPackCloudMismatch={policyPackCloudMismatch}

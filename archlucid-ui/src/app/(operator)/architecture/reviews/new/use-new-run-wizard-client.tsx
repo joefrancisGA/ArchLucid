@@ -78,11 +78,11 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
       readonly focusedPilotModeEnabled?: boolean;
       readonly advancedConfigurationOptIn?: boolean;
     }) => {
-      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(readWindowLocationSearch(), patch, pathname), {
+      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(searchParams.toString(), patch, pathname), {
         notify: false,
       });
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setFocusedPilotModeEnabled = useCallback(
@@ -242,6 +242,7 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
     clearWizardSessionRef,
   } = useNewRunWizardTemplateRestore({
     stepIndex: wizardSteps.stepIndex,
+    wizardStepCount: wizardSteps.stepDefinitions.length,
     templateWizardSessionState,
     showFullWizardShell: wizardSteps.effectiveShowFullWizardShell,
     reset,

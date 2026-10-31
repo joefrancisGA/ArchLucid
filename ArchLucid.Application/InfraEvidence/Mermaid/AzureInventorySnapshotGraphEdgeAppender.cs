@@ -109,15 +109,15 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
             EdgeType = edgeType,
-            Label = string.IsNullOrWhiteSpace(label) ? edgeType : label,
+            Label = string.IsNullOrWhiteSpace(label) ? null : label.Trim(),
             Weight = 1.0d,
             InferenceSource = inferenceSource,
             // Some inventory producers historically leave provenance unset; preserve that when requested.
             ProvenanceKind = preserveNullProvenance && provenanceKind is null
                 ? null
                 : string.IsNullOrWhiteSpace(provenanceKind)
-                ? ProvenanceKind.ObservedFact.ToString()
-                : provenanceKind,
+                ? null
+                : provenanceKind.Trim(),
             DeclaredConnectionId = declaredConnectionId,
         };
 

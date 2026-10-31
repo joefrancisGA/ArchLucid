@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -9,10 +11,28 @@ public sealed class RealAgentFailureTriageEntry
 
     public required string Title { get; init; }
 
+    private IReadOnlyList<string> failureClasses = [];
+
     /// <summary>Low-cardinality failure classes that map to this scenario (see <see cref="AgentExecutionFailureClasses" />).</summary>
-    public required IReadOnlyList<string> FailureClasses { get; init; }
+    public required IReadOnlyList<string> FailureClasses
+    {
+        get => failureClasses;
+        init => failureClasses = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
-    public required IReadOnlyList<string> OperatorNextSteps { get; init; }
+    private IReadOnlyList<string> operatorNextSteps = [];
 
-    public required IReadOnlyList<string> RelatedDocPaths { get; init; }
+    public required IReadOnlyList<string> OperatorNextSteps
+    {
+        get => operatorNextSteps;
+        init => operatorNextSteps = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> relatedDocPaths = [];
+
+    public required IReadOnlyList<string> RelatedDocPaths
+    {
+        get => relatedDocPaths;
+        init => relatedDocPaths = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

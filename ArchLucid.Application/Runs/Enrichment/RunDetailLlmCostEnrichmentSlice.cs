@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
@@ -25,8 +26,12 @@ public sealed class RunDetailLlmCostEnrichmentSlice(
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
 
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
-            await _agentExecutionTraceRepository
-                .GetLlmCostSlicesByRunIdAsync(scope, runHex, cancellationToken)
+            await AnalysisRunIdCanonicalization
+                .LoadLlmCostSlicesByRunIdAsync(
+                    _agentExecutionTraceRepository,
+                    scope,
+                    runHex,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
         AgentExecutionTraceRunLlmCostSummary summary =
@@ -37,11 +42,13 @@ public sealed class RunDetailLlmCostEnrichmentSlice(
             EstimatedCostUsd = summary.EstimatedCostUsd,
             Model = summary.ModelLabel,
             CostEstimationBasis = summary.CostEstimationBasis,
-            TokenCounts = new RunLlmTokenCountsDto
-            {
-                Prompt = summary.PromptTokens,
-                Completion = summary.CombinedOutputTokens,
-            },
+            TokenCounts = summary.TokenCountsReturned
+                ? new RunLlmTokenCountsDto
+                {
+                    Prompt = summary.PromptTokens,
+                    Completion = summary.CombinedOutputTokens,
+                }
+                : null,
         };
     }
 }

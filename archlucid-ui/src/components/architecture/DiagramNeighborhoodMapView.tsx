@@ -3,7 +3,10 @@ import {
   type DiagramNeighborhood,
   type DiagramNeighborhoodMap,
 } from '@/lib/architecture/architecture-diagram-neighborhood-map';
-import { ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL } from '@/lib/architecture/architecture-diagram-copy';
+import {
+  ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL,
+  ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP,
+} from '@/lib/architecture/architecture-diagram-copy';
 
 export type DiagramNeighborhoodMapViewProps = {
   readonly map: DiagramNeighborhoodMap;
@@ -11,26 +14,45 @@ export type DiagramNeighborhoodMapViewProps = {
 };
 
 function titleFor(map: DiagramNeighborhoodMap, id: string): string {
-  const title = map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title;
+  const neighborhood = map.neighborhoods.find((entry) => entry.id === id);
+
+  if (neighborhood === undefined) {
+    return "Neighborhood link endpoint was not stored.";
+  }
+
+  const title = neighborhood.title;
 
   if (title === null || title === undefined) {
     return "Neighborhood title was not stored";
+  }
+
+  if (title.length === 0) {
+    return "Neighborhood title was stored empty.";
   }
 
   return title;
 }
 
 function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {
+  const label =
+    type.name === null
+      ? type.count == null
+        ? "Type name was not stored. Count was not stored."
+        : `Type name was not stored ${type.count}`
+      : type.name.length === 0
+        ? type.count == null
+          ? "Type name was stored empty. Count was not stored."
+          : `Type name was stored empty. ${type.count}`
+        : type.count == null
+          ? `${type.name} count was not stored`
+          : `${type.name} ${type.count}`;
+
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.name === null
-        ? `Type name was not stored${type.count == null ? "" : ` ${type.count}`}`
-        : type.count == null
-          ? `${type.name} count was not stored`
-          : `${type.name} ${type.count}`}
+      {label}
     </span>
   );
 }
@@ -39,6 +61,12 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
+  const visibleTypes = neighborhood.types.slice(0, 4);
+  const typeGroupsTotal = neighborhood.typeGroupsTotal ?? neighborhood.types.length;
+  const remainingTypeCount = Math.max(0, typeGroupsTotal - visibleTypes.length);
+  const collapsedSingletonTailTitle =
+    neighborhood.title !== null && /^Other resource groups \(\d+\)$/.test(neighborhood.title.trim());
+
   return (
     <button
       key={neighborhood.id}
@@ -48,16 +76,34 @@ function renderTile(
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
       <span className="w-full break-words text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
-        {neighborhood.title === null ? "Neighborhood title was not stored." : neighborhood.title}
+        {neighborhood.title === null
+          ? "Neighborhood title was not stored."
+          : neighborhood.title.length === 0
+            ? "Neighborhood title was stored empty."
+            : neighborhood.title}
       </span>
       <span className="text-[12px] text-[#64748b]">
         {neighborhood.resourceCount == null
           ? "Resource count was not stored"
           : `${neighborhood.resourceCount} resources`}
       </span>
-      <span className="flex flex-wrap gap-1">
-        {neighborhood.types.slice(0, 4).map(renderTypeChip)}
-      </span>
+      {collapsedSingletonTailTitle ? (
+        <span className="text-[12px] text-[#64748b]">
+          Partial rollup of isolated singleton resource groups — not every member is listed on this card.
+        </span>
+      ) : null}
+      {neighborhood.types.length > 0 ? (
+        <span className="flex flex-wrap gap-1">
+          {visibleTypes.map(renderTypeChip)}
+          {remainingTypeCount > 0 ? (
+            <span className="text-[12px] text-[#64748b]">
+              + {remainingTypeCount} more type{remainingTypeCount === 1 ? "" : "s"} were stored.
+            </span>
+          ) : null}
+        </span>
+      ) : (
+        <span className="text-[12px] text-[#64748b]">Resource types were not stored.</span>
+      )}
     </button>
   );
 }
@@ -70,7 +116,10 @@ export function DiagramNeighborhoodMapView(
   const sections = groupDiagramNeighborhoodSections(props.map.neighborhoods);
 
   return (
-    <section aria-label={ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL} className="space-y-4 p-1">
+    <section aria-label={ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL} className="space-y-4 p-1">
+      <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
+        {ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP}
+      </p>
       <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
         These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.
       </p>
@@ -94,11 +143,15 @@ export function DiagramNeighborhoodMapView(
           {visibleLinks.map((link) => (
             <li key={`${link.from}-${link.to}`}>
               {`${titleFor(props.map, link.from)} — ${
-                link.count === null ? "Link count was not stored" : link.count
+                link.count === null
+                  ? "Link count was not stored"
+                  : `${link.count} stored link${link.count === 1 ? "" : "s"}`
               } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
-          {remainingLinkCount > 0 ? <li>{`+ ${remainingLinkCount} more links`}</li> : null}
+          {remainingLinkCount > 0 ? (
+            <li>{`${remainingLinkCount} stored link${remainingLinkCount === 1 ? "" : "s"} are not listed in this preview.`}</li>
+          ) : null}
         </ul>
       ) : null}
     </section>

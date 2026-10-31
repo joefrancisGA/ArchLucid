@@ -55,10 +55,26 @@ export function governanceFindingQueueRowHasStoredRunId(row: GovernanceFindingQu
   return row.runId.trim().length > 0;
 }
 
+/** Review hub href for a queue row run id; trims padding before encoding. */
+export function governanceFindingQueueRowReviewHref(runId: string): string {
+  return `/architecture/reviews/${encodeURIComponent(runId.trim())}`;
+}
+
 /** Optional API policy rule keys must be non-empty after trim before traceability chrome renders. */
 export function governanceFindingQueueRowHasPolicyRuleId(row: GovernanceFindingQueueRow): boolean {
   return row.policyRuleId != null && row.policyRuleId.trim().length > 0;
 }
+
+/** Policy-area fallback copy must not render for whitespace-only category strings on queue rows. */
+export function governanceFindingQueueRowHasDisplayCategory(row: GovernanceFindingQueueRow): boolean {
+  return row.recordKind === "finding" && row.category.trim().length > 0;
+}
+
+export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
+  "Decision rows record architecture choices — severity and finding confidence do not apply." as const;
+
+export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
+  "Finding rows carry severity and trace confidence when the API stored them." as const;
 
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
@@ -69,4 +85,12 @@ export function formatGovernanceQueueRecordKind(
   }
 
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
+}
+
+export function formatGovernanceQueueRecordRoleHonesty(
+  kind: GovernanceFindingQueueRecordKind,
+): string {
+  return kind === "decision"
+    ? GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY
+    : GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY;
 }

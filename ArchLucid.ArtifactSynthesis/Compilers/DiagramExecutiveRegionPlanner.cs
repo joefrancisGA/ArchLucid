@@ -13,6 +13,68 @@ internal static class DiagramExecutiveRegionPlanner
 {
     private const string RegionSubgraphIdPrefix = "region-";
 
+    public const string RegionNotStoredCaption = "Region was not stored.";
+
+    public const string SingleRegionCaptionTemplate =
+        "All located resources drawn on this diagram are in region {0}. Region swimlanes appear when two or more regions are present.";
+
+    public const string SingleRegionUnlocatedSuffixTemplate =
+        "{0} resource(s) had no stored region and are not in region swimlanes.";
+
+    public const string DefaultExecutiveInventoryCaption =
+        "This executive inventory diagram shows resources drawn on this canvas from the collected snapshot. It is not a complete subscription inventory.";
+
+    public static string? BuildSingleRegionCaption(
+        IReadOnlyList<GraphNode> topologyNodes,
+        IReadOnlyList<DiagramNode> diagramNodes)
+    {
+        ArgumentNullException.ThrowIfNull(topologyNodes);
+        ArgumentNullException.ThrowIfNull(diagramNodes);
+
+        Dictionary<string, GraphNode> sourceNodesById = topologyNodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        HashSet<string> regions = new(StringComparer.OrdinalIgnoreCase);
+        int unlocatedCount = 0;
+
+        foreach (DiagramNode diagramNode in diagramNodes)
+        {
+            string? region = ResolveRegion(diagramNode, sourceNodesById);
+
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                unlocatedCount++;
+                continue;
+            }
+
+            regions.Add(region.Trim());
+        }
+
+        if (regions.Count != 1)
+        {
+            return null;
+        }
+
+        string caption = string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            SingleRegionCaptionTemplate,
+            regions.First());
+
+        if (unlocatedCount > 0)
+        {
+            caption = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                "{0} {1}",
+                caption,
+                string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    SingleRegionUnlocatedSuffixTemplate,
+                    unlocatedCount));
+        }
+
+        return caption;
+    }
+
     public static void ApplyRegionSubgraphs(DiagramAst ast, IReadOnlyList<GraphNode> topologyNodes)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -44,6 +106,17 @@ internal static class DiagramExecutiveRegionPlanner
         if (nodesByRegion.Count < 2)
         {
             return;
+        }
+
+        Dictionary<string, GraphNode> sourceNodesByIdForCaptions = sourceNodesById;
+
+        foreach (DiagramNode diagramNode in ast.Nodes)
+        {
+            string? region = ResolveRegion(diagramNode, sourceNodesByIdForCaptions);
+            string regionCaption = string.IsNullOrWhiteSpace(region)
+                ? RegionNotStoredCaption
+                : $"Region {region.Trim()}";
+            diagramNode.UnresolvedRelationshipDetails.Add(regionCaption);
         }
 
         ast.Subgraphs.Clear();

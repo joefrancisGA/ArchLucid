@@ -245,7 +245,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
                         payloadHashes,
                         utcNow,
                         ruleName: CatalogTemplateRuleName,
-                        questionText: $"Does {fromLabel ?? "this app"} connect to database {ReadResourceName(database.AzureResourceId)} on {normalizedHost}?",
+                        questionText: $"Does {FormatSourceResourceLabel(fromLabel)} connect to database {ReadResourceName(database.AzureResourceId)} on {normalizedHost}?",
                         fromArmId: row.SiteResourceId,
                         fromLabel: fromLabel,
                         toHost: normalizedHost,
@@ -298,7 +298,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
                 payloadHashes,
                 utcNow,
                 ruleName: SqlCatalogMissingRuleName,
-                questionText: $"Which database does {fromLabel ?? "this app"} use on {normalizedHost}?",
+                questionText: $"Which database does {FormatSourceResourceLabel(fromLabel)} use on {normalizedHost}?",
                 fromArmId: row.SiteResourceId,
                 fromLabel: fromLabel,
                 toHost: normalizedHost,
@@ -583,6 +583,9 @@ public sealed class InferenceQuestionnaireItemGenerator(
             pair => pair.Key,
             pair => (IReadOnlyDictionary<string, string>)pair.Value);
     }
+
+    private static string FormatSourceResourceLabel(string? fromLabel) =>
+        string.IsNullOrWhiteSpace(fromLabel) ? "Resource name was not stored" : fromLabel.Trim();
 
     private static string ReadResourceName(string azureResourceId)
     {

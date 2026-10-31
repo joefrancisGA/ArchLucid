@@ -2,6 +2,7 @@ import {
   buildTraceRowWorkItemBody,
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
+import { workItemStoredText } from "@/lib/copy-finding-as-work-item-types";
 import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,
@@ -11,7 +12,12 @@ import {
   severityBadgeLabel,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY,
+} from "@/lib/architecture/architecture-risk-register-csv";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
+import { parseKnownFindingClassification } from "@/lib/findings/review-detail-findings-classification-band";
 import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
@@ -33,6 +39,7 @@ export type RunFindingsItsmJsonExportDocument = {
   exportedAtUtc: string;
   findingCount: number;
   omittedChecklistCoverageCount?: number;
+  omittedUnclassifiedClassificationCount?: number;
   recordStatus?: string;
   semanticSupportBandStamp?: SemanticSupportBandExportStampDocument;
   workItems: FindingWorkItemJsonDocument[];
@@ -46,7 +53,71 @@ export type GovernanceFindingsItsmJsonExportDocument = {
 };
 
 function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): string {
+  if (finding.severityStored === false) {
+    return "Severity was not stored";
+  }
+
   return severityBadgeLabel(finding.severityValue);
+}
+
+function humanReviewStatusLabelForExport(finding: QuickDecisionFinding): string {
+  return humanReviewStatusDisplay(finding.humanReviewStatus, {
+    stored: finding.humanReviewStatusStored,
+  }).label;
+}
+
+function formatItsmFindingIdCell(findingId: string | null | undefined): string {
+  if (findingId === null || findingId === undefined) {
+    return "Finding id was not stored.";
+  }
+
+  if (findingId.length === 0 || findingId.trim().length === 0) {
+    return "Finding id was stored empty.";
+  }
+
+  return findingId;
+}
+
+function formatItsmPolicyRuleIdCell(policyRuleId: string | null | undefined): string {
+  if (policyRuleId === null || policyRuleId === undefined) {
+    return "Policy rule id was not stored.";
+  }
+
+  if (policyRuleId.length === 0 || policyRuleId.trim().length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  return policyRuleId.trim();
+}
+
+function formatItsmFindingTitleCell(title: string | null | undefined): string {
+  if (title === null || title === undefined || title.length === 0) {
+    return "Finding title was not stored.";
+  }
+
+  if (title.trim().length === 0) {
+    return "Finding title was stored empty.";
+  }
+
+  return title;
+}
+
+function formatItsmFindingConfidenceCell(confidence: string | null | undefined): string {
+  if (confidence === null || confidence === undefined) {
+    return "Confidence level was not stored";
+  }
+
+  const trimmed = confidence.trim();
+
+  if (trimmed.length === 0) {
+    return "Confidence level was stored empty.";
+  }
+
+  if (trimmed.toLowerCase() === "unknown") {
+    return "Confidence level was not recognized.";
+  }
+
+  return trimmed;
 }
 
 function triggerBinaryDownload(content: string, mimeType: string, filename: string): void {
@@ -61,6 +132,20 @@ function triggerBinaryDownload(content: string, mimeType: string, filename: stri
 
 function triggerJsonDownload(json: string, filename: string): void {
   triggerBinaryDownload(json, "application/json;charset=utf-8", filename);
+}
+
+function formatFindingsCsvItsmLinkageCell(itsmLinkedTicketsSummary: string | null | undefined): string {
+  if (itsmLinkedTicketsSummary === null || itsmLinkedTicketsSummary === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED;
+  }
+
+  if (itsmLinkedTicketsSummary.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
+  }
+
+  return itsmLinkedTicketsSummary.trim().length > 0
+    ? itsmLinkedTicketsSummary.trim()
+    : ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
 }
 
 function formatItsmFindingRecommendationCell(recommendation: string | null | undefined): string {
@@ -125,38 +210,66 @@ export function buildQuickDecisionFindingsCsv(
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
-  const { exportableFindings } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
+  const checklistOmissionLine =
+    omittedChecklistCount > 0
+      ? `Checklist coverage rows omitted from this file: ${omittedChecklistCount}`
+      : "No checklist coverage rows were omitted.";
+  const unclassifiedOmissionLine =
+    omittedUnclassifiedCount > 0
+      ? `Unclassified classification rows omitted from this file: ${omittedUnclassifiedCount}`
+      : "No unclassified classification rows were omitted.";
   const header =
-    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
+    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,ItsmLinkage,RecordStatus";
   const lines = exportableFindings.map((finding) => {
     const trustFields = findingTrustExportJsonFields(finding);
-    const semanticSupportBand = finding.semanticSupportBand ?? "";
+    const semanticSupportBand =
+      finding.semanticSupportBand === null || finding.semanticSupportBand === undefined
+        ? "Semantic support band was not stored"
+        : finding.semanticSupportBand.length === 0
+          ? "Semantic support band was stored empty."
+          : finding.semanticSupportBand;
 
     return [
-      finding.findingId,
+      formatItsmFindingIdCell(finding.findingId),
       runId,
       severityLabelFromQuickDecisionFinding(finding),
-      escapeCsvCell(finding.title),
+      escapeCsvCell(formatItsmFindingTitleCell(finding.title)),
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
-      finding.confidenceLevel ?? "Confidence level was not stored",
-      finding.policyRuleId?.trim() || "Policy rule was not stored",
-      "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0
-        ? trustFields.trustLabel
+      formatItsmFindingConfidenceCell(finding.confidenceLevel),
+      formatItsmPolicyRuleIdCell(finding.policyRuleId),
+      "trustLabel" in trustFields
+        ? trustFields.trustLabel.trim().length > 0
+          ? trustFields.trustLabel
+          : trustFields.trustLabel.length > 0
+            ? "Trust label was stored empty."
+            : "Trust label was not stored"
         : "Trust label was not stored",
       "trustLabelReason" in trustFields
-        ? trustFields.trustLabelReason ?? "Trust label reason was not stored"
+        ? trustFields.trustLabelReason === null || trustFields.trustLabelReason === undefined
+          ? "Trust label reason was not stored"
+          : trustFields.trustLabelReason.trim().length > 0
+            ? trustFields.trustLabelReason
+            : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
-      semanticSupportBand.length > 0 ? semanticSupportBand : "Semantic support band was not stored",
-      semanticSupportBand.length > 0
-        ? resolveFindingSemanticSupportBandScorerVersion(finding)
-        : "Semantic support band scorer version was not stored",
-      finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      semanticSupportBand,
+      resolveFindingSemanticSupportBandScorerVersion(finding),
+      finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
+      escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
       escapeCsvCell(recordStatus),
     ].join(",");
   });
 
-  return [header, ...lines].join("\n");
+  const exportRowsAbsentLine =
+    exportableFindings.length === 0
+      ? "No ITSM work-item rows were exported."
+      : null;
+
+  return [checklistOmissionLine, unclassifiedOmissionLine, exportRowsAbsentLine, header, ...lines]
+    .filter((line) => line !== null)
+    .join("\n");
 }
 
 export function downloadQuickDecisionFindingsCsv(
@@ -175,7 +288,8 @@ export function buildRunFindingsItsmJsonExportDocument(
   siteOrigin: string,
   options?: RunFindingsExportOptions,
 ): RunFindingsItsmJsonExportDocument {
-  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
   const workItems: FindingWorkItemJsonDocument[] = exportableFindings.map((finding) => {
     const jsonBody = buildTraceRowWorkItemBody("json", {
       runId,
@@ -183,12 +297,12 @@ export function buildRunFindingsItsmJsonExportDocument(
       findingTitle: finding.title,
       severityLabel: severityLabelFromQuickDecisionFinding(finding),
       recommendedAction: finding.recommendation,
-      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
       trustLabelReason: finding.trustLabelReason ?? null,
-      classification: finding.classification ?? null,
+      classification: parseKnownFindingClassification(finding.classification),
       semanticSupportBand: finding.semanticSupportBand ?? null,
       semanticSupportBandScorerVersion: finding.semanticSupportBandScorerVersion ?? null,
     });
@@ -203,6 +317,8 @@ export function buildRunFindingsItsmJsonExportDocument(
     exportedAtUtc: new Date().toISOString(),
     findingCount: workItems.length,
     omittedChecklistCoverageCount: omittedChecklistCount > 0 ? omittedChecklistCount : undefined,
+    omittedUnclassifiedClassificationCount:
+      omittedUnclassifiedCount > 0 ? omittedUnclassifiedCount : undefined,
     semanticSupportBandStamp: {
       scorerVersion: semanticStamp.scorerVersion,
       supported: semanticStamp.counts.supported,

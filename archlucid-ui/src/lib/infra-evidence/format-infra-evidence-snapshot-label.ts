@@ -1,6 +1,7 @@
 import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZone } from "@/lib/locale-datetime";
 import type { InfraEvidenceDiffSummary, InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { isInfraEvidenceSnapshotCapturePending } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 export function formatInfraEvidenceSnapshotCapturedLabel(
@@ -8,65 +9,110 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
   ianaTimeZoneId: string = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
   if (capturedUtc == null || capturedUtc.trim().length === 0) {
-    return "Captured time was not stored";
+    return "Captured time was not stored.";
   }
 
   const formatted = formatInstantInPreferredTimeZone(capturedUtc, ianaTimeZoneId);
 
   if (formatted === " — ") {
-    return "Captured time was not stored";
+    return "Captured time was not stored.";
   }
 
   return formatted;
+}
+
+export function formatInfraEvidenceSnapshotResourceCountLabel(
+  resourceCount: number | null | undefined,
+  captureStatus?: number | string | null,
+): string {
+  if (isInfraEvidenceSnapshotCapturePending(captureStatus)) {
+    return "Resource count was not stored — inventory capture is still in progress.";
+  }
+
+  if (typeof resourceCount === "number" && Number.isFinite(resourceCount)) {
+    return `${resourceCount} resources`;
+  }
+
+  return "Resource count was not stored.";
+}
+
+export function formatInfraEvidenceSnapshotFiniteCountCell(
+  value: number | null | undefined,
+  notStoredLabel: string,
+): string {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return notStoredLabel;
 }
 
 export function formatInfraEvidenceSubscriptionLabel(
   subscriptionName: string | null | undefined,
   subscriptionId: string | null | undefined,
 ): string | null {
-  const name = subscriptionName?.trim() ?? "";
+  const segments = formatInfraEvidenceSubscriptionLabelSegments(subscriptionName, subscriptionId);
 
-  if (name.length > 0 && !isUuidLike(name)) {
-    return name;
+  if (segments.length === 0) {
+    return null;
   }
 
+  return segments.join(" ");
+}
+
+/** Subscription line for snapshot freshness labels (never substitutes a GUID for the name). */
+export function formatInfraEvidenceSubscriptionLabelSegments(
+  subscriptionName: string | null | undefined,
+  subscriptionId: string | null | undefined,
+): readonly string[] {
+  const name = subscriptionName?.trim() ?? "";
   const id = subscriptionId?.trim() ?? "";
 
-  if (id.length > 0) {
-    return id;
+  if (name.length > 0 && !isUuidLike(name)) {
+    return [name];
   }
 
-  return null;
+  if (id.length === 0 && name.length === 0) {
+    return ["Subscription was not stored."];
+  }
+
+  const segments: string[] = ["Subscription name was not stored."];
+
+  if (id.length > 0) {
+    segments.push(`Subscription id ${id}.`);
+  }
+
+  return segments;
 }
 
 export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = formatInfraEvidenceSnapshotCapturedLabel(snapshot.capturedUtc);
-  const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
-  const parts: string[] = [];
-
-  if (subscription != null) {
-    parts.push(subscription);
-  }
-
-  parts.push(captured);
-  parts.push(`${snapshot.resourceCount} resources`);
+  const parts: string[] = [
+    ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
+    captured,
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount, snapshot.captureStatus),
+  ];
 
   return parts.join(" · ");
 }
 
 export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = formatInfraEvidenceSnapshotCapturedLabel(snapshot.capturedUtc);
-  const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
-  const parts: string[] = [];
-
-  if (subscription != null) {
-    parts.push(subscription);
-  }
-
-  parts.push(`captured ${captured}`);
-  parts.push(`${snapshot.resourceCount} resources`);
+  const parts: string[] = [
+    ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
+    `captured ${captured}`,
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount, snapshot.captureStatus),
+  ];
 
   return parts.join(" · ");
+}
+
+export function formatInfraEvidenceDiffTotalChangesPhrase(totalChanges: number | undefined): string {
+  if (totalChanges === undefined || !Number.isFinite(totalChanges)) {
+    return "Change count was not stored.";
+  }
+
+  return `${totalChanges} changes`;
 }
 
 export function formatInfraEvidenceDiffLabel(
@@ -81,7 +127,7 @@ export function formatInfraEvidenceDiffLabel(
       ? formatInfraEvidenceSnapshotCapturedLabel(otherSnapshot.capturedUtc)
       : formatInfraEvidenceSnapshotCapturedLabel(diff.createdUtc);
 
-  return `${diff.totalChanges} changes vs ${otherCaptured}`;
+  return `${formatInfraEvidenceDiffTotalChangesPhrase(diff.totalChanges)} vs ${otherCaptured}`;
 }
 
 export function formatInfraEvidenceScopeFreshnessLine(input: {
@@ -95,7 +141,7 @@ export function formatInfraEvidenceScopeFreshnessLine(input: {
   }
 
   if (input.selectedDiff != null) {
-    parts.push(`${input.selectedDiff.totalChanges} changes`);
+    parts.push(formatInfraEvidenceDiffTotalChangesPhrase(input.selectedDiff.totalChanges));
   }
 
   if (parts.length === 0) {

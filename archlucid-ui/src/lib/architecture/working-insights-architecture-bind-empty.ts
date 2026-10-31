@@ -5,6 +5,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import type { ResolveOpenArchitectureJobRunIdResult } from "@/lib/architecture/resolve-open-architecture-job-run-id";
 import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL } from "@/lib/architecture/working-architecture-nested-tool-copy";
 
 export type WorkingInsightsBindTool = "ask" | "evidence-graph";
 
@@ -20,7 +21,7 @@ export function buildWorkingInsightsArchitectureBindEmpty(
 ): EnterpriseCompactEmptyStateProps {
   const architectureName = bindResult.displayName.trim().length > 0
     ? bindResult.displayName.trim()
-    : "this architecture";
+    : WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL;
   const toolLabel = TOOL_LABELS[tool];
 
   return {

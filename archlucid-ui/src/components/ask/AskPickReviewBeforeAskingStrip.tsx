@@ -24,6 +24,8 @@ export function AskPickReviewBeforeAskingStrip(
       : workspaceRunId.length > 0
         ? workspaceRunId
         : "";
+  const filledFromWorkspace =
+    props.selectedReviewId.trim().length === 0 && workspaceRunId.length > 0 && pickerValue === workspaceRunId;
 
   useEffect(() => {
     if (props.selectedReviewId.trim().length > 0) {
@@ -50,6 +52,21 @@ export function AskPickReviewBeforeAskingStrip(
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Scope questions to one architecture package so answers cite the right evidence and governance context.
       </p>
+      {pickerValue.trim().length === 0 ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="ask-pick-review-empty-selection-helper"
+        >
+          Architecture package selection was not stored. Pick a committed review to scope Ask.
+        </p>
+      ) : filledFromWorkspace ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="ask-pick-review-workspace-fill-honesty"
+        >
+          Active review was filled from this workspace.
+        </p>
+      ) : null}
       <div className="mt-3 min-w-[16rem] max-w-xl">
         <AskRunIdPicker
           value={pickerValue}

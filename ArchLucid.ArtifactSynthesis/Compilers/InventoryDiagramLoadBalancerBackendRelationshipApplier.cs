@@ -61,10 +61,36 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
 
                 if (string.IsNullOrWhiteSpace(backendDiagramNodeId))
                 {
+                    DiagramNode? frontDiagramNode = ast.Nodes.FirstOrDefault(node =>
+                        string.Equals(node.NodeId, frontDiagramNodeId, StringComparison.Ordinal));
+
+                    if (frontDiagramNode is not null)
+                    {
+                        GraphNode? backendGraphNode = graphNodesById.Values.FirstOrDefault(node =>
+                            string.Equals(
+                                ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                                ArmResourceIdNormalizer.Normalize(backendTarget.TargetArmId),
+                                StringComparison.OrdinalIgnoreCase));
+                        string backendName = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                            backendTarget.TargetArmId,
+                            backendGraphNode?.Label,
+                            backendGraphNode?.NodeId,
+                            InventoryDiagramArmSegmentResourceNames.BackendNameNotStored);
+                        string outlineSentence =
+                            string.Equals(backendName, InventoryDiagramArmSegmentResourceNames.BackendNameNotStored, StringComparison.Ordinal)
+                                ? "Backend name was not stored. Target is not on this diagram."
+                                : InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+
+                        if (!frontDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
+                        {
+                            frontDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
+                        }
+                    }
+
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolNames(backendTarget.RulePort);
+                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
@@ -72,7 +98,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     backendDiagramNodeId,
                     label,
                     GraphEdgeInferenceSources.InventoryLbBackend,
-                    ProvenanceKind.ObservedFact.ToString());
+                    ProvenanceKind.DerivedFact.ToString());
             }
         }
     }

@@ -38,12 +38,12 @@ public static class FindingVerificationReportDocxRenderer
                 [
                     ("Run ID", model.RunId.ToString("D")),
                     ("Report ID", model.ReportId.ToString("D")),
-                    ("Source manifest hash", SanitizeFindingCell(model.SourceManifestHash)),
-                    ("Report hash", SanitizeFindingCell(model.ReportHash)),
+                    ("Source manifest hash", SanitizeFindingCell(model.SourceManifestHash, "Source manifest hash")),
+                    ("Report hash", SanitizeFindingCell(model.ReportHash, "Report hash")),
                     ("Created (UTC)", model.CreatedUtc.ToString("O", CultureInfo.InvariantCulture)),
                     (
                         "Verification findings snapshot",
-                        model.VerificationFindingsSnapshotId?.ToString("D") ?? "(none)"),
+                        model.VerificationFindingsSnapshotId?.ToString("D") ?? "Findings snapshot id was not stored."),
                 ]);
 
             WordDocumentBuilder.AddSpacer(body);
@@ -57,11 +57,11 @@ public static class FindingVerificationReportDocxRenderer
                 ("Finding ID", "Title", "Severity", "Status", "Trace"),
                 model.Findings
                     .Select(finding => (
-                        SanitizeFindingCell(finding.FindingId),
-                        SanitizeFindingCell(finding.Title),
-                        SanitizeFindingCell(finding.Severity),
-                        SanitizeFindingCell(finding.Status),
-                        SanitizeFindingCell(finding.TraceText)))
+                        SanitizeFindingCell(finding.FindingId, "Finding id"),
+                        SanitizeFindingCell(finding.Title, "Title"),
+                        SanitizeFindingCell(finding.Severity, "Severity"),
+                        SanitizeFindingCell(finding.Status, "Status"),
+                        SanitizeFindingCell(finding.TraceText, "Trace")))
                     .ToList());
 
             main.Document.Save();
@@ -70,8 +70,22 @@ public static class FindingVerificationReportDocxRenderer
         return stream.ToArray();
     }
 
-    private static string SanitizeFindingCell(string? text) =>
-        LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
+    private static string SanitizeFindingCell(string? text, string fieldLabel)
+    {
+        if (text is null)
+        {
+            return $"{fieldLabel} was not stored.";
+        }
+
+        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(text);
+
+        if (sanitized.Length == 0 || string.IsNullOrWhiteSpace(sanitized))
+        {
+            return $"{fieldLabel} was stored empty.";
+        }
+
+        return sanitized;
+    }
 
     private static void AppendSummary(Body body, Core.Findings.FindingVerificationReportConfirmedRateSummary summary)
     {

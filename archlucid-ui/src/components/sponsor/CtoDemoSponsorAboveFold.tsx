@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { CtoDemoSponsorTenantIsolationCallout } from "@/components/cto-demo/CtoDemoSponsorTenantIsolationCallout";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer/buyer-golden-journey-nav";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoHeroStat,
@@ -11,15 +10,20 @@ import {
 } from "@/lib/buyer/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
-import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
-import { severityFromTrace, severitySortRank } from "@/lib/sponsor-finding-severity";
+import {
+  getFindingEvidenceInspectHref,
+  getFindingGovernanceDispositionHref,
+} from "@/lib/findings/finding-evidence-navigation";
+import {
+  formatSponsorTraceConfidenceDisplay,
+  severitySortRank,
+} from "@/lib/sponsor-finding-severity";
 import { decisionGradeSponsorTraceRows } from "@/lib/sponsor-decision-grade-trace-rows";
 import {
   RISK_POSTURE_NOT_STORED_LABEL,
   tryVerdictTierFromRiskPosture,
   VERDICT_NOT_STORED_LABEL,
   verdictTierLabel,
-  verdictTierTone,
   type VerdictTier,
 } from "@/lib/verdict-taxonomy";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -55,22 +59,6 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
 }
 
 const OVERALL_ASSESSMENT_NOT_STORED_LABEL = "Overall assessment was not stored.";
-
-function verdictTierBadgeClassName(tier: VerdictTier): string {
-  const tone = verdictTierTone(tier);
-
-  if (tone === "success") {
-    return operatorSemanticBadge("ready");
-  }
-
-  if (tone === "danger") {
-    return operatorSemanticBadge("blocked");
-  }
-
-  return operatorSemanticBadge("attention");
-}
-
-const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/governance/approval-queue";
 
 /** Compact CTO demo landing hero — verdict, top risks, and sponsor action above the fold (#4). */
 export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): ReactElement {
@@ -114,14 +102,24 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
             Verdict
           </p>
           <span
-            className={cn("mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.helper,
-              verdictTier === null ? operatorSemanticBadge("neutral") : verdictTierBadgeClassName(verdictTier),
+            className={cn(
+              "mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold",
+              OPERATOR_TYPOGRAPHY.helper,
+              operatorSemanticBadge("neutral"),
             )}
             data-testid="cto-demo-verdict-tier-badge"
           >
-            {verdictTier === null ? VERDICT_NOT_STORED_LABEL : verdictTierLabel(verdictTier)}
+            {riskPostureDisplay}
           </span>
-          <p className={cn("m-0 mt-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{riskPostureDisplay}</p>
+          {verdictTier !== null ? (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Posture maps to tier: {verdictTierLabel(verdictTier)} (stored risk posture above).
+            </p>
+          ) : (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {VERDICT_NOT_STORED_LABEL}
+            </p>
+          )}
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {overallAssessmentDisplay}
           </p>
@@ -145,7 +143,7 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
                       ·
                     </span>
                     <Link
-                      href={governanceStepHref}
+                      href={getFindingGovernanceDispositionHref(runId, risk.findingId)}
                       className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >
@@ -176,12 +174,12 @@ export function traceRowsToCtoDemoTopRisks(
   const ranked = decisionGradeSponsorTraceRows(traces)
     .map((t) => {
       const findingId = t.findingId.trim();
-      const titleRaw = (t.findingTitle ?? findingId).trim();
+      const titleRaw = (t.findingTitle ?? "").trim();
 
       return {
         findingId,
-        title: titleRaw.length > 0 ? titleRaw : findingId,
-        severity: severityFromTrace(t.traceConfidenceLabel),
+        title: titleRaw.length > 0 ? titleRaw : "Finding title was not stored.",
+        severity: formatSponsorTraceConfidenceDisplay(t.traceConfidenceLabel),
         sortKey: severitySortRank(t.traceConfidenceLabel),
       };
     });

@@ -27,11 +27,13 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(costEstimator);
 
         return ComputeCore(
-            traces.Select(static t => (
-                t.ModelDeploymentName,
-                t.InputTokenCount,
-                t.OutputTokenCount,
-                t.ReasoningTokenCount)),
+            traces
+                .Where(static trace => trace is not null)
+                .Select(static t => (
+                    t.ModelDeploymentName,
+                    t.InputTokenCount,
+                    t.OutputTokenCount,
+                    t.ReasoningTokenCount)),
             costEstimator);
     }
 
@@ -44,11 +46,13 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         ArgumentNullException.ThrowIfNull(costEstimator);
 
         return ComputeCore(
-            slices.Select(static s => (
-                s.ModelDeploymentName,
-                s.InputTokenCount,
-                s.OutputTokenCount,
-                s.ReasoningTokenCount)),
+            slices
+                .Where(static slice => slice is not null)
+                .Select(static s => (
+                    s.ModelDeploymentName,
+                    s.InputTokenCount,
+                    s.OutputTokenCount,
+                    s.ReasoningTokenCount)),
             costEstimator);
     }
 
@@ -62,20 +66,38 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         decimal costAccum = 0m;
         bool anyCost = false;
         bool anyUnpricedMeasurableSlice = false;
+        bool anyTokenFieldStored = false;
 
         HashSet<string> measurableDeployments = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((string? modelDeploymentName, int? inputTokenCount, int? outputTokenCount, int? reasoningTokenCount) in rows)
         {
-            int inTok = inputTokenCount ?? 0;
-            int outTok = outputTokenCount ?? 0;
+            if (inputTokenCount is int storedIn)
+            {
+                anyTokenFieldStored = true;
+                promptSum += storedIn;
+            }
+
+            if (outputTokenCount is int storedOut)
+            {
+                anyTokenFieldStored = true;
+                completionSum += storedOut;
+            }
+
             // TB-196: use persisted reasoning token count (added by TB-033) rather than hard-coding 0,
             // so o-series / reasoning-model runs include that cost component in the estimate.
             int reasoningTok = reasoningTokenCount ?? 0;
 
-            promptSum += inTok;
-            completionSum += outTok;
+            if (reasoningTokenCount is int storedReasoning)
+            {
+                anyTokenFieldStored = true;
+                reasoningTok = storedReasoning;
+            }
+
             reasoningSum += reasoningTok;
+
+            int inTok = inputTokenCount ?? 0;
+            int outTok = outputTokenCount ?? 0;
 
             if (inTok <= 0 && outTok <= 0 && reasoningTok <= 0)
                 continue;
@@ -113,7 +135,14 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         // Reasoning-only traces (TB-196) have zero prompt/completion sums but may still produce a USD estimate.
 
         if (promptSum + completionSum + reasoningSum <= 0 && !anyCost)
-            return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, reasoningSum, modelLabel, costBasis);
+            return new AgentExecutionTraceRunLlmCostSummary(
+                estimatedUsd,
+                promptSum,
+                completionSum,
+                reasoningSum,
+                modelLabel,
+                costBasis,
+                anyTokenFieldStored);
 
         if (anyUnpricedMeasurableSlice)
         {
@@ -129,7 +158,14 @@ public static class AgentExecutionTraceRunLlmCostAggregator
             costBasis = RunLlmCostEstimationBasis.ProviderTokensWithoutRate;
         }
 
-        return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, reasoningSum, modelLabel, costBasis);
+        return new AgentExecutionTraceRunLlmCostSummary(
+            estimatedUsd,
+            promptSum,
+            completionSum,
+            reasoningSum,
+            modelLabel,
+            costBasis,
+            anyTokenFieldStored);
     }
 
     private static string BuildModelLabelFromDeployments(

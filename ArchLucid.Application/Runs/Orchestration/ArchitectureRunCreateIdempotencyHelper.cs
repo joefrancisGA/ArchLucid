@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -184,7 +185,12 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
             throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
 
         ScopeContext rehydrateScope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(rehydrateScope, runId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            _taskRepository,
+            rehydrateScope,
+            lookupRunId,
+            cancellationToken);
 
         if (tasks.Count == 0)
             throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");

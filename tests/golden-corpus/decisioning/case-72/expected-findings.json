@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "68c9e8d6-1bf3-60b0-0758-08839f1f9041",
+    "findingId": "58bf5473-7509-0559-a483-b2a5c3a6506a",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "diagram-node:api",
       "diagram-node:db",
@@ -40,12 +40,12 @@
     ]
   },
   {
-    "findingId": "2aed7a4d-2bd4-e575-ed54-6942b311a1e8",
+    "findingId": "ecc67911-2fa2-f5ed-d7e2-5138b34788d7",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "diagram-node:api",
       "diagram-node:db",
@@ -60,12 +60,12 @@
     ]
   },
   {
-    "findingId": "26ea7597-4fe3-a1ac-18fe-b64108d9e559",
+    "findingId": "73155550-1fa7-c4d6-57ca-8c8b158d72e4",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "diagram-node:api",
       "diagram-node:db",
@@ -80,16 +80,16 @@
     ]
   },
   {
-    "findingId": "506ecf74-c1f0-662b-b326-75b2141ccc2d",
+    "findingId": "ed19d3a4-f8d3-fdf7-96ce-14b4aebc88b8",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "Orders API",
-      "SQL Database",
-      "payments-kv"
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -100,12 +100,12 @@
     ]
   },
   {
-    "findingId": "f52e97ae-ea1c-0f4b-6e83-bd2e844a5105",
+    "findingId": "a30bb242-7d16-241d-bfec-863679e1cf3f",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "diagram-node:api",
       "diagram-node:db",
@@ -116,7 +116,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

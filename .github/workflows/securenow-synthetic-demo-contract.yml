@@ -1,0 +1,42 @@
+name: SecureNow synthetic buyer-demo claim contract — offline
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'scripts/ci/build_two_product_commercial_workpack.py'
+      - 'scripts/ci/audit_securenow_synthetic_demo.py'
+      - 'scripts/ci/test_audit_securenow_synthetic_demo.py'
+      - 'docs/securenow/SYNTHETIC_DEMO_CONTRACT.md'
+      - '.github/workflows/securenow-synthetic-demo-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Regression-test synthetic-only provenance and fail-closed inputs
+        run: python3 -m unittest scripts.ci.test_audit_securenow_synthetic_demo -v
+      - name: Generate current synthetic example offline
+        run: >-
+          python3 scripts/ci/build_two_product_commercial_workpack.py
+          --out-dir artifacts/securenow-synthetic-contract
+      - name: Enforce independent claim boundary on generated artifact
+        run: >-
+          python3 scripts/ci/audit_securenow_synthetic_demo.py
+          --input artifacts/securenow-synthetic-contract/securenow-synthetic-demo.json
+          --output artifacts/securenow-synthetic-contract/synthetic-contract-audit.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: securenow-synthetic-buyer-claim-contract
+          path: artifacts/securenow-synthetic-contract/*
+          if-no-files-found: warn

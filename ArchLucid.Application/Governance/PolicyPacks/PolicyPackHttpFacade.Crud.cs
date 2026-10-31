@@ -254,7 +254,7 @@ public sealed partial class PolicyPackHttpFacade
         {
             return new PolicyPackVersionHttpResult
             {
-                Outcome = PolicyPackVersionLookupOutcome.PackNotFound,
+                Outcome = PolicyPackVersionLookupOutcome.ScopeNotFound,
                 PolicyPackId = policyPackId,
             };
         }

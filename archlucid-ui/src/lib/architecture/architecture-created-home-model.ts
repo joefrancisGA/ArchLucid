@@ -10,6 +10,7 @@ import {
 } from "./architecture-created-home-actions";
 import {
   buildMissingItems,
+  buildMissingItemsWithOmitted,
   partitionMissingItems,
   type ArchitectureMissingItem,
   type ClarificationGapCategory,
@@ -48,18 +49,21 @@ export type ArchitectureCreatedHomeModel = {
   readonly definitionStatusLabel: string;
   readonly summaryFields: readonly ArchitectureSummaryField[];
   readonly missingItems: readonly ArchitectureMissingItem[];
+  readonly missingItemsOmittedCount: number;
   readonly clarificationGaps: readonly ArchitectureMissingItem[];
   readonly evidenceGaps: readonly ArchitectureMissingItem[];
   readonly assessmentItems: readonly ArchitectureMissingItem[];
   readonly primaryActions: readonly ArchitectureCreatedPrimaryAction[];
   readonly overflowActions: readonly { readonly label: string; readonly href: string }[];
+  readonly submittedBriefStored: boolean;
 };
 
 export function buildArchitectureCreatedHomeModel(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedHomeModel {
   const definitionStatus = deriveDefinitionStatus(input);
-  const missingItems = buildMissingItems(input);
+  const missingItemsResult = buildMissingItemsWithOmitted(input);
+  const missingItems = missingItemsResult.items;
   const partitioned = partitionMissingItems(missingItems);
 
   return {
@@ -74,11 +78,13 @@ export function buildArchitectureCreatedHomeModel(
     definitionStatusLabel: ARCHITECTURE_DEFINITION_STATUS_LABELS[definitionStatus],
     summaryFields: buildSummaryFields(input),
     missingItems,
+    missingItemsOmittedCount: missingItemsResult.omittedCount,
     clarificationGaps: partitioned.clarificationGaps,
     evidenceGaps: partitioned.evidenceGaps,
     assessmentItems: partitioned.assessmentItems,
     primaryActions: buildPrimaryActions(input),
     overflowActions: buildOverflowActions(input.runId),
+    submittedBriefStored: input.submittedBriefStored === true,
   };
 }
 
@@ -100,10 +106,7 @@ export function mergeArchitectureCreatedHomeInput(
       snapshot.businessOutcome.length > 0 ? snapshot.businessOutcome : baseline.businessOutcome,
     peopleAndSystems:
       snapshot.peopleAndSystems.length > 0 ? snapshot.peopleAndSystems : baseline.peopleAndSystems,
-    gapAssertion: {
-      businessOutcome: true,
-      peopleAndSystems: true,
-    },
+    gapAssertion: baseline.gapAssertion,
     gapSourceCapturedAtUtc: snapshot.recordedAtUtc,
   };
 }

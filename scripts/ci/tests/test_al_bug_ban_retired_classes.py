@@ -102,6 +102,28 @@ def test_topology_token_not_banned_by_week_uom_scan() -> None:
     assert not any("TopologyProposal" in err for err in errors)
 
 
+def test_new_inventory_host_ladder_test_method_fails() -> None:
+    allowlist = bans.load_inventory_host_ladder_allowlist(bans.INVENTORY_HOST_LADDER_ALLOWLIST)
+    text = """
+public sealed class FakeTests
+{
+    public void ParseSettingValues_e99_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+    }
+}
+"""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        path = root / "ArchLucid.Core.Tests/AzureExtractor/FakeTests.cs"
+        path.parent.mkdir(parents=True)
+        path.write_text(text, encoding="utf-8")
+        errors = bans.find_inventory_host_ladder_test_violations(root, allowlist)
+        assert len(errors) == 1
+        assert "inventory-host-ladder" in errors[0]
+
+
 if __name__ == "__main__":
     failures = 0
     for name, fn in sorted(globals().items()):

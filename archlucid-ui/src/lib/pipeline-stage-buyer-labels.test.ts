@@ -11,7 +11,11 @@ describe("buyerPipelineStageName", () => {
     expect(buyerPipelineStageName("context_ingestion", false)).toBe("context ingestion");
   });
 
-  it("falls back gracefully for unknown stages when vocabulary pass is active", () => {
-    expect(buyerPipelineStageName("unknown_stage", true)).toBe("unknown stage");
+  it("labels unknown stages explicitly when vocabulary pass is active (P-14)", () => {
+    expect(buyerPipelineStageName("unknown_stage", true)).toBe("Unknown pipeline stage (unknown stage)");
+  });
+
+  it("labels empty stage names as not stored (P-14)", () => {
+    expect(buyerPipelineStageName("", true)).toBe("Pipeline stage was not stored.");
   });
 });

@@ -1,15 +1,19 @@
 using System.Globalization;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
 internal static class DiagramForestEdgeLabelSvgEmitter
 {
+    internal const string DuplicateOnPathLabelSuppressedSuffix =
+        " Duplicate on-path relationship label suppressed; see the labeled edge in this group.";
     private const double LabelFontSize = 11.0d;
     private const double LabelPaddingX = 4.0d;
     private const double LabelPaddingY = 2.0d;
@@ -24,15 +28,35 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         bool showArrow,
         List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
-        IReadOnlyList<string>? bundleToNodeIds = null)
+        IReadOnlyList<string>? bundleToNodeIds = null,
+        string? accessibilityTitleOverride = null,
+        bool suppressEmptyRelationshipOnPathLabel = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
         ArgumentNullException.ThrowIfNull(route);
         ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
-        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
-        string title = label.Length == 0 ? "Relationship was not stored" : label;
+        string rawLabel = edge.Label?.Trim() ?? string.Empty;
+        bool relationshipNotStored = rawLabel.Length == 0
+            || string.Equals(
+                rawLabel,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.OrdinalIgnoreCase);
+        bool privateEndpointEdge = !string.IsNullOrWhiteSpace(accessibilityTitleOverride);
+        string displayLabel = relationshipNotStored
+            ? privateEndpointEdge
+                ? DiagramForestPrivateEndpointEdgeAccessibility.AccessTitlePrefix
+                : DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+            : rawLabel;
+        string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim();
+        string title = !string.IsNullOrWhiteSpace(accessibilityTitleOverride)
+            ? accessibilityTitleOverride.Trim()
+            : relationshipNotStored
+                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                : label.Length == 0
+                    ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                    : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
@@ -79,9 +103,13 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
         }
-        else if (visualKind == DiagramEdgeVisualKind.Declared || visualKind == DiagramEdgeVisualKind.Probable)
+        else if (visualKind == DiagramEdgeVisualKind.Declared)
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "4 3"));
+        }
+        else if (visualKind == DiagramEdgeVisualKind.Probable)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "6 4"));
         }
         else if (visualKind == DiagramEdgeVisualKind.AiInferred || visualKind == DiagramEdgeVisualKind.Inferred)
         {
@@ -97,7 +125,16 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel || label.Length == 0)
+        if (suppressOnPathLabel)
+        {
+            string suppressedTitle = title + DuplicateOnPathLabelSuppressedSuffix;
+            edgeGroup.Element(svgNamespace + "title")?.ReplaceWith(new XElement(svgNamespace + "title", suppressedTitle));
+            edgeGroup.Add(new XAttribute("data-duplicate-label-suppressed", "true"));
+
+            return edgeGroup;
+        }
+
+        if (relationshipNotStored && suppressEmptyRelationshipOnPathLabel && !privateEndpointEdge)
         {
             return edgeGroup;
         }

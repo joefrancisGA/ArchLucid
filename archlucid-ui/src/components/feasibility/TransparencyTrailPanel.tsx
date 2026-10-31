@@ -8,6 +8,10 @@ import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import {
+  formatAssertedTrailLine,
+  formatSkippedTrailQuestionKey,
+} from "@/lib/feasibility/format-transparency-trail-entry-display";
 import type { FindingTrustPresentationInput } from "@/lib/findings/finding-trust-presentation";
 import {
   parseTransparencyTrailOpenFromSearch,
@@ -119,24 +123,22 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
           <ul className="mt-1 list-disc pl-5">
             {trail.asserted.map((entry) => (
               <li key={entry.key}>
-                {entry.key === null || entry.key === undefined
-                  ? `Assertion key was not stored. Value: ${entry.value}`
-                  : `${entry.key}: ${entry.value}`}
+                {formatAssertedTrailLine(entry)}
                 {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
                   ? ` — ${entry.responderLabel}`
                   : entry.responderLabel === null || entry.responderLabel === undefined
                     ? " — Responder was not stored."
-                    : ""}
+                    : " — Responder was stored empty."}
                 {typeof entry.questionId === "string" && entry.questionId.length > 0
                   ? ` — Question id: ${entry.questionId}`
                   : entry.questionId === null || entry.questionId === undefined
                     ? " — Question id was not stored."
-                    : ""}
+                    : " — Question id was stored empty."}
                 {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
                   ? ` — Answer recorded time: ${entry.recordedUtc}`
                   : entry.recordedUtc === null || entry.recordedUtc === undefined
                     ? " — Answer recorded time was not stored."
-                    : ""}
+                    : " — Answer recorded time was stored empty."}
               </li>
             ))}
           </ul>
@@ -164,8 +166,10 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             Skipped MUST questions ({mustSkipped.length})
           </p>
           <ul className="mt-1 list-disc pl-5">
-            {mustSkipped.map((entry) => (
-              <li key={entry.questionKey}>{entry.questionKey}</li>
+            {mustSkipped.map((entry, index) => (
+              <li key={`${entry.questionKey ?? "missing"}-${index}`}>
+                {formatSkippedTrailQuestionKey(entry.questionKey)}
+              </li>
             ))}
           </ul>
         </div>
@@ -179,8 +183,10 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
         <div>
           <p className="m-0 font-medium">Skipped SHOULD questions ({shouldSkipped.length})</p>
           <ul className="mt-1 list-disc pl-5">
-            {shouldSkipped.map((entry) => (
-              <li key={entry.questionKey}>{entry.questionKey}</li>
+            {shouldSkipped.map((entry, index) => (
+              <li key={`${entry.questionKey ?? "missing"}-${index}`}>
+                {formatSkippedTrailQuestionKey(entry.questionKey)}
+              </li>
             ))}
           </ul>
         </div>

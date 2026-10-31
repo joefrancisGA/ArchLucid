@@ -8,13 +8,18 @@ namespace ArchLucid.Application.Exports;
 /// <summary>Resolves host and run-recorded quality-gate posture for career export honesty (DR-05).</summary>
 public static class CareerExportQualityGateHonestyResolver
 {
-    public static AgentOutputQualityGateMode ResolveHostMode(IConfiguration configuration)
+    public static AgentOutputQualityGateMode? ResolveHostMode(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
         IConfigurationSection section = configuration.GetSection(AgentOutputQualityGateOptions.SectionPath);
 
-        return section.GetValue<AgentOutputQualityGateMode>(nameof(AgentOutputQualityGateOptions.Mode));
+        if (!section.Exists())
+        {
+            return null;
+        }
+
+        return section.GetValue<AgentOutputQualityGateMode?>(nameof(AgentOutputQualityGateOptions.Mode));
     }
 
     public static string? ResolveHostAgentExecutionMode(IConfiguration configuration)
@@ -25,7 +30,7 @@ public static class CareerExportQualityGateHonestyResolver
 
         if (string.IsNullOrWhiteSpace(raw))
         {
-            return "Simulator";
+            return null;
         }
 
         return raw;

@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildDecisionReceiptDocument,
+  buildDecisionReceiptFilename,
   DECISION_RECEIPT_COST_ESTIMATE_LABEL,
+  DECISION_RECEIPT_COST_FIGURES_NOT_STORED,
+  DECISION_RECEIPT_DRAFT_ID_NOT_STORED,
+  DECISION_RECEIPT_FREE_TEXT_INTENT_NOT_STORED,
+  DECISION_RECEIPT_RUN_ID_NOT_STORED,
   DECISION_RECEIPT_SCHEMA_VERSION,
   isExportableDecisionVerdict,
   resolveDecisionReceiptExportBlockedReason,
@@ -31,8 +36,16 @@ describe("decisionReceiptExport", () => {
 
     expect(receipt.schemaVersion).toBe(DECISION_RECEIPT_SCHEMA_VERSION);
     expect(receipt.costStory.label).toBe(DECISION_RECEIPT_COST_ESTIMATE_LABEL);
+    expect(receipt.costStory.sessionCostUsdEstimate).toBe("Session cost was not stored.");
+    expect(receipt.costStory.avoidedHumanArchitectCostUsdEstimate).toBe(
+      "Avoided human architect cost was not stored.",
+    );
     expect(receipt.verdict.kind).toBe("SoftInfeasible");
     expect(receipt.intake?.freeTextIntent).toBe("Build a workflow.");
+    expect(receipt.costStory.narrative).toBe(DECISION_RECEIPT_COST_FIGURES_NOT_STORED);
+    expect(receipt.costStory.avoidedCalendarWeeksEstimate).toBe("Avoided calendar time was not stored.");
+    expect(JSON.stringify(receipt)).not.toContain("25000");
+    expect(JSON.stringify(receipt)).not.toContain("2–4");
   });
 
   it("includes asserted vs inferred transparency trail on export (CD-07)", () => {
@@ -70,6 +83,23 @@ describe("decisionReceiptExport", () => {
     expect(receipt.careerPosture?.structuralExecutionMode).toBe("Simulator");
     expect(receipt.careerPosture?.workingCareerRehearsalDoor).toBe("rehearsal");
     expect(receipt.careerPosture?.rehearsalIncomplete).toBe(true);
+  });
+
+  it("writes not-stored intake and ids when context omits identifiers (P-01)", () => {
+    const receipt = buildDecisionReceiptDocument({
+      source: "draft-admission",
+      verdict: {
+        kind: "SoftInfeasible",
+        summary: "Actor set is required before admission.",
+      },
+    });
+
+    expect(receipt.runId).toBe(DECISION_RECEIPT_RUN_ID_NOT_STORED);
+    expect(receipt.draftId).toBe(DECISION_RECEIPT_DRAFT_ID_NOT_STORED);
+    expect(receipt.intake.freeTextIntent).toBe(DECISION_RECEIPT_FREE_TEXT_INTENT_NOT_STORED);
+    expect(buildDecisionReceiptFilename({ source: "draft-admission", verdict: receipt.verdict })).not.toMatch(
+      /archlucid-decision-receipt-decision-/,
+    );
   });
 
   it("blocks decision receipt export when hard infeasible lacks citation (FC-30)", () => {

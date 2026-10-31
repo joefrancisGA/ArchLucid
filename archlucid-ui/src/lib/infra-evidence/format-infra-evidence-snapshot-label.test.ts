@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatInfraEvidenceDiffLabel,
+  formatInfraEvidenceDiffTotalChangesPhrase,
   formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotCapturedLabel,
   formatInfraEvidenceSnapshotFreshness,
@@ -46,33 +47,43 @@ describe("formatInfraEvidenceSnapshotLabel", () => {
     expect(formatInfraEvidenceSnapshotLabel(snapshot())).not.toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
   });
 
-  it("omits UUID subscription ids when no name is available", () => {
+  it("labels UUID-only subscriptions without using the id as the name (P-07)", () => {
     const unlabeled = snapshot({ subscriptionName: null });
 
-    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("Subscription name was not stored.");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("Subscription id 8aa56f3b-18bc-43ca-ad45-bad9e811d33b.");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).not.toMatch(/^8aa56f3b/);
     expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("61 resources");
+  });
+
+  it("states when subscription fields were not stored", () => {
+    const missing = snapshot({ subscriptionName: null, subscriptionId: null });
+
+    expect(formatInfraEvidenceSnapshotLabel(missing)).toContain("Subscription was not stored.");
   });
 });
 
 describe("formatInfraEvidenceSubscriptionLabel", () => {
-  it("keeps a stored UUID-only subscription id", () => {
+  it("labels UUID-only subscription ids without substituting the id for the name (P-07)", () => {
     expect(formatInfraEvidenceSubscriptionLabel(null, "8aa56f3b-18bc-43ca-ad45-bad9e811d33b")).toBe(
-      "8aa56f3b-18bc-43ca-ad45-bad9e811d33b",
+      "Subscription name was not stored. Subscription id 8aa56f3b-18bc-43ca-ad45-bad9e811d33b.",
     );
     expect(formatInfraEvidenceSubscriptionLabel("   ", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toBe(
-      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "Subscription name was not stored. Subscription id aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
     );
   });
 
-  it("keeps a non-UUID subscription id", () => {
-    expect(formatInfraEvidenceSubscriptionLabel(null, "prod-sub")).toBe("prod-sub");
+  it("keeps a non-UUID subscription id when the name is missing", () => {
+    expect(formatInfraEvidenceSubscriptionLabel(null, "prod-sub")).toBe(
+      "Subscription name was not stored. Subscription id prod-sub.",
+    );
   });
 });
 
 describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
   it("returns a fallback when capture time is missing", () => {
-    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored");
-    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored");
+    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored.");
+    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored.");
   });
 
   it("formats capture time at minute precision without seconds", () => {
@@ -80,6 +91,12 @@ describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
 
     expect(label).toBe("9/8/2026, 6:44 PM EDT");
     expect(label).not.toMatch(/:\d{2}:\d{2}/u);
+  });
+});
+
+describe("formatInfraEvidenceDiffTotalChangesPhrase", () => {
+  it("states when total change count was not stored", () => {
+    expect(formatInfraEvidenceDiffTotalChangesPhrase(undefined)).toBe("Change count was not stored.");
   });
 });
 
@@ -120,5 +137,14 @@ describe("formatInfraEvidenceScopeFreshnessLine", () => {
 
   it("returns null when neither snapshot nor diff is selected", () => {
     expect(formatInfraEvidenceScopeFreshnessLine({ snapshot: null, selectedDiff: null })).toBeNull();
+  });
+
+  it("labels pending capture resource counts without implying zero (P-10)", () => {
+    expect(formatInfraEvidenceSnapshotLabel(snapshot({ captureStatus: 0, resourceCount: 0 }))).toContain(
+      "Resource count was not stored — inventory capture is still in progress.",
+    );
+    expect(formatInfraEvidenceSnapshotLabel(snapshot({ captureStatus: 0, resourceCount: 0 }))).not.toContain(
+      "0 resources",
+    );
   });
 });

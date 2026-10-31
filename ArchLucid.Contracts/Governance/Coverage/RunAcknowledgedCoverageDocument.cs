@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Coverage;
 
 /// <summary>Persisted operator acknowledgement of assurance coverage for one run prior to execute.</summary>
@@ -23,9 +25,11 @@ public sealed class RunAcknowledgedCoverageDocument
         set;
     } = string.Empty;
 
+    private List<RunCoverageAcknowledgementEntry> entries = [];
+
     public List<RunCoverageAcknowledgementEntry> Entries
     {
-        get;
-        set;
-    } = [];
+        get => entries;
+        set => entries = ContractCollectionDefaults.Coalesce(value);
+    }
 }

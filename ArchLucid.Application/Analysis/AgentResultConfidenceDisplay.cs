@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ArchLucid.Application.Analysis;
 
 internal static class AgentResultConfidenceDisplay
@@ -7,7 +9,7 @@ internal static class AgentResultConfidenceDisplay
         ArgumentNullException.ThrowIfNull(missingLabel);
 
         return confidence.HasValue
-            ? confidence.Value.ToString("0.00")
+            ? confidence.Value.ToString("0.00", CultureInfo.InvariantCulture)
             : missingLabel;
     }
 }

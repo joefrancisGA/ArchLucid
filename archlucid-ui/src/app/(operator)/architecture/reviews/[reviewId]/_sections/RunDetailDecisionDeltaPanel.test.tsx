@@ -19,6 +19,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
     const view: RunDetailDecisionDeltaView = {
       isCommitted: true,
       emptyMessage: null,
+      omittedOpenFindingCount: null,
       rows: [
         {
           rank: 1,
@@ -28,6 +29,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
           policyRuleId: "net-base-001",
           evidenceRefCount: 1,
           evidenceAnchorHint: "network.bicep:10 — public access enabled",
+          evidenceRefCountNotStored: false,
           trustChipSet: trustPresentation.chipSet,
           compareDeltaTrustLabels: {
             origin: trustPresentation.chipSet.origin,
@@ -55,6 +57,7 @@ describe("RunDetailDecisionDeltaPanel", () => {
       isCommitted: true,
       rows: [],
       emptyMessage: "No active findings recorded",
+      omittedOpenFindingCount: null,
     };
 
     render(<RunDetailDecisionDeltaPanel runId="run-abc" view={view} />);

@@ -22,18 +22,18 @@ export type FindingProvenancePanelProps = {
 
 function stepKindLabel(kind: FindingProvenanceStepKind): string {
   if (kind === "input") {
-    return "Brief / context provided";
+    return "Input step";
   }
 
   if (kind === "evidence") {
-    return "Evidence collected";
+    return "Evidence step";
   }
 
   if (kind === "policy-check") {
-    return "Policy rule evaluated";
+    return "Policy check step";
   }
 
-  return "Conclusion";
+  return "Conclusion step";
 }
 
 function stepBorderClass(kind: FindingProvenanceStepKind): string {
@@ -52,15 +52,45 @@ function stepBorderClass(kind: FindingProvenanceStepKind): string {
   return "pl-3";
 }
 
+export const FINDING_PROVENANCE_STEP_LABEL_NOT_STORED = "Provenance step label was not stored." as const;
+
+export const FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED = "Provenance step detail was not stored." as const;
+
+export const FINDING_PROVENANCE_STEP_LABEL_STORED_EMPTY = "Provenance step label was stored empty." as const;
+
+export const FINDING_PROVENANCE_STEP_DETAIL_STORED_EMPTY = "Provenance step detail was stored empty." as const;
+
+function formatProvenanceStepLabel(label: string | null | undefined): string {
+  if (label === null || label === undefined) {
+    return FINDING_PROVENANCE_STEP_LABEL_NOT_STORED;
+  }
+
+  const trimmed = label.trim();
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_LABEL_STORED_EMPTY;
+}
+
+function formatProvenanceStepDetail(detail: string | null | undefined): string {
+  if (detail === null || detail === undefined) {
+    return FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED;
+  }
+
+  const trimmed = detail.trim();
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_DETAIL_STORED_EMPTY;
+}
+
 function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): React.JSX.Element {
   const { step } = props;
 
   return (
     <li className={cn("space-y-1", stepBorderClass(step.kind))}>
       <p className={cn("m-0 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper, step.kind === "conclusion" ? "font-bold" : "")}>
-        {stepKindLabel(step.kind)}: {step.label}
+        {stepKindLabel(step.kind)}: {formatProvenanceStepLabel(step.label)}
       </p>
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {formatProvenanceStepDetail(step.detail)}
+      </p>
     </li>
   );
 }
@@ -167,7 +197,9 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
 
           {error ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-              Provenance is not available for this finding.
+              {provenanceQuery.isError
+                ? "Provenance could not be loaded for this finding."
+                : "Finding provenance steps were not stored."}
             </p>
           ) : null}
 

@@ -81,6 +81,34 @@ public sealed class ClosedLoopReasoningResultClonerTests
     }
 
     [Fact]
+    public void Clone_isolates_model_elements_from_caller_mutation()
+    {
+        ClosedLoopReasoningResult source = new()
+        {
+            Model = new ArchitectureKnowledgeModel
+            {
+                ModelId = "model-1",
+                RunId = "run-1",
+                Elements =
+                [
+                    new ArchitectureModelElement
+                    {
+                        ElementId = "el-1",
+                        Kind = ArchitectureElementKind.Component,
+                        Name = "API",
+                    },
+                ],
+            },
+        };
+
+        ClosedLoopReasoningResult cloned = ClosedLoopReasoningResultCloner.Clone(source);
+
+        cloned.Model.Elements.Should().NotBeSameAs(source.Model.Elements);
+        source.Model.Elements.Add(new ArchitectureModelElement { ElementId = "el-2", Name = "Worker" });
+        cloned.Model.Elements.Should().HaveCount(1);
+    }
+
+    [Fact]
     public void Clone_deep_copies_icloneable_payload_instead_of_using_shallow_clone()
     {
         ShallowClonePayload payload = new() { Value = "original" };

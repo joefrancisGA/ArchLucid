@@ -71,7 +71,7 @@ public sealed class ConnectorIntakeParserServiceTests
 
         result.InfrastructureDeclarations.Should().ContainSingle();
         result.InfrastructureDeclarations[0].Format.Should().Be("simple-terraform");
-        result.SystemName.Should().Be("platform-terraform");
+        result.SystemName.Should().Be("System name was not stored.");
     }
 
     [Fact]

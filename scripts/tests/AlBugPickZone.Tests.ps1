@@ -25,6 +25,7 @@ BeforeAll {
             [string] $EscapeLogPath,
             [string] $AtUtc,
             [string] $CoverageCobertura,
+            [string] $AvoidZoneId,
             [hashtable] $ExtraArgs
         )
 
@@ -55,6 +56,10 @@ BeforeAll {
 
         if (-not [string]::IsNullOrWhiteSpace($CoverageCobertura)) {
             $pickerArgs.CoverageCobertura = $CoverageCobertura
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($AvoidZoneId)) {
+            $pickerArgs.AvoidZoneId = $AvoidZoneId
         }
 
         if ($null -ne $ExtraArgs) {
@@ -165,6 +170,56 @@ Describe 'al-bug-pick-zone.ps1' {
 
         $result.zoneId | Should -Be 'zone-b'
         $result.hintOverride | Should -Be $true
+    }
+
+    It 'avoids a zone id and picks the next eligible zone' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **aliases:** primary
+- **paths:** ArchLucid.Application/Primary.cs
+- **test-filter:** FullyQualifiedName~PrimaryTests
+- **hunts:** 10
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Primary hypothesis
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **aliases:** secondary
+- **paths:** ArchLucid.Application/Secondary.cs
+- **test-filter:** FullyQualifiedName~SecondaryTests
+- **hunts:** 2
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-07-01
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Secondary hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $without = Invoke-Picker -LedgerPath $ledger
+        $withAvoid = Invoke-Picker -LedgerPath $ledger -AvoidZoneId 'zone-a'
+
+        $without.zoneId | Should -Be 'zone-a'
+        $withAvoid.zoneId | Should -Be 'zone-b'
     }
 
     It 'matches a hint against an alias' {
@@ -468,6 +523,49 @@ Describe 'al-bug-pick-zone.ps1' {
         $resultOne.score | Should -Be $resultThree.score
         $resultOne.score | Should -Be 6
         @($resultThree.candidateHypotheses).Count | Should -Be 2
+    }
+
+    It 'reads open candidates from the newest diary header before the next hunt note' {
+        $content = @"
+# fixture
+
+## Zone: zone-diary-queue
+
+2026-10-29 seed hunt (seed→hit): closed prior row; seeded follow-ons below.
+
+- [x] (proven) Example — already fixed — **hit 2026-10-29 seed hunt:** regression above.
+- [ ] (candidate) Token path — misspelled error code — locus: alias collapse; input: JSON body.
+- [ ] (candidate) Callback path — authorize error query — locus: alias collapse; input: query string.
+
+2026-10-27 seed hunt (seed→hit): older hunt note.
+
+- [ ] (candidate) Stale buried candidate — must not score — locus: old row.
+
+- **id:** zone-diary-queue
+- **status:** open
+- **aliases:** diary header queue
+- **paths:** archlucid-ui/src/lib/oidc/
+- **test-filter:** oidc
+- **hunts:** 12
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
+- **last-bug:** 2026-10-25 — example
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) Legacy row — closed in ### Hypotheses only.
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger -Hint 'zone-diary-queue'
+
+        $result.zoneId | Should -Be 'zone-diary-queue'
+        @($result.candidateHypotheses).Count | Should -Be 2
+        @($result.openHypotheses).Count | Should -Be 2
+        $result.seedHunt | Should -Be $false
+        $result.candidateHypotheses[0] | Should -Match 'Token path'
     }
 
     It 'counts only hunt-ready rows in the hypothesis tie-break' {

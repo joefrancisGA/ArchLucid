@@ -78,25 +78,42 @@ public static class StructuredDiagramCanonicalModelReconstructor
             string? subgraphId = ReadDiagramSubgraphId(canonicalObject);
             string? subgraphLabel = ReadDiagramSubgraphLabel(canonicalObject);
 
-            if (!string.IsNullOrWhiteSpace(subgraphId)
-                && !subgraphs.ContainsKey(subgraphId))
+            if (!string.IsNullOrWhiteSpace(subgraphId))
             {
-                subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                if (!subgraphs.TryGetValue(subgraphId, out ArchitectureDiagramSubgraphRecord? subgraph))
                 {
-                    Id = subgraphId,
-                    Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
-                    OrderKey = subgraphOrder++,
-                };
+                    subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                    {
+                        Id = subgraphId,
+                        Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
+                        OrderKey = subgraphOrder++,
+                    };
+                }
+                else if (!string.IsNullOrWhiteSpace(subgraphLabel))
+                {
+                    subgraph.Label = subgraphLabel.Trim();
+                }
             }
 
-            diagramNodes.Add(new ArchitectureDiagramNodeRecord
+            ArchitectureDiagramNodeRecord incomingNode = new()
             {
                 Id = diagramNodeId,
                 Label = ReadLabel(canonicalObject),
                 Kind = ReadDiagramNodeKind(canonicalObject),
                 Provenance = ReadProvenance(canonicalObject),
                 SubgraphId = subgraphId,
-            });
+            };
+
+            ArchitectureDiagramNodeRecord? existingNode = diagramNodes.FirstOrDefault(
+                candidate => string.Equals(candidate.Id, diagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (existingNode is null)
+            {
+                diagramNodes.Add(incomingNode);
+                continue;
+            }
+
+            CoalesceDiagramNodeRecord(existingNode, incomingNode);
         }
 
         if (diagramNodes.Count == 0)
@@ -192,24 +209,113 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             foreach (string targetToken in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                string objectId = StripObjPrefix(targetToken);
+                (string objectToken, string? edgeLabel, string? edgeProvenance, string? diagramEdgeId) =
+                    ParseConnectedTargetToken(targetToken);
+                string objectId = StripObjPrefix(objectToken);
 
                 if (!diagramNodeIdByObjectId.TryGetValue(objectId, out string? targetDiagramNodeId))
                 {
                     continue;
                 }
 
-                edges.Add(new ArchitectureDiagramEdgeRecord
+                string resolvedEdgeId = !string.IsNullOrWhiteSpace(diagramEdgeId)
+                    ? diagramEdgeId.Trim()
+                    : $"edge-{edgeIndex++}";
+
+                ArchitectureDiagramEdgeRecord incomingEdge = new()
                 {
-                    Id = $"edge-{edgeIndex++}",
+                    Id = resolvedEdgeId,
                     SourceId = sourceDiagramNodeId,
                     TargetId = targetDiagramNodeId,
-                    Provenance = ReadProvenance(source),
-                });
+                    Label = edgeLabel ?? string.Empty,
+                    Provenance = edgeProvenance ?? ReadProvenance(source),
+                };
+
+                ArchitectureDiagramEdgeRecord? existingEdge = edges.FirstOrDefault(
+                    candidate =>
+                        string.Equals(candidate.Id, resolvedEdgeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.SourceId, sourceDiagramNodeId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(candidate.TargetId, targetDiagramNodeId, StringComparison.OrdinalIgnoreCase));
+
+                if (existingEdge is null)
+                {
+                    edges.Add(incomingEdge);
+                    continue;
+                }
+
+                CoalesceDiagramEdgeRecord(existingEdge, incomingEdge);
             }
         }
 
         return edges;
+    }
+
+    private static void CoalesceDiagramEdgeRecord(
+        ArchitectureDiagramEdgeRecord existing,
+        ArchitectureDiagramEdgeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
+    }
+
+    private static (string ObjectToken, string? EdgeLabel, string? EdgeProvenance, string? DiagramEdgeId)
+        ParseConnectedTargetToken(string targetToken)
+    {
+        int firstSeparatorIndex = targetToken.IndexOf('|');
+
+        if (firstSeparatorIndex < 0)
+        {
+            return (targetToken, null, null, null);
+        }
+
+        string objectToken = targetToken[..firstSeparatorIndex];
+        int secondSeparatorIndex = targetToken.IndexOf('|', firstSeparatorIndex + 1);
+
+        if (secondSeparatorIndex < 0)
+        {
+            string legacyEncodedLabel = targetToken[(firstSeparatorIndex + 1)..];
+
+            if (string.IsNullOrWhiteSpace(legacyEncodedLabel))
+            {
+                return (objectToken, null, null, null);
+            }
+
+            return (objectToken, Uri.UnescapeDataString(legacyEncodedLabel), null, null);
+        }
+
+        string encodedLabel = targetToken[(firstSeparatorIndex + 1)..secondSeparatorIndex];
+        string? edgeLabel = string.IsNullOrWhiteSpace(encodedLabel)
+            ? null
+            : Uri.UnescapeDataString(encodedLabel);
+
+        int thirdSeparatorIndex = targetToken.IndexOf('|', secondSeparatorIndex + 1);
+
+        if (thirdSeparatorIndex < 0)
+        {
+            string legacyProvenancePart = targetToken[(secondSeparatorIndex + 1)..];
+            string? legacyEdgeProvenance = string.IsNullOrWhiteSpace(legacyProvenancePart)
+                ? null
+                : legacyProvenancePart.Trim();
+
+            return (objectToken, edgeLabel, legacyEdgeProvenance, null);
+        }
+
+        string provenancePart = targetToken[(secondSeparatorIndex + 1)..thirdSeparatorIndex];
+        string? edgeProvenance = string.IsNullOrWhiteSpace(provenancePart) ? null : provenancePart.Trim();
+
+        string encodedEdgeId = targetToken[(thirdSeparatorIndex + 1)..];
+        string? diagramEdgeId = string.IsNullOrWhiteSpace(encodedEdgeId)
+            ? null
+            : Uri.UnescapeDataString(encodedEdgeId);
+
+        return (objectToken, edgeLabel, edgeProvenance, diagramEdgeId);
     }
 
     private static string StripObjPrefix(string graphNodeOrObjectToken)
@@ -239,6 +345,31 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         diagramNodeId = raw.Trim();
         return true;
+    }
+
+    private static void CoalesceDiagramNodeRecord(
+        ArchitectureDiagramNodeRecord existing,
+        ArchitectureDiagramNodeRecord incoming)
+    {
+        if (!string.IsNullOrWhiteSpace(incoming.Label))
+        {
+            existing.Label = incoming.Label;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Kind))
+        {
+            existing.Kind = incoming.Kind;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.Provenance))
+        {
+            existing.Provenance = incoming.Provenance;
+        }
+
+        if (!string.IsNullOrWhiteSpace(incoming.SubgraphId))
+        {
+            existing.SubgraphId = incoming.SubgraphId;
+        }
     }
 
     private static string ReadLabel(CanonicalObject canonicalObject)

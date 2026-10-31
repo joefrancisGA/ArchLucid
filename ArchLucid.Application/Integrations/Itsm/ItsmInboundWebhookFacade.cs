@@ -11,11 +11,15 @@ namespace ArchLucid.Application.Integrations.Itsm;
 /// <inheritdoc cref="IItsmInboundWebhookFacade" />
 public sealed class ItsmInboundWebhookFacade(
     IOptionsMonitor<IntegrationsItsmInboundOptions> options,
+    IOptionsMonitor<IntegrationsItsmOutboundOptions> outboundOptions,
     IItsmTenantConnectorCredentialResolver credentialResolver,
     ItsmInboundWebhookSyncService sync) : IItsmInboundWebhookFacade
 {
     private readonly IOptionsMonitor<IntegrationsItsmInboundOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
+    private readonly IOptionsMonitor<IntegrationsItsmOutboundOptions> _outboundOptions =
+        outboundOptions ?? throw new ArgumentNullException(nameof(outboundOptions));
 
     private readonly IItsmTenantConnectorCredentialResolver _credentialResolver =
         credentialResolver ?? throw new ArgumentNullException(nameof(credentialResolver));
@@ -122,6 +126,9 @@ public sealed class ItsmInboundWebhookFacade(
         }
 
         IntegrationsItsmInboundOptions inbound = _options.CurrentValue;
+
+        if (_outboundOptions.CurrentValue is { RequireTenantScopedCredentials: true })
+            return null;
 
         if (!inbound.AllowDeploymentWideWebhookSecrets)
             return null;

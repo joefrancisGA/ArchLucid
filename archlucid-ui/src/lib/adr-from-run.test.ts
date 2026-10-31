@@ -94,14 +94,57 @@ describe("adr-from-run", () => {
     expect(md).toContain("| `f1` — Store PII in-region | Asserted |");
     expect(md).toContain("- **Provenance:** Asserted");
     expect(md).toContain("## Status");
-    expect(md).toContain("accepted");
+    expect(md).toContain("Committed");
     expect(md).toContain("## Context");
+    expect(md).toContain("## Key drivers");
+    expect(md).toContain("Driver A");
     expect(md).toContain("## Decision");
+    expect(md).toContain("Decision text was not stored.");
     expect(md).toContain("## Consequences");
     expect(md).toContain(input.runId);
     expect(md).toContain("[High] Store PII in-region");
     expect(md).toContain("**Trust label:** EvidenceBacked — Cited graph path.");
-    expect(md).toContain("Driver A");
+  });
+
+  it("labels omitted cost implications in ADR consequences without follow-up boilerplate", () => {
+    const summary = {
+      overallAssessment: "OK",
+      riskPosture: "Low",
+      themeSummaries: [],
+      findingCount: 0,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+      explanation: {
+        rawText: "",
+        structured: null,
+        confidence: null,
+        provenance: null,
+        summary: "",
+        keyDrivers: ["Driver"],
+        riskImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+      },
+    } as RunExplanationSummary;
+
+    const slice = buildAdrExplanationSlice(summary);
+    expect(slice?.costImplications).toBeNull();
+
+    const md = buildMadrMarkdownFromRun({
+      runId: "run-1",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: slice,
+      findings: [],
+    });
+
+    expect(md).toContain("Cost implications were not stored.");
+    expect(md).not.toContain("Capture operational, security, and cost follow-ups manually");
   });
 
   it("distinguishes missing ADR explanation values from stored empty values", () => {
@@ -118,10 +161,10 @@ describe("adr-from-run", () => {
         riskPosture: "",
         themeSummaries: [],
         summary: "",
-        keyDrivers: [],
-        riskImplications: [],
-        costImplications: [],
-        complianceImplications: [],
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
         detailedNarrative: "",
         structuredReasoning: null,
         alternativesConsidered: null,
@@ -160,12 +203,14 @@ describe("adr-from-run", () => {
       findings: [],
     });
 
+    expect(missing).toContain("Key drivers were not stored.");
+    expect(storedEmpty).toContain("Key drivers were stored empty.");
     expect(missing).toContain("Structured reasoning was not stored.");
     expect(missing).toContain("Alternatives considered were not stored.");
     expect(missing).toContain("Caveats were not stored.");
     expect(storedEmpty).not.toContain("Structured reasoning was not stored.");
-    expect(storedEmpty).not.toContain("Alternatives considered were not stored.");
-    expect(storedEmpty).not.toContain("Caveats were not stored.");
+    expect(storedEmpty).toContain("Alternatives considered were stored empty.");
+    expect(storedEmpty).toContain("Caveats were stored empty.");
   });
 
   it("buildMadrMarkdownFromRun includes semantic support band per finding (AS-071)", () => {
@@ -329,6 +374,38 @@ describe("adr-from-run", () => {
     expect(input.findings.length).toBe(2);
     expect(input.findings[0]?.findingId).toBe("high");
     expect(input.findings[1]?.findingId).toBe("low");
+    expect(input.omittedMutedFindingCount).toBe(1);
+  });
+
+  it("buildMadrMarkdownFromRun labels muted-only exports separately from missing findings", () => {
+    const muted: QuickDecisionFinding = {
+      findingId: "muted",
+      title: "Muted",
+      recommendation: "r",
+      severityValue: 3,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "c" },
+      isMuted: true,
+      muteReason: "noise",
+    };
+
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [muted],
+      maxFindings: 5,
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    const md = buildMadrMarkdownFromRun(input);
+
+    expect(md).toContain("Muted findings were stored on this review and are not included in this ADR export.");
   });
 
   it("buildAdrGeneratorRunInput forwards trust labels from quick decision findings", () => {
@@ -405,6 +482,133 @@ describe("adr-from-run", () => {
     expect(md).not.toContain("_Not specified._");
   });
 
+  it("exports stored trust labels without Asserted/Inferred mapping (P-05)", () => {
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [
+        {
+          findingId: "f-trust",
+          title: "Finding",
+          recommendation: "Fix",
+          severityValue: 2,
+          aiReasoning: { reasoningTrace: "trace" },
+          trustLabel: "EvidenceBacked",
+        } as QuickDecisionFinding,
+      ],
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(buildMadrMarkdownFromRun(input)).toContain("**Trust label:** EvidenceBacked");
+    expect(buildMadrMarkdownFromRun(input)).toContain("**Provenance:** Provenance kind was not stored.");
+    expect(buildMadrMarkdownFromRun(input)).not.toContain("**Provenance:** Asserted");
+  });
+
+  it("labels omitted themes, stored-empty themes, and omitted findings in ADR markdown (P-03 / P-04)", () => {
+    const missingThemes = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: null,
+        summary: "",
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
+        detailedNarrative: "",
+        structuredReasoning: null,
+        alternativesConsidered: null,
+        caveats: null,
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: null,
+      },
+      findings: [],
+    });
+
+    expect(missingThemes).toContain("Theme summaries were not stored.");
+    expect(missingThemes).toContain("Findings were not included in this export.");
+
+    const emptyThemes = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: [],
+        summary: "",
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
+        detailedNarrative: "",
+        structuredReasoning: null,
+        alternativesConsidered: null,
+        caveats: null,
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: null,
+      },
+      findings: [],
+    });
+
+    expect(emptyThemes).toContain("Theme summaries were stored empty.");
+  });
+
+  it("labels unreadable review captured dates and separates overall assessment copy (P-06 / P-08)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "not-a-date",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "Low",
+        themeSummaries: [],
+        summary: "Summary only.",
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
+        detailedNarrative: "",
+        structuredReasoning: null,
+        alternativesConsidered: null,
+        caveats: null,
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: null,
+      },
+      findings: [],
+    });
+
+    expect(md).toContain("Review captured (UTC date): Review captured date was not readable.");
+    expect(md).toContain("Overall assessment was not stored.");
+    expect(md).toContain("_Summary:_ Summary only.");
+    expect(md).not.toContain("accept");
+    expect(md).not.toContain("propose");
+  });
+
   it("keeps unmapped trust labels and never maps Unknown provenance kind (P-07)", () => {
     const custom = buildAdrGeneratorRunInput({
       runId: "r1",
@@ -428,7 +632,8 @@ describe("adr-from-run", () => {
       severityLabelForFinding: severityBadgeLabel,
     });
 
-    expect(custom.findings[0]?.provenanceKind).toBe("CustomVendorLabel");
+    expect(custom.findings[0]?.provenanceKind).toBeNull();
+    expect(custom.findings[0]?.trustLabel).toBe("CustomVendorLabel");
 
     const unknown = buildAdrGeneratorRunInput({
       runId: "r1",
@@ -492,6 +697,52 @@ describe("adr-from-run", () => {
     expect(slice?.provenanceLine).toBe("X · Y");
     expect(slice?.deterministicFallbackUsed).toBe(true);
     expect(slice?.faithfulnessWarning).toBe("warn");
+  });
+
+  it("states when policy pack and manifest counts were not stored (P-18, P-19)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: "Finalized",
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    });
+
+    expect(md).toContain("Policy pack label was not stored.");
+    expect(md).toContain("Manifest counts were not stored.");
+  });
+
+  it("uses finding title honesty in the provenance table (P-20)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [
+        {
+          findingId: "f-empty-title",
+          title: "   ",
+          recommendation: "Fix",
+          severityLabel: "Warning",
+          aiReasoningExcerpt: "",
+          trustLabel: null,
+          trustLabelReason: null,
+          provenanceKind: null,
+          semanticSupportBand: null,
+          semanticSupportBandScorerVersion: null,
+        },
+      ],
+    });
+
+    expect(md).toContain("Finding title was not stored.");
   });
 
   it("preserves missing ADR honesty flags and stored empty warning", () => {

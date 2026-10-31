@@ -1,8 +1,13 @@
+import { STORED_TEXT_PREVIEW_CONTINUATION } from "@/lib/format-stored-text-preview";
 import { describe, expect, it } from "vitest";
 
 import {
   canConfirmScopeUnderstanding,
+  actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
+  scopeBriefLineDisplay,
+  scopeBriefLines,
+  scopeConfirmBriefLines,
   isScopeBulletEditable,
   isScopeBulletRemovable,
   mergeScopeBulletsIntoBrief,
@@ -11,7 +16,6 @@ import {
   scopeBulletText,
   scopeConfirmedSummaryMessage,
   validateScopeUnderstandingItem,
-  SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_MAX_LENGTH,
   SCOPE_ITEM_NO_LETTER_MESSAGE,
@@ -55,6 +59,13 @@ describe("scopeBulletBehavior", () => {
   });
 });
 
+describe("actorScopeDisplayLabel", () => {
+  it("uses honesty copy for blank actor labels instead of the kind word alone (P-02)", () => {
+    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).toBe("Actor name was not stored (Both).");
+    expect(actorScopeDisplayLabel({ label: "", kind: "Both" })).not.toBe("Both");
+  });
+});
+
 describe("deriveScopeUnderstandingBullets", () => {
   it("renders typed rows from fixture brief fields", () => {
     const bullets = deriveScopeUnderstandingBullets({
@@ -77,6 +88,43 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
   });
 
+  it("labels actors without stored names instead of substituting kind", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human", trustOrigin: "External" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "Actor name was not stored (Human; External).",
+    );
+  });
+
+  it("shows Internal trust origin on scope lines when the actor name is missing", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human", trustOrigin: "Internal" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "Actor name was not stored (Human; Internal).",
+    );
+  });
+
+  it("appends a remainder when more than four people names were stored (P-12)", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [
+        { label: "Person 1", kind: "Human" },
+        { label: "Person 2", kind: "Human" },
+        { label: "Person 3", kind: "Human" },
+        { label: "Person 4", kind: "Human" },
+        { label: "Person 5", kind: "Human" },
+      ],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain("1 more name was stored");
+  });
+
   it("lists every confirmed actor in the mirrored people and systems rows", () => {
     const bullets = deriveScopeUnderstandingBullets({
       architectureName: "Vertex",
@@ -94,6 +142,20 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
+  it("states when peopleAndSystems was omitted from the draft", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      businessOutcome: "Improve settlement latency",
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain(
+      "People and systems were omitted",
+    );
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toContain(
+      "People and systems were omitted",
+    );
+  });
+
   it("keeps the label out of the editable value so rows stay typed", () => {
     const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex" });
     const systemRow = bullets.find((entry) => entry.kind === "system");
@@ -101,6 +163,38 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(systemRow?.value).toBe("Vertex");
     expect(systemRow?.value).not.toContain(":");
     expect(scopeBulletText(systemRow!)).toBe("Primary System or Architecture: Vertex");
+    expect(scopeBriefLineDisplay(systemRow!)).toBe(
+      "Derived from intake, not a separate confirmed answer: Primary System or Architecture: Vertex",
+    );
+    expect(scopeBulletText(bullet({ source: "user", label: "People in Scope", value: "Analysts" }))).toBe(
+      "People in Scope: Analysts",
+    );
+  });
+
+  it("labels empty actor lists as stored empty when the list is present", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "People in scope were stored empty.",
+    );
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe(
+      "Systems in scope were stored empty.",
+    );
+  });
+
+  it("does not use actor kind as a stand-in name when the label is blank", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain(
+      "Actor name was not stored",
+    );
+    expect(bullets.find((entry) => entry.kind === "people")?.value).not.toBe("Human");
   });
 
   it("marks derived rows as inferred so callers can tell edited scope from untouched scope", () => {
@@ -110,6 +204,37 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.every((entry) => entry.source === "inferred")).toBe(true);
+  });
+
+  it("prefixes inferred scope brief lines on confirm", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
+    const lines = scopeConfirmBriefLines(bullets);
+
+    expect(lines.some((line) => line.startsWith("Derived from intake, not a separate confirmed answer:"))).toBe(
+      true,
+    );
+  });
+
+  it("includes omitted people and systems on confirm but not in brief merge (P-12)", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      systemName: "Payments hub",
+      businessOutcome: "Improve settlement latency",
+      peopleAndSystems: undefined,
+    });
+    const confirmLines = scopeConfirmBriefLines(bullets);
+    const briefLines = scopeBriefLines(bullets);
+
+    expect(confirmLines.some((line) => line.includes("People and systems were omitted"))).toBe(true);
+    expect(briefLines.some((line) => line.includes("People and systems were omitted"))).toBe(false);
+  });
+
+  it("prefixes inferred scope brief lines on persist", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
+    const lines = scopeBriefLines(bullets);
+
+    expect(lines.every((line) => line.startsWith("Derived from intake, not a separate confirmed answer:"))).toBe(
+      true,
+    );
   });
 
   it("gives every derived row a stable id so edits survive re-derivation", () => {
@@ -125,8 +250,10 @@ describe("deriveScopeUnderstandingBullets", () => {
       (entry) => entry.kind === "context",
     );
 
-    expect(contextRow?.value.length).toBeLessThanOrEqual(SCOPE_CONTEXT_PREVIEW_MAX_LENGTH);
-    expect(contextRow?.value.endsWith("…")).toBe(true);
+    expect(contextRow?.value).toContain("…");
+    expect(contextRow?.value).toContain(
+      STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview,
+    );
   });
 
   it("ignores a scope block already merged into the brief instead of restating it", () => {
@@ -182,10 +309,10 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.find((entry) => entry.kind === "gap")).toMatchObject({
-      id: "gap-billing-gateway",
       label: "Out of scope until clarified",
       value: "Billing gateway",
     });
+    expect(bullets.find((entry) => entry.kind === "gap")?.id).toMatch(/^gap-billing-gateway/);
   });
 });
 
@@ -217,8 +344,8 @@ describe("scope persistence helpers", () => {
     );
 
     expect(extractScopeUnderstandingLinesFromBrief(merged)).toEqual([
-      "Primary System or Architecture: Vertex",
-      `${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+      "Derived from intake, not a separate confirmed answer: Primary System or Architecture: Vertex",
+      `Derived from intake, not a separate confirmed answer: ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
     ]);
   });
 
@@ -265,7 +392,9 @@ describe("mergeScopeBulletsIntoBrief", () => {
 
     expect(merged).toContain("Base operator brief.");
     expect(merged).toContain(SCOPE_UNDERSTANDING_SECTION_HEADER);
-    expect(merged).toContain("- Primary System or Architecture: Payments hub");
+    expect(merged).toContain(
+      "- Derived from intake, not a separate confirmed answer: Primary System or Architecture: Payments hub",
+    );
   });
 
   it("never merges the architecture context preview back into the brief it came from", () => {

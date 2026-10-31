@@ -15,13 +15,16 @@ internal static class ToxicCombinationPathNarrative
 
     public static string BuildDescription(ToxicCombinationCandidate candidate)
     {
-        IEnumerable<string> hopDescriptions = candidate.Hops.Select(static hop =>
-            $"{ShortNodeLabel(hop.FromNodeId)} -[{hop.EdgeType}]-> {ShortNodeLabel(hop.ToNodeId)}");
+        IEnumerable<string> hopDescriptions = candidate.Hops.Select(hop =>
+            SecurityEvidencePathHopRelationshipLabel.FormatHopSegment(
+                ShortNodeLabel(hop.FromNodeId),
+                hop.EdgeType,
+                ShortNodeLabel(hop.ToNodeId)));
 
         string pathSummary = string.Join("; ", hopDescriptions);
         string egressSuffix = candidate.HasEgressHop
-            ? " Includes unrestricted outbound egress on the hosting subnet."
-            : string.Empty;
+            ? " Includes unrestricted outbound egress on the hosting subnet (declared NSG allow, not observed traffic)."
+            : " Outbound egress was not verified on the composed path.";
 
         string confidenceSuffix = candidate.HasInsufficientEvidenceHop
             ? " Weakest hop: InsufficientEvidence — composed path includes unverified network or identity controls; not observed traffic."
@@ -49,6 +52,10 @@ internal static class ToxicCombinationPathNarrative
 
         int lastSlash = nodeId.LastIndexOf('/');
 
-        return lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+        string segment = lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+
+        return string.IsNullOrWhiteSpace(segment)
+            ? FourRealityDriftNarrative.NodeNameNotStoredLabel
+            : segment;
     }
 }

@@ -2,6 +2,9 @@ namespace ArchLucid.Cli.Commands.PilotReadiness;
 
 internal sealed class DecisionOwnerScoreboardSlotRunner : PilotReadinessSlotRunnerBase, IPilotReadinessSlotRunner
 {
+    private const string OfflineDecisionOwnerLedgerDirectoryRelative =
+        "fixtures/decision-owner-scoreboard/offline-release-train-ledgers";
+
     public async Task<PilotReadinessBundleSlotResult> RunAsync(
         PilotReadinessSlotRunContext context,
         CancellationToken cancellationToken = default)
@@ -11,6 +14,7 @@ internal sealed class DecisionOwnerScoreboardSlotRunner : PilotReadinessSlotRunn
         DecisionOwnerScoreboardOptions childOptions = new()
         {
             SuppressDefaultArtifacts = context.Options.SuppressDefaultArtifacts,
+            LedgerDirectory = context.TryResolveOfflineFixturePath(OfflineDecisionOwnerLedgerDirectoryRelative),
         };
         DecisionOwnerScoreboardRules rules = DecisionOwnerScoreboardRulesLoader.Load(childOptions.RulesPath);
         DecisionOwnerScoreboardRunner runner = new();

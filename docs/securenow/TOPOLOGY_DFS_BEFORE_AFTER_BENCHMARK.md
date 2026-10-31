@@ -1,0 +1,11 @@
+# SecureNow topology traversal: before/after allocation benchmark
+
+This benchmark compares the **frozen pre-PR #5494** algorithm that copies a `HashSet` at every path extension against the merged iterative DFS implementation that reuses one active-path visited set.
+
+The new `securenow-topology-compare.yml` workflow runs four deterministic, sanitized directed graph shapes (chain, cyclic ring, four-way forward branching, and a dense 40-node core), at 50, 200 and 500 nodes. Each baseline and optimized run is executed in a **separate .NET 10 process**, under identical Docker limits of 512 MiB and one CPU, with three repetitions. Each process creates its graph outside the timed operation and captures process-wide managed allocated bytes, sampled resident memory, sampled managed heap size, execution time, CPU time and GC collection counts.
+
+The reporter groups artifacts by topology and input size, requires all three matched repetitions, checks runtime/fixture agreement and **fails the workflow if prefix count, traversed-edge count, unique-visited-node count, truncation status or evidence status differs**. Only then does it emit per-metric before/after medians, absolute changes and relative changes. Negative percentage changes represent a reduction. A zero baseline yields an undefined percentage, not an invented improvement.
+
+To inspect results, open the GitHub Actions workflow artifact `securenow-topology-before-after`, then `artifacts/securenow/topology-compare-summary.json`. Neither the existence of the workflow nor a successful merge is evidence that a benchmark ran; confirm workflow status and artifact contents first.
+
+**Limitations:** The reference implementation is benchmark-only, never used by production. These synthetic graph-topology counts are not SecureNow security attack-path analysis. Managed allocated bytes and GC counters are process-wide; memory samples may miss short-lived peaks. Very short chain executions are dominated by measurement overhead. Three repetitions and CI-host variability are insufficient for a statistically significant speedup claim or a reliable memory sizing model. Truncated results compare bounded work only, not full graph traversal. No production admission, security-evidence or cloud SKU settings change.

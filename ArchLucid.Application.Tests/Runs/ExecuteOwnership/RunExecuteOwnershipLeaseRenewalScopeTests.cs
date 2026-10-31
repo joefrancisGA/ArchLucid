@@ -77,6 +77,74 @@ public sealed class RunExecuteOwnershipLeaseRenewalScopeTests
     }
 
     [Fact]
+    public async Task BeginRenewalScope_cancels_linked_execute_when_shutdown_clears_local_admission()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        RunExecuteOwnershipLeaseService service = CreateService(
+            leases,
+            new RunExecuteOwnershipLeaseOptions
+            {
+                Enabled = true,
+                LeaseDurationSeconds = 60,
+                HeartbeatRenewIntervalSeconds = 15,
+            });
+        using CancellationTokenSource executeCts = new();
+
+        await service.AcquireAsync(runId, CancellationToken.None);
+
+        await using IAsyncDisposable scope = service.BeginRenewalScope(runId, executeCts);
+
+        await service.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        await WaitUntilAsync(() => executeCts.Token.IsCancellationRequested, TimeSpan.FromSeconds(5));
+
+        executeCts.Token.IsCancellationRequested.Should().BeTrue(
+            "shutdown drain must cancel in-flight execute when local admission is cleared between heartbeat ticks");
+    }
+
+    [Fact]
+    public async Task BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        leases
+            .Setup(l => l.ReleaseAllHeldByInstanceAsync("instance-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        RunExecuteOwnershipLeaseService service = CreateService(
+            leases,
+            new RunExecuteOwnershipLeaseOptions
+            {
+                Enabled = true,
+                LeaseDurationSeconds = 900,
+                HeartbeatRenewIntervalSeconds = 300,
+            });
+        using CancellationTokenSource executeCts = new();
+
+        await service.AcquireAsync(runId, CancellationToken.None);
+
+        await using IAsyncDisposable scope = service.BeginRenewalScope(runId, executeCts);
+
+        await service.ReleaseAllHeldByThisInstanceAsync(CancellationToken.None);
+
+        await WaitUntilAsync(() => executeCts.Token.IsCancellationRequested, TimeSpan.FromSeconds(5));
+
+        executeCts.Token.IsCancellationRequested.Should().BeTrue(
+            "shutdown drain must not wait for the full heartbeat interval before cancelling after local admission is cleared");
+    }
+
+    [Fact]
     public async Task BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease()
     {
         Guid runId = Guid.NewGuid();
@@ -112,7 +180,9 @@ public sealed class RunExecuteOwnershipLeaseRenewalScopeTests
         }
     }
 
-    private static RunExecuteOwnershipLeaseService CreateService(Mock<IRunExecuteOwnershipLeaseRepository> leases)
+    private static RunExecuteOwnershipLeaseService CreateService(
+        Mock<IRunExecuteOwnershipLeaseRepository> leases,
+        RunExecuteOwnershipLeaseOptions? leaseOptions = null)
     {
         Mock<IHostProcessInstanceId> instance = new();
         instance.Setup(i => i.Value).Returns("instance-a");
@@ -120,13 +190,15 @@ public sealed class RunExecuteOwnershipLeaseRenewalScopeTests
         Mock<IArchLucidStorageMode> storage = new();
         storage.Setup(s => s.IsInMemory).Returns(false);
 
-        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions
+        RunExecuteOwnershipLeaseOptions resolved = leaseOptions ?? new RunExecuteOwnershipLeaseOptions
         {
             Enabled = true,
             LeaseDurationSeconds = 900,
             HeartbeatRenewIntervalSeconds = 300,
-        });
+        };
+
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(resolved);
 
         return new RunExecuteOwnershipLeaseService(
             leases.Object,

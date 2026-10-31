@@ -82,7 +82,56 @@ public sealed class MermaidDiagramArtifactGeneratorTests
         renderer.Verify(
             x => x.Render(It.Is<Models.DiagramAst>(a =>
                 a.Nodes.Any(n => n.NodeId == "issue_0" && n.Label == "open issue")
-                && a.Edges.Any(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue_0" && e.Label == "flags"))),
+                && a.Edges.Any(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue_0" && e.Label == MermaidManifestDiagramHonestyCopy.IssueEdgeLabel))),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GenerateAsync_uses_honest_decision_and_issue_node_metadata()
+    {
+        Mock<IDiagramRenderer> renderer = new();
+        renderer.Setup(x => x.Format).Returns("mermaid");
+        renderer.Setup(x => x.Render(It.IsAny<Models.DiagramAst>()))
+            .Returns("rendered-mermaid");
+
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new Core.Manifest.Sections.ManifestMetadata { Name = "Sys" },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-1",
+                    Category = "",
+                    Title = "Use TLS",
+                    SelectedOption = "",
+                },
+            ],
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue { Title = "open issue", Severity = "", IssueType = "" },
+                ],
+            },
+        };
+
+        MermaidDiagramArtifactGenerator sut = new(renderer.Object);
+
+        await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        renderer.Verify(
+            x => x.Render(It.Is<Models.DiagramAst>(a =>
+                a.Nodes.Any(n =>
+                    n.NodeId == "decision_dec-1"
+                    && n.NodeType == ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored
+                    && n.Label.Contains(MermaidManifestDiagramHonestyCopy.SelectedOptionNotStored, StringComparison.Ordinal))
+                && a.Nodes.Any(n =>
+                    n.NodeId == "issue_0"
+                    && n.NodeType.Contains(ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored, StringComparison.Ordinal)
+                    && n.NodeType.Contains(ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored, StringComparison.Ordinal)))),
             Times.Once);
     }
 

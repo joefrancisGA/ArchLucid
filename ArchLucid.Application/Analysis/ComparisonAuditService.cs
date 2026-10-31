@@ -21,6 +21,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(report);
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
         string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId);
         string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId);
         ComparisonRecord record = new()
@@ -30,7 +31,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
             Format = ComparisonTypes.FormatJsonMarkdown,
-            SummaryMarkdown = summaryMarkdown,
+            SummaryMarkdown = NormalizeOptionalMarkdown(summaryMarkdown),
             PayloadJson = SerializeEndToEndPayload(report, leftRunId, rightRunId),
             Notes = "Persisted end-to-end replay comparison.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
@@ -60,6 +61,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(diff);
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
         string? leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId);
         string? rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId);
         ComparisonRecord record = new()
@@ -68,10 +70,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             ComparisonType = ComparisonTypes.ExportRecordDiff,
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
-            LeftExportRecordId = diff.LeftExportRecordId,
-            RightExportRecordId = diff.RightExportRecordId,
+            LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(diff.LeftExportRecordId),
+            RightExportRecordId = NormalizeExportRecordIdColumnOrNull(diff.RightExportRecordId),
             Format = ComparisonTypes.FormatJsonMarkdown,
-            SummaryMarkdown = summaryMarkdown,
+            SummaryMarkdown = NormalizeOptionalMarkdown(summaryMarkdown),
             PayloadJson = SerializeExportDiffPayload(diff, leftRunId, rightRunId),
             Notes = "Persisted export record diff.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
@@ -85,22 +87,24 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     public async Task<string> RecordReplayOfAsync(ComparisonRecord sourceRecord, string? notes = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(sourceRecord);
+        string sourceComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(sourceRecord.ComparisonRecordId);
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
-            ComparisonType = sourceRecord.ComparisonType,
+            ComparisonType = ComparisonTypeNormalizer.NormalizeForLookup(sourceRecord.ComparisonType),
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.LeftRunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.RightRunId),
-            LeftExportRecordId = sourceRecord.LeftExportRecordId,
-            RightExportRecordId = sourceRecord.RightExportRecordId,
-            LeftManifestVersion = sourceRecord.LeftManifestVersion,
-            RightManifestVersion = sourceRecord.RightManifestVersion,
-            Format = sourceRecord.Format,
-            SummaryMarkdown = sourceRecord.SummaryMarkdown,
-            PayloadJson = sourceRecord.PayloadJson,
-            Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
+            LeftExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.LeftExportRecordId),
+            RightExportRecordId = NormalizeExportRecordIdColumnOrNull(sourceRecord.RightExportRecordId),
+            LeftManifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(sourceRecord.LeftManifestVersion),
+            RightManifestVersion = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(sourceRecord.RightManifestVersion),
+            Format = NormalizeFormatColumn(sourceRecord.Format),
+            SummaryMarkdown = NormalizeOptionalMarkdown(sourceRecord.SummaryMarkdown),
+            PayloadJson = NormalizeReplayPayloadJson(sourceRecord),
+            Notes = NormalizeReplayNotes(notes, sourceComparisonRecordId),
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
         await _repository.CreateAsync(record, cancellationToken);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         await _auditService.LogAsync(
@@ -113,7 +117,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
                     new
                     {
                         comparisonRecordId = record.ComparisonRecordId,
-                        sourceComparisonRecordId = sourceRecord.ComparisonRecordId,
+                        sourceComparisonRecordId = sourceComparisonRecordId,
                         leftRunId = record.LeftRunId,
                         rightRunId = record.RightRunId,
                         comparisonType = record.ComparisonType
@@ -153,6 +157,50 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             report.LeftRunId = originalLeft;
             report.RightRunId = originalRight;
         }
+    }
+
+    private static string? NormalizeExportRecordIdColumnOrNull(string? exportRecordId)
+    {
+        if (string.IsNullOrWhiteSpace(exportRecordId))
+            return null;
+
+        return RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+    }
+
+    private static string? NormalizeOptionalMarkdown(string? summaryMarkdown) =>
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(summaryMarkdown);
+
+    private static string NormalizeFormatColumn(string format) =>
+        string.IsNullOrWhiteSpace(format) ? string.Empty : format.Trim();
+
+    private static string NormalizeReplayNotes(string? notes, string sourceComparisonRecordId) =>
+        string.IsNullOrWhiteSpace(notes)
+            ? $"Replay of comparison record {sourceComparisonRecordId}."
+            : notes.Trim();
+
+    private static string NormalizeReplayPayloadJson(ComparisonRecord sourceRecord)
+    {
+        if (string.IsNullOrWhiteSpace(sourceRecord.PayloadJson))
+            return string.Empty;
+
+        string? comparisonType =
+            ComparisonRecordScopedReadNormalizer.CanonicalizeComparisonTypeSearchFilter(sourceRecord.ComparisonType);
+
+        if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        {
+            ExportRecordDiffResult? diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(sourceRecord);
+
+            return diff is null ? string.Empty : JsonSerializer.Serialize(diff, JsonOptions);
+        }
+
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        {
+            EndToEndReplayComparisonReport? report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(sourceRecord);
+
+            return report is null ? string.Empty : JsonSerializer.Serialize(report, JsonOptions);
+        }
+
+        return sourceRecord.PayloadJson;
     }
 
     private static string SerializeExportDiffPayload(

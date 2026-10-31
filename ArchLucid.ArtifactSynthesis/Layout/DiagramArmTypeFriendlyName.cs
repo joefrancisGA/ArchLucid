@@ -40,6 +40,33 @@ public static class DiagramArmTypeFriendlyName
         ["Microsoft.Web/staticSites"] = "Static Web App",
     };
 
+    public const string UnmappedArmTypeCaptionPrefix = "ARM resource type has no reviewer label:";
+
+    public static string FormatUnmappedArmTypeCaption(string armType)
+    {
+        return $"{UnmappedArmTypeCaptionPrefix} {armType.Trim()}";
+    }
+
+    public static bool IsKnownCatalogType(string? armType)
+    {
+        if (string.IsNullOrWhiteSpace(armType))
+        {
+            return false;
+        }
+
+        return KnownFullTypes.ContainsKey(armType.Trim());
+    }
+
+    public static string? TryFormatKnownCatalog(string? armType)
+    {
+        if (string.IsNullOrWhiteSpace(armType))
+        {
+            return null;
+        }
+
+        return KnownFullTypes.TryGetValue(armType.Trim(), out string? known) ? known : null;
+    }
+
     public static string? TryFormat(string? armType)
     {
         if (string.IsNullOrWhiteSpace(armType))

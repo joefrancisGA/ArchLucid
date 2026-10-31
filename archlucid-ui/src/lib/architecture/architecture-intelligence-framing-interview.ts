@@ -19,8 +19,8 @@ export const ARCHITECTURE_FRAMING_SUGGEST_EMPTY_MESSAGE =
 
 export const ARCHITECTURE_FRAMING_SUGGEST_SUCCESS_MESSAGE = (count: number): string =>
   count === 1
-    ? "Suggested 1 framing answer from the overview. Review and edit before re-running refine."
-    : `Suggested ${count} framing answers from the overview. Review and edit before re-running refine.`;
+    ? "Inferred 1 framing answer from overview text (not a stored refine answer). Review and edit before re-running refine."
+    : `Inferred ${count} framing answers from overview text (not stored refine answers). Review and edit before re-running refine.`;
 
 export const ARCHITECTURE_FRAMING_SKIPPED_WARNING_TITLE = "Some framing questions are skipped";
 
@@ -30,6 +30,12 @@ export const ARCHITECTURE_FRAMING_SKIPPED_WARNING_DESCRIPTION =
 export const ARCHITECTURE_FRAMING_SKIPPED_WARNING_PROCEED_LABEL = "Proceed anyway";
 
 export const ARCHITECTURE_FRAMING_SKIPPED_WARNING_GO_BACK_LABEL = "Go back";
+
+export const ARCHITECTURE_INTELLIGENCE_BUDGET_REJECT_REASON_NOT_STORED =
+  "Budget reject reason was not stored.";
+
+export const ARCHITECTURE_INTELLIGENCE_PUBLISH_BLOCK_REASON_NOT_STORED =
+  "Publish block reason was not stored.";
 
 export type ArchitectureIntelligenceFramingQuestion = {
   readonly questionId: string;
@@ -69,7 +75,7 @@ export function resolvePublishBlockedAlertMessage(result: ClosedLoopReasoningRes
 
   return reasons.length > 0
     ? `Publish blocked: ${reasons}`
-    : "Publish blocked: trust gate rejected publishable output.";
+    : `Publish blocked: ${ARCHITECTURE_INTELLIGENCE_PUBLISH_BLOCK_REASON_NOT_STORED}`;
 }
 
 export function mergeFramingAnswerDefaults(

@@ -14,19 +14,33 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
         if (nextHopType.Equals("Internet", StringComparison.OrdinalIgnoreCase))
         {
-            return "Outbound internet is sent directly";
+            if (string.IsNullOrWhiteSpace(route.AddressPrefix))
+            {
+                return "Address prefix was not stored. Next hop type is Internet. This is not observed traffic.";
+            }
+
+            return $"Route to {addressPrefix} uses next hop type Internet. This is not observed traffic.";
         }
 
         if (nextHopType.Equals("None", StringComparison.OrdinalIgnoreCase))
         {
             return string.IsNullOrWhiteSpace(route.AddressPrefix)
-                ? "Address prefix was not stored"
-                : $"Traffic to {addressPrefix} is dropped";
+                ? "Address prefix was not stored. Next hop type None was stored (no next-hop resource). This is not observed traffic."
+                : $"Route to {addressPrefix} uses next hop type None. This is not observed traffic.";
+        }
+
+        if (nextHopType.Equals("VnetLocal", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.IsNullOrWhiteSpace(route.AddressPrefix)
+                ? "Address prefix was not stored. Next hop type is VnetLocal."
+                : $"Route to {addressPrefix} uses next hop type VnetLocal. This is not observed traffic.";
         }
 
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
-            return null;
+            return string.IsNullOrWhiteSpace(nextHopType)
+                ? "Default route 0.0.0.0/0 was not drawn. Next hop type was not stored."
+                : $"Default route 0.0.0.0/0 was not drawn. Next hop type is {nextHopType}.";
         }
 
         if (string.IsNullOrWhiteSpace(resolvedNextHopName))
@@ -38,13 +52,17 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
             if (RequiresResolvableNextHop(route))
             {
-                return "route next hop does not resolve";
+                string hopTypeLabel = string.IsNullOrWhiteSpace(nextHopType)
+                    ? "Next hop type was not stored"
+                    : nextHopType;
+
+                return $"Next hop name was not stored for {hopTypeLabel} on {addressPrefix}.";
             }
 
             return null;
         }
 
-        return $"Traffic to {addressPrefix} goes through {resolvedNextHopName}";
+        return $"Route to {addressPrefix} names {resolvedNextHopName} as the next hop. This is not observed traffic.";
     }
 
     private static bool RequiresResolvableNextHop(AzureInventoryRouteTableRoute route)

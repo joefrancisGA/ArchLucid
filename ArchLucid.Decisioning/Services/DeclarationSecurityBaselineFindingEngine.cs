@@ -50,7 +50,7 @@ public sealed class DeclarationSecurityBaselineFindingEngine(IComplianceRulePack
         IReadOnlySet<string> activeRuleIds,
         List<Finding> findings)
     {
-        string label = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label;
+        string label = GraphNodeReviewerLabel.ForFindingTitle(node.Label);
         IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
             DeclarationSecurityBaselineClassifier.Classify(label, node.Properties);
 

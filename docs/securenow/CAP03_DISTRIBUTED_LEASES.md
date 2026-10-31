@@ -1,0 +1,7 @@
+# CAP-03 — distributed capacity lease foundation
+
+The SQL-backed `SqlSecureNowCapacityLeaseRepository` introduces replica-shared capacity slots keyed by **tenant + workload + slot**. Acquisition uses a SQL transaction and `UPDLOCK, HOLDLOCK` on the unique slot key. The winning owner receives a monotonically increasing fencing token. Renew requires the exact owner/fence and an unexpired lease. Release clears the owner and expiry but keeps the row and fencing token.
+
+This is a **foundation, not an enabled distributed admission controller**. It does not currently run in the collection trigger or analysis pipeline. The caller must reject work when no slot is available and arrange renewal/cleanup. Importantly, every side-effecting downstream write must check the current fencing token (or be performed through a fenced transaction) before this is safe as an exclusive execution lease; checking only at the beginning of a task is insufficient. A lease expiring never authorizes retrying an ambiguous Azure Automation start.
+
+The current key groups capacity by tenant. A future design must explicitly define global and per-tenant quotas as separate independently enforced scopes and prevent deadlocks when acquiring multiple leases. SQL Server integration and contention tests are required before production wiring. Only the schema, repository primitive, and source contract guard are introduced here.

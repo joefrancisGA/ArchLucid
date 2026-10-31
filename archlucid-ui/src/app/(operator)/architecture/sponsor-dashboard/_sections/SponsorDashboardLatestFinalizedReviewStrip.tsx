@@ -36,7 +36,8 @@ export function SponsorDashboardLatestFinalizedReviewStrip(
         Open your most recent finalized review
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Portfolio savings and findings roll up from sealed architecture packages. Start with{" "}
+        Portfolio savings and findings roll up from sealed architecture packages after finalize — finding
+        dispositions on open reviews do not add to this roll-up until you finalize. Start with{" "}
         <span className="font-medium text-al-text-primary">{title}</span>.
       </p>
       <div className="mt-3">

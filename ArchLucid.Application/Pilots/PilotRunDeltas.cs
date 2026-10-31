@@ -53,6 +53,30 @@ public sealed record PilotRunDeltas
     } = [];
 
     /// <summary>
+    ///     Mirrors <see cref="ArchitectureRunDetail.AgentResultsIncludedInDetail"/> for sponsor exports when agent
+    ///     results were omitted from the run detail payload.
+    /// </summary>
+    public bool AgentResultsIncludedInDetail
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary><see langword="true"/> when <see cref="FindingsBySeverity"/> came from a persisted findings snapshot.</summary>
+    public bool FindingsCountsFromSnapshot
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Muted findings excluded from <see cref="FindingsBySeverity"/> totals.</summary>
+    public int MutedFindingsExcludedCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Sponsor narrative findings sourced from the findings snapshot when agent results are empty.
     ///     Consumers MUST prefer <c>ArchitectureRunDetail.Results[*].Findings</c> when present.
     /// </summary>
@@ -75,6 +99,15 @@ public sealed record PilotRunDeltas
         get;
         init;
     }
+
+    /// <summary>
+    ///     <see langword="false" /> when the audit repository query failed — <see cref="AuditRowCount" /> is not attested.
+    /// </summary>
+    public bool AuditRowCountResolved
+    {
+        get;
+        init;
+    } = true;
 
     /// <summary>Persisted <c>AgentExecutionTrace</c> rows for this run; one row per LLM completion call.</summary>
     public int LlmCallCount
@@ -107,6 +140,13 @@ public sealed record PilotRunDeltas
     ///     run.
     /// </summary>
     public string? TopFindingId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable title for <see cref="TopFindingId" />, when persisted on the finding record.</summary>
+    public string? TopFindingTitle
     {
         get;
         init;

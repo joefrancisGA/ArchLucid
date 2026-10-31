@@ -174,15 +174,27 @@ def build_summary(
         "steps": steps,
     }
 
-    if api_log_path is not None and api_log_path.is_file():
-        summary["warmupClassification"] = classify_warmup_log(
-            api_log_path.read_text(encoding="utf-8", errors="replace"),
-        )
+    if api_log_path is not None:
+        if not api_log_path.is_file():
+            summary["overallDisposition"] = "INCONCLUSIVE"
+            summary["apiLogIssue"] = "Requested API log was not found"
+        else:
+            api_log = api_log_path.read_text(encoding="utf-8", errors="replace")
+            summary["warmupClassification"] = classify_warmup_log(api_log)
+            if "api process exited" in api_log.lower():
+                summary["overallDisposition"] = "REVIEW_REQUIRED"
+                summary["apiLogIssue"] = "API process exit recorded in supplied log"
 
-    if playwright_log_path is not None and playwright_log_path.is_file():
-        summary["retryReliability"] = classify_retry_reliability(
-            playwright_log_path.read_text(encoding="utf-8", errors="replace"),
-        )
+    if playwright_log_path is not None:
+        if not playwright_log_path.is_file():
+            summary["overallDisposition"] = "INCONCLUSIVE"
+            summary["playwrightLogIssue"] = "Requested Playwright log was not found"
+        else:
+            summary["retryReliability"] = classify_retry_reliability(
+                playwright_log_path.read_text(encoding="utf-8", errors="replace"),
+            )
+            if summary["retryReliability"]["status"] == "RETRY_RELIABILITY_REVIEW":
+                summary["overallDisposition"] = "REVIEW_REQUIRED"
 
     return summary
 

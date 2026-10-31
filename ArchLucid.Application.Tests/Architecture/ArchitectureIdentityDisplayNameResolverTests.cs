@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Tests.Architecture;
 public sealed class ArchitectureIdentityDisplayNameResolverTests
 {
     [Fact]
-    public void ResolveFromDraft_prefers_system_name_then_intent_then_untitled()
+    public void ResolveFromDraft_prefers_system_name_then_untitled()
     {
         ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(new DraftRequestDocument
         {
@@ -21,7 +21,7 @@ public sealed class ArchitectureIdentityDisplayNameResolverTests
         ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(new DraftRequestDocument
         {
             FreeTextIntent = "  Retail checkout  ",
-        }).Should().Be("Retail checkout");
+        }).Should().Be(ArchitectureIdentityDisplayNameDefaults.UntitledArchitecture);
 
         ArchitectureIdentityDisplayNameResolver.ResolveFromDraft(new DraftRequestDocument())
             .Should()

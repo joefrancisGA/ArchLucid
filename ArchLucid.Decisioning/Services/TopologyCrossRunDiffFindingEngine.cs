@@ -82,7 +82,7 @@ public sealed class TopologyCrossRunDiffFindingEngine(
                 {
                     GraphNodeIdsExamined = scopeNodeIds,
                     RulesApplied = ["topology-cross-run-category-diff"],
-                    DecisionsTaken = ["Compared current topology categories to prior graph snapshot Γ."],
+                    DecisionsTaken = ["Compared current topology categories to the prior graph snapshot."],
                     Notes =
                     [
                         $"Prior: {string.Join(", ", diff.PriorCategories)}",

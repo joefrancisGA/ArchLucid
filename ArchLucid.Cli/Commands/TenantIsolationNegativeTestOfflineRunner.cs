@@ -37,7 +37,9 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             {
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
-            else if (probe.RunListPayloadScannable == false
+            else if (probe.RunListClaimsMorePages == true
+                     || TryInferRunListClaimsMorePagesFromEvidence(probe.Evidence)
+                     || probe.RunListPayloadScannable == false
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
                 verdict = TenantIsolationNegativeTestVerdict.Skip;
@@ -63,6 +65,36 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             Verdict = verdict,
             Evidence = probe.Evidence,
         };
+    }
+
+    private static bool TryInferRunListClaimsMorePagesFromEvidence(string evidence)
+    {
+        if (string.IsNullOrWhiteSpace(evidence))
+            return false;
+
+        return AnyEmbeddedRunListClaimsMorePages(evidence.Trim());
+    }
+
+    private static bool AnyEmbeddedRunListClaimsMorePages(string text)
+    {
+        if (TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(text)
+            && TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(text))
+            return true;
+
+        for (int index = 0; index < text.Length; index++)
+        {
+            if (text[index] is not ('{' or '['))
+                continue;
+
+            string embedded = text[index..];
+            if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
+                continue;
+
+            if (TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(embedded))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
@@ -315,6 +347,11 @@ internal sealed class TenantIsolationNegativeTestManifestProbe
     /// When false, offline replay treats the captured list response as unverifiable (parity with live <c>RunListPayloadIsScannable</c>).
     /// </summary>
     public bool? RunListPayloadScannable { get; init; }
+
+    /// <summary>
+    /// When true, offline replay SKIPs exclude-run-id probes (parity with live <c>RunListClaimsMorePages</c> → scan incomplete).
+    /// </summary>
+    public bool? RunListClaimsMorePages { get; init; }
 
     public string? Verdict { get; init; }
 }

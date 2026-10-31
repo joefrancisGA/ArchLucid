@@ -31,6 +31,42 @@ describe("CitationChips", () => {
     expect(link.getAttribute("href")).toBe("/architecture/reviews/run-a#finding-finding-123");
   });
 
+  it("does not invent review deep links when run id is missing (P-07)", () => {
+    demoUiEnvMock.buyerPolishedShell = true;
+    render(<CitationChips citations={[base]} runId="   " />);
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText(/Example finding/)).toBeInTheDocument();
+  });
+
+  it("does not link citations with empty ids", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(
+      <CitationChips
+        citations={[{ kind: "Finding", id: "  ", label: "Example finding" }]}
+        runId="run-a"
+      />,
+    );
+
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByText(/Citation link was not stored\./)).toBeInTheDocument();
+  });
+
+  it("renders stored-empty honesty when citations list is empty", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(<CitationChips citations={[]} runId="run-a" />);
+
+    expect(screen.getByTestId("citation-chips-empty")).toBeInTheDocument();
+    expect(screen.getByText(/Citations were stored empty\./)).toBeInTheDocument();
+  });
+
+  it("renders not-stored honesty when citations are omitted", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(<CitationChips citations={undefined} runId="run-a" />);
+
+    expect(screen.getByText(/Citations were not stored on this explanation\./)).toBeInTheDocument();
+  });
+
   it("links Finding citations to the findings route in buyer-polished shells", () => {
     demoUiEnvMock.buyerPolishedShell = true;
     render(<CitationChips citations={[base]} runId="run-a" />);

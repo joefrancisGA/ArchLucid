@@ -10,7 +10,7 @@ import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azu
 import { unzipSync } from "fflate";
 
 describe("arch-lucid-azure-package-sample-zip", () => {
-  it("ships a valid default demo ZIP that prefills ClaimsIntakeRg", () => {
+  it("ships a valid default demo ZIP that prefills description without inventing systemName", () => {
     const result = readArchLucidAzurePackageZipFromBytes(getBundledArchLucidAzurePackageSampleZipBytes());
 
     expect(result.ok).toBe(true);
@@ -22,7 +22,8 @@ describe("arch-lucid-azure-package-sample-zip", () => {
     expect(result.manifest).toEqual(BUNDLED_ARCH_LUCID_AZURE_PACKAGE_SAMPLE_MANIFEST);
 
     const prefill = buildWizardPrefillFromArchLucidAzureManifest(result.manifest);
-    expect(prefill.systemName).toBe("ClaimsIntakeRg");
+    expect(prefill.systemName).toBeUndefined();
+    expect(prefill.description).toContain("ClaimsIntakeRg");
   });
 
   it("includes resources, diagram, policy, and readme entries for zero-config demo", () => {

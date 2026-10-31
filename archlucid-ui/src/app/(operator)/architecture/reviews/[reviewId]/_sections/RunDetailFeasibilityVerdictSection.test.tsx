@@ -6,6 +6,17 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
 
 describe("RunDetailFeasibilityVerdictSection", () => {
+  it("labels omitted verdict summaries without rendering blank copy", () => {
+    render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "Feasible", summary: undefined as never }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Verdict summary was not stored.")).toBeInTheDocument();
+  });
+
   it("renders verdict kind, summary, and transparency trail counts", () => {
     const verdict: ManifestFeasibilityVerdict = {
       kind: "SoftInfeasible",
@@ -60,6 +71,19 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.queryByText("Hold")).not.toBeInTheDocument();
   });
 
+  it("labels an omitted soft envelope without hiding the verdict summary", () => {
+    render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "SoftInfeasible", summary: "Not feasible as specified." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByTestId("feasibility-soft-envelope-missing")).toHaveTextContent(
+      "Soft envelope was not stored.",
+    );
+  });
+
   it("distinguishes omitted soft verdict fields from stored empty values", () => {
     const { rerender } = render(
       <RunDetailFeasibilityVerdictSection
@@ -98,6 +122,7 @@ describe("RunDetailFeasibilityVerdictSection", () => {
 
     expect(screen.queryByText("Soft assumption was not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Unsat core was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Unsat core was stored empty.")).toBeInTheDocument();
   });
 
   it("renders omitted and stored feasibility detail without collapsing empty values", () => {
@@ -139,6 +164,7 @@ describe("RunDetailFeasibilityVerdictSection", () => {
 
     expect(screen.queryByText("Cost of being wrong was not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Proposed relaxations were not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Proposed relaxations were stored empty.")).toBeInTheDocument();
   });
 
   it("renders proposed relaxation omissions and stored values", () => {

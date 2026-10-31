@@ -12,11 +12,14 @@ import {
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 export type FindingPolicyPackCitationLink = {
   readonly packId: string;
@@ -49,23 +52,25 @@ function nonEmptyString(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function findingInspectEvidenceExcerptTitle(excerpt: string): string {
+  const trimmed = excerpt.trim();
+
+  return trimmed.length > 80
+    ? formatStoredTextPreview(trimmed, 80, STORED_TEXT_PREVIEW_CONTINUATION.policyCitationExcerpt)
+    : trimmed;
+}
+
 export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence): string {
   const excerpt = row.excerpt?.trim() ?? "";
 
   if (excerpt.length > 0) {
-    const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
-
-    if (firstClause.length > 0 && firstClause.length <= 80) {
-      return firstClause;
-    }
-
-    return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
+    return findingInspectEvidenceExcerptTitle(excerpt);
   }
 
   const artifact = row.artifactId?.trim() ?? "";
 
   if (artifact.length > 0) {
-    return artifact.replace(/-/g, " ");
+    return `Evidence artifact id ${artifact}. A citation title was not stored.`;
   }
 
   return "Evidence excerpt was not stored.";
@@ -83,8 +88,22 @@ export function resolvePolicyRuleIdFromInspect(payload: FindingInspectPayload): 
   );
 }
 
+export const FINDING_POLICY_RULE_NAME_NOT_STORED = "Rule name was not stored." as const;
+
+export const FINDING_POLICY_EVIDENCE_NOT_STORED = "Policy evidence citations were not stored on this finding." as const;
+
 export function resolvePolicyRuleLabelFromInspect(payload: FindingInspectPayload, ruleId: string | null): string | null {
-  return nonEmptyString(payload.decisionRuleName) ?? ruleId;
+  const ruleName = nonEmptyString(payload.decisionRuleName);
+
+  if (ruleName !== null) {
+    return ruleName;
+  }
+
+  if (ruleId !== null) {
+    return FINDING_POLICY_RULE_NAME_NOT_STORED;
+  }
+
+  return null;
 }
 
 export function resolvePolicyPackIdFromInspect(payload: FindingInspectPayload): string | null {
@@ -121,9 +140,17 @@ export function resolvePolicyPackNameFromInspect(
     return null;
   }
 
-  const version = resolvePolicyPackVersionFromInspect(payload) ?? "";
+  const scenario = resolveSampleScenarioByPolicyPackId(packId);
 
-  return policyPackBuyerLabel(packId, version);
+  if (scenario !== null) {
+    const version = nonEmptyString(resolvePolicyPackVersionFromInspect(payload));
+
+    return version !== null
+      ? `${scenario.policyPackDisplayLabel} v${version}`
+      : scenario.policyPackDisplayLabel;
+  }
+
+  return "Policy pack was not stored.";
 }
 
 /** First non-empty reasoning excerpt suitable for policy provenance UI. */
@@ -137,7 +164,9 @@ export function resolvePolicyTraceExcerptFromInspect(payload: FindingInspectPayl
   const reasoningTrace = nonEmptyString(payload.reasoningTrace);
 
   if (reasoningTrace !== null) {
-    return reasoningTrace.length > 320 ? `${reasoningTrace.slice(0, 317)}…` : reasoningTrace;
+    return reasoningTrace.length > 320
+      ? formatStoredTextPreview(reasoningTrace, 320, STORED_TEXT_PREVIEW_CONTINUATION.policyCitationExcerpt)
+      : reasoningTrace;
   }
 
   const firstEvidenceExcerpt = payload.evidence
@@ -221,17 +250,7 @@ export function buildPolicyTraceabilityLinksFromRuleId(
     href: policyPacksRuleHref(normalizedRuleId),
   };
 
-  const packName = inferPolicyPackDisplayNameFromComplianceRuleKey(normalizedRuleId);
-  const pack =
-    packName !== null
-      ? {
-          packId: normalizedRuleId,
-          packName,
-          href: policyPacksRuleHref(normalizedRuleId),
-        }
-      : null;
-
-  return { pack, policy };
+  return { pack: null, policy };
 }
 
 export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
@@ -301,7 +320,10 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     policy,
     evidence: [
       {
-        label: evidenceRefCount === 1 ? "1 linked evidence reference" : `${evidenceRefCount} linked evidence references`,
+        label:
+          evidenceRefCount === 1
+            ? "1 evidence reference was stored without an excerpt."
+            : `${evidenceRefCount} evidence references were stored without excerpts.`,
         detail: null,
         href: fallbackHref,
       },

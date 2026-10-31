@@ -17,14 +17,149 @@ public static class ApiRequestNullCollectionElementsGuard
     ///     Returns true when <paramref name="root" /> has a null non-nullable collection property, or contains a null
     ///     element in any enumerable collection (excluding strings and byte arrays) whose element type is not annotated nullable.
     /// </summary>
-    public static bool ContainsNullCollectionElement(object? root)
+    public static bool ContainsNullCollectionElement(object? root) =>
+        ContainsNullCollectionElement(root, bodyParameter: null);
+
+    /// <summary>
+    ///     Validates a bound <c>[FromBody]</c> model. When the body parameter type is itself a collection (for example
+    ///     batch JSON array roots), <paramref name="bodyParameter" /> supplies element nullability for that enumerable.
+    /// </summary>
+    public static bool ContainsNullCollectionElement(object? root, ParameterInfo? bodyParameter)
     {
         if (root is null)
             return false;
 
         HashSet<object> visited = new(ReferenceEqualityComparer.Instance);
 
+        if (bodyParameter is not null
+            && TryVisitRootBodyCollection(root, bodyParameter, visited, out bool rootInvalid)
+            && rootInvalid)
+        {
+            return true;
+        }
+
+        if (bodyParameter is null
+            && TryVisitRootCollectionWithoutBodyParameter(root, visited, out bool rootWithoutParameterInvalid)
+            && rootWithoutParameterInvalid)
+        {
+            return true;
+        }
+
         return VisitObject(root, visited);
+    }
+
+    private static bool TryVisitRootCollectionWithoutBodyParameter(
+        object root,
+        HashSet<object> visited,
+        out bool invalid)
+    {
+        invalid = false;
+        Type rootType = root.GetType();
+
+        if (!IsRootLevelCollectionType(rootType) || root is not IEnumerable enumerable)
+            return false;
+
+        Type? elementType = TryGetEnumerableElementType(rootType);
+        bool allowNullElements = elementType is not null && Nullable.GetUnderlyingType(elementType) is not null;
+
+        foreach (object? element in enumerable)
+        {
+            if (element is null)
+            {
+                if (!allowNullElements)
+                {
+                    invalid = true;
+
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (VisitObject(element, visited))
+            {
+                invalid = true;
+
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    private static Type? TryGetEnumerableElementType(Type type)
+    {
+        if (type.IsArray)
+            return type.GetElementType();
+
+        if (type.IsGenericType)
+        {
+            Type genericDefinition = type.GetGenericTypeDefinition();
+
+            if (genericDefinition == typeof(IEnumerable<>)
+                || genericDefinition == typeof(IList<>)
+                || genericDefinition == typeof(IReadOnlyList<>)
+                || genericDefinition == typeof(ICollection<>)
+                || genericDefinition == typeof(List<>)
+                || genericDefinition == typeof(ISet<>)
+                || genericDefinition == typeof(HashSet<>)
+                || genericDefinition == typeof(Queue<>)
+                || genericDefinition == typeof(Stack<>)
+                || genericDefinition == typeof(LinkedList<>))
+            {
+                return type.GetGenericArguments()[0];
+            }
+        }
+
+        foreach (Type interfaceType in type.GetInterfaces())
+        {
+            if (!interfaceType.IsGenericType || interfaceType.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+                continue;
+
+            return interfaceType.GetGenericArguments()[0];
+        }
+
+        return null;
+    }
+
+    private static bool IsRootLevelCollectionType(Type type)
+    {
+        if (type.IsArray)
+            return true;
+
+        if (!type.IsGenericType)
+            return false;
+
+        Type genericDefinition = type.GetGenericTypeDefinition();
+
+        return genericDefinition == typeof(List<>)
+               || genericDefinition == typeof(IList<>)
+               || genericDefinition == typeof(IReadOnlyList<>)
+               || genericDefinition == typeof(ICollection<>)
+               || genericDefinition == typeof(IEnumerable<>)
+               || genericDefinition == typeof(ISet<>)
+               || genericDefinition == typeof(HashSet<>)
+               || genericDefinition == typeof(Queue<>)
+               || genericDefinition == typeof(Stack<>)
+               || genericDefinition == typeof(LinkedList<>);
+    }
+
+    private static bool TryVisitRootBodyCollection(
+        object root,
+        ParameterInfo bodyParameter,
+        HashSet<object> visited,
+        out bool invalid)
+    {
+        invalid = false;
+        Type parameterType = Nullable.GetUnderlyingType(bodyParameter.ParameterType) ?? bodyParameter.ParameterType;
+
+        if (!IsEnumerableCollection(parameterType) || !parameterType.IsInstanceOfType(root))
+            return false;
+
+        NullabilityInfo parameterNullability = NullabilityContext.Create(bodyParameter);
+        invalid = VisitCollection((IEnumerable)root, parameterNullability, visited);
+
+        return true;
     }
 
     private static bool VisitObject(object value, HashSet<object> visited)
@@ -81,9 +216,12 @@ public static class ApiRequestNullCollectionElementsGuard
         return VisitObject(value, visited);
     }
 
-    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited)
+    private static bool VisitCollection(IEnumerable enumerable, PropertyInfo owningProperty, HashSet<object> visited) =>
+        VisitCollection(enumerable, NullabilityContext.Create(owningProperty), visited);
+
+    private static bool VisitCollection(IEnumerable enumerable, NullabilityInfo collectionNullability, HashSet<object> visited)
     {
-        bool allowNullElements = AllowsNullElements(NullabilityContext.Create(owningProperty));
+        bool allowNullElements = AllowsNullElements(collectionNullability);
 
         foreach (object? element in enumerable)
         {
@@ -97,10 +235,28 @@ public static class ApiRequestNullCollectionElementsGuard
                 return true;
             }
 
-            if (TryVisitDictionaryEntryValue(element, owningProperty, visited, out bool entryInvalid))
+            if (TryVisitDictionaryEntryValue(element, collectionNullability, visited, out bool entryInvalid))
             {
                 if (entryInvalid)
                     return true;
+
+                continue;
+            }
+
+            Type elementRuntimeType = element.GetType();
+
+            if (IsEnumerableCollection(elementRuntimeType))
+            {
+                NullabilityInfo? nestedCollectionNullability = collectionNullability.ElementType;
+
+                if (nestedCollectionNullability is null && collectionNullability.GenericTypeArguments.Length > 0)
+                    nestedCollectionNullability = collectionNullability.GenericTypeArguments[0];
+
+                if (nestedCollectionNullability is not null
+                    && VisitCollection((IEnumerable)element, nestedCollectionNullability, visited))
+                {
+                    return true;
+                }
 
                 continue;
             }
@@ -114,7 +270,7 @@ public static class ApiRequestNullCollectionElementsGuard
 
     private static bool TryVisitDictionaryEntryValue(
         object element,
-        PropertyInfo owningProperty,
+        NullabilityInfo collectionNullability,
         HashSet<object> visited,
         out bool entryInvalid)
     {
@@ -135,7 +291,7 @@ public static class ApiRequestNullCollectionElementsGuard
 
         if (entryValue is null)
         {
-            entryInvalid = !DictionaryValueAllowsNull(owningProperty);
+            entryInvalid = !DictionaryValueAllowsNull(collectionNullability);
 
             return true;
         }
@@ -145,9 +301,9 @@ public static class ApiRequestNullCollectionElementsGuard
         return true;
     }
 
-    private static bool DictionaryValueAllowsNull(PropertyInfo dictionaryProperty)
+    private static bool DictionaryValueAllowsNull(NullabilityInfo dictionaryNullability)
     {
-        NullabilityInfo nullability = NullabilityContext.Create(dictionaryProperty);
+        NullabilityInfo nullability = dictionaryNullability;
 
         if (nullability.GenericTypeArguments.Length >= 2)
             return AllowsNullProperty(nullability.GenericTypeArguments[1]);

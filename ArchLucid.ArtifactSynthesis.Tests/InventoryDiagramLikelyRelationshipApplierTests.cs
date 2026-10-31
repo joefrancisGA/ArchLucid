@@ -20,10 +20,10 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
         InventoryDiagramLikelyRelationshipApplier.Apply(ast);
 
         DiagramEdge edge = ast.Edges.Single();
-        edge.Label.Should().Be(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
+        edge.Label.Should().Be(InventoryDiagramLikelyRelationshipApplier.AdfHostnameOutlineSentence);
         edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
         ast.Nodes[0].UnresolvedRelationshipDetails.Should()
-            .Contain(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
+            .Contain(InventoryDiagramLikelyRelationshipApplier.AdfHostnameOutlineSentence);
     }
 
     [Fact]

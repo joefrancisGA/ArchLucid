@@ -1,14 +1,36 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
+
+export const ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored." as const;
 
+export const ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED =
+  "Owner display name was not stored." as const;
+
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY = "Evidence link was stored empty." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED = "Stale flag was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED = "Last reviewed was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_STORED_EMPTY = "Last reviewed was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_NOT_STORED = "Next review was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_STORED_EMPTY = "Next review was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_NOT_STORED = "Human review status was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_STORED_EMPTY = "Human review status was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED = "ITSM linkage was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY = "ITSM linkage was stored empty." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_AGING_DAYS_NOT_STORED = "Aging days was not stored." as const;
 
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";
@@ -17,6 +39,7 @@ export type ArchitectureRiskRegisterCsvRow = {
   title: string;
   severity: string;
   category: string;
+  systemName?: string | null;
   status: string;
   recommended: string;
   ownerUserId?: string | null;
@@ -64,19 +87,19 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
     }
 
     const cells = [
-      row.category,
+      formatRiskRegisterSystemNameCell(row.systemName),
       row.title,
       row.severity,
       formatRiskRegisterOwnerCell(row.ownerUserId),
       row.recommended,
       row.status,
-      row.evidenceHref ?? inspectPath(row.runId, row.findingId),
+      formatRiskRegisterEvidenceLinkCell(row.evidenceHref),
       formatRiskRegisterLastReviewedCell(row.lastReviewedUtc),
-      row.revisitDueUtc ?? "",
-      row.agingDays !== undefined ? String(row.agingDays) : "",
+      formatRiskRegisterNextReviewCell(row.revisitDueUtc),
+      formatRiskRegisterAgingDaysCell(row.agingDays),
       formatRiskRegisterStaleCell(row.isStale),
-      row.humanReviewStatusLabel ?? "",
-      row.itsmLinkedTicketsSummary ?? "",
+      formatRiskRegisterHumanReviewCell(row.humanReviewStatusLabel),
+      formatRiskRegisterItsmLinkageCell(row.itsmLinkedTicketsSummary),
     ].map((c) => escapeCsvCell(c));
 
     lines.push(cells.join(","));
@@ -105,6 +128,60 @@ function formatRiskRegisterLastReviewedCell(lastReviewedUtc: string | null | und
   return lastReviewedUtc;
 }
 
+function formatRiskRegisterNextReviewCell(revisitDueUtc: string | null | undefined): string {
+  if (revisitDueUtc === null || revisitDueUtc === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_NOT_STORED;
+  }
+
+  if (revisitDueUtc.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_NEXT_REVIEW_STORED_EMPTY;
+  }
+
+  return revisitDueUtc;
+}
+
+function formatRiskRegisterAgingDaysCell(agingDays: number | undefined): string {
+  if (agingDays === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_AGING_DAYS_NOT_STORED;
+  }
+
+  return String(agingDays);
+}
+
+function formatRiskRegisterHumanReviewCell(humanReviewStatusLabel: string | null | undefined): string {
+  if (humanReviewStatusLabel === null || humanReviewStatusLabel === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_NOT_STORED;
+  }
+
+  if (humanReviewStatusLabel.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_HUMAN_REVIEW_STORED_EMPTY;
+  }
+
+  return humanReviewStatusLabel;
+}
+
+function formatRiskRegisterItsmLinkageCell(itsmLinkedTicketsSummary: string | null | undefined): string {
+  if (itsmLinkedTicketsSummary === null || itsmLinkedTicketsSummary === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED;
+  }
+
+  if (itsmLinkedTicketsSummary.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
+  }
+
+  return itsmLinkedTicketsSummary;
+}
+
+function formatRiskRegisterSystemNameCell(systemName: string | null | undefined): string {
+  const trimmed = systemName?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED;
+  }
+
+  return trimmed;
+}
+
 function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {
   const trimmed = ownerUserId?.trim() ?? "";
 
@@ -112,17 +189,23 @@ function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): st
     return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
   }
 
+  if (isUuidLike(trimmed)) {
+    return ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED;
+  }
+
   return trimmed;
 }
 
-function inspectPath(runId: string, findingId: string): string {
-  const trimmedRunId = runId.trim();
-
-  if (trimmedRunId.length === 0 || trimmedRunId === "—" || trimmedRunId === " — ") {
+function formatRiskRegisterEvidenceLinkCell(evidenceHref: string | undefined): string {
+  if (evidenceHref === undefined) {
     return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED;
   }
 
-  return getFindingEvidenceTraceHref(trimmedRunId, findingId);
+  if (evidenceHref.trim().length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY;
+  }
+
+  return evidenceHref.trim();
 }
 
 export function downloadArchitectureRiskRegisterCsv(

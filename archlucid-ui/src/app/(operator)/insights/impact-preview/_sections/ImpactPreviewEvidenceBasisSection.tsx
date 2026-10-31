@@ -38,6 +38,10 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE}</CardTitle>
       </CardHeader>
       <CardContent>
+        <p className={cn("m-0 mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Baseline and linked reviews are planning inputs from open or finalized packages — finding dispositions alone do
+          not seal the baseline review record.
+        </p>
         <dl className={cn("m-0 grid gap-3", OPERATOR_TYPOGRAPHY.body)}>
           <div>
             <dt className="text-al-text-secondary">{IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE}</dt>

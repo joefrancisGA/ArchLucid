@@ -82,13 +82,26 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
     {
         try
         {
-            using PeriodicTimer timer = new(TimeSpan.FromSeconds(renewIntervalSeconds));
-
             do
             {
+                if (!_leaseService.IsLocallyHoldingExecuteOwnership(_runId))
+                {
+                    _executeCancellationSource.Cancel();
+
+                    return;
+                }
+
                 await _leaseService.RenewAsync(_runId, cancellationToken).ConfigureAwait(false);
+
+                if (!_leaseService.IsLocallyHoldingExecuteOwnership(_runId))
+                {
+                    _executeCancellationSource.Cancel();
+
+                    return;
+                }
             }
-            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
+            while (await DelayUntilNextRenewOrAdmissionLostAsync(renewIntervalSeconds, cancellationToken)
+                .ConfigureAwait(false));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -108,6 +121,33 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
             }
 
             _executeCancellationSource.Cancel();
+        }
+    }
+
+    private async Task<bool> DelayUntilNextRenewOrAdmissionLostAsync(
+        int renewIntervalSeconds,
+        CancellationToken cancellationToken)
+    {
+        TimeSpan pollInterval = TimeSpan.FromSeconds(1);
+        DateTimeOffset deadline = TimeProvider.System.GetUtcNow().AddSeconds(renewIntervalSeconds);
+
+        while (true)
+        {
+            if (!_leaseService.IsLocallyHoldingExecuteOwnership(_runId))
+            {
+                _executeCancellationSource.Cancel();
+
+                return false;
+            }
+
+            TimeSpan remaining = deadline - TimeProvider.System.GetUtcNow();
+
+            if (remaining <= TimeSpan.Zero)
+                return true;
+
+            TimeSpan delay = remaining < pollInterval ? remaining : pollInterval;
+
+            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
         }
     }
 }

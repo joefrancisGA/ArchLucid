@@ -25,7 +25,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
         {
             List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
                 graphSnapshot,
-                result.UncoveredRequirements);
+                result.UncoveredRequirementNodeIds);
 
             findings.Add(new Finding
             {
@@ -45,11 +45,11 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     UncoveredRequirementCount = result.UnrelatedRequirementCount,
                     UncoveredRequirements = result.UncoveredRequirements
                 },
-                RelatedNodeIds = [.. result.UncoveredRequirements],
+                RelatedNodeIds = [.. result.UncoveredRequirementNodeIds],
                 EvidenceRefs = evidenceRefs,
                 Trace = new ExplainabilityTrace
                 {
-                    GraphNodeIdsExamined = [.. result.UncoveredRequirements],
+                    GraphNodeIdsExamined = [.. result.UncoveredRequirementNodeIds],
                     RulesApplied = ["requirement-coverage-relation"],
                     DecisionsTaken =
                     [

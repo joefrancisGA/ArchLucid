@@ -28,6 +28,13 @@ public static partial class DecisionGradeFindingProvenanceValidator
 
     public static string? GetViolation(Finding finding)
     {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        // Merge-conflict rows are triage metadata, not stored architecture findings, so Kind A
+        // node+rule provenance does not apply (RelatedNodeIds stays empty by design).
+        if (string.Equals(finding.FindingType, FindingMergeConflictPresenter.FindingType, StringComparison.Ordinal))
+            return null;
+
         if (InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType))
             return HasAgentCitationProvenance(finding)
                 ? null

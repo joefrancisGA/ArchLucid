@@ -19,9 +19,10 @@ import {
   LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_LABEL,
 } from "@/lib/livelihood-grade-no-finding-inspect-citation-chips";
 import { FindingSemanticSupportBandInspectSection } from "@/components/findings/FindingSemanticSupportBandInspectSection";
-import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
+import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -98,23 +99,27 @@ export function FindingInspectFindingBody({
       ? classificationRaw
       : null;
 
+  const rawSemanticSupportBand =
+    payload.typedPayload !== null && typeof payload.typedPayload === "object"
+      ? (payload.typedPayload as Record<string, unknown>).semanticSupportBand
+      : undefined;
+
   const inspectFindingForSemanticBand = {
     findingId: decodedFindingId,
     title: decodedFindingId,
     recommendation: payload.reasoningSummary ?? "",
-    severityValue: 0,
+    severityValue:
+      payload.severityStored === false ? null : coerceArchitectureFindingSeverity(payload.severity),
     findingOrder: 0,
     aiReasoning: { wireJson: "{}", reasoningTrace: "" },
     isMuted: false,
     muteReason: null,
     enforcementTier: "PolicyViolation" as const,
     classification,
-    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(
-      payload.typedPayload !== null && typeof payload.typedPayload === "object"
-        ? (payload.typedPayload as Record<string, unknown>)
-        : null,
-      classification,
-    ),
+    semanticSupportBand:
+      rawSemanticSupportBand === undefined || rawSemanticSupportBand === null
+        ? null
+        : normalizeFindingSemanticSupportBand(rawSemanticSupportBand),
   };
 
   const evidenceRefCount = payload.evidence == null ? null : payload.evidence.length;
@@ -140,7 +145,9 @@ export function FindingInspectFindingBody({
       ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {modelProvenance.origin}
-        {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}
+        {modelProvenance.grounding === "Not applicable"
+          ? " · Grounding is not applicable for this finding."
+          : ` · ${modelProvenance.grounding}`}
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
       {modelProvenance.trustLabelReason !== null ? (
@@ -153,6 +160,13 @@ export function FindingInspectFindingBody({
           </p>
           {citationModel.evidence.length > 0 ? (
             <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
+          ) : payload.evidenceListReturned === false ? (
+            <p
+              className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-inspect-evidence-list-not-stored"
+            >
+              Evidence list was not stored.
+            </p>
           ) : (
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER}
@@ -163,7 +177,10 @@ export function FindingInspectFindingBody({
     </div>
   );
 
-  const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
+  const rawRecommendedActions = payload.recommendedActions ?? [];
+  const structuredActions: string[] = rawRecommendedActions.filter((a) => a.trim().length > 0);
+  const recommendedActionsStoredEmpty =
+    rawRecommendedActions.length > 0 && structuredActions.length === 0;
   const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
 
   const whyBlock = (
@@ -180,11 +197,15 @@ export function FindingInspectFindingBody({
       ? (
         <FindingInspectReasoningSummarySection text="Reasoning summary was not stored." />
       )
-      : variant === "inspect" && (payload.reasoningSummary?.trim().length ?? 0) > 0
+      : variant === "inspect" && (payload.reasoningSummary?.trim().length ?? 0) === 0
         ? (
-          <FindingInspectReasoningSummarySection text={payload.reasoningSummary!.trim()} />
+          <FindingInspectReasoningSummarySection text="Reasoning summary was stored empty." />
         )
-        : null;
+        : variant === "inspect"
+          ? (
+            <FindingInspectReasoningSummarySection text={payload.reasoningSummary!.trim()} />
+          )
+          : null;
 
   const evidenceBlock = (
         <FindingInspectEvidenceSection
@@ -193,6 +214,7 @@ export function FindingInspectFindingBody({
           reviewContextHref={reviewContextHref}
           reviewContextLabel={reviewContextLabel}
           evidence={payload.evidence}
+          evidenceListReturned={payload.evidenceListReturned}
           citationModel={citationModel}
         />
   );
@@ -216,6 +238,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
+      recommendedActionsStoredEmpty={recommendedActionsStoredEmpty}
       showOwnerCadence={tone === "detail" && resolveProductionEvalChromeFromStorage()}
     />
   );

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -292,6 +293,37 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
         markdown.Should().Contain(SponsorDecisionDeltaNoveltyResolver.NoveltyConfidenceSectionHeading);
         markdown.Should().Contain("**Confidence:** **Partial**");
         markdown.Should().Contain("**Evidence class:**");
+    }
+
+    [Fact]
+    public void Resolve_when_finding_message_is_blank_uses_not_stored_label()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        detail.Results[0].Findings[0].Message = "   ";
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        result.DecisionDeltaSummary.Should().NotContain("(no message)");
+    }
+
+    [Fact]
+    public void Resolve_when_committed_with_empty_material_findings_does_not_claim_no_change_decision()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Be(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty);
+        result.DecisionDeltaSummary.Should().NotContain("did not surface a material recommended change");
     }
 
     private static ArchitectureRunDetail BuildDetail(bool isCommitted, bool includeFindings)

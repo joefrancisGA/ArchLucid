@@ -25,8 +25,24 @@ export function SeverityTag({
   className,
   ...rest
 }: SeverityTagProps): React.ReactElement {
-  const resolved = kind ?? normalizeFindingSeverity(severity);
-  const display = (label ?? SEVERITY_LABELS[resolved]).trim();
+  const trimmedLabel = label?.trim() ?? "";
+  const rawSeverityMissing =
+    severity === null ||
+    severity === undefined ||
+    (typeof severity === "string" && severity.trim().length === 0);
+  const resolved =
+    kind ?? (rawSeverityMissing ? "unknown" : normalizeFindingSeverity(severity));
+  const display = (
+    trimmedLabel.length > 0
+      ? trimmedLabel
+      : rawSeverityMissing
+        ? "Severity was not stored."
+        : resolved === "unknown"
+          ? (severity?.trim().length ?? 0) > 0
+            ? `Severity ${severity?.trim()} has no reviewer label.`
+            : SEVERITY_LABELS.unknown
+          : SEVERITY_LABELS[resolved]
+  ).trim();
 
   return (
     <MetadataStatusLabel

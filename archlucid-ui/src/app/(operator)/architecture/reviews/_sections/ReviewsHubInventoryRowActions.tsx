@@ -2,7 +2,7 @@
 
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
@@ -34,19 +34,21 @@ export function ReviewsHubInventoryRowActions(
   props: ReviewsHubInventoryRowActionsProps,
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const [openOverflowRunId, setOpenOverflowRunIdState] = useState(() =>
-    parseReviewsHubRowOverflowRunIdFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlOverflowRunId = parseReviewsHubRowOverflowRunIdFromSearch(
+    searchParams.get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
   );
+  const [openOverflowRunId, setOpenOverflowRunIdState] = useState(() => urlOverflowRunId);
   const openOverflowRunIdRef = useRef(openOverflowRunId);
   openOverflowRunIdRef.current = openOverflowRunId;
   const syncOpenOverflowRunIdToUrl = useCallback(
     (runId: string | null) => {
       commitHrefIfChanged(
-        reviewsHubRowOverflowDisclosureHrefFromSearch(readWindowLocationSearch(), runId, pathname),
+        reviewsHubRowOverflowDisclosureHrefFromSearch(searchParams.toString(), runId, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
   const setOpenOverflowRunId = useCallback(
     (runId: string | null) => {
@@ -62,10 +64,20 @@ export function ReviewsHubInventoryRowActions(
     },
     [syncOpenOverflowRunIdToUrl],
   );
+
+  useEffect(() => {
+    if (openOverflowRunIdRef.current === urlOverflowRunId) {
+      return;
+    }
+
+    openOverflowRunIdRef.current = urlOverflowRunId;
+    setOpenOverflowRunIdState(urlOverflowRunId);
+  }, [urlOverflowRunId]);
+
   useEffect(() => {
     const syncOpenOverflowRunIdFromUrl = (): void => {
       const next = parseReviewsHubRowOverflowRunIdFromSearch(
-        new URLSearchParams(window.location.search).get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
+        new URLSearchParams(readWindowLocationSearch()).get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM),
       );
 
       if (openOverflowRunIdRef.current === next) {

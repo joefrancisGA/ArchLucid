@@ -32,26 +32,46 @@ export function formatArchitectureRecommendationOriginLabel(
   return ORIGIN_LABELS[origin] ?? origin;
 }
 
+export const ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED =
+  "Provenance was not stored." as const;
+
+export const ARCHITECTURE_RECOMMENDATION_SUPPORT_STATUS_NOT_STORED =
+  "Support status was not stored." as const;
+
+export function formatArchitectureRecommendationSupportStatusLabel(supportStatus: string): string {
+  const trimmed = supportStatus.trim();
+
+  if (trimmed.length === 0) {
+    return trimmed;
+  }
+
+  if (trimmed === "IndirectlySupported") {
+    return "Indirect support (not evidence-backed)";
+  }
+
+  return trimmed;
+}
+
 export function formatArchitectureRecommendationProvenanceLine(
   provenance: ArchitectureRecommendationProvenance | null | undefined,
 ): string | null {
   if (provenance === null || provenance === undefined) {
-    return null;
+    return ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED;
   }
 
   const originLabel = formatArchitectureRecommendationOriginLabel(provenance.origin);
 
   if (originLabel === null) {
-    return null;
+    return ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED;
   }
 
   const supportStatus = provenance.supportStatus?.trim() ?? "";
 
   if (supportStatus.length === 0) {
-    return `Origin: ${originLabel}`;
+    return `Origin: ${originLabel} · Support: ${ARCHITECTURE_RECOMMENDATION_SUPPORT_STATUS_NOT_STORED}`;
   }
 
-  return `Origin: ${originLabel} · Support: ${supportStatus}`;
+  return `Origin: ${originLabel} · Support: ${formatArchitectureRecommendationSupportStatusLabel(supportStatus)}`;
 }
 
 export function isArchitectureRecommendationEvidenceBacked(
@@ -66,6 +86,5 @@ export function isArchitectureRecommendationEvidenceBacked(
   }
 
   return provenance.supportStatus === "DirectlyEstablished"
-    || provenance.supportStatus === "IndirectlySupported"
     || provenance.supportStatus === "PartiallySupported";
 }

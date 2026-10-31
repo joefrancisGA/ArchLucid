@@ -58,6 +58,7 @@ import {
   parseFindingKeyboardTriageActionFromSearch,
   parseFindingKeyboardTriageFindingIdFromSearch,
 } from "@/lib/governance/finding-keyboard-triage-confirm-url";
+import { normalizeGovernanceQueueFindingId } from "@/lib/governance/governance-findings-queue-selection";
 import {
   FindingKeyboardTriageProvider,
   type FindingKeyboardTriageContextValue,
@@ -186,7 +187,13 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
 
   const onAction = useCallback(
     (findingId: string, disposition: FindingCardShortcutDisposition) => {
-      const blockedReason = props.resolveDispositionBlockedReason?.(findingId) ?? null;
+      const normalizedFindingId = normalizeGovernanceQueueFindingId(findingId);
+
+      if (normalizedFindingId.length === 0) {
+        return;
+      }
+
+      const blockedReason = props.resolveDispositionBlockedReason?.(normalizedFindingId) ?? null;
 
       if (blockedReason !== null && blockedReason.trim().length > 0) {
         setInlineErrorMessage(blockedReason);
@@ -194,7 +201,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
         return;
       }
 
-      const runId = props.resolveRunId(findingId);
+      const runId = props.resolveRunId(normalizedFindingId);
 
       if (runId === null || runId.trim().length === 0) {
         return;
@@ -202,7 +209,7 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
 
       setInlineErrorMessage(null);
       setRationale("");
-      setPending({ findingId, runId: runId.trim(), disposition });
+      setPending({ findingId: normalizedFindingId, runId: runId.trim(), disposition });
     },
     [props, setPending],
   );

@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Net.Http;
+
 namespace ArchLucid.Retrieval.Tests;
 
 [Trait("Category", "Unit")]
@@ -86,6 +88,51 @@ public sealed class ManifestChunkSummarizerTests
     }
 
     [Fact]
+    public async Task MaybeSummarizeAsync_whitespace_only_summary_still_includes_manifest_marker_prefix()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("   \t  ");
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("high", score: 0.95, text: heavyText),
+            CreateManifestHit("low", score: 0.10, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Single(hit => hit.ChunkId == "high").Text.Should().Be(heavyText);
+        result.Single(hit => hit.ChunkId == "low").Text.Should().Be("[Summarized manifest chunk] ");
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_when_summary_client_throws_propagates_exception()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("429"));
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("high", score: 0.95, text: heavyText),
+            CreateManifestHit("low", score: 0.10, text: heavyText),
+        ];
+
+        Func<Task> act = async () => await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    [Fact]
     public async Task MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits()
     {
         Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
@@ -113,6 +160,41 @@ public sealed class ManifestChunkSummarizerTests
         summaryClient.Verify(
             c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_does_not_summarize_knowledge_graph_neighbor_hits()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("summary");
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 50);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("manifest-low", score: 0.10, text: heavyText),
+            new RetrievalHit
+            {
+                ChunkId = "graph-neighbor",
+                DocumentId = "doc-graph",
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNodeNeighbor",
+                SourceId = "neighbor",
+                Title = "Neighbor",
+                Text = "short graph neighbor context",
+                Score = 0.80,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Should().Contain(hit => hit.ChunkId == "graph-neighbor" && hit.Text == "short graph neighbor context");
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -263,6 +345,50 @@ public sealed class ManifestChunkSummarizerTests
         IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
 
         ManifestChunkSummarizer.EstimateTotalTokens(result).Should().BeLessThanOrEqualTo(150);
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_when_cancellation_requested_during_parallel_summaries_propagates()
+    {
+        using CancellationTokenSource cts = new();
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return "summary";
+            });
+
+        IOptionsMonitor<ManifestChunkSummarizationOptions> options =
+            new MockOptionsMonitor<ManifestChunkSummarizationOptions>(
+                new ManifestChunkSummarizationOptions
+                {
+                    Enabled = true,
+                    SafeTokenLimit = 50,
+                    MaxConcurrentSummaries = 4,
+                });
+
+        ManifestChunkSummarizer sut = new(summaryClient.Object, options);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("a", score: 0.10, text: heavyText),
+            CreateManifestHit("b", score: 0.20, text: heavyText),
+            CreateManifestHit("c", score: 0.30, text: heavyText),
+        ];
+
+        Task act = Task.Run(async () => await sut.MaybeSummarizeAsync(hits, cts.Token));
+
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await cts.CancelAsync();
+
+        Func<Task> assert = async () => await act;
+        await assert.Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Fact]

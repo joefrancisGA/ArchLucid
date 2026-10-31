@@ -1,4 +1,7 @@
-import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
+import {
+  type ActiveTenantContextView,
+  TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+} from "@/lib/active-tenant-context-display";
 import {
   describeQuickStartAnalyzableEvidenceGap,
   hasQuickStartAnalyzableEvidenceClass,
@@ -58,7 +61,8 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
     return trimmedBrief;
   }
 
-  const reviewTitle = normalizeFirstPilotReviewTitle(title) || "this architecture";
+  const normalizedTitle = normalizeFirstPilotReviewTitle(title);
+  const reviewTitle = normalizedTitle.length > 0 ? normalizedTitle : "Review title was not stored.";
   const fileLines = files.map((file) => `- ${file.name}`).join("\n");
   const attachmentSection =
     fileLines.length > 0
@@ -166,8 +170,23 @@ export function describeFirstPilotStartBlocker(input: FirstPilotStartBlockerInpu
 
 /** Compact write-target line above the first-pilot start CTA — mirrors quick-review scope disclosure. */
 export function formatFirstPilotIntakeWriteDestination(context: ActiveTenantContextView): string {
-  const workspaceLabel =
-    context.workspaceLabel ?? context.workspaceId ?? "current workspace";
+  const workspaceLabel = (() => {
+    if (context.workspaceLabel !== null && context.workspaceLabel !== undefined) {
+      const trimmed = context.workspaceLabel.trim();
 
-  return `This review will be created in ${workspaceLabel} (${context.displayName}).`;
+      return trimmed.length > 0 ? trimmed : "Workspace name was stored empty.";
+    }
+
+    if (context.workspaceId !== null && context.workspaceId.trim().length > 0) {
+      return `Workspace name was not stored. Workspace id ${context.workspaceId.trim()}.`;
+    }
+
+    return "Workspace was not stored.";
+  })();
+  const tenantLabel =
+    context.displayName === TENANT_ORGANIZATION_NAME_UNAVAILABLE
+      ? "Tenant name was not stored"
+      : context.displayName;
+
+  return `This review will be created in ${workspaceLabel} (${tenantLabel}).`;
 }

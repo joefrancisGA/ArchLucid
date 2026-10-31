@@ -37,6 +37,7 @@ public sealed class DeterminismCheckServiceTests
     [SkippableFact]
     public async Task RunAsync_when_replays_match_marks_deterministic()
     {
+        GoldenManifest matchingManifest = new() { RunId = "src", SystemName = "Sys" };
         List<AgentResult> results =
         [
             new()
@@ -52,17 +53,29 @@ public sealed class DeterminismCheckServiceTests
 
         ReplayRunResult baseline = new()
         {
-            OriginalRunId = "src", ReplayRunId = "base", ExecutionMode = ExecutionModes.Current, Results = results,
+            OriginalRunId = "src",
+            ReplayRunId = "base",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = matchingManifest,
         };
 
         ReplayRunResult iteration1 = new()
         {
-            OriginalRunId = "src", ReplayRunId = "iter1", ExecutionMode = ExecutionModes.Current, Results = results,
+            OriginalRunId = "src",
+            ReplayRunId = "iter1",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = matchingManifest,
         };
 
         ReplayRunResult iteration2 = new()
         {
-            OriginalRunId = "src", ReplayRunId = "iter2", ExecutionMode = ExecutionModes.Current, Results = results,
+            OriginalRunId = "src",
+            ReplayRunId = "iter2",
+            ExecutionMode = ExecutionModes.Current,
+            Results = results,
+            Manifest = matchingManifest,
         };
 
         int replayCall = 0;
@@ -98,6 +111,9 @@ public sealed class DeterminismCheckServiceTests
                 new AgentResultDiffResult { LeftRunId = "base", RightRunId = "iter1", AgentDeltas = [], });
 
         Mock<IManifestDiffService> manifestDiff = new();
+        manifestDiff
+            .Setup(x => x.Compare(matchingManifest, matchingManifest))
+            .Returns(new ManifestDiffResult());
 
         DeterminismCheckService sut = new(replay.Object, agentDiff.Object, manifestDiff.Object);
 

@@ -36,6 +36,32 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_storage_endpoint_with_port_yields_host_without_port()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://starch.blob.core.windows.net:443/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_endpoint_with_port_yields_host_including_port()
+    {
+        const string value =
+            "Endpoint=sb://orders.servicebus.windows.net:5671/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders.servicebus.windows.net:5671");
+    }
+
+    [Fact]
     public void ParseSettingValues_service_bus_endpoint_yields_host_without_shared_access_key()
     {
         const string value =
@@ -63,6 +89,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_managed_redis_azure_net_hostname()
+    {
+        const string value = "myaccount.eastus.redis.azure.net,password=abc,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.eastus.redis.azure.net");
+        $"{parsed[0]}".Should().NotContain("abc");
+    }
+
+    [Fact]
     public void ParseSettingValues_cosmos_documents_host()
     {
         const string value = "AccountEndpoint=https://myaccount.documents.azure.com:443/;AccountKey=abc";
@@ -72,5 +111,5401 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_documents_host_with_fragment_yields_host_without_fragment()
+    {
+        const string value = "https://myaccount.documents.azure.com#fragment/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_blob_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=contoso;BlobEndpoint=https://%63ontoso.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("contoso.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_china_account_endpoint_without_https_scheme()
+    {
+        const string value = "AccountEndpoint=mycosmos.documents.azure.cn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("mycosmos.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_public_account_endpoint_without_https_scheme()
+    {
+        const string value = "AccountEndpoint=myaccount.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_us_government_account_endpoint_without_https_scheme()
+    {
+        const string value = "AccountEndpoint=myaccount.documents.azure.us;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.us");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_regional_eus_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eus;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty(
+            "Cosmos AccountEndpoint hosts use documents.azure.com/cn/us sovereign suffixes, not .azure.eus");
+    }
+
+    [Fact]
+    public void ParseSettingValues_storage_account_name_only_without_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=only;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_default_endpoints_protocol_without_account_name_yields_no_blob_host()
+    {
+        const string value = "DefaultEndpointsProtocol=https;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_whitespace_only_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=   ;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_punctuation_only_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=---;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_usgov_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty(
+            "Cosmos AccountEndpoint hosts use documents.azure.com/cn/us sovereign suffixes, not .azure.usgov");
+    }
+
+    [Fact]
+    public void ParseSettingValues_does_not_declare_cosmos_host_when_account_endpoint_ends_with_usgov_suffix()
+    {
+        const string value = "AccountEndpoint=acct.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_microsoft_scloud_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.microsoft.scloud;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_normalizes_mixed_case_storage_account_name_to_lowercase_blob_host()
+    {
+        const string value =
+            "AccountName=MyStorage;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("mystorage.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_eus2_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eus2;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_two_letter_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=ab;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_24_character_storage_account_name_with_endpoint_suffix_yields_blob_host()
+    {
+        const string account = "abcdefghijklmnopqrstuvwx";
+        account.Length.Should().Be(24);
+        string value = $"AccountName={account};AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be($"{account}.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_25_character_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string account = "abcdefghijklmnopqrstuvwxy";
+        account.Length.Should().Be(25);
+        string value = $"AccountName={account};AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_26_character_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string account = "abcdefghijklmnopqrstuvwxyz";
+        account.Length.Should().Be(26);
+        string value = $"AccountName={account};AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eus1_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eus1;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_hyphenated_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=my-account;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_wus2_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.wus2;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_underscore_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=my_account;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cus_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cus;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_two_digit_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=12;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ne_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ne;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_three_letter_numeric_account_name_with_endpoint_suffix_yields_blob_host()
+    {
+        const string value = "AccountName=123;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("123.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_se_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.se;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_account_name_with_digit_and_hyphen_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=1a-;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_uk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.uk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_account_name_with_consecutive_hyphens_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=abc--def;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_de_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.de;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_account_name_ending_with_hyphen_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=validname-;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_fr_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.fr;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_account_name_starting_with_hyphen_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=-validname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_jp_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.jp;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_mixed_case_account_name_with_endpoint_suffix_yields_lowercase_blob_host()
+    {
+        const string value = "AccountName=ValidName;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("validname.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_it_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.it;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_es_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.es;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_pl_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.pl;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ch_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ch;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_br_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.br;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_interior_period_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=my.account;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_au_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.au;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_trailing_period_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=validname.;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_nz_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.nz;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_leading_period_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=.validname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ca_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ca;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_in_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.in;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_embedded_space_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_mx_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.mx;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_plus_sign_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid+name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_sg_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.sg;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_comma_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid,name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_kr_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.kr;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_equals_sign_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid=name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_tw_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.tw;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ampersand_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid&name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_hk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.hk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_hash_sign_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid#name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_my_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.my;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dollar_sign_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid$name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_id_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.id;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_percent_sign_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid%name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ph_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ph;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_caret_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid^name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_vn_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.vn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_asterisk_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid*name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_th_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.th;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_question_mark_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid?name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_pk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.pk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_pipe_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid|name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bd_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bd;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_backslash_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = @"AccountName=valid\name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_lk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.lk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_colon_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid:name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_np_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.np;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid~name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_mm_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.mm;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_grave_accent_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0060name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bn_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_acute_accent_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E9name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bt_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bt;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cedilla_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E7name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bw_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bw;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E2name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bz_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bz;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00EBname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_by_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.by;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_umlaut_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F6name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ba_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ba;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FCname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bg_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bg;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_i_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00EFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bh_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bh;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_n_with_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F1name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bi_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bi;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_a_with_ring_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E5name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bj_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bj;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_a_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E4name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bl_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bl;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bm_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bm;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bo_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bo;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bp_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bp;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bq_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bq;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bs_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bs;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bu_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bu;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bv_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bv;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_bx_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.bx;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cb_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cb;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cc_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cc;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cd_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cd;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ce_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ce;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cf_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cf;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cg_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cg;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ci_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ci;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cj_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cj;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ck_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ck;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cl_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cl;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cm_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cm;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_co_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.co;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cp_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cp;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cq_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cq;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cr_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cr;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cs_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cs;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ct_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ct;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cu_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cu;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cv_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cv;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cw_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cw;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cx_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cx;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cy_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cy;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cz_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.cz;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_da_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.da;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_db_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.db;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dc_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dc;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dd_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dd;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_df_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.df;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dg_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dg;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dh_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dh;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_di_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.di;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dj_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dj;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dk_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dk;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dl_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dl;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dm_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dm;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dn_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_do_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.do;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dp_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dp;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dq_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dq;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dr_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dr;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ds_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ds;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dt_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dt;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_du_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.du;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dv_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dv;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dw_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dw;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dx_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dx;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dy_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dy;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_dz_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.dz;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ea_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ea;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eb_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eb;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ec_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ec;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ed_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ed;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ee_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ee;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ef_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ef;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eg_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eg;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eh_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eh;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ei_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ei;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ej_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ej;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ek_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ek;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_el_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.el;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_em_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.em;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_en_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.en;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eo_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eo;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ep_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ep;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eq_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eq;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_er_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.er;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_et_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.et;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eu_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.eu;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ev_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ev;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ew_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ew;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ex_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ex;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ey_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ey;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_ez_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.ez;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e0_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e0;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e1_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e1;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e2_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e2;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e3_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e3;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e4_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e4;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e5_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e5;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e6_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e6;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e7_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e7;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e8_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e8;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e9_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e9;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e10_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e10;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e11_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e11;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e12_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e12;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e13_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e13;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e14_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e14;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e15_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e15;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e16_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e16;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e17_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e17;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e18_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e18;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e19_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e19;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e20_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e20;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e21_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e21;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e22_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e22;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e23_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e23;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e24_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e24;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e25_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e25;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e26_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e26;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e27_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.e27;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_eszett_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00DFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_thorn_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FEname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_y_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_y_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FDname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_i_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00ECname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_i_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00EDname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_i_with_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00EEname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_o_with_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F4name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F9name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FAname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FBname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_a_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_a_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E1name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_a_with_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E3name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00E8name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_e_with_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00EAname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_o_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F2name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_o_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F3name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_o_with_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F5name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0169name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_ring_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u016Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_breve_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u016Dname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_ogonek_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0173name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_macron_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u016Aname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_double_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0171name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_dot_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0175name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_inverted_breve_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u0177name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u_with_horn_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u01B0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E81name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E83name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_circumflex_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E85name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E87name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_dot_above_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E89name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_ring_above_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E8Bname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_double_grave_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E91name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_ogonek_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E8Dname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_macron_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E8Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_caron_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E85name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_breve_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E81name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_hook_above_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E82name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_tilde_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E83name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_line_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E8Ename;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_circumflex_accent_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E8Cname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_inverted_breve_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E93name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_double_acute_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E85name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_dot_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E67name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_ring_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E98name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_line_through_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E5Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_cedilla_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E89name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_circumflex_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E33name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_turned_comma_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E2Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_acute_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E31name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_grave_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E49name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_tilde_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E6Dname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_ring_above_u1E61_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E61name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_dot_above_u1E23_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E23name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_tilde_u1E7F_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E7Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_hook_below_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E99name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_long_leg_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E9Fname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_palatal_hook_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E9Cname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_retroflex_hook_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E9Dname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_curl_u1E9B_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1E9Bname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_dot_below_u1EA0_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_w_with_dot_above_u1EA1_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA1name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA3_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA3name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA4_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA4name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA5_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA5name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA6_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA6name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA7_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA7name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA8_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA8name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EA9_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EA9name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAA_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EAAname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAB_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EABname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAC_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EACname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAD_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EADname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAE_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EAEname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EAF_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EAFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB0_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB1_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB1name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB2_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB2name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB3_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB3name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB4_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB4name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB5_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB5name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB6_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB6name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB7_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB7name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB8_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB8name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EB9_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EB9name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBA_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBAname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBB_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBBname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBC_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBCname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBD_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBDname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBE_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBEname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EBF_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EBFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC0_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC1_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC1name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC2_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC2name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC3_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC3name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC4_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC4name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC5_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC5name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC6_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC6name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC7_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC7name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC8_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC8name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1EC9_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1EC9name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECA_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECAname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECB_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECBname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECC_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECCname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECD_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECDname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECE_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECEname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ECF_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ECFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_u1ED0_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u1ED0name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_endpoint_suffix_with_query_yields_blob_host_without_query_fragment()
+    {
+        const string value =
+            "AccountName=shadow;AccountKey=abc;EndpointSuffix=core.windows.net?region=west";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_o_with_stroke_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00F8name;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_with_percent_encoded_vault_name_yields_decoded_key_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues("https://%65xample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_table_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;TableEndpoint=https://%73tarch.table.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=https://%6d%79account.documents.azure.com/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_file_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;FileEndpoint=https://%73tarch.file.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_prefixed_cosmos_account_endpoint_percent_encoding_yields_single_decoded_host()
+    {
+        const string value =
+            "SiteMetadata=prod;AccountEndpoint=https://%6d%79account.documents.azure.com/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_standalone_https_cosmos_url_percent_encoding_yields_single_decoded_host()
+    {
+        const string value = "https://%6d%79account.documents.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_with_userinfo_yields_host_without_userinfo()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://user@starch.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_uppercase_suffix_yields_host()
+    {
+        const string value = "MYACCOUNT.REDIS.CACHE.WINDOWS.NET,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_queue_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;QueueEndpoint=https://%73tarch.queue.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoding_yields_decoded_host()
+    {
+        const string value = "Host=%70g.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_china_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=https://%6d%79account.documents.azure.cn/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_endpoint_suffix_percent_encoding_yields_decoded_blob_host()
+    {
+        const string value = "AccountName=starch;AccountKey=abc;EndpointSuffix=%63ore.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoding_with_port_yields_decoded_host_including_port()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders.servicebus.windows.net:5671/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders.servicebus.windows.net:5671");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "Host=tcp:%70g.postgres.database.azure.com,5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_us_gov_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.us;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.us");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoding_yields_decoded_catalog()
+    {
+        const string value = "Host=pg.postgres.database.azure.com;Database=%61pp;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().Be("app");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoded_template_yields_no_catalog()
+    {
+        const string value =
+            "Database=%7Btenant%7D;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().BeNull();
+        parsed[0].WarningCode.Should().Be(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsCatalogTemplate);
+    }
+
+    [Fact]
+    public void ParseSettingValues_percent_encoded_storage_account_name_with_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=%73tarch;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_account_yields_decoded_host()
+    {
+        const string value = "%73hadow.redis.cache.windows.net,password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_usgov_percent_encoded_account_yields_no_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_managed_redis_percent_encoding_yields_decoded_host()
+    {
+        const string value = "%73hadow.eastus.redis.azure.net,password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.eastus.redis.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_doubly_percent_encoded_storage_account_name_yields_no_blob_host()
+    {
+        const string value = "AccountName=%73%74arch;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_dot_yields_decoded_host()
+    {
+        const string value = "Host=%70g%2epostgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_standalone_https_cosmos_china_percent_encoding_yields_decoded_host()
+    {
+        const string value = "https://%6d%79account.documents.azure.cn/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoding_with_hyphen_yields_decoded_host()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders-prod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders-prod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_china_scheme_less_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.cn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_slash_yields_host_without_slash_escape()
+    {
+        const string value = "AccountName=starch;BlobEndpoint=https://starch.blob.core.windows.net%2f;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoded_comma_yields_host_without_comma_or_port()
+    {
+        const string value =
+            "Host=tcp:pg.postgres.database.azure.com%2c5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_documents_substring_in_longer_hostname_does_not_emit_duplicate_cosmos_host_row()
+    {
+        const string value = "https://shadow-not-cosmos.documents.azure.com.evil.example/setting";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow-not-cosmos.documents.azure.com.evil.example");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_comma_separator_yields_decoded_host_without_comma_escape()
+    {
+        const string value = "%73hadow.redis.cache.windows.net%2cpassword=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_china_longer_hostname_yields_single_decoded_host()
+    {
+        const string value = "https://%6d%79account.documents.azure.cn.evil.example/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn.evil.example");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_userinfo_yields_host_without_userinfo()
+    {
+        const string value = "Host=%75ser%40pg.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_userinfo_yields_host_without_userinfo()
+    {
+        const string value = "AccountName=starch;BlobEndpoint=https://%75ser%40starch.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_at_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders%40prod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("prod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoded_semicolon_yields_decoded_catalog()
+    {
+        const string value = "Database=app%3bshadow;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().Be("app;shadow");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_backslash_yields_host_without_backslash_debris()
+    {
+        const string value = "Host=%70g%5c.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_endpoint_suffix_doubly_percent_encoded_yields_decoded_blob_host()
+    {
+        const string value = "AccountName=starch;AccountKey=abc;EndpointSuffix=%63ore%2ewindows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_underscore_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%5fprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders_prod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoded_partial_template_yields_no_catalog()
+    {
+        const string value = "Database=%7Btenant%7Dname;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().BeNull();
+        parsed[0].WarningCode.Should().Be(
+            AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsCatalogTemplate);
+    }
+
+    [Fact]
+    public void ParseSettingValues_prefixed_https_cosmos_china_yields_single_host_row()
+    {
+        const string value =
+            "AccountEndpoint=https://acc.documents.azure.cn/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("acc.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_data_source_percent_encoding_yields_decoded_host()
+    {
+        const string value = "Data Source=%70g.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_colon_port_yields_host_without_port()
+    {
+        const string value = "Host=pg.postgres.database.azure.com%3a5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_colon_before_options_yields_host_without_port_debris()
+    {
+        const string value = "shadow.redis.cache.windows.net%3a6380,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_hyphen_yields_single_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://starch%2dstg.blob.core.windows.net/;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch-stg.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_forward_slash_yields_full_host_not_truncated_authority()
+    {
+        const string value = "Host=%70g%2f.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoded_forward_slash_yields_full_host()
+    {
+        const string value =
+            "Host=tcp:%70g%2f.postgres.database.azure.com,5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_percent_encoded_forward_slash_yields_full_host()
+    {
+        const string value = "https://%70g%2f.postgres.database.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_initial_catalog_percent_encoding_yields_decoded_catalog()
+    {
+        const string value = "Initial Catalog=%61pp;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().Be("app");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_forward_slash_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%2fprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "QueueEndpoint=https://starch%2fqa.queue.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_table_endpoint_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "TableEndpoint=https://starch%2fqa.table.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_url_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "https://%6d%79%2faccount.documents.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "shadow%2f.redis.cache.windows.net,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_percent_encoded_forward_slash_yields_decoded_vault_host()
+    {
+        const string value = "https://%65%2fxample.vault.azure.net/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_file_endpoint_percent_encoded_forward_slash_yields_decoded_host()
+    {
+        const string value = "FileEndpoint=https://starch%2fqa.file.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_percent_encoded_forward_slash_yields_decoded_vault_host()
+    {
+        const string value = "@Microsoft.KeyVault(SecretUri=https://%65%2fxample.vault.azure.net/secrets/db)";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed[0].SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_backslash_yields_decoded_host()
+    {
+        const string value = "BlobEndpoint=https://starch%5cqa.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoded_backslash_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79%5caccount.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_server_percent_encoded_plus_yields_decoded_host()
+    {
+        const string value = "Server=pg%2b.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg+.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_backslash_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%5cprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_percent_encoded_backslash_yields_decoded_vault_host()
+    {
+        const string value = "@Microsoft.KeyVault(SecretUri=https://%65%5cxample.vault.azure.net/secrets/db)";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_plus_yields_decoded_host()
+    {
+        const string value = "BlobEndpoint=https://starch%2bqa.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch+qa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_question_mark_yields_full_host()
+    {
+        const string value = "Host=pg%3f.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_backslash_yields_decoded_host()
+    {
+        const string value = "shadow%5c.redis.cache.windows.net,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_percent_encoded_forward_slash_yields_decoded_vault_host()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=ex%2fample;SecretName=db)");
+
+        keyVaultHost.Should().Be("example.vault.azure.net");
+        secretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_hash_yields_full_host()
+    {
+        const string value = "Host=pg%23.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_percent_encoded_question_mark_yields_full_host()
+    {
+        const string value = "https://pg%3f.postgres.database.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoded_question_mark_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79%3faccount.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_percent_encoded_backslash_yields_decoded_vault_host()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=ex%5cample;SecretName=db)");
+
+        keyVaultHost.Should().Be("example.vault.azure.net");
+        secretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_question_mark_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%3fprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_percent_encoded_hash_yields_full_host()
+    {
+        const string value = "https://pg%23.postgres.database.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoded_hash_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79%23account.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_hash_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%23prod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        const string value = "@Microsoft.KeyVault(SecretUri=https://%65%23xample.vault.azure.net/secrets/db)";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed[0].SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_hash_yields_decoded_host()
+    {
+        const string value = "shadow%23.redis.cache.windows.net,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=ex%23ample;SecretName=db)");
+
+        keyVaultHost.Should().Be("example.vault.azure.net");
+        secretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_hash_yields_decoded_host()
+    {
+        const string value = "BlobEndpoint=https://starch%23qa.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_doubly_percent_encoded_hash_yields_full_host()
+    {
+        const string value = "Host=pg%2523.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_url_percent_encoded_hash_yields_single_host_row()
+    {
+        const string value = "https://%6d%79%23account.documents.azure.com/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_percent_encoded_question_mark_yields_decoded_vault_host()
+    {
+        const string value = "@Microsoft.KeyVault(SecretUri=https://%65%3fxample.vault.azure.net/secrets/db)";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_triply_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Host=pg%252523.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%2523qa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_doubly_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%2523.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_doubly_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%2523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_doubly_percent_encoded_hash_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%2523prod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_table_endpoint_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "TableEndpoint=https://starch%2523qa.table.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "QueueEndpoint=https://starch%2523qa.queue.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "shadow%2523.redis.cache.windows.net:6380,password=abc,ssl=True");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_doubly_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%2523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%2523account.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_file_endpoint_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "FileEndpoint=https://starch%2523qa.file.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_doubly_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%2523ample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_data_source_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Data Source=pg%2523.postgres.database.azure.com;Initial Catalog=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_triply_percent_encoded_hash_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%252523prod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_url_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://my%2523account.documents.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%252523qa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_server_doubly_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Server=pg%2523.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "shadow%252523.redis.cache.windows.net:6380,password=abc,ssl=True");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_triply_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%252523.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_triply_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_triply_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_table_endpoint_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "TableEndpoint=https://starch%252523qa.table.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_file_endpoint_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "FileEndpoint=https://starch%252523qa.file.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%252523account.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_triply_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%252523ample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "QueueEndpoint=https://starch%252523qa.queue.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_url_triply_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://my%252523account.documents.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_triply_percent_encoded_slash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%25252fample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_quadruple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%25252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_triply_percent_encoded_slash_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%25252fprod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quadruple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%25252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_quadruple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%25252523ample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%25252523qa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_quintuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%2525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_quadruple_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Host=pg%25252523.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_sextuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%252525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "QueueEndpoint=https://starch%25252523qa.queue.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_cosmos_url_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://my%25252523account.documents.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "shadow%25252523.redis.cache.windows.net:6380,password=abc,ssl=True");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quintuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%2525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_septuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%25252525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_sextuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_table_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "TableEndpoint=https://starch%25252523qa.table.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_quadruple_percent_encoded_hash_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%25252523prod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_quadruple_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%25252523.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_octuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%2525252525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_septuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%25252525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_file_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "FileEndpoint=https://starch%25252523qa.file.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.file.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_quadruple_percent_encoded_hash_comma_options_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "shadow%25252523.redis.cache.windows.net,password=abc,ssl=True");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_sextuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%252525252523ample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_nonuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%252525252525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_octuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%2525252525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_queue_endpoint_quadruple_percent_encoded_hash_reverify_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "QueueEndpoint=https://starch%25252523qa.queue.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.queue.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%25252523account.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_server_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Server=pg%25252523.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_nonuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525252525252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_triply_percent_encoded_slash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%2525252fqa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_triply_percent_encoded_slash_depth_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%2525252fprod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quadruple_percent_encoded_slash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525252fample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_triply_percent_encoded_slash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%2525252faccount.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_triply_percent_encoded_slash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%2525252f.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_triply_percent_encoded_backslash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%2525255cqa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_triply_percent_encoded_backslash_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%2525255cprod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quadruple_percent_encoded_backslash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525255cample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_triply_percent_encoded_backslash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%2525255caccount.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_triply_percent_encoded_backslash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%2525255c.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_triply_percent_encoded_question_mark_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%2525253fqa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_triply_percent_encoded_question_mark_yields_decoded_namespace_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Endpoint=sb://orders%2525253fprod.servicebus.windows.net/;SharedAccessKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quadruple_percent_encoded_question_mark_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%252525253fample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_triply_percent_encoded_question_mark_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "AccountEndpoint=https://my%2525253faccount.documents.azure.com:443/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_sql_url_triply_percent_encoded_question_mark_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://pg%2525253f.postgres.database.azure.com/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_data_source_triply_percent_encoded_question_mark_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Data Source=pg%2525253f.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_triply_percent_encoded_question_mark_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "shadow%2525253f.redis.cache.windows.net:6380,password=abc,ssl=True");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_table_endpoint_triply_percent_encoded_question_mark_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "TableEndpoint=https://starch%2525253fqa.table.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.table.core.windows.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_triply_percent_encoded_question_mark_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%2525253fample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_triply_percent_encoded_question_mark_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%2525253fample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
     }
 }

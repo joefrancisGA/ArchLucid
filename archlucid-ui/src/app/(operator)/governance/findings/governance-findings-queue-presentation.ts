@@ -57,6 +57,7 @@ import {
   governanceFindingsQueueActiveFiltersSummary,
 } from "@/lib/governance/governance-findings-queue-active-filters";
 import { resolveGovernanceAssignedToMeOldestFinding } from "@/lib/governance/resolve-governance-assigned-to-me-oldest-finding";
+import { normalizeGovernanceQueueFindingId, governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import {
   EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
@@ -126,7 +127,21 @@ export function extractGovernanceFindingIds(
 ): string[] {
   return displayedRows
     .filter((row) => row.recordKind === "finding")
-    .map((row) => row.findingId);
+    .map((row) => normalizeGovernanceQueueFindingId(row.findingId))
+    .filter((id) => id.length > 0);
+}
+
+export function resolveGovernanceFindingRunIdFromDisplayedRows(
+  displayedRows: readonly GovernanceFindingQueueRow[],
+  findingId: string,
+): string | null {
+  const match = displayedRows.find(
+    (row) =>
+      row.recordKind === "finding"
+      && governanceQueueRowFindingIdEquals(row.findingId, findingId),
+  );
+
+  return match?.runId ?? null;
 }
 
 export type FirstFindingTriageTarget = {

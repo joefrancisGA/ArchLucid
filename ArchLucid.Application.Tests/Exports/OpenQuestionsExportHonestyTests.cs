@@ -44,6 +44,21 @@ public sealed class OpenQuestionsExportHonestyTests
     }
 
     [Fact]
+    public void AppendWorkingDocumentMarkdownSection_labels_blank_key_and_value()
+    {
+        StringBuilder sb = new();
+
+        OpenQuestionsExportHonesty.AppendWorkingDocumentMarkdownSection(
+            sb,
+            [new OpenQuestionsWorkingDocumentExportEntry { Key = "  ", Value = "" }]);
+
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain("Key was not stored.");
+        markdown.Should().Contain("Value was not stored.");
+    }
+
+    [Fact]
     public void TransparencyTrailMarkdownFormatter_routes_open_questions_out_of_asserted_section()
     {
         TransparencyTrail trail = new()
@@ -66,5 +81,22 @@ public sealed class OpenQuestionsExportHonestyTests
         assertedSection.Should().NotContain("open-questions:");
         markdown.Should().Contain(OpenQuestionsExportHonesty.WorkingDocumentExportHeading);
         markdown.Should().Contain("open-questions: Who owns failover approvals?");
+    }
+
+    [Fact]
+    public void TransparencyTrailMarkdownFormatter_states_when_skipped_questions_were_not_recorded()
+    {
+        TransparencyTrail trail = new()
+        {
+            Asserted = [new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" }],
+            Inferred = [],
+            Skipped = [],
+        };
+
+        StringBuilder sb = new();
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain(TransparencyTrailMarkdownFormatter.SkippedQuestionsNotRecordedCopy);
     }
 }

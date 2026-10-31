@@ -14,6 +14,9 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
         ReadOnlySpan<char> trimmed = value.AsSpan().TrimStart();
 
+        if (trimmed.Length > 0 && trimmed[0] == '\uFEFF')
+            trimmed = trimmed.Slice(1).TrimStart();
+
         if (trimmed.Length == 0)
             return false;
 
@@ -22,12 +25,28 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(value);
+            using JsonDocument document = JsonDocument.Parse(trimmed.ToString());
             return ContainsCredentialProperties(document.RootElement);
         }
         catch (JsonException)
         {
             return ConfigurationEmbeddedCredentialMaterialDetector.ContainsEmbeddedCredentialMaterial(value);
+        }
+    }
+
+    internal static bool TryScanJsonForEmbeddedCredentials(ReadOnlySpan<char> trimmed)
+    {
+        if (trimmed.IsEmpty || (trimmed[0] != '{' && trimmed[0] != '['))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed.ToString());
+            return ContainsCredentialProperties(document.RootElement);
+        }
+        catch (JsonException)
+        {
+            return false;
         }
     }
 

@@ -124,6 +124,61 @@ public sealed class AgentTopologyProposalGraphMergeTests
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
 
+    [Fact]
+    public void WithMergedTopologyProposals_resolves_relationship_when_materialized_node_id_uses_quoted_for_each_key()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult topology = new()
+        {
+            ResultId = "r1",
+            TaskId = "t1",
+            RunId = "run-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = "azurerm_linux_virtual_machine.app[\"primary\"]",
+                        ServiceName = "app",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreId = "azurerm_mssql_database.sql[\"primary\"]",
+                        DatastoreName = "sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "azurerm_linux_virtual_machine.app[\"primary\"]",
+                        TargetId = "azurerm_mssql_database.sql[\"primary\"]",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "azurerm_linux_virtual_machine.app[\"primary\"]" &&
+            e.ToNodeId == "azurerm_mssql_database.sql[\"primary\"]" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
     [SkippableFact]
     public void WithMergedTopologyProposals_does_not_duplicate_labels_already_in_graph()
     {

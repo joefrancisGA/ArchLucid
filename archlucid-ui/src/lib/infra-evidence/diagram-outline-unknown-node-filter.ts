@@ -38,6 +38,7 @@ function normalizeCompareValue(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase();
 }
 
+/** Layout adjacency on the rendered diagram — not network isolation or reachability proof. */
 function resolveDiagramNeighborNodeIds(
   outline: InfraEvidenceMermaidOutline,
   startingDiagramNodeId: string,
@@ -76,6 +77,16 @@ function nodeMatchesUnknownSearchQuery(
     .toLowerCase();
 
   return haystack.includes(trimmed);
+}
+
+export function resolveDiagramOutlineStartingResourceGroup(
+  outline: InfraEvidenceMermaidOutline,
+  startingSeedId: string | null | undefined,
+): string | null {
+  const startingNode = resolveDiagramOutlineStartingNode(outline, startingSeedId);
+  const trimmed = startingNode?.resourceGroup?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 export function filterDiagramOutlineUnknownNodes(input: {

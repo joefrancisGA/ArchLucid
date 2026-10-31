@@ -10,8 +10,8 @@ export function createEmptyActorDescriptor(): ActorDescriptor {
     kind: "Human",
     trustOrigin: "Internal",
     contract: "Sync",
-    origin: "Asserted",
-    confidence: 100,
+    origin: "Inferred",
+    confidence: 70,
   };
 }
 

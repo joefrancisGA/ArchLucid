@@ -8,10 +8,13 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildRetrievalHitActionLink,
   buildRetrievalHitEvidenceTrailHref,
-  resolveRetrievalHitRunId,
   retrievalHitRelevanceLabel,
   retrievalHitRelevanceTier,
   retrievalHitSourceTypeLabel,
+  retrievalHitStoredReviewId,
+  RETRIEVAL_HIT_REVIEW_ID_NOT_STORED_ON_HIT,
+  resolveRetrievalHitText,
+  resolveRetrievalHitTitle,
 } from "./retrieval-hit-display";
 import type { RetrievalHit } from "./retrieval-hit";
 
@@ -25,7 +28,7 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
   const sourceLabel = retrievalHitSourceTypeLabel(hit.sourceType);
   const relevanceTier = retrievalHitRelevanceTier(hit.score);
   const relevanceLabel = retrievalHitRelevanceLabel(relevanceTier);
-  const runId = resolveRetrievalHitRunId(hit, scopedRunId);
+  const storedReviewId = retrievalHitStoredReviewId(hit);
   const actionLink = buildRetrievalHitActionLink(hit, scopedRunId);
   const evidenceTrailHref = buildRetrievalHitEvidenceTrailHref(hit, scopedRunId);
 
@@ -34,12 +37,13 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{hit.title}</div>
-            {runId !== null ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium text-al-text-primary">Review:</span> {runId}
-              </p>
-            ) : null}
+            <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {resolveRetrievalHitTitle(hit.title)}
+            </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium text-al-text-primary">Review:</span>{" "}
+              {storedReviewId !== null ? storedReviewId : RETRIEVAL_HIT_REVIEW_ID_NOT_STORED_ON_HIT}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -65,7 +69,7 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
         </div>
 
         <p className={cn("m-0 whitespace-pre-wrap leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {hit.text}
+          {resolveRetrievalHitText(hit.text)}
         </p>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

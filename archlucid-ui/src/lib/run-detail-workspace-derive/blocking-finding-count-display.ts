@@ -1,5 +1,9 @@
+/**
+ * Maps a stored blocking-finding count onto chrome that needs a number.
+ * `null`/`undefined`/non-finite means the count was not stored — unknown, not zero.
+ */
 export function resolveBlockingFindingCountPresentation(
-  blockingFindingCount: number | undefined,
+  blockingFindingCount: number | null | undefined,
 ): { readonly known: boolean; readonly value: number } {
   if (typeof blockingFindingCount !== "number" || !Number.isFinite(blockingFindingCount)) {
     return { known: false, value: 0 };

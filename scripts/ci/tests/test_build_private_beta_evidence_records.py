@@ -39,6 +39,18 @@ class TestBuildPrivateBetaEvidenceRecords(unittest.TestCase):
             self.assertEqual(report["disposition"], "PASS")
             self.assertEqual(report["records"][0]["runId"], "run-1")
 
+    def test_duplicate_requested_run_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = sut.build_records(Path(directory), ["run-1", "run-1"])
+        self.assertEqual(result["disposition"], "HOLD")
+        self.assertTrue(any("duplicate requested run ID" in issue for issue in result["issues"]))
+
+    def test_blank_requested_run_is_not_silently_dropped(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = sut.build_records(Path(directory), ["run-1", " "])
+        self.assertEqual(result["disposition"], "HOLD")
+        self.assertTrue(any("nonempty string" in issue for issue in result["issues"]))
+
     def test_missing_requested_run_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             report = sut.build_records(Path(directory), ["missing"])

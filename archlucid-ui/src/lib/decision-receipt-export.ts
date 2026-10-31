@@ -18,6 +18,26 @@ export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v2";
 export const DECISION_RECEIPT_COST_ESTIMATE_LABEL =
   "Estimated — not audited financial advice (SAQ-011)";
 
+export const DECISION_RECEIPT_COST_FIGURES_NOT_STORED =
+  "Cost figures were not stored for this review.";
+
+export const DECISION_RECEIPT_SESSION_COST_NOT_STORED = "Session cost was not stored.";
+
+export const DECISION_RECEIPT_AVOIDED_ARCHITECT_COST_NOT_STORED =
+  "Avoided human architect cost was not stored.";
+
+export const DECISION_RECEIPT_AVOIDED_CALENDAR_WEEKS_NOT_STORED = "Avoided calendar time was not stored.";
+
+export const DECISION_RECEIPT_RUN_ID_NOT_STORED = "Run id was not stored.";
+
+export const DECISION_RECEIPT_DRAFT_ID_NOT_STORED = "Draft id was not stored.";
+
+export const DECISION_RECEIPT_SYSTEM_NAME_NOT_STORED = "System name was not stored.";
+
+export const DECISION_RECEIPT_BUSINESS_OUTCOME_NOT_STORED = "Business outcome was not stored.";
+
+export const DECISION_RECEIPT_FREE_TEXT_INTENT_NOT_STORED = "Free-text intent was not stored.";
+
 export type DecisionReceiptSource = "draft-admission" | "committed-run";
 
 export type DecisionReceiptContext = {
@@ -38,20 +58,20 @@ export type DecisionReceiptDocument = {
   schemaVersion: typeof DECISION_RECEIPT_SCHEMA_VERSION;
   generatedUtc: string;
   source: DecisionReceiptSource;
-  draftId?: string;
-  runId?: string;
+  draftId: string;
+  runId: string;
   redirectReason?: string;
-  intake?: {
-    freeTextIntent?: string;
-    businessOutcome?: string;
-    systemName?: string;
+  intake: {
+    freeTextIntent: string;
+    businessOutcome: string;
+    systemName: string;
   };
   verdict: ManifestFeasibilityVerdict;
   transparencyTrail: TransparencyTrailExportSection | null;
   costStory: {
     label: typeof DECISION_RECEIPT_COST_ESTIMATE_LABEL;
-    sessionCostUsdEstimate: number;
-    avoidedHumanArchitectCostUsdEstimate: number;
+    sessionCostUsdEstimate: string;
+    avoidedHumanArchitectCostUsdEstimate: string;
     avoidedCalendarWeeksEstimate: string;
     narrative: string;
   };
@@ -68,6 +88,12 @@ export function resolveDecisionReceiptExportBlockedReason(
   return resolveHardInfeasibleCitationExportBlockedReason(context.verdict);
 }
 
+function storedReceiptField(value: string | undefined, notStoredLabel: string): string {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : notStoredLabel;
+}
+
 export function buildDecisionReceiptDocument(context: DecisionReceiptContext): DecisionReceiptDocument {
   const careerPosture =
     context.source === "committed-run"
@@ -78,28 +104,22 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
     schemaVersion: DECISION_RECEIPT_SCHEMA_VERSION,
     generatedUtc: new Date().toISOString(),
     source: context.source,
-    draftId: context.draftId,
-    runId: context.runId,
+    draftId: storedReceiptField(context.draftId, DECISION_RECEIPT_DRAFT_ID_NOT_STORED),
+    runId: storedReceiptField(context.runId, DECISION_RECEIPT_RUN_ID_NOT_STORED),
     redirectReason: context.redirectReason,
-    intake:
-      context.freeTextIntent !== undefined
-      || context.businessOutcome !== undefined
-      || context.systemName !== undefined
-        ? {
-            freeTextIntent: context.freeTextIntent,
-            businessOutcome: context.businessOutcome,
-            systemName: context.systemName,
-          }
-        : undefined,
+    intake: {
+      freeTextIntent: storedReceiptField(context.freeTextIntent, DECISION_RECEIPT_FREE_TEXT_INTENT_NOT_STORED),
+      businessOutcome: storedReceiptField(context.businessOutcome, DECISION_RECEIPT_BUSINESS_OUTCOME_NOT_STORED),
+      systemName: storedReceiptField(context.systemName, DECISION_RECEIPT_SYSTEM_NAME_NOT_STORED),
+    },
     verdict: context.verdict,
     transparencyTrail: buildTransparencyTrailExportSection(context.verdict.transparencyTrail),
     costStory: {
       label: DECISION_RECEIPT_COST_ESTIMATE_LABEL,
-      sessionCostUsdEstimate: 1,
-      avoidedHumanArchitectCostUsdEstimate: 25_000,
-      avoidedCalendarWeeksEstimate: "2–4",
-      narrative:
-        "A defensible decision delivered in minutes at low compute cost versus weeks of human architecture review.",
+      sessionCostUsdEstimate: DECISION_RECEIPT_SESSION_COST_NOT_STORED,
+      avoidedHumanArchitectCostUsdEstimate: DECISION_RECEIPT_AVOIDED_ARCHITECT_COST_NOT_STORED,
+      avoidedCalendarWeeksEstimate: DECISION_RECEIPT_AVOIDED_CALENDAR_WEEKS_NOT_STORED,
+      narrative: DECISION_RECEIPT_COST_FIGURES_NOT_STORED,
     },
     careerPosture,
   };
@@ -107,7 +127,14 @@ export function buildDecisionReceiptDocument(context: DecisionReceiptContext): D
 
 export function buildDecisionReceiptFilename(context: DecisionReceiptContext): string {
   const stamp = new Date().toISOString().slice(0, 10);
-  const id = context.runId ?? context.draftId ?? "decision";
+  const runId = context.runId?.trim() ?? "";
+  const draftId = context.draftId?.trim() ?? "";
+  const id =
+    runId.length > 0
+      ? runId
+      : draftId.length > 0
+        ? draftId
+        : "not-stored";
 
   return `archlucid-decision-receipt-${id}-${stamp}.json`;
 }

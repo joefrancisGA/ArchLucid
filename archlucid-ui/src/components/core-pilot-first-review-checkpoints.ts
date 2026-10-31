@@ -25,6 +25,7 @@ export function buildFirstReviewCheckpointStrip(
   latestRunId: string | null,
   firstCommittedRunId: string | null,
   latestRunReadyToFinalize: boolean,
+  hasRecordedFirstReviewExport = false,
 ): readonly FirstReviewCheckpoint[] {
   const reviewHref = latestRunId !== null ? `/architecture/reviews/${latestRunId}` : "/architecture/reviews";
   const committedReviewHref =
@@ -53,8 +54,13 @@ export function buildFirstReviewCheckpointStrip(
     statusById.intake = "complete";
     statusById.execute = "complete";
     statusById.commit = "complete";
-    statusById.export = "complete";
-    statusById["sponsor-ready"] = "active";
+
+    if (hasRecordedFirstReviewExport) {
+      statusById.export = "complete";
+      statusById["sponsor-ready"] = "active";
+    } else {
+      statusById.export = "active";
+    }
   }
 
   return [
@@ -89,7 +95,7 @@ export function checkpointNextAction(
 export function statusChipLabel(status: FirstReviewCheckpointStatus): string {
   switch (status) {
     case "complete":
-      return "Ready";
+      return "Complete";
     case "active":
       return "In progress";
     case "pending":

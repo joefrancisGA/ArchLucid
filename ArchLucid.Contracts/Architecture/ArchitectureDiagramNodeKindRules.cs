@@ -22,4 +22,27 @@ public static class ArchitectureDiagramNodeKindRules
 
         return KnownKinds.Contains(kind);
     }
+
+    public static bool IsOmittedKind(string? kind)
+    {
+        if (string.IsNullOrWhiteSpace(kind))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            kind.Trim(),
+            ArchitectureDiagramNodeKinds.KindNotStored,
+            StringComparison.Ordinal);
+    }
+
+    public static bool IsAllowedKind(string? kind)
+    {
+        if (IsKnownKind(kind))
+        {
+            return true;
+        }
+
+        return IsOmittedKind(kind);
+    }
 }

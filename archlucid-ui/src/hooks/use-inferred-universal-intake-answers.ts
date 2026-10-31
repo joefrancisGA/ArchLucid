@@ -15,8 +15,13 @@ import {
 } from "@/lib/evidence-readable-text";
 import { filterQualityGatedInferredAnswers, isReadableInferredClarificationAnswer } from "@/lib/inferred-clarification-answer-quality";
 import {
+  formatDroppedClarificationExtractsSummary,
+  listDroppedClarificationExtracts,
+} from "@/lib/dropped-clarification-extracts";
+import {
   UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
   canSuggestUniversalIntakeAnswersFromEvidence,
+  inferUniversalIntakeAnswerCandidatesFromCorpus,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
 } from "@/lib/universal-intake-answer-inference";
@@ -41,6 +46,7 @@ type UseInferredUniversalIntakeAnswersResult = {
   readonly suggestAnswersFromEvidence: () => void;
   readonly markQuestionEdited: (questionKey: string) => void;
   readonly evidenceExtractionProgress: EvidenceExtractionProgress;
+  readonly droppedClarificationExtractSummary: string | null;
 };
 
 /** Prefills empty L0 clarification answers from brief/evidence text without overwriting operator edits. */
@@ -51,6 +57,7 @@ export function useInferredUniversalIntakeAnswers(
   const [rephrasedQuestionKeys, setRephrasedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [isExtractingEvidenceText, setIsExtractingEvidenceText] = useState(false);
   const [clarificationSuggestionsUnavailable, setClarificationSuggestionsUnavailable] = useState(false);
+  const [droppedClarificationExtractSummary, setDroppedClarificationExtractSummary] = useState<string | null>(null);
   const lockedQuestionKeysRef = useRef(new Set<string>());
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
@@ -118,6 +125,11 @@ export function useInferredUniversalIntakeAnswers(
       if (needsDocumentExtraction) {
         progress.reportStage("identifying-architecture-content");
       }
+
+      const inferenceCandidates = inferUniversalIntakeAnswerCandidatesFromCorpus(corpus);
+      setDroppedClarificationExtractSummary(
+        formatDroppedClarificationExtractsSummary(listDroppedClarificationExtracts(inferenceCandidates)),
+      );
 
       const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
       let answersToApply = inferredAnswers;
@@ -225,6 +237,7 @@ export function useInferredUniversalIntakeAnswers(
   useEffect(() => {
     if (!canSuggestFromEvidence) {
       setClarificationSuggestionsUnavailable(false);
+      setDroppedClarificationExtractSummary(null);
 
       return;
     }
@@ -273,5 +286,6 @@ export function useInferredUniversalIntakeAnswers(
     suggestAnswersFromEvidence,
     markQuestionEdited,
     evidenceExtractionProgress,
+    droppedClarificationExtractSummary,
   };
 }

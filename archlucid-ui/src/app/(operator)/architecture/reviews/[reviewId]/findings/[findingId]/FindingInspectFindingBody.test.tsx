@@ -2,6 +2,16 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
+import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
+
+vi.mock("@/lib/findings/finding-model-provenance-display", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/findings/finding-model-provenance-display")>();
+
+  return {
+    ...actual,
+    buildFindingModelProvenanceRow: vi.fn(actual.buildFindingModelProvenanceRow),
+  };
+});
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/r1/findings/f1",
@@ -95,5 +105,31 @@ describe("FindingInspectFindingBody", () => {
     expect(screen.getByText("View AI Reasoning")).toBeTruthy();
     expect(screen.getByText("AI Audit Inspection")).toBeTruthy();
     expect(screen.getByText("step one then step two")).toBeTruthy();
+  });
+
+  it("states when model grounding is not applicable (P-15)", () => {
+    vi.mocked(buildFindingModelProvenanceRow).mockReturnValueOnce({
+      origin: "Deterministic rule",
+      grounding: "Not applicable",
+      explanation: "Rule-backed finding.",
+      trustLabelReason: null,
+    });
+
+    render(
+      <FindingInspectFindingBody
+        runId={basePayload.runId}
+        decodedFindingId="f-1"
+        payload={{
+          ...basePayload,
+          evidence: [],
+          decisionRuleId: "sec-base-001",
+        }}
+        variant="inspect"
+      />,
+    );
+
+    expect(screen.getByTestId("finding-model-provenance-row")).toHaveTextContent(
+      "Grounding is not applicable for this finding.",
+    );
   });
 });

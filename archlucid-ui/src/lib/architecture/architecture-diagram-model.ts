@@ -1,5 +1,26 @@
+import {
+  formatReviewTitleNotCollectedSystemNote,
+  formatTrustBoundaryDisplayLabel,
+  formatTrustBoundaryWithoutMembershipNote,
+  formatUnmatchedArchitectureDataFlowEntity,
+} from "@/lib/architecture/architecture-diagram-copy";
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
-import type { ArchitectureContentProvenance, ArchitectureStructuredEntity, ArchitectureStructuredParseResult } from "@/lib/architecture/architecture-structured-content-types";
+import {
+  ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY,
+} from "@/lib/architecture/architecture-diagram-copy";
+import {
+  resolveArchitectureDiagramNodeDisplayLabel,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
+} from "@/lib/architecture/architecture-diagram-provenance";
+import type {
+  ArchitectureContentProvenance,
+  ArchitectureStructuredEntity,
+  ArchitectureStructuredParseResult,
+  ArchitectureStructuredSection,
+  ArchitectureStructuredSectionKey,
+} from "@/lib/architecture/architecture-structured-content-types";
+import { ARCHITECTURE_STRUCTURED_SECTION_TITLES } from "@/lib/architecture/architecture-structured-content-types";
 import type {
   ArchitectureDiagramEdge,
   ArchitectureDiagramModel,
@@ -7,7 +28,57 @@ import type {
   ArchitectureDiagramNodeKind,
 } from "@/lib/architecture/architecture-diagram-types";
 
-const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>|\bto\b)\s*/i;
+const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>)\s*/;
+
+function lineLooksLikeStoredDataFlow(text: string): boolean {
+  const trimmed = text.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return FLOW_SPLIT_PATTERN.test(trimmed);
+}
+
+type ResolvedSectionEntities =
+  | { readonly state: "present"; readonly entities: readonly ArchitectureStructuredEntity[] }
+  | { readonly state: "stored-empty" }
+  | { readonly state: "not-stored" };
+
+export function resolveArchitectureDiagramSectionEntities(
+  section: ArchitectureStructuredSection | undefined,
+): ResolvedSectionEntities {
+  if (section === undefined) {
+    return { state: "not-stored" };
+  }
+
+  if (section.entities === undefined) {
+    return { state: "not-stored" };
+  }
+
+  if (section.entities.length === 0) {
+    return { state: "stored-empty" };
+  }
+
+  return { state: "present", entities: section.entities };
+}
+
+function formatEntitySectionHonestyLine(
+  sectionKey: ArchitectureStructuredSectionKey,
+  resolution: ResolvedSectionEntities,
+): string | null {
+  const title = ARCHITECTURE_STRUCTURED_SECTION_TITLES[sectionKey];
+
+  if (resolution.state === "not-stored") {
+    return `${title}: ${ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED}`;
+  }
+
+  if (resolution.state === "stored-empty") {
+    return `${title}: ${ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY}`;
+  }
+
+  return null;
+}
 
 function sanitizeNodeId(label: string, kind: ArchitectureDiagramNodeKind, index: number): string {
   const base = label
@@ -51,15 +122,21 @@ function addEntityNodes(
   kind: ArchitectureDiagramNodeKind,
   nodes: ArchitectureDiagramNode[],
   usedIds: Set<string>,
+  skippedUnlabeled: { count: number },
 ): void {
   let index = nodes.length;
 
   for (const entity of entities) {
+    const displayLabel =
+      entity.label.trim().length === 0
+        ? ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED
+        : resolveArchitectureDiagramNodeDisplayLabel(entity.label);
+
     if (entity.label.trim().length === 0) {
-      continue;
+      skippedUnlabeled.count += 1;
     }
 
-    nodes.push(createNode(entity.label, kind, entity.provenance, usedIds, index));
+    nodes.push(createNode(displayLabel, kind, entity.provenance, usedIds, index));
     index += 1;
   }
 }
@@ -93,7 +170,7 @@ function findNodeIdByLabel(
     }
   }
 
-  return matches[0]!.id;
+  return null;
 }
 
 function mergeEndpointLabels(
@@ -180,12 +257,19 @@ function parseFlowEndpoints(
 
 const PIPE_DETAIL_COLUMN_SEPARATOR = " · ";
 
+type FlowEntityDetailKind = "missing" | "stored-empty" | "content";
+
 function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
   readonly flowText: string;
   readonly trailingEdgeLabel: string;
+  readonly detailKind: FlowEntityDetailKind;
 } {
-  if (entity.detail === null || entity.detail.length === 0) {
-    return { flowText: entity.label, trailingEdgeLabel: "" };
+  if (entity.detail === null || entity.detail === undefined) {
+    return { flowText: entity.label, trailingEdgeLabel: "", detailKind: "missing" };
+  }
+
+  if (entity.detail.length === 0) {
+    return { flowText: entity.label, trailingEdgeLabel: "", detailKind: "stored-empty" };
   }
 
   const separatorIndex = entity.detail.indexOf(PIPE_DETAIL_COLUMN_SEPARATOR);
@@ -198,6 +282,7 @@ function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
       return {
         flowText: `${entity.label} -> ${target}`,
         trailingEdgeLabel,
+        detailKind: "content",
       };
     }
   }
@@ -205,13 +290,75 @@ function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
   return {
     flowText: `${entity.label} -> ${entity.detail}`,
     trailingEdgeLabel: "",
+    detailKind: "content",
   };
+}
+
+const RELATIONSHIP_NOT_STORED_LABEL = "Relationship was not stored";
+const RELATIONSHIP_STORED_EMPTY_LABEL = "Relationship was stored empty.";
+const RELATIONSHIP_ON_LAST_HOP_LABEL = "Relationship text was stored on the last hop of this chain.";
+
+function resolveFlowEdgeLabel(
+  endpoints: ParsedFlowEndpoint,
+  parsedEndpoints: readonly ParsedFlowEndpoint[],
+  trailingEdgeLabel: string,
+  detailKind: FlowEntityDetailKind,
+): string {
+  if (detailKind === "stored-empty") {
+    return RELATIONSHIP_STORED_EMPTY_LABEL;
+  }
+
+  if (endpoints.label.length > 0) {
+    return endpoints.label;
+  }
+
+  const lastEndpoint = parsedEndpoints[parsedEndpoints.length - 1];
+  const lastHopHasStoredText =
+    (lastEndpoint?.label.trim().length ?? 0) > 0 || trailingEdgeLabel.length > 0;
+
+  if (parsedEndpoints.length > 1 && lastHopHasStoredText) {
+    return RELATIONSHIP_ON_LAST_HOP_LABEL;
+  }
+
+  if (trailingEdgeLabel.length > 0) {
+    return trailingEdgeLabel;
+  }
+
+  return RELATIONSHIP_NOT_STORED_LABEL;
+}
+
+function flowEdgeDedupeKey(edge: Pick<ArchitectureDiagramEdge, "sourceId" | "targetId" | "label" | "provenance">): string {
+  return `${edge.sourceId}\u001f${edge.targetId}\u001f${edge.label}\u001f${edge.provenance}`;
+}
+
+function pushFlowEdge(
+  edges: ArchitectureDiagramEdge[],
+  seenFlowEdgeKeys: Set<string>,
+  edgeIndexRef: { current: number },
+  edge: Omit<ArchitectureDiagramEdge, "id" | "removed">,
+): void {
+  const candidate: ArchitectureDiagramEdge = {
+    ...edge,
+    id: `edge_${edgeIndexRef.current}`,
+    removed: false,
+  };
+  const key = flowEdgeDedupeKey(candidate);
+
+  if (seenFlowEdgeKeys.has(key)) {
+    return;
+  }
+
+  seenFlowEdgeKeys.add(key);
+  edges.push(candidate);
+  edgeIndexRef.current += 1;
 }
 
 function addFlowEdges(
   parseResult: ArchitectureStructuredParseResult,
   nodes: readonly ArchitectureDiagramNode[],
   edges: ArchitectureDiagramEdge[],
+  unmatchedDataFlows: string[],
+  diagramHonestyNotes: string[],
 ): void {
   const flowSection = parseResult.sections.find((section) => section.key === "data-flows");
 
@@ -219,27 +366,43 @@ function addFlowEdges(
     return;
   }
 
-  let edgeIndex = edges.length;
+  const seenFlowEdgeKeys = new Set(edges.map((edge) => flowEdgeDedupeKey(edge)));
+  const edgeIndexRef = { current: edges.length };
 
-  for (const entity of flowSection.entities ?? []) {
-    const { flowText, trailingEdgeLabel } = resolveEntityFlowParseText(entity);
+  const recordUnmatchedFlow = (raw: string): void => {
+    const normalized = raw.trim();
 
-    for (const endpoints of parseFlowEndpoints(flowText, nodes)) {
-      const edgeLabel = endpoints.label.length > 0
-        ? endpoints.label
-        : trailingEdgeLabel.length > 0
-          ? trailingEdgeLabel
-          : "Relationship was not stored";
+    if (normalized.length > 0) {
+      unmatchedDataFlows.push(normalized);
+    }
+  };
 
-      edges.push({
-        id: `edge_${edgeIndex}`,
+  const recordUnmatchedFlowEntity = (entity: ArchitectureStructuredEntity): void => {
+    unmatchedDataFlows.push(formatUnmatchedArchitectureDataFlowEntity(entity));
+  };
+
+  const flowEntities = resolveArchitectureDiagramSectionEntities(flowSection);
+
+  if (flowEntities.state === "present") {
+    for (const entity of flowEntities.entities) {
+    const { flowText, trailingEdgeLabel, detailKind } = resolveEntityFlowParseText(entity);
+    const parsedEndpoints = parseFlowEndpoints(flowText, nodes);
+
+    if (parsedEndpoints.length === 0) {
+      recordUnmatchedFlowEntity(entity);
+      continue;
+    }
+
+    for (const endpoints of parsedEndpoints) {
+      const edgeLabel = resolveFlowEdgeLabel(endpoints, parsedEndpoints, trailingEdgeLabel, detailKind);
+
+      pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
         sourceId: endpoints.sourceId,
         targetId: endpoints.targetId,
         label: edgeLabel,
         provenance: entity.provenance,
-        removed: false,
       });
-      edgeIndex += 1;
+    }
     }
   }
 
@@ -247,16 +410,27 @@ function addFlowEdges(
     const lines = flowSection.narrativeMarkdown.split(/\r?\n/);
 
     for (const line of lines) {
-      for (const endpoints of parseFlowEndpoints(line, nodes)) {
-        edges.push({
-          id: `edge_${edgeIndex}`,
+      const parsedLineEndpoints = parseFlowEndpoints(line, nodes);
+
+      if (parsedLineEndpoints.length === 0) {
+        if (lineLooksLikeStoredDataFlow(line)) {
+          recordUnmatchedFlow(line);
+        } else if (line.trim().length > 0) {
+          diagramHonestyNotes.push(
+            `Data flow narrative line was not matched to diagram components: ${line.trim()}`,
+          );
+        }
+
+        continue;
+      }
+
+      for (const endpoints of parsedLineEndpoints) {
+        pushFlowEdge(edges, seenFlowEdgeKeys, edgeIndexRef, {
           sourceId: endpoints.sourceId,
           targetId: endpoints.targetId,
-          label: endpoints.label.length > 0 ? endpoints.label : "Relationship was not stored",
+          label: resolveFlowEdgeLabel(endpoints, parsedLineEndpoints, "", "content"),
           provenance: flowSection.provenance,
-          removed: false,
         });
-        edgeIndex += 1;
       }
     }
   }
@@ -269,25 +443,73 @@ export function buildArchitectureDiagramModel(
   const byKey = new Map(parseResult.sections.map((section) => [section.key, section]));
   const nodes: ArchitectureDiagramNode[] = [];
   const edges: ArchitectureDiagramEdge[] = [];
+  const unmatchedDataFlows: string[] = [];
+  const diagramHonestyNotes: string[] = [];
   const usedIds = new Set<string>();
+  const skippedUnlabeled = { count: 0 };
+  const entitySectionHonestyLines: string[] = [];
 
-  addEntityNodes(byKey.get("users-and-stakeholders")?.entities ?? [], "user", nodes, usedIds);
-  addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds);
-  addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
+  const diagramEntitySectionKeys: ArchitectureStructuredSectionKey[] = [
+    "users-and-stakeholders",
+    "systems-and-services",
+    "external-integrations",
+    "data-flows",
+    "trust-boundaries",
+  ];
 
-  if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
-    nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
+  for (const sectionKey of diagramEntitySectionKeys) {
+    const resolution = resolveArchitectureDiagramSectionEntities(byKey.get(sectionKey));
+    const honestyLine = formatEntitySectionHonestyLine(sectionKey, resolution);
+
+    if (honestyLine !== null) {
+      entitySectionHonestyLines.push(honestyLine);
+    }
   }
 
-  addFlowEdges(parseResult, nodes, edges);
+  const users = resolveArchitectureDiagramSectionEntities(byKey.get("users-and-stakeholders"));
+  const systems = resolveArchitectureDiagramSectionEntities(byKey.get("systems-and-services"));
+  const external = resolveArchitectureDiagramSectionEntities(byKey.get("external-integrations"));
 
+  if (users.state === "present") {
+    addEntityNodes(users.entities, "user", nodes, usedIds, skippedUnlabeled);
+  }
+
+  if (systems.state === "present") {
+    addEntityNodes(systems.entities, "system", nodes, usedIds, skippedUnlabeled);
+  }
+
+  if (external.state === "present") {
+    addEntityNodes(external.entities, "external", nodes, usedIds, skippedUnlabeled);
+  }
+
+  for (const note of parseResult.assertionDiagramHonestyNotes ?? []) {
+    diagramHonestyNotes.push(note);
+  }
+
+  if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
+    diagramHonestyNotes.push(formatReviewTitleNotCollectedSystemNote(architectureName.trim()));
+  }
+
+  addFlowEdges(parseResult, nodes, edges, unmatchedDataFlows, diagramHonestyNotes);
+
+  const trustBoundaries = resolveArchitectureDiagramSectionEntities(byKey.get("trust-boundaries"));
   const trustBoundaryLabels =
-    byKey.get("trust-boundaries")?.entities?.map((entity) => entity.label).filter((label) => label.trim().length > 0) ?? [];
+    trustBoundaries.state === "present"
+      ? trustBoundaries.entities.map((entity) => formatTrustBoundaryDisplayLabel(entity.label))
+      : [];
+
+  if (trustBoundaryLabels.length > 0) {
+    diagramHonestyNotes.push(formatTrustBoundaryWithoutMembershipNote(trustBoundaryLabels));
+  }
 
   return {
     nodes,
     edges,
     trustBoundaryLabels,
+    skippedUnlabeledEntityCount: skippedUnlabeled.count,
+    unmatchedDataFlows,
+    entitySectionHonestyLines,
+    diagramHonestyNotes,
   };
 }
 
@@ -305,5 +527,9 @@ export function applyArchitectureDiagramOverrides(
       .map((edge) => edgeOverrideMap.get(edge.id) ?? edge)
       .filter((edge) => !edge.removed),
     trustBoundaryLabels: model.trustBoundaryLabels,
+    skippedUnlabeledEntityCount: model.skippedUnlabeledEntityCount,
+    unmatchedDataFlows: model.unmatchedDataFlows,
+    entitySectionHonestyLines: model.entitySectionHonestyLines,
+    diagramHonestyNotes: model.diagramHonestyNotes,
   };
 }

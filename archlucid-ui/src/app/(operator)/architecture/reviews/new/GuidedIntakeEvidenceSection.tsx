@@ -60,7 +60,8 @@ export function GuidedIntakeEvidenceSection(props: GuidedIntakeEvidenceSectionPr
       />
 
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_FORM_FIELD_HELPER_CLASS)}>
-        {ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
+        {ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER} Files you add here apply to this intake step only unless
+        listed under prior package attachments above.
       </p>
     </section>
   );

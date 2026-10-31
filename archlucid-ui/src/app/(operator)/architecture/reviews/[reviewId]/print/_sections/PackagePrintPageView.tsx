@@ -16,7 +16,6 @@ import {
   resolvePackagePrintInspectEmphasizedStepId,
   resolvePackagePrintInspectSteps,
 } from "@/lib/package-print-inspect-checklist";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   PACKAGE_PRINT_FIRST_VIEWPORT_ID,
   PACKAGE_PRINT_PAGE_SUBTITLE_BUYER,
@@ -30,16 +29,21 @@ import {
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   hasReviewMeetingCapture,
   buildReviewMeetingCaptureMetaParts,
+  formatReviewMeetingCaptureAnswer,
+  formatReviewMeetingCaptureQuestionLabel,
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   PACKAGE_PRINT_BACK_LABEL,
   PACKAGE_PRINT_FINDINGS_HEADING,
   PACKAGE_PRINT_INSTRUCTIONS,
   PACKAGE_PRINT_META_CREATED_LABEL,
+  formatPackagePrintCreatedMetadataLine,
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
-  PACKAGE_PRINT_SYNOPSIS_HEADING,
-  PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
+  formatPackagePrintCoverageHonestyLine,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
   type PackagePrintPresentation,
@@ -89,7 +93,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
   const packagePrintMeetingCaptureBlockedSection =
     !showMeetingCapture && meetingCaptureBlockedReason !== null ? (
       <section
-        className="space-y-2 print:hidden"
+        className="space-y-2"
         data-testid="package-print-meeting-capture-blocked"
       >
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
@@ -123,7 +127,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
       subtitleClassName="max-w-3xl leading-relaxed"
       metadata={
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
+          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatPackagePrintCreatedMetadataLine(presentation.createdUtc)}
         </span>
       }
     />
@@ -158,36 +162,35 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
         </p>
       </section>
 
-      {presentation.sponsorSynopsis !== null ? (
-        <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
-          <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {PACKAGE_PRINT_SYNOPSIS_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-sponsor-synopsis"
-          >
-            {presentation.sponsorSynopsis}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
+        <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {resolvePackagePrintSynopsisHeading(presentation.statusLabel)}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-sponsor-synopsis"
+        >
+          {resolvePackagePrintSynopsisBody(presentation)}
+        </p>
+      </section>
 
-      {presentation.semanticSupportBandStampLine?.trim().length ? (
-        <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
-          <h2
-            id="package-print-semantic-support-heading"
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-semantic-support-band-line"
-          >
-            {presentation.semanticSupportBandStampLine}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
+        <h2
+          id="package-print-semantic-support-heading"
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-semantic-support-band-line"
+        >
+          {resolvePackagePrintSemanticSupportBandDisplayLine(presentation.semanticSupportBandStampLine, {
+            findingsSnapshotPresent: presentation.semanticSupportFindingsSnapshotPresent,
+            decisionGradeCount: presentation.semanticSupportDecisionGradeCount,
+          })}
+        </p>
+      </section>
 
       {showMeetingCapture ? (
         <section
@@ -209,9 +212,11 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
               return (
               <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {entry.questionLabel}
+                  {formatReviewMeetingCaptureQuestionLabel(entry.questionLabel)}
                 </p>
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{entry.answer}</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  {formatReviewMeetingCaptureAnswer(entry.answer)}
+                </p>
                 {meetingCaptureMeta.length > 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {meetingCaptureMeta.join(" · ")}
@@ -230,7 +235,12 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {presentation.showQuietEnginesHint === true ? (
         <div data-testid="package-print-quiet-engines-hint">
-          <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          <ActorDependentFindingsQuietEnginesHint
+            show
+            hintKind={presentation.quietEnginesHintKind ?? "quiet-engines"}
+            workingMode
+            runId={presentation.runId}
+          />
         </div>
       ) : null}
 
@@ -239,18 +249,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine?.trim().length
-            ? presentation.coverageHonestyLine
-            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
-      ) : presentation.coverageHonestyLine?.trim().length ? (
+      ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
-      ) : null}
+      )}
     </>
   );
 
@@ -283,22 +291,27 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {listScopedRunFilterActive ? (
         <p
-          className={cn("m-0 text-al-text-secondary print:hidden", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-run-scope-banner"
         >
-          {"Print view scoped to findings queue for review "}
-          <span className="font-mono text-al-text-primary">{scopedListRunId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={packagePrintClearScopeHref}>
-            Clear review scope
-          </Link>
-          {" · "}
-          <Link
-            className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
-          >
-            Open review
-          </Link>
+          <span className="print:hidden">
+            {"Print view scoped to findings queue for review "}
+            <span className="font-mono text-al-text-primary">{scopedListRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={packagePrintClearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
+            >
+              Open review
+            </Link>
+          </span>
+          <span className="hidden print:inline">
+            {`Print view scoped to findings queue for review ${scopedListRunId}. This PDF is not the full sealed architecture package.`}
+          </span>
         </p>
       ) : null}
 

@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { ASK_ASSISTANT_EVIDENCE_SECTION_TITLE } from "@/lib/ask-assistant-section-parser";
 import { AskAssistantMessageBody } from "./AskAssistantMessageBody";
 
 vi.mock("next/link", () => ({
@@ -31,8 +32,8 @@ describe("AskAssistantMessageBody", () => {
     expect(within(paragraph).queryByRole("link")).toBeNull();
   });
 
-  it("turns run-shaped UUIDs into review links using the raw id as link text by default", () => {
-    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} />);
+  it("turns run-shaped UUIDs into review links when reviewIdInScope matches", () => {
+    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} reviewIdInScope={sampleId} />);
 
     const link = screen.getByRole("link", { name: sampleId });
 
@@ -41,7 +42,13 @@ describe("AskAssistantMessageBody", () => {
 
   it("uses buyer-polished link labels while preserving distinct accessible names", () => {
     render(
-      <AskAssistantMessageBody buyerPolishedLinks content={`Reviews ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content={`Reviews ${sampleId} and 22222222-2222-4222-8222-222222222222.`}
+        citedReviewIds={
+          new Set([sampleId.toLowerCase(), "22222222-2222-4222-8222-222222222222"])
+        }
+      />,
     );
 
     const links = screen.getAllByRole("link");
@@ -57,7 +64,14 @@ describe("AskAssistantMessageBody", () => {
       "Risk:\n\nFirst line.\n\nEvidence:\n\nSecond line with " +
       "22222222-2222-4222-8222-222222222222.\n\nMitigation:\n\nThird.\n\nValidation:\n\nFourth.";
 
-    const { container } = render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
+    const evidenceId = "22222222-2222-4222-8222-222222222222";
+    const { container } = render(
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content={structured}
+        citedReviewIds={new Set([evidenceId])}
+      />,
+    );
 
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
 
@@ -67,13 +81,19 @@ describe("AskAssistantMessageBody", () => {
     expect(execLead?.textContent).toBe("First line.");
 
     expect(screen.getByRole("heading", { name: "Risk" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Evidence" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: ASK_ASSISTANT_EVIDENCE_SECTION_TITLE })).toBeInTheDocument();
 
     const evidenceLink = screen.getByRole("link", {
       name: `Open linked review 22222222-2222-4222-8222-222222222222`,
     });
 
     expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
+  });
+
+  it("labels a missing operator structured preamble explicitly", () => {
+    render(<AskAssistantMessageBody content={"Risk:\n\nBody.\n\nEvidence:\n\nMore."} />);
+
+    expect(screen.getByText("Answer preamble was not stored.")).toBeInTheDocument();
   });
 
   it("labels missing structured sections and buyer lead explicitly", () => {
@@ -85,7 +105,8 @@ describe("AskAssistantMessageBody", () => {
     );
 
     expect(screen.getByText("Answer lead was not stored.")).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("Answer was not stored");
+    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("This section was stored empty in the answer.");
+    expect(screen.getByRole("region", { name: ASK_ASSISTANT_EVIDENCE_SECTION_TITLE })).toHaveTextContent("Stored evidence.");
   });
 
   it("labels an empty answer body explicitly", () => {
@@ -107,6 +128,42 @@ describe("AskAssistantMessageBody", () => {
     expect(execLead?.textContent).toBe("Approved with monitoring.");
     expect(screen.getByText(/Evidence cites manifest section 4/)).toBeInTheDocument();
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
+  });
+
+  it("does not link review UUIDs without scope or cited ids", () => {
+    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} />);
+
+    expect(screen.queryByRole("link", { name: sampleId })).toBeNull();
+    expect(screen.getByText(sampleId, { exact: false })).toBeInTheDocument();
+  });
+
+  it("does not link foreign review UUIDs when reviewIdInScope excludes them", () => {
+    const foreignId = "22222222-2222-4222-8222-222222222222";
+
+    render(
+      <AskAssistantMessageBody
+        content={`See run ${foreignId} for detail.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: foreignId })).toBeNull();
+    expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
+  });
+
+  it("only linkifies UUIDs that match reviewIdInScope when scope is provided (P-15)", () => {
+    render(
+      <AskAssistantMessageBody
+        content={`Related review ${sampleId} and other ${"22222222-2222-4222-8222-222222222222"}.`}
+        reviewIdInScope={sampleId}
+      />,
+    );
+
+    const links = screen.getAllByRole("link");
+
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", `/architecture/reviews/${encodeURIComponent(sampleId)}`);
+    expect(links[0]).toHaveTextContent(sampleId);
   });
 
   it("renders grounding links footer when provided", () => {

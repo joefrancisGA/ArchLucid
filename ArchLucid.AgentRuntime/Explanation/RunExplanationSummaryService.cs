@@ -246,11 +246,15 @@ public sealed class RunExplanationSummaryService(
             ? explanation.DetailedNarrative
             : explanation.Summary;
 
+        string postureClause = AuthorityManifestRiskPosture.IsDerivedTierLabel(riskPosture)
+            ? $"{riskPosture} risk posture"
+            : riskPosture;
+
         if (issues == 0 && gaps == 0)
             return
-                $"Overall assessment ({riskPosture} risk posture): no unresolved issues or compliance gaps on the manifest; {summary}";
+                $"Overall assessment ({postureClause}): no unresolved issues or compliance gaps on the manifest; {summary}";
 
         return
-            $"Overall assessment ({riskPosture} risk posture): {issues} unresolved issue(s), {gaps} compliance gap(s). {summary}";
+            $"Overall assessment ({postureClause}): {issues} unresolved issue(s), {gaps} compliance gap(s). {summary}";
     }
 }

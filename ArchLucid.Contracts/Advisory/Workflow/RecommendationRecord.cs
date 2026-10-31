@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Advisory.Workflow;
 
 /// <summary>Durable advisory recommendation row with workflow status and JSON supporting-entity arrays.</summary>
@@ -81,11 +83,13 @@ public class RecommendationRecord
         set;
     }
 
+    private string status = RecommendationStatus.Proposed;
+
     public string Status
     {
-        get;
-        set;
-    } = RecommendationStatus.Proposed;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, RecommendationStatus.Proposed);
+    }
 
     public DateTime CreatedUtc
     {
@@ -123,27 +127,35 @@ public class RecommendationRecord
         set;
     }
 
+    private string supportingFindingIdsJson = "[]";
+
     public string SupportingFindingIdsJson
     {
-        get;
-        set;
-    } = "[]";
+        get => supportingFindingIdsJson;
+        set => supportingFindingIdsJson = ContractCollectionDefaults.CoalesceJsonArrayLiteral(value);
+    }
+
+    private string supportingDecisionIdsJson = "[]";
 
     public string SupportingDecisionIdsJson
     {
-        get;
-        set;
-    } = "[]";
+        get => supportingDecisionIdsJson;
+        set => supportingDecisionIdsJson = ContractCollectionDefaults.CoalesceJsonArrayLiteral(value);
+    }
+
+    private string supportingArtifactIdsJson = "[]";
 
     public string SupportingArtifactIdsJson
     {
-        get;
-        set;
-    } = "[]";
+        get => supportingArtifactIdsJson;
+        set => supportingArtifactIdsJson = ContractCollectionDefaults.CoalesceJsonArrayLiteral(value);
+    }
+
+    private string sourceEvidenceLinksJson = "[]";
 
     public string SourceEvidenceLinksJson
     {
-        get;
-        set;
-    } = "[]";
+        get => sourceEvidenceLinksJson;
+        set => sourceEvidenceLinksJson = ContractCollectionDefaults.CoalesceJsonArrayLiteral(value);
+    }
 }

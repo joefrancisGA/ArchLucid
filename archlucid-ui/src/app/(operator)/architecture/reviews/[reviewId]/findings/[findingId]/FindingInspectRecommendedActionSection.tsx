@@ -1,17 +1,24 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import {
-  resolveBuyerShowcaseResidualRiskNextReviewIso,
-  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
-} from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+const RISK_OWNER_NOT_STORED = "Risk owner was not stored";
+const RISK_OWNER_STORED_EMPTY = "Risk owner was stored empty.";
+const NEXT_REVIEW_NOT_STORED = "Remediation due date was not stored.";
+const NEXT_REVIEW_STORED_EMPTY = "Remediation due date was stored empty.";
+const MONITORING_CADENCE_NOT_STORED = "Monitoring cadence was not stored.";
+const MONITORING_CADENCE_STORED_EMPTY = "Monitoring cadence was stored empty.";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";
   readonly structuredActions: string[];
   readonly recommendedActionParagraph: string;
   readonly showOwnerCadence?: boolean;
+  readonly riskOwnerLabel?: string;
+  readonly nextReviewLabel?: string;
+  readonly monitoringCadenceLabel?: string;
+  readonly recommendedActionsStoredEmpty?: boolean;
 };
 
 const toneSurfaces: Record<FindingInspectRecommendedActionSectionProps["tone"], string> = {
@@ -27,7 +34,35 @@ export function FindingInspectRecommendedActionSection({
   structuredActions,
   recommendedActionParagraph,
   showOwnerCadence = false,
+  riskOwnerLabel,
+  nextReviewLabel,
+  monitoringCadenceLabel,
+  recommendedActionsStoredEmpty = false,
 }: FindingInspectRecommendedActionSectionProps): ReactElement {
+  const resolvedRiskOwner =
+    riskOwnerLabel === undefined
+      ? RISK_OWNER_NOT_STORED
+      : riskOwnerLabel.length === 0
+        ? RISK_OWNER_STORED_EMPTY
+        : riskOwnerLabel.trim().length > 0
+          ? riskOwnerLabel.trim()
+          : RISK_OWNER_STORED_EMPTY;
+  const resolvedNextReview =
+    nextReviewLabel === undefined
+      ? NEXT_REVIEW_NOT_STORED
+      : nextReviewLabel.length === 0
+        ? NEXT_REVIEW_STORED_EMPTY
+        : nextReviewLabel.trim().length > 0
+          ? nextReviewLabel.trim()
+          : NEXT_REVIEW_STORED_EMPTY;
+  const resolvedMonitoringCadence =
+    monitoringCadenceLabel === undefined
+      ? MONITORING_CADENCE_NOT_STORED
+      : monitoringCadenceLabel.length === 0
+        ? MONITORING_CADENCE_STORED_EMPTY
+        : monitoringCadenceLabel.trim().length > 0
+          ? monitoringCadenceLabel.trim()
+          : MONITORING_CADENCE_STORED_EMPTY;
   const panelCls = toneSurfaces[tone];
 
   return (
@@ -41,7 +76,13 @@ export function FindingInspectRecommendedActionSection({
         </ol>
       ) : (
         <p className={cn("m-0 mt-2 whitespace-pre-line text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {recommendedActionParagraph.trim()}
+          {structuredActions.length === 1
+            ? structuredActions[0]
+            : recommendedActionsStoredEmpty
+              ? "Recommended action was stored empty."
+              : recommendedActionParagraph.trim().length > 0
+                ? recommendedActionParagraph
+                : "Recommended action was not stored."}
         </p>
       )}
       {showOwnerCadence ? (
@@ -50,21 +91,19 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Risk owner
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedRiskOwner}</dd>
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Monitoring cadence
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">
-              Monitoring cadence was not stored.
-            </dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedMonitoringCadence}</dd>
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Next review
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{resolveBuyerShowcaseResidualRiskNextReviewIso()}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedNextReview}</dd>
           </div>
         </dl>
       ) : null}

@@ -66,6 +66,8 @@ export type FirstReviewGuideStateInput = {
   readonly suppressReadyToFinalize?: boolean;
   /** CG-091 — omit sample recovery CTAs on live tenant shells. */
   readonly hideSampleRecovery?: boolean;
+  /** When true, inventory evidence (context or graph snapshot) is stored on the latest run. */
+  readonly latestRunHasInventoryEvidence?: boolean;
 };
 
 type FirstReviewGuideHrefScope = {
@@ -131,10 +133,12 @@ function effectiveReadyToFinalize(
 function baseStepStatuses(
   commitContext: CorePilotCommitContext,
   suppressReadyToFinalize = false,
+  latestRunHasInventoryEvidence = false,
 ): FirstReviewGuideStepUiStatus[] {
   const hasRun = commitContext.latestRunId !== null;
   const readyToFinalize = effectiveReadyToFinalize(commitContext, suppressReadyToFinalize);
   const committed = hasSealedReviewRecord(commitContext);
+  const inventoryComplete = latestRunHasInventoryEvidence;
 
   return [
     hasRun || committed ? "complete" : "not-started",
@@ -142,7 +146,7 @@ function baseStepStatuses(
     committed || readyToFinalize ? "complete" : hasRun ? "current" : "not-started",
     committed ? "complete" : readyToFinalize ? "current" : "not-started",
     committed ? "complete" : "not-started",
-    committed ? "complete" : "not-started",
+    inventoryComplete ? (committed ? "complete" : hasRun ? "current" : "not-started") : hasRun || committed ? "not-started" : "not-started",
     committed ? "complete" : "not-started",
   ];
 }
@@ -251,15 +255,23 @@ function resolveCurrentStepIndex(statuses: readonly FirstReviewGuideStepUiStatus
 function countCompletedSteps(
   commitContext: CorePilotCommitContext,
   suppressReadyToFinalize = false,
+  latestRunHasInventoryEvidence = false,
 ): number {
-  return baseStepStatuses(commitContext, suppressReadyToFinalize).filter((status) => status === "complete").length;
+  return baseStepStatuses(commitContext, suppressReadyToFinalize, latestRunHasInventoryEvidence).filter(
+    (status) => status === "complete",
+  ).length;
 }
 
 export function resolveFirstReviewGuideProgress(
   commitContext: CorePilotCommitContext,
   suppressReadyToFinalize = false,
+  latestRunHasInventoryEvidence = false,
 ): FirstReviewGuideProgress {
-  const completedStepCount = countCompletedSteps(commitContext, suppressReadyToFinalize);
+  const completedStepCount = countCompletedSteps(
+    commitContext,
+    suppressReadyToFinalize,
+    latestRunHasInventoryEvidence,
+  );
   const totalStepCount = FIRST_REVIEW_GUIDE_STEP_COUNT;
   const progressFraction = completedStepCount / totalStepCount;
   const stepProgressLabel = formatStepProgressCompleteLabel(completedStepCount, totalStepCount);
@@ -300,7 +312,8 @@ export function resolveFirstReviewGuideSteps(
   input: FirstReviewGuideStateInput,
 ): readonly FirstReviewGuideStepPresentation[] {
   const suppressReadyToFinalize = input.suppressReadyToFinalize === true;
-  const statuses = baseStepStatuses(input.commitContext, suppressReadyToFinalize);
+  const latestRunHasInventoryEvidence = input.latestRunHasInventoryEvidence === true;
+  const statuses = baseStepStatuses(input.commitContext, suppressReadyToFinalize, latestRunHasInventoryEvidence);
   const currentIndex = resolveCurrentStepIndex(statuses);
   const hrefScope = resolveGuideHrefScope(input);
 

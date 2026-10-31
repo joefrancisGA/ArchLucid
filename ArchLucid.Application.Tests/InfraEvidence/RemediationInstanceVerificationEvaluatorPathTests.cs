@@ -302,6 +302,85 @@ public sealed class RemediationInstanceVerificationEvaluatorPathTests
             && failure.Contains(captureStatus.ToString(), StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public void Evaluate_fails_when_verification_capture_is_at_exact_execution_time()
+    {
+        RemediationInstanceVerificationResult result = RemediationInstanceVerificationEvaluator.Evaluate(
+            CreateInstance(),
+            new RemediationPatternVersionContent
+            {
+                Execution = new RemediationPatternExecutionDefinition
+                {
+                    VerificationQueries = ["property:enablePublicNetworkAccess=false"],
+                },
+            },
+            CreateSnapshot(
+                includeResource: true,
+                includeDisabledPublicAccess: true,
+                capturedUtc: ExecutionCapturedUtc),
+            ExecutionSnapshotId,
+            ExecutionCapturedUtc);
+
+        result.Passed.Should().BeFalse();
+        result.Failures.Should().Contain(failure =>
+            failure.Contains("strictly later", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_fails_when_capture_is_not_later_than_change_attestation()
+    {
+        RemediationInstanceVerificationResult result = RemediationInstanceVerificationEvaluator.Evaluate(
+            CreateInstance(),
+            new RemediationPatternVersionContent
+            {
+                Execution = new RemediationPatternExecutionDefinition
+                {
+                    VerificationQueries = ["property:enablePublicNetworkAccess=false"],
+                },
+            },
+            CreateSnapshot(
+                includeResource: true,
+                includeDisabledPublicAccess: true,
+                capturedUtc: VerificationCapturedUtc),
+            ExecutionSnapshotId,
+            ExecutionCapturedUtc,
+            changeImplementedUtc: VerificationCapturedUtc);
+
+        result.Passed.Should().BeFalse();
+        result.Failures.Should().Contain(failure =>
+            failure.Contains("change implementation attestation", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Theory]
+    [InlineData(AzureInventoryCaptureStatus.Pending)]
+    [InlineData(AzureInventoryCaptureStatus.Partial)]
+    [InlineData(AzureInventoryCaptureStatus.Failed)]
+    public void Evaluate_cannot_verify_disappeared_path_when_capture_is_incomplete(
+        AzureInventoryCaptureStatus captureStatus)
+    {
+        RemediationInstanceVerificationResult result = RemediationInstanceVerificationEvaluator.Evaluate(
+            CreateInstance(),
+            new RemediationPatternVersionContent(),
+            CreateSnapshot(
+                includeResource: true,
+                includeDisabledPublicAccess: true,
+                capturedUtc: VerificationCapturedUtc,
+                captureStatus: captureStatus),
+            ExecutionSnapshotId,
+            ExecutionCapturedUtc,
+            CreateNarrative(),
+            new RemediationPathVerificationContext
+            {
+                PathAnalysisCompleted = true,
+                SourcePathCanonicalHash = CanonicalHash,
+                VerificationSnapshotPaths = [],
+            });
+
+        result.Passed.Should().BeFalse();
+        result.Failures.Should().Contain(failure =>
+            failure.Contains("capture status failed", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static RemediationPathNarrative CreateNarrative() =>
         new()
         {

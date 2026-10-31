@@ -110,6 +110,26 @@ public sealed class StructureAwareTextChunkerTests
     }
 
     [Fact]
+    public void Chunk_keeps_python_language_fence_markers_intact_when_block_exceeds_max_chars()
+    {
+        StructureAwareTextChunker sut = new();
+        string inner = new string('x', 800);
+        string text = $"## Implementation\n```python\n{inner}\n```\n\n## Notes\nTail section.";
+
+        IReadOnlyList<string> chunks = sut.Chunk(text, maxChars: 200, overlap: 20);
+
+        chunks.Should().NotBeEmpty();
+
+        foreach (string chunk in chunks)
+        {
+            int fenceMarkers = chunk.Split("```", StringSplitOptions.None).Length - 1;
+            fenceMarkers.Should().BeOneOf(0, 2, 4);
+        }
+
+        chunks.Should().Contain(chunk => chunk.Contains("```python"));
+    }
+
+    [Fact]
     public void Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks()
     {
         StructureAwareTextChunker sut = new();

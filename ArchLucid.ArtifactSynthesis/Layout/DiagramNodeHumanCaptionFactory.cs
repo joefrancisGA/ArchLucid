@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -8,6 +9,9 @@ public static class DiagramNodeHumanCaptionFactory
 {
     public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
     public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+    public const string ResourceGroupStoredEmptyCaption = "Resource group was stored empty.";
+    public const string ResourceNameNotStoredCaption = "Resource name was not stored";
+    public const string ResourceNameStoredEmptyCaption = "Resource name was stored empty.";
 
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
@@ -19,10 +23,10 @@ public static class DiagramNodeHumanCaptionFactory
 
             return linkedServiceType switch
             {
-                "AzureBlobStorage" or "AzureBlobFS" => "Blob link",
-                "AzureMySql" => "MySQL link",
-                "Sftp" => "SFTP link",
-                "HttpServer" or "Web" or "RestService" => "HTTP link",
+                "AzureBlobStorage" or "AzureBlobFS" => "Blob linked-service type",
+                "AzureMySql" => "MySQL linked-service type",
+                "Sftp" => "SFTP linked-service type",
+                "HttpServer" or "Web" or "RestService" => "HTTP linked-service type",
                 _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }
@@ -62,29 +66,46 @@ public static class DiagramNodeHumanCaptionFactory
                 return "App Service";
             }
 
-            return "Site kind was not stored.";
+            return $"Site kind {siteKind} has no reviewer label.";
         }
 
-        return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+        if (string.IsNullOrWhiteSpace(node.ArmResourceType))
+        {
+            return null;
+        }
+
+        return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
+            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        string resourceName = string.IsNullOrWhiteSpace(node.Label)
-            ? "Resource name was not stored"
-            : MermaidDiagramRenderer.EscapeLabel(node.Label);
+        string resourceName = node.Label switch
+        {
+            null => ResourceNameNotStoredCaption,
+            { Length: 0 } => ResourceNameStoredEmptyCaption,
+            _ when string.IsNullOrWhiteSpace(node.Label) => ResourceNameStoredEmptyCaption,
+            _ => MermaidDiagramRenderer.EscapeLabel(node.Label),
+        };
         string? typeCaption = node.IsDataFlowRollup
             ? null
-            : DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+            : TryFormatDataFlowTypeCaption(node);
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";
 
-        if (!node.IsDataFlowRollup && string.IsNullOrWhiteSpace(typeCaption))
+        if (!node.IsDataFlowRollup
+            && !node.IsCollapsedResourceGroupTail
+            && string.IsNullOrWhiteSpace(typeCaption))
         {
             combined = $"{combined} · {ResourceTypeNotStoredCaption}";
+        }
+
+        if (node.IsCollapsedResourceGroupTail)
+        {
+            combined = $"{combined} · {DiagramForestCollapsedSingletonTailLabels.CollapsedSingletonTailPartialRollupLine}";
         }
 
         if (node.ParentAttachmentDetails.Count > 0)
@@ -92,30 +113,41 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
         }
 
+        if (node.HasPrivateEndpointAccess)
+        {
+            string privateEndpointCaption = node.RollupMultiplePrivateEndpointAccessNames
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null, multipleStoredNames: true)
+                : string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                    ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                    : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
+            combined = $"{combined} · {privateEndpointCaption}";
+        }
+
         if (node.HasPublicInternetExposure)
         {
-            combined = $"{combined} · {InventoryDiagramRelationshipLabelTexts.PublicExposureCaption}";
+            combined =
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress, node.RollupMultipleHiddenPublicIpAddresses)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {
-            combined = $"{combined} · Missing a required link: {node.ConnectionStateMessage.Trim()}";
+            combined = $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram"
+                ? $"{combined} · Off-diagram use was not stored."
                 : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
         {
-            combined = $"{combined} · Stands alone";
+            combined = $"{combined} · No diagram link was stored.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)
         {
-            combined = $"{combined} · Connection state was not classified.";
+            combined = $"{combined} · Connection state was not stored.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)
@@ -127,18 +159,28 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · {string.Join(" · ", node.DataFlowTraversalHopEvidenceDetails)}";
         }
-        string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
-            ? null
-            : node.ArmResourceGroup.Trim();
+        string? resourceGroupCaption = node.ArmResourceGroup switch
+        {
+            null => null,
+            _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => null,
+            _ => node.ArmResourceGroup.Trim(),
+        };
         if (node.IncludeResourceGroupInCaption)
         {
-            combined = resourceGroupCaption is not null
-                ? $"{combined} · {resourceGroupCaption}"
-                : $"{combined} · {ResourceGroupNotStoredCaption}";
+            string resourceGroupLine = node.ArmResourceGroup switch
+            {
+                null => ResourceGroupNotStoredCaption,
+                { Length: 0 } => ResourceGroupStoredEmptyCaption,
+                _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => ResourceGroupStoredEmptyCaption,
+                _ => node.ArmResourceGroup.Trim(),
+            };
+            combined = $"{combined} · {resourceGroupLine}";
         }
-        string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
+        string accessibilityTitle = node.IncludeResourceGroupInCaption
             ? combined
-            : $"{combined} · {resourceGroupCaption}";
+            : resourceGroupCaption is null
+                ? combined
+                : $"{combined} · {resourceGroupCaption}";
 
         return new DiagramNodeHumanCaption(
             ResourceName: resourceName,

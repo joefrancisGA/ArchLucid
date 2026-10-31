@@ -9,6 +9,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 internal static class InventoryDiagramLikelyRelationshipApplier
 {
     public const string OutlineSentence = "No stored link yet; inferred from resource group.";
+    public const string AdfHostnameOutlineSentence =
+        "No stored link; hostname or linked-service text was inferred.";
     public const string StorageHostOutlineSentence =
         "No stored link yet; inferred from a redacted host reference.";
 
@@ -22,10 +24,11 @@ internal static class InventoryDiagramLikelyRelationshipApplier
 
         foreach (DiagramEdge edge in ast.Edges.Where(edge => !edge.IsLayoutOnly).ToList())
         {
+            bool isAdfHostnameGuess = IsAdfHostnameGuess(edge);
             bool isResourceGroupGuess = IsResourceGroupGuess(edge);
             bool isStorageHostGuess = IsStorageHostGuess(edge, nodesById);
 
-            if (!isResourceGroupGuess && !isStorageHostGuess)
+            if (!isAdfHostnameGuess && !isResourceGroupGuess && !isStorageHostGuess)
             {
                 continue;
             }
@@ -39,7 +42,9 @@ internal static class InventoryDiagramLikelyRelationshipApplier
 
             string outlineSentence = isStorageHostGuess
                 ? StorageHostOutlineSentence
-                : OutlineSentence;
+                : isAdfHostnameGuess
+                    ? AdfHostnameOutlineSentence
+                    : OutlineSentence;
             edge.Label = outlineSentence;
             edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
 
@@ -87,16 +92,16 @@ internal static class InventoryDiagramLikelyRelationshipApplier
                 || (edge.FromNodeId == candidate.ToNodeId && edge.ToNodeId == candidate.FromNodeId)));
     }
 
+    private static bool IsAdfHostnameGuess(DiagramEdge edge)
+    {
+        return string.Equals(
+            edge.InferenceSource,
+            GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool IsResourceGroupGuess(DiagramEdge edge)
     {
-        if (string.Equals(
-                edge.InferenceSource,
-                GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
         return string.Equals(
                    edge.InferenceSource,
                    GraphEdgeInferenceSources.InventoryAppKeyVaultRef,

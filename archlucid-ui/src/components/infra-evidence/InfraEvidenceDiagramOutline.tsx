@@ -23,23 +23,28 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING,
+  startingDiagramOutlineResourceGroupStored,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED,
+  formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   filterDiagramOutlineUnknownNodes,
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
+  resolveDiagramOutlineStartingNode,
   type DiagramOutlineUnknownNodeFilterScope,
 } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { formatDiagramArmTypeForOutline } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -106,13 +111,17 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
-    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+    const unknownDetails = node.unresolvedRelationshipDetails;
+
+    if (unknownDetails === null || unknownDetails === undefined) {
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    }
 
     if (unknownDetails.length > 0) {
       return unknownDetails.join(" ");
     }
 
-    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    return "Unresolved relationship details were stored empty.";
   }
 
   const details = node.unresolvedRelationshipDetails ?? [];
@@ -144,6 +153,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     }
   }
 
+  if (node.connectionState === "Orphaned") {
+    return "Missing a required link. The missing-link reason was not stored.";
+  }
+
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
 }
 
@@ -154,7 +167,11 @@ function formatLedgerDropLabel(
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
   const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
-  if (drop.reason === "nsg-unattached") {
+  if (
+    drop.reason === "nsg-unattached"
+    || drop.reason === "nsg-unattached-no-association"
+    || drop.reason === "nsg-unattached-off-diagram"
+  ) {
     return `${reasonLabel} · ${fromLabel}`;
   }
 
@@ -192,20 +209,48 @@ function formatUnknownSectionCount(shown: number, total: number): string {
     .replace("{total}", String(total));
 }
 
-function formatOutlineCell(value: string | null, missingLabel = "Not recorded"): string {
-  if (value == null || value.trim().length === 0) {
+function formatOutlineCell(value: string | null, missingLabel = "Field was not stored."): string {
+  if (value === null) {
+    return missingLabel;
+  }
+
+  if (value.trim().length === 0) {
     return missingLabel;
   }
 
   return value;
 }
 
-function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType == null || resourceType.trim().length === 0) {
-    return "Resource type was not stored";
+function formatOutlineStoredStringCell(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
   }
 
-  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored");
+  if (value.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return value;
+}
+
+function formatOutlineResourceType(resourceType: string | null | undefined): string {
+  if (resourceType === null || resourceType === undefined) {
+    return "Resource type was not stored.";
+  }
+
+  if (resourceType.length === 0) {
+    return "Resource type was stored empty.";
+  }
+
+  if (resourceType.trim().length === 0) {
+    return "Resource type was stored empty.";
+  }
+
+  return formatDiagramArmTypeForOutline(resourceType);
 }
 
 function formatOutlineEdgeSource(
@@ -226,7 +271,7 @@ function formatOutlineEdgeSource(
 
   switch (source) {
     case "missing":
-      return "Confidence band was not stored";
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED;
 
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
@@ -412,7 +457,11 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.")}
+                  {formatOutlineStoredStringCell(
+                    node.resourceGroup,
+                    "Resource group was not stored.",
+                    "Resource group was stored empty.",
+                  )}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -553,7 +602,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       .catch((error: unknown) => {
         if (!cancelled) {
           setDeclaredConnections([]);
-          setDeclaredConnectionsError(error instanceof Error ? error.message : "Failed to load declared connections.");
+          setDeclaredConnectionsError(error instanceof Error ? error.message : "Declared connections list was not loaded.");
         }
       })
       .finally(() => {
@@ -665,8 +714,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   );
   const unknownFilterActive = filteredUnknownNodes.length !== unknownNodes.length;
   const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
+  const startingOutlineNode = useMemo(
+    () => resolveDiagramOutlineStartingNode(outline, startingResourceSeedId),
+    [outline, startingResourceSeedId],
+  );
+  const startingResourceGroupStored = startingDiagramOutlineResourceGroupStored(startingOutlineNode);
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
+  const ledgerDropsStoredEmpty = ledgerDropsKnown && outline.ledgerDrops.length === 0;
   const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
   const ledgerDropsNotReturned = !ledgerDropsKnown;
 
@@ -782,9 +837,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="infra-diagrams-unknown-questions"
                     >
-                      {filteredUnknownNodes.length === 1
-                        ? "ArchLucid has a question about 1 resource."
-                        : `ArchLucid has questions about ${filteredUnknownNodes.length} resources.`}
+                      {unknownNodes.length === 1
+                        ? formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(1)
+                        : formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(unknownNodes.length)}
                     </p>
                     <div
                       className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
@@ -809,13 +864,21 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             <option value="all">
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL}
                             </option>
-                            <option value="startingResourceGroup" disabled={startingSeedTrimmed.length === 0}>
+                            <option value="startingResourceGroup" disabled={startingSeedTrimmed.length === 0 || !startingResourceGroupStored}>
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG}
                             </option>
                             <option value="diagramNeighbor" disabled={startingSeedTrimmed.length === 0}>
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR}
                             </option>
                           </select>
+                          {startingSeedTrimmed.length > 0 && !startingResourceGroupStored ? (
+                            <p
+                              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-diagrams-unknown-filter-starting-rg-missing"
+                            >
+                              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING}
+                            </p>
+                          ) : null}
                         </div>
                         <div className="flex min-w-[14rem] flex-1 flex-col gap-1">
                           <Label htmlFor="infra-diagrams-unknown-filter-search">
@@ -882,12 +945,20 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   />
                   );
                 })}
+                {ledgerDropsStoredEmpty ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-ledger-drops-stored-empty"
+                  >
+                    Dropped relationships were stored empty.
+                  </p>
+                ) : null}
                 {ledgerDropsNotReturned ? (
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                     data-testid="infra-diagrams-ledger-drops-not-returned"
                   >
-                    Ledger drops not returned
+                    This diagram response did not include dropped-relationship rows.
                   </p>
                 ) : null}
                 {showLedgerSection ? (
@@ -1004,7 +1075,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     <tbody key={group.source} data-testid={`infra-diagrams-edge-source-${group.source}`}>
                       <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                         <th className="px-3 py-2 text-left font-medium" colSpan={4} scope="rowgroup">
-                          {formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges ({group.rows.length})
+                          {group.source === "observed"
+                            ? `Stored Azure inventory relationship edges (${group.rows.length}) — not live traffic`
+                            : `${formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges (${group.rows.length})`}
                         </th>
                       </tr>
                       {group.rows.map((edge, index) => {
@@ -1016,6 +1089,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                         fromFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from),
                         toFallback: resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.to),
                       });
+                      const fromAccessibleName =
+                        fromNode != null
+                          ? resolveInfraEvidenceDiagramOutlineResourceName(fromNode)
+                          : "Endpoint was not in this diagram outline";
+                      const toAccessibleName =
+                        toNode != null
+                          ? resolveInfraEvidenceDiagramOutlineResourceName(toNode)
+                          : "Endpoint was not in this diagram outline";
 
                       return (
                         <tr
@@ -1029,7 +1110,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 size="sm"
                                 variant="outline"
                                 data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
-                                aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                aria-label={`View declared connection from ${fromAccessibleName} to ${toAccessibleName}`}
                                 onClick={() => {
                                   selectInventoryEdge(null);
                                   setSelectedDeclaredEdge(edge);
@@ -1045,7 +1126,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 size="sm"
                                 variant="outline"
                                 data-testid={`infra-diagrams-inventory-edge-${edge.from}-${edge.to}`}
-                                aria-label={`View connection evidence from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
+                                aria-label={`View connection evidence from ${fromAccessibleName} to ${toAccessibleName}`}
                                 onClick={() => {
                                   setSelectedDeclaredEdge(null);
                                   selectInventoryEdge(edge);
@@ -1065,9 +1146,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             )}
                           </td>
                           <td className="px-3 py-2">
-                            {formatOutlineCell(
+                            {formatOutlineStoredStringCell(
                               resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
-                              "Edge label was not stored",
+                              "Edge label was not stored.",
+                              "Edge label was stored empty.",
                             )}
                           </td>
                           <td className="px-3 py-2">{toDisplay}</td>
@@ -1086,24 +1168,39 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             ) : null}
           </div>
         ) : null}
-        {outline.dropGateRows != null && outline.dropGateRows.length > 0 ? (
-          <section
-            data-testid="infra-diagrams-outline-drop-gates"
-            aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+        {outline.dropGateRows != null ? (
+          outline.dropGateRows.length > 0 ? (
+            <section
+              data-testid="infra-diagrams-outline-drop-gates"
+              aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Dropped relationships ({outline.dropGateRows.length})
+              </h3>
+              <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {outline.dropGateRows.map((row, index) => (
+                  <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
+                    {formatLedgerDropLabel(row, outline.nodes)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-outline-drop-gates-empty"
+            >
+              Drop gate evaluation returned no dropped relationships for this outline.
+            </p>
+          )
+        ) : (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagrams-outline-drop-gates-missing"
           >
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Dropped relationships ({outline.dropGateRows.length})
-            </h3>
-            <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {outline.dropGateRows.map((row, index) => (
-                <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+            Drop gate rows were not stored on this outline.
+          </p>
+        )}
       </div>
     </div>
   );

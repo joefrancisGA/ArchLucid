@@ -344,6 +344,7 @@ export function GetStartedPageClient(): ReactElement {
                 className={MARKETING_SURFACES.inlineLink}
                 href="#choose-sample"
                 data-analytics-event="get-started-open-another-sample"
+                onClick={selectSamplePath}
               >
                 Open another illustrative sample
               </Link>

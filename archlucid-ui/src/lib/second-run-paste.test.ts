@@ -57,4 +57,44 @@ environment = "prod"
   it("normalizeEnvironmentForWizard maps prod to production", () => {
     expect(normalizeEnvironmentForWizard("prod")).toBe("production");
   });
+
+  it("does not default missing environment to staging on paste", () => {
+    const toml = `
+name = "Acme.Api"
+description = "Handles orders with at least ten chars."
+components = ["api"]
+`;
+    const defaults = { ...buildWizardDefaultsForSecondRunPaste(), environment: "production" };
+    const result = applySecondRunPasteToWizard(toml, defaults);
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.values.environment).toBe("production");
+  });
+
+  it("rejects unrecognized cloud_provider values instead of defaulting to Azure", () => {
+    const toml = `
+name = "Acme.Api"
+description = "Handles orders with at least ten chars."
+cloud_provider = "oracle"
+`;
+    const result = applySecondRunPasteToWizard(toml, buildWizardDefaultsForSecondRunPaste());
+
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.error).toContain("cloud_provider 'oracle' is not recognized.");
+  });
+
+  it("normalizeEnvironmentForWizard does not invent staging when omitted", () => {
+    expect(normalizeEnvironmentForWizard(undefined)).toBe("");
+    expect(normalizeEnvironmentForWizard("qa")).toBe("");
+  });
 });

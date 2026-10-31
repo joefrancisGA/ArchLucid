@@ -83,7 +83,7 @@ public static class GraphSnapshotTopologyDiffAnalyzer
     private static List<string> ExtractTopologyCategories(GraphSnapshot graphSnapshot)
     {
         return graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource)
-            .Select(static n => n.Category ?? "general")
+            .Select(static n => GraphTopologyCategoryHonesty.ResolvePresentCategory(n.Category))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static c => c, StringComparer.OrdinalIgnoreCase)
             .ToList();

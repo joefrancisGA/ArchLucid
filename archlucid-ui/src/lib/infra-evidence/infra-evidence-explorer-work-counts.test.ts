@@ -15,7 +15,7 @@ describe("buildCloudResourceExplorerWorkCountBadges", () => {
     expect(badges[1]?.count).toBe(4);
   });
 
-  it("returns no badges when every work count is zero or missing", () => {
+  it("returns no badges when every stored work count is zero", () => {
     expect(
       buildCloudResourceExplorerWorkCountBadges({
         openOperationalFindingsCount: 0,
@@ -23,6 +23,19 @@ describe("buildCloudResourceExplorerWorkCountBadges", () => {
         inventoryDriftChangeCount: 0,
       }),
     ).toEqual([]);
+  });
+
+  it("returns no badges when workCounts is omitted", () => {
     expect(buildCloudResourceExplorerWorkCountBadges(null)).toEqual([]);
+  });
+
+  it("surfaces not-stored badges when workCounts omits a field", () => {
+    const badges = buildCloudResourceExplorerWorkCountBadges({
+      openRemediationInstancesCount: 0,
+      inventoryDriftChangeCount: 0,
+    });
+
+    expect(badges).toHaveLength(1);
+    expect(badges[0]?.label).toContain("Open findings count was not stored");
   });
 });

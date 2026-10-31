@@ -37,6 +37,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { cn } from "@/lib/utils";
 import type { ManifestSummary } from "@/types/authority";
 
@@ -85,10 +86,13 @@ export function ManifestDetailSummaryDecisionsBlock({
     setDecisionsOpenState(parseManifestDetailDecisionsOpenFromSearch(manifestDetailDecisionsOpenParam));
   }, [manifestDetailDecisionsOpenParam]);
 
+  const decisionCountLabel = finiteIntegerCountDisplay(summary.decisionCount, {
+    notStoredLabel: "Decision count was not stored.",
+  });
   const decisionsSummaryLabel =
     buyerPolishedLayout
-      ? `Decisions in this package (${summary.decisionCount})`
-      : `Decisions recorded (${summary.decisionCount})`;
+      ? `Decisions in this package (${decisionCountLabel})`
+      : `Decisions recorded (${decisionCountLabel})`;
 
   return (
     <details
@@ -167,10 +171,13 @@ export function ManifestDetailSummaryWarningsBlock({
     setWarningsOpenState(parseManifestDetailWarningsOpenFromSearch(manifestDetailWarningsOpenParam));
   }, [manifestDetailWarningsOpenParam]);
 
+  const warningCountLabel = finiteIntegerCountDisplay(summary.warningCount, {
+    notStoredLabel: "Warning count was not stored.",
+  });
   const warningsSummaryLabel =
     buyerPolishedLayout
-      ? `Monitored risks in this package (${summary.warningCount})`
-      : `Warnings (${summary.warningCount})`;
+      ? `Monitored risks in this package (${warningCountLabel})`
+      : `Warnings (${warningCountLabel})`;
 
   return (
     <details

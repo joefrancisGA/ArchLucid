@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.ArtifactSynthesis;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -56,7 +57,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string Title,
         IReadOnlyList<NodePlacement> Members,
         IReadOnlyList<string> FrameIds,
-        IReadOnlyList<(string Name, int Count)> Types);
+        IReadOnlyList<(string Name, int Count)> Types,
+        int TypeGroupsTotal);
 
     private sealed record NeighborhoodLink(string From, string To, int Count);
 
@@ -242,7 +244,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     }
 
     private const string SharedServicesFrameCellId = "shared-services";
-    private const string SharedServicesFrameTitle = "Shared services";
+    private const string SharedServicesFrameTitle =
+        "Shared service types. This frame is not a resource group.";
 
     private static List<NodePlacement> BuildVnetPrimaryPlacements(
         IReadOnlyList<DiagramNode> nodes,
@@ -1503,6 +1506,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             StringComparer.Ordinal);
         bool hasDashedPeering = visibleEdges.Any(DiagramForestEdgeLabelCollapse.IsPeeringEdge);
         bool hasPrivateEndpointAccess = placements.Any(placement => placement.Metrics.HasPrivateEndpointAccess);
+        bool hasUnclassifiedConnectors = visibleEdges.Any(edge =>
+            !edge.IsLayoutOnly
+            && DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource)
+                == DiagramEdgeVisualKind.Unclassified);
         IReadOnlyList<DiagramInventoryPictogramKind> usedKinds =
             DiagramForestLegendSvgEmitter.CollectUsedKinds(placements.Select(placement => placement.Metrics).ToList());
 
@@ -1721,6 +1728,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 suppressedEdgeKeys);
             bool showArrow = true;
 
+            string? privateEndpointEdgeTitle = ResolvePrivateEndpointEdgeAccessibilityTitle(
+                edge,
+                fromPlacement.Node,
+                toPlacement.Node);
+            bool suppressEmptyRelationshipOnPathLabel = string.IsNullOrWhiteSpace(edge.Label)
+                && (fromPlacement.Node.HasPrivateEndpointAccess || toPlacement.Node.HasPrivateEndpointAccess);
+
             edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
                 svgNamespace,
                 edge,
@@ -1733,7 +1747,9 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     out BundleEndpointIds? endpointIds)
                     ? endpointIds.FromNodeIds
                     : null,
-                endpointIds?.ToNodeIds));
+                endpointIds?.ToNodeIds,
+                privateEndpointEdgeTitle,
+                suppressEmptyRelationshipOnPathLabel));
         }
 
         root.Add(edgeLayer);
@@ -1780,6 +1796,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             new DiagramForestLegendSvgEmitter.LegendInput(
                 usedKinds,
                 hasPrivateEndpointAccess,
+                hasUnclassifiedConnectors,
                 hasDashedPeering,
                 frameBounds.Count > 0,
                 options.IncludeDataFlowRollupMembersInLegend
@@ -1895,7 +1912,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             string neighborhoodTitle = isRollup
                 ? members[0].Node.Label
                 : neighborhoodAnchor is null
-                    ? frameId
+                    ? "Remainder frame title was not stored."
                     : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(neighborhoodAnchor, frameId);
             NeighborhoodMetadata cell = CreateNeighborhood(
                 id,
@@ -2019,16 +2036,20 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<NodePlacement> members,
         IReadOnlyList<string> frameIds)
     {
-        IReadOnlyList<(string Name, int Count)> types = members
-            .Select(member => ResolveNeighborhoodTypeName(member.Node.ArmResourceType))
-            .Where(type => !string.IsNullOrWhiteSpace(type))
-            .GroupBy(type => type!, StringComparer.Ordinal)
+        const string resourceTypeNotStored = "Resource type was not stored";
+        List<(string Name, int Count)> allTypeGroups = members
+            .Select(member =>
+            {
+                string? resolved = ResolveNeighborhoodTypeName(member.Node.ArmResourceType);
+                return string.IsNullOrWhiteSpace(resolved) ? resourceTypeNotStored : resolved!;
+            })
+            .GroupBy(type => type, StringComparer.Ordinal)
             .OrderByDescending(group => group.Count())
             .ThenBy(group => group.Key, StringComparer.Ordinal)
-            .Take(4)
             .Select(group => (group.Key, group.Count()))
             .ToList();
-        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types);
+        IReadOnlyList<(string Name, int Count)> types = allTypeGroups.Take(4).ToList();
+        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types, allTypeGroups.Count);
     }
 
     private static string? ResolveNeighborhoodTypeName(string? armResourceType)
@@ -2066,6 +2087,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     "resource-count",
                     DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount(
                         neighborhood.Members.Select(member => member.Node).ToList())));
+            if (neighborhood.TypeGroupsTotal > neighborhood.Types.Count)
+            {
+                element.Add(new XAttribute("type-groups-total", neighborhood.TypeGroupsTotal));
+            }
             foreach (NodePlacement member in neighborhood.Members)
             {
                 element.Add(new XElement(
@@ -2236,6 +2261,29 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return (bundledEdges, bundledOriginalKeys, bundledRoutes, bundledEndpointIds);
+    }
+
+    private static string? ResolvePrivateEndpointEdgeAccessibilityTitle(
+        DiagramEdge edge,
+        DiagramNode fromNode,
+        DiagramNode toNode)
+    {
+        if (!IsPrivateEndpointEdge(edge)
+            && !string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string? privateEndpointAccessName = toNode.HasPrivateEndpointAccess
+            ? toNode.PrivateEndpointAccessName
+            : fromNode.HasPrivateEndpointAccess
+                ? fromNode.PrivateEndpointAccessName
+                : null;
+
+        return DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(privateEndpointAccessName);
     }
 
     private static bool IsPrivateEndpointEdge(DiagramEdge edge)

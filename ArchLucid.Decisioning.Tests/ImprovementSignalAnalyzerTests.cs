@@ -70,7 +70,7 @@ public sealed class ImprovementSignalAnalyzerTests
         signals.Should().ContainSingle(s =>
             s.SignalType == "UncoveredRequirement" &&
             s.Category == "Requirement" &&
-            s.Severity == "High" &&
+            s.Severity == ImprovementSignalSeverities.NotStored &&
             s.Title.Contains("REQ-001"));
     }
 
@@ -283,7 +283,47 @@ public sealed class ImprovementSignalAnalyzerTests
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
 
-        signals.Should().ContainSingle(s => s.SignalType == "CostIncrease");
+        signals.Should().ContainSingle(s =>
+            s.SignalType == "CostIncrease"
+            && s.Title.Contains("monthly", StringComparison.OrdinalIgnoreCase)
+            && s.Description.Contains("Currency was not stored", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Analyze_UnresolvedIssueWithoutSeverity_UsesNotStoredSeverity()
+    {
+        ManifestDocument manifest = EmptyManifest();
+        manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+        {
+            IssueType = "DataRetention",
+            Title = "Data retention policy missing",
+            Description = "No retention schedule defined",
+            Severity = string.Empty,
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
+
+        signals.Should().ContainSingle(s =>
+            s.SignalType == ImprovementSignalTypes.UnresolvedIssue
+            && s.Severity == ImprovementSignalSeverities.NotStored);
+    }
+
+    [Fact]
+    public void Analyze_SecurityRegression_UsesNotStoredStatusCopyWhenMissing()
+    {
+        ComparisonResult comparison = new();
+        comparison.SecurityChanges.Add(new SecurityDelta
+        {
+            ControlName = "MFA",
+            BaseStatus = "Compliant",
+            TargetStatus = null,
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
+
+        signals.Should().ContainSingle(s =>
+            s.SignalType == ImprovementSignalTypes.SecurityRegression
+            && s.Description.Contains("status was not stored", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -314,8 +354,44 @@ public sealed class ImprovementSignalAnalyzerTests
         signals.Should().ContainSingle(s =>
             s.SignalType == ImprovementSignalTypes.PolicyViolation &&
             s.Category == ImprovementSignalCategories.Compliance &&
-            s.Severity == ImprovementSignalSeverities.High &&
+            s.Severity == ImprovementSignalSeverities.NotStored &&
             s.Title.Contains("Encryption", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Analyze_PolicyViolation_without_description_or_name_uses_honesty_copy()
+    {
+        ManifestDocument manifest = EmptyManifest();
+        manifest.Policy.Violations.Add(new PolicyControlItem
+        {
+            ControlId = "soc2-001",
+            ControlName = "",
+            Description = "",
+        });
+
+        ImprovementSignal signal = _sut.Analyze(manifest, EmptySnapshot()).Should().ContainSingle().Subject;
+
+        signal.Title.Should().Be("Policy violation. Control name was not stored.");
+        signal.Description.Should().Be("Policy violation description was not stored. Control id: soc2-001.");
+        signal.Severity.Should().Be(ImprovementSignalSeverities.NotStored);
+    }
+
+    [Fact]
+    public void Analyze_UncoveredRequirement_without_text_does_not_copy_name_into_description()
+    {
+        ManifestDocument manifest = EmptyManifest();
+        manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
+        {
+            RequirementName = "REQ-NAME",
+            RequirementText = "",
+            IsMandatory = true,
+            CoverageStatus = "Uncovered",
+        });
+
+        ImprovementSignal signal = _sut.Analyze(manifest, EmptySnapshot()).Should().ContainSingle().Subject;
+
+        signal.Description.Should().Be("Requirement text was not stored.");
+        signal.Severity.Should().Be(ImprovementSignalSeverities.NotStored);
     }
 
     [Fact]

@@ -1,0 +1,7 @@
+# SecureNow cohort-specific memory forecast-error review
+
+The isolated memory benchmark workflow now produces `forecast-error.json`. For each synthetic graph topology with three distinct node sizes and at least three independent, nontruncated process observations per size, the reporter takes the maximum **sampled RSS** at each size and evaluates a naive prior-size hold-constant estimate against the next size. It reports absolute byte error, percentage error when observed RSS is nonzero, and the ratio of observed to predicted memory. This deliberately exposes potential underprediction with growth; it does **not** claim that a smaller-cohort prediction is valid extrapolation.
+
+The recommended planning multiplier is the greater of 1.5× and the largest observed underprediction ratio, capped at 4×. The latest cohort's maximum sampled RSS times that multiplier becomes an **advisory planning budget**, compared against the 512 MiB CI worker limit. Missing repetitions, fewer than three distinct sizes, or a zero prediction suppress trustworthy headroom recommendations. The cap at 4× is an engineering policy assumption, not a statistically supported safe upper bound.
+
+The report is not production calibration: synthetic graph shapes, non-isolated allocation effects, CI runtime variance, and sampling gaps remain. No live memory quota, worker admission, or deployment setting is changed. Inspect the actual artifacts before interpreting the proposed multiplier; CI configuration alone is not evidence that the 36 runs succeeded.

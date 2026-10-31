@@ -34,12 +34,12 @@
     ]
   },
   {
-    "findingId": "b0cdd9bb-2641-c4fb-7fe8-da56071de156",
+    "findingId": "9947f46b-b5bc-6956-20e7-c775c6b1108c",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Stored scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
     "relatedNodeIds": [
       "cmp-golden-63",
       "ctx-golden-63"
@@ -53,12 +53,12 @@
     ]
   },
   {
-    "findingId": "a071b0a7-ca09-97b4-fe6c-a0e4c291358f",
+    "findingId": "4d761a58-a30e-ae3c-ecfc-0e00ef5f188d",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Stored scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
     "relatedNodeIds": [
       "cmp-golden-63",
       "ctx-golden-63"
@@ -72,12 +72,12 @@
     ]
   },
   {
-    "findingId": "d25e03b0-4c8e-7ca3-d6bc-281790275be8",
+    "findingId": "597e9b2d-689f-c98c-9769-dc58c494d312",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories from stored scope metadata lack any protected resources linked by security baseline PROTECTS edges.",
     "relatedNodeIds": [
       "cmp-golden-63",
       "ctx-golden-63"
@@ -91,14 +91,14 @@
     ]
   },
   {
-    "findingId": "89f9e389-6325-f94f-2eb2-88d5b0866b23",
+    "findingId": "14a013c3-7704-6a8c-10bd-dc6cc8b9d30f",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-api"
+      "cmp-golden-63"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -109,12 +109,12 @@
     ]
   },
   {
-    "findingId": "a92988cb-fba5-9c9d-5e3d-328609d9c9d6",
+    "findingId": "5076a309-0b27-0ffd-f382-abfb6cf99d40",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Stored scope metadata (and any policy-stamped categories) imply topology pillars that are not represented in the graph.",
     "relatedNodeIds": [
       "cmp-golden-63"
     ],
@@ -123,7 +123,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to expected coverage categories from stored scope metadata."
     ]
   },
   {

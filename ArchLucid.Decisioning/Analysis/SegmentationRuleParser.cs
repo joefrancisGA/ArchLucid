@@ -15,6 +15,25 @@ public static partial class SegmentationRuleParser
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex K8sWildcardSourceRegex();
 
+    /// <summary>
+    ///     Azure NSG rules set <c>source_port_range</c> and <c>destination_address_prefix</c> to
+    ///     <c>*</c> even when the source is a private CIDR. Only <c>source_address_prefix</c> or
+    ///     the list form <c>source_address_prefixes</c> decides whether the rule admits the internet.
+    /// </summary>
+    [GeneratedRegex(
+        @"(?<![A-Za-z0-9_])source_address_prefix(?:es)?\s*=\s*(?<value>\[[^\]]*\]|[^\s,;]+)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    private static partial Regex SourceAddressPrefixRegex();
+
+    /// <summary>
+    ///     Admin-port digits also appear in addresses (<c>10.22.0.0/16</c>) and priorities.
+    ///     Only destination port fields, including AWS <c>from_port</c> / <c>to_port</c>, count.
+    /// </summary>
+    [GeneratedRegex(
+        @"(?<![A-Za-z0-9_])(?:destination_port_ranges?|from_port|to_port)\s*=\s*(?<value>\[[^\]]*\]|[^\s,;]+)",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    private static partial Regex DestinationPortRegex();
+
     public static IReadOnlyList<SegmentationRiskyRule> ParseRiskyRules(IReadOnlyDictionary<string, string> properties)
     {
         ArgumentNullException.ThrowIfNull(properties);
@@ -69,15 +88,44 @@ public static partial class SegmentationRuleParser
 
     private static bool TryGetRiskyPort(string propertyText, out int destinationPort)
     {
-        string normalized = propertyText.ToLowerInvariant();
+        string dequoted = propertyText.ToLowerInvariant()
+            .Replace("\"", string.Empty, StringComparison.Ordinal)
+            .Replace("'", string.Empty, StringComparison.Ordinal);
 
-        foreach (int port in RiskyDestinationPorts)
+        foreach (Match match in DestinationPortRegex().Matches(dequoted))
         {
-            if (ContainsIsolatedPort(normalized, port))
+            if (ValueContainsRiskyPort(match.Groups["value"].Value, out destinationPort))
             {
-                destinationPort = port;
-
                 return true;
+            }
+        }
+
+        destinationPort = 0;
+
+        return false;
+    }
+
+    private static bool ValueContainsRiskyPort(string raw, out int destinationPort)
+    {
+        string value = raw.Trim().TrimEnd(',', ';');
+
+        if (value.Length >= 2 && value[0] == '[' && value[^1] == ']')
+        {
+            value = value[1..^1];
+        }
+
+        foreach (string part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string token = part.Trim().TrimEnd(',', ';');
+
+            foreach (int port in RiskyDestinationPorts)
+            {
+                if (ContainsIsolatedPort(token, port))
+                {
+                    destinationPort = port;
+
+                    return true;
+                }
             }
         }
 
@@ -98,10 +146,7 @@ public static partial class SegmentationRuleParser
             return true;
         }
 
-        if (dequoted.Contains("source_address_prefix", StringComparison.Ordinal)
-            && (dequoted.Contains("=*", StringComparison.Ordinal)
-                || dequoted.Contains("= *", StringComparison.Ordinal)
-                || dequoted.Contains("internet", StringComparison.Ordinal)))
+        if (SourceAddressPrefixAllowsInternet(dequoted))
         {
             return true;
         }
@@ -130,6 +175,42 @@ public static partial class SegmentationRuleParser
 
         return dequoted.Contains(" internet", StringComparison.Ordinal)
             || dequoted.Contains("source=*", StringComparison.Ordinal);
+    }
+
+    private static bool SourceAddressPrefixAllowsInternet(string dequoted)
+    {
+        foreach (Match match in SourceAddressPrefixRegex().Matches(dequoted))
+        {
+            if (PrefixValueAllowsInternet(match.Groups["value"].Value))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool PrefixValueAllowsInternet(string raw)
+    {
+        string value = raw.Trim().TrimEnd(',', ';');
+
+        if (value.Length >= 2 && value[0] == '[' && value[^1] == ']')
+        {
+            value = value[1..^1];
+        }
+
+        foreach (string part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string token = part.Trim().TrimEnd(',', ';');
+
+            if (token is "*" or "internet"
+                || token.Contains("0.0.0.0/0", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool ContainsPrivateSourceOnly(string normalized)

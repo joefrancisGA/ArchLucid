@@ -218,7 +218,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_CHANGE_DIALOG_CONFI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE = "No inventory snapshots yet" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY =
-  "Connect a read-only cloud account and wait for the first inventory capture before rendering diagrams." as const;
+  "Upload an inventory ZIP on the review, or connect a read-only cloud account. This page draws a diagram after a snapshot exists." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE = "Diagram render failed" as const;
 
@@ -254,16 +254,19 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_EDGES_DISCLOSURE_LABEL = "Edges" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION =
-  "Connected on the diagram" as const;
+  "Has a line on this diagram" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION =
-  "In use off the diagram" as const;
+  "Used off-diagram" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_DETAIL_NOT_STORED =
+  "Off-diagram use detail was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
-  "Missing a required link" as const;
+  "No stored association" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
-  "Stands alone" as const;
+  "No line on this diagram was stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION =
   "Connection state was not classified." as const;
@@ -272,22 +275,39 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL =
   "No connection state detail was stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL =
-  "Narrow unknown resources" as const;
+  "Narrow resources whose connection state was not classified" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL =
-  "All unknown resources" as const;
+  "All resources whose connection state was not classified" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING =
+  "Starting resource has no stored resource group — narrow by resource group is unavailable." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG =
   "Same resource group as starting resource" as const;
 
+export function startingDiagramOutlineResourceGroupStored(
+  startingNode: { readonly resourceGroup?: string | null } | null,
+): boolean {
+  return (startingNode?.resourceGroup?.trim() ?? "").length > 0;
+}
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR =
-  "On a diagram edge from starting resource" as const;
+  "Shares a diagram edge with the starting resource (layout adjacency, not network isolation)." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL =
-  "Search unknown rows" as const;
+  "Search rows whose connection state was not classified" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY =
-  "Showing {shown} of {total} unknown resources." as const;
+  "Showing {shown} of {total} resources whose connection state was not classified." as const;
+
+export function formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(count: number): string {
+  if (count === 1) {
+    return "1 resource has connection state that was not classified on this diagram outline.";
+  }
+
+  return `${count} resources have connection state that was not classified on this diagram outline.`;
+}
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED =
   "{shown} of {total}" as const;
@@ -295,8 +315,15 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FI
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL =
   "Dropped imports" as const;
 
+/** @deprecated Prefer NSG_NO_ASSOCIATION / NSG_OFF_DIAGRAM_TARGET drop-gate labels. */
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
-  "Unattached NSG" as const;
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_NO_ASSOCIATION_LABEL =
+  "No subnet or network interface association was stored." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL =
+  "This NSG names a target that is not on this diagram." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_REQUIRED_TITLE =
   "Pick a starting resource before rendering" as const;
@@ -589,7 +616,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as co
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL = "Changed by" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE =
-  "Attribution is unavailable for this capture. Recompute the diff after a fresh inventory snapshot to populate ARM systemData." as const;
+  "Changed-by name was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
 
@@ -642,6 +669,9 @@ export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_TYPE_LABEL = "Resource
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_RESOURCE_GROUP_LABEL = "Resource Group" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL = "None" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_COUNTS_NOT_STORED_LABEL =
+  "Work counts were not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SCOPE_ALL_LABEL = "All resources" as const;
 
@@ -803,7 +833,7 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_PICKER_INVALID_ENTER =
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HUB_LOAD_RETRY_ACTION = "Retry load" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections";
+export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE = "Declared connections" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD =
   "Record dependencies and connectivity that Azure inventory alone cannot prove — for example connection strings in application config that are not ingested.";

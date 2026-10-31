@@ -98,10 +98,26 @@ public sealed partial class GovernanceStickinessController
 
         try
         {
-            // Count has no run id in the response. Seal the assigned register page before returning the number.
+            // Count has no run id in the response. Seal every assigned open row that contributes to CountAsync
+            // (not only the first 200), capped at the register list maximum.
+            const int maxAssignedSealRows = 500;
+
+            int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
+
+            if (count == 0)
+                return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = 0 });
+
+            if (count > maxAssignedSealRows)
+            {
+                return this.ConflictProblem(
+                    $"Assigned open finding count ({count}) exceeds the maximum rows ({maxAssignedSealRows}) "
+                    + "that can be sealed for this response.",
+                    ProblemTypes.Conflict);
+            }
+
             ArchitectureRiskRegisterResponse assignedRegister = await _facade.GetRiskRegisterAsync(
                 projectId,
-                maxRows: 200,
+                maxRows: count,
                 assignedToMe: true,
                 cancellationToken);
 
@@ -111,8 +127,6 @@ public sealed partial class GovernanceStickinessController
 
             if (rowGuardResult is not null)
                 return rowGuardResult;
-
-            int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
 
             return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
         }
@@ -216,6 +230,12 @@ public sealed partial class GovernanceStickinessController
 
             if (waiverGuardResult is not null)
                 return waiverGuardResult;
+
+            await _facade.EnsureDecisionsNeededPendingApprovalsSealedAsync(projectId, cancellationToken)
+                .ConfigureAwait(false);
+
+            await _facade.EnsureDecisionsNeededDispositionTrailSealedAsync(projectId, cancellationToken)
+                .ConfigureAwait(false);
 
             GovernanceDecisionsNeededSummaryResponse response =
                 await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);

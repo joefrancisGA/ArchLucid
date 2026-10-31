@@ -5,6 +5,11 @@ import {
 } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
+import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import {
+  formatAssertedTrailLine,
+  formatSkippedTrailQuestionKey,
+} from "@/lib/feasibility/format-transparency-trail-entry-display";
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 
 export const TRANSPARENCY_TRAIL_EXPORT_INCOMPLETE_BANNER =
@@ -60,11 +65,13 @@ export function formatTransparencyTrailMarkdownSection(
   if (section.asserted.length > 0) {
     for (const entry of section.asserted) {
       const responder =
-        typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
-          ? ` — ${entry.responderLabel}`
+        typeof entry.responderLabel === "string" && entry.responderLabel.trim().length > 0
+          ? ` — ${entry.responderLabel.trim()}`
           : entry.responderLabel === null || entry.responderLabel === undefined
             ? " — Responder was not stored."
-            : "";
+            : typeof entry.responderLabel === "string"
+              ? " — Responder was stored empty."
+              : "";
       const questionId =
         typeof entry.questionId === "string" && entry.questionId.length > 0
           ? ` — Question id: ${entry.questionId}`
@@ -78,10 +85,10 @@ export function formatTransparencyTrailMarkdownSection(
             ? " — Answer recorded time was not stored."
             : "";
 
-      lines.push(`- ${entry.key}: ${entry.value}${responder}${questionId}${recordedUtc}`);
+      lines.push(`- ${formatAssertedTrailLine(entry)}${responder}${questionId}${recordedUtc}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Asserted entries were stored empty.");
   }
 
   lines.push("");
@@ -90,33 +97,39 @@ export function formatTransparencyTrailMarkdownSection(
 
   if (section.inferred.length > 0) {
     for (const entry of section.inferred) {
-      lines.push(`- ${entry.key}: ${entry.value} (confidence ${entry.confidence})`);
+      lines.push(`- ${formatInferredTrailEntryLabel(entry)}`);
     }
   } else {
-    lines.push("_None recorded._");
+    lines.push("Inferred entries were stored empty.");
   }
 
   const mustSkipped = section.skipped.filter((entry) => entry.tier === "Must");
   const shouldSkipped = section.skipped.filter((entry) => entry.tier !== "Must");
 
-  if (mustSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
+  lines.push("");
 
+  if (mustSkipped.length > 0) {
     for (const entry of mustSkipped) {
-      lines.push(`- ${entry.questionKey}`);
+      lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
+  } else {
+    lines.push("Skipped MUST questions were stored empty.");
   }
 
-  if (shouldSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
+  lines.push("");
 
+  if (shouldSkipped.length > 0) {
     for (const entry of shouldSkipped) {
-      lines.push(`- ${entry.questionKey}`);
+      lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
+  } else if (section.skipped.length === 0) {
+    lines.push("Skipped questions were not recorded on this transparency trail.");
+  } else {
+    lines.push("Skipped SHOULD questions were stored empty.");
   }
 
   const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(

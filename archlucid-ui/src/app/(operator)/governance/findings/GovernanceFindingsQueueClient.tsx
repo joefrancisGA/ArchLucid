@@ -10,6 +10,7 @@ import {
 } from "@/app/(operator)/governance/findings/GovernanceFindingsAssignedToMeChrome";
 import { GovernanceFindingsQueueTableShell } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueTableShell";
 import { useGovernanceFindingsQueueBulkActions } from "@/app/(operator)/governance/findings/use-governance-findings-queue-bulk-actions";
+import { governanceFindingsQueueAvailableFindingIdSet } from "@/lib/governance/governance-findings-queue-selection";
 import { GovernanceFindingsQueueHeader } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueHeader";
 import { useGovernanceFindingsQueueMode } from "@/app/(operator)/governance/findings/use-governance-findings-queue-mode";
 import { useGovernanceFindingsQueueSynopsis } from "@/app/(operator)/governance/findings/use-governance-findings-queue-synopsis";
@@ -154,7 +155,7 @@ export default function GovernanceFindingsQueueClient({
     tenantRefreshing,
   } = queueMode;
   const availableFindingIds = useMemo(
-    () => new Set(rows.filter((row) => row.recordKind === "finding").map((row) => row.findingId)),
+    () => governanceFindingsQueueAvailableFindingIdSet(rows),
     [rows],
   );
   const bulkActions = useGovernanceFindingsQueueBulkActions({

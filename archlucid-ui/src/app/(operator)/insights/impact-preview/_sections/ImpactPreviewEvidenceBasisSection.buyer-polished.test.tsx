@@ -28,6 +28,7 @@ describe("ImpactPreviewEvidenceBasisSection buyer-polished shell", () => {
       "/architecture/reviews/run-baseline-42",
     );
     expect(screen.getByText(IMPACT_PREVIEW_BASELINE_REVIEW_ID_LABEL)).toBeInTheDocument();
+    expect(screen.getByText(/dispositions alone do not seal/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Show details" })).toBeInTheDocument();
     expect(screen.queryByText("run-baseline-42")).not.toBeInTheDocument();
   });

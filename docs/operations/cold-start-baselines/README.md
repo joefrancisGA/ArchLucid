@@ -14,3 +14,7 @@
 | 2026-07-16 | dev (representative ACA) | [GitHub run 29542895350](https://github.com/joefrancisGA/ArchLucid/actions/runs/29542895350) · `806b3a0` | [`dev-2026-07-16-806b3a0.md`](dev-2026-07-16-806b3a0.md) |
 
 **Staging:** Use `scripts/ops/enable-cold-start-staging-baseline-checklist.ps1` and `scripts/ops/capture-cold-start-baseline.ps1` (**TB-2146**) on the next routine staging CD; append a dated row here and retire the pending scaffold when numbers are recorded. Dev is acceptable as an interim representative profile until staging is captured.
+
+## Automated staging evidence (COLD-A1/A2)
+
+Staging CD now emits revision-aware, credential-free artifacts on an actual deployment and separately reports skipped staging-on-merge workflows without inventing measurements. Review [STAGING_COLD_START_EVIDENCE_AUTOMATION.md](STAGING_COLD_START_EVIDENCE_AUTOMATION.md) before interpreting first observed readiness as a true cold-start timestamp. The pending staging baseline above remains pending until a valid deployed revision and real measurements are independently verified.

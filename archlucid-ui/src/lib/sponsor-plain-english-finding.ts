@@ -37,10 +37,14 @@ function normalizeSeverityKey(severity: string): string {
 
 /** Urgency clause for sponsors — avoids stop-ship language except for clearly critical labels. */
 export function sponsorSeverityUrgencyClause(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "This review recorded a finding that still needs a human resolve decision.";
+    return "Severity was stored empty.";
   }
 
   const key = normalizeSeverityKey(raw);
@@ -64,17 +68,27 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   return `This review labeled severity "${raw}"; compare it with peer findings before escalating.`;
 }
 
+function storedSeverityForSponsorCopy(severity: string | null): string | null {
+  if (severity === null || severity === "Severity label was not stored.") {
+    return null;
+  }
+
+  return severity;
+}
+
 function buildHeadline(title: string | null, severity: string | null): string {
-  if (title !== null && severity !== null) {
-    return `${severity} finding: ${title}`;
+  const storedSeverity = storedSeverityForSponsorCopy(severity);
+
+  if (title !== null && storedSeverity !== null) {
+    return `${storedSeverity} finding: ${title}`;
   }
 
   if (title !== null) {
     return title;
   }
 
-  if (severity !== null) {
-    return `${severity} architecture finding`;
+  if (storedSeverity !== null) {
+    return `Severity ${storedSeverity} — finding title was not stored.`;
   }
 
   return "Finding title was not stored.";
@@ -101,18 +115,20 @@ export function buildSponsorPlainEnglishFinding(
 ): SponsorPlainEnglishFinding {
   const title = nonEmpty(input.title);
   const message = nonEmpty(input.message);
-  const severity = nonEmpty(input.severity);
+  const severity = storedSeverityForSponsorCopy(nonEmpty(input.severity));
   const derivation = usableDerivationSentence(nonEmpty(input.derivationSentence));
   const residualRisk = nonEmpty(input.residualRisk);
 
-  const parts: string[] = [sponsorSeverityUrgencyClause(severity)];
+  const parts: string[] = [
+    sponsorSeverityUrgencyClause(storedSeverityForSponsorCopy(input.severity?.trim() ?? null)),
+  ];
 
   if (message !== null) {
     parts.push(`In plain terms: ${message}`);
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
   } else {
-    parts.push("No export-ready finding summary was supplied beyond severity and related notes.");
+    parts.push("Finding summary was not stored.");
   }
 
   if (derivation !== null) {

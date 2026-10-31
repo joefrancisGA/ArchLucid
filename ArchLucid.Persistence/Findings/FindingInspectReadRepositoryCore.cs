@@ -177,7 +177,7 @@ internal static class FindingInspectReadRepositoryCore
     ///     Trims whitespace and leading/trailing format/control characters so persisted enum tokens with
     ///     invisible prefixes (for example U+200B before <c>Supported</c>) still parse as the overlay value.
     /// </summary>
-    private static string? NormalizeInspectEnumToken(string? value)
+    internal static string? NormalizeInspectEnumToken(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return null;
@@ -305,6 +305,31 @@ internal static class FindingInspectReadRepositoryCore
         return ResolveSemanticSupportBandFromTypedPayload(typedPayload);
     }
 
+    private static bool TryGetTypedPayloadProperty(
+        JsonElement payload,
+        string propertyName,
+        out JsonElement value)
+    {
+        if (payload.TryGetProperty(propertyName, out value))
+        {
+            return true;
+        }
+
+        foreach (JsonProperty property in payload.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
+    }
+
     private static FindingClassification? ResolveClassificationFromTypedPayload(JsonElement? typedPayload)
     {
         if (typedPayload is null || typedPayload.Value.ValueKind is not JsonValueKind.Object)
@@ -312,7 +337,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("classification", out JsonElement classificationElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "classification", out JsonElement classificationElement))
         {
             return null;
         }
@@ -320,8 +345,10 @@ internal static class FindingInspectReadRepositoryCore
         if (classificationElement.ValueKind is JsonValueKind.String)
         {
             string? raw = classificationElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -345,7 +372,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("treatment", out JsonElement treatmentElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "treatment", out JsonElement treatmentElement))
         {
             return null;
         }
@@ -353,8 +380,10 @@ internal static class FindingInspectReadRepositoryCore
         if (treatmentElement.ValueKind is JsonValueKind.String)
         {
             string? raw = treatmentElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -378,7 +407,7 @@ internal static class FindingInspectReadRepositoryCore
             return null;
         }
 
-        if (!typedPayload.Value.TryGetProperty("semanticSupportBand", out JsonElement bandElement))
+        if (!TryGetTypedPayloadProperty(typedPayload.Value, "semanticSupportBand", out JsonElement bandElement))
         {
             return null;
         }
@@ -386,8 +415,10 @@ internal static class FindingInspectReadRepositoryCore
         if (bandElement.ValueKind is JsonValueKind.String)
         {
             string? raw = bandElement.GetString();
+            string? normalized = NormalizeInspectEnumToken(raw);
 
-            if (Enum.TryParse(raw, ignoreCase: true, out FindingSemanticSupportBand parsed)
+            if (normalized is not null
+                && Enum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;

@@ -1,5 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -16,7 +17,8 @@ import {
 
 export type BuyerAskGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  /** Omitted when no stored deep link exists for the cited id. */
+  readonly href?: string;
 };
 
 function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
@@ -81,4 +83,124 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
       href: getShowcaseCompareHref(),
     },
   ];
+}
+
+export type AskAnswerCitationRefs = {
+  readonly referencedFindings?: readonly string[] | null;
+  readonly referencedDecisions?: readonly string[] | null;
+  readonly referencedArtifacts?: readonly string[] | null;
+};
+
+export type BuildAskAnswerCitationSourceLinksOptions = {
+  /** When set, finding ids missing from this index omit href and use honesty copy. */
+  readonly indexedFindingIds?: ReadonlySet<string>;
+};
+
+const ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX =
+  "That finding was not in the loaded decision-grade findings index." as const;
+
+/** Sources footer links for citation ids stored on a single assistant answer (not review navigation). */
+export function buildAskAnswerCitationSourceLinks(
+  runIdRaw: string,
+  refs: AskAnswerCitationRefs | null,
+  options: BuildAskAnswerCitationSourceLinksOptions = {},
+): readonly BuyerAskGroundingLink[] {
+  const runId = canonicalizeDemoRunId(runIdRaw.trim());
+
+  if (refs === null) {
+    return [];
+  }
+
+  if (runId.length === 0) {
+    return [{ label: "Review id was not stored." }];
+  }
+
+  const links: BuyerAskGroundingLink[] = [];
+
+  for (const findingId of refs.referencedFindings ?? []) {
+    const trimmed = findingId.trim();
+
+    if (trimmed.length === 0) {
+      links.push({ label: "Finding citation was stored empty." });
+      continue;
+    }
+
+    const indexedFindingIds = options.indexedFindingIds;
+    const inIndex =
+      indexedFindingIds === undefined || indexedFindingIds.has(trimmed.toLowerCase());
+
+    if (!inIndex) {
+      links.push({
+        label: `Finding id ${trimmed}. ${ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX}`,
+      });
+      continue;
+    }
+
+    links.push({
+      label: `Finding id ${trimmed}`,
+      href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
+    });
+  }
+
+  for (const decisionId of refs.referencedDecisions ?? []) {
+    const trimmed = decisionId.trim();
+
+    if (trimmed.length === 0) {
+      links.push({ label: "Decision citation was stored empty." });
+      continue;
+    }
+
+    links.push({
+      label: `Decision citation ${trimmed}. A link to that decision was not stored.`,
+    });
+  }
+
+  for (const artifactId of refs.referencedArtifacts ?? []) {
+    const trimmed = artifactId.trim();
+
+    if (trimmed.length === 0) {
+      links.push({ label: "Artifact citation was stored empty." });
+      continue;
+    }
+
+    if (trimmed.toLowerCase() === runId.toLowerCase()) {
+      links.push({
+        label: `Review id ${runId}`,
+        href: `/architecture/reviews/${encodeURIComponent(runId)}`,
+      });
+      continue;
+    }
+
+    links.push({
+      label: `Artifact id ${trimmed}. A link to that artifact was not stored.`,
+    });
+  }
+
+  return links;
+}
+
+export function collectCitedReviewIdsFromAskAnswerRefs(
+  runIdRaw: string,
+  refs: AskAnswerCitationRefs | null,
+): ReadonlySet<string> {
+  const cited = new Set<string>();
+  const runId = canonicalizeDemoRunId(runIdRaw.trim()).toLowerCase();
+
+  if (refs === null) {
+    return cited;
+  }
+
+  for (const artifactId of refs.referencedArtifacts ?? []) {
+    const trimmed = artifactId.trim().toLowerCase();
+
+    if (trimmed.length > 0) {
+      cited.add(trimmed);
+    }
+  }
+
+  if (runId.length > 0 && (refs.referencedArtifacts ?? []).some((id) => id.trim().toLowerCase() === runId)) {
+    cited.add(runId);
+  }
+
+  return cited;
 }

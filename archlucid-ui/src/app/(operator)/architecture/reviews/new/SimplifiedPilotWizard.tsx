@@ -218,7 +218,11 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         />
       ) : null}
       {flow.isReviewStep ? (
-        <WizardStepReview focusedPilotModeEnabled={focusedPilotModeEnabled} />
+        <WizardStepReview
+          focusedPilotModeEnabled={focusedPilotModeEnabled}
+          baselineReviewCycleHours={baselineReviewCycleHours}
+          baselineConfidence={baselineConfidence}
+        />
       ) : null}
 
       <WizardStickyFooter

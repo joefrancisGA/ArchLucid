@@ -33,11 +33,14 @@ import {
   governanceQueueGraphEvidenceHref,
 } from "@/components/governance/findings/governance-findings-navigation";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
+import { isGovernanceQueueFindingIdSelected } from "@/lib/governance/governance-findings-queue-selection";
 
 import {
   formatGovernanceQueueRecordKind,
+  governanceFindingQueueRowHasDisplayCategory,
   governanceFindingQueueRowHasPolicyRuleId,
   governanceFindingQueueRowHasStoredRunId,
+  governanceFindingQueueRowReviewHref,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 import { GovernanceFindingsQueueAssignedToMeRowCells } from "./GovernanceFindingsQueueAssignedToMeRowCells";
@@ -102,7 +105,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             type="checkbox"
             className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
             aria-label={`Select finding: ${row.title}`}
-            checked={selectedFindingIds?.has(row.findingId) ?? false}
+            checked={isGovernanceQueueFindingIdSelected(selectedFindingIds, row.findingId)}
             onChange={() => {
               onToggleRow?.(row.findingId);
             }}
@@ -155,7 +158,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
                   {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId!, row.category || row.policyRuleId!)}
                 />
               </div>
-            ) : row.category && row.recordKind === "finding" ? (
+            ) : governanceFindingQueueRowHasDisplayCategory(row) ? (
               <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                 Policy area: {row.category}
               </div>
@@ -182,7 +185,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           </EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.runId.trim().length > 0 ? (
-              <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+              <Link className={OPERATOR_LINK.inline} href={governanceFindingQueueRowReviewHref(row.runId)}>
                 {row.runLabel}
               </Link>
             ) : (

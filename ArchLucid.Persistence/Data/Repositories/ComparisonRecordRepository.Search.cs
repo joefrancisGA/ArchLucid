@@ -15,18 +15,21 @@ public sealed partial class ComparisonRecordRepository
         string comparisonRecordId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
+
         string sql = $"""
                       SELECT TOP 1
                           {ComparisonRecordRunIdSql.ProjectionRow}
                       FROM ComparisonRecords
-                      WHERE ComparisonRecordId = @ComparisonRecordId;
+                      WHERE LOWER({ComparisonRecordIdSql.TrimmedColumnExpression}) = LOWER(@ComparisonRecordId);
                       """;
 
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         ComparisonRecord? row = await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId },
+            new { ComparisonRecordId = normalizedComparisonRecordId },
             cancellationToken: cancellationToken));
 
         return NormalizeRunIdsNullable(row);
@@ -38,7 +41,8 @@ public sealed partial class ComparisonRecordRepository
     {
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        if (!Guid.TryParse(runId, out Guid runGuid))
+        Guid? runGuid = ComparisonRecordRunIdSql.ToNullableSqlGuid(runId);
+        if (runGuid is null)
             return [];
 
         string sql = $"""
@@ -51,7 +55,7 @@ public sealed partial class ComparisonRecordRepository
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { RunId = runGuid },
+            new { RunId = runGuid.Value },
             cancellationToken: cancellationToken));
 
         return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
@@ -61,19 +65,21 @@ public sealed partial class ComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
         using IDbConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT TOP 200
                           {ComparisonRecordListSql.SelectColumnsWithoutPayloadJson}
                       FROM ComparisonRecords
-                      WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+                      WHERE LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@ExportRecordId)
+                         OR LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@ExportRecordId)
                       ORDER BY CreatedUtc DESC;
                       """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new { ExportRecordId = normalizedExportRecordId },
             cancellationToken: cancellationToken));
 
         return ComparisonRecordListProjection.MaterializeWithoutPayloadJson(rows);
@@ -136,8 +142,8 @@ public sealed partial class ComparisonRecordRepository
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
         // Without this, records with identical CreatedUtc could reorder between pages.
         sql += sortDescending
-            ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
-            : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
+            ? $" ORDER BY {orderColumn} DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC"
+            : $" ORDER BY {orderColumn} ASC, {ComparisonRecordIdSql.TrimmedColumnExpression} ASC";
         sql += " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
@@ -201,12 +207,15 @@ public sealed partial class ComparisonRecordRepository
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
             parameters.Add("@CursorCreatedUtc", cursorCreatedUtc);
-            parameters.Add("@CursorId", cursorComparisonRecordId);
+            parameters.Add(
+                "@CursorId",
+                ComparisonRecordIdLookup.NormalizeLookupKey(cursorComparisonRecordId));
+            string trimmedComparisonRecordId = $"LOWER({ComparisonRecordIdSql.TrimmedColumnExpression})";
             // For DESC: fetch items strictly "after" cursor in DESC order => older than cursor.
             // For ASC: fetch items strictly "after" cursor in ASC order => newer than cursor.
             conditions.Add(sortDescending
-                ? "(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND ComparisonRecordId < @CursorId))"
-                : "(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND ComparisonRecordId > @CursorId))");
+                ? $"(CreatedUtc < @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} < LOWER(@CursorId)))"
+                : $"(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND {trimmedComparisonRecordId} > LOWER(@CursorId)))");
         }
 
         string sql = baseSql;
@@ -215,8 +224,8 @@ public sealed partial class ComparisonRecordRepository
             sql += " AND " + string.Join(" AND ", conditions);
 
         sql += sortDescending
-            ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
-            : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
+            ? $" ORDER BY {orderColumn} DESC, {ComparisonRecordIdSql.TrimmedColumnExpression} DESC"
+            : $" ORDER BY {orderColumn} ASC, {ComparisonRecordIdSql.TrimmedColumnExpression} ASC";
 
         sql += " OFFSET 0 ROWS FETCH NEXT @Limit ROWS ONLY;";
 
@@ -231,7 +240,7 @@ public sealed partial class ComparisonRecordRepository
     private static ComparisonRecord? NormalizeRunIdsNullable(ComparisonRecord? record)
     {
         if (record is not null)
-            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(record);
 
         return record;
     }

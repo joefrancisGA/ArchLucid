@@ -92,7 +92,7 @@ function resolveCareerExportHonestyInput(
     hostAgentExecutionMode: honestyOptions?.hostAgentExecutionMode ?? null,
     hostQualityGateMode: honestyOptions?.hostQualityGateMode ?? null,
     aggregateQualityGateOutcome: honestyOptions?.aggregateQualityGateOutcome ?? null,
-    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? 0,
+    catalogAdvisoryEngineFailureCount: honestyOptions?.catalogAdvisoryEngineFailureCount ?? null,
     contextSnapshot: honestyOptions?.contextSnapshot ?? null,
     architectureInventoryBound: honestyOptions?.architectureInventoryBound ?? null,
     architectureInventorySnapshotCapturedUtc:
@@ -143,6 +143,14 @@ function appendCareerExportHonestyMarkdownSection(
   }
 
   return `${body.trim()}\n\n${combinedHonesty}\n`;
+}
+
+function formatExportMarkdownFiniteCount(value: unknown, notStoredLabel: string): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return notStoredLabel;
+  }
+
+  return String(Math.trunc(value));
 }
 
 function formatManifestSummaryFallback(
@@ -215,12 +223,14 @@ function formatManifestSummaryFallback(
   lines.push("## Objectives");
   lines.push("");
 
+  const operatorSummaryTrimmed = summary.operatorSummary?.trim() ?? "";
+
   if (summary.operatorSummary === null || summary.operatorSummary === undefined) {
-    lines.push("Operator summary was not stored.");
-  } else if (summary.operatorSummary.length === 0) {
+    lines.push("Operator summary was not included in this export.");
+  } else if (operatorSummaryTrimmed.length === 0) {
     lines.push("Operator summary was stored empty.");
   } else {
-    lines.push(summary.operatorSummary);
+    lines.push(operatorSummaryTrimmed);
   }
 
   lines.push("");
@@ -228,22 +238,24 @@ function formatManifestSummaryFallback(
   lines.push("## Architecture overview");
   lines.push("");
   lines.push(
-    "Full review record JSON was not available in the browser session; this export contains summary counts only.",
+    "Full review record JSON was not included in this export. The lines below are summary counts only.",
   );
   lines.push("");
-  lines.push(`- **Decisions:** ${summary.decisionCount}`);
-  lines.push(`- **Warnings:** ${summary.warningCount}`);
-  lines.push(`- **Unresolved issues:** ${summary.unresolvedIssueCount}`);
+  lines.push(`- **Decisions:** ${formatExportMarkdownFiniteCount(summary.decisionCount, "Decision count was not stored.")}`);
+  lines.push(`- **Warnings:** ${formatExportMarkdownFiniteCount(summary.warningCount, "Warning count was not stored.")}`);
+  lines.push(
+    `- **Unresolved issues:** ${formatExportMarkdownFiniteCount(summary.unresolvedIssueCount, "Unresolved issue count was not stored.")}`,
+  );
   lines.push("");
 
   lines.push("## Component breakdown");
   lines.push("");
-  lines.push("_Unavailable without full review record JSON._");
+  lines.push("Component breakdown was not included in this export.");
   lines.push("");
 
   lines.push("## Security model");
   lines.push("");
-  lines.push("_Unavailable without full review record JSON._");
+  lines.push("Security model was not included in this export.");
   lines.push("");
 
   const honestyInput = resolveCareerExportHonestyInput(options, summary);
@@ -262,6 +274,12 @@ function formatManifestSummaryFallback(
 
     lines.push("## Measurement floor");
     lines.push("");
+    if (enginesSucceeded === null || enginesSucceeded === undefined) {
+      lines.push(
+        "Distinct engines that succeeded on this package was not stored on this export.",
+      );
+      lines.push("");
+    }
     lines.push(
       formatInsightDensityMeasurementFloorPresentation(enginesSucceeded ?? null, measurementFloorOptions).line,
     );

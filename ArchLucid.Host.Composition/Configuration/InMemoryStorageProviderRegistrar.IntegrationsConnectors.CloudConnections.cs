@@ -2,6 +2,7 @@ using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Application.SecureNow;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
@@ -25,6 +26,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ITenantGcpConnectionRepository, InMemoryTenantGcpConnectionRepository>();
         services.AddSingleton<IGlobalSearchRepository, InMemoryGlobalSearchRepository>();
         services.AddSingleton<ICollectionRunRepository, InMemoryCollectionRunRepository>();
+        services.AddSingleton<ICollectionTriggerClaimRepository, InMemoryCollectionTriggerClaimRepository>();
         services.AddSingleton<ICollectionRunArtifactReader, EmptyCollectionRunArtifactReader>();
         services.AddSingleton<ITenantFirstValueReportBrandingRepository, InMemoryTenantFirstValueReportBrandingRepository>();
     }

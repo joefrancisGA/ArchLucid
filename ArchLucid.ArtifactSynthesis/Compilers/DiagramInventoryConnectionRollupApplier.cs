@@ -21,12 +21,15 @@ internal static class DiagramInventoryConnectionRollupApplier
         {
             List<DiagramNode> members = group.ToList();
             DiagramNode first = members[0];
+            string rollupLabel = string.IsNullOrWhiteSpace(first.Label)
+                ? "Connection name was not stored."
+                : first.Label.Trim();
             string rollupId =
-                $"connection-rollup-{MermaidIdSanitizer.Sanitize(first.Label)}-{members.Count}";
+                $"connection-rollup-{MermaidIdSanitizer.Sanitize(rollupLabel)}-{members.Count}";
             DiagramNode rollup = new()
             {
                 NodeId = rollupId,
-                Label = $"{first.Label} ({members.Count})",
+                Label = $"{rollupLabel} ({members.Count})",
                 NodeType = first.NodeType,
                 SubgraphId = first.SubgraphId,
                 OrderKey = members.Min(member => member.OrderKey),

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>TB-385 curation counts for a findings snapshot after insight-density routing.</summary>
@@ -37,10 +39,12 @@ public sealed class InsightDensityCurationSummary
     }
 
     /// <summary>Ranked missing-input rollup persisted after engine invocation (DX-52).</summary>
-    public IReadOnlyList<HeldCheckLedgerRollupEntry>? HeldCheckLedgerEntries
+    private IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries = [];
+
+    public IReadOnlyList<HeldCheckLedgerRollupEntry> HeldCheckLedgerEntries
     {
-        get;
-        set;
+        get => heldCheckLedgerEntries;
+        set => heldCheckLedgerEntries = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
     /// <summary>Inventory-upload second-pass delta when findings were regenerated (DX-60).</summary>
@@ -51,16 +55,20 @@ public sealed class InsightDensityCurationSummary
     }
 
     /// <summary>Grounded prose assumptions that did not all become contradiction findings (DX-61).</summary>
-    public IReadOnlyList<ProseAssumptionRegisterEntry>? ProseAssumptionRegisterEntries
+    private IReadOnlyList<ProseAssumptionRegisterEntry> proseAssumptionRegisterEntries = [];
+
+    public IReadOnlyList<ProseAssumptionRegisterEntry> ProseAssumptionRegisterEntries
     {
-        get;
-        set;
+        get => proseAssumptionRegisterEntries;
+        set => proseAssumptionRegisterEntries = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
     /// <summary>Upload asks derived from NotVerifiable prose assumptions (DX-66).</summary>
-    public IReadOnlyList<ProseAssumptionHeldCheckAsk>? ProseAssumptionHeldCheckAsks
+    private IReadOnlyList<ProseAssumptionHeldCheckAsk> proseAssumptionHeldCheckAsks = [];
+
+    public IReadOnlyList<ProseAssumptionHeldCheckAsk> ProseAssumptionHeldCheckAsks
     {
-        get;
-        set;
+        get => proseAssumptionHeldCheckAsks;
+        set => proseAssumptionHeldCheckAsks = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 }

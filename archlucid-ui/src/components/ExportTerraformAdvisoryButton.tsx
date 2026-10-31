@@ -129,7 +129,8 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
           <AlertDialogHeader>
             <AlertDialogTitle>Export advisory Terraform</AlertDialogTitle>
             <AlertDialogDescription>
-              Downloads a ZIP of advisory Terraform reconstructed from evidence for this review.
+              Downloads a ZIP of comment-only advisory Terraform (.tf comments and ADVISORY.md). ArchLucid does not
+              emit apply-ready resource blocks from this export.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

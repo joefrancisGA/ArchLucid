@@ -18,7 +18,17 @@ import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
+  rollupWhatIfSelectedProjectedSavingsUsd,
+  FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED,
+  FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY,
+  FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY,
+  FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX,
 } from "@/lib/findings/findings-what-if-analysis";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
 
@@ -121,17 +131,21 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     [props.findings],
   );
 
-  const selectedSavings = useMemo(() => {
-    if (!enabled)
-      return 0;
-
-    return enriched
-      .filter((row) => selectedIds.has(row.finding.findingId))
-      .reduce((sum, row) => sum + row.savingsUsd, 0);
-  }, [enabled, enriched, selectedIds]);
+  const selectedSavingsRollup = useMemo(
+    () =>
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        enriched.map((row) => ({ findingId: row.finding.findingId, savingsUsd: row.savingsUsd })),
+        selectedIds,
+        enabled,
+      ),
+    [enabled, enriched, selectedIds],
+  );
 
   const baseline = props.baselineAnnualCostUsd;
-  const projected = baseline !== null && enabled ? Math.max(0, baseline - selectedSavings) : baseline;
+  const projected =
+    baseline !== null && enabled && !selectedSavingsRollup.incomplete && selectedSavingsRollup.totalUsd !== null
+      ? Math.max(0, baseline - selectedSavingsRollup.totalUsd)
+      : baseline;
 
   function toggleFinding(findingId: string) {
     const next = new Set(selectedIdsRef.current);
@@ -168,7 +182,9 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             )}
           </div>
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Select findings to model projected annual architecture cost after applying recommendations.
+            Select findings to model projected annual architecture cost after applying recommendations. Figures are
+            projected modeling{props.isIllustrativePricing ? " with illustrative retail pricing" : ""}, not measured
+            spend.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -187,24 +203,37 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
         </div>
       </div>
 
-      {baseline !== null ? (
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div>
-            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Baseline annual cost</dt>
-            <dd className="mt-1 text-lg font-semibold tabular-nums">{formatUsd(baseline)}</dd>
-          </div>
-          <div>
-            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
-            <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
-              {projected !== null
-                ? formatUsd(projected)
-                : enabled && selectedIds.size === 0
-                  ? "Select findings to project a cost"
-                  : "Cost not returned"}
-            </dd>
-          </div>
-        </dl>
-      ) : null}
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Baseline annual cost</dt>
+          <dd className="mt-1 text-lg font-semibold tabular-nums">
+            {baseline !== null ? formatUsd(baseline) : "Baseline annual cost was not stored."}
+          </dd>
+        </div>
+        <div>
+          <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
+          <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
+            {baseline === null
+              ? "Baseline annual cost was not stored."
+              : !enabled
+                ? FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY
+              : enabled && selectedSavingsRollup.incomplete
+                ? FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY
+                : projected !== null
+                  ? formatUsd(projected)
+                  : enabled && selectedIds.size > 0
+                    ? FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED
+                    : enabled && selectedIds.size === 0
+                      ? FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY
+                      : FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED}
+            {props.isIllustrativePricing && baseline !== null && enabled ? (
+              <span className={cn("mt-1 block font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                {FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY}
+              </span>
+            ) : null}
+          </dd>
+        </div>
+      </dl>
 
       {enabled ? (
         <ul className="m-0 mt-4 list-none space-y-2 p-0">
@@ -218,17 +247,47 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   onChange={() => toggleFinding(row.finding.findingId)}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="font-medium">{row.finding.title}</span>
-                  {row.savingsUsd > 0 ? (
+                  <span className="font-medium">
+                    {row.finding.title.trim().length > 0
+                      ? row.finding.title
+                      : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
+                  </span>
+                  {row.savingsUsd === null ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                      −{formatUsd(row.savingsUsd)}
-                      {row.interval && (
-                        <span className="ml-1 opacity-75">
-                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "?"} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "?"})
-                        </span>
-                      )}
+                      {row.interval !== null
+                        ? "Projected impact was not stored."
+                        : "Projected savings were not stored."}
                     </span>
-                  ) : null}
+                  ) : row.savingsUsd === 0 ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      {FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY}
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
+                    </span>
+                  ) : row.savingsUsd > 0 ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      {FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX}−{formatUsd(row.savingsUsd)}
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
+                      {row.interval ? (
+                        <span className="ml-1 opacity-75">
+                          (Range:{" "}
+                          {row.interval.lower !== null ? formatUsd(row.interval.lower) : "Lower bound was not stored."}{" "}
+                          -{" "}
+                          {row.interval.upper !== null ? formatUsd(row.interval.upper) : "Upper bound was not stored."})
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      +{formatUsd(Math.abs(row.savingsUsd))} projected cost increase stored
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
+                    </span>
+                  )}
                   {row.interval?.reasoning && (
                     <p className={cn("m-0 mt-0.5 text-neutral-500 italic", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.interval.reasoning}

@@ -1,5 +1,6 @@
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
@@ -50,7 +51,13 @@ public sealed class CoverageManifestSectionPopulator : IManifestSectionPopulator
             }
 
             foreach (string resource in payload.UnprotectedResources)
-                manifest.Security.Gaps.Add($"{resource} is not protected");
+            {
+                string resourceLabel = string.IsNullOrWhiteSpace(resource)
+                    ? GraphNodeReviewerLabel.NotStoredCopy
+                    : resource;
+
+                manifest.Security.Gaps.Add($"{resourceLabel} is not protected by a stored security baseline link.");
+            }
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
@@ -98,15 +105,16 @@ public sealed class CoverageManifestSectionPopulator : IManifestSectionPopulator
             }
 
             foreach (string req in payload.UncoveredRequirements)
-
+            {
                 manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
                 {
-                    RequirementName = req,
-                    RequirementText = req,
-                    IsMandatory = true,
+                    RequirementName = DecisioningFindingHonestyCopy.FormatRequirementName(req),
+                    RequirementText = DecisioningFindingHonestyCopy.RequirementTextNotStored,
+                    IsMandatory = false,
                     CoverageStatus = "Uncovered",
-                    SupportingFindingIds = [finding.FindingId]
+                    SupportingFindingIds = [finding.FindingId],
                 });
+            }
         }
     }
 }

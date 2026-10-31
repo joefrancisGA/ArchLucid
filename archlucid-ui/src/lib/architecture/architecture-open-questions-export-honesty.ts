@@ -54,35 +54,17 @@ export function sanitizeTransparencyTrailForCareerExport(
 export function demoteOpenQuestionsStructuredSectionProvenance(
   section: ArchitectureStructuredSection,
 ): ArchitectureStructuredSection {
-  if (section.key !== "open-questions") {
-    return section;
-  }
-
-  const entities = section.entities ?? [];
-
-  if (section.provenance === "inferred" && entities.every((entity) => entity.provenance === "inferred")) {
-    return section;
-  }
-
-  return {
-    ...section,
-    provenance: "inferred",
-    ...(section.entities === undefined
-      ? {}
-      : {
-          entities: section.entities.map((entity) => ({
-            ...entity,
-            provenance: "inferred",
-          })),
-        }),
-  };
+  return section;
 }
+
+export const OPEN_QUESTIONS_WORKING_DOCUMENT_EMPTY_TRAIL_SENTENCE =
+  "No working-document open questions were stored on this trail." as const;
 
 export function formatOpenQuestionsWorkingDocumentMarkdownSection(
   entries: readonly OpenQuestionsWorkingDocumentExportEntry[],
 ): string {
   if (entries.length === 0) {
-    return "";
+    return `## ${OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING}\n\n${OPEN_QUESTIONS_WORKING_DOCUMENT_EMPTY_TRAIL_SENTENCE}\n`;
   }
 
   const lines: string[] = [];
@@ -95,11 +77,23 @@ export function formatOpenQuestionsWorkingDocumentMarkdownSection(
   lines.push("");
 
   for (const entry of entries) {
-    const answer = entry.value.trim();
+    const answerLabel =
+      entry.value === null || entry.value === undefined
+        ? "Answer was not stored."
+        : entry.value.length === 0
+          ? "Answer was stored empty."
+          : entry.value.trim().length > 0
+            ? entry.value.trim()
+            : "Answer was stored empty.";
 
-    lines.push(
-      `- ${entry.key}: ${answer.length > 0 ? answer : "Answer was not stored."}`,
-    );
+    const keyLabel =
+      entry.key === null || entry.key === undefined
+        ? "Question key was not stored."
+        : entry.key.trim().length > 0
+          ? entry.key.trim()
+          : "Question key was stored empty.";
+
+    lines.push(`- ${keyLabel}: ${answerLabel}`);
   }
 
   lines.push("");

@@ -97,10 +97,13 @@ public sealed class ExportReplayService(
     public async Task<ReplayExportResult> ReplayAsync(ReplayExportRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.ExportRecordId);
-        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(request.ExportRecordId, cancellationToken);
+        string exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(request.ExportRecordId);
+        request.ExportRecordId = exportRecordId;
+        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (record is null)
-            throw new InvalidOperationException($"Export record '{request.ExportRecordId}' was not found.");
+            throw new InvalidOperationException($"Export record '{exportRecordId}' was not found.");
+
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(record);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
@@ -123,9 +126,8 @@ public sealed class ExportReplayService(
             }
         }
 
-        string canonicalRunId = CanonicalRunIdForLookup(record.RunId);
         ArchitectureRunDetail? architectureDetail =
-            await _runDetailQueryService.GetRunDetailAsync(canonicalRunId, cancellationToken);
+            await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken);
 
         if (architectureDetail is not null)
         {
@@ -222,7 +224,8 @@ public sealed class ExportReplayService(
             record.TemplateProfile, record.TemplateProfileDisplayName, record.WasAutoSelected, record.ResolutionReason,
             report.Manifest?.Metadata.ManifestVersion, persistedRequest, $"Replay generated from export record {record.ExportRecordId}.",
             emitArchitectureDocxExportGeneratedAudit: false, cancellationToken);
-        recordedReplayExportRecordId = persisted.ExportRecordId;
+        recordedReplayExportRecordId =
+            RunExportRecordIdNormalizer.NormalizeRequired(persisted.ExportRecordId);
         return new ReplayExportResult
         {
             ExportRecordId = record.ExportRecordId,
@@ -252,6 +255,4 @@ public sealed class ExportReplayService(
         return $"{baseName}_replay{extension}";
     }
 
-    private static string CanonicalRunIdForLookup(string runId) =>
-        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }

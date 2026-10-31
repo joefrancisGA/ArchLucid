@@ -72,13 +72,18 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
   it("infers multiple L0 answers from a rich architecture brief", () => {
     const inferred = inferUniversalIntakeAnswersFromCorpus(SAMPLE_BRIEF);
 
-    expect(inferred["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(inferred["l0.pillar.cloud-target"]).toBe(
+      "Azure was named in the source. A cloud target was not selected.",
+    );
+    expect(inferred["l0.pillar.security"]).toMatch(/Inferred from the brief, not a stored security answer/i);
     expect(inferred["l0.pillar.security"]).toMatch(/PCI-DSS/i);
+    expect(inferred["l0.pillar.reliability"]).toMatch(/Inferred from the brief, not a stored reliability answer/i);
     expect(inferred["l0.pillar.reliability"]).toMatch(/RPO 15 minutes/i);
+    expect(inferred["l0.pillar.cost"]).toMatch(/Inferred from the brief, not a stored cost answer/i);
     expect(inferred["l0.pillar.cost"]).toMatch(/\$25,000/i);
+    expect(inferred["l0.pillar.cost"]).not.toMatch(/about/i);
     expect(inferred["l0.pillar.operations"]).toMatch(/on-call|monitoring|runbook/i);
     expect(inferred["l0.pillar.performance"]).toMatch(/concurrent users|latency/i);
-    expect(inferred["l0.actor.additional-kinds"]).toMatch(/service accounts|Partner integrations/i);
   });
 
   it("does not prefill the flattened actors table dump", () => {
@@ -99,12 +104,15 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
     const inferred = inferUniversalIntakeAnswersFromCorpus(HANDBOOK_INTAKE_INFERENCE_FIXTURE);
     const actorAnswer = inferred["l0.actor.additional-kinds"] ?? "";
 
-    expect(actorAnswer).toMatch(/^Yes\b/i);
+    expect(actorAnswer).toMatch(/The source names these actors/i);
+    expect(actorAnswer).toMatch(/Whether other user kinds exist was not stored/i);
     expect(actorAnswer).toMatch(/operators|architects/i);
     expect(actorAnswer).toMatch(/sponsors|evaluators/i);
     expect(actorAnswer).not.toMatch(/Actors Actor/i);
     expect(actorAnswer).not.toMatch(/Diagram —/i);
-    expect(inferred["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(inferred["l0.pillar.cloud-target"]).toBe(
+      "Azure was named in the source. A cloud target was not selected.",
+    );
     expect(inferred["l0.pillar.reliability"]).toMatch(/RTO/i);
     expect(inferred["l0.pillar.security"]).toMatch(/Entra|JWT/i);
     expect(inferred["l0.pillar.cost"]).toMatch(/budget|FinOps/i);
@@ -128,5 +136,12 @@ describe("mergeInferredUniversalIntakeAnswers", () => {
     expect(merged.mergedAnswers["l0.pillar.reliability"]).toMatch(/RPO 15 minutes/i);
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.security");
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.cloud-target");
+  });
+
+  it("does not infer from diagram caption lines alone (P-07)", () => {
+    const corpus =
+      "Diagram — system overview\nDiagram — data flow\n".padEnd(UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS + 5, "x");
+
+    expect(inferUniversalIntakeAnswersFromCorpus(corpus)).toEqual({});
   });
 });

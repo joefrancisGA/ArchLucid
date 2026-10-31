@@ -36,6 +36,56 @@ public sealed class AgentConfidenceCalibratorTests
     }
 
     [Fact]
+    public async Task CalibrateAsync_with_non_finite_samples_not_counted_toward_minimum_threshold()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows = Enumerable
+            .Range(0, 19)
+            .Select(_ => new AgentConfidenceCalibrationSampleRow
+            {
+                RawConfidence = 0.2,
+                SemanticScore = double.NaN,
+            })
+            .Append(new AgentConfidenceCalibrationSampleRow { RawConfidence = 0.2, SemanticScore = 0.9 })
+            .ToList();
+
+        Mock<IAgentConfidenceCalibrationSampleRepository> samples = new();
+        samples
+            .Setup(r => r.GetRecentByAgentTypeAsync(AgentType.Topology, 200, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rows);
+
+        AgentConfidenceCalibrator sut = new(
+            samples.Object,
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }));
+
+        double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
+
+        calibrated.Should().Be(0.42);
+    }
+
+    [Fact]
+    public async Task CalibrateAsync_with_null_sample_slots_not_counted_toward_minimum_threshold()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows = Enumerable
+            .Range(0, 19)
+            .Select(_ => (AgentConfidenceCalibrationSampleRow)null!)
+            .Append(new AgentConfidenceCalibrationSampleRow { RawConfidence = 0.2, SemanticScore = 0.9 })
+            .ToList();
+
+        Mock<IAgentConfidenceCalibrationSampleRepository> samples = new();
+        samples
+            .Setup(r => r.GetRecentByAgentTypeAsync(AgentType.Topology, 200, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rows);
+
+        AgentConfidenceCalibrator sut = new(
+            samples.Object,
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }));
+
+        double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
+
+        calibrated.Should().Be(0.42);
+    }
+
+    [Fact]
     public async Task CalibrateAsync_with_samples_below_twenty_returns_raw_confidence()
     {
         Mock<IAgentConfidenceCalibrationSampleRepository> samples = new();
@@ -85,6 +135,23 @@ public sealed class AgentConfidenceCalibratorTests
         double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
 
         double.IsFinite(calibrated).Should().BeTrue();
+    }
+
+    [Fact]
+    public void BuildIsotonicKnots_skips_null_sample_rows()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows =
+        [
+            null!,
+            new() { RawConfidence = 0.2, SemanticScore = 0.9 },
+            new() { RawConfidence = 0.8, SemanticScore = 0.85 },
+        ];
+
+        Func<IReadOnlyList<AgentConfidenceCalibrator.CalibrationKnot>> act = () =>
+            AgentConfidenceCalibrator.BuildIsotonicKnots(rows);
+
+        act.Should().NotThrow();
+        act().Should().HaveCount(2);
     }
 
     [Fact]

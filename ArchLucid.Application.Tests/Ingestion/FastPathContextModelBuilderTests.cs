@@ -29,7 +29,7 @@ public sealed class FastPathContextModelBuilderTests
             FastPathContextModelBuilder.Build("https://github.com/contoso/api-gateway.git");
 
         r.SourceUrl.Should().Be("https://github.com/contoso/api-gateway.git");
-        r.Mode.Should().Be("heuristic-v1");
+        r.Mode.Should().Be("heuristic-v1-not-from-repository");
         r.Elements.Should().Contain(e => e.Kind == "SoftwareSystem" && e.Name.Contains("Api Gateway", StringComparison.Ordinal));
         r.Elements.Should().Contain(e => e.ElementId == "fast-container-api");
     }

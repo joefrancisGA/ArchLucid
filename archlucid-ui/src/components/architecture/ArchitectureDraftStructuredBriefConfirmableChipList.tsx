@@ -8,6 +8,7 @@ import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
+import { INFERRED_STRUCTURED_BRIEF_SUGGESTIONS_DISCLOSURE } from "@/lib/architecture/architecture-draft-structured-brief-suggestions-extract";
 import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -148,6 +149,12 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
       </div>
       {props.suggestedItems.length > 0 ? (
         <div className="space-y-2">
+          <p
+            className={cn("m-0", OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid={`${props.inputId}-suggestion-disclosure`}
+          >
+            {INFERRED_STRUCTURED_BRIEF_SUGGESTIONS_DISCLOSURE}
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
               {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}

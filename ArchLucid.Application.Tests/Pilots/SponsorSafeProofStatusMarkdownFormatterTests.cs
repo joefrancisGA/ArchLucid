@@ -228,9 +228,56 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
         {
             TopFindingId = topFindingId,
             AuditRowCount = 3,
+            AuditRowCountResolved = true,
             LlmCallCountResolved = true,
             SynthesizedArtifactDescriptorCountResolved = true,
             SynthesizedArtifactDescriptorCount = 1,
             IsDemoTenant = false,
         };
+
+    [Fact]
+    public void EnumerateConcreteGaps_unresolved_audit_count_is_not_zero_claim()
+    {
+        ProofPackageCompletenessResponse proof = StrongProof();
+        proof = new ProofPackageCompletenessResponse
+        {
+            DemoTenantWarningRequired = proof.DemoTenantWarningRequired,
+            SupportRunIdPresent = proof.SupportRunIdPresent,
+            CommittedManifestPresent = proof.CommittedManifestPresent,
+            CommittedManifestTimestampResolved = proof.CommittedManifestTimestampResolved,
+            RunInCommittedStatus = proof.RunInCommittedStatus,
+            ArtifactDescriptorCount = proof.ArtifactDescriptorCount,
+            ArtifactDescriptorCountResolved = proof.ArtifactDescriptorCountResolved,
+            TimeToCommittedManifestResolved = proof.TimeToCommittedManifestResolved,
+            FindingsBySeverityPresent = proof.FindingsBySeverityPresent,
+            TopFindingEvidenceChainPresentOrNotApplicable = proof.TopFindingEvidenceChainPresentOrNotApplicable,
+            AuditRowsPresentOrLowerBound = false,
+            LlmCallCountResolved = proof.LlmCallCountResolved,
+            LlmCallCount = proof.LlmCallCount,
+            RoiEvidenceConfidence = proof.RoiEvidenceConfidence,
+            RoiConfidenceLabel = proof.RoiConfidenceLabel,
+            BuyerSafeRedactionProfile = proof.BuyerSafeRedactionProfile,
+            PublishingTier = proof.PublishingTier,
+            ProofSendability = proof.ProofSendability,
+            EvidenceCompleteness = proof.EvidenceCompleteness,
+            AgentOutputPilotStrictEvidenceSatisfied = proof.AgentOutputPilotStrictEvidenceSatisfied,
+            SponsorProofReadiness = proof.SponsorProofReadiness,
+        };
+        PilotRunDeltas deltas = CompleteDeltas(topFindingId: null) with
+        {
+            AuditRowCountResolved = false,
+            AuditRowCount = 0,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                NonSimulatorRun())
+            .ToList();
+
+        gaps.Should().Contain(s => s.Contains("unattested", StringComparison.OrdinalIgnoreCase));
+        gaps.Should().NotContain(s => s.Contains("is **zero**", StringComparison.Ordinal));
+    }
 }

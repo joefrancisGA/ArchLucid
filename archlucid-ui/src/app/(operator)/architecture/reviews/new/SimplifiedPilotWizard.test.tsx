@@ -144,7 +144,7 @@ describe("SimplifiedPilotWizard", () => {
     await waitFor(() => {
       expect(saveTenantReviewCycleBaselineMock).toHaveBeenCalledWith({
         baselineReviewCycleHours: 24,
-        baselineReviewCycleSourceNote: "wizard: Not sure (leave blank)",
+        baselineReviewCycleSourceNote: "wizard: Not sure — omit confidence on submit",
       });
     });
 

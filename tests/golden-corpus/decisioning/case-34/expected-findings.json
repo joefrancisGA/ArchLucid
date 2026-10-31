@@ -38,12 +38,12 @@
     ]
   },
   {
-    "findingId": "0ad2006c-717e-a790-d988-458df182cb55",
+    "findingId": "9c4d9dec-1336-709d-90d7-0b9e946360fc",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "baseline-private",
       "obj-storage"
@@ -57,12 +57,12 @@
     ]
   },
   {
-    "findingId": "efa4a130-d26a-ab43-ddb1-2d1213477be2",
+    "findingId": "5070a814-226c-ec36-25e6-41161a87f84b",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "baseline-private",
       "obj-storage"
@@ -76,12 +76,12 @@
     ]
   },
   {
-    "findingId": "e83b4c02-1f57-fc2a-21b4-670faf9faab0",
+    "findingId": "695e7372-7b1c-2c2f-6909-eef38567933a",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "baseline-private",
       "obj-storage"
@@ -114,12 +114,12 @@
     ]
   },
   {
-    "findingId": "fe887a1a-d54b-4815-a898-2d4e7d2ef21a",
+    "findingId": "ce880e1a-0825-1eaa-2122-b3b5be6a04bd",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "obj-storage"
     ],
@@ -128,7 +128,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

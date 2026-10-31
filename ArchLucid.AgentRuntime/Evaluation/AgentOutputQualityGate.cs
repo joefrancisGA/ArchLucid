@@ -68,7 +68,8 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
                 return AgentOutputQualityGateTelemetry.RejectReasonFaithfulness;
 
             if (ContainsReasonToken(evaluationReason, "semantic")
-                || ContainsReasonToken(evaluationReason, "citations"))
+                || ContainsReasonToken(evaluationReason, "citations")
+                || ContainsReasonToken(evaluationReason, "citation_coverage"))
                 return AgentOutputQualityGateTelemetry.RejectReasonSemantic;
 
             if (ContainsReasonToken(evaluationReason, "quality_gate_threshold_reject"))

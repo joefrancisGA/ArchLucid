@@ -16,6 +16,7 @@ export function composeRunDetailEvidenceTab(
     evidenceCoverageSummary,
     evidenceInventoryCount,
     evidenceInventoryItems,
+    findingsCiteEvidenceWithoutSourceNames,
     evidenceReviewDateLabel,
     findingCoverageSummary,
     primaryConcernFindingId,
@@ -62,6 +63,8 @@ export function composeRunDetailEvidenceTab(
       linkedFindingCount={evidenceCoverageSummary.linkedCount}
       openFindingCount={evidenceCoverageSummary.totalCount}
       items={evidenceInventoryItems}
+      findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
+      findingsSnapshotStored={p.hasFindingsSnapshot === true}
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       buyerPolished={m.buyerPolishedArtifactTable ?? false}
@@ -71,7 +74,7 @@ export function composeRunDetailEvidenceTab(
       artifactsExportsSection={artifactsExportsSectionEl}
       blockingFindingId={primaryConcernFindingId}
       blockingFindingTitle={primaryConcernLabel}
-      approvalBlocked={blockingApprovalCount > 0}
+      approvalBlocked={blockingApprovalCount !== null && blockingApprovalCount > 0}
       pagePrimaryOwnedElsewhere
     />
   );

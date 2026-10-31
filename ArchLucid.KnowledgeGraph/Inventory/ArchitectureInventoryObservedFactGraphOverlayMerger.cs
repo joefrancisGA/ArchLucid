@@ -15,35 +15,76 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         ArgumentNullException.ThrowIfNull(baseGraph);
         ArgumentNullException.ThrowIfNull(inventoryOverlay);
 
-        if (inventoryOverlay.Nodes.Count == 0 && inventoryOverlay.Edges.Count == 0)
-        {
-            return baseGraph;
-        }
+        IReadOnlyList<GraphNode> baseNodes = (baseGraph.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<GraphEdge> baseEdges = (baseGraph.Edges ?? []).OfType<GraphEdge>().ToArray();
+        IReadOnlyList<GraphNode> overlayNodes = (inventoryOverlay.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<GraphEdge> overlayEdges = (inventoryOverlay.Edges ?? []).OfType<GraphEdge>().ToArray();
 
-        HashSet<string> existingNodeIds = baseGraph.Nodes
+        HashSet<string> baseNodeIds = baseNodes
             .Select(static node => NormalizeNodeId(node.NodeId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        List<GraphNode> mergedNodes = [.. baseGraph.Nodes];
+        HashSet<string> existingNodeIds = new(baseNodeIds, StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphNode inventoryNode in inventoryOverlay.Nodes)
+        List<GraphNode> mergedNodes = [.. baseNodes];
+
+        HashSet<string> baseGraphNodeIdsWithOverlayDuplicateRowSeen =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphNode inventoryNode in overlayNodes)
         {
-            if (existingNodeIds.Contains(NormalizeNodeId(inventoryNode.NodeId)))
+            string normalizedInventoryNodeId = NormalizeNodeId(inventoryNode.NodeId);
+
+            if (existingNodeIds.Contains(normalizedInventoryNodeId))
             {
+                GraphNode retainedNode = mergedNodes.First(node =>
+                    string.Equals(
+                        NormalizeNodeId(node.NodeId),
+                        normalizedInventoryNodeId,
+                        StringComparison.OrdinalIgnoreCase));
+
+                bool isBaseGraphNode = baseNodeIds.Contains(normalizedInventoryNodeId);
+                bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphNode
+                    || baseGraphNodeIdsWithOverlayDuplicateRowSeen.Contains(normalizedInventoryNodeId);
+
+                if (shouldValidateOverlayDuplicateAgreement)
+                {
+                    TryValidateOverlayNodeAgreement(inventoryNode, retainedNode);
+                }
+
+                TryMergeOverlayNodePropertyBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeLabelBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeTypeBackfillFromDuplicateRow(inventoryNode, retainedNode);
+                TryMergeOverlayNodeReasoningTraceBackfillFromDuplicateRow(inventoryNode, retainedNode);
+
+                if (isBaseGraphNode)
+                {
+                    baseGraphNodeIdsWithOverlayDuplicateRowSeen.Add(normalizedInventoryNodeId);
+                }
+
                 continue;
             }
 
-            mergedNodes.Add(inventoryNode);
-            existingNodeIds.Add(NormalizeNodeId(inventoryNode.NodeId));
+            GraphNode normalizedNode = NormalizeOverlayNode(inventoryNode);
+            mergedNodes.Add(normalizedNode);
+            existingNodeIds.Add(NormalizeNodeId(normalizedNode.NodeId));
         }
 
-        HashSet<string> edgeKeys = baseGraph.Edges
+        HashSet<string> baseEdgeKeys = baseEdges
             .Select(static edge => BuildEdgeKey(edge))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        List<GraphEdge> mergedEdges = [.. baseGraph.Edges];
+        HashSet<string> edgeKeys = new(baseEdgeKeys, StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphEdge inventoryEdge in inventoryOverlay.Edges)
+        List<GraphEdge> mergedEdges = [.. baseEdges];
+
+        HashSet<string> baseGraphEdgeKeysWithOverlayDuplicateRowSeen =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (GraphEdge inventoryEdge in overlayEdges)
         {
             if (!existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.FromNodeId))
                 || !existingNodeIds.Contains(NormalizeNodeId(inventoryEdge.ToNodeId)))
@@ -55,15 +96,39 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
 
             if (!edgeKeys.Add(edgeKey))
             {
+                GraphEdge retainedEdge = mergedEdges.First(edge =>
+                    string.Equals(BuildEdgeKey(edge), edgeKey, StringComparison.OrdinalIgnoreCase));
+
+                bool isBaseGraphEdge = baseEdgeKeys.Contains(edgeKey);
+                bool shouldValidateOverlayDuplicateAgreement = !isBaseGraphEdge
+                    || baseGraphEdgeKeysWithOverlayDuplicateRowSeen.Contains(edgeKey);
+
+                if (shouldValidateOverlayDuplicateAgreement)
+                {
+                    TryValidateOverlayEdgeAgreement(inventoryEdge, retainedEdge);
+                }
+
+                TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+                TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(inventoryEdge, retainedEdge);
+
+                if (isBaseGraphEdge)
+                {
+                    baseGraphEdgeKeysWithOverlayDuplicateRowSeen.Add(edgeKey);
+                }
+
                 continue;
             }
 
-            mergedEdges.Add(inventoryEdge);
+            mergedEdges.Add(NormalizeOverlayEdge(inventoryEdge));
         }
 
-        List<string> warnings = inventoryOverlay.Warnings.Count == 0
-            ? [.. baseGraph.Warnings]
-            : [.. baseGraph.Warnings, .. inventoryOverlay.Warnings];
+        List<string> warnings = MergeWarnings(baseGraph.Warnings, inventoryOverlay.Warnings);
 
         return new GraphSnapshot
         {
@@ -78,8 +143,681 @@ public static class ArchitectureInventoryObservedFactGraphOverlayMerger
         };
     }
 
+    private static List<string> MergeWarnings(
+        IReadOnlyList<string> baseWarnings,
+        IReadOnlyList<string> overlayWarnings)
+    {
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        List<string> merged = [];
+
+        foreach (string warning in baseWarnings)
+        {
+            string normalized = NormalizeWarning(warning);
+
+            if (normalized.Length == 0 || !seen.Add(normalized))
+            {
+                continue;
+            }
+
+            merged.Add(normalized);
+        }
+
+        foreach (string warning in overlayWarnings)
+        {
+            string normalized = NormalizeWarning(warning);
+
+            if (normalized.Length == 0 || !seen.Add(normalized))
+            {
+                continue;
+            }
+
+            merged.Add(normalized);
+        }
+
+        return merged;
+    }
+
+    private static string NormalizeWarning(string? warning) => (warning ?? string.Empty).Trim();
+
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
 
+    private static void TryValidateOverlayNodeAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        TryValidateOverlayNodeLabelAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeCategoryAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeTypeAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeSourceIdAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeSourceTypeAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodePropertyBagAgreement(incomingNode, retainedNode);
+        TryValidateOverlayNodeReasoningTraceAgreement(incomingNode, retainedNode);
+    }
+
+    private static void TryValidateOverlayNodeLabelAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingLabel = (incomingNode.Label ?? string.Empty).Trim();
+        string retainedLabel = (retainedNode.Label ?? string.Empty).Trim();
+
+        if (incomingLabel.Length == 0 || retainedLabel.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedLabel, incomingLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on Label for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeCategoryAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingCategory = (incomingNode.Category ?? string.Empty).Trim();
+        string retainedCategory = (retainedNode.Category ?? string.Empty).Trim();
+
+        if (incomingCategory.Length == 0 || retainedCategory.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedCategory, incomingCategory, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on Category for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeTypeAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingNodeType = (incomingNode.NodeType ?? string.Empty).Trim();
+        string retainedNodeType = (retainedNode.NodeType ?? string.Empty).Trim();
+
+        if (incomingNodeType.Length == 0 || retainedNodeType.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedNodeType, incomingNodeType, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on NodeType for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeSourceIdAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingSourceId = (incomingNode.SourceId ?? string.Empty).Trim();
+        string retainedSourceId = (retainedNode.SourceId ?? string.Empty).Trim();
+
+        if (incomingSourceId.Length == 0 || retainedSourceId.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedSourceId, incomingSourceId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on SourceId for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeSourceTypeAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingSourceType = (incomingNode.SourceType ?? string.Empty).Trim();
+        string retainedSourceType = (retainedNode.SourceType ?? string.Empty).Trim();
+
+        if (incomingSourceType.Length == 0 || retainedSourceType.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedSourceType, incomingSourceType, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on SourceType for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayNodeReasoningTraceAgreement(GraphNode incomingNode, GraphNode retainedNode)
+    {
+        string incomingReasoningTrace = (incomingNode.ReasoningTrace ?? string.Empty).Trim();
+        string retainedReasoningTrace = (retainedNode.ReasoningTrace ?? string.Empty).Trim();
+
+        if (incomingReasoningTrace.Length == 0 || retainedReasoningTrace.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedReasoningTrace, incomingReasoningTrace, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate nodes disagree on ReasoningTrace for the same normalized NodeId.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        TryValidateOverlayEdgeLabelAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeWeightAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeInferenceSourceAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeProvenanceKindAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeDeclaredConnectionIdAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeReasoningTraceAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgePropertyBagAgreement(incomingEdge, retainedEdge);
+        TryValidateOverlayEdgeEdgeIdAgreement(incomingEdge, retainedEdge);
+    }
+
+    private static void TryValidateOverlayEdgeLabelAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingLabel = (incomingEdge.Label ?? string.Empty).Trim();
+        string retainedLabel = (retainedEdge.Label ?? string.Empty).Trim();
+
+        if (incomingLabel.Length == 0 || retainedLabel.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedLabel, incomingLabel, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on Label for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeWeightAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        if (OverlayEdgeWeightsAgree(incomingEdge.Weight, retainedEdge.Weight))
+        {
+            return;
+        }
+
+        if (OverlayEdgeWeightIsOmitted(incomingEdge.Weight) || OverlayEdgeWeightIsOmitted(retainedEdge.Weight))
+        {
+            return;
+        }
+
+        throw new ArgumentException(
+            "Inventory overlay duplicate edges disagree on Weight for the same directed edge key.");
+    }
+
+    private static bool OverlayEdgeWeightsAgree(double incomingWeight, double retainedWeight) =>
+        Math.Abs(incomingWeight - retainedWeight) <= 1e-9;
+
+    private static bool OverlayEdgeWeightIsOmitted(double weight) =>
+        Math.Abs(weight) <= 1e-9;
+
+    private static void TryValidateOverlayEdgeInferenceSourceAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingInferenceSource = (incomingEdge.InferenceSource ?? string.Empty).Trim();
+        string retainedInferenceSource = (retainedEdge.InferenceSource ?? string.Empty).Trim();
+
+        if (incomingInferenceSource.Length == 0 || retainedInferenceSource.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedInferenceSource, incomingInferenceSource, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on InferenceSource for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeProvenanceKindAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingProvenanceKind = (incomingEdge.ProvenanceKind ?? string.Empty).Trim();
+        string retainedProvenanceKind = (retainedEdge.ProvenanceKind ?? string.Empty).Trim();
+
+        if (incomingProvenanceKind.Length == 0 || retainedProvenanceKind.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedProvenanceKind, incomingProvenanceKind, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on ProvenanceKind for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeDeclaredConnectionIdAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingDeclaredConnectionId = (incomingEdge.DeclaredConnectionId ?? string.Empty).Trim();
+        string retainedDeclaredConnectionId = (retainedEdge.DeclaredConnectionId ?? string.Empty).Trim();
+
+        if (incomingDeclaredConnectionId.Length == 0 || retainedDeclaredConnectionId.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedDeclaredConnectionId, incomingDeclaredConnectionId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on DeclaredConnectionId for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeReasoningTraceAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingReasoningTrace = (incomingEdge.ReasoningTrace ?? string.Empty).Trim();
+        string retainedReasoningTrace = (retainedEdge.ReasoningTrace ?? string.Empty).Trim();
+
+        if (incomingReasoningTrace.Length == 0 || retainedReasoningTrace.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedReasoningTrace, incomingReasoningTrace, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on ReasoningTrace for the same directed edge key.");
+        }
+    }
+
+    private static void TryValidateOverlayEdgeEdgeIdAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge)
+    {
+        string incomingEdgeId = (incomingEdge.EdgeId ?? string.Empty).Trim();
+        string retainedEdgeId = (retainedEdge.EdgeId ?? string.Empty).Trim();
+
+        if (incomingEdgeId.Length == 0 || retainedEdgeId.Length == 0)
+        {
+            return;
+        }
+
+        if (!string.Equals(retainedEdgeId, incomingEdgeId, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Inventory overlay duplicate edges disagree on EdgeId for the same directed edge key.");
+        }
+    }
+
+    private static void TryMergeOverlayNodePropertyBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        retainedNode.Properties = MergeOverlayPropertyBackfillFromDuplicateRow(
+            incomingNode.Properties,
+            retainedNode.Properties);
+    }
+
+    private static void TryMergeOverlayNodeLabelBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillLabel = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.Label,
+            retainedNode.Label);
+
+        if (backfillLabel is not null)
+        {
+            retainedNode.Label = backfillLabel;
+        }
+    }
+
+    private static void TryMergeOverlayNodeCategoryBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillCategory = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.Category,
+            retainedNode.Category);
+
+        if (backfillCategory is not null)
+        {
+            retainedNode.Category = backfillCategory;
+        }
+    }
+
+    private static void TryMergeOverlayNodeSourceIdBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillSourceId = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.SourceId,
+            retainedNode.SourceId);
+
+        if (backfillSourceId is not null)
+        {
+            retainedNode.SourceId = backfillSourceId;
+        }
+    }
+
+    private static void TryMergeOverlayNodeSourceTypeBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillSourceType = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.SourceType,
+            retainedNode.SourceType);
+
+        if (backfillSourceType is not null)
+        {
+            retainedNode.SourceType = backfillSourceType;
+        }
+    }
+
+    private static void TryMergeOverlayNodeTypeBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillNodeType = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.NodeType,
+            retainedNode.NodeType);
+
+        if (backfillNodeType is not null)
+        {
+            retainedNode.NodeType = backfillNodeType;
+        }
+    }
+
+    private static void TryMergeOverlayNodeReasoningTraceBackfillFromDuplicateRow(
+        GraphNode incomingNode,
+        GraphNode retainedNode)
+    {
+        string? backfillReasoningTrace = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingNode.ReasoningTrace,
+            retainedNode.ReasoningTrace);
+
+        if (backfillReasoningTrace is not null)
+        {
+            retainedNode.ReasoningTrace = backfillReasoningTrace;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeLabelBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillLabel = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.Label,
+            retainedEdge.Label);
+
+        if (backfillLabel is not null)
+        {
+            retainedEdge.Label = backfillLabel;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeReasoningTraceBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillReasoningTrace = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.ReasoningTrace,
+            retainedEdge.ReasoningTrace);
+
+        if (backfillReasoningTrace is not null)
+        {
+            retainedEdge.ReasoningTrace = backfillReasoningTrace;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeInferenceSourceBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillInferenceSource = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.InferenceSource,
+            retainedEdge.InferenceSource);
+
+        if (backfillInferenceSource is not null)
+        {
+            retainedEdge.InferenceSource = backfillInferenceSource;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeProvenanceKindBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillProvenanceKind = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.ProvenanceKind,
+            retainedEdge.ProvenanceKind);
+
+        if (backfillProvenanceKind is not null)
+        {
+            retainedEdge.ProvenanceKind = backfillProvenanceKind;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeDeclaredConnectionIdBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillDeclaredConnectionId = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.DeclaredConnectionId,
+            retainedEdge.DeclaredConnectionId);
+
+        if (backfillDeclaredConnectionId is not null)
+        {
+            retainedEdge.DeclaredConnectionId = backfillDeclaredConnectionId;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeEdgeIdBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        string? backfillEdgeId = ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+            incomingEdge.EdgeId,
+            retainedEdge.EdgeId);
+
+        if (backfillEdgeId is not null)
+        {
+            retainedEdge.EdgeId = backfillEdgeId;
+        }
+    }
+
+    private static void TryMergeOverlayEdgeWeightBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        double? backfillWeight = ResolveOverlayEdgeWeightBackfillFromDuplicateRow(
+            incomingEdge.Weight,
+            retainedEdge.Weight);
+
+        if (backfillWeight is not null)
+        {
+            retainedEdge.Weight = backfillWeight.Value;
+        }
+    }
+
+    private static double? ResolveOverlayEdgeWeightBackfillFromDuplicateRow(
+        double incomingWeight,
+        double retainedWeight)
+    {
+        if (OverlayEdgeWeightIsOmitted(incomingWeight))
+        {
+            return null;
+        }
+
+        if (!OverlayEdgeWeightIsOmitted(retainedWeight))
+        {
+            return null;
+        }
+
+        return incomingWeight;
+    }
+
+    private static string? ResolveOverlayTrimmedScalarBackfillFromDuplicateRow(
+        string? incomingValue,
+        string? retainedValue)
+    {
+        string normalizedIncomingValue = (incomingValue ?? string.Empty).Trim();
+
+        if (normalizedIncomingValue.Length == 0)
+        {
+            return null;
+        }
+
+        string normalizedRetainedValue = (retainedValue ?? string.Empty).Trim();
+
+        if (normalizedRetainedValue.Length > 0)
+        {
+            return null;
+        }
+
+        return normalizedIncomingValue;
+    }
+
+    private static void TryMergeOverlayEdgePropertyBackfillFromDuplicateRow(
+        GraphEdge incomingEdge,
+        GraphEdge retainedEdge)
+    {
+        retainedEdge.Properties = MergeOverlayPropertyBackfillFromDuplicateRow(
+            incomingEdge.Properties,
+            retainedEdge.Properties);
+    }
+
+    private static Dictionary<string, string> MergeOverlayPropertyBackfillFromDuplicateRow(
+        IReadOnlyDictionary<string, string>? incomingProperties,
+        IReadOnlyDictionary<string, string>? retainedProperties)
+    {
+        Dictionary<string, string> normalizedIncomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingProperties);
+
+        if (normalizedIncomingProperties.Count == 0)
+        {
+            return NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
+        }
+
+        Dictionary<string, string> normalizedRetainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
+
+        foreach (KeyValuePair<string, string> entry in normalizedIncomingProperties)
+        {
+            if (normalizedRetainedProperties.TryGetValue(entry.Key, out string? existingValue)
+                && existingValue.Length > 0)
+            {
+                continue;
+            }
+
+            normalizedRetainedProperties[entry.Key] = entry.Value;
+        }
+
+        return normalizedRetainedProperties;
+    }
+
+    private static void TryValidateOverlayNodePropertyBagAgreement(GraphNode incomingNode, GraphNode retainedNode) =>
+        TryValidateOverlayPropertyBagAgreement(
+            incomingNode.Properties,
+            retainedNode.Properties,
+            "Inventory overlay duplicate nodes disagree on Properties for key '{0}' for the same normalized NodeId.");
+
+    private static void TryValidateOverlayEdgePropertyBagAgreement(GraphEdge incomingEdge, GraphEdge retainedEdge) =>
+        TryValidateOverlayPropertyBagAgreement(
+            incomingEdge.Properties,
+            retainedEdge.Properties,
+            "Inventory overlay duplicate edges disagree on Properties for key '{0}' on the same directed edge key.");
+
+    private static void TryValidateOverlayPropertyBagAgreement(
+        IReadOnlyDictionary<string, string>? incomingProperties,
+        IReadOnlyDictionary<string, string>? retainedProperties,
+        string conflictMessageFormat)
+    {
+        Dictionary<string, string> normalizedIncomingProperties = NormalizeOverlayPropertyBagOrEmpty(incomingProperties);
+        Dictionary<string, string> normalizedRetainedProperties = NormalizeOverlayPropertyBagOrEmpty(retainedProperties);
+
+        HashSet<string> propertyKeys = new(normalizedIncomingProperties.Keys, StringComparer.OrdinalIgnoreCase);
+        propertyKeys.UnionWith(normalizedRetainedProperties.Keys);
+
+        foreach (string propertyKey in propertyKeys)
+        {
+            normalizedIncomingProperties.TryGetValue(propertyKey, out string? incomingValue);
+            normalizedRetainedProperties.TryGetValue(propertyKey, out string? retainedValue);
+
+            string normalizedIncomingValue = incomingValue ?? string.Empty;
+            string normalizedRetainedValue = retainedValue ?? string.Empty;
+
+            if (normalizedIncomingValue.Length == 0 || normalizedRetainedValue.Length == 0)
+            {
+                continue;
+            }
+
+            if (!string.Equals(normalizedRetainedValue, normalizedIncomingValue, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(string.Format(conflictMessageFormat, propertyKey));
+            }
+        }
+    }
+
+    private static Dictionary<string, string> NormalizeOverlayPropertyBagOrEmpty(
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (properties is null || properties.Count == 0)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        return NormalizeOverlayPropertyBag(properties);
+    }
+
     private static string BuildEdgeKey(GraphEdge edge) =>
-        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{edge.EdgeType}";
+        $"{NormalizeNodeId(edge.FromNodeId)}|{NormalizeNodeId(edge.ToNodeId)}|{NormalizeEdgeType(edge.EdgeType)}";
+
+    private static string NormalizeEdgeType(string? edgeType) => (edgeType ?? string.Empty).Trim();
+
+    private static GraphNode NormalizeOverlayNode(GraphNode node) =>
+        new()
+        {
+            NodeId = NormalizeNodeId(node.NodeId),
+            NodeType = node.NodeType,
+            Label = node.Label,
+            Category = node.Category,
+            SourceType = node.SourceType,
+            SourceId = node.SourceId,
+            ReasoningTrace = node.ReasoningTrace,
+            Properties = node.Properties is null || node.Properties.Count == 0
+                ? []
+                : NormalizeOverlayPropertyBag(node.Properties),
+        };
+
+    private static GraphEdge NormalizeOverlayEdge(GraphEdge edge) =>
+        new()
+        {
+            EdgeId = edge.EdgeId,
+            FromNodeId = NormalizeNodeId(edge.FromNodeId),
+            ToNodeId = NormalizeNodeId(edge.ToNodeId),
+            EdgeType = NormalizeEdgeType(edge.EdgeType),
+            Label = edge.Label,
+            Weight = edge.Weight,
+            InferenceSource = edge.InferenceSource,
+            ProvenanceKind = edge.ProvenanceKind,
+            DeclaredConnectionId = edge.DeclaredConnectionId,
+            ReasoningTrace = edge.ReasoningTrace,
+            Properties = edge.Properties is null || edge.Properties.Count == 0
+                ? []
+                : NormalizeOverlayPropertyBag(edge.Properties),
+        };
+
+    private static Dictionary<string, string> NormalizeOverlayPropertyBag(IReadOnlyDictionary<string, string> properties)
+    {
+        Dictionary<string, string> normalized = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Key))
+            {
+                continue;
+            }
+
+            string key = entry.Key.Trim();
+            string value = string.IsNullOrWhiteSpace(entry.Value)
+                ? string.Empty
+                : entry.Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (normalized.TryGetValue(key, out string? existing)
+                && !string.Equals(existing, value, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "Inventory overlay properties contain duplicate keys that collide under ordinal case-insensitive comparison.");
+            }
+
+            normalized[key] = value;
+        }
+
+        return normalized;
+    }
 }

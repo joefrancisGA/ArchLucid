@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -40,6 +41,81 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
+
+    [Fact]
+    public async Task CompareQuality_ExecuteSelectiveRunAsync_merges_scheduled_tasks_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("51515151-5151-5151-5151-515151515151");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope());
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentTask { RunId = legacyUpper, AgentType = AgentType.Cost, TaskId = "cost-task-legacy" },
+            ]);
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(
+                TestScope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>(), null, null))
+            .ReturnsAsync([]);
+        resultRepo
+            .Setup(r => r.DeleteForRunTaskAsync(canonicalRunId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentExecutor> executor = new();
+        executor
+            .Setup(e => e.ExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            canonicalRunId,
+            runGuid,
+            executor.Object,
+            resultRepo.Object,
+            ownership.Object,
+            taskRepo: taskRepo);
+
+        try
+        {
+            await sut.ExecuteSelectiveRunAsync(canonicalRunId, new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] });
+        }
+        catch (Exception)
+        {
+            // Full execute persistence is not under test; selective prep must see legacy-keyed tasks.
+        }
+
+        ownership.Verify(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+    }
 
     [Fact]
     public async Task ExecuteSelectiveRunAsync_acquires_ownership_before_deleting_forced_task_results()
@@ -93,6 +169,62 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
         }
 
         operationOrder.Should().ContainInOrder("acquire", "delete");
+    }
+
+    [Fact]
+    public async Task ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token()
+    {
+        Guid runGuid = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        string runId = runGuid.ToString("N");
+        using CancellationTokenSource cts = new();
+        CancellationToken? releaseToken = null;
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope());
+        ownership
+            .Setup(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Callback<Guid, CancellationToken>((_, token) => releaseToken = token)
+            .Returns(Task.CompletedTask);
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null))
+            .ReturnsAsync([]);
+
+        Mock<IAgentExecutor> executor = new();
+        executor
+            .Setup(e => e.ExecuteAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(cts.Token));
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            executor.Object,
+            resultRepo.Object,
+            ownership.Object);
+
+        Func<Task> act = () => sut.ExecuteSelectiveRunAsync(
+            runId,
+            new SelectiveAgentExecuteRequest { AgentTypes = ["Cost"] },
+            cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        ownership.Verify(s => s.AcquireAsync(runGuid, cts.Token), Times.Once);
+        ownership.Verify(s => s.ReleaseAsync(runGuid, It.IsAny<CancellationToken>()), Times.Once);
+        releaseToken.Should().Be(CancellationToken.None);
     }
 
     [Fact]

@@ -12,11 +12,23 @@ public sealed partial class RetrievalCitationFormatter : IRetrievalCitationForma
     {
         ArgumentNullException.ThrowIfNull(hit);
 
-        string corpus = string.IsNullOrWhiteSpace(hit.CorpusKind) ? "Unknown" : hit.CorpusKind.Trim();
+        string corpus = FormatCorpusKind(hit.CorpusKind);
         string id = string.IsNullOrWhiteSpace(hit.SourceId) ? hit.ChunkId : hit.SourceId.Trim();
         string version = TryExtractVersion(hit.Text) ?? "1";
 
         return $"[{corpus}]/[{id}]@{version}";
+    }
+
+    private static string FormatCorpusKind(string? corpusKind)
+    {
+        if (string.IsNullOrWhiteSpace(corpusKind))
+            return "Corpus kind was not stored.";
+
+        string trimmed = corpusKind.Trim();
+
+        return string.Equals(trimmed, "Unknown", StringComparison.OrdinalIgnoreCase)
+            ? "Corpus kind was not stored."
+            : trimmed;
     }
 
     private static string? TryExtractVersion(string? text)

@@ -25,17 +25,17 @@ export function ArchitectureIntelligenceGoldenResults(props: ArchitectureIntelli
           className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="architecture-intelligence-false-positives-by-dimension"
         >
-          False positives by dimension: {formatCountMap(result.falsePositivesByDimension ?? {})}
+          False positives by dimension: {formatCountMap(result.falsePositivesByDimension)}
         </p>
       ) : null}
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-before-counts">
-        Before counts: {formatCountMap(result.beforeCounts ?? {})}
+        Before counts: {formatCountMap(result.beforeCounts)}
       </p>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-after-counts">
-        After counts: {formatCountMap(result.afterCounts ?? {})}
+        After counts: {formatCountMap(result.afterCounts)}
       </p>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-delta-counts">
-        Delta counts: {formatCountMap(result.deltaCounts ?? {})}
+        Delta counts: {formatCountMap(result.deltaCounts)}
       </p>
       {(result.categoryScores ?? []).length > 0 ? (
         <ul className="m-0 list-disc space-y-1 pl-5" data-testid="architecture-intelligence-category-scores">

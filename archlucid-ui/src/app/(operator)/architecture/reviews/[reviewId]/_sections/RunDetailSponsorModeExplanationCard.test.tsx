@@ -62,7 +62,7 @@ describe("RunDetailSponsorModeExplanationCard", () => {
         explanationSummary={summary}
         findings={[
           finding({ findingId: "low", title: "Low priority", severityValue: 0, findingOrder: 0 }),
-          finding({ findingId: "high", title: "Fix public storage", severityValue: 2, findingOrder: 1 }),
+          finding({ findingId: "high", title: "Fix public storage", severityValue: 3, findingOrder: 1 }),
         ]}
         buyerPolishedArtifactTable={false}
       />,
@@ -72,7 +72,7 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(screen.getByText(/The architecture is viable/i)).toBeInTheDocument();
     expect(screen.getByText("1 persisted citation")).toBeInTheDocument();
     expect(screen.getByText("Evidence-backed")).toBeInTheDocument();
-    expect(screen.getByText(/High:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Critical:/i)).toBeInTheDocument();
     expect(screen.getByText(/Fix public storage/i)).toBeInTheDocument();
     expect(screen.getByText(/not a legal or compliance attestation/i)).toBeInTheDocument();
   });
@@ -115,6 +115,40 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(screen.getByText(/send the sponsor briefing export/i)).toBeInTheDocument();
   });
 
+  it("distinguishes omitted and stored-empty risk posture", () => {
+    const { rerender } = render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{ ...summary, riskPosture: null }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Risk posture was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{ ...summary, riskPosture: "   " }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Risk posture was stored empty.")).toBeInTheDocument();
+  });
+
+  it("states when sponsor talking points were not stored", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={summary}
+        findings={[]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Sponsor talking points were not stored.")).toBeInTheDocument();
+  });
+
   it("distinguishes omitted citations from an empty citation list", () => {
     render(
       <RunDetailSponsorModeExplanationCard
@@ -127,6 +161,6 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     const evidenceBasisBlock = screen.getByText("Evidence basis").closest("div");
 
     expect(evidenceBasisBlock).not.toBeNull();
-    expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations not returned")).toBeInTheDocument();
+    expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations were not stored.")).toBeInTheDocument();
   });
 });

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Runs;
@@ -119,8 +120,16 @@ public sealed class ReplayComparisonInterpretationDiffSlice : IReplayComparisonD
         return string.Join(' ', parts);
     }
 
-    private static bool AgentOutputsChangedMaterially(AgentResultDiffResult agentResultDiff) =>
-        AgentResultDeltaMateriality.AnyMaterialChanges(agentResultDiff.AgentDeltas);
+    private static bool AgentOutputsChangedMaterially(AgentResultDiffResult agentResultDiff)
+    {
+        foreach (AgentResultDelta delta in agentResultDiff.AgentDeltas)
+        {
+            delta.LeftConfidence = AgentResultDiffNormalizer.NormalizeOptionalConfidence(delta.LeftConfidence);
+            delta.RightConfidence = AgentResultDiffNormalizer.NormalizeOptionalConfidence(delta.RightConfidence);
+        }
+
+        return AgentResultDeltaMateriality.AnyMaterialChanges(agentResultDiff.AgentDeltas);
+    }
 
     private static bool HasNotEvaluatedSnapshot(ReviewRunEngineProvenance? provenance)
     {

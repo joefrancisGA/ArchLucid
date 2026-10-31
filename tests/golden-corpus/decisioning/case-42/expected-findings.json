@@ -1,11 +1,11 @@
 [
   {
-    "findingId": "acab5345-c2c4-a976-0380-5ad0311543a8",
+    "findingId": "d804bfd3-2155-1957-347e-7aca69f05642",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "req-redundancy-1",
       "sql-pay-prod",
@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "78c20aa4-14b2-e89c-35e6-9e9347339b1b",
+    "findingId": "ecf2b373-356b-eba3-f785-e00cde9757b1",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
     "title": "Requirement detected: Payment SQL",
-    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture. Mandatory flag was not stored.",
     "relatedNodeIds": [
       "req-redundancy-1",
       "svc-checkout"
@@ -59,12 +59,12 @@
     ]
   },
   {
-    "findingId": "f090e04b-45fa-6213-cc51-c4fbb12be539",
+    "findingId": "8ad1939e-f390-6eb2-1844-7aaa1d037edb",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "req-redundancy-1",
       "sql-pay-prod",
@@ -79,12 +79,12 @@
     ]
   },
   {
-    "findingId": "67ed0705-0d26-0d8e-9539-ddeb0fef3b3e",
+    "findingId": "a2b58f1d-a959-c073-7965-f14c5519e3a7",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "req-redundancy-1",
       "sql-pay-prod",
@@ -99,15 +99,15 @@
     ]
   },
   {
-    "findingId": "f8494cdb-dbe9-44c3-4765-ccfbb75d073a",
+    "findingId": "6e60840b-2b3a-2c73-2094-c11d9006ea8b",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-api",
-      "sql-pay-prod"
+      "sql-pay-prod",
+      "svc-checkout"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -118,12 +118,12 @@
     ]
   },
   {
-    "findingId": "56125f50-c931-0c5a-ef87-47766ee175ce",
+    "findingId": "72067ad3-45d9-2251-085a-91eee047cba0",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "sql-pay-prod",
       "svc-checkout"
@@ -133,7 +133,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

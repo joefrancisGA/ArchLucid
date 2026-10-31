@@ -74,7 +74,9 @@ public static class ProseAssumptionContradictionPass
                         inventoryValue))
                     continue;
 
-                string resourceLabel = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label;
+                string resourceLabel = string.IsNullOrWhiteSpace(node.Label)
+                    ? DeclarationInventoryContradictionHonestyCopy.ResourceNameNotStored
+                    : node.Label.Trim();
                 string inventoryPropertyKey = ResolveInventoryPropertyKey(cloudProvider, candidate.LogicalPropertyName);
 
                 matches.Add(new ProseAssumptionContradictionMatch

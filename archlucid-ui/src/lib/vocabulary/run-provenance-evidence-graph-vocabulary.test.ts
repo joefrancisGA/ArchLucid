@@ -19,7 +19,7 @@ describe("run-provenance-evidence-graph-vocabulary (TB-2296)", () => {
     expect(model.heading).toBe(RUN_PROVENANCE_EVIDENCE_GRAPH_HEADING);
     expect(model.whyTwo).toBe(RUN_PROVENANCE_EVIDENCE_GRAPH_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("one architecture review");
-    expect(model.whyTwo.toLowerCase()).toContain("across packages");
+    expect(model.evidenceGraphLink.whenToUse).toContain("not a pipeline completion timestamp");
     expect(model.compactLine).toBe(RUN_PROVENANCE_EVIDENCE_GRAPH_COMPACT_LINE);
 
     expect(model.runProvenanceLink.href).toBe(REVIEWS_LIST_PATH);

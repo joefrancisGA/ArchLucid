@@ -86,6 +86,55 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28fTests
     }
 
     [Fact]
+    public async Task CostSummaryArtifactGenerator_GenerateAsync_serializes_not_stored_service_names()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Topology = new TopologySection
+            {
+                Services =
+                [
+                    new ManifestService
+                    {
+                        ServiceId = "svc-1",
+                        ServiceName = " ",
+                        RuntimePlatform = RuntimePlatform.AppService,
+                        InstanceCount = 0,
+                    },
+                ],
+            },
+        };
+
+        InfrastructureCostArtifactAugmentation augmentation = new(
+            InferredUsdPerMonth: 45m,
+            Lines:
+            [
+                new InfrastructureCostLine(
+                    "Service",
+                    "Service name was not stored.",
+                    RuntimePlatform.AppService,
+                    "Azure App Service",
+                    45m,
+                    InfrastructureCostPriceSource.Estimated),
+            ],
+            SummaryNote: string.Empty);
+
+        Mock<IInfrastructureCostArtifactAugmentationProvider> provider = new();
+        provider
+            .Setup(p => p.AugmentNodesAsync(It.IsAny<IReadOnlyList<InfrastructureCostQueryNode>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(augmentation);
+
+        CostSummaryArtifactGenerator generator = new(provider.Object);
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        doc.RootElement.GetProperty("InfrastructureLines")[0].GetProperty("DisplayName").GetString()
+            .Should().Be("Service name was not stored.");
+    }
+
+    [Fact]
     public async Task UnresolvedIssuesArtifactGenerator_GenerateAsync_emits_empty_items_array()
     {
         ManifestDocument manifest = new()

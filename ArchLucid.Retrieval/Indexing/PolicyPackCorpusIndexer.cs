@@ -84,9 +84,11 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
             yield break;
 
         string rulePackId = string.IsNullOrWhiteSpace(file.RulePackId)
-            ? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "unknown"
+            ? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "Rule pack id was not stored."
             : file.RulePackId.Trim();
-        string version = file.Version ?? "0.0.0";
+        string version = string.IsNullOrWhiteSpace(file.Version)
+            ? "Rule pack version was not stored."
+            : file.Version.Trim();
         DateTime createdUtc = File.GetLastWriteTimeUtc(filePath);
 
         foreach (PolicyPackRuleRow rule in file.Rules)
@@ -96,8 +98,12 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
 
             string controlName = rule.ControlName ?? rule.RuleId;
             string description = rule.Description ?? string.Empty;
-            string appliesTo = rule.AppliesToCategory ?? "general";
-            string severity = rule.Severity ?? "Info";
+            string appliesTo = string.IsNullOrWhiteSpace(rule.AppliesToCategory)
+                ? "Applies-to category was not stored."
+                : rule.AppliesToCategory.Trim();
+            string severity = string.IsNullOrWhiteSpace(rule.Severity)
+                ? "Rule severity was not stored."
+                : rule.Severity.Trim();
 
             string content =
                 $"[{rulePackId} v{version}] [{severity}] {controlName} ({appliesTo}): {description}";

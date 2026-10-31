@@ -209,7 +209,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
-            ReadResourceName(connectorDiagramNode.ArmResourceId, connectorDiagramNode.Label));
+            InventoryDiagramRelationshipLabelTexts.AccessConnectorExternalTargetConfiguredLabel);
         DiagramEdge? existingEdge = ast.Edges.FirstOrDefault(edge =>
             string.Equals(edge.FromNodeId, parentDiagramNodeId, StringComparison.Ordinal)
             && string.Equals(edge.ToNodeId, externalTargetDiagramNodeId, StringComparison.Ordinal)
@@ -233,7 +233,7 @@ internal static class InventoryDiagramParentAttachmentApplier
             FromNodeId = parentDiagramNodeId,
             ToNodeId = externalTargetDiagramNodeId,
             Label = edgeLabel,
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
             InferenceSource = GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget,
         });
 
@@ -300,11 +300,11 @@ internal static class InventoryDiagramParentAttachmentApplier
         return null;
     }
 
-    private static string BuildChildDetailLabel(
+    internal static string BuildChildDetailLabel(
         DiagramNode childNode,
         InventoryDiagramParentAttachmentCategory category)
     {
-        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label);
+        string resourceName = ReadResourceName(childNode.ArmResourceId, childNode.Label, childNode.NodeId);
 
         return category switch
         {
@@ -315,25 +315,28 @@ internal static class InventoryDiagramParentAttachmentApplier
         };
     }
 
-    private static string ReadResourceName(string? armResourceId, string fallbackLabel)
+    private static string ReadResourceName(string? armResourceId, string fallbackLabel, string? nodeId)
     {
-        if (string.IsNullOrWhiteSpace(armResourceId))
+        return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            armResourceId,
+            fallbackLabel,
+            nodeId,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
+    }
+
+    private static string ResolveAttachmentResourceName(string? fallbackLabel)
+    {
+        if (fallbackLabel is null)
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return "Resource name was not stored";
         }
 
-        int lastSlash = armResourceId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
+        if (fallbackLabel.Length == 0 || string.IsNullOrWhiteSpace(fallbackLabel))
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return "Resource name was stored empty.";
         }
 
-        return armResourceId[(lastSlash + 1)..];
+        return fallbackLabel.Trim();
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

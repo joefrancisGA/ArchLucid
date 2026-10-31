@@ -146,6 +146,8 @@ describe("ArchitectureSponsorSharingPanel", () => {
     fireEvent.click(screen.getByTestId("architecture-sponsor-share-preliminary"));
 
     expect(screen.getByTestId("architecture-sponsor-preliminary-watermark")).toHaveTextContent("Preliminary draft");
-    expect(screen.getByTestId("architecture-sponsor-preliminary-watermark")).toHaveTextContent("Not approved");
+    expect(screen.getByTestId("architecture-sponsor-preliminary-watermark")).toHaveTextContent(
+      "Approval was not stored on this draft.",
+    );
   });
 });

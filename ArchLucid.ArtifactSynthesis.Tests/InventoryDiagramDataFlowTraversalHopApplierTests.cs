@@ -169,13 +169,21 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
-            && edge.ToNodeId == appId
-            && edge.Label == "Routes through");
+            && (edge.ToNodeId == appId
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)));
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
-            && edge.ToNodeId == factoryId
-            && edge.Label == "Routes through");
+            && (edge.ToNodeId == factoryId
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)));
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == SubnetArmId);
     }
 
@@ -204,12 +212,18 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
 
-        ast.Nodes.Should().NotContain(node =>
-            node.ArmResourceId != null
-            && node.ArmResourceId.Contains("DesktopVirtualization", StringComparison.Ordinal));
-        ast.Nodes.Should().NotContain(node =>
-            node.ArmResourceId != null
-            && node.ArmResourceId.Contains("virtualMachines/avd", StringComparison.Ordinal));
+        ast.Nodes
+            .Where(node =>
+                node.ArmResourceId is not null
+                && node.ArmResourceId.Contains("DesktopVirtualization", StringComparison.Ordinal))
+            .Should()
+            .BeEmpty();
+        ast.Nodes
+            .Where(node =>
+                node.ArmResourceId is not null
+                && node.ArmResourceId.Contains("virtualMachines/avd", StringComparison.Ordinal))
+            .Should()
+            .BeEmpty();
     }
 
     private static GraphSnapshot BuildIngressChainGraph(

@@ -51,7 +51,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         data-testid="run-cost-preview-error"
         className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
       >
-        {error}
+        Cost preview was not loaded.
       </div>
     );
   }
@@ -104,6 +104,13 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         : null;
 
   const costNotStoredCopy = "Estimated cost was not stored.";
+  const deploymentStored =
+    data.deploymentName !== null
+    && data.deploymentName !== undefined
+    && data.deploymentName.length > 0;
+  const costHeadlineProvider = deploymentStored
+    ? "Estimated Azure OpenAI cost for this review:"
+    : "Estimated agent execution cost for this review:";
 
   return (
     <div
@@ -111,17 +118,24 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
       className={cn(DESIGN_TOKENS.callout.warn, "p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
-        Estimated Azure OpenAI cost for this review:{" "}
+        {costHeadlineProvider}{" "}
         {headlineAmount !== null ? (
           <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
-        ) : !hasStoredCost ? (
-          <span data-testid="run-cost-preview-amount">{costNotStoredCopy}</span>
         ) : (
-          <span data-testid="run-cost-preview-amount">—</span>
-        )}{" "}
-        (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
-        <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
-        ={data.maxCompletionTokens})
+          <span data-testid="run-cost-preview-amount">{costNotStoredCopy}</span>
+        )}
+        {hasStoredCost ? (
+          <>
+            {" "}
+            (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
+            <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
+            =
+            {typeof data.maxCompletionTokens === "number" && Number.isFinite(data.maxCompletionTokens)
+              ? data.maxCompletionTokens
+              : "Token ceiling was not stored."}
+            )
+          </>
+        ) : null}
         {data.deploymentName === null || data.deploymentName === undefined ? (
           <>
             {" "}
@@ -132,16 +146,29 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
             {" "}
             · deployment <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{data.deploymentName}</code>
           </>
-        ) : null}
+        ) : (
+          <>
+            {" "}
+            · <span data-testid="run-cost-preview-deployment-stored-empty">Deployment name was stored empty.</span>
+          </>
+        )}
       </p>
-      {data.pricingUsesIllustrativeUsdRates ? (
+      {data.pricingUsesIllustrativeUsdRates === true ? (
         <p className={cn("mt-2 mb-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
           Illustrative USD rates are still set from defaults — override{" "}
           <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">AgentExecution:LlmCostEstimation</code> to match
           your deployment&apos;s list price.
         </p>
+      ) : data.pricingUsesIllustrativeUsdRates === undefined ? (
+        <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Illustrative rate flag was not stored.
+        </p>
       ) : null}
-      <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{data.estimatedCostBasis}</p>
+      <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {data.estimatedCostBasis.trim().length > 0
+          ? data.estimatedCostBasis
+          : "Cost estimate basis was not stored."}
+      </p>
       <p className={cn("mt-2 mb-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Methodology:{" "}
         <Link className={OPERATOR_LINK.inline} href={DOCS_URL}>

@@ -1838,6 +1838,20 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void ManifestEndpointReferencesEqual_returns_false_when_either_reference_is_null()
+    {
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, "svc-api")
+            .Should()
+            .BeFalse();
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual("svc-api", null)
+            .Should()
+            .BeFalse();
+        TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual(null, null)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void TryResolveGraphTopologyNodeIdForDatastore_returns_true_when_datastore_id_quotes_for_each_key_and_graph_source_id_does_not()
     {
         const string rootAddress = "azurerm_storage_account.main";

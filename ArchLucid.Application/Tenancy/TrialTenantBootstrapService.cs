@@ -71,7 +71,7 @@ public sealed class TrialTenantBootstrapService(
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
                     baselineReviewCycle.Hours,
-                    baselineReviewCycle.SourceNote,
+                    NormalizeOptionalBaselineSourceNote(baselineReviewCycle.SourceNote),
                     baselineReviewCycle.CapturedUtc,
                     cancellationToken);
             }
@@ -165,12 +165,14 @@ public sealed class TrialTenantBootstrapService(
                     3,
                     sampleRunId,
                     baselineReviewCycle?.Hours,
-                    baselineReviewCycle?.SourceNote,
+                    NormalizeOptionalBaselineSourceNote(baselineReviewCycle?.SourceNote),
                     baselineReviewCycle?.CapturedUtc,
-                    companyProfile?.CompanySize,
+                    NormalizeOptionalCompanySize(companyProfile?.CompanySize),
                     companyProfile?.ArchitectureTeamSize,
-                    companyProfile?.IndustryVertical,
-                    companyProfile?.IndustryVerticalOther,
+                    NormalizeOptionalIndustryVertical(companyProfile?.IndustryVertical),
+                    NormalizeOptionalIndustryVerticalOther(
+                        companyProfile?.IndustryVertical,
+                        companyProfile?.IndustryVerticalOther),
                     cancellationToken);
 
                 if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
@@ -246,6 +248,26 @@ public sealed class TrialTenantBootstrapService(
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         return tenant?.OffboardedUtc is not null;
+    }
+
+    private static string? NormalizeOptionalBaselineSourceNote(string? sourceNote) =>
+        string.IsNullOrWhiteSpace(sourceNote) ? null : sourceNote.Trim();
+
+    private static string? NormalizeOptionalCompanySize(string? companySize) =>
+        string.IsNullOrWhiteSpace(companySize) ? null : companySize.Trim();
+
+    private static string? NormalizeOptionalIndustryVertical(string? industryVertical) =>
+        string.IsNullOrWhiteSpace(industryVertical) ? null : industryVertical.Trim();
+
+    private static string? NormalizeOptionalIndustryVerticalOther(string? industryVertical, string? industryVerticalOther)
+    {
+        if (string.IsNullOrWhiteSpace(industryVertical)
+            || !string.Equals(industryVertical.Trim(), "Other", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return string.IsNullOrWhiteSpace(industryVerticalOther) ? null : industryVerticalOther.Trim();
     }
 
     /// <inheritdoc/>

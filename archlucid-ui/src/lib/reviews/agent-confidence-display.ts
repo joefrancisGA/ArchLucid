@@ -35,5 +35,5 @@ export function formatAgentExecutionConfidenceLabel(result: RunDetailAgentResult
     return `Raw ${formatConfidencePercent(raw)}`;
   }
 
-  return "Not recorded";
+  return "Agent confidence was not stored.";
 }

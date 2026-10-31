@@ -1,3 +1,6 @@
+import {
+  formatExportPreviewShortenedText,
+} from "@/lib/export-preview-caption-honesty";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   isDecisionGradeFinding,
@@ -19,8 +22,16 @@ export type SemanticSupportBandStampCounts = {
   readonly unsupported: number;
   readonly notScored: number;
   readonly missingStoredBand: number;
+  readonly storedEmptyBand: number;
+  readonly unrecognizedBand: number;
   readonly decisionGradeTotal: number;
 };
+
+export const FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY =
+  "Semantic support band was stored empty." as const;
+
+export const FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY =
+  "Semantic support band was not recognized." as const;
 
 export function countDecisionGradeSemanticSupportBands(
   findings: readonly QuickDecisionFinding[],
@@ -30,6 +41,8 @@ export function countDecisionGradeSemanticSupportBands(
   let unsupported = 0;
   let notScored = 0;
   let missingStoredBand = 0;
+  let storedEmptyBand = 0;
+  let unrecognizedBand = 0;
   let decisionGradeTotal = 0;
 
   for (const finding of findings) {
@@ -46,12 +59,17 @@ export function countDecisionGradeSemanticSupportBands(
     }
 
     if (rawBand === "") {
+      storedEmptyBand += 1;
       continue;
     }
 
     const band = normalizeFindingSemanticSupportBand(rawBand);
 
     if (band === null) {
+      if (typeof rawBand === "string" && rawBand.trim().length > 0) {
+        unrecognizedBand += 1;
+      }
+
       continue;
     }
 
@@ -79,12 +97,22 @@ export function countDecisionGradeSemanticSupportBands(
     unsupported,
     notScored,
     missingStoredBand,
+    storedEmptyBand,
+    unrecognizedBand,
     decisionGradeTotal,
   };
 }
 
 export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandStampCounts): boolean {
-  return counts.decisionGradeTotal > 0 && counts.unsupported === 0;
+  return (
+    counts.decisionGradeTotal > 0
+    && counts.unsupported === 0
+    && counts.unchecked === 0
+    && counts.missingStoredBand === 0
+    && counts.storedEmptyBand === 0
+    && counts.unrecognizedBand === 0
+    && counts.notScored === 0
+  );
 }
 
 function formatBandCountSegment(label: string, count: number): string {
@@ -115,6 +143,8 @@ export function countDecisionGradeSemanticSupportBandsForPresentation(
     unsupported: 0,
     notScored: decisionGradeTotal,
     missingStoredBand: 0,
+    storedEmptyBand: 0,
+    unrecognizedBand: 0,
     decisionGradeTotal,
   };
 }
@@ -178,8 +208,16 @@ export function formatStampSemanticSupportBandLine(
     segments.push(formatBandCountSegment("Not scored", counts.notScored));
   }
 
+  if (options?.compact !== true && counts.unrecognizedBand > 0) {
+    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY);
+  }
+
   if (counts.missingStoredBand > 0) {
     segments.push(FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY);
+  }
+
+  if (counts.storedEmptyBand > 0) {
+    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY);
   }
 
   const prefix = options?.compact === true ? "Semantic support:" : "Semantic support (decision-grade):";
@@ -210,7 +248,11 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 
     entries.push({
       findingId: finding.findingId,
-      title: finding.title.trim().length > 0 ? finding.title.trim() : finding.findingId,
+      title: formatExportPreviewShortenedText(
+        finding.title,
+        "Finding title was not stored.",
+        96,
+      ),
     });
   }
 
@@ -220,5 +262,5 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 export function formatStampUnsupportedSemanticSupportLabels(
   entries: readonly UnsupportedSemanticSupportStampEntry[],
 ): string[] {
-  return entries.map((entry) => `${entry.findingId}: ${entry.title}`);
+  return entries.map((entry) => `Finding id: ${entry.findingId} — ${entry.title}`);
 }

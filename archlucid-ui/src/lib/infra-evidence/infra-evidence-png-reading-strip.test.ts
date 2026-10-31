@@ -150,8 +150,8 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
     });
 
-    expect(dataArchitecture).toContain("This diagram shows what stores data. It is not observed traffic.");
-    expect(network).toContain("This diagram shows inventory structure. It is not observed traffic.");
+    expect(dataArchitecture).toContain("Inventory of data platforms in this snapshot. Not a data-flow diagram.");
+    expect(network).toContain("This diagram shows network placement in inventory. It does not prove reachability.");
     expect(network).not.toContain("This diagram shows what may connect.");
   });
 
@@ -162,12 +162,25 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
       snapshotLabel: "Contoso Production · 9/10/2026, 09:45 EDT",
       resourceGroupScopeName: "rg-network",
-      dependencyNeighborhoodSeedLabel: "",
+      dependencyNeighborhoodSeedId: "",
     });
 
     expect(lines[0]).toBe("Snapshot: Contoso Production · 9/10/2026, 09:45 EDT");
     expect(lines).toContain("Scope: resource group rg-network.");
     expect(lines).toContain("Dependency neighborhood starting resource was not stored.");
+  });
+
+  it("labels dependency neighborhood scope without depends-on wording", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "dependencyNeighborhood",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      dependencyNeighborhoodSeedId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/app-gateway",
+      dependencyNeighborhoodSeedDisplayName: "app-gateway",
+    });
+
+    expect(lines).toContain("Scope: neighbors of app-gateway on cited lines.");
+    expect(lines.join("\n")).not.toMatch(/depends on|dependency neighborhood from/i);
   });
 
   it("labels a missing snapshot line without inventing a capture time", () => {
@@ -189,5 +202,19 @@ describe("infra-evidence-png-reading-strip", () => {
     });
 
     expect(lines.join("\n")).not.toContain("Observed traffic occurred");
+  });
+
+  it("calls out executive overflow stripping and private endpoint traffic hedge on PNG strip", () => {
+    const executive = buildInfraEvidencePngReadingStripLines({
+      mode: "executive",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      executiveOverflowStripped: true,
+      includePrivateEndpointNodes: true,
+    });
+
+    const joined = executive.join("\n");
+    expect(joined).toContain("Executive overflow rollups");
+    expect(joined).toContain("not observed traffic");
   });
 });

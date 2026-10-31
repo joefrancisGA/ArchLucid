@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
@@ -16,6 +17,8 @@ internal static class ExecutiveVnetPeeringStubNodeFactory
     public const string StubPropertyKey = "arm.stub";
 
     public const string RemoteVnetStubValue = "remote-vnet";
+
+    public const string NotInCapturedSnapshotLabelSuffix = "Not in captured snapshot.";
 
     public static GraphNode Create(string azureResourceId)
     {
@@ -49,13 +52,8 @@ internal static class ExecutiveVnetPeeringStubNodeFactory
 
     private static string ReadLabel(string azureResourceId)
     {
-        int lastSlash = azureResourceId.LastIndexOf('/');
+        _ = azureResourceId;
 
-        if (lastSlash >= 0 && lastSlash < azureResourceId.Length - 1)
-        {
-            return azureResourceId[(lastSlash + 1)..];
-        }
-
-        return azureResourceId;
+        return $"{InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored} · {NotInCapturedSnapshotLabelSuffix}";
     }
 }

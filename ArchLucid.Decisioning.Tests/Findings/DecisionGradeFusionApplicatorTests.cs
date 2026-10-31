@@ -37,7 +37,8 @@ public sealed class DecisionGradeFusionApplicatorTests
         Finding fusion = fusionFindings[0];
         fusion.EngineType.Should().Be(DecisionGradeFusionApplicator.EngineType);
         fusion.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
-        fusion.Title.Should().Be("Joined: data-flow-trust-boundary × segmentation-semantics on nsg-1");
+        fusion.Title.Should().Be(
+            "Joined: data-flow-trust-boundary × segmentation-semantics on Graph node id nsg-1 was stored (Graph node label was not stored.)");
         fusion.RelatedNodeIds.Should().Equal("nsg-1");
         fusion.EvidenceRefs.Should().BeEquivalentTo(["doc:nsg.json#L10", "arn:aws:ec2:us-east-1:1:instance/i-1"]);
         fusion.EvidenceRefs.Should().NotContain(static evidenceRef =>
@@ -118,7 +119,7 @@ public sealed class DecisionGradeFusionApplicatorTests
         payload.SourceEngineTypes.Should().HaveCount(3);
         payload.SourceEngineTypes.Should().Contain(["data-flow-trust-boundary", "open-commitment", "segmentation-semantics"]);
         fusionFindings[0].Title.Should().Contain("open-commitment");
-        fusionFindings[0].Title.Should().Contain("on sql-pay");
+        fusionFindings[0].Title.Should().Contain("Graph node id sql-pay was stored");
     }
 
     [Fact]

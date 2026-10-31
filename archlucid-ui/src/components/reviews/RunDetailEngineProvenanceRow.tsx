@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
 import {
   formatReviewEngineCostUsd,
+  formatReviewEngineOptionalStoredField,
   formatReviewEngineProviderLabel,
   formatReviewEngineRunTimestamp,
 } from "@/lib/review-engine-provenance-display";
@@ -46,9 +47,14 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   const [open, setOpenState] = useState(urlEngineProvenanceOpen);
   const openRef = useRef(open);
   openRef.current = open;
+  const deploymentLabel =
+    provenance.deploymentOrModelId?.trim().length > 0
+      ? provenance.deploymentOrModelId.trim()
+      : "Deployment was not stored.";
+  const providerLabel = formatReviewEngineProviderLabel(provenance.providerKind);
   const engineLabel = provenance.modelAliasId
-    ? `${provenance.modelAliasId} (${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId})`
-    : `${formatReviewEngineProviderLabel(provenance.providerKind)} / ${provenance.deploymentOrModelId}`;
+    ? `${provenance.modelAliasId} (${providerLabel} / ${deploymentLabel})`
+    : `${providerLabel} / ${deploymentLabel}`;
   const costLabel = formatReviewEngineCostUsd(provenance.estimatedCostUsd);
 
   const syncOpenToUrl = useCallback(
@@ -108,27 +114,48 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   return (
     <CollapsibleSection title="Engine & model" open={open} onToggle={setOpen}>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        {provenance.modelAliasId ? (
-          <ProvenanceField label="Catalog alias" value={provenance.modelAliasId} />
-        ) : null}
+        <ProvenanceField
+          label="Catalog alias"
+          value={provenance.modelAliasId?.trim() || "Catalog alias was not stored."}
+        />
         <ProvenanceField label="Engine" value={engineLabel} />
-        {provenance.promptPackVersion ? (
-          <ProvenanceField label="Prompt pack" value={provenance.promptPackVersion} />
-        ) : null}
-        {provenance.policyPackVersion ? (
-          <ProvenanceField label="Policy pack" value={provenance.policyPackVersion} />
-        ) : null}
+        <ProvenanceField
+          label="Prompt pack"
+          value={provenance.promptPackVersion?.trim() || "Prompt pack version was not stored."}
+        />
+        <ProvenanceField
+          label="Policy pack"
+          value={provenance.policyPackVersion?.trim() || "Policy pack version was not stored."}
+        />
         <ProvenanceField
           label="Output schema"
-          value={provenance.outputSchemaVersion ?? "Output schema version was not stored."}
+          value={formatReviewEngineOptionalStoredField(
+            provenance.outputSchemaVersion,
+            "Output schema version was not stored.",
+            "Output schema version was stored empty.",
+          )}
         />
         <ProvenanceField
           label="Engine profile"
-          value={provenance.engineProfileId ?? "Engine profile was not stored."}
+          value={formatReviewEngineOptionalStoredField(
+            provenance.engineProfileId,
+            "Engine profile was not stored.",
+            "Engine profile was stored empty.",
+          )}
+        />
+        <ProvenanceField
+          label="Evidence snapshot version"
+          value={formatReviewEngineOptionalStoredField(
+            provenance.evidenceSnapshotVersion,
+            "Evidence snapshot version was not stored.",
+            "Evidence snapshot version was stored empty.",
+          )}
         />
         {provenance.taskEvaluationSnapshotsAtSelection === null
         || provenance.taskEvaluationSnapshotsAtSelection === undefined ? (
           <ProvenanceField label="Task evaluations" value="Task evaluations were not stored." />
+        ) : provenance.taskEvaluationSnapshotsAtSelection.length === 0 ? (
+          <ProvenanceField label="Task evaluations" value="Task evaluations were stored empty." />
         ) : (
           provenance.taskEvaluationSnapshotsAtSelection.map((evaluation) => (
             <ProvenanceField
@@ -142,7 +169,10 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
           label="Run"
           value={formatReviewEngineRunTimestamp(provenance.runTimestampUtc)}
         />
-        {costLabel ? <ProvenanceField label="Est. cost" value={costLabel} /> : null}
+        <ProvenanceField
+          label="Est. cost"
+          value={costLabel ?? "Estimated cost was not stored."}
+        />
       </dl>
     </CollapsibleSection>
   );

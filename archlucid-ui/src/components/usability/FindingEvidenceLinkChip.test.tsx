@@ -32,12 +32,13 @@ describe("FindingEvidenceLinkChip", () => {
       <FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={0} />,
     );
 
-    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence: 0 linked");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("No evidence references were stored");
 
     rerender(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={null} />);
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
       "Evidence reference count was not stored",
     );
+    expect(screen.getByTestId("finding-evidence-link-chip").tagName).toBe("SPAN");
     expect(screen.getByTestId("finding-evidence-link-chip")).toHaveAttribute(
       "aria-label",
       "Evidence reference count was not stored",

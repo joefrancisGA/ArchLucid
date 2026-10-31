@@ -81,6 +81,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                 List<JsonElement> rightArray = SortJsonArrayElements(right);
 
                 if (leftArray.Count != rightArray.Count)
+                {
                     items.Add(new DriftItem
                     {
                         Category = "ArrayLength",
@@ -89,8 +90,11 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         RegeneratedValue = rightArray.Count.ToString(),
                         Description = "Array length changed."
                     });
+                    AppendUnmatchedArrayElements(path, leftArray, rightArray, items);
+                    break;
+                }
 
-                for (int i = 0; i < Math.Min(leftArray.Count, rightArray.Count); i++)
+                for (int i = 0; i < leftArray.Count; i++)
                     CompareElement($"{path}[{i}]", leftArray[i], rightArray[i], items);
 
                 break;
@@ -105,6 +109,61 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         Description = "Value changed."
                     });
                 break;
+        }
+    }
+
+    /// <summary>
+    ///     Length changes are membership changes. Pairing the sorted prefix reports a value change
+    ///     for an element that still exists on both sides when another element was inserted.
+    /// </summary>
+    private static void AppendUnmatchedArrayElements(
+        string path,
+        List<JsonElement> leftArray,
+        List<JsonElement> rightArray,
+        List<DriftItem> items)
+    {
+        Dictionary<string, int> unmatchedRight = new(StringComparer.Ordinal);
+
+        foreach (JsonElement element in rightArray)
+        {
+            string key = BuildArrayElementSortKey(element);
+            unmatchedRight[key] = unmatchedRight.TryGetValue(key, out int count) ? count + 1 : 1;
+        }
+
+        foreach (JsonElement element in leftArray)
+        {
+            string key = BuildArrayElementSortKey(element);
+
+            if (unmatchedRight.TryGetValue(key, out int count) && count > 0)
+            {
+                unmatchedRight[key] = count - 1;
+                continue;
+            }
+
+            items.Add(new DriftItem
+            {
+                Category = "Removed",
+                Path = path,
+                StoredValue = element.ToString(),
+                Description = "Array element removed."
+            });
+        }
+
+        foreach (JsonElement element in rightArray)
+        {
+            string key = BuildArrayElementSortKey(element);
+
+            if (!unmatchedRight.TryGetValue(key, out int count) || count <= 0)
+                continue;
+
+            unmatchedRight[key] = count - 1;
+            items.Add(new DriftItem
+            {
+                Category = "Added",
+                Path = path,
+                RegeneratedValue = element.ToString(),
+                Description = "Array element added."
+            });
         }
     }
 

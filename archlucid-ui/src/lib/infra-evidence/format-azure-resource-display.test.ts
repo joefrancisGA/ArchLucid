@@ -11,17 +11,17 @@ import {
 describe("formatAzureResourceDisplay", () => {
   it("returns Name not recorded when the id is missing", () => {
     expect(formatAzureResourceDisplay(null)).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
     expect(formatAzureResourceDisplay("   ")).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
   });
@@ -77,6 +77,24 @@ describe("formatAzureResourceDisplay", () => {
       secondaryLabel: null,
     });
   });
+
+  it("states when type and resource group were not stored on ARM ids (P-20)", () => {
+    expect(formatAzureResourceDisplay("/subscriptions/sub-id/custom-segment-only")).toEqual({
+      name: "custom-segment-only",
+      resourceType: null,
+      resourceGroup: null,
+      primaryLabel: "custom-segment-only",
+      secondaryLabel: "Resource type was not stored. Resource group was not stored.",
+    });
+  });
+
+  it("states when only resource group was not stored on ARM ids (P-19)", () => {
+    expect(
+      formatAzureResourceDisplay(
+        "/subscriptions/sub/providers/Microsoft.Storage/storageAccounts/acct1",
+      ).secondaryLabel,
+    ).toBe("Storage/storageAccounts · Resource group was not stored.");
+  });
 });
 
 describe("normalizeSecureNowResourceNameForDisplay", () => {
@@ -86,7 +104,7 @@ describe("normalizeSecureNowResourceNameForDisplay", () => {
   });
 
   it("preserves the empty placeholder", () => {
-    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("—");
+    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("Resource name was not stored.");
   });
 
   it("treats empty and em-dash names as missing for outline omission copy (P-02)", () => {

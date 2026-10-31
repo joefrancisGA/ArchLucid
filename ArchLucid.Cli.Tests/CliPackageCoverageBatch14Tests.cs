@@ -118,7 +118,7 @@ public sealed class CliPackageCoverageBatch14Tests
           ]
         }
         """,
-        "PASS")]
+        "HOLD")]
     [InlineData(
         """
         {
@@ -128,7 +128,7 @@ public sealed class CliPackageCoverageBatch14Tests
           ]
         }
         """,
-        "PASS")]
+        "HOLD")]
     [InlineData(
         """{"estimatedUsdSavings":"lots","extractorCollectionTimestampUtc":"2026-05-29T12:00:00Z"}""",
         "PASS")]
@@ -192,7 +192,7 @@ public sealed class CliPackageCoverageBatch14Tests
             }
             """;
 
-        PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, FixedUtcNow).Should().Be("PASS");
+        PilotProofPacketRoiFreshnessEvaluator.ResolveDisposition(deltasJson, FixedUtcNow).Should().Be("HOLD");
     }
 
     [Fact]

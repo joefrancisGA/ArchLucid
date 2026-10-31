@@ -7,6 +7,7 @@
 import {
   defaultLabelsForScopeIds,
   isDevDefaultScopeRecord,
+  OPERATOR_SCOPE_STORAGE_FINALIZE_STATE_NOT_STORED_NOTE,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
 
@@ -31,6 +32,10 @@ export const WORKSPACE_SCOPE_EMPTY_TEACHING_CTA_LABEL = "Switch workspace/projec
  */
 export const WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT =
   "Switch workspace/project to see other work." as const;
+
+/** Reviews hub — open reviews with dispositions stay off the finalized-records list until finalize. */
+export const WORKSPACE_SCOPE_EMPTY_REVIEWS_HUB_SWITCHER_HINT =
+  `${OPERATOR_SCOPE_STORAGE_FINALIZE_STATE_NOT_STORED_NOTE} No open reviews in this project selection — dispositions on other reviews do not appear here until those reviews are finalized. Switch workspace/project to see other work.` as const;
 
 /**
  * Builds title/body/cta for a hub list that is empty under the active switcher selection.
@@ -91,7 +96,11 @@ export function resolveWorkspaceScopeEmptyTeachingScopeLabel(
 export function buildReviewsHubWorkspaceScopeEmptyTeaching(
   record: OperatorScopeRecord | null,
 ): WorkspaceScopeEmptyTeachingCopy {
-  return buildHubWorkspaceScopeEmptyTeaching(record, "reviews");
+  return buildWorkspaceScopeEmptyTeaching({
+    scopeLabel: resolveWorkspaceScopeEmptyTeachingScopeLabel(record),
+    objectPlural: "reviews",
+    switcherHint: WORKSPACE_SCOPE_EMPTY_REVIEWS_HUB_SWITCHER_HINT,
+  });
 }
 
 export function buildArchitecturesHubWorkspaceScopeEmptyTeaching(

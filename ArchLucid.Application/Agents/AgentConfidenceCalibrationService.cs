@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
@@ -47,11 +48,20 @@ public sealed class AgentConfidenceCalibrationService(
             return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken)
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentResult> results = await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken)
             .ConfigureAwait(false);
 
         foreach (AgentResult result in results)
         {
+            if (result is null)
+                continue;
+
             AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
 
             double calibrated = await _calibrator

@@ -13,6 +13,37 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class DanglingDeclarationReferenceFindingEngineTests
 {
     [Fact]
+    public async Task AnalyzeAsync_uses_resource_name_honesty_copy_when_source_label_missing()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "func-checkout",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "   ",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["appSettings"] =
+                            "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection",
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain(DeclarationFindingHonestyCopy.ResourceNameNotStored);
+        finding.Rationale.Should().Contain(DeclarationFindingHonestyCopy.ResourceNameNotStored);
+        finding.Rationale.Should().NotContain("func-checkout");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_finding_when_key_vault_uri_is_not_declared()
     {
         GraphSnapshot graph = new()
@@ -176,6 +207,77 @@ public sealed class DanglingDeclarationReferenceFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity()
+    {
+        const string principalId = "11111111-2222-3333-4444-555555555555";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "obj-mi",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "checkout_mi",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_user_assigned_identity",
+                        ["tf.principal_id"] = principalId,
+                        ["principalId"] = principalId,
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "obj-role",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "mi_sql_contributor",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_role_assignment",
+                        ["tf.principal_id"] = principalId,
+                        ["principalId"] = principalId,
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceAnalyzer.Analyze(graph)
+            .Should()
+            .NotContain(reference => reference.ReferenceKind == DanglingDeclarationReferenceKind.Identity);
+    }
+
+    [Fact]
+    public void Analyze_still_flags_principal_id_when_no_identity_declares_it()
+    {
+        const string principalId = "11111111-2222-3333-4444-555555555555";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "obj-role",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "mi_sql_contributor",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["terraformType"] = "azurerm_role_assignment",
+                        ["principalId"] = principalId,
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceAnalyzer.Analyze(graph)
+            .Should()
+            .ContainSingle(reference =>
+                reference.ReferenceKind == DanglingDeclarationReferenceKind.Identity
+                && reference.ReferencedToken == principalId);
     }
 
     [Fact]

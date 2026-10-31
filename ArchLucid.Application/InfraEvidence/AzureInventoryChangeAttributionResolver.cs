@@ -113,16 +113,7 @@ public static class AzureInventoryChangeAttributionResolver
 
         if (Guid.TryParse(trimmedActorId, out _))
         {
-            string shortId = trimmedActorId[..8];
-
-            return normalizedType switch
-            {
-                "user" => ($"User {shortId}", "human"),
-                "application" => ($"Application {shortId}", "servicePrincipal"),
-                "serviceprincipal" => ($"Service principal {shortId}", "servicePrincipal"),
-                "managedidentity" => ($"Managed identity {shortId}", "managedIdentity"),
-                _ => ($"Principal {shortId}", "unknown"),
-            };
+            return (InfraEvidenceDriftAttributionCopy.ChangedByNameNotStored, MapActorKind(normalizedType));
         }
 
         return (trimmedActorId, MapActorKind(normalizedType));

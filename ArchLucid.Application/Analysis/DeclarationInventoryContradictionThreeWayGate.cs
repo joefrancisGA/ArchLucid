@@ -1,3 +1,5 @@
+using ArchLucid.Core.Findings;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -19,7 +21,17 @@ public static class DeclarationInventoryContradictionThreeWayGate
 
         if (IsTransportSecurityKey(declarationKey))
         {
-            return normalizedDeclaration is "true" or "enabled";
+            if (normalizedDeclaration is "true" or "enabled")
+                return true;
+
+            if (!IsMinimumTlsVersionKey(declarationKey))
+                return false;
+
+            string tlsToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+                mismatch.DeclarationValue);
+
+            return tlsToken is "1.2" or "1.3";
         }
 
         if (IsEncryptionKey(declarationKey))
@@ -32,12 +44,14 @@ public static class DeclarationInventoryContradictionThreeWayGate
             if (normalizedDeclaration is "false" or "disabled" or "deny" or "restricted")
                 return true;
 
-            if (IsNetworkAclBlobKey(declarationKey)
-                && normalizedDeclaration.Contains("defaultaction", StringComparison.Ordinal)
-                && normalizedDeclaration.Contains("deny", StringComparison.Ordinal))
-                return true;
+            if (!IsNetworkAclBlobKey(declarationKey))
+                return false;
 
-            return false;
+            string actionToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction,
+                mismatch.DeclarationValue);
+
+            return NormalizeSecurityToken(actionToken) is "false" or "disabled" or "deny" or "restricted";
         }
 
         if (IsWorkloadIsolationKey(declarationKey))
@@ -49,33 +63,74 @@ public static class DeclarationInventoryContradictionThreeWayGate
     }
 
     private static bool IsPublicExposureKey(string declarationKey) =>
-        declarationKey.Contains("public", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("blob", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "public")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "blob");
+
+    private static bool DeclarationKeyContainsSecurityToken(string declarationKey, string token)
+    {
+        if (string.IsNullOrEmpty(declarationKey) || string.IsNullOrEmpty(token))
+            return false;
+
+        for (int index = 0; index <= declarationKey.Length - token.Length; index++)
+        {
+            if (!declarationKey.AsSpan(index, token.Length).Equals(token, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!IsDeclarationKeySecurityTokenStart(declarationKey, index))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsDeclarationKeySecurityTokenStart(string declarationKey, int tokenStartIndex)
+    {
+        if (tokenStartIndex == 0)
+            return true;
+
+        char previous = declarationKey[tokenStartIndex - 1];
+        char current = declarationKey[tokenStartIndex];
+
+        if (previous is '.' or '_' or '-')
+            return true;
+
+        if (char.IsAsciiLetterLower(previous) && char.IsAsciiLetterUpper(current))
+            return true;
+
+        return !char.IsAsciiLetter(previous);
+    }
 
     private static bool IsTransportSecurityKey(string declarationKey) =>
-        declarationKey.Contains("https", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("tls", StringComparison.OrdinalIgnoreCase)
-        || (declarationKey.Contains("ssl", StringComparison.OrdinalIgnoreCase)
+        DeclarationKeyContainsSecurityToken(declarationKey, "https")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "tls")
+        || (DeclarationKeyContainsSecurityToken(declarationKey, "ssl")
             && !declarationKey.Contains("storage", StringComparison.OrdinalIgnoreCase));
 
+    private static bool IsMinimumTlsVersionKey(string declarationKey) =>
+        DeclarationKeyContainsSecurityToken(declarationKey, "tls")
+        && DeclarationKeyContainsSecurityToken(declarationKey, "version");
+
     private static bool IsEncryptionKey(string declarationKey) =>
-        declarationKey.Contains("storageencrypted", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("storage_encrypted", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "storageencrypted")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "storage_encrypted");
 
     private static bool IsNetworkIsolationKey(string declarationKey) =>
-        declarationKey.Contains("defaultaction", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("default_action", StringComparison.OrdinalIgnoreCase)
+        DeclarationKeyContainsSecurityToken(declarationKey, "defaultaction")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "default_action")
         || IsNetworkAclBlobKey(declarationKey);
 
     private static bool IsNetworkAclBlobKey(string declarationKey) =>
-        declarationKey.Contains("networkacl", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("network_acl", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("networkrules", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "networkacl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "network_acl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "network_rules")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "networkrules");
 
     private static bool IsWorkloadIsolationKey(string declarationKey) =>
-        declarationKey.Contains("privileged", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("hostnetwork", StringComparison.OrdinalIgnoreCase)
-        || declarationKey.Contains("host_network", StringComparison.OrdinalIgnoreCase);
+        DeclarationKeyContainsSecurityToken(declarationKey, "privileged")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "hostnetwork")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "host_network");
 
     private static string NormalizeSecurityToken(string? value)
     {

@@ -8,6 +8,13 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed partial class SqlSecurityEvidencePathRepository
 {
+    // Keep Dapper's expanded IN parameters comfortably below SQL Server's 2,100 limit.
+    // Three additional SQL parameters are reserved for tenant/workspace/project scoping.
+    internal const int ScopedPathIdBatchSize = 500;
+
+    private static IEnumerable<Guid[]> BuildScopedPathIdBatches(IEnumerable<Guid> ids) =>
+        ids.Where(id => id != Guid.Empty).Distinct().Chunk(ScopedPathIdBatchSize);
+
     public async Task<IReadOnlyList<SecurityEvidencePathRecord>> ListByIdsInScopeAsync(
         ProjectScopeKey scope,
         IReadOnlyCollection<Guid> pathIds,
@@ -36,18 +43,24 @@ public sealed partial class SqlSecurityEvidencePathRepository
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<PathRow> rows = await conn.QueryAsync<PathRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    PathIds = distinctIds,
-                },
-                cancellationToken: cancellationToken));
+        List<SecurityEvidencePathRecord> results = new(distinctIds.Length);
+        foreach (Guid[] batch in BuildScopedPathIdBatches(distinctIds))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            IEnumerable<PathRow> rows = await conn.QueryAsync<PathRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        PathIds = batch,
+                    },
+                    cancellationToken: cancellationToken));
+            results.AddRange(rows.Select(MapPath));
+        }
 
-        return rows.Select(MapPath).ToList();
+        return results;
     }
 }

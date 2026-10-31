@@ -896,4 +896,60 @@ public sealed class TenantTrialIdentityHandoffStageTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task LinkEntraAsync_trims_actor_on_directory_bound_audit()
+    {
+        Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid entraTenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "home",
+            Slug = "home",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(t => t.UpdateEntraTenantIdAsync(tenantId, entraTenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        TenantTrialIdentityHandoffStage sut = new(tenants.Object, Mock.Of<ITrialIdentityUserRepository>(), audit.Object);
+
+        TenantTrialLinkEntraResult result = await sut.LinkEntraAsync(
+            new TenantTrialLinkEntraBody { EntraTenantId = entraTenantId },
+            tenant,
+            scope,
+            "  pilot@example.com  ",
+            normalizedLocalEmail: null,
+            hasIdentityPayload: false,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TenantEntraDirectoryBound);
+        captured.ActorUserId.Should().Be("pilot@example.com");
+        captured.ActorUserName.Should().Be("pilot@example.com");
+    }
 }

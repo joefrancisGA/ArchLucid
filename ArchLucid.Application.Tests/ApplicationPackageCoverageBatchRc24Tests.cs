@@ -98,6 +98,30 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
     }
 
     [Fact]
+    public void ConsultingDocxSupplementalSections_AddSponsorReport_labels_missing_manifest_counts()
+    {
+        Body body = new();
+        ArchitectureAnalysisReport report = new()
+        {
+            Manifest = null,
+            Warnings = [],
+        };
+        ConsultingDocxTemplateOptions options = new()
+        {
+            OrganizationName = "Contoso",
+            SponsorReportTextTemplate =
+                "{SystemName} services={ServiceCount} datastores={DatastoreCount} controls={ControlCount}",
+        };
+
+        ConsultingDocxSupplementalSections.AddSponsorReport(body, report, options);
+
+        string text = body.InnerText;
+        text.Should().Contain(ConsultingDocxExportHonestyCopy.ManifestServiceCountNotStored);
+        text.Should().Contain(ConsultingDocxExportHonestyCopy.ManifestDatastoreCountNotStored);
+        text.Should().Contain(ConsultingDocxExportHonestyCopy.ManifestRequiredControlCountNotStored);
+    }
+
+    [Fact]
     public async Task ConsultingDocxSupplementalSections_AddArchitectureOverviewAsync_handles_missing_manifest()
     {
         using MemoryStream stream = new();
@@ -116,7 +140,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
             renderer.Object,
             CancellationToken.None);
 
-        body.InnerText.Should().Contain("No manifest was available for this run.");
+        body.InnerText.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
         renderer.Verify(
             r => r.RenderMermaidPngAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);

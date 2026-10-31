@@ -28,10 +28,10 @@ import { technologyLedgerBlockedReason } from "@/lib/runs/technology-ledger-bloc
 
 import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
-  technologyLedgerProviderLabel,
+  technologyLedgerProviderDisplayLabel,
   technologyLedgerRoleLabel,
   technologyLedgerSourceLabel,
-  technologyLedgerStatusTag,
+  technologyLedgerStatusDisplayTag,
 } from "@/lib/technology-ledger-labels";
 import { TechnologyBaselineRationaleDialog } from "@/components/reviews/technology-baseline/TechnologyBaselineRationaleDialog";
 import { detectTechnologyLedgerDrift } from "@/lib/vocabulary/detect-technology-ledger-drift";
@@ -109,6 +109,7 @@ export function TechnologyBaselinePanel({
     correlationId: string | null;
   } | null>(null);
   const [rationaleDialogEntry, setRationaleDialogEntryState] = useState<TechnologyLedgerEntry | null>(null);
+  const previousRunIdRef = useRef(runId);
 
   const syncTechEntryToUrl = useCallback(
     (entryId: string | null) => {
@@ -224,6 +225,19 @@ export function TechnologyBaselinePanel({
   }, [runId, usedStaticDemoRun]);
 
   useEffect(() => {
+    if (previousRunIdRef.current === runId) {
+      return;
+    }
+
+    previousRunIdRef.current = runId;
+    setEntries([]);
+    setRationaleDialogEntryState(null);
+    setLoadFailure(null);
+    openEvidenceRefEntryIdRef.current = "";
+    setOpenEvidenceRefEntryIdState("");
+  }, [runId]);
+
+  useEffect(() => {
     void loadLedger();
   }, [loadLedger]);
 
@@ -313,7 +327,7 @@ export function TechnologyBaselinePanel({
       );
     }
 
-    return <span className="text-al-text-secondary">—</span>;
+    return <span className="text-al-text-secondary">No approval action for this status.</span>;
   }
 
   return (
@@ -425,14 +439,18 @@ export function TechnologyBaselinePanel({
           </EnterpriseTableHead>
           <EnterpriseTableBody>
             {entries.map((entry) => {
-              const statusTag = technologyLedgerStatusTag(entry.status);
+              const statusTag = technologyLedgerStatusDisplayTag(entry);
 
               return (
                 <EnterpriseTableRow key={entry.entryId}>
                   <EnterpriseTableCell>{technologyLedgerRoleLabel(entry.role)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="space-y-1">
-                      <span>{entry.technologyName}</span>
+                      <span>
+                        {entry.technologyName.trim().length > 0
+                          ? entry.technologyName
+                          : "Technology name was not stored."}
+                      </span>
                       {entry.evidenceRef !== null && entry.evidenceRef.length > 0 ? (
                         <details
                           className="text-xs text-al-text-secondary"
@@ -447,10 +465,12 @@ export function TechnologyBaselinePanel({
                           <summary className="cursor-pointer">Evidence ref</summary>
                           <code className="mt-1 block truncate font-mono">{entry.evidenceRef}</code>
                         </details>
-                      ) : null}
+                      ) : (
+                        <span className="text-xs text-al-text-secondary">Evidence ref was not stored.</span>
+                      )}
                     </div>
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{technologyLedgerProviderLabel(entry.providerFamily)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{technologyLedgerProviderDisplayLabel(entry)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <StatusTag kind={statusTag.kind} label={statusTag.label} />
                   </EnterpriseTableCell>

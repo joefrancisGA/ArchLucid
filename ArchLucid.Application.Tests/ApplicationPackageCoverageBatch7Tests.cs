@@ -40,6 +40,9 @@ public sealed class ApplicationPackageCoverageBatch7Tests
             LegalHoldReason = "hold",
         };
 
+        // Command methods re-read the tenant before each audit append and skip the
+        // append when a later snapshot disagrees (CAS miss). These rows are that
+        // per-call sequence, not a consistent in-memory store.
         int tenantReadIndex = -1;
         TenantRecord?[] tenantReads =
         [
@@ -50,16 +53,26 @@ public sealed class ApplicationPackageCoverageBatch7Tests
             offboarded,
             offboarded,
             offboarded,
-            withLegalHold,
-            withLegalHold,
-            offboarded,
-            withLegalHold,
-            withLegalHold,
-            withLegalHold,
-            withLegalHold,
             offboarded,
             offboarded,
             offboarded,
+            offboarded,
+            offboarded,
+            offboarded,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            offboarded,
+            offboarded,
+            active,
+            active,
+            offboarded,
+            active,
+            active,
             active,
             active,
         ];

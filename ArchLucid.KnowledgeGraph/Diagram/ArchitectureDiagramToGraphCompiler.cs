@@ -32,7 +32,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             CreatedUtc = options.CreatedUtc,
         };
 
-        Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        Dictionary<string, string> nodeIdMap = new(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, SubgraphCompileContext> subgraphContexts = BuildSubgraphContexts(model.Subgraphs);
         int unlabeledShapeCount = 0;
 
@@ -103,7 +103,9 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             {
                 NodeId = graphNodeId,
                 NodeType = MapDiagramNodeKindToGraphNodeType(node.Kind),
-                Label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim(),
+                Label = string.IsNullOrWhiteSpace(node.Label)
+                    ? "Resource name was not stored."
+                    : node.Label.Trim(),
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
                 SourceId = node.Id.Trim(),
                 Properties = BuildNodeProperties(model, node, confidence, subgraphContexts),
@@ -120,7 +122,10 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
             foreach (ArchitectureDiagramNodeRecord node in model.Nodes.Where(
                          candidate => !candidate.Removed
-                                      && string.Equals(candidate.SubgraphId?.Trim(), subgraph.Id.Trim(), StringComparison.Ordinal)))
+                                      && string.Equals(
+                                          candidate.SubgraphId?.Trim(),
+                                          subgraph.Id.Trim(),
+                                          StringComparison.OrdinalIgnoreCase)))
             {
                 if (!nodeIdMap.TryGetValue(node.Id.Trim(), out string? memberNodeId))
                 {
@@ -361,7 +366,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
     private static Dictionary<string, SubgraphCompileContext> BuildSubgraphContexts(
         IReadOnlyList<ArchitectureDiagramSubgraphRecord> subgraphs)
     {
-        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.Ordinal);
+        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in subgraphs)
         {
@@ -451,9 +456,13 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
     private static string BuildNodeReasoningTrace(ArchitectureDiagramNodeRecord node, double confidence)
     {
+        string labelPart = string.IsNullOrWhiteSpace(node.Label)
+            ? "Diagram node label was not stored."
+            : node.Label.Trim();
+
         return confidence < 1d
-            ? $"Structured diagram node '{node.Id}' compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
-            : $"Structured diagram node '{node.Id}' compiled from asserted diagram source.";
+            ? $"{labelPart} Diagram node id {node.Id} compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+            : $"{labelPart} Diagram node id {node.Id} compiled from asserted diagram source.";
     }
 
     private static string BuildEdgeReasoningTrace(ArchitectureDiagramEdgeRecord edge, double confidence)

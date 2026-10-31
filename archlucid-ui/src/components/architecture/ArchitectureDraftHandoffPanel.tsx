@@ -72,7 +72,7 @@ export function ArchitectureDraftHandoffPanel(
 
   const reviewLabel = props.linkedReviewTitle.trim().length > 0
     ? props.linkedReviewTitle
-    : "Linked review";
+    : "Linked review title was not stored.";
 
   const identityQuery = useArchitectureIdentityQuery(
     parentArchitectureId,

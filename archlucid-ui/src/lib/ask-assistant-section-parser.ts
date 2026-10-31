@@ -14,6 +14,17 @@ const SECTION_KEY_BY_WORD: Readonly<Record<string, AskAssistantSectionKey>> = {
   validation: "validation",
 };
 
+export const ASK_ASSISTANT_EVIDENCE_SECTION_TITLE =
+  "From this answer, not a stored evidence list." as const;
+
+export function resolveAskAssistantSectionTitle(section: AskAssistantSection): string {
+  if (section.key === "evidence") {
+    return ASK_ASSISTANT_EVIDENCE_SECTION_TITLE;
+  }
+
+  return section.title;
+}
+
 /** Line is only a section header (optional markdown heading / bold). */
 const SECTION_HEADER_LINE_RE =
   /^(?:#{1,3}\s+)?(?:\*\*)?\s*(Risk|Evidence|Mitigation|Validation)(?:\*\*)?\s*[:：]?\s*$/i;

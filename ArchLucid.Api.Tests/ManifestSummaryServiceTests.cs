@@ -1,4 +1,5 @@
-﻿using ArchLucid.Application.Summaries;
+﻿using ArchLucid.Application.Manifests;
+using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -32,12 +33,18 @@ public sealed class ManifestSummaryServiceTests
     public void GenerateMarkdown_EmptyManifest_ContainsSystemNameAndOverview()
     {
         GoldenManifest manifest = CreateMinimalManifest("TestSystem");
+        manifest.Services.Clear();
+        manifest.Datastores.Clear();
+        manifest.Relationships.Clear();
+        manifest.Metadata.ManifestVersion = "  ";
 
         string markdown = _sut.GenerateMarkdown(manifest);
 
         markdown.Should().Contain("# Architecture Summary: TestSystem");
         markdown.Should().Contain("## Overview");
         markdown.Should().Contain("**System Name:** TestSystem");
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.ManifestVersionNotStored);
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.ServicesNotListedOnSnapshot);
     }
 
     [SkippableFact]
@@ -79,8 +86,10 @@ public sealed class ManifestSummaryServiceTests
 
         markdown.Should().Contain("## Datastores");
         markdown.Should().Contain("### OrdersDb");
-        markdown.Should().Contain("**Private Endpoint Required:** Yes");
-        markdown.Should().Contain("**Encryption At Rest Required:** Yes");
+        markdown.Should().Contain(
+            $"**Private Endpoint Required:** {ArchitectureManifestDatastoreExport.PrivateEndpointRequiredOmissionLabel}");
+        markdown.Should().Contain(
+            $"**Encryption At Rest Required:** {ArchitectureManifestDatastoreExport.EncryptionAtRestRequiredOmissionLabel}");
     }
 
     [SkippableFact]
@@ -220,8 +229,14 @@ public sealed class ManifestSummaryServiceTests
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
-        int count = markdown.Split("->").Length - 1;
+        int count = markdown.Split(
+                ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(RelationshipType.Calls),
+                StringSplitOptions.None)
+            .Length - 1;
         count.Should().Be(2);
+        markdown.Should().Contain(
+            ArchitectureManifestMarkdownSummaryExport.FormatRelationshipsSummaryCapRemainderLine(
+                RelationshipStressPairCount - 2));
     }
 
     [SkippableFact]

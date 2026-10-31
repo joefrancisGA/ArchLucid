@@ -121,26 +121,17 @@ public sealed class TenantBrandingService(
         return TenantBrandingDisplayContextPolicy.Resolve(context, profile, logo);
     }
 
-    private async Task<ResolvedTenantBrandingProfile> GetOrLoadResolvedProfileAsync(
+    private Task<ResolvedTenantBrandingProfile> GetOrLoadResolvedProfileAsync(
         Guid tenantId,
-        CancellationToken cancellationToken)
-    {
-        if (resolvedProfileCache.TryGet(tenantId, out ResolvedTenantBrandingProfile? cached) && cached is not null)
-            return cached;
-
-        TenantBrandingProfileRecord? active =
-            await brandingProfileRepository.TryGetActiveAsync(tenantId, cancellationToken);
-
-        TenantBrandingProfileRecord? defaultProfile =
-            await brandingProfileRepository.TryGetDefaultAsync(tenantId, cancellationToken);
-
-        TenantFirstValueReportBrandingRow? legacy =
-            await legacyBrandingRepository.TryGetAsync(tenantId, cancellationToken);
-
-        ResolvedTenantBrandingProfile resolved =
-            TenantBrandingResolver.Resolve(tenantId, active, defaultProfile, legacy);
-
-        resolvedProfileCache.Set(tenantId, resolved);
-        return resolved;
-    }
+        CancellationToken cancellationToken) =>
+        resolvedProfileCache.GetOrLoadAsync(tenantId, async ct =>
+        {
+            TenantBrandingProfileRecord? active =
+                await brandingProfileRepository.TryGetActiveAsync(tenantId, ct);
+            TenantBrandingProfileRecord? defaultProfile =
+                await brandingProfileRepository.TryGetDefaultAsync(tenantId, ct);
+            TenantFirstValueReportBrandingRow? legacy =
+                await legacyBrandingRepository.TryGetAsync(tenantId, ct);
+            return TenantBrandingResolver.Resolve(tenantId, active, defaultProfile, legacy);
+        }, cancellationToken);
 }

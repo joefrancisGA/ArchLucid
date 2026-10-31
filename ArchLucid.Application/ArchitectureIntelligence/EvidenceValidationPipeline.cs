@@ -139,7 +139,11 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         {
             Stage = EvidenceValidationStage.Completeness,
             Passed = completenessPassed && citedArtifactIds.Count >= 2,
-            Detail = completenessNotes ?? "At least two verified artifacts were cited.",
+            Detail = !integrityPassed
+                ? "Completeness was not verified because integrity verification did not pass."
+                : completenessNotes ?? (citedArtifactIds.Count >= 2
+                    ? "At least two verified artifacts were cited."
+                    : "Fewer than two artifacts were cited; completeness may be limited."),
             IsDeterministic = false,
         };
 

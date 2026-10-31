@@ -32,6 +32,8 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine("## Sponsor artifact evidence badges");
         sb.AppendLine();
         sb.AppendLine(
+            $"- **Proof package:** {SponsorReviewPacketExportHonestyCopy.ProofPackageNotLoaded}");
+        sb.AppendLine(
             $"- **Evidence source:** **{badges.SourceLabel}** (`{badges.SourceToken}`)");
         sb.AppendLine(
             $"- **Evidence freshness:** **{badges.FreshnessLabel}** (`{badges.FreshnessToken}`)");
@@ -90,12 +92,16 @@ public static partial class SponsorReviewPacketComposer
     {
         SponsorRoiBasisBreakdown? basis = roiSummary.BasisBreakdown;
 
-        if (basis is null)
-            return;
-
         sb.AppendLine();
         sb.AppendLine("## ROI basis by disposition");
         sb.AppendLine();
+
+        if (basis is null)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.RoiBasisBreakdownNotStored}");
+            return;
+        }
+
         sb.AppendLine($"**Cost basis:** {SponsorRoiBasisBreakdown.CostBasisLabel} (not invoiced Azure cost)");
         sb.AppendLine(
             $"- **Open (estimated potential):** {basis.OpenEstimatedUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
@@ -125,13 +131,19 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine(
             $"**EA discount multiplier:** {roiSummary.EaDiscountMultiplier.ToString("0.####", CultureInfo.InvariantCulture)}");
 
-        if (!string.IsNullOrWhiteSpace(roiSummary.SavingsPricingBasisDescription))
-            sb.AppendLine($"**Pricing basis note:** {roiSummary.SavingsPricingBasisDescription.Trim()}");
+        string pricingBasisNote = string.IsNullOrWhiteSpace(roiSummary.SavingsPricingBasisDescription)
+            ? SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored
+            : roiSummary.SavingsPricingBasisDescription.Trim();
+        sb.AppendLine($"**Pricing basis note:** {pricingBasisNote}");
 
         if (!string.IsNullOrWhiteSpace(roiSummary.CostEvidenceFreshnessStatus))
         {
             sb.AppendLine(
                 $"**Cost evidence freshness:** {roiSummary.CostEvidenceFreshnessStatus} (stale after {roiSummary.CostEvidenceStaleAfterDays.ToString(CultureInfo.InvariantCulture)} days)");
+        }
+        else
+        {
+            sb.AppendLine($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");
         }
 
         string savingsQualifier = disposition switch
@@ -150,12 +162,16 @@ public static partial class SponsorReviewPacketComposer
     {
         RealizedValueSummary? realized = roiSummary.RealizedValue;
 
-        if (realized is null)
-            return;
-
         sb.AppendLine();
         sb.AppendLine("## Realized value (computed)");
         sb.AppendLine();
+
+        if (realized is null)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.RealizedValueNotStored}");
+            return;
+        }
+
         sb.AppendLine(
             $"- **Findings remediated (30d):** {realized.FindingsRemediatedCount30Days.ToString(CultureInfo.InvariantCulture)}");
 
@@ -163,6 +179,11 @@ public static partial class SponsorReviewPacketComposer
         {
             sb.AppendLine(
                 $"- **Median time to remediation (days):** {realized.MedianTimeToRemediationDays.Value.ToString("0.#", CultureInfo.InvariantCulture)}");
+        }
+        else
+        {
+            sb.AppendLine(
+                $"- **Median time to remediation (days):** {SponsorReviewPacketExportHonestyCopy.MedianTimeToRemediationNotStored}");
         }
 
         sb.AppendLine(

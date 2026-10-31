@@ -703,6 +703,27 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task GetVersion_returns_tenant_or_workspace_not_found_when_facade_scope_missing()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.GetVersionAsync(packId, "1.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackVersionHttpResult { Outcome = PolicyPackVersionLookupOutcome.ScopeNotFound });
+
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.GetVersion(packId, "1.0.0", CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        notFound.Value.Should().BeAssignableTo<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+        ((Microsoft.AspNetCore.Mvc.ProblemDetails)notFound.Value!).Detail.Should().Be("Tenant or workspace was not found.");
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task GetVersion_returns_bad_request_when_route_id_empty()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);

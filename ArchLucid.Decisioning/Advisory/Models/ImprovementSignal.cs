@@ -45,7 +45,7 @@ public class ImprovementSignal
     {
         get;
         set;
-    } = "Medium";
+    } = ImprovementSignalSeverities.NotStored;
 
     /// <summary>Linked finding ids from the manifest or snapshot when available.</summary>
     public List<string> FindingIds

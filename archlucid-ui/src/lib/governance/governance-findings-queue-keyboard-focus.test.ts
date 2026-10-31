@@ -38,6 +38,13 @@ describe("governance-findings-queue-keyboard-focus", () => {
     expect(document.activeElement?.getAttribute("data-finding-id")).toBe("finding-1");
   });
 
+  it("focuses finding cards when data-finding-id retains padding", () => {
+    document.body.innerHTML = `<div data-finding-id="  finding-1  " tabindex="0"></div>`;
+
+    expect(focusFindingCardRow("finding-1")).toBe(true);
+    expect(document.activeElement?.getAttribute("data-finding-id")).toBe("  finding-1  ");
+  });
+
   it("focuses path inspect hop evidence when present", () => {
     document.body.innerHTML = `
       <section data-testid="security-evidence-path-inspect-panel">

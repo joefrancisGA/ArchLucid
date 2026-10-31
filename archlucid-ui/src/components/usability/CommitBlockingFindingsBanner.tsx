@@ -5,9 +5,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { cn } from "@/lib/utils";
 
-/** Used when the server-derived blocked sentence is missing so the callout never renders bare. */
-const COMMIT_BLOCKING_FALLBACK_REASON =
-  "One or more required finding checks did not complete for this review.";
+const COMMIT_BLOCKING_REASON_NOT_STORED = "Blocking reason was not stored." as const;
 
 type CommitBlockingFindingsBannerProps = {
   readonly runId: string;
@@ -18,7 +16,7 @@ type CommitBlockingFindingsBannerProps = {
 function resolveBlockedSentence(reason: string | null): string {
   const trimmed = reason?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : COMMIT_BLOCKING_FALLBACK_REASON;
+  return trimmed.length > 0 ? trimmed : COMMIT_BLOCKING_REASON_NOT_STORED;
 }
 
 /**

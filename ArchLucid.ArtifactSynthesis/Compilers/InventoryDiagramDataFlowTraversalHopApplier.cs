@@ -376,8 +376,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             return ProvenanceKind.DeterministicInference.ToString();
         }
 
-        if (string.Equals(evidence.DiagramLabel, "Hop label was not stored", StringComparison.Ordinal)
-            && string.IsNullOrWhiteSpace(evidence.InferenceSource))
+        if (string.Equals(evidence.DiagramLabel, "Hop label was not stored", StringComparison.Ordinal))
         {
             return ProvenanceKind.DeterministicInference.ToString();
         }

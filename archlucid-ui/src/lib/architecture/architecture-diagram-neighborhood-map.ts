@@ -8,6 +8,7 @@ export type DiagramNeighborhood = {
   readonly kind: string | null;
   readonly title: string | null;
   readonly resourceCount: number | null;
+  readonly typeGroupsTotal: number | null;
   readonly memberIds: readonly string[];
   readonly frameIds: readonly string[];
   readonly types: readonly DiagramNeighborhoodType[];
@@ -66,7 +67,7 @@ function identityForNeighborhoodKind(kind: string | null): { readonly id: string
     return { id: "unspecified", heading: "Neighborhood kind was not stored." };
   }
 
-  return { id: trimmed, heading: trimmed };
+  return { id: trimmed, heading: `Neighborhood kind ${trimmed} has no reviewer label.` };
 }
 
 function neighborhoodSectionRank(id: string): number {
@@ -129,6 +130,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
       kind: element.getAttribute("kind"),
       title: element.getAttribute("title"),
       resourceCount: readNonNegativeInteger(element, "resource-count"),
+      typeGroupsTotal: readNonNegativeInteger(element, "type-groups-total"),
       memberIds: [...element.querySelectorAll(":scope > member")]
         .map((member) => member.getAttribute("id") ?? "")
         .filter(Boolean),
@@ -139,8 +141,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
         .map((type) => ({
           name: type.getAttribute("name"),
           count: readNonNegativeInteger(type, "count"),
-        }))
-        .filter((type) => type.name !== null && type.name.length > 0),
+        })),
     }))
     .filter((neighborhood) => neighborhood.id.length > 0);
 
@@ -156,7 +157,18 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
 }
 
 export function shouldAutoOpenDiagramNeighborhoodMap(map: DiagramNeighborhoodMap): boolean {
-  return map.neighborhoods.length >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT
-    || map.neighborhoods.reduce((sum, neighborhood) => sum + (neighborhood.resourceCount ?? 0), 0)
-      >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT;
+  const hasNullResourceCount = map.neighborhoods.some((neighborhood) => neighborhood.resourceCount === null);
+  const storedResourceSum = map.neighborhoods.reduce((sum, neighborhood) => {
+    if (typeof neighborhood.resourceCount !== "number" || !Number.isFinite(neighborhood.resourceCount)) {
+      return sum;
+    }
+
+    return sum + neighborhood.resourceCount;
+  }, 0);
+
+  return (
+    map.neighborhoods.length >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT
+    || storedResourceSum >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT
+    || hasNullResourceCount
+  );
 }

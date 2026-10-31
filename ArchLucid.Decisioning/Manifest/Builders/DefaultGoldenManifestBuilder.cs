@@ -72,18 +72,14 @@ public partial class DefaultGoldenManifestBuilder(
             RuleSetHash = ruleSet.RuleSetHash,
             Metadata = new ManifestMetadata
             {
-                Name = $"ArchLucid Manifest {runId:N}",
-                Version = "1.0.0",
-                Status = "Draft",
-                Summary = "Resolved architecture state generated from graph findings and rule evaluation."
+                Name = string.Empty,
+                Version = string.Empty,
+                Status = string.Empty,
+                Summary = string.Empty,
             }
         };
 
         PopulateManifestSections(manifest, graphSnapshot, findingsSnapshot, audit);
-
-        manifest.Metadata.Status = manifest.UnresolvedIssues.Items.Count == 0
-            ? "Resolved"
-            : "NeedsAttention";
 
         NormalizeManifestOrdering(manifest);
 

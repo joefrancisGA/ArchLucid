@@ -174,14 +174,14 @@ public sealed class PilotValueReportService(
                 RunId = runRef.RunId,
                 CreatedUtc = detail.Run.CreatedUtc,
                 CommittedUtc = committedUtc,
-                SystemName = detail.Manifest?.SystemName ?? string.Empty
+                SystemName = FormatPilotValueReportSystemName(detail.Manifest?.SystemName)
             });
         }
 
         timeline.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
         int totalFindings = severities.Critical + severities.High + severities.Medium + severities.Low + severities.Info;
         double? avgSeconds = completionSeconds.Count > 0 ? completionSeconds.Average() : null;
-        string roiSourceFreshnessDisposition = "PASS";
+        string roiSourceFreshnessDisposition = string.Empty;
 
         if (committedRuns.Count > 0)
         {
@@ -323,9 +323,24 @@ public sealed class PilotValueReportService(
             GovernancePendingApprovalsNow = pendingApprovals,
             AuditExportTruncated = false,
             CommittedRunsInventoryTruncated = false,
-            RoiSourceFreshnessDisposition = "PASS"
+            RoiSourceFreshnessDisposition = string.Empty
         };
     }
 
     private readonly record struct CommittedRunRef(string RunId, DateTime CreatedUtc);
+
+    private static string FormatPilotValueReportSystemName(string? systemName)
+    {
+        if (systemName is null)
+        {
+            return "System name was not stored.";
+        }
+
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return "System name was stored empty.";
+        }
+
+        return systemName.Trim();
+    }
 }

@@ -9,6 +9,12 @@ internal sealed class SponsorRoiHistoryMonthAggregate
         set;
     }
 
+    public bool SavingsIncomplete
+    {
+        get;
+        set;
+    }
+
     public int CriticalCount
     {
         get;

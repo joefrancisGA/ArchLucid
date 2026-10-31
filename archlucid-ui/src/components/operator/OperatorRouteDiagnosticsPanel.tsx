@@ -28,7 +28,8 @@ export type OperatorRouteDiagnosticsPayload = {
   readonly httpStatus?: number | null;
   readonly apiEndpoint?: string | null;
   readonly correlationId?: string | null;
-  readonly timestampUtc: string;
+  readonly diagnosticsOpenedAtUtc: string;
+  readonly failureTimestampUtc: string | null;
   readonly failureKind?: string | null;
   readonly backendMessage?: string | null;
   readonly generationJobStatus?: string | null;
@@ -39,7 +40,10 @@ export type OperatorRouteDiagnosticsPayload = {
 function formatDiagnosticsText(payload: OperatorRouteDiagnosticsPayload): string {
   const lines: string[] = [
     `attemptedRoute: ${payload.attemptedRoute}`,
-    `timestampUtc: ${payload.timestampUtc}`,
+    `diagnosticsOpenedAtUtc: ${payload.diagnosticsOpenedAtUtc}`,
+    payload.failureTimestampUtc !== null && payload.failureTimestampUtc.length > 0
+      ? `failureTimestampUtc: ${payload.failureTimestampUtc}`
+      : "failureTimestampUtc: Failure time was not stored.",
   ];
 
   if (payload.runId !== null && payload.runId.length > 0) {
@@ -221,7 +225,15 @@ export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPan
               </dd>
             </div>
           ) : null}
-          <DiagnosticRow label="Timestamp (UTC)" value={payload.timestampUtc} />
+          <DiagnosticRow label="Diagnostics opened (UTC)" value={payload.diagnosticsOpenedAtUtc} />
+          <DiagnosticRow
+            label="Failure time (UTC)"
+            value={
+              payload.failureTimestampUtc !== null && payload.failureTimestampUtc.length > 0
+                ? payload.failureTimestampUtc
+                : "Failure time was not stored."
+            }
+          />
           {payload.failureKind ? <DiagnosticRow label="Failure kind" value={payload.failureKind} /> : null}
           {payload.backendMessage ? <DiagnosticRow label="Backend message" value={payload.backendMessage} /> : null}
           {payload.generationJobStatus ? (

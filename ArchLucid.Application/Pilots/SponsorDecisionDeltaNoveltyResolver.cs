@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
@@ -28,7 +29,8 @@ public static class SponsorDecisionDeltaNoveltyResolver
         ArgumentNullException.ThrowIfNull(buyerSafeGate);
 
         List<ArchitectureFinding> materialFindings = CollectMaterialFindings(detail, deltas);
-        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, detail.IsCommitted);
+        int materialFindingTotal = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas).Count;
+        string decisionDeltaSummary = BuildDecisionDeltaSummary(materialFindings, materialFindingTotal, detail.IsCommitted);
         string nonObviousRationale = BuildNonObviousRationale(materialFindings, deltas, proof);
         SponsorNoveltyConfidence noveltyConfidence = ResolveNoveltyConfidence(materialFindings, deltas, proof, buyerSafeGate);
         string evidenceClassLabel = ResolveEvidenceClassLabel(proof, buyerSafeGate, deltas);
@@ -51,7 +53,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             .ToList();
     }
 
-    private static string BuildDecisionDeltaSummary(IReadOnlyList<ArchitectureFinding> findings, bool isCommitted)
+    private static string BuildDecisionDeltaSummary(
+        IReadOnlyList<ArchitectureFinding> findings,
+        int materialFindingTotal,
+        bool isCommitted)
     {
         if (!isCommitted)
         {
@@ -60,7 +65,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
 
         if (findings.Count == 0)
         {
-            return "No active findings recorded — ArchLucid did not surface a material recommended change in this package.";
+            return PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty;
         }
 
         StringBuilder sb = new();
@@ -78,6 +83,13 @@ public static class SponsorDecisionDeltaNoveltyResolver
             {
                 sb.Append("<br />");
             }
+        }
+
+        if (materialFindingTotal > findings.Count)
+        {
+            sb.Append("<br />");
+            sb.Append(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsRemainderSuffix);
+            sb.Append(CultureInfo.InvariantCulture, $" ({findings.Count} listed; {materialFindingTotal} material findings stored.)");
         }
 
         return sb.ToString();
@@ -188,7 +200,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
     private static string Truncate(string value, int maxLength)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "(no message)";
+            return ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel;
 
         string trimmed = value.Trim();
 

@@ -1,11 +1,14 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 import {
-  isMarketingRouteBlockedForProductLine,
+  ARCHLUCID_PATHNAME_REQUEST_HEADER,
+  isSecureNowDraftMarketingPath,
+  shouldRedirectMarketingLayout,
   secureNowMarketingRedirectPath,
 } from "@/lib/product-line/securenow-marketing-route-policy";
 
@@ -34,9 +37,21 @@ export const metadata: Metadata = {
  */
 export default async function MarketingLayout({ children }: { children: ReactNode }) {
   const productLine = await resolveProductLineIdForServer();
+  const pathname = (await headers()).get(ARCHLUCID_PATHNAME_REQUEST_HEADER) ?? "";
 
-  if (isMarketingRouteBlockedForProductLine(productLine)) {
+  if (shouldRedirectMarketingLayout({ productLineId: productLine, pathname })) {
     redirect(secureNowMarketingRedirectPath());
+  }
+
+  if (productLine === "security" && isSecureNowDraftMarketingPath(pathname)) {
+    return (
+      <ShellReadySurface
+        className={cn("min-h-screen", MARKETING_LAYOUT.page)}
+        data-testid="why-securenow-security-shell"
+      >
+        {children}
+      </ShellReadySurface>
+    );
   }
 
   const seeItLinked = isMarketingSeeItLinkEnabled() && resolveSeeItDemoApiBase().length > 0;

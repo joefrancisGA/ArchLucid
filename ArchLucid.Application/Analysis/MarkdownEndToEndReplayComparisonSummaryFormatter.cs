@@ -84,14 +84,14 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
 
         if (items.Count == 0)
         {
-            sb.AppendLine("- None");
+            sb.AppendLine($"- {EndToEndReplayComparisonExportListHonesty.EmptySectionBullet}");
             sb.AppendLine();
             return;
         }
 
         foreach (string item in items)
 
-            sb.AppendLine($"- {item}");
+            sb.AppendLine($"- {MarkdownListText.Format(item)}");
 
         sb.AppendLine();
     }

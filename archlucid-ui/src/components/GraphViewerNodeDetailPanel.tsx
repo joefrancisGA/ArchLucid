@@ -135,7 +135,11 @@ export function GraphViewerNodeDetailPanel({
             <strong>Label:</strong>{" "}
             {selectedNode.label === null || selectedNode.label === undefined
               ? "Node label was not stored."
-              : selectedNode.label}
+              : selectedNode.label === ""
+                ? "Node label was stored empty."
+                : selectedNode.label.trim().length === 0
+                  ? "Node label was stored empty."
+                  : selectedNode.label}
           </p>
         </>
       )}
@@ -225,14 +229,23 @@ export function GraphViewerNodeDetailPanel({
             <ul>
               {Object.entries(selectedNode.metadata).map(([key, value]) => (
                 <li key={key}>
-                  <strong>{key}:</strong> {String(value)}
+                  <strong>{key}:</strong>{" "}
+                  {value === null || value === undefined
+                    ? "This value was not stored."
+                    : typeof value === "string" && value.length === 0
+                      ? "This value was stored empty."
+                      : String(value)}
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No metadata available.</p>
+            <p>Metadata was not stored on this node.</p>
           )}
         </>
+      ) : buyerTrailPanel && (!selectedNode.metadata || Object.keys(selectedNode.metadata).length === 0) ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Metadata was not stored on this graph node.
+        </p>
       ) : selectedNode.metadata && Object.keys(selectedNode.metadata).length > 0 ? (
         (() => {
           const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines(selectedNode.metadata);
@@ -293,15 +306,23 @@ export function GraphViewerNodeDetailPanel({
             </>
           );
         })()
+      ) : buyerTrailPanel ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Metadata was not stored on this node.
+        </p>
       ) : null}
 
-      {selectedNode.reasoningTrace !== undefined &&
-      selectedNode.reasoningTrace !== null &&
-      selectedNode.reasoningTrace.trim().length > 0 ? (
-        <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+      <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        {selectedNode.reasoningTrace !== undefined &&
+        selectedNode.reasoningTrace !== null &&
+        selectedNode.reasoningTrace.trim().length > 0 ? (
           <ReasoningTraceReadMore heading="Reasoning trace" trace={selectedNode.reasoningTrace} />
-        </div>
-      ) : null}
+        ) : (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Reasoning trace was not stored.
+          </p>
+        )}
+      </div>
 
       {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel && !compactChrome ? (
         <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">

@@ -81,8 +81,44 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
                 new HashSet<string>(["from", "to"], StringComparer.Ordinal));
 
         resolved.Should().ContainSingle().Which.RelationshipLabel
-            .Should().Be("private endpoint → Resource name was not stored");
+            .Should().Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel);
     }
+
+    [Fact]
+    public void Resolve_property_arm_id_reference_label_does_not_use_mount_verb()
+    {
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-property-arm-id",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            EdgeType = "CONNECTS_TO",
+            InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.PropertyArmId,
+        };
+
+        IReadOnlyList<InventoryDiagramIndirectRelationshipResolvedEdge> resolved =
+            InventoryDiagramIndirectRelationshipResolver.Resolve(
+                new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode { NodeId = "from", Label = "storage" },
+                        new GraphNode { NodeId = "to", Label = "keyvault" },
+                    ],
+                    Edges = [edge],
+                },
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["from"] = "from",
+                    ["to"] = "to",
+                },
+                new HashSet<string>(["from", "to"], StringComparer.Ordinal));
+
+        resolved.Should().ContainSingle().Which.RelationshipLabel
+            .Should().Be("property ARM ID reference → keyvault");
+        resolved.Should().ContainSingle().Which.RelationshipLabel.Should().NotContain("mount");
+    }
+
     [Fact]
     public void IsCitedEdge_returns_false_for_resource_group_collocation()
     {
@@ -231,7 +267,7 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
     }
 
     [Fact]
-    public void ResolveEvidenceCurrency_uses_current_fallback_for_numeric_unknown_edge_currency()
+    public void ResolveEvidenceCurrency_returns_null_for_numeric_unknown_edge_currency()
     {
         GraphEdge edge = new()
         {
@@ -248,7 +284,7 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
         InventoryDiagramIndirectRelationshipResolver
             .ResolveEvidenceCurrency(edge, fromNode: null)
             .Should()
-            .Be(InventoryDiagramEvidenceCurrency.Current);
+            .BeNull();
     }
 
     [Fact]

@@ -18,7 +18,7 @@ export function resolveFindingTraceCompletenessDisplay(
     return {
       recorded: false,
       ratioPct: null,
-      summaryLine: "Not recorded — this review did not persist a trace field-fill ratio.",
+      summaryLine: "Trace field fill was not stored.",
     };
   }
 

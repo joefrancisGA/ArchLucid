@@ -1,6 +1,6 @@
 import {
   normalizeOidcDisplayString,
-  stripOAuthInvisibleFormatChars,
+  normalizeOidcOpaqueOAuthString,
 } from "@/lib/oidc/oauth-callback-messages";
 
 /**
@@ -46,7 +46,7 @@ export function readNonceFromPayload(payload: Record<string, unknown> | null): s
     return null;
   }
 
-  const normalized = stripOAuthInvisibleFormatChars(nonce.trim()).trim();
+  const normalized = normalizeOidcOpaqueOAuthString(nonce);
 
   if (normalized.length === 0) {
     return null;

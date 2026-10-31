@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 
 using ArchLucid.Api.Controllers.Authority;
@@ -31,7 +32,9 @@ public sealed class ApiRequestNullCollectionElementsArchitectureTests
         while (directory is not null)
         {
 
-            if (Directory.Exists(Path.Combine(directory.FullName, ".git")))
+            string gitPath = Path.Combine(directory.FullName, ".git");
+
+            if (Directory.Exists(gitPath) || File.Exists(gitPath))
                 return directory.FullName;
 
             directory = directory.Parent;
@@ -71,6 +74,70 @@ public sealed class ApiRequestNullCollectionElementsArchitectureTests
         }
 
         skipped.Count.Should().BeLessThan(25, "unexpected number of collection probes could not be constructed: " + string.Join(", ", skipped));
+    }
+
+    [Fact]
+    public void All_root_from_body_enumerable_parameters_reject_null_elements()
+    {
+        Assembly apiAssembly = typeof(RunCoverageController).Assembly;
+
+        foreach (Type controllerType in apiAssembly.GetTypes())
+        {
+
+            if (!typeof(Microsoft.AspNetCore.Mvc.ControllerBase).IsAssignableFrom(controllerType) || controllerType.IsAbstract)
+                continue;
+
+            foreach (MethodInfo method in controllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+            {
+
+                foreach (ParameterInfo parameter in method.GetParameters())
+                {
+
+                    if (parameter.GetCustomAttribute<Microsoft.AspNetCore.Mvc.FromBodyAttribute>() is null)
+                        continue;
+
+                    Type parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+
+                    if (parameterType == typeof(CancellationToken))
+                        continue;
+
+                    if (!typeof(IEnumerable).IsAssignableFrom(parameterType)
+                        || parameterType == typeof(string)
+                        || parameterType == typeof(byte[]))
+                    {
+                        continue;
+                    }
+
+                    Type? elementType = parameterType
+                        .GetInterfaces()
+                        .Concat([parameterType])
+                        .FirstOrDefault(static type =>
+                            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                        ?.GetGenericArguments()[0];
+
+                    if (elementType is null || elementType.IsValueType)
+                        continue;
+
+                    IList list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType))!;
+                    list.Add(null);
+
+                    ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(list, parameter)
+                        .Should()
+                        .BeTrue($"null element in root body enumerable {controllerType.Name}.{method.Name} must trip the guard");
+
+                    if (parameterType.IsArray)
+                    {
+                        Array array = Array.CreateInstance(elementType, 1);
+                        array.SetValue(null, 0);
+
+                        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(array, parameter)
+                            .Should()
+                            .BeTrue(
+                                $"null element in root body array {controllerType.Name}.{method.Name} must trip the guard");
+                    }
+                }
+            }
+        }
     }
 
     [Fact]

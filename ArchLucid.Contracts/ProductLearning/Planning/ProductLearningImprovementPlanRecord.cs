@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Bounded improvement plan under a theme; actions are capped and stored as JSON in SQL.</summary>
@@ -45,12 +47,13 @@ public sealed class ProductLearningImprovementPlanRecord
         init;
     } = string.Empty;
 
+    private IReadOnlyList<ProductLearningImprovementPlanActionStep> actionSteps = [];
+
     public IReadOnlyList<ProductLearningImprovementPlanActionStep> ActionSteps
     {
-        get;
-        init;
-    } =
-        [];
+        get => actionSteps;
+        init => actionSteps = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Snapshot priority rank (higher = more urgent); formula lives in 59R services, not the DB.</summary>
     public int PriorityScore

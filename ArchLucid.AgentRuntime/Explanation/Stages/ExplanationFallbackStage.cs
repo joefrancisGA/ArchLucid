@@ -66,16 +66,22 @@ public sealed class ExplanationFallbackStage(
     {
         ExplanationServiceOptions options = _explanationOptions.Value;
         LlmProviderDescriptor descriptor = _completionClient.Descriptor;
-        string agentType = string.IsNullOrWhiteSpace(options.AgentType) ? "run-explanation" : options.AgentType.Trim();
-        string modelId = string.IsNullOrWhiteSpace(descriptor.ModelId) ? "unknown" : descriptor.ModelId.Trim();
+        string agentType = string.IsNullOrWhiteSpace(options.AgentType) ? string.Empty : options.AgentType.Trim();
+        string modelId = string.IsNullOrWhiteSpace(descriptor.ModelId) ? string.Empty : descriptor.ModelId.Trim();
 
         return new ExplanationProvenance(
             agentType,
             modelId,
-            string.IsNullOrWhiteSpace(options.PromptTemplateId) ? null : options.PromptTemplateId.Trim(),
-            string.IsNullOrWhiteSpace(options.PromptTemplateVersion)
-                ? null
-                : options.PromptTemplateVersion.Trim(),
-            string.IsNullOrWhiteSpace(options.PromptContentHash) ? null : options.PromptContentHash.Trim());
+            NormalizeOptionalProvenanceField(options.PromptTemplateId),
+            NormalizeOptionalProvenanceField(options.PromptTemplateVersion),
+            NormalizeOptionalProvenanceField(options.PromptContentHash));
+    }
+
+    private static string? NormalizeOptionalProvenanceField(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return raw.Trim();
     }
 }

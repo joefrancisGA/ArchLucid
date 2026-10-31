@@ -31,7 +31,12 @@ public sealed class PortfolioSharedTopologyFindingEmitter : IPortfolioSharedTopo
         string? disagreementLabel = SharedResourcePostureCode.TryGetFirstDisagreementLabel(
             currentEntry.PostureCode,
             conflict.OtherPostureCode);
-        string postureLabel = disagreementLabel ?? "posture";
+        string posturePhrase = disagreementLabel is null
+            ? "a disagreeing posture field"
+            : $"{disagreementLabel} posture";
+        string title = disagreementLabel is null
+            ? $"Shared resource {currentEntry.ResourceIdNormalized} has a disagreeing posture field that was not stored with system {conflict.OtherSystemId}"
+            : $"Shared resource {currentEntry.ResourceIdNormalized} disagrees on {posturePhrase} with system {conflict.OtherSystemId}";
 
         List<string> evidenceRefs = [];
         FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, currentEntry.ResourceIdNormalized);
@@ -52,9 +57,9 @@ public sealed class PortfolioSharedTopologyFindingEmitter : IPortfolioSharedTopo
             Category = Category,
             EngineType = EngineType,
             Severity = FindingSeverity.Warning,
-            Title = $"Shared resource {currentEntry.ResourceIdNormalized} disagrees on {postureLabel} with system {conflict.OtherSystemId}",
-            Rationale = BuildRationale(conflict, postureLabel),
-            DecisionConsequence = BuildDecisionConsequence(conflict, postureLabel),
+            Title = title,
+            Rationale = BuildRationale(conflict, posturePhrase),
+            DecisionConsequence = BuildDecisionConsequence(conflict, posturePhrase),
             RelatedNodeIds = [currentEntry.NodeId],
             EvidenceRefs = evidenceRefs,
             Payload = payload,
@@ -71,18 +76,18 @@ public sealed class PortfolioSharedTopologyFindingEmitter : IPortfolioSharedTopo
         };
     }
 
-    private static string BuildRationale(SharedTopologyConflict conflict, string postureLabel)
+    private static string BuildRationale(SharedTopologyConflict conflict, string posturePhrase)
     {
         return
             $"This run and committed system '{conflict.OtherSystemId}' both reference inventory resource "
-            + $"'{conflict.CurrentEntry.ResourceIdNormalized}', but {postureLabel} posture differs "
+            + $"'{conflict.CurrentEntry.ResourceIdNormalized}', but {posturePhrase} differs "
             + $"(this run: {conflict.CurrentEntry.PostureCode}; peer: {conflict.OtherPostureCode}).";
     }
 
-    private static string BuildDecisionConsequence(SharedTopologyConflict conflict, string postureLabel)
+    private static string BuildDecisionConsequence(SharedTopologyConflict conflict, string posturePhrase)
     {
         return
             $"Reconcile shared resource posture for '{conflict.CurrentEntry.ResourceIdNormalized}' "
-            + $"with system '{conflict.OtherSystemId}' before treating {postureLabel} as consistent across the portfolio.";
+            + $"with system '{conflict.OtherSystemId}' before treating {posturePhrase} as consistent across the portfolio.";
     }
 }

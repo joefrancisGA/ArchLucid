@@ -6,6 +6,10 @@ import {
   NARRATIVE_CAP,
   type AdrGeneratorRunInput,
 } from "./adr-from-run-slices";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 function truncatePlain(text: string, maxChars: number): string {
   const t = text.trim();
@@ -18,7 +22,7 @@ function truncatePlain(text: string, maxChars: number): string {
     return t;
   }
 
-  return `${t.slice(0, Math.max(0, maxChars - 1))}…`;
+  return formatStoredTextPreview(t, maxChars, STORED_TEXT_PREVIEW_CONTINUATION.adrNarrative);
 }
 
 function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string {
@@ -26,28 +30,49 @@ function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string 
     return "ADR status was not stored.";
   }
 
-  const lower = manifestStatusLabel.trim().toLowerCase();
-
-  if (
-    lower.includes("commit") ||
-    lower.includes("accepted") ||
-    lower.includes("approved") ||
-    lower.includes("final")
-  ) {
-    return "accepted";
-  }
-
-  return "proposed";
+  return manifestStatusLabel.trim();
 }
 
-function isoDateOnly(isoUtc: string): string {
-  const d = new Date(isoUtc);
+function reviewCapturedDateLine(createdUtc: string): string {
+  const trimmed = createdUtc.trim();
 
-  if (Number.isNaN(d.getTime())) {
-    return isoUtc.trim();
+  if (trimmed.length === 0) {
+    return "Review captured date was not stored.";
   }
 
-  return d.toISOString().slice(0, 10);
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Review captured date was not readable.";
+  }
+
+  return parsed.toISOString().slice(0, 10);
+}
+
+function formatThemeSummariesSection(exp: AdrGeneratorRunInput["explanation"]): string {
+  if (exp === null || exp.themeSummaries === null) {
+    return "_Theme summaries were not stored._\n";
+  }
+
+  if (exp.themeSummaries.length === 0) {
+    return "_Theme summaries were stored empty._\n";
+  }
+
+  return bulletBlock(exp.themeSummaries);
+}
+
+function formatFindingRecommendationLine(recommendation: string): string {
+  if (recommendation.trim().length > 0) {
+    return recommendation.trim();
+  }
+
+  return "_Recommendation was stored empty._";
+}
+
+function formatAdrExportFindingTitle(title: string): string {
+  const trimmed = title.trim();
+
+  return trimmed.length > 0 ? trimmed : "Finding title was not stored.";
 }
 
 function bulletBlock(lines: readonly string[]): string {
@@ -73,7 +98,7 @@ export function buildMadrMarkdownFromRun(
 ): string {
   const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : "Review title was not stored.";
   const status = adrStatusFromManifestLabel(input.manifestStatusLabel);
-  const dateLine = isoDateOnly(input.createdUtc);
+  const dateLine = reviewCapturedDateLine(input.createdUtc);
   const exp = input.explanation;
 
   const contextReviewSignals: string[] = [
@@ -90,6 +115,8 @@ export function buildMadrMarkdownFromRun(
 
   if (input.policyPackLabel !== null && input.policyPackLabel.trim().length > 0) {
     contextReviewSignals.push(`Policy pack (UI label): ${input.policyPackLabel.trim()}`);
+  } else {
+    contextReviewSignals.push("Policy pack label was not stored.");
   }
 
   if (input.manifestCounts !== null) {
@@ -98,50 +125,52 @@ export function buildMadrMarkdownFromRun(
     contextReviewSignals.push(
       `Counts — decisions: ${c.decisions}, warnings: ${c.warnings}, unresolved issues: ${c.unresolvedIssues}`,
     );
+  } else {
+    contextReviewSignals.push("Manifest counts were not stored.");
   }
 
   const narrativePieces: string[] = [];
 
   if (exp !== null) {
     if (exp.overallAssessment.length > 0) {
-      narrativePieces.push(exp.overallAssessment);
+      narrativePieces.push(`_Overall assessment:_ ${exp.overallAssessment}`);
+    } else {
+      narrativePieces.push("Overall assessment was not stored.");
     }
 
-    if (exp.summary.length > 0 && exp.summary !== exp.overallAssessment) {
-      narrativePieces.push(exp.summary);
+    if (exp.summary.length > 0) {
+      narrativePieces.push(`_Summary:_ ${exp.summary}`);
+    } else {
+      narrativePieces.push("Summary was stored empty.");
     }
 
     if (exp.detailedNarrative.length > 0) {
-      narrativePieces.push(truncatePlain(exp.detailedNarrative, NARRATIVE_CAP));
+      narrativePieces.push(`_Detailed narrative:_ ${truncatePlain(exp.detailedNarrative, NARRATIVE_CAP)}`);
     }
 
     if (exp.structuredReasoning === null) {
       narrativePieces.push("Structured reasoning was not stored.");
     } else if (exp.structuredReasoning.trim().length > 0) {
       narrativePieces.push(`_Structured model reasoning:_ ${truncatePlain(exp.structuredReasoning, EXCERPT_CAP)}`);
+    } else {
+      narrativePieces.push("Structured reasoning was stored empty.");
     }
   }
 
   const contextAi = narrativePieces.length > 0 ? narrativePieces.join("\n\n") : "_No aggregate AI narrative was available for this review._";
 
-  const themes =
-    exp !== null && exp.themeSummaries.length > 0
-      ? bulletBlock(exp.themeSummaries)
-      : "_No theme bullets were listed._\n";
+  const themes = formatThemeSummariesSection(exp);
 
   const findingsSection =
     input.findings.length === 0
-      ? "_No findings were included in this export (empty run snapshot or muted-only set)._\n"
-      : input.findings
+      ? input.omittedMutedFindingCount !== undefined && input.omittedMutedFindingCount > 0
+        ? "_Muted findings were stored on this review and are not included in this ADR export._\n"
+        : "_Findings were not included in this export._\n"
+      : `${input.findings
           .map((f, i) => {
-            const rec =
-              f.recommendation.trim().length > 0
-                ? f.recommendation.trim()
-                : f.aiReasoningExcerpt.trim().length > 0
-                  ? f.aiReasoningExcerpt.trim()
-                  : "_No recommendation text._";
+            const rec = formatFindingRecommendationLine(f.recommendation);
             const excerpt =
-              f.aiReasoningExcerpt.trim().length > 0 && f.aiReasoningExcerpt.trim() !== rec
+              f.aiReasoningExcerpt.trim().length > 0
                 ? `\n\n_AI reasoning excerpt:_ ${f.aiReasoningExcerpt.trim()}`
                 : "";
             const trustLine = formatFindingTrustExportLine(f);
@@ -153,11 +182,19 @@ export function buildMadrMarkdownFromRun(
               && f.semanticSupportBand !== undefined
               && f.semanticSupportBand.trim().length > 0
                 ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion?.trim() || "Scorer version was not stored."})`
-                : "";
+                : "\n- **Semantic support:** Semantic support was not stored.";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${formatAdrExportFindingTitle(f.title)}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
-          .join("\n");
+          .join("\n")}${
+          input.omittedCappedFindingCount !== undefined && input.omittedCappedFindingCount > 0
+            ? `\n_${input.omittedCappedFindingCount} more finding${
+                input.omittedCappedFindingCount === 1 ? " was" : "s were"
+              } stored on this review and ${
+                input.omittedCappedFindingCount === 1 ? "is" : "are"
+              } not listed in this ADR export._\n`
+            : ""
+        }`;
 
   const findingProvenanceSection =
     input.findings.length === 0
@@ -169,43 +206,71 @@ export function buildMadrMarkdownFromRun(
           "| --- | --- |",
           ...input.findings.map(
             (finding) =>
-              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
+              `| \`${finding.findingId}\` — ${formatAdrExportFindingTitle(finding.title)} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
           ),
           "",
         ].join("\n");
 
-  const decisionDrivers = exp !== null ? exp.keyDrivers : [];
-  const decisionFromDrivers =
-    decisionDrivers.length > 0
-      ? `We record the following decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}\nBased on these drivers and the cited findings, we **${status === "accepted" ? "accept" : "propose"}** aligning implementation and governance with the review recommendations, pending human approval.`
-      : `Based on the ${input.findings.length > 0 ? "captured findings" : "available run metadata"} and ${exp !== null ? "the aggregate assessment" : "operator context"}, we **${status === "accepted" ? "accept" : "propose"}** treating this review as the architecture decision record draft until stakeholders ratify it outside ArchLucid.`;
+  const decisionDrivers = exp?.keyDrivers ?? null;
+  const keyDriversSection =
+    decisionDrivers === null
+      ? "## Key drivers\n\n_Key drivers were not stored._\n"
+      : decisionDrivers.length === 0
+        ? "## Key drivers\n\n_Key drivers were stored empty._\n"
+        : `## Key drivers\n\n${bulletBlock(decisionDrivers)}`;
+
+  function consequenceListSection(
+    heading: string,
+    values: readonly string[] | null,
+    notStoredLabel: string,
+    storedEmptyLabel: string,
+  ): string {
+    if (values === null) {
+      return `${heading}\n\n${notStoredLabel}`;
+    }
+
+    if (values.length === 0) {
+      return `${heading}\n\n${storedEmptyLabel}`;
+    }
+
+    return `${heading}\n\n${bulletBlock(values)}`;
+  }
 
   const consequencesSections: string[] = [];
 
   if (exp !== null) {
-    if (exp.riskImplications.length > 0) {
-      consequencesSections.push(`### Risk implications\n\n${bulletBlock(exp.riskImplications)}`);
-    }
-
-    if (exp.costImplications.length > 0) {
-      consequencesSections.push(`### Cost / operations\n\n${bulletBlock(exp.costImplications)}`);
-    }
-
-    if (exp.complianceImplications.length > 0) {
-      consequencesSections.push(`### Compliance / governance\n\n${bulletBlock(exp.complianceImplications)}`);
-    }
+    consequencesSections.push(
+      consequenceListSection(
+        "### Risk implications",
+        exp.riskImplications,
+        "Risk implications were not stored.",
+        "Risk implications were stored empty.",
+      ),
+    );
+    consequencesSections.push(
+      consequenceListSection(
+        "### Cost / operations",
+        exp.costImplications,
+        "Cost implications were not stored.",
+        "Cost implications were stored empty.",
+      ),
+    );
+    consequencesSections.push(
+      consequenceListSection(
+        "### Compliance / governance",
+        exp.complianceImplications,
+        "Compliance implications were not stored.",
+        "Compliance implications were stored empty.",
+      ),
+    );
 
     if (exp.alternativesConsidered === null) {
       consequencesSections.push("Alternatives considered were not stored.");
+    } else if (exp.alternativesConsidered.length === 0) {
+      consequencesSections.push("Alternatives considered were stored empty.");
     } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
-  }
-
-  if (consequencesSections.length === 0) {
-    consequencesSections.push(
-      "_No structured consequence lists were returned._ Capture operational, security, and cost follow-ups manually after team review.",
-    );
   }
 
   const caveatLines: string[] = [
@@ -233,6 +298,8 @@ export function buildMadrMarkdownFromRun(
   if (exp !== null) {
     if (exp.caveats === null) {
       caveatLines.push("Caveats were not stored.");
+    } else if (exp.caveats.length === 0) {
+      caveatLines.push("Caveats were stored empty.");
     } else if (exp.caveats.length > 0) {
       caveatLines.push(...exp.caveats);
     }
@@ -278,9 +345,10 @@ ${themes}
 
 ${findingsSection}
 ${findingProvenanceSection}
+${keyDriversSection}
 ## Decision
 
-${decisionFromDrivers}
+_Decision text was not stored._
 
 ## Consequences
 

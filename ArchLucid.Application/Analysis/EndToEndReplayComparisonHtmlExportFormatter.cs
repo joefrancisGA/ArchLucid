@@ -39,7 +39,13 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<p class=\"meta\">Finding dedupe key format: " + EscapeHtml(ComparisonFindingCorrelationMetadata.DedupeKeyFormat) + "</p>");
             sb.AppendLine("<p class=\"meta\">Policy-rule matches: " + metadata.PolicyRuleMatchCount + "</p>");
             sb.AppendLine("<p class=\"meta\">Fuzzy (possible) matches: " + metadata.FuzzyMatchCount + "</p>");
+            sb.AppendLine("<p class=\"meta\">Unmatched left findings: " + metadata.UnmatchedLeftCount + "</p>");
+            sb.AppendLine("<p class=\"meta\">Unmatched right findings: " + metadata.UnmatchedRightCount + "</p>");
             sb.AppendLine("<p class=\"meta\">Correlation honesty: " + EscapeHtml(metadata.HonestyNote) + "</p>");
+        }
+        else
+        {
+            sb.AppendLine("<p class=\"meta\">" + EscapeHtml(ConsultingDocxAppendixHonestyCopy.FindingCorrelationNotStored) + "</p>");
         }
 
         if (report.FindingLifecycle is not null)
@@ -238,7 +244,7 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
     {
         sb.AppendLine("<h2>" + EscapeHtml(title) + "</h2><ul>");
         if (items.Count == 0)
-            sb.AppendLine("<li>None</li>");
+            sb.AppendLine($"<li>{WebUtility.HtmlEncode(EndToEndReplayComparisonExportListHonesty.EmptySectionBullet)}</li>");
         else
             foreach (string item in items)
                 sb.AppendLine("<li>" + EscapeHtml(item) + "</li>");

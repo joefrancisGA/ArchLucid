@@ -33,6 +33,7 @@ import {
 } from "@/lib/ui-route-traffic-retired-redirect-shims";
 import { LEGACY_ONBOARDING_PATH } from "@/lib/first-review-guide-route";
 import { LEGACY_GETTING_STARTED_PATH } from "@/lib/getting-started-help-guide-route";
+import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
 import {
   LEGACY_ALERT_RULES_PATH,
   LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH,
@@ -48,6 +49,7 @@ import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
   "/quick-scan",
+  "/showcase",
 ];
 
 const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
@@ -129,6 +131,7 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   RETIRED_OPERATE_ARCHITECTURE_GRAPH_BOOKMARK_PATH,
   LEGACY_ONBOARDING_PATH,
   LEGACY_GETTING_STARTED_PATH,
+  LEGACY_QUICK_START_PATH,
   LEGACY_ALERT_RULES_PATH,
   LEGACY_INTERNAL_OPERATIONS_ROOT_PATH,
   LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
@@ -186,14 +189,16 @@ function pathMatchesPrefix(pathname: string, prefix: string): boolean {
 }
 
 export function isMarketingOnlyPath(pathname: string): boolean {
-  if (pathname === "/welcome" || pathname === "/pricing" || pathname === "/signup") return true;
+  const canonicalPathname = pathname.length > 1 ? pathname.replace(/\/+$/g, "") : pathname;
 
-  if (MARKETING_SITEMAP_PATHNAMES.includes(pathname)) return true;
+  if (canonicalPathname === "/welcome" || canonicalPathname === "/pricing" || canonicalPathname === "/signup") return true;
 
-  if (EXTRA_MARKETING_EXACT_PATHS.includes(pathname)) return true;
+  if (MARKETING_SITEMAP_PATHNAMES.includes(canonicalPathname)) return true;
+
+  if (EXTRA_MARKETING_EXACT_PATHS.includes(canonicalPathname)) return true;
 
   for (const prefix of EXTRA_MARKETING_PREFIXES) {
-    if (pathname.startsWith(prefix)) return true;
+    if (canonicalPathname.startsWith(prefix)) return true;
   }
 
   return false;
@@ -217,6 +222,32 @@ export type HostGateDecision =
  * When split hosting is configured, keep marketing paths on the public host and operator paths on the app host.
  * Marketing `/` redirects to `/welcome` on the same public origin (not to the app host).
  */
+/** Split-host classifiers use lowercase pathnames; App Router segments are lowercase in production. */
+function normalizeHostGatePathname(pathname: string): string {
+  let decoded = pathname;
+
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    decoded = pathname;
+  }
+
+  const lowercased = decoded.toLowerCase();
+  const collapsedSlashes = lowercased.replace(/\/{2,}/g, "/");
+
+  if (collapsedSlashes.length === 0) {
+    return "/";
+  }
+
+  try {
+    const resolved = new URL(collapsedSlashes, "http://localhost").pathname;
+
+    return resolved.length === 0 ? "/" : resolved;
+  } catch {
+    return collapsedSlashes;
+  }
+}
+
 export function decideHostGateRedirect(input: {
   readonly hostHeader: string | null;
   readonly pathname: string;
@@ -234,14 +265,15 @@ export function decideHostGateRedirect(input: {
     return { kind: "next" };
   }
 
-  const pathAndQuery = `${input.pathname}${input.search}`;
+  const pathname = normalizeHostGatePathname(input.pathname);
+  const pathAndQuery = `${pathname}${input.search}`;
 
   if (hostsMatch(requestHost, publicHost)) {
-    if (input.pathname === "/") {
+    if (pathname === "/") {
       return { kind: "redirect", location: `${publicOrigin}/welcome${input.search}` };
     }
 
-    if (isOperatorPath(input.pathname)) {
+    if (isOperatorPath(pathname)) {
       return { kind: "redirect", location: `${appOrigin}${pathAndQuery}` };
     }
 
@@ -249,7 +281,7 @@ export function decideHostGateRedirect(input: {
   }
 
   if (hostsMatch(requestHost, appHost)) {
-    if (isMarketingOnlyPath(input.pathname)) {
+    if (isMarketingOnlyPath(pathname)) {
       return { kind: "redirect", location: `${publicOrigin}${pathAndQuery}` };
     }
 

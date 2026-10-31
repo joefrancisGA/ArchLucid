@@ -64,12 +64,12 @@ public static class AzureInventoryAdfExternalSourceNodeFactory
     public static string BuildDisplayLabel(string? linkedServiceType, string? targetHost)
     {
         string type = string.IsNullOrWhiteSpace(linkedServiceType)
-            ? "External source"
+            ? "Linked service type was not stored"
             : linkedServiceType.Trim();
 
         if (string.IsNullOrWhiteSpace(targetHost))
         {
-            return type;
+            return $"{type}. Target host was not stored.";
         }
 
         return $"{type} ({SanitizeHost(targetHost.Trim())})";

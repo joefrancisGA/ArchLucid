@@ -20,6 +20,7 @@ import {
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_DESCRIPTION,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HEADING,
@@ -73,7 +74,11 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
       {props.items.length === 0 ? (
         <div className="mt-3">
           <EnterpriseCompactEmptyState
-            title={RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE}
+            title={
+              props.catalogAvailable === false
+                ? RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_CATALOG_UNAVAILABLE_TITLE
+                : RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_EMPTY_TITLE
+            }
             description={
               props.catalogAvailable === false
                 ? "Uploaded files from an earlier browser session may not appear until the catalog is available."
@@ -117,6 +122,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                         evidenceItemId={item.evidenceItemId!}
                         fileName={item.fileName}
                         contentType={item.contentType}
+                        contentTypeCatalogPending={item.contentTypeCatalogPending === true}
                         handlers={handlers}
                         openButtonRef={openButtonRef}
                       />

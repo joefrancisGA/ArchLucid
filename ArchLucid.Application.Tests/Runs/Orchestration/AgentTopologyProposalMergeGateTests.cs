@@ -7808,6 +7808,71 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_drops_compliance_proposal_when_required_controls_are_whitespace_only()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["  ", "\t"]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_dedupes_required_controls_that_differ_only_by_whitespace_and_casing()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["SOC2", " soc2 "]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("SOC2");
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_WhenGraphIsEmpty_dedupes_required_controls_that_differ_only_by_interior_whitespace_runs()
+    {
+        GraphSnapshot graph = Graph();
+
+        AgentResult compliance = new()
+        {
+            AgentType = AgentType.Compliance,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Compliance,
+                RequiredControls = ["encrypt at rest", "encrypt  at rest"]
+            }
+        };
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [compliance]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.RequiredControls.Should().ContainSingle("encrypt at rest");
+    }
+
+    [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_drops_result_when_sanitized_proposal_has_no_remaining_payload()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());

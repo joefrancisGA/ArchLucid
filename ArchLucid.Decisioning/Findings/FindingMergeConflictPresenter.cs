@@ -82,12 +82,14 @@ internal static class FindingMergeConflictPresenter
             PolicyRuleId = PolicyRuleId,
             EngineType = FindingSnapshotConfluentMerger.ConflictEngineType,
             Severity = FindingSeverity.Warning,
-            Title = "Finding merge conflict requires operator resolution",
-            Rationale = conflict.ErrorMessage ?? "Conflicting findings share an ADR 0063 key with different payloads.",
+            Title = "Finding merge conflict row (not a stored architecture finding)",
+            Rationale = string.IsNullOrWhiteSpace(conflict.ErrorMessage)
+                ? "Conflicting findings share an ADR 0063 key with different payloads. This row summarizes the merge conflict; it is not a stored finding from an engine."
+                : $"{conflict.ErrorMessage.Trim()} This row summarizes the merge conflict; it is not a stored finding from an engine.",
             ConfidenceScore = 1.0,
             HumanReviewStatus = FindingHumanReviewStatus.Pending,
             Properties = properties,
-            RelatedNodeIds = [conflictFindingId],
+            RelatedNodeIds = [],
             EvidenceRefs = evidenceRefs,
             Trace = new ExplainabilityTrace
             {

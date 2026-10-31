@@ -1,3 +1,4 @@
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import { buildClarificationGapSourcePresentation } from "@/lib/architecture/architecture-clarification-gap-present";
 import { buildFindingsDerivedClarificationGaps } from "@/lib/architecture/build-findings-derived-clarification-gaps";
 import { resolveClarificationFollowUpHref } from "@/lib/architecture/resolve-clarification-follow-up-href";
@@ -23,12 +24,30 @@ export type ArchitectureMissingItem = {
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_OUTCOME_CHARS = 10;
-const MAX_MISSING_ITEMS = 5;
+const MAX_MISSING_ITEMS = 6;
 
-function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): ClarificationGapSource {
+function capMissingItems(items: readonly ArchitectureMissingItem[]): {
+  readonly items: readonly ArchitectureMissingItem[];
+  readonly omittedCount: number;
+} {
+  if (items.length <= MAX_MISSING_ITEMS) {
+    return { items, omittedCount: 0 };
+  }
+
+  return {
+    items: items.slice(0, MAX_MISSING_ITEMS),
+    omittedCount: items.length - MAX_MISSING_ITEMS,
+  };
+}
+
+function buildGapSource(
+  input: BuildArchitectureCreatedHomeModelInput,
+  options?: { readonly heuristicDerived?: boolean },
+): ClarificationGapSource {
   return buildClarificationGapSourcePresentation({
     capturedAtUtc: input.gapSourceCapturedAtUtc,
     fromHandoff: input.gapSourceCapturedAtUtc !== null,
+    heuristicDerived: options?.heuristicDerived === true,
   });
 }
 
@@ -46,12 +65,28 @@ function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): stri
 function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
   const items: ArchitectureMissingItem[] = [];
   const clarifyHref = resolveClarifyHref(input);
-  const source = buildGapSource(input);
+  const source = buildGapSource(input, { heuristicDerived: true });
+
+  const normalizedArchitectureName = input.architectureName.trim();
+
+  if (
+    normalizedArchitectureName.length === 0
+    || normalizedArchitectureName.toLowerCase() === "untitled architecture"
+    || normalizedArchitectureName === UNTITLED_ARCHITECTURE_LABEL
+  ) {
+    items.push({
+      id: "system-name",
+      label: "System name not stored or below intake minimum on this page",
+      href: clarifyHref,
+      category: "clarification",
+      source,
+    });
+  }
 
   if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({
       id: "business-outcome",
-      label: "Business outcome is still brief or missing",
+      label: "Business outcome not stored or below intake minimum on this page",
       href: clarifyHref,
       category: "clarification",
       source,
@@ -61,7 +96,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.architectureOverview.trim().length < MIN_STRONG_OVERVIEW_CHARS) {
     items.push({
       id: "architecture-overview",
-      label: "Architecture overview needs more system context",
+      label: "Architecture overview not stored or below intake minimum on this page",
       href: clarifyHref,
       category: "clarification",
       source,
@@ -70,23 +105,36 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
 
   if (
     input.gapAssertion.peopleAndSystems &&
-    input.peopleAndSystems.length === 0 &&
-    (input.architectureName.trim().length === 0 ||
-      input.architectureName.trim().toLowerCase() === "untitled architecture")
+    input.peopleAndSystems.length === 0
   ) {
+    const hasStoredSystemName =
+      normalizedArchitectureName.length > 0
+      && normalizedArchitectureName.toLowerCase() !== "untitled architecture"
+      && normalizedArchitectureName !== UNTITLED_ARCHITECTURE_LABEL;
+
     items.push({
       id: "people-systems",
-      label: "People, systems, or integrations are not identified yet",
+      label: hasStoredSystemName
+        ? "People and systems list was stored empty on this page"
+        : "People and systems not listed on this page yet",
       href: clarifyHref,
       category: "clarification",
       source,
     });
   }
 
-  if (!input.hasArtifacts) {
+  if (input.artifactBundleKnown === false) {
+    items.push({
+      id: "artifact-bundle-unknown",
+      label: "Artifact bundle was not loaded on this page — upload status on this review is unknown",
+      href: buildCreateHomeReviewTabHref(input.runId, "evidence"),
+      category: "evidence",
+      source,
+    });
+  } else if (!input.hasArtifacts) {
     items.push({
       id: "diagram",
-      label: "Architecture diagram or supporting evidence not uploaded",
+      label: "No diagram or evidence artifact listed on this review yet",
       href: buildCreateHomeReviewTabHref(input.runId, "evidence"),
       category: "evidence",
       source,
@@ -96,29 +144,38 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.assessmentInProgress) {
     items.push({
       id: "assessment-progress",
-      label: "Initial assessment is still running",
+      label: "Assessment run is in progress on this review",
       href: buildCreateHomeReviewTabHref(input.runId, "activity"),
       category: "assessment",
       source,
     });
   }
 
-  return items.slice(0, MAX_MISSING_ITEMS);
+  return items;
 }
 
-export function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
+export function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): readonly ArchitectureMissingItem[] {
+  return buildMissingItemsWithOmitted(input).items;
+}
+
+export function buildMissingItemsWithOmitted(input: BuildArchitectureCreatedHomeModelInput): {
+  readonly items: readonly ArchitectureMissingItem[];
+  readonly omittedCount: number;
+} {
   const findingsQuestions = input.findingsDerivedQuestions ?? [];
 
   if (findingsQuestions.length > 0) {
-    return buildFindingsDerivedClarificationGaps({
-      runId: input.runId,
-      questions: findingsQuestions,
-      clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
-      gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
-    }).slice(0, MAX_MISSING_ITEMS);
+    return capMissingItems(
+      buildFindingsDerivedClarificationGaps({
+        runId: input.runId,
+        questions: findingsQuestions,
+        clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
+        gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
+      }),
+    );
   }
 
-  return buildHeuristicMissingItems(input);
+  return capMissingItems(buildHeuristicMissingItems(input));
 }
 
 export function partitionMissingItems(items: readonly ArchitectureMissingItem[]): {

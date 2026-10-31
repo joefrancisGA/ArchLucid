@@ -1,4 +1,5 @@
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Manifest.Sections;
 
@@ -9,6 +10,8 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
 
 public static class WordDocumentBuilder
 {
+    public const string MermaidSourceStoredEmptyCopy = "Mermaid source was stored empty.";
+
     private static string Sanitize(string? text)
     {
         return text?.Replace("\r\n", " ", StringComparison.Ordinal)
@@ -176,7 +179,7 @@ public static class WordDocumentBuilder
                     new Color { Val = DocxIssueSeverityStyles.HighSeverityColorHex });
 
             string supportingFindings = issue.SupportingFindingIds.Count == 0
-                ? "No supporting findings were stored."
+                ? ArchitectureManifestNarrativeHonestyCopy.SupportingFindingsStoredEmpty
                 : string.Join(", ", issue.SupportingFindingIds);
 
             table.AppendChild(

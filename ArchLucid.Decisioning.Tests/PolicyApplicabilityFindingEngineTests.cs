@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph.Models;
@@ -113,5 +114,36 @@ public sealed class PolicyApplicabilityFindingEngineTests
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Blank_policy_label_uses_not_stored_copy_in_payload()
+    {
+        PolicyApplicabilityFindingEngine engine = new();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "p1", NodeType = "PolicyControl", Label = "", Properties = new() },
+                new GraphNode { NodeId = "t1", NodeType = "TopologyResource", Label = "vnet", Category = "network", Properties = new() },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e1",
+                    FromNodeId = "p1",
+                    ToNodeId = "t1",
+                    EdgeType = "APPLIES_TO",
+                    Label = "applies to",
+                },
+            ],
+        };
+
+        Finding finding = (await engine.AnalyzeAsync(graph, null, CancellationToken.None)).Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("Graph node label was not stored.");
+        PolicyApplicabilityFindingPayload payload =
+            finding.Payload.Should().BeOfType<PolicyApplicabilityFindingPayload>().Subject;
+        payload.PolicyName.Should().Be("Graph node label was not stored.");
     }
 }

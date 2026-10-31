@@ -38,16 +38,41 @@ function isActiveTenantTrialStatus(status: TenantTrialStatusPayload["status"] | 
   return status === "Active" || status === "ReadOnly" || status === "ExportOnly";
 }
 
+function normalizeOperatorBillingAiBudgetRemainingPercent(value: number | null): number | null {
+  if (value === null || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(0, Math.trunc(value));
+}
+
+export const OPERATOR_BILLING_TRIAL_DAYS_NOT_STORED =
+  "Trial days remaining were not stored." as const;
+
+function formatTenantTrialDaysRemainingLine(daysRemaining: number | null | undefined): string {
+  if (typeof daysRemaining !== "number" || !Number.isFinite(daysRemaining) || daysRemaining < 0) {
+    return OPERATOR_BILLING_TRIAL_DAYS_NOT_STORED;
+  }
+
+  const wholeDays = Math.trunc(daysRemaining);
+
+  return `${wholeDays} day${wholeDays === 1 ? "" : "s"} remaining in trial.`;
+}
+
 export function resolveOperatorBillingCurrentPlan(
   input: ResolveOperatorBillingCurrentPlanInput,
 ): OperatorBillingCurrentPlanView {
+  const aiBudgetRemainingPercent = normalizeOperatorBillingAiBudgetRemainingPercent(
+    input.aiBudgetRemainingPercent,
+  );
+
   if (input.subscriptionLoadState === "pending") {
     return {
       planKind: "unknown",
       headline: "Checking…",
       supportingLine: "Loading subscription details for this workspace.",
       workspaceLabel: null,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: false,
     };
   }
@@ -58,7 +83,7 @@ export function resolveOperatorBillingCurrentPlan(
       headline: "Unavailable",
       supportingLine: "Subscription status unavailable — open Billing and plans.",
       workspaceLabel: null,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: false,
     };
   }
@@ -77,7 +102,7 @@ export function resolveOperatorBillingCurrentPlan(
           ? `${workspaceSuffix} is using the demo workspace. No paid plan is active.`
           : "This workspace is using the demo workspace. No paid plan is active.",
       workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: false,
     };
   }
@@ -94,7 +119,7 @@ export function resolveOperatorBillingCurrentPlan(
           ? `${workspaceSuffix} is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`
           : `This workspace is on the ${commercialTier} plan. Manage seats, invoices, and payment from Billing and plans.`,
       workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: true,
     };
   }
@@ -108,7 +133,7 @@ export function resolveOperatorBillingCurrentPlan(
           ? `${workspaceSuffix} has an active paid subscription. Manage seats, invoices, and payment from Billing and plans.`
           : "This workspace has an active paid subscription. Manage seats, invoices, and payment from Billing and plans.",
       workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: true,
     };
   }
@@ -119,23 +144,20 @@ export function resolveOperatorBillingCurrentPlan(
       headline: "Frictionless trial",
       supportingLine: "You are exploring sample data without a paid plan. Choose a plan to continue in production.",
       workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: false,
     };
   }
 
   if (isActiveTenantTrialStatus(input.trialStatus) && input.isTrialUsage !== false) {
-    const daysLine =
-      typeof input.trialDaysRemaining === "number" && input.trialDaysRemaining >= 0
-        ? `${input.trialDaysRemaining} day${input.trialDaysRemaining === 1 ? "" : "s"} remaining in trial.`
-        : "Trial is active. No paid plan is selected yet.";
+    const daysLine = formatTenantTrialDaysRemainingLine(input.trialDaysRemaining);
 
     return {
       planKind: "tenant-trial",
       headline: "Trial",
       supportingLine: daysLine,
       workspaceLabel: workspaceSuffix,
-      aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+      aiBudgetRemainingPercent,
       hasPaidPlan: false,
     };
   }
@@ -148,7 +170,7 @@ export function resolveOperatorBillingCurrentPlan(
         ? `${workspaceSuffix} does not have an active paid plan. Compare plans on public pricing or open Billing and plans to subscribe.`
         : "No paid plan is active. Compare plans on public pricing or open Billing and plans to subscribe.",
     workspaceLabel: workspaceSuffix,
-    aiBudgetRemainingPercent: input.aiBudgetRemainingPercent,
+    aiBudgetRemainingPercent,
     hasPaidPlan: false,
   };
 }

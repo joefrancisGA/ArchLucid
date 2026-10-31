@@ -26,6 +26,38 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
     expect(screen.getByText(/read from app settings/i)).toBeInTheDocument();
   });
 
+  it("shows route table configuration copy", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-route-table-route")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/Route table next hop from configuration/)).toBeInTheDocument();
+  });
+
+  it("shows workflow action configuration copy", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-workflow-action")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/workflow action target from configuration/i)).toBeInTheDocument();
+  });
+
+  it("shows relationship label and ObservedFact reader copy", () => {
+    render(<InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-custom-edge")} onClose={() => undefined} />);
+
+    expect(screen.getByText("Linked backend")).toBeInTheDocument();
+    expect(screen.getByText(/ObservedFact marks what inventory stored/i)).toBeInTheDocument();
+  });
+
+  it("shows configuration copy for aks service load balancer edges", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-aks-service-lb")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/Kubernetes service load balancer in configuration/)).toBeInTheDocument();
+    expect(screen.queryByText("inventory-aks-service-lb")).not.toBeInTheDocument();
+  });
+
   it("shows configuration copy instead of inference slugs for static site backends", () => {
     render(
       <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-static-site-backend")} onClose={() => undefined} />,
@@ -33,6 +65,37 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
 
     expect(screen.getByText(/Static Web App linked backend in configuration/)).toBeInTheDocument();
     expect(screen.queryByText("inventory-static-site-backend")).not.toBeInTheDocument();
+  });
+
+  it("does not label an unclassified confidence band as Observed", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          confidenceBand: undefined,
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Confidence band was not classified.")).toBeInTheDocument();
+    expect(screen.queryByText(/^Observed$/)).not.toBeInTheDocument();
+  });
+
+  it("does not label observed band as Observed when ObservedFact provenance is missing (P-19)", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          provenanceKind: "",
+          confidenceBand: "observed",
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Observed band was stored; ObservedFact provenance was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText(/^Observed$/)).not.toBeInTheDocument();
   });
 
   it("labels stored empty provenance and inference source", () => {

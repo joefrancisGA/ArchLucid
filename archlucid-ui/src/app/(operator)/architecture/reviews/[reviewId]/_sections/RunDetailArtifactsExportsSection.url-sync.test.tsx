@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -114,6 +114,35 @@ describe("RunDetailArtifactsExportsSection URL sync", () => {
 
     await waitFor(() => {
       expect(deliverablesDetails()).toHaveAttribute("open");
+    });
+  });
+
+  it("writes deliverables disclosure from useSearchParams when window.location.search lags after soft navigation", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=review-package&q=stale-payment",
+    );
+
+    const { rerender } = render(
+      <SearchParamsRerenderHost>
+        <RunDetailArtifactsExportsSection {...baseProps} />
+      </SearchParamsRerenderHost>,
+    );
+
+    searchParamsHarness.applyQuery("reviewTab=review-package");
+    rerender(
+      <SearchParamsRerenderHost>
+        <RunDetailArtifactsExportsSection {...baseProps} />
+      </SearchParamsRerenderHost>,
+    );
+
+    fireEvent.click(screen.getByText(BUYER_MANIFEST_DELIVERABLES_HEADING));
+
+    await waitFor(() => {
+      expect(window.location.pathname + window.location.search).toBe(
+        `/architecture/reviews/run-abc?reviewTab=review-package&${RUN_DELIVERABLES_OPEN_PARAM}=1`,
+      );
     });
   });
 });

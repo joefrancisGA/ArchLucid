@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { parseAskAssistantStructuredSections } from "./ask-assistant-section-parser";
+import {
+  ASK_ASSISTANT_EVIDENCE_SECTION_TITLE,
+  parseAskAssistantStructuredSections,
+  resolveAskAssistantSectionTitle,
+} from "./ask-assistant-section-parser";
 
 describe("parseAskAssistantStructuredSections", () => {
   it("returns null when there are no section headers", () => {
@@ -38,5 +42,6 @@ describe("parseAskAssistantStructuredSections", () => {
     expect(parsed!.sections).toHaveLength(2);
     expect(parsed!.sections[0].title).toBe("Risk");
     expect(parsed!.sections[1].body).toContain("Body two");
+    expect(resolveAskAssistantSectionTitle(parsed!.sections[1])).toBe(ASK_ASSISTANT_EVIDENCE_SECTION_TITLE);
   });
 });

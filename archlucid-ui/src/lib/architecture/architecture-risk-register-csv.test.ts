@@ -3,12 +3,33 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED,
   buildArchitectureRiskRegisterCsv,
 } from "@/lib/architecture/architecture-risk-register-csv";
 
 describe("buildArchitectureRiskRegisterCsv", () => {
+  it("maps system name column separately from category", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "PHI exposure",
+        severity: "High",
+        category: "Network",
+        systemName: "Claims platform",
+        status: "Open",
+        recommended: "Review with security owner",
+      },
+    ]);
+
+    const dataLine = csv.split("\r\n")[1] ?? "";
+    expect(dataLine.startsWith("Claims platform,")).toBe(true);
+    expect(dataLine).toContain("PHI exposure");
+  });
+
   it("maps last reviewed and next review columns separately from waiver expiry", () => {
     const csv = buildArchitectureRiskRegisterCsv([
       {
@@ -18,6 +39,7 @@ describe("buildArchitectureRiskRegisterCsv", () => {
         title: "PHI exposure",
         severity: "High",
         category: "Claims intake",
+        systemName: "Claims platform",
         status: "Accepted · monitoring",
         recommended: "Review with security owner",
         ownerUserId: "owner-1",
@@ -67,6 +89,46 @@ describe("buildArchitectureRiskRegisterCsv", () => {
     expect(csv).toContain("PHI exposure");
     expect(csv).not.toContain("Ignore me");
     expect(csv).toContain("yes");
+  });
+
+  it("does not invent inspect-path evidence URLs when href is omitted (P-06)", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Risk",
+        severity: "High",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "Review",
+        ownerUserId: "owner-1",
+        agingDays: 1,
+        isStale: false,
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED);
+    expect(csv).not.toContain("/findings/");
+  });
+
+  it("replaces uuid owner ids with display-name omission copy", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Gap",
+        severity: "High",
+        category: "Network",
+        status: "Open",
+        recommended: "Review",
+        ownerUserId: "550e8400-e29b-41d4-a716-446655440000",
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED);
+    expect(csv).not.toContain("550e8400-e29b-41d4-a716-446655440000");
   });
 
   it("labels missing owner and evidence link without inventing values (P-06, P-07)", () => {

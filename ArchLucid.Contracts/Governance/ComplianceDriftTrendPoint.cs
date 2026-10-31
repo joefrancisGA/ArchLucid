@@ -20,12 +20,14 @@ public sealed class ComplianceDriftTrendPoint
     }
 
     /// <summary>Counts keyed by <see cref="PolicyPackChangeLogEntry.ChangeType" />.</summary>
+    private IReadOnlyDictionary<string, int> changesByType =
+        new Dictionary<string, int>(StringComparer.Ordinal);
+
     public IReadOnlyDictionary<string, int> ChangesByType
     {
-        get;
-        init;
-    } =
-        new Dictionary<string, int>(StringComparer.Ordinal);
+        get => changesByType;
+        init => changesByType = value ?? new Dictionary<string, int>(StringComparer.Ordinal);
+    }
 
     /// <summary>
     ///     Findings captured into snapshots in this bucket (<c>FindingsSnapshotSealed</c> audit events).

@@ -68,6 +68,8 @@ export type AskRunIdPickerProps = {
   readonly emptyListHint?: string;
   /** When true, omit helper copy under the field — parent empty state or status line owns messaging. */
   readonly hideFieldHelper?: boolean;
+  /** Compare pickers use a different optional-hint when no review id is chosen yet. */
+  readonly optionalHintMode?: "default" | "compare";
 };
 
 /**
@@ -93,6 +95,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     emptyListPlaceholder,
     emptyListHint,
     hideFieldHelper = false,
+    optionalHintMode = "default",
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
   const allowsSyntheticAskRunPick = operatorAllowsSyntheticAskRunPick(isWorkingMode);
@@ -235,6 +238,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       selectControlId={selectControlId}
       trimmedValue={trimmedValue}
       selectedThreadId={selectedThreadId}
+      optionalHintMode={optionalHintMode}
     />
   );
 

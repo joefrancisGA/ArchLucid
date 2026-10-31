@@ -159,7 +159,7 @@ public static class DiagramPackageCitationIndexBuilder
                     .Select(static nodeId => new ArchitectureDiagramNodeRecord
                     {
                         Id = nodeId,
-                        Label = nodeId,
+                        Label = string.Empty,
                     })
                     .ToList(),
                 Edges = _edgeIds

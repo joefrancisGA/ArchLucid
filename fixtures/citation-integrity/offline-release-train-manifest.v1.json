@@ -5,11 +5,6 @@
       "runId": "cite-pass-run-01",
       "status": "Committed",
       "agentResults": ["pass/agent-result.json"]
-    },
-    {
-      "runId": "cite-warn-run-01",
-      "status": "Committed",
-      "agentResults": ["warn/agent-result.json"]
     }
   ]
 }

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
+import {
+  applyWizardPreset,
+  isWizardFormFieldDirty,
+  resolveWizardPresetLabel,
+  wizardFormFieldMatchesPreset,
+  wizardPresets,
+} from "@/lib/wizard-presets";
 import { buildDefaultWizardValues } from "@/lib/wizard-schema";
 
 const architectureDomainAdmissionRegex =
@@ -12,6 +18,22 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
 
     expect(greenfield?.values.description).toBeDefined();
     expect(architectureDomainAdmissionRegex.test(greenfield!.values.description ?? "")).toBe(true);
+  });
+
+  it("named starter presets include a lifecycle environment so step-0 Next can pass", () => {
+    const allowedEnvironments: readonly string[] = ["staging", "production", "development", "sandbox"];
+
+    for (const preset of wizardPresets) {
+
+      if (preset.id === "blank-advanced") {
+        continue;
+      }
+
+      const merged = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+
+      expect(merged.environment.length, preset.id).toBeGreaterThan(0);
+      expect(allowedEnvironments, preset.id).toContain(merged.environment);
+    }
   });
 
   it("does not pre-select Azure cloudProvider on starter presets", () => {
@@ -27,5 +49,37 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
 
       expect(merged.cloudProvider).toBe("None");
     }
+  });
+
+  it("resolveWizardPresetLabel uses not-stored copy for unknown ids", () => {
+    expect(resolveWizardPresetLabel("missing-preset")).toBe("Starter preset label was not stored.");
+    expect(resolveWizardPresetLabel("")).toBe("Starter preset was not stored yet.");
+  });
+
+  it("treats scalar true and any truthy array element as dirty or touched", () => {
+    expect(isWizardFormFieldDirty(true)).toBe(true);
+    expect(isWizardFormFieldDirty(undefined)).toBe(false);
+    expect(isWizardFormFieldDirty([false, true])).toBe(true);
+    expect(isWizardFormFieldDirty([false, undefined])).toBe(false);
+  });
+
+  it("matches a live form field against the selected starter preset", () => {
+    const greenfield = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(greenfield).toBeDefined();
+
+    if (greenfield === undefined) {
+      return;
+    }
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), greenfield.values);
+
+    expect(wizardFormFieldMatchesPreset("greenfield-web-app", "systemName", formValues)).toBe(true);
+    expect(
+      wizardFormFieldMatchesPreset("greenfield-web-app", "systemName", {
+        ...formValues,
+        systemName: "TypedByOperator",
+      }),
+    ).toBe(false);
   });
 });

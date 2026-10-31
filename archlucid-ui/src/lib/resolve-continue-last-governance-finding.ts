@@ -3,6 +3,7 @@ import {
   type GovernanceFindingInspectHrefOptions,
   resolveGovernanceQueueAuxiliaryFindingHref,
 } from "@/components/governance/findings/governance-findings-navigation";
+import { normalizeGovernanceQueueFindingId } from "@/lib/governance/governance-findings-queue-selection";
 import { asReadonlyArray } from "@/lib/continue-last-list-guard";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY, parseStoredRecentViews } from "@/lib/operator/operator-recent-views";
 
@@ -142,14 +143,18 @@ export function resolveContinueLastGovernanceFinding(
 
   if (recentKey !== null) {
     const recentMatch = findingRows.find(
-      (row) => row.findingId === recentKey.findingId && row.runId === recentKey.runId,
+      (row) =>
+        row.runId.trim() === recentKey.runId
+        && normalizeGovernanceQueueFindingId(row.findingId) === recentKey.findingId,
     );
 
     if (recentMatch !== undefined) {
       return toTarget(recentMatch, findingsQueueRunId, inspectHrefOptions);
     }
 
-    const findingIdMatch = findingRows.find((row) => row.findingId === recentKey.findingId);
+    const findingIdMatch = findingRows.find(
+      (row) => normalizeGovernanceQueueFindingId(row.findingId) === recentKey.findingId,
+    );
 
     if (findingIdMatch !== undefined) {
       return toTarget(findingIdMatch, findingsQueueRunId, inspectHrefOptions);

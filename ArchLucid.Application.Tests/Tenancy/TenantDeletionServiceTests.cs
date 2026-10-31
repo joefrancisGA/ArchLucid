@@ -90,6 +90,61 @@ public sealed class TenantDeletionServiceTests
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_trims_correlation_id_on_hard_purge_platform_audit()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111");
+        PlatformAuditEvent? captured = null;
+
+        Mock<ITenantHardPurgeService> purge = new();
+        purge
+            .Setup(p => p.PurgeTenantAsync(
+                tenantId,
+                It.IsAny<TenantHardPurgeOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantHardPurgeResult { RowsDeleted = 1, RowCountsByTable = new Dictionary<string, int>() });
+
+        Mock<ITenantBlobPrefixDeletionService> blobs = new();
+        blobs
+            .Setup(b => b.DeleteAllTenantPrefixesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantBlobPrefixDeletionResult());
+
+        Mock<IPlatformAuditRepository> platformAudit = new();
+        platformAudit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
+        lifecycleOptions.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = DateTimeOffset.UtcNow });
+
+        TenantDeletionService sut = new(
+            purge.Object,
+            blobs.Object,
+            platformAudit.Object,
+            lifecycleOptions.Object,
+            tenantRepo.Object);
+
+        await sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "  corr-trim-delete  ",
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TenantDataDeleted);
+        captured.CorrelationId.Should().Be("corr-trim-delete");
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

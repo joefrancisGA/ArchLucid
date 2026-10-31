@@ -31,10 +31,11 @@ import {
   resolveRpLogoutUrlFromBffSession,
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
-import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
   normalizeOidcDisplayString,
+  normalizeOidcOpaqueOAuthString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -52,7 +53,7 @@ type StoredPkceState = {
 const EXPIRY_SKEW_MS = 60_000;
 
 function normalizePkceCallbackQueryValue(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+  return normalizeOidcOpaqueOAuthString(value);
 }
 
 let refreshInFlight: Promise<void> | null = null;
@@ -232,6 +233,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     refreshInFlight = null;
     latestTokenSyncRequest = null;
     void clearBffSessionCookie();
+    notifyAuthContextChanged();
 
     return;
   }
@@ -258,7 +260,14 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   };
   latestTokenSyncRequest = request;
 
+  notifyAuthContextChanged();
   void syncTokenToBff(request);
+}
+
+function notifyAuthContextChanged(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("archlucid:auth-context-changed"));
+  }
 }
 
 export type ClearOidcSessionOptions = {
@@ -294,6 +303,7 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
   }
 
   removeOidcKeys(keysToClear);
+  notifyAuthContextChanged();
   clearCachedColorModePreference();
   void clearBffSessionCookie();
 
@@ -322,6 +332,10 @@ function pkceStorageKeys(flow: OidcPkceFlow): {
   };
 }
 
+function pkceStoredValueContainsUnsafeControlCharacters(value: string): boolean {
+  return /[\u0000-\u001F\u007F\u2028\u2029\u0085]/u.test(value);
+}
+
 function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow"> | null {
   const keys = pkceStorageKeys(flow);
   const state = readSessionKey(keys.stateKey);
@@ -329,6 +343,14 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
   const nonce = readSessionKey(keys.nonceKey);
 
   if (!state || !codeVerifier || !nonce) {
+    return null;
+  }
+
+  if (
+    pkceStoredValueContainsUnsafeControlCharacters(state)
+    || pkceStoredValueContainsUnsafeControlCharacters(codeVerifier)
+    || pkceStoredValueContainsUnsafeControlCharacters(nonce)
+  ) {
     return null;
   }
 
@@ -403,9 +425,10 @@ export function consumePkceState(expectedState: string): StoredPkceState | null 
  */
 export function storePostSignInReturnUrl(url: string): void {
   const normalized = normalizeOidcConfigurationString(url);
+  const safe = canonicalSafeReturnPath(normalized);
 
-  if (isSafeReturnPath(normalized)) {
-    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, normalized);
+  if (safe !== null) {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, safe);
   }
 }
 
@@ -417,15 +440,15 @@ export function readPostSignInReturnUrl(): string | null {
     return null;
   }
 
-  const normalized = normalizeOidcConfigurationString(url);
+  const safe = canonicalSafeReturnPath(normalizeOidcConfigurationString(url));
 
-  if (!isSafeReturnPath(normalized)) {
+  if (safe === null) {
     sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
     return null;
   }
 
-  return normalized;
+  return safe;
 }
 
 export function clearPostSignInReturnUrl(): void {
@@ -441,13 +464,13 @@ function snapshotAuthorizeRetryReturnPath(): void {
     return;
   }
 
-  const normalized = normalizeOidcConfigurationString(url);
+  const safe = canonicalSafeReturnPath(normalizeOidcConfigurationString(url));
 
-  if (!isSafeReturnPath(normalized)) {
+  if (safe === null) {
     return;
   }
 
-  sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, normalized);
+  sessionStorage.setItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY, safe);
 }
 
 /** Reads the safe return path captured when authorize callback retry was marked. */
@@ -458,15 +481,15 @@ export function readAuthorizeRetryReturnPathSnapshot(): string | null {
     return null;
   }
 
-  const normalized = normalizeOidcConfigurationString(url);
+  const safe = canonicalSafeReturnPath(normalizeOidcConfigurationString(url));
 
-  if (!isSafeReturnPath(normalized)) {
+  if (safe === null) {
     sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
 
     return null;
   }
 
-  return normalized;
+  return safe;
 }
 
 /** Marks that the authorize callback returned an OAuth error so a retry keeps the stored return URL. */
@@ -520,16 +543,16 @@ export function consumePostSignInReturnUrl(): string | null {
     return null;
   }
 
-  const normalized = normalizeOidcConfigurationString(url);
+  const safe = canonicalSafeReturnPath(normalizeOidcConfigurationString(url));
 
-  if (!isSafeReturnPath(normalized)) {
+  if (safe === null) {
     return null;
   }
 
   sessionStorage.removeItem(OIDC_AUTHORIZE_CALLBACK_FAILED_KEY);
   sessionStorage.removeItem(OIDC_AUTHORIZE_RETRY_RETURN_PATH_KEY);
 
-  return normalized;
+  return safe;
 }
 
 function getExpiresAtMs(): number {

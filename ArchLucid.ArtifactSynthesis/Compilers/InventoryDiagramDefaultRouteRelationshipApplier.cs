@@ -96,28 +96,64 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
 
         string? nextHopName = nextHopNode is null
             ? null
-            : ReadResourceName(DiagramAstGraphNodeClassifier.ReadArmId(nextHopNode), nextHopNode.Label);
+            : InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                DiagramAstGraphNodeClassifier.ReadArmId(nextHopNode),
+                nextHopNode.Label,
+                nextHopNode.NodeId,
+                InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
 
-        if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal)
-            && AzureInventoryRouteTableRoutedThroughNextHopClassifier.IsEligibleNextHop(nextHopNode)
-            && !string.IsNullOrWhiteSpace(nextHopArmId)
-            && armIdToDiagramNodeId.TryGetValue(ArmResourceIdNormalizer.Normalize(nextHopArmId), out string? nextHopDiagramNodeId))
+        if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
-            InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(
-                ast,
-                workloadDiagramNode.NodeId,
-                nextHopDiagramNodeId);
-            string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
-                ? "Routed through next hop (name was not stored)"
-                : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
+            if (AzureInventoryRouteTableRoutedThroughNextHopClassifier.IsEligibleNextHop(nextHopNode)
+                && !string.IsNullOrWhiteSpace(nextHopArmId)
+                && armIdToDiagramNodeId.TryGetValue(
+                    ArmResourceIdNormalizer.Normalize(nextHopArmId),
+                    out string? nextHopDiagramNodeId))
+            {
+                InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(
+                    ast,
+                    workloadDiagramNode.NodeId,
+                    nextHopDiagramNodeId);
+                string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
+                    || string.Equals(
+                        nextHopName,
+                        InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored,
+                        StringComparison.Ordinal)
+                    ? "Routed through next hop (name was not stored). This is not observed traffic."
+                    : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
 
-            InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
-                ast,
-                workloadDiagramNode.NodeId,
-                nextHopDiagramNodeId,
-                edgeLabel,
-                GraphEdgeInferenceSources.InventoryEffectiveRoutes,
-                ProvenanceKind.ObservedFact.ToString());
+                InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
+                    ast,
+                    workloadDiagramNode.NodeId,
+                    nextHopDiagramNodeId,
+                    edgeLabel,
+                    GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                    ProvenanceKind.DerivedFact.ToString());
+
+                return;
+            }
+
+            string? defaultRouteOutline = InventoryDiagramRouteOutlineSentenceFormatter.TryFormat(route, nextHopName);
+
+            if (!string.IsNullOrWhiteSpace(defaultRouteOutline))
+            {
+                if (!workloadDiagramNode.UnresolvedRelationshipDetails.Contains(defaultRouteOutline, StringComparer.Ordinal))
+                {
+                    workloadDiagramNode.UnresolvedRelationshipDetails.Add(defaultRouteOutline);
+                }
+
+                return;
+            }
+
+            const string defaultRouteNotDrawnSentence =
+                "Default route was stored but was not drawn on this diagram.";
+
+            if (!workloadDiagramNode.UnresolvedRelationshipDetails.Contains(
+                    defaultRouteNotDrawnSentence,
+                    StringComparer.Ordinal))
+            {
+                workloadDiagramNode.UnresolvedRelationshipDetails.Add(defaultRouteNotDrawnSentence);
+            }
 
             return;
         }
@@ -259,13 +295,10 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
 
     private static string ReadResourceName(string armId, string fallbackLabel)
     {
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return fallbackLabel;
-        }
-
-        return armId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            armResourceId: armId,
+            storedLabel: fallbackLabel,
+            nodeId: null,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 }

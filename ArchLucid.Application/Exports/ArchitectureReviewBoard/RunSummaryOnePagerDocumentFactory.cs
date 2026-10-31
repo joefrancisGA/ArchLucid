@@ -26,8 +26,15 @@ public static class RunSummaryOnePagerDocumentFactory
         ArgumentNullException.ThrowIfNull(SponsorReport);
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
-        SeverityCounts counts = CountBySeverity(detail);
-        string runId = detail.Run.RunId ?? string.Empty;
+        bool agentFindingsStored = detail.AgentResultsIncludedInDetail;
+        (SeverityCounts counts, int mutedFindingCount) = CountBySeverity(detail);
+        string[] topTitles = topFindingTitles
+            .Where(static title => !string.IsNullOrWhiteSpace(title))
+            .Select(static title => title.Trim())
+            .ToArray();
+        int totalHighCritical = CountHighCriticalFindings(detail);
+        int topHighCriticalRemainder = Math.Max(0, totalHighCritical - topTitles.Length);
+        string runId = detail.Run.RunId;
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
         bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
@@ -36,17 +43,30 @@ public static class RunSummaryOnePagerDocumentFactory
 
         return new RunSummaryOnePagerDocumentModel
         {
-            RunId = runId,
+            RunId = runId ?? string.Empty,
             SystemName = detail.Manifest?.SystemName,
+            SystemNameDisplay = RunSummaryOnePagerHonestyCopy.ResolveSystemName(detail.Manifest?.SystemName),
+            RunIdDisplay = RunSummaryOnePagerHonestyCopy.ResolveRunId(runId),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
+                detail.Run.FindingsSnapshotId,
+                hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
+            AgentFindingsCountsStored = agentFindingsStored,
+            AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
             CriticalCount = counts.Critical,
             HighCount = counts.High,
             MediumCount = counts.Medium,
             LowCount = counts.Low,
-            SponsorReport = SponsorReport.Trim(),
-            TopFindingTitles = topFindingTitles
-                .Where(static title => !string.IsNullOrWhiteSpace(title))
-                .Select(static title => title.Trim())
-                .ToArray(),
+            MutedFindingCount = mutedFindingCount,
+            SeverityCountsFootnote = mutedFindingCount > 0
+                ? $"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted)."
+                : string.Empty,
+            SponsorReport = string.IsNullOrWhiteSpace(SponsorReport)
+                ? RunSummaryOnePagerHonestyCopy.SponsorReportNotStored
+                : SponsorReport.Trim(),
+            TopFindingTitles = topTitles,
+            TopFindingsEmptyCopy = RunSummaryOnePagerHonestyCopy.ResolveTopFindingsEmptyCopy(
+                agentFindingsStored,
+                topTitles.Length),
             IsDemoTenant = isDemoTenant,
             ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
                 ? null
@@ -68,17 +88,49 @@ public static class RunSummaryOnePagerDocumentFactory
             ArchitectRestatementMarkdown = string.IsNullOrWhiteSpace(architectRestatementMarkdown)
                 ? null
                 : architectRestatementMarkdown.Trim(),
+            TopHighCriticalRemainderLine = topHighCriticalRemainder > 0
+                ? $"{topHighCriticalRemainder} {RunSummaryOnePagerHonestyCopy.TopHighCriticalRemainderLine}"
+                : null,
 
         };
+    }
+
+    public static int CountHighCriticalFindings(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        if (!detail.AgentResultsIncludedInDetail)
+            return 0;
+
+        int count = 0;
+
+        foreach (AgentResult result in detail.Results)
+        {
+            foreach (ArchitectureFinding finding in result.Findings ?? [])
+            {
+                if (finding is null || finding.IsMuted)
+                    continue;
+
+                if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
+                    count++;
+            }
+        }
+
+        return count;
     }
 
     public static IReadOnlyList<ArchitectureFinding> SelectTopHighCriticalFindings(ArchitectureRunDetail detail, int maxCount)
     {
         ArgumentNullException.ThrowIfNull(detail);
 
+        if (!detail.AgentResultsIncludedInDetail)
+        {
+            return [];
+        }
+
         List<ArchitectureFinding> findings = [];
 
-        foreach (AgentResult result in detail.Results ?? [])
+        foreach (AgentResult result in detail.Results)
         {
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
@@ -97,16 +149,28 @@ public static class RunSummaryOnePagerDocumentFactory
             .ToArray();
     }
 
-    private static SeverityCounts CountBySeverity(ArchitectureRunDetail detail)
+    private static (SeverityCounts counts, int mutedFindingCount) CountBySeverity(ArchitectureRunDetail detail)
     {
         SeverityCounts counts = new();
+        int mutedFindingCount = 0;
 
-        foreach (AgentResult result in detail.Results ?? [])
+        if (!detail.AgentResultsIncludedInDetail)
+        {
+            return (counts, mutedFindingCount);
+        }
+
+        foreach (AgentResult result in detail.Results)
         {
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
                 if (finding is null)
                     continue;
+
+                if (finding.IsMuted)
+                {
+                    mutedFindingCount++;
+                    continue;
+                }
 
                 switch (finding.Severity)
                 {
@@ -126,7 +190,7 @@ public static class RunSummaryOnePagerDocumentFactory
             }
         }
 
-        return counts;
+        return (counts, mutedFindingCount);
     }
 
     private sealed class SeverityCounts

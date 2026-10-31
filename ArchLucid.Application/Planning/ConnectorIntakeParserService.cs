@@ -9,6 +9,8 @@ namespace ArchLucid.Application.Planning;
 public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFetcher gitTerraformContentFetcher)
     : IConnectorIntakeParserService
 {
+    private const string SystemNameNotStored = "System name was not stored.";
+
     private static readonly Regex ResourceRegex = new(
         """
         resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
@@ -46,7 +48,7 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
         if (resourceCount == 0)
             throw new InvalidOperationException("Terraform state JSON did not contain any importable resources.");
 
-        string systemName = ResolveSystemName(input.SystemName, "TerraformImport");
+        string systemName = ResolveSystemName(input.SystemName);
         string description = ResolveDescription(
             input.Description,
             $"Architecture review request imported from Terraform state ({resourceCount} resources).");
@@ -71,7 +73,8 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
     {
         string repositoryUrl = input.GitRepositoryUrl?.Trim() ?? string.Empty;
         string terraformPath = input.GitTerraformPath?.Trim() ?? string.Empty;
-        string branch = input.GitBranch?.Trim() ?? "main";
+        string branchInput = input.GitBranch?.Trim() ?? string.Empty;
+        string branchForFetch = branchInput.Length > 0 ? branchInput : "main";
 
         if (repositoryUrl.Length == 0)
             throw new ArgumentException("GitRepositoryUrl is required for git-terraform intake.", nameof(input));
@@ -84,7 +87,7 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
 
         string terraformContent = await _gitTerraformContentFetcher.FetchTerraformFileAsync(
             repositoryUrl,
-            branch,
+            branchForFetch,
             terraformPath,
             cancellationToken);
 
@@ -94,11 +97,17 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
         if (resourceCount == 0)
             throw new InvalidOperationException("Git Terraform file did not contain any resource blocks.");
 
-        (string owner, string repo, _) = GitTerraformContentFetcher.ParseGitHubCoordinates(repositoryUrl, branch, terraformPath);
-        string systemName = ResolveSystemName(input.SystemName, $"{repo}-terraform");
+        (string owner, string repo, _) = GitTerraformContentFetcher.ParseGitHubCoordinates(
+            repositoryUrl,
+            branchForFetch,
+            terraformPath);
+        string systemName = ResolveSystemName(input.SystemName);
+        string branchClause = branchInput.Length > 0
+            ? $"branch {branchInput}"
+            : "branch was not stored; read used main";
         string description = ResolveDescription(
             input.Description,
-            $"Architecture review request imported from Git ({owner}/{repo}, {resourceCount} Terraform resources).");
+            $"Architecture review request imported from Git ({owner}/{repo}, {branchClause}, {resourceCount} Terraform resources).");
 
         return BuildRequest(
             systemName,
@@ -127,7 +136,7 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
             RequestId = Guid.NewGuid().ToString("N"),
             Description = description,
             SystemName = systemName,
-            Environment = "prod",
+            Environment = string.Empty,
             CloudProvider = cloudProvider,
             Constraints = [$"Imported {resourceCount} Terraform resources via inbound connector."],
             TopologyHints = ["Review imported Terraform topology against target non-functional requirements."],
@@ -245,11 +254,11 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
             hasGcp = true;
     }
 
-    private static string ResolveSystemName(string? requested, string fallback)
+    private static string ResolveSystemName(string? requested)
     {
         string trimmed = requested?.Trim() ?? string.Empty;
 
-        return trimmed.Length >= 2 ? trimmed : fallback;
+        return trimmed.Length >= 2 ? trimmed : SystemNameNotStored;
     }
 
     private static string ResolveDescription(string? requested, string fallback)

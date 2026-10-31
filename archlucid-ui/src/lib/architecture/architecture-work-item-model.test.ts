@@ -55,6 +55,8 @@ describe("architecture-work-item-model", () => {
 
     expect(jiraBody).toContain("h2.");
     expect(serviceNowBody).toContain("Short description:");
+    expect(jiraBody).toContain("Severity (highest finding):");
+    expect(jiraBody).toContain("*Priority:* Priority was not stored.");
     expect(jiraBody).toContain(preview.sourceArchitectureLink);
     expect(serviceNowBody).toContain(preview.sourceArchitectureLink);
   });
@@ -70,8 +72,8 @@ describe("architecture-work-item-model", () => {
       siteOrigin: "https://app.archlucid.test",
     });
 
-    expect(preview.priority).toBe("Priority was not stored.");
-    expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity was not stored");
+    expect(preview.highestFindingSeverity).toBe("Severity was not stored.");
+    expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity label was not stored.");
     expect(pickNativeCreateFindingId([missingSeverity, finding({ findingId: "f-low", severityValue: 0 })])).toBe(
       "f-low",
     );
@@ -87,7 +89,7 @@ describe("architecture-work-item-model", () => {
       siteOrigin: "https://app.archlucid.test",
     });
 
-    expect(preview.title).toBe("Architecture name was not stored.");
+    expect(preview.title).toBe("Draft architecture work item — architecture name was not stored.");
     expect(preview.description).toBe("Architecture overview was not stored.");
   });
 

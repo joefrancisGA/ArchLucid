@@ -22,6 +22,7 @@ import {
 import { StoredEvidenceFileContentSafety } from "@/lib/runs/run-stored-evidence-preview-policy";
 import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY } from "@/lib/runs/run-detail-create-home-captured-evidence";
 
 export type RunStoredEvidencePreviewState = {
   readonly evidenceItemId: string;
@@ -168,24 +169,77 @@ export type StoredEvidenceFileActionHandlers = {
 export const STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY =
   "Content type was not stored." as const;
 
+export const STORED_EVIDENCE_CONTENT_TYPE_STORED_EMPTY_COPY =
+  "Content type was stored empty." as const;
+
+export const STORED_EVIDENCE_FILE_NAME_NOT_STORED_COPY = "File name was not stored." as const;
+
+export const STORED_EVIDENCE_FILE_NAME_STORED_EMPTY_COPY = "File name was stored empty." as const;
+
+function resolveStoredEvidenceFileNameDisplay(fileName: string): string {
+  if (fileName === null || fileName === undefined) {
+    return STORED_EVIDENCE_FILE_NAME_NOT_STORED_COPY;
+  }
+
+  if (fileName.trim().length === 0) {
+    return STORED_EVIDENCE_FILE_NAME_STORED_EMPTY_COPY;
+  }
+
+  return fileName;
+}
+
+function resolveStoredEvidenceContentTypeOmission(
+  contentType: string | null | undefined,
+  contentTypeCatalogPending: boolean,
+): { readonly showOmission: boolean; readonly storedEmpty: boolean; readonly catalogPending: boolean } {
+  if (contentTypeCatalogPending) {
+    return { showOmission: true, storedEmpty: false, catalogPending: true };
+  }
+
+  if (contentType === null || contentType === undefined) {
+    return { showOmission: true, storedEmpty: false, catalogPending: false };
+  }
+
+  if (contentType.length === 0) {
+    return { showOmission: true, storedEmpty: true, catalogPending: false };
+  }
+
+  if (contentType.trim().length === 0) {
+    return { showOmission: true, storedEmpty: true, catalogPending: false };
+  }
+
+  return { showOmission: false, storedEmpty: false, catalogPending: false };
+}
+
 export type StoredEvidenceFileCellsProps = {
   readonly runId: string;
   readonly evidenceItemId: string;
   readonly fileName: string;
   readonly contentType?: string | null;
+  readonly contentTypeCatalogPending?: boolean;
   readonly handlers: StoredEvidenceFileActionHandlers;
   readonly openButtonRef?: RefObject<HTMLElement | null>;
 };
 
 export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): ReactElement {
+  const fileNameDisplay = resolveStoredEvidenceFileNameDisplay(props.fileName);
+  const contentTypeOmission = resolveStoredEvidenceContentTypeOmission(
+    props.contentType,
+    props.contentTypeCatalogPending === true,
+  );
+  const showContentTypeOmission = contentTypeOmission.showOmission;
   const contentTypeForPreview =
-    props.contentType === null || props.contentType === undefined
-      ? "application/octet-stream"
-      : props.contentType;
-  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentTypeForPreview, props.fileName);
-  const showContentTypeOmission =
-    props.contentType === null || props.contentType === undefined;
-  const canPreview = previewKind !== "download-only";
+    showContentTypeOmission ? "" : (props.contentType ?? "").trim();
+  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(
+    contentTypeForPreview,
+    props.fileName,
+  );
+  const canPreview = !showContentTypeOmission && previewKind !== "download-only";
+  const contentTypeOmissionCopy = contentTypeOmission.catalogPending
+    ? RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY
+    : contentTypeOmission.storedEmpty
+      ? STORED_EVIDENCE_CONTENT_TYPE_STORED_EMPTY_COPY
+      : STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -204,17 +258,17 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
             props.handlers.onOpen({
               evidenceItemId: props.evidenceItemId,
               fileName: props.fileName,
-              contentType: contentTypeForPreview,
+              contentType: showContentTypeOmission ? contentTypeOmissionCopy : contentTypeForPreview,
             });
           }}
         >
-          {props.fileName}
+          {fileNameDisplay}
         </button>
       ) : (
-        <span className="font-medium text-al-text-primary">{props.fileName}</span>
+        <span className="font-medium text-al-text-primary">{fileNameDisplay}</span>
       )}
       {showContentTypeOmission ? (
-        <span className="text-al-text-secondary">{STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY}</span>
+        <span className="text-al-text-secondary">{contentTypeOmissionCopy}</span>
       ) : null}
       <Button
         type="button"

@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-31
-
 > **Scope:** Single canonical procurement evidence index — file paths are source of truth for CI; statuses are buyer-safe labels aligned with **[`BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator`](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator)** (`PROCUREMENT_RESPONSE_ACCELERATOR.md` path-stable alias), not attestations — plus the deal-ready one-pager (formerly `PROCUREMENT_DEAL_READY_ONE_PAGER.md`) and how to request/build the ZIP (formerly `HOW_TO_REQUEST_PROCUREMENT_PACK.md`). The **Procurement artifact status map** below uses a fixed vocabulary (`Implemented`, `Self-attested`, `Template`, `Deferred`, `Not applicable`, `External/NDA-gated`) enforced by **`scripts/ci/check_procurement_pack_index.py`** (links, **90-day** freshness on **Implemented** / **Self-asserted** canonical rows, buyer-placeholder strictness, and forbidden assurance wording). Release operators: **`docs/library/RELEASE_EVIDENCE_SUMMARY.md`** §8.
+
+> **Reviewed:** 2026-07-31
 
 # Procurement evidence pack — buyer index (canonical)
 
@@ -41,13 +41,13 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Security overview | Self-asserted | 2026-07-31 | [docs/library/contributor-reference/SECURITY.md](../library/contributor-reference/SECURITY.md) | Describes scanning, boundaries, authentication modes documented in-repo. |
 | System threat model (STRIDE) | Self-asserted | 2026-07-31 | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Internal architectural threat enumeration — not substitute for customer architecture review. |
 | Tenant isolation (database-per-tenant) | Implemented | 2026-09-05 | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | Database-per-tenant catalogs + app-layer scope predicates per ADR 0037. SQL RLS was evaluated and not adopted. |
-| SOC 2 procurement statement | Self-asserted | 2026-07-23 | [docs/go-to-market/SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | States Type II issuance not yet claimed; directs to roadmap and self-assessment. |
-| SOC 2 self-assessment narrative | Self-asserted | 2026-07-23 | [docs/security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Internal CC mapping narrative — explicitly not a CPA audit opinion. |
+| SOC 2 procurement statement | Self-asserted | 2026-10-27 | [docs/go-to-market/SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | States Type II issuance not yet claimed; directs to roadmap and self-assessment. |
+| SOC 2 self-assessment narrative | Self-asserted | 2026-10-27 | [docs/security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Internal CC mapping narrative — explicitly not a CPA audit opinion. |
 | SOC 2 roadmap | Deferred V1.1 | 2026-04-24 | [docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | Planned program timing only; confirms no SOC 2 report yet. |
 | CAIQ-lite pre-fill | Self-asserted | 2026-07-31 | [docs/security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | Questionnaire-aligned draft sourced from documented controls posture. |
 | SIG Core pre-fill | Self-asserted | 2026-07-31 | [docs/security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | Questionnaire-aligned draft referencing library evidence pointers. |
 | SCIM + Entra ID provisioning recipe | Self-asserted | 2026-07-31 | [docs/integrations/SCIM_ENTRA_ID_SETUP.md](../integrations/SCIM_ENTRA_ID_SETUP.md) | Documents `/scim/v2` URLs, bearer secret issuance (`POST /v1/admin/scim/tokens`), automated Api.Tests Entra-shaped fixtures (no Entra tenant in CI), and parser guardrails for common Entra filter literals. |
-| Tenant isolation narrative | Self-asserted | 2026-07-27 | [docs/go-to-market/TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Path-stable pack alias → [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview). Logical isolation framing for diligence — contract-specific items via MSA/DPA. |
+| Tenant isolation narrative | Self-asserted | 2026-10-27 | [docs/go-to-market/TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Path-stable pack alias → [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview). Logical isolation framing for diligence — contract-specific items via MSA/DPA. |
 | DPA template | Self-asserted | 2026-07-31 | [docs/go-to-market/DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Template wording only until executed under customer legal review. |
 | Subprocessors register | Self-asserted | 2026-07-31 | [docs/go-to-market/SUBPROCESSORS.md](SUBPROCESSORS.md) | Lists subprocessors acknowledged in-repo; customer due diligence completes against their policy. |
 

@@ -2,27 +2,24 @@ import { describe, expect, it } from "vitest";
 
 import { buildFindingsDerivedClarificationGaps } from "@/lib/architecture/build-findings-derived-clarification-gaps";
 
-describe("buildFindingsDerivedClarificationGaps", () => {
-  it("maps findings-derived questions to clarification gaps with follow-up hrefs", () => {
+describe("buildFindingsDerivedClarificationGaps (P-12)", () => {
+  it("labels omitted question prompt without inventing text", () => {
     const gaps = buildFindingsDerivedClarificationGaps({
-      runId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      clarificationPriorRunId: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      runId: "run-1",
+      clarificationPriorRunId: null,
       gapSourceCapturedAtUtc: null,
       questions: [
         {
-          questionId: "abc123def4567890",
-          prompt: "Which system covers Compute?",
-          sourceFindingId: "finding-1",
-          sourceFindingType: "TopologyCoverageFinding",
+          questionId: "q-1",
+          prompt: "   ",
+          sourceFindingId: "f-1",
+          sourceFindingType: "PolicyCoverageFinding",
           severity: "Warning",
-          missingItem: "Compute",
+          missingItem: "item-a",
         },
       ],
     });
 
-    expect(gaps).toHaveLength(1);
-    expect(gaps[0]?.source.label).toBe("From assessment findings");
-    expect(gaps[0]?.href).toContain("rerun=");
-    expect(gaps[0]?.href).toContain("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    expect(gaps[0]?.label).toBe("Clarification question was not stored.");
   });
 });

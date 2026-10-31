@@ -232,6 +232,71 @@ public sealed class ContinueFromRunOrchestratorTests
     }
 
     [Fact]
+    public async Task RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+        IReviewResultCache reviewResultCache = provider.GetRequiredService<IReviewResultCache>();
+
+        List<IReviewResultCachePinScope> saturatedPinScopes = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"continue-pin-cap-blocker-{index}" };
+            reviewResultCache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"blocker-{index}" });
+            saturatedPinScopes.Add(reviewResultCache.PinScope(manifest));
+        }
+
+        try
+        {
+            ClosedLoopReasoningResult first = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+            {
+                TenantId = "tenant-continue-pin-cap",
+                SourceTexts =
+                [
+                    new ClosedLoopReasoningSourceText
+                    {
+                        FileName = "arch.md",
+                        ContentType = "text/markdown",
+                        Content = "Public API without authentication.",
+                    },
+                ],
+                DeclaredPriorities = ["Security"],
+            });
+
+            ClosedLoopReasoningRequest continueRequest = new()
+            {
+                TenantId = "tenant-continue-pin-cap",
+                RunId = first.RunId,
+                ContinueFromExistingRun = true,
+                FramingAnswers = new Dictionary<string, string>
+                {
+                    ["business-outcome"] = "Secure claims intake",
+                },
+                DeclaredPriorities = ["Security"],
+            };
+
+            ClosedLoopReasoningResult firstContinue = await orchestrator.RunAsync(continueRequest);
+            firstContinue.CacheHit.Should().BeFalse();
+
+            ClosedLoopReasoningResult secondContinue = await orchestrator.RunAsync(continueRequest);
+            secondContinue.CacheHit.Should().BeTrue();
+            secondContinue.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
+        }
+        finally
+        {
+            foreach (IReviewResultCachePinScope scope in saturatedPinScopes)
+                scope.Dispose();
+        }
+    }
+
+    [Fact]
     public async Task RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit()
     {
         ServiceCollection services = new();

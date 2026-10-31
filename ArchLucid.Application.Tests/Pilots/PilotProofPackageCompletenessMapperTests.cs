@@ -42,7 +42,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
     }
 
     [Fact]
-    public void Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent()
+    public void Build_ZeroTotalFindings_StillMarksFindingsEvidencePresent_WhenAgentResultsIncluded()
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
             StrongBaselineFixture();
@@ -52,6 +52,24 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.FindingsBySeverityPresent.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Build_UnresolvedFindingsSeverity_FlagsNotPresent_WhenAgentResultsOmittedAndNoSnapshot()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with
+        {
+            FindingsBySeverity = [],
+            AgentResultsIncludedInDetail = false,
+            FindingsCountsFromSnapshot = false,
+        };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.FindingsBySeverityPresent.Should().BeFalse();
     }
 
     [Fact]

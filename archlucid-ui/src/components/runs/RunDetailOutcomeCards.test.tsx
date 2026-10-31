@@ -133,7 +133,7 @@ describe("RunDetailOutcomeCards", () => {
     );
 
     expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Decision was not stored.");
-    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Citation count was not returned.");
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Finding count was not stored.");
 
     rerender(
       <RunDetailOutcomeCards
@@ -147,7 +147,47 @@ describe("RunDetailOutcomeCards", () => {
       />,
     );
 
-    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 citations in evidence trail");
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 findings on the review record");
     expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Approved with monitoring");
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent(
+      "Export list was not stored on this summary.",
+    );
+  });
+
+  it("does not use governance gate label as buyer decision posture", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={1}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={0}
+        governanceGateLabel="No approval decision recorded"
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Decision was not stored.");
+    expect(screen.getByTestId("buyer-review-decision-summary")).not.toHaveTextContent(
+      "No approval decision recorded",
+    );
+  });
+
+  it("does not show blocking issues zero when unresolved count was omitted", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={0}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={null}
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-review-status-headline")).toHaveTextContent(
+      "Blocking issue count was not stored.",
+    );
+    expect(screen.getByTestId("buyer-review-status-headline")).not.toHaveTextContent("Blocking issues: 0");
   });
 });

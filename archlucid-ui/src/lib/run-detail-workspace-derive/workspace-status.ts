@@ -165,7 +165,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
       }
 
       if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-        return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+        return { label: "Approved", kind: "approved", statusTagKind: "ready" };
       }
 
       return { label: "Finalized", kind: "finalized", statusTagKind: "ready" };
@@ -180,7 +180,7 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     }
 
     if (/approv/i.test(governanceDecision) || gateLabel === "Passed") {
-      return { label: "Approved", kind: "approved", statusTagKind: "approved" };
+      return { label: "Approved", kind: "approved", statusTagKind: "ready" };
     }
 
     return resolveReviewCompleteWorkspaceStatus(input, null);
@@ -192,6 +192,14 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
 
   if (input.showProgressTracker) {
     return { label: "Analysis in progress", kind: "analysis-in-progress", statusTagKind: "in-progress" };
+  }
+
+  if (manifestId.length === 0) {
+    return {
+      label: "Sealed manifest id was not stored.",
+      kind: "draft",
+      statusTagKind: "needs-attention",
+    };
   }
 
   return { label: "Draft", kind: "draft", statusTagKind: "neutral" };

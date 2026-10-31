@@ -19,7 +19,8 @@ export type ExportFormatWhenToUse = {
 export const EXPORT_FORMAT_MARKDOWN: ExportFormatWhenToUse = {
   id: "markdown",
   label: "Markdown - email brief",
-  whenToUse: "Paste into email or chat for a quick sponsor brief.",
+  whenToUse:
+    "Paste into email or chat for a quick sponsor brief. Diagram and evidence counts reflect what was stored on export, not live cloud state.",
   recommendedFor: "email",
 };
 
@@ -43,7 +44,8 @@ export const EXPORT_FORMAT_DOCX: ExportFormatWhenToUse = {
 export const EXPORT_FORMAT_ZIP: ExportFormatWhenToUse = {
   id: "zip",
   label: "ZIP - archive",
-  whenToUse: "Download the full evidence archive for records retention.",
+  whenToUse:
+    "Download the ZIP stored for this review. This does not mean every evidence file was included.",
   recommendedFor: "archive",
 };
 

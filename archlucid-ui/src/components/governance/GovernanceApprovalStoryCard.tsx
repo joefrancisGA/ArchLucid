@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE,
-  BUYER_SHOWCASE_APPROVAL_UTC,
   BUYER_SHOWCASE_APPROVER_ROLE,
   BUYER_SHOWCASE_POLICY_PACK_LABEL,
   BUYER_SHOWCASE_REQUEST_OWNER_ROLE,
@@ -38,7 +37,14 @@ export function GovernanceApprovalStoryCard(props: {
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
   const approved = row.status.trim().toLowerCase() === "approved";
   const promoteReady = approved && reviewed;
-  const approvalTimestamp = formatInstantForBuyerGovernance(row.reviewedUtc?.trim() ?? BUYER_SHOWCASE_APPROVAL_UTC);
+  const reviewedUtcTrimmed = row.reviewedUtc?.trim() ?? "";
+  const approvalTimestamp =
+    reviewedUtcTrimmed.length > 0
+      ? formatInstantForBuyerGovernance(reviewedUtcTrimmed)
+      : "Approval time was not stored.";
+  const manifestVersionTrimmed = row.manifestVersion?.trim() ?? "";
+  const manifestVersionLabel =
+    manifestVersionTrimmed.length > 0 ? manifestVersionTrimmed : "Manifest version was not stored.";
 
   const steps: { label: string; done: boolean; detail: string }[] = [
     {
@@ -60,7 +66,7 @@ export function GovernanceApprovalStoryCard(props: {
       label: "Approved finalized review record",
       done: promoteReady,
       detail: promoteReady
-        ? "Ready for implementation planning, subject to enterprise change control."
+        ? "Governance approval recorded — finalize the architecture package separately to produce the sealed review record."
         : "Complete approval before citing this package in the next stage of review and implementation planning.",
     },
   ];
@@ -81,7 +87,7 @@ export function GovernanceApprovalStoryCard(props: {
         <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review
-            version <span className="font-semibold">{row.manifestVersion}</span> — approved finalized review record for
+            version <span className="font-semibold">{manifestVersionLabel}</span> — approved finalized review record for
             this review. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (

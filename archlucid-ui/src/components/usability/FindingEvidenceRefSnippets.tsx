@@ -2,9 +2,11 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatFindingEvidenceRefSnippetsHeading } from "@/lib/findings/finding-evidence-ref-snippet";
 
 export type FindingEvidenceRefSnippetsProps = {
   readonly snippets: readonly string[];
+  readonly totalStoredSnippetCount?: number | null;
   readonly className?: string;
 };
 
@@ -14,13 +16,18 @@ export function FindingEvidenceRefSnippets(props: FindingEvidenceRefSnippetsProp
     return null;
   }
 
+  const heading = formatFindingEvidenceRefSnippetsHeading(
+    props.snippets,
+    props.totalStoredSnippetCount ?? null,
+  );
+
   return (
     <div
       className={cn("mt-2 space-y-1", props.className)}
       data-testid="finding-evidence-ref-snippets"
-      aria-label="Source evidence excerpts"
+      aria-label={heading}
     >
-      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Source evidence</p>
+      <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{heading}</p>
       <ul className="m-0 list-none space-y-1 p-0">
         {props.snippets.map((snippet, index) => (
           <li

@@ -40,7 +40,16 @@ describe("resolveExplanationEvidenceBasisBadges", () => {
       faithfulnessSupportRatio: 0.86,
     });
 
-    expect(badges.map((badge) => badge.display)).toContain("Citations not returned");
+    expect(badges.map((badge) => badge.display)).toContain("Citations were not stored.");
+  });
+
+  it("labels omitted faithfulness support ratio separately from zero citations", () => {
+    const badges = resolveExplanationEvidenceBasisBadges({
+      citationCount: 2,
+      faithfulnessSupportRatio: null,
+    });
+
+    expect(badges.map((badge) => badge.display)).toContain("Faithfulness support ratio was not stored.");
   });
 
   it("requires manual review when no basis is available", () => {

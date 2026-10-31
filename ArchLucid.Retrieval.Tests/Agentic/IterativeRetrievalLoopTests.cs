@@ -121,6 +121,33 @@ public sealed class IterativeRetrievalLoopTests
     }
 
     [Fact]
+    public async Task MaybeRetryAsync_when_retry_returns_same_chunk_with_equal_score_keeps_initial_hit()
+    {
+        IterativeRetrievalLoop sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableIterativeRetrieveCritiqueRetry = true,
+                MaxIterativeRetrievalRounds = 3,
+            });
+
+        RetrievalQuery query = BuildQuery();
+        RetrievalHit initial = Hit("chunk-1", 0.55);
+        List<RetrievalHit> initialHits = [initial];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>([Hit("chunk-1", 0.55)]),
+            CancellationToken.None);
+
+        hits.Should().ContainSingle();
+        hits[0].ChunkId.Should().Be("chunk-1");
+        hits[0].Score.Should().Be(0.55);
+    }
+
+    [Fact]
     public async Task MaybeRetryAsync_returns_at_most_query_topk_hits_after_merge()
     {
         IterativeRetrievalLoop sut = CreateSut(
@@ -195,6 +222,279 @@ public sealed class IterativeRetrievalLoopTests
             CancellationToken.None);
 
         hits.Should().HaveCount(RetrievalQuery.MaxTopK);
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_preserves_input_order_among_equal_scores_when_capping_to_topk()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = true, RefinedQueryText = null });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 2;
+
+        List<RetrievalHit> initialHits =
+        [
+            Hit("lexical-first", 0.75),
+            Hit("lexical-second", 0.75),
+            Hit("lexical-third", 0.75),
+        ];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => throw new InvalidOperationException("search pass must not run when critique is sufficient"),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits[0].ChunkId.Should().Be("lexical-first");
+        hits[1].ChunkId.Should().Be("lexical-second");
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_preserves_existing_then_retry_order_among_equal_scores_after_merge()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 4;
+
+        List<RetrievalHit> initialHits =
+        [
+            Hit("initial-a", 0.55),
+            Hit("initial-b", 0.55),
+        ];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>(
+            [
+                Hit("retry-a", 0.55),
+                Hit("retry-b", 0.55),
+            ]),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(4);
+        hits.Select(static h => h.ChunkId).Should().ContainInOrder("initial-a", "initial-b", "retry-a", "retry-b");
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_when_retry_expander_throws_propagates_exception()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("expander fault"));
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            expander.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        List<RetrievalHit> initialHits = [Hit("chunk-1", 0.4)];
+
+        Func<Task> act = async () => await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>([]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("expander fault");
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_retry_search_pass_receives_expanded_plan_with_distinct_embed_and_rerank_text()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync("refined architecture evidence", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgenticRetrievalQueryPlan
+            {
+                OriginalQueryText = "refined architecture evidence",
+                RerankQueryText = "rerank-only text",
+                EmbedText = "embed-only text",
+                UsedHyde = true,
+                UsedQueryRewrite = false,
+            });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            expander.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        AgenticRetrievalQueryPlan? capturedPlan = null;
+
+        await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            [Hit("chunk-1", 0.4)],
+            (_, plan, _) =>
+            {
+                capturedPlan = plan;
+                return Task.FromResult<IReadOnlyList<RetrievalHit>>([]);
+            },
+            CancellationToken.None);
+
+        capturedPlan.Should().NotBeNull();
+        capturedPlan!.EmbedText.Should().Be("embed-only text");
+        capturedPlan.RerankQueryText.Should().Be("rerank-only text");
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_when_critique_returns_whitespace_only_refinement_stops_without_retry_search()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .SetupSequence(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = false, RefinedQueryText = "   \t" });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        int searchPassCalls = 0;
+        (IReadOnlyList<RetrievalHit> hits, IterativeRetrievalTraceState? trace) = await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            [Hit("chunk-1", 0.4)],
+            (_, _, _) =>
+            {
+                searchPassCalls++;
+                return Task.FromResult<IReadOnlyList<RetrievalHit>>([Hit("chunk-2", 0.9)]);
+            },
+            CancellationToken.None);
+
+        searchPassCalls.Should().Be(0);
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("chunk-1");
+        trace!.IterativeRetrievalRounds.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task MaybeRetryAsync_first_critique_uses_original_query_text_not_expanded_embed_text()
+    {
+        string originalQuery = "network segmentation gaps";
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(originalQuery, It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = true });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        AgenticRetrievalQueryPlan expandedInitialPlan = new()
+        {
+            OriginalQueryText = originalQuery,
+            EmbedText = "hyde-expanded embed text",
+            RerankQueryText = "rewritten rerank text",
+            UsedHyde = true,
+            UsedQueryRewrite = true,
+        };
+
+        await sut.MaybeRetryAsync(
+            BuildQuery(),
+            expandedInitialPlan,
+            [Hit("chunk-1", 0.4), Hit("chunk-2", 0.3)],
+            (_, _, _) => throw new InvalidOperationException("search pass must not run when critique is sufficient"),
+            CancellationToken.None);
+
+        completionClient.Verify(
+            c => c.CritiqueRetrievalAsync(
+                originalQuery,
+                It.IsAny<IReadOnlyList<RetrievalHit>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)

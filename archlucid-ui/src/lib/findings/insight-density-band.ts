@@ -21,6 +21,8 @@ export const INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE =
 export const INSIGHT_DENSITY_BAND_VS_SCORE_LINE =
   "Band is decision-grade / review / generic. The integer is the engine score — not a buyer percentage." as const;
 
+export const INSIGHT_DENSITY_BAND_NOT_STORED_LINE = "Insight density band was not stored." as const;
+
 const BAND_PRESENTATIONS: Readonly<Record<InsightDensityBandId, InsightDensityBandPresentation>> = {
   "decision-grade": {
     id: "decision-grade",
@@ -65,7 +67,7 @@ export function formatInsightDensityBandLabel(score: number | null | undefined):
   }
 
   if (score === null || score === undefined || !Number.isFinite(score)) {
-    return `${band.label} band · Score not returned`;
+    return `${band.label} band · Insight density score was not stored.`;
   }
 
   return `${band.label} band · score ${Math.trunc(score)}`;

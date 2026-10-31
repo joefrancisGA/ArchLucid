@@ -35,16 +35,22 @@ public static class AzureInventorySecurityBaselineClassifier
     {
         string resourceType = ReadString(row, "resourceType");
         string resourceId = ReadString(row, "resourceId");
+        bool resourceIdFromNameFallback = false;
 
         if (string.IsNullOrWhiteSpace(resourceId))
         {
             resourceId = ReadString(row, "name");
+            resourceIdFromNameFallback = !string.IsNullOrWhiteSpace(resourceId);
         }
 
         if (string.IsNullOrWhiteSpace(resourceType) || string.IsNullOrWhiteSpace(resourceId))
         {
             return null;
         }
+
+        string fallbackDisclosure = resourceIdFromNameFallback
+            ? " Resource id was not stored; name was used to locate the row."
+            : string.Empty;
 
         if (!row.TryGetProperty("properties", out JsonElement properties))
         {
@@ -57,7 +63,7 @@ public static class AzureInventorySecurityBaselineClassifier
             return new InventorySecurityBaselineFinding(
                 resourceId,
                 resourceType,
-                "Storage account allows blob public access.",
+                "Storage account allows blob public access." + fallbackDisclosure,
                 "data-protection");
         }
 
@@ -67,7 +73,7 @@ public static class AzureInventorySecurityBaselineClassifier
             return new InventorySecurityBaselineFinding(
                 resourceId,
                 resourceType,
-                "Network security group allows administrative ingress from the internet.",
+                "Network security group allows administrative ingress from the internet." + fallbackDisclosure,
                 "network-isolation");
         }
 
@@ -77,7 +83,7 @@ public static class AzureInventorySecurityBaselineClassifier
             return new InventorySecurityBaselineFinding(
                 resourceId,
                 resourceType,
-                "SQL server reports weak TLS posture or public network access enabled.",
+                "SQL server reports weak TLS posture or public network access enabled." + fallbackDisclosure,
                 "encryption");
         }
 

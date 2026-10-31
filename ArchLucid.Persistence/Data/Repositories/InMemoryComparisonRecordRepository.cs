@@ -25,7 +25,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
-            _items.Add(ComparisonRecordRepositoryCore.Clone(record));
+            ComparisonRecord stored = ComparisonRecordRepositoryCore.Clone(record);
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(stored);
+            _items.Add(stored);
         }
 
         return Task.CompletedTask;
@@ -37,12 +39,19 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
+
         lock (_gate)
         {
             ComparisonRecord? row = _items.FirstOrDefault(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                ComparisonRecordIdLookup.StoredValueMatchesLookup(r.ComparisonRecordId, normalizedComparisonRecordId));
 
-            return Task.FromResult(row is null ? null : ComparisonRecordRepositoryCore.Clone(row));
+            if (row is null)
+                return Task.FromResult<ComparisonRecord?>(null);
+
+            ComparisonRecord clone = ComparisonRecordRepositoryCore.Clone(row);
+            ComparisonRecordPersistNormalizer.NormalizeForPersist(clone);
+            return Task.FromResult<ComparisonRecord?>(clone);
         }
     }
 
@@ -56,8 +65,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         {
             List<ComparisonRecord> list = _items
                 .Where(r =>
-                    string.Equals(r.LeftRunId, runId, StringComparison.Ordinal) ||
-                    string.Equals(r.RightRunId, runId, StringComparison.Ordinal))
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.LeftRunId, runId) ||
+                    ComparisonRecordRunIdSql.StoredRunIdMatchesLookup(r.RightRunId, runId))
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(ComparisonRecordRepositoryCore.Clone(r)))
                 .ToList();
@@ -72,13 +81,14 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
 
         lock (_gate)
         {
             List<ComparisonRecord> list = _items
                 .Where(r =>
-                    string.Equals(r.LeftExportRecordId, exportRecordId, StringComparison.Ordinal) ||
-                    string.Equals(r.RightExportRecordId, exportRecordId, StringComparison.Ordinal))
+                    ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.LeftExportRecordId, normalizedExportRecordId) ||
+                    ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.RightExportRecordId, normalizedExportRecordId))
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(r => ComparisonRecordListProjection.WithoutPayloadJson(ComparisonRecordRepositoryCore.Clone(r)))
                 .ToList();
@@ -204,19 +214,24 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
         cancellationToken.ThrowIfCancellationRequested();
 
+        string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
+
         lock (_gate)
         {
             int i = _items.FindIndex(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                ComparisonRecordIdLookup.StoredValueMatchesLookup(r.ComparisonRecordId, normalizedComparisonRecordId));
 
             if (i < 0)
                 return Task.FromResult(false);
 
-            if (label is not null)
-                _items[i].Label = label;
+            (string? normalizedLabel, IReadOnlyList<string>? normalizedTags) =
+                ComparisonRecordRepositoryCore.NormalizeLabelAndTagsForUpdate(label, tags);
 
-            if (tags is not null)
-                _items[i].Tags = [.. tags];
+            if (normalizedLabel is not null)
+                _items[i].Label = normalizedLabel;
+
+            if (normalizedTags is not null)
+                _items[i].Tags = [.. normalizedTags];
 
             return Task.FromResult(true);
         }
@@ -233,8 +248,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
 
         lock (_gate)
         {
+            string normalizedComparisonRecordId = ComparisonRecordIdLookup.NormalizeLookupKey(comparisonRecordId);
             ComparisonRecord? row = _items.FirstOrDefault(r =>
-                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+                ComparisonRecordIdLookup.StoredValueMatchesLookup(r.ComparisonRecordId, normalizedComparisonRecordId));
 
             if (row is null)
                 throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");

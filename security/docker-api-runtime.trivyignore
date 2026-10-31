@@ -1,3 +1,2 @@
-# CVE-2026-70188: Trivy lists fixed aspnet runtime 10.0.13, but MCR has no 10.0.13-alpine3.23 tag yet (latest patch tag: 10.0.12).
-# Remove this line when ArchLucid.Api/Dockerfile pins mcr.microsoft.com/dotnet/aspnet:10.0.13-alpine3.23 (or newer).
-CVE-2026-70188
+# CVE-2026-70188 was fixed in the serviced ASP.NET runtime; no suppression remains.
+# Keep this file for the Trivy --ignorefile contract. Never ignore a runtime CVE solely to pass CI.

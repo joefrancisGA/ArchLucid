@@ -27,7 +27,8 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| Metric | Value | Source |");
         sb.AppendLine("| --- | --- | --- |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
-        sb.AppendLine($"| Findings (total) | {deltas.FindingsBySeverity.Sum(static p => p.Value)} | `ArchitectureRunDetail.Results[*].Findings` |");
+        sb.AppendLine(
+            $"| Findings (total) | {FormatFindingsTotal(deltas)} | {FormatFindingsTotalSource(deltas)} |");
         sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
         sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.CountFilteredAsync(RunId)` |");
         sb.AppendLine();
@@ -42,7 +43,16 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
         if (deltas.FindingsBySeverity.Count == 0)
         {
-            sb.AppendLine("_(No findings on agent results for this run.)_");
+            if (deltas.MutedFindingsExcludedCount > 0)
+            {
+                sb.AppendLine(
+                    "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
+            }
+            else
+            {
+                sb.AppendLine("_(No unmuted findings were stored for this run.)_");
+            }
+
             sb.AppendLine();
             return;
         }
@@ -93,6 +103,9 @@ public static class FirstValueReportDeltasSectionFormatter
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
     {
+        if (!deltas.AuditRowCountResolved)
+            return "Audit row count was not attested.";
+
         if (deltas.AuditRowCount == 0)
             return "0";
         return deltas.AuditRowCountTruncated
@@ -106,5 +119,19 @@ public static class FirstValueReportDeltasSectionFormatter
             return "_(not attested — execution trace query failed)_";
 
         return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatFindingsTotal(PilotRunDeltas deltas) =>
+        PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas);
+
+    private static string FormatFindingsTotalSource(PilotRunDeltas deltas)
+    {
+        string list = deltas.FindingsCountsFromSnapshot
+            ? "`FindingsSnapshot.Findings` (unmuted only)"
+            : "`ArchitectureRunDetail.Results[*].Findings` (unmuted only)";
+
+        return deltas.MutedFindingsExcludedCount > 0
+            ? $"{list}; muted findings excluded"
+            : list;
     }
 }

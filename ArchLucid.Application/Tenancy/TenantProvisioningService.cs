@@ -223,7 +223,9 @@ public sealed class TenantProvisioningService(
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
-        string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
+        string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride)
+            ? _actorContext.GetActor().Trim()
+            : request.AuditActorOverride.Trim();
         await _auditService.LogAsync(
             new AuditEvent
             {
@@ -234,7 +236,7 @@ public sealed class TenantProvisioningService(
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(
-                    new { slug, request.AdminEmail, tier = request.Tier.ToString(), dataRegion = dataRegionKey }),
+                    new { slug, adminEmail = request.AdminEmail.Trim(), tier = request.Tier.ToString(), dataRegion = dataRegionKey }),
             }, ct);
         return new TenantProvisioningResult
         {

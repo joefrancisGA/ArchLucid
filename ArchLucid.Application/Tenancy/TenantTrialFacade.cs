@@ -162,7 +162,7 @@ public sealed class TenantTrialFacade(
     private static TenantTrialStatusDto BuildStatusResponse(TenantRecord tenant, int? daysRemaining) =>
         new()
         {
-            Status = string.IsNullOrWhiteSpace(tenant.TrialStatus) ? "None" : tenant.TrialStatus,
+            Status = FormatTrialStatusForDisplay(tenant.TrialStatus),
             TrialStartUtc = tenant.TrialStartUtc,
             TrialExpiresUtc = tenant.TrialExpiresUtc,
             DaysRemaining = daysRemaining,
@@ -175,7 +175,7 @@ public sealed class TenantTrialFacade(
             FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
             TimeToFirstCommittedManifestTotalSeconds = ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
             BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+            BaselineReviewCycleSource = NormalizeOptionalDisplayString(tenant.BaselineReviewCycleSource),
             BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
             IdentityHandoffPending = ComputeIdentityHandoffPending(tenant),
         };
@@ -184,12 +184,43 @@ public sealed class TenantTrialFacade(
         TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted)
         && tenant.EntraTenantId is null;
 
+    private static string FormatTrialStatusForDisplay(string? trialStatus)
+    {
+        if (string.IsNullOrWhiteSpace(trialStatus))
+            return "None";
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Active))
+            return TrialLifecycleStatus.Active;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Converted))
+            return TrialLifecycleStatus.Converted;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Expired))
+            return TrialLifecycleStatus.Expired;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ReadOnly))
+            return TrialLifecycleStatus.ReadOnly;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ExportOnly))
+            return TrialLifecycleStatus.ExportOnly;
+
+        if (TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Deleted))
+            return TrialLifecycleStatus.Deleted;
+
+        return trialStatus.Trim();
+    }
+
     private static double? ComputeTimeToFirstCommittedManifestTotalSeconds(TenantRecord tenant)
     {
         if (tenant.TrialFirstManifestCommittedUtc is not { } committedUtc)
             return null;
 
         DateTimeOffset anchor = tenant.TrialStartUtc ?? tenant.CreatedUtc;
-        return (committedUtc - anchor).TotalSeconds;
+        double totalSeconds = (committedUtc - anchor).TotalSeconds;
+
+        return totalSeconds < 0 ? null : totalSeconds;
     }
+
+    private static string? NormalizeOptionalDisplayString(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

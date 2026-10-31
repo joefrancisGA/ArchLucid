@@ -31,11 +31,15 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
             column.Item().PaddingVertical(2).Text(headline).FontSize(9);
 
-            if (!string.IsNullOrWhiteSpace(item.Detail))
-                column.Item().Text(item.Detail.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
+            string detailText = string.IsNullOrWhiteSpace(item.Detail)
+                ? ArchitectureReviewBoardExportHonestyCopy.EvidenceDetailNotStored
+                : item.Detail.Trim();
+            column.Item().Text(detailText).FontSize(8).FontColor(Colors.Grey.Darken2);
 
-            if (!string.IsNullOrWhiteSpace(item.Reference))
-                column.Item().Text($"Reference: {item.Reference.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
+            string referenceText = string.IsNullOrWhiteSpace(item.Reference)
+                ? ArchitectureReviewBoardExportHonestyCopy.EvidenceReferenceNotStored
+                : $"Reference: {item.Reference.Trim()}";
+            column.Item().Text(referenceText).FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -49,16 +53,18 @@ public sealed partial class ArchitectureReviewPdfBuilder
         AddHeading(column, ArchitectureReviewBoardExportSectionCatalog.GetHeading(
             ArchitectureReviewBoardExportSectionKind.TraceabilityAppendix), firstMajorHeading);
 
-        List<(string Key, string Value)> rows = [];
-
-        if (!string.IsNullOrWhiteSpace(model.HttpCorrelationId))
-            rows.Add(("HTTP correlation ID", model.HttpCorrelationId.Trim()));
-
-        if (!string.IsNullOrWhiteSpace(model.ManifestVersion))
-            rows.Add(("Architecture snapshot version", model.ManifestVersion.Trim()));
-
-        if (!string.IsNullOrWhiteSpace(model.ExtractorTimestampUtcLabel))
-            rows.Add(("Extractor timestamp (UTC)", model.ExtractorTimestampUtcLabel.Trim()));
+        List<(string Key, string Value)> rows =
+        [
+            ("HTTP correlation ID", string.IsNullOrWhiteSpace(model.HttpCorrelationId)
+                ? ArchitectureReviewBoardExportHonestyCopy.HttpCorrelationIdNotStored
+                : model.HttpCorrelationId.Trim()),
+            ("Architecture snapshot version", string.IsNullOrWhiteSpace(model.ManifestVersion)
+                ? ArchitectureReviewBoardExportHonestyCopy.ManifestVersionNotStored
+                : model.ManifestVersion.Trim()),
+            ("Extractor timestamp (UTC)", string.IsNullOrWhiteSpace(model.ExtractorTimestampUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.ExtractorTimestampNotStored
+                : model.ExtractorTimestampUtcLabel.Trim()),
+        ];
 
         foreach (ArchitectureReviewBoardExportTraceRow line in model.TraceabilityLines ?? [])
         {

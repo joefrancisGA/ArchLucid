@@ -7,6 +7,10 @@ namespace ArchLucid.ArtifactSynthesis.Packaging;
 /// </summary>
 public static class FileNameSanitizer
 {
+    internal const string MissingFileNameEntry = "Artifact file name was not stored.txt";
+
+    internal const string EmptyFileNameEntry = "Artifact file name was stored empty.txt";
+
     private static readonly HashSet<char> InvalidChars = CreateInvalidCharSet();
 
     public static string Sanitize(string fileName)
@@ -16,13 +20,16 @@ public static class FileNameSanitizer
         // Tab/CR/LF count as whitespace but are not always in Path.GetInvalidFileNameChars (e.g. Linux CI).
         // Resolve blank names before OS-specific replacement so exports stay consistent across runners.
 
+        if (fileName.Length == 0)
+            return MissingFileNameEntry;
+
         if (string.IsNullOrWhiteSpace(fileName))
-            return "artifact.txt";
+            return EmptyFileNameEntry;
 
         string normalized = NormalizeTraversalHomoglyphs(fileName);
         string sanitized = new(normalized.Select(c => InvalidChars.Contains(c) ? '_' : c).ToArray());
 
-        return string.IsNullOrWhiteSpace(sanitized) ? "artifact.txt" : sanitized;
+        return string.IsNullOrWhiteSpace(sanitized) ? EmptyFileNameEntry : sanitized;
     }
 
     private static string NormalizeTraversalHomoglyphs(string fileName)

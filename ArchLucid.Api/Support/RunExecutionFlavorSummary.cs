@@ -23,12 +23,17 @@ internal static class RunExecutionFlavorSummary
     /// </summary>
     public static string Build(bool realModeFellBackToSimulator, string? hostAgentExecutionMode)
     {
-        string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
-
         if (realModeFellBackToSimulator)
         {
             return "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
         }
+
+        if (string.IsNullOrWhiteSpace(hostAgentExecutionMode))
+        {
+            return "Agent execution mode was not stored for this API host when this page was loaded. Treat agent-assisted steps conservatively until you confirm host configuration.";
+        }
+
+        string mode = hostAgentExecutionMode.Trim();
 
         return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
             ? "Agent-assisted steps used your API host’s configured model path when this page was loaded."

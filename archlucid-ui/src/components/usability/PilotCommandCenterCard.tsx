@@ -43,7 +43,7 @@ import {
 } from "@/lib/operator-canonical-next-action";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   resolveOperatorHomeLifecycleEmphasizedPath,
   resolveLatestArchitectureDraftHref,
@@ -107,7 +107,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       return null;
     }
 
-    return deriveOperatorHomeWorkspaceMetrics(runsDashboard.items, runsDashboard.totalCount);
+    return deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+      runsDashboard.items,
+      runsDashboard.totalCount,
+    );
   }, [runsDashboard]);
   // SSR seed props are a stale floor once live rows arrive: keeping them would pin counts that
   // Refresh just proved lower (a resolved finding, a deleted review).
@@ -117,6 +120,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     workspaceActivity.openFindingsCount,
     workspaceMetrics?.openFindings ?? 0,
   );
+  const openFindingsCountForNextAction: number | null =
+    runsDashboard === undefined && useSsrSeedCounts && props.openFindingsCount === undefined
+      ? null
+      : openFindingsCount;
   const governanceWarningsCount = Math.max(
     useSsrSeedCounts ? props.governanceWarningsCount ?? 0 : 0,
     workspaceMetrics?.governanceWarnings ?? 0,
@@ -234,7 +241,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     }
 
     return resolvePilotNextBestAction(commitQuery.data, hasCommittedArchitectureReview, {
-      openFindingsCount,
+      openFindingsCount: openFindingsCountForNextAction,
       hasWorkspaceReviews,
     });
   }, [
@@ -243,7 +250,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     commitQuery.data,
     hasCommittedArchitectureReview,
     hasWorkspaceReviews,
-    openFindingsCount,
+    openFindingsCountForNextAction,
     workspacePhase,
   ]);
 

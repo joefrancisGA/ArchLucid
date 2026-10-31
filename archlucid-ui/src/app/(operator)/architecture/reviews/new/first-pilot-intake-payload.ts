@@ -7,7 +7,14 @@ import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-
 import { normalizeFirstPilotReviewTitle } from "@/lib/first-pilot-intake";
 import { getOrCreateWizardRequestId } from "@/lib/wizard-idempotency-key";
 
-const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
+export const FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY =
+  "Environment and cloud provider are not collected on first-pilot intake; the API applies its default request shape from your evidence and brief." as const;
+
+export const FIRST_PILOT_REQUIRED_CAPABILITIES_NOT_COLLECTED_COPY =
+  "Required capabilities are not collected on first-pilot intake; the API receives the default proof-scope capability list for this path." as const;
+
+export const FIRST_PILOT_EMPTY_LISTS_NOT_RECORDED_NONE_COPY =
+  "Constraints and assumptions are sent as empty lists on this path — not recorded as a \"none\" answer." as const;
 
 /**
  * First-run intake sends every proof dimension. The former operator-facing selector was removed because
@@ -29,8 +36,6 @@ export function buildFirstPilotPayload(
     requestId: getOrCreateWizardRequestId(),
     description: brief.trim(),
     systemName: normalizeFirstPilotReviewTitle(title),
-    environment: "staging",
-    cloudProvider: V1_DEFAULT_CLOUD_PROVIDER,
     constraints: [],
     requiredCapabilities,
     assumptions: [],

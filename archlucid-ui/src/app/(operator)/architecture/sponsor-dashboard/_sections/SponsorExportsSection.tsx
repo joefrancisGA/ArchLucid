@@ -17,6 +17,7 @@ import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-sco
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -144,6 +145,11 @@ export function SponsorExportsSection({
   const [docxDownloadBusy, setDocxDownloadBusy] = useState(false);
   const [onePagerDownloadBusy, setOnePagerDownloadBusy] = useState(false);
 
+  const finalizedReviewsLoadBlocked =
+    runsQuery.isPending || runsQuery.isError;
+  const finalizedReviewsBlockedMessage =
+    "Finalized reviews could not be loaded, so the report download is not listed.";
+
   const sponsorDocx = useMemo((): SponsorDocxTarget | null => {
     if (runsQuery.data === undefined) {
       return null;
@@ -155,7 +161,7 @@ export function SponsorExportsSection({
     return first !== undefined
       ? {
           runId: first.runId,
-          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || first.runId,
+          manifestVersion: first.goldenManifestId?.trim() ?? "",
         }
       : null;
   }, [runsQuery.data]);
@@ -177,11 +183,33 @@ export function SponsorExportsSection({
       <RoiSponsorExportVocabularyRail currentSurfaceId="sponsor-dashboard" />
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />
       <SponsorExportSendHonestyStrip testIdPrefix="sponsor-dashboard-exports" />
+      {sponsorDocx === null && runsQuery.data !== undefined ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-exports-target-line">
+          Sponsor export target was not stored. Commit a review to unlock DOCX and one-pager downloads.
+        </p>
+      ) : null}
+      {sponsorDocx !== null && sponsorDocx.manifestVersion.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="sponsor-exports-golden-manifest-honesty"
+        >
+          {SIGNED_MANIFEST_LABEL} id was not stored on the first finalized review, so sealed DOCX and one-pager
+          downloads stay blocked.
+        </p>
+      ) : null}
+      {finalizedReviewsLoadBlocked ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="sponsor-exports-finalized-reviews-blocked"
+        >
+          {finalizedReviewsBlockedMessage}
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {sponsorDocx !== null ? (
+        {sponsorDocx !== null && !finalizedReviewsLoadBlocked ? (
           <SponsorExportOutputCard
             title={v.sponsorExportsDocxTitle}
-            description={v.sponsorExportsDocxDescription}
+            description={`${v.sponsorExportsDocxDescription} This download uses the first finalized review in this workspace (${sponsorDocx.runId}).`}
             locked={
               runCollateralSealedManifestCopyBlockedReason({
                 runId: sponsorDocx.runId,
@@ -211,10 +239,10 @@ export function SponsorExportsSection({
             testId="sponsor-exports-docx-download"
           />
         ) : null}
-        {sponsorDocx !== null ? (
+        {sponsorDocx !== null && !finalizedReviewsLoadBlocked ? (
           <SponsorExportOutputCard
             title="Sponsor one-pager (PDF)"
-            description="Executive summary PDF from a finalized review."
+            description={`Executive summary PDF from a finalized review. This download uses the first finalized review in this workspace (${sponsorDocx.runId}).`}
             locked={
               runCollateralSealedManifestCopyBlockedReason({
                 runId: sponsorDocx.runId,
@@ -243,6 +271,25 @@ export function SponsorExportsSection({
             primaryDownloadBusy={onePagerDownloadBusy}
             testId="sponsor-exports-one-pager-download"
           />
+        ) : runsQuery.data !== undefined ? (
+          <>
+            <SponsorExportOutputCard
+              title={v.sponsorExportsDocxTitle}
+              description={v.sponsorExportsDocxDescription}
+              locked
+              previewActionLabel={v.sponsorExportsPreviewSampleAction}
+              previewHref={ARCHITECTURE_SCORECARD_PATH}
+              testId="sponsor-exports-docx-download"
+            />
+            <SponsorExportOutputCard
+              title="Sponsor one-pager (PDF)"
+              description="Executive summary PDF from a finalized review."
+              locked
+              previewActionLabel={v.sponsorExportsPreviewSampleAction}
+              previewHref={ARCHITECTURE_SCORECARD_PATH}
+              testId="sponsor-exports-one-pager-download"
+            />
+          </>
         ) : null}
         <SponsorExportOutputCard
           title={v.sponsorExportsScorecardTitle}

@@ -59,6 +59,9 @@ public sealed class ItsmTenantConnectorCredentialResolver(
         TenantItsmConnectorConnectionRecord? tenantRow =
             await _connectionRepository.GetAsync(tenantId, provider, cancellationToken).ConfigureAwait(false);
 
+        if (tenantRow is not null && !tenantRow.IsEnabled)
+            return null;
+
         if (tenantRow is not null
             && tenantRow.IsEnabled
             && !string.IsNullOrWhiteSpace(tenantRow.InboundWebhookKeyVaultSecretName))
@@ -69,9 +72,14 @@ public sealed class ItsmTenantConnectorCredentialResolver(
 
             if (!string.IsNullOrWhiteSpace(secret))
                 return secret.Trim();
+
+            return null;
         }
 
         IntegrationsItsmInboundOptions inbound = _inboundOptions.CurrentValue;
+
+        if (_outboundOptions.CurrentValue is { RequireTenantScopedCredentials: true })
+            return null;
 
         if (!inbound.AllowDeploymentWideWebhookSecrets)
             return null;

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts;
 
 /// <summary>
@@ -86,11 +88,13 @@ public class AlertRecord
     } = null!;
 
     /// <summary>Lifecycle state (<see cref="AlertStatus" />).</summary>
+    private string status = AlertStatus.Open;
+
     public string Status
     {
-        get;
-        set;
-    } = AlertStatus.Open;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceStringDefault(value, AlertStatus.Open);
+    }
 
     /// <summary>Compact metric or rule summary for triage.</summary>
     public string TriggerValue

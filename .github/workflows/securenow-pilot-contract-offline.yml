@@ -1,0 +1,41 @@
+name: SecureNow controlled pilot contract — offline GTM-05
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'scripts/ci/audit_securenow_controlled_pilot_contract.py'
+      - 'scripts/ci/test_audit_securenow_controlled_pilot_contract.py'
+      - 'docs/securenow/CONTROLLED_PILOT_OFFER.md'
+      - 'docs/securenow/BETA_EVIDENCE_MATRIX.json'
+      - 'docs/securenow/BUYER_PROOF_DEMO.md'
+      - 'docs/securenow/BETA_EVIDENCE_GATE.md'
+      - 'docs/securenow/BETA_DEPLOYMENT_SMOKE.md'
+      - 'docs/securenow/CONTROLLED_PILOT_CONTRACT_AUDIT.md'
+      - '.github/workflows/securenow-pilot-contract-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Regression tests — pilot terms must never auto-approve release
+        run: python3 -m unittest scripts.ci.test_audit_securenow_controlled_pilot_contract -v
+      - name: Audit canonical controlled pilot contract and supporting evidence
+        run: >-
+          python3 scripts/ci/audit_securenow_controlled_pilot_contract.py
+          --output artifacts/commercial-readiness/securenow-controlled-pilot-contract.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: securenow-pilot-offer-contract-audit
+          path: artifacts/commercial-readiness/securenow-controlled-pilot-contract.json
+          if-no-files-found: warn

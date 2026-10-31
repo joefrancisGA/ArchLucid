@@ -60,7 +60,7 @@ function isStructuredConstraintAnswer(answer: string): boolean {
     return true;
   }
 
-  if (/^Monthly cost ceiling about \$/i.test(answer)) {
+  if (/^Monthly cost ceiling \$/i.test(answer)) {
     return true;
   }
 

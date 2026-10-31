@@ -71,10 +71,16 @@ export function formatArchitectureDiagramMissingExplanation(
   missingCategories: readonly ArchitectureDiagramMissingCategory[],
 ): string {
   if (missingCategories.length === 0) {
-    return "Add more architecture detail to generate a diagram.";
+    return "Diagram readiness categories were not stored.";
   }
 
-  const labels = missingCategories.map((category) => ARCHITECTURE_DIAGRAM_MISSING_CATEGORY_LABELS[category]);
+  const labels = missingCategories
+    .map((category) => ARCHITECTURE_DIAGRAM_MISSING_CATEGORY_LABELS[category])
+    .filter((label) => label.trim().length > 0);
+
+  if (labels.length === 0) {
+    return "Diagram readiness categories were not stored.";
+  }
 
   return `Still needed: ${labels.join(", ")}.`;
 }

@@ -56,7 +56,7 @@ describe("run-detail-workspace-derive", () => {
       finding(3, { isMuted: true }),
     ]);
 
-    expect(counts).toEqual({ critical: 1, high: 1, medium: 1, low: 1 });
+    expect(counts).toEqual({ critical: 1, high: 1, medium: 1, low: 0, info: 1 });
   });
 
   it("maps draft vs analysis-in-progress status", () => {
@@ -69,7 +69,8 @@ describe("run-detail-workspace-derive", () => {
       buyerPolishedArtifactTable: false,
     });
 
-    expect(draft.label).toBe("Draft");
+    expect(draft.label).toBe("Sealed manifest id was not stored.");
+    expect(draft.kind).toBe("draft");
 
     const inProgress = deriveRunDetailWorkspaceStatus({
       run: { runId: "r1", projectId: "p1", createdUtc: "2026-01-01T00:00:00Z" } as RunSummary,
@@ -263,6 +264,9 @@ describe("run-detail-workspace-derive", () => {
   it("formats decision snapshot findings line with blocking and triage segments", () => {
     expect(formatDecisionSnapshotFindingsLine(3, 1, 2)).toBe("3 open · 1 blocks approval · 1 needs triage");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0)).toBe("None open");
+    expect(formatDecisionSnapshotFindingsLine(0, 0, 0, false)).toBe("Findings snapshot was not stored.");
+    expect(formatDecisionSnapshotFindingsLine(3, null, 2)).toBe("3 open · 2 need triage");
+    expect(formatDecisionSnapshotFindingsLine(3, undefined, 0)).toBe("3 open");
   });
 
   it("maps topology extraction gaps to coverage language in primary concern", () => {
@@ -295,6 +299,12 @@ describe("run-detail-workspace-derive", () => {
     ).toBe("Approved");
   });
 
+  it("does not infer zero blocking findings when the count was omitted", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: null }),
+    ).toBe("Pending");
+  });
+
   it("does not append a second blocking qualifier", () => {
     expect(
       formatDecisionSnapshotGovernanceOutcome({
@@ -321,8 +331,12 @@ describe("run-detail-workspace-derive", () => {
     const summary = deriveReviewStatusSummary({
       reviewOutcome: "Approved with monitoring",
       findings: [
-        finding(2, { findingId: "sensitive-data-minimization-risk", title: "PHI Minimization Risk" }),
-        finding(0, { findingId: "f-low", title: "Low item" }),
+        finding(2, {
+          findingId: "sensitive-data-minimization-risk",
+          title: "PHI Minimization Risk",
+          evidenceRefCount: 0,
+        }),
+        finding(0, { findingId: "f-low", title: "Low item", evidenceRefCount: 0 }),
       ],
       recommendedActions: [],
       blockingFindingCount: 0,
@@ -372,7 +386,7 @@ describe("run-detail-workspace-derive", () => {
     expect(actions.every((action) => action.actionLabel.length > 0)).toBe(true);
   });
 
-  it("uses template label for H1 when manifest exists without a system name", () => {
+  it("keeps policy pack name in the eyebrow, not the H1, when manifest exists without a system name", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "ArchLucid",
       systemName: null,
@@ -381,8 +395,8 @@ describe("run-detail-workspace-derive", () => {
       manifestId: "manifest-1",
     });
 
-    expect(presentation.h1Title).toBe("Healthcare baseline pack review");
-    expect(presentation.h1Title).not.toBe("Architecture under review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
+    expect(presentation.eyebrowLabel).toBe("Review template: Healthcare baseline pack");
   });
 
   it("disambiguates product-brand titles in the review header", () => {
@@ -414,7 +428,7 @@ describe("run-detail-workspace-derive", () => {
       runId: "run-abc-123",
     });
 
-    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
@@ -427,13 +441,18 @@ describe("run-detail-workspace-derive", () => {
       manifestId: null,
     });
 
-    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
-  it("does not invent package version from manifest id", () => {
+  it("does not invent package version from manifest id or policy rule set version", () => {
     expect(derivePackageVersionLabel(null, "9026d565-0000-0000-0000-0000000099e8")).toBeNull();
-    expect(derivePackageVersionLabel({ ruleSetVersion: "2.1.0" } as never, "manifest-1")).toBe("2.1.0");
+    expect(
+      derivePackageVersionLabel({ currentManifestVersion: "3.0.1" } as RunSummary, "manifest-1"),
+    ).toBe("3.0.1");
+    expect(
+      derivePackageVersionLabel({ currentManifestVersion: "" } as RunSummary, "manifest-1"),
+    ).toBeNull();
   });
 
   it("selects not-finalized metadata absent reasons when no manifest exists", () => {
@@ -511,6 +530,16 @@ describe("run-detail-workspace-derive", () => {
     ]);
 
     expect(summary.summaryLine).toBe("1 of 2 open findings have linked evidence");
+  });
+
+  it("does not treat missing evidence ref counts as zero linked findings", () => {
+    const summary = deriveEvidenceCoverageSummary([
+      finding(1, { evidenceRefCount: null }),
+      finding(2, { evidenceRefCount: null }),
+      finding(0, { evidenceRefCount: null }),
+    ]);
+
+    expect(summary.summaryLine).toBe("Evidence link count was not stored.");
   });
 
   it("shortens next-action copy for primary CTA labels", () => {

@@ -1,5 +1,9 @@
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
+
 /** Shown when an action attribution field has no recorded user name. */
-export const ACTION_ACTOR_UNAVAILABLE = "N/A";
+export const ACTION_ACTOR_UNAVAILABLE = "Actor was not stored.";
+
+export const GOVERNANCE_DECISION_OWNER_NAME_NOT_STORED = "Decision owner name was not stored." as const;
 
 type MeClaim = { readonly type: string; readonly value: string };
 
@@ -84,6 +88,28 @@ export function formatGovernanceDecisionOwnerName(name: string | null | undefine
   }
 
   return trimmed;
+}
+
+export type GovernanceDecisionOwnerCell = {
+  readonly nameLabel: string;
+  readonly userId: string | null;
+};
+
+/** Separates stored display names from raw user ids on governance decision owner cells. */
+export function resolveGovernanceDecisionOwnerCell(
+  operatorGovernanceDecisionByUserId: string | null | undefined,
+): GovernanceDecisionOwnerCell {
+  const trimmed = (operatorGovernanceDecisionByUserId ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return { nameLabel: "Decision owner was not stored.", userId: null };
+  }
+
+  if (isUuidLike(trimmed)) {
+    return { nameLabel: GOVERNANCE_DECISION_OWNER_NAME_NOT_STORED, userId: trimmed };
+  }
+
+  return { nameLabel: trimmed, userId: null };
 }
 
 export function formatGovernanceApproverName(name: string | null | undefined): string {

@@ -45,6 +45,12 @@ function modeIsUnavailable(mode: StructuralExecutionModeInput): boolean {
   return mode === undefined || mode === null || normalizeModeLabel(mode) === null;
 }
 
+const EXECUTION_MODE_NOT_STORED = "Execution mode was not stored." as const;
+
+function formatCompareExecutionModeSideLabel(mode: StructuralExecutionModeInput): string {
+  return normalizeModeLabel(mode) ?? EXECUTION_MODE_NOT_STORED;
+}
+
 /** TB-2071: execution-mode + trust honesty for compare delta narratives. */
 export function resolveCompareExecutionModeHonesty(
   baseline: RunSummary | null,
@@ -93,8 +99,8 @@ function buildAdvisoryParagraph(
   anyNonReal: boolean,
   modeUnavailable: boolean,
 ): string | null {
-  const baselineLabel = normalizeModeLabel(baselineMode) ?? "unknown";
-  const updatedLabel = normalizeModeLabel(updatedMode) ?? "unknown";
+  const baselineLabel = formatCompareExecutionModeSideLabel(baselineMode);
+  const updatedLabel = formatCompareExecutionModeSideLabel(updatedMode);
 
   if (modeUnavailable) {
     return MODE_UNAVAILABLE_ADVISORY;

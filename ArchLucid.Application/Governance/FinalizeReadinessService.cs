@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Findings;
@@ -417,7 +418,8 @@ public sealed class FinalizeReadinessService(
         {
             Code = "pre_commit_gate",
             Layer = FinalizeReadinessLayers.Governance,
-            Message = gateResult.Reason ?? "Policy pack thresholds would block finalize.",
+            Message = (gateResult.Reason ?? "Policy pack thresholds would block finalize.")
+                + " Recording finding dispositions does not bypass finalize gates.",
             BlockExplanation = blockExplanation,
         });
     }
@@ -506,8 +508,13 @@ public sealed class FinalizeReadinessService(
             });
         }
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                _agentExecutionTraceRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         AgentOutputQualityGateOptions qualityOptions = _qualityGateOptionsResolver.Resolve(cancellationToken);
 

@@ -3,9 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { QuickDecisionFinding } from ".././quick-decision-summary-derive";
 
 import {
+  FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY,
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
+  rollupWhatIfSelectedProjectedSavingsUsd,
 } from "./findings-what-if-analysis";
 
 function buildFinding(findingId: string, wireJson: string): QuickDecisionFinding {
@@ -22,10 +25,14 @@ function buildFinding(findingId: string, wireJson: string): QuickDecisionFinding
 }
 
 describe("findings-what-if-analysis", () => {
-  it("readFindingProjectedImpactUsd returns 0 for unparsable or absent impact", () => {
-    expect(readFindingProjectedImpactUsd(buildFinding("f1", "not json"))).toBe(0);
-    expect(readFindingProjectedImpactUsd(buildFinding("f2", "{}"))).toBe(0);
-    expect(readFindingProjectedImpactUsd(buildFinding("f3", '{"projectedImpactUsd":"1200"}'))).toBe(0);
+  it("readFindingProjectedImpactUsd returns null for unparsable or absent impact", () => {
+    expect(readFindingProjectedImpactUsd(buildFinding("f1", "not json"))).toBeNull();
+    expect(readFindingProjectedImpactUsd(buildFinding("f2", "{}"))).toBeNull();
+    expect(readFindingProjectedImpactUsd(buildFinding("f3", '{"projectedImpactUsd":"1200"}'))).toBeNull();
+  });
+
+  it("readFindingProjectedImpactUsd returns zero when the wire stores zero", () => {
+    expect(readFindingProjectedImpactUsd(buildFinding("f0", '{"projectedImpactUsd":0}'))).toBe(0);
   });
 
   it("readFindingProjectedImpactUsd reads the finite wire value", () => {
@@ -56,8 +63,55 @@ describe("findings-what-if-analysis", () => {
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":0}')], null)).toBe(false);
   });
 
+  it("omits missing projected impact from savings totals (P-01)", () => {
+    const findings = [
+      buildFinding("f-with", '{"projectedImpactUsd":500}'),
+      buildFinding("f-missing", "{}"),
+    ];
+
+    const total = findings.reduce((sum, finding) => {
+      const impact = readFindingProjectedImpactUsd(finding);
+
+      return impact !== null && impact > 0 ? sum + impact : sum;
+    }, 0);
+
+    expect(total).toBe(500);
+    expect(readFindingProjectedImpactUsd(findings[1]!)).toBeNull();
+  });
+
   it("hasFindingsWhatIfAnalysisContent is true with a baseline or projected savings", () => {
     expect(hasFindingsWhatIfAnalysisContent([], 10000)).toBe(true);
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":1200}')], null)).toBe(true);
+  });
+
+  it("exports projected cost off and nothing-selected copy", () => {
+    expect(FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY).toMatch(/what-if mode/i);
+    expect(FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY).toMatch(/Select findings/i);
+  });
+
+  it("rollupWhatIfSelectedProjectedSavingsUsd does not treat omitted impact as zero", () => {
+    const selected = new Set(["f1", "f2"]);
+
+    expect(
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        [
+          { findingId: "f1", savingsUsd: 100 },
+          { findingId: "f2", savingsUsd: null },
+        ],
+        selected,
+        true,
+      ),
+    ).toEqual({ totalUsd: null, incomplete: true });
+
+    expect(
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        [
+          { findingId: "f1", savingsUsd: 100 },
+          { findingId: "f2", savingsUsd: 50 },
+        ],
+        selected,
+        true,
+      ),
+    ).toEqual({ totalUsd: 150, incomplete: false });
   });
 });

@@ -27,21 +27,21 @@ public static class FastPathContextModelBuilder
                 ElementId = "fast-system-1",
                 Name = systemTitle,
                 Kind = "SoftwareSystem",
-                ReasoningTrace = "Heuristic: software system name taken from the last non-empty path segment of the repository URL."
+                ReasoningTrace = "Heuristic placeholder from repository URL only; repository contents were not read."
             },
             new()
             {
                 ElementId = "fast-container-app",
                 Name = $"{systemTitle} workload",
                 Kind = "Container",
-                ReasoningTrace = "Heuristic placeholder for compute / application tier. Run full context ingest for repository-accurate components."
+                ReasoningTrace = "Heuristic placeholder for compute / application tier. Repository contents were not read."
             },
             new()
             {
                 ElementId = "fast-container-data",
                 Name = $"{systemTitle} data",
                 Kind = "Container",
-                ReasoningTrace = "Heuristic placeholder for persistence. Refine with connector inventory after deep ingest."
+                ReasoningTrace = "Heuristic placeholder for persistence. Repository contents were not read."
             }
         ];
         string combined = $"{uri.AbsoluteUri} {slug}".ToUpperInvariant();
@@ -68,7 +68,12 @@ public static class FastPathContextModelBuilder
             });
         }
 
-        return new FastPathContextPreviewResponse { SourceUrl = trimmed, Elements = elements, Mode = "heuristic-v1" };
+        return new FastPathContextPreviewResponse
+        {
+            SourceUrl = trimmed,
+            Elements = elements,
+            Mode = "heuristic-v1-not-from-repository",
+        };
     }
 
     private static string ExtractRepositorySlug(Uri uri)

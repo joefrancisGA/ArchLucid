@@ -113,6 +113,119 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_policy_pack_version_null_when_policy_titles_are_whitespace_only()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RequestId = "req-1",
+            Policies =
+            [
+                new PolicyEvidence { PolicyId = "blank", Title = "   " },
+            ],
+        };
+
+        List<AgentExecutionTrace> traces = [BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5)];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.PolicyPackVersion.Should().BeNull();
+    }
+
+    [Fact]
+    public void Aggregate_provider_kind_is_empty_when_all_trace_slots_are_null()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+        List<AgentExecutionTrace> traces = [null!, null!];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.ProviderKind.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Aggregate_provider_kind_is_empty_when_no_traces_persisted()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            [],
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.ProviderKind.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Aggregate_skips_null_trace_entries_when_summing_reasoning_tokens()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+        List<AgentExecutionTrace> traces =
+        [
+            null!,
+            BuildTrace("gpt-4o-arch", reasoningTokens: 40),
+        ];
+
+        Func<ReviewRunEngineProvenance> act = () => ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        act.Should().NotThrow();
+        act().TotalOutputTokens.Should().Be(40);
+    }
+
+    [Fact]
+    public void Aggregate_skips_null_policy_entries_when_deriving_policy_pack_version()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RequestId = "req-1",
+            Policies =
+            [
+                null!,
+                new PolicyEvidence
+                {
+                    PolicyId = "healthcare-claims",
+                    Title = "Healthcare Claims",
+                },
+            ],
+        };
+
+        List<AgentExecutionTrace> traces = [BuildTrace("gpt-4o-arch", inputTokens: 10, outputTokens: 5)];
+
+        Func<ReviewRunEngineProvenance> act = () => ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        act.Should().NotThrow();
+        act().PolicyPackVersion.Should().Be("Healthcare Claims");
+    }
+
+    [Fact]
     public void Aggregate_tolerates_null_policies_on_deserialized_evidence_package()
     {
         const string evidenceJson = """

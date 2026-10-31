@@ -61,6 +61,7 @@ public sealed partial class ArchitectureRiskRegisterReader
                     IsStale = isStale,
                     EvidenceHref = evidenceHref,
                     HumanReviewStatus = ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault(row.HumanReviewStatus),
+                    HumanReviewStatusStored = !string.IsNullOrWhiteSpace(row.HumanReviewStatus),
                     ItsmLinkedTicketsSummary = row.ItsmLinkedTicketsSummary,
                     SystemName = row.SystemName,
                     ResourceId = row.ResourceId,

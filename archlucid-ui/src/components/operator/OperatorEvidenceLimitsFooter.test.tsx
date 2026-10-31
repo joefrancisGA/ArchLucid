@@ -98,6 +98,9 @@ describe("OperatorEvidenceLimitsFooter", () => {
     );
 
     expect(screen.getByTestId("operator-evidence-limits-inspect-metadata")).toHaveTextContent(/dep-a/);
+    expect(screen.getByTestId("operator-evidence-limits-inspect-metadata")).toHaveTextContent(
+      /prompt template version was not stored/i,
+    );
 
     rerender(
       <OperatorEvidenceLimitsFooter runId="r1" inspectMetadata={{ modelDeploymentName: "", promptTemplateVersion: "v3" }} />,

@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -147,7 +148,9 @@ public sealed class RunSummaryOnePagerExportService(
 
         string SponsorReport = await BuildSponsorReportAsync(detail, topFindings, cancellationToken);
         IReadOnlyList<string> topTitles = topFindings
-            .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
+            .Select(static f => string.IsNullOrWhiteSpace(f.Message)
+                ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
+                : f.Message.Trim())
             .ToArray();
 
         IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
@@ -216,7 +219,9 @@ public sealed class RunSummaryOnePagerExportService(
             prompt.Append("- ");
             prompt.Append(finding.Severity);
             prompt.Append(": ");
-            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message) ? finding.Category : finding.Message.Trim());
+            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message)
+                ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
+                : finding.Message.Trim());
         }
 
         string raw = await _completionClient.CompleteJsonAsync(

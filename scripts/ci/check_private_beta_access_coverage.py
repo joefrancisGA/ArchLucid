@@ -69,7 +69,18 @@ def collect_violations(root: Path) -> list[str]:
             violations.append(f"missing private-beta coverage file: {relative_path}")
             continue
 
-        text = path.read_text(encoding="utf-8", errors="replace")
+        # Do not treat linked or corrupted files as evidence that a scenario
+        # is present in this checkout.
+        if path.is_symlink():
+            violations.append(f"private-beta coverage file must not be a symlink: {relative_path}")
+            continue
+
+        try:
+            text = path.read_text(encoding="utf-8", errors="strict")
+        except (OSError, UnicodeError) as error:
+            violations.append(f"unable to read private-beta coverage file {relative_path}: {type(error).__name__}")
+            continue
+
         missing = [marker for marker in markers if marker not in text]
 
         if missing:

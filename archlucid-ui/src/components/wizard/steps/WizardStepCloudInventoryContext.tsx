@@ -149,10 +149,10 @@ export function WizardStepCloudInventoryContext({
                   control={control}
                   render={({ field }) => (
                     <Select
-                      value={field.value === "None" ? undefined : field.value}
+                      value={field.value}
                       onValueChange={(value) => {
                         clearErrors("cloudProvider");
-                        field.onChange(value);
+                        field.onChange(value as WizardFormValues["cloudProvider"]);
                       }}
                     >
                       <SelectTrigger
@@ -160,9 +160,10 @@ export function WizardStepCloudInventoryContext({
                         className="mt-2 w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500"
                         data-testid="wizard-inventory-cloud-target-select"
                       >
-                        <SelectValue placeholder="Select cloud target" />
+                        <SelectValue placeholder={WIZARD_CLOUD_PROVIDER_OPTIONS.none} />
                       </SelectTrigger>
                       <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
+                        <SelectItem value="None">{WIZARD_CLOUD_PROVIDER_OPTIONS.none}</SelectItem>
                         {WIZARD_INVENTORY_CLOUD_TARGETS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}

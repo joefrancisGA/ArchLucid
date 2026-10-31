@@ -75,9 +75,13 @@ function findingHeading(input: FindingWorkItemBuildInput): string {
     return "Finding title was not stored.";
   }
 
+  if (input.title === "" || input.categoryLabel === "") {
+    return "Finding title was stored empty.";
+  }
+
   const parts = [input.categoryLabel?.trim(), input.title?.trim()].filter((x) => x !== undefined && x !== null && x.length > 0);
 
-  return parts.join(" — ") || findingWorkItemDefaultTitle(input.productLineId);
+  return parts.join(" — ") || "Finding title was stored empty.";
 }
 
 function ruleSummary(
@@ -95,7 +99,7 @@ function ruleSummary(
   const id = idMissing ? "" : decisionRuleId.trim();
 
   if (name.length === 0 && id.length === 0) {
-    return "";
+    return "Decision rule was stored empty.";
   }
 
   if (name.length > 0 && id.length > 0) {
@@ -106,7 +110,11 @@ function ruleSummary(
     return name;
   }
 
-  return id;
+  if (id.length > 0) {
+    return `Rule name was not stored. Rule id ${id}.`;
+  }
+
+  return "Decision rule was stored empty.";
 }
 
 /**
@@ -120,10 +128,18 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;
   const heading = findingHeading(input);
 
-  const whatFlagged = workItemStoredText(input.description, "Description was not stored.");
+  const whatFlagged = workItemStoredText(
+    input.description,
+    "Description was not stored.",
+    "Description was stored empty.",
+  );
 
   const whyItMatters = businessImpactForExport(input.impactedAreaLabel);
-  const reco = workItemStoredText(input.recommendedAction, "Recommended action was not stored.");
+  const reco = workItemStoredText(
+    input.recommendedAction,
+    "Recommended action was not stored.",
+    "Recommended action was stored empty.",
+  );
   const severity = workItemStoredText(input.severityLabel, "Severity was not stored.");
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);

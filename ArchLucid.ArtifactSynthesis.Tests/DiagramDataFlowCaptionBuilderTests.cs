@@ -14,6 +14,74 @@ public sealed class DiagramDataFlowCaptionBuilderTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
+    public void BuildCaptions_includes_no_resolved_stores_when_ingestion_without_source_or_storage()
+    {
+        GraphNode factory = CreateFactoryNode();
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([factory], []);
+
+        captions.Should().Contain(DiagramDataFlowHonestyLegend.NoResolvedStoresOrSourcesSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_includes_bounded_window_sentence_only_when_all_observed_edges_store_window()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> edgesWithoutWindow =
+        [
+            new GraphEdge
+            {
+                EdgeId = "observed-1",
+                FromNodeId = "web-app",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> withoutWindow = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edgesWithoutWindow);
+
+        withoutWindow.Should().NotContain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+        withoutWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
+
+        List<GraphEdge> edgesWithWindow =
+        [
+            new GraphEdge
+            {
+                EdgeId = "observed-2",
+                FromNodeId = "web-app",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    [AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc] = "2026-01-01T00:00:00Z",
+                    [AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc] = "2026-01-02T00:00:00Z",
+                },
+            },
+        ];
+
+        IReadOnlyList<string> withWindow = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edgesWithWindow);
+
+        withWindow.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_lists_omitted_data_flow_stages_when_snapshot_is_partial()
+    {
+        GraphNode factory = CreateFactoryNode();
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([factory], []);
+
+        captions.Should().Contain(line =>
+            line.StartsWith(DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix, StringComparison.Ordinal));
+        captions.Should().Contain(line => line.Contains("stage classification", StringComparison.Ordinal));
+        captions.Should().Contain(line => line.Contains("Source", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BuildCaptions_omits_pipeline_direction_missing_when_reads_from_is_present()
     {
         GraphNode factory = CreateFactoryNode();
@@ -52,9 +120,62 @@ public sealed class DiagramDataFlowCaptionBuilderTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
 
-        ast.Edges.Should().Contain(edge => edge.Label == "Reads from");
-        ast.Edges.Should().Contain(edge => edge.Label == "Writes to");
+        ast.Edges.Should().Contain(edge => edge.Label == InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored);
+        ast.Edges.Should().Contain(edge => edge.Label == InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored);
         ast.CaptionLines.Should().NotContain(DiagramDataFlowHonestyLegend.PipelineDirectionMissingSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_omits_private_dns_sentence_when_private_dns_vnet_link_is_stored()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> edges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "pe-1",
+                FromNodeId = "pe",
+                ToNodeId = storage.NodeId,
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                Weight = 1,
+            },
+            new GraphEdge
+            {
+                EdgeId = "dns-1",
+                FromNodeId = "zone",
+                ToNodeId = "vnet",
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PrivateDnsVnetLink,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPrivateDnsVnet,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edges);
+
+        captions.Should().NotContain(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_includes_private_dns_sentence_when_pe_reachable_without_dns_link()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> edges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "pe-1",
+                FromNodeId = "pe",
+                ToNodeId = storage.NodeId,
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edges);
+
+        captions.Should().Contain(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
     }
 
     [Fact]
@@ -123,6 +244,29 @@ public sealed class DiagramDataFlowCaptionBuilderTests
                 ["arm.type"] = "Microsoft.DataFactory/factories",
             },
         };
+    }
+
+    [Fact]
+    public void BuildCaptions_leads_with_observed_runtime_sentence_when_observed_edges_present()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> observedEdges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "observed-1",
+                FromNodeId = "web-app",
+                ToNodeId = storage.NodeId,
+                EdgeType = GraphEdgeTypes.CanRead,
+                InferenceSource = GraphEdgeInferenceSources.InventoryObservedDependency,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], observedEdges);
+
+        captions[0].Should().Be(DiagramDataFlowHonestyLegend.ObservedRuntimeLeadingPrimarySentence);
+        captions.Should().NotContain(DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence);
     }
 
     private static GraphNode CreateStorageNode()

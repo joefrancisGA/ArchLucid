@@ -6,7 +6,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -78,14 +78,14 @@ export function RunDetailRunGovernanceDispositionActions(
 
       commitHrefIfChanged(
         runGovernanceDispositionConfirmHrefFromSearch(
-          readWindowLocationSearch(),
+          searchParams.toString(),
           decision === null ? null : runGovernanceDispositionToUrlValue(decision),
           pathname,
         ),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setPending = useCallback(

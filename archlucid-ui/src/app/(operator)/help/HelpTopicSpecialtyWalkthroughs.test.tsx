@@ -86,6 +86,18 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
     vi.mocked(useOperateCapability).mockReturnValue(true);
   });
 
+  it("does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    const toc = screen.getByTestId("help-topic-toc");
+
+    expect(within(toc).queryByRole("link", { name: /what this guide does not cover/i })).not.toBeInTheDocument();
+  });
+
   it("registers customer-facing registry metadata", () => {
     expect(entry?.title).toBe("Specialty review templates");
     expect(entry?.slug).toBe("specialty-walkthroughs");

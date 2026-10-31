@@ -6,6 +6,7 @@ namespace ArchLucid.Application.Governance.PolicyPacks;
 public enum PolicyPackVersionLookupOutcome
 {
     Found,
+    ScopeNotFound,
     PackNotFound,
     VersionNotFound,
 }

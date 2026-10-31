@@ -1080,6 +1080,31 @@ public sealed class AuditEvidenceLineageServiceTests
         };
     }
 
+    [Fact]
+    public async Task TryGetControlLineageAsync_does_not_expose_internal_repository_exception()
+    {
+        const string sensitiveDetail = "SqlConnection password=secret internal-host";
+        Mock<IAuditAssessmentRepository> assessments = new();
+        assessments.Setup(repository => repository.TryGetByIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(sensitiveDetail));
+
+        AuditEvidenceLineageService service = CreateLineageService(
+            assessments.Object,
+            Mock.Of<IAuditFrameworkRepository>(),
+            Mock.Of<IAuditEvidenceRequirementRepository>(),
+            Mock.Of<IAuditEvidenceSnapshotRepository>(),
+            Mock.Of<IAuditControlEvaluationRepository>(),
+            Mock.Of<IAuditEvidenceSnapshotVerificationService>());
+
+        AuditEvidenceLineageQueryResult result = await service.TryGetControlLineageAsync(
+            CreateScopeContext(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().NotContain(sensitiveDetail);
+        result.ErrorMessage.Should().Contain("could not be retrieved");
+    }
+
     private static AuditEvidenceLineageService CreateLineageService(
         IAuditAssessmentRepository assessmentRepository,
         IAuditFrameworkRepository frameworkRepository,

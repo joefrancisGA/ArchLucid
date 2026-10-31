@@ -128,15 +128,22 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? typeValue
             : connectionNode.Label;
 
-        string edgeLabel = BuildConnectionEdgeLabel(connectionType, endpoint1ArmId, endpoint2ArmId);
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(graphNode);
+        bool configuredConnection = evidenceCurrency == InventoryDiagramEvidenceCurrency.Configured;
+        string edgeLabel = configuredConnection
+            ? InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel
+            : InventoryDiagramEvidenceCurrencyLabels.Format(
+                evidenceCurrency,
+                BuildConnectionEdgeLabel(connectionType, endpoint1ArmId, endpoint2ArmId));
 
         ast.Edges.Add(new DiagramEdge
         {
             FromNodeId = fromDiagramNodeId,
             ToNodeId = toDiagramNodeId,
-            Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, edgeLabel),
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            Label = edgeLabel,
+            ProvenanceKind = configuredConnection
+                ? ProvenanceKind.DeterministicInference.ToString()
+                : ProvenanceKind.DerivedFact.ToString(),
             InferenceSource = ResolveConnectionInferenceSource(DiagramAstGraphNodeClassifier.ReadArmType(graphNode)),
         });
 
@@ -236,13 +243,15 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
                 if (emitPolicyEdges)
                 {
-                    string edgeLabel = BuildRouteEdgeLabel(route);
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = subnetDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, edgeLabel),
-                        ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                        Label = BuildRouteEdgeLabel(route, resolvedNextHopName),
+                        ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryRouteTableRoute,
                     });
                 }
@@ -285,11 +294,14 @@ internal static class InventoryDiagramNodeRelationshipApplier
                         continue;
                     }
 
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = ownerDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = BuildRouteEdgeLabel(route),
+                        Label = BuildRouteEdgeLabel(route, resolvedNextHopName),
                         ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     });
@@ -321,16 +333,21 @@ internal static class InventoryDiagramNodeRelationshipApplier
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules = AzureInventoryNsgSecurityRuleParser.Parse(properties);
         Dictionary<string, string> nicOwnerArmIdByNicArmId = BuildNicOwnerArmIdMap(graph);
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
-        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(
+            rules,
+            includeMissingDestinationHonesty: true);
         HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
+        bool hadStoredAssociationTarget = false;
 
         foreach (AzureInventoryNsgAssociation association in associations)
         {
             if (string.IsNullOrWhiteSpace(association.TargetArmId))
             {
+                hadStoredAssociationTarget = true;
                 continue;
             }
 
+            hadStoredAssociationTarget = true;
             IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
                 association,
                 nicOwnerArmIdByNicArmId,
@@ -349,7 +366,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
             {
-                Reason = "nsg-unattached",
+                Reason = hadStoredAssociationTarget
+                    ? associations.Any(association => string.IsNullOrWhiteSpace(association.TargetArmId))
+                        ? "nsg-association-target-id-not-stored"
+                        : "nsg-unattached-off-diagram"
+                    : "nsg-unattached",
                 FromNodeId = nsgNode.NodeId,
                 ToNodeId = null,
             });
@@ -362,6 +383,20 @@ internal static class InventoryDiagramNodeRelationshipApplier
             foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
             {
                 owner.NsgInboundRuleChips = chips.ToList();
+            }
+        }
+        else if (rules.Count > 0)
+        {
+            List<DiagramNsgInboundRuleChip> outboundOnlyChip =
+            [
+                new DiagramNsgInboundRuleChip(
+                    "Security rules were stored. No inbound rule was listed on this diagram.",
+                    IsRisky: false),
+            ];
+
+            foreach (DiagramNode owner in ast.Nodes.Where(node => ownerDiagramNodeIds.Contains(node.NodeId)))
+            {
+                owner.NsgInboundRuleChips = outboundOnlyChip;
             }
         }
 
@@ -410,6 +445,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
                     ArmResourceIdNormalizer.Normalize(action.TargetArmId),
                     out string? targetDiagramNodeId))
             {
+                string actionName = action.ActionName?.Trim() ?? string.Empty;
+                string detail = actionName.Length > 0
+                    ? $"Workflow action {actionName} target was not on this diagram."
+                    : "Workflow action name was not stored. The target was not on this diagram.";
+                workflowNode.UnresolvedRelationshipDetails.Add(detail);
                 continue;
             }
 
@@ -417,8 +457,12 @@ internal static class InventoryDiagramNodeRelationshipApplier
             {
                 FromNodeId = workflowDiagramNodeId,
                 ToNodeId = targetDiagramNodeId,
-                Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, action.ActionName),
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                Label = string.IsNullOrWhiteSpace(action.ActionName)
+                    ? InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel
+                    : InventoryDiagramEvidenceCurrencyLabels.Format(
+                        evidenceCurrency,
+                        action.ActionName.Trim()),
+                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                 InferenceSource = GraphEdgeInferenceSources.InventoryWorkflowAction,
             });
         }
@@ -459,35 +503,64 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return armIdToDiagramNodeId;
     }
 
-    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route)
+    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route, string? resolvedNextHopName = null)
     {
+        string? outline = InventoryDiagramRouteOutlineSentenceFormatter.TryFormat(route, resolvedNextHopName);
+        string? nextHopType = route.NextHopType?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(outline)
+            && !string.IsNullOrWhiteSpace(nextHopType)
+            && outline.Contains(nextHopType, StringComparison.Ordinal))
+        {
+            return outline;
+        }
+
         string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix)
             ? "Address prefix was not stored"
             : route.AddressPrefix.Trim();
-        string nextHopType = string.IsNullOrWhiteSpace(route.NextHopType)
+        string nextHopTypeLabel = string.IsNullOrWhiteSpace(nextHopType)
             ? "Next hop type was not stored"
-            : route.NextHopType.Trim();
+            : nextHopType;
 
-        return $"{addressPrefix} → {nextHopType}";
+        return $"{addressPrefix} → {nextHopTypeLabel}. This is not observed traffic.";
     }
 
     internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
-        AzureInventoryNsgSecurityRule? firstRule = rules.FirstOrDefault();
+        AzureInventoryNsgSecurityRule? firstInboundRule = rules.FirstOrDefault(rule =>
+            string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase));
 
-        if (firstRule is null)
+        if (firstInboundRule is null)
         {
-            return "NSG attached";
+            if (rules.Count == 0)
+            {
+                return "NSG attached. Security rules were not stored. Effective path enforcement was not evaluated.";
+            }
+
+            int outboundOnly = rules.Count(rule =>
+                !string.IsNullOrWhiteSpace(rule.Direction)
+                && !string.Equals(rule.Direction.Trim(), "Inbound", StringComparison.OrdinalIgnoreCase));
+
+            if (outboundOnly > 0)
+            {
+                return
+                    $"NSG attached. Inbound rules were not listed on this diagram ({outboundOnly} outbound rules stored). Effective path enforcement was not evaluated.";
+            }
+
+            return "NSG attached. Inbound rules were not listed on this diagram. Effective path enforcement was not evaluated.";
         }
+
+        AzureInventoryNsgSecurityRule firstRule = firstInboundRule;
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
             ? "Protocol was not stored"
             : firstRule.Protocol.Trim();
-        string port = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
-            ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
-                ? "Port range was not stored"
-                : firstRule.SourcePortRange.Trim()
+        string destinationPort = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
+            ? "Destination port was not stored"
             : firstRule.DestinationPortRange.Trim();
+        string sourcePort = string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
+            ? "Source port was not stored"
+            : firstRule.SourcePortRange.Trim();
         string direction = string.IsNullOrWhiteSpace(firstRule.Direction)
             ? "Direction was not stored"
             : firstRule.Direction.Trim();
@@ -495,7 +568,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Access was not stored"
             : firstRule.Access.Trim();
 
-        return $"NSG {protocol} {port} {direction} {access}";
+        return
+            $"NSG {protocol} destination port {destinationPort} source port {sourcePort} {direction} {access}. Effective path enforcement was not evaluated.";
     }
 
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(
@@ -685,8 +759,16 @@ internal static class InventoryDiagramNodeRelationshipApplier
         string endpoint1ArmId,
         string endpoint2ArmId)
     {
-        string endpoint1Name = ReadResourceName(endpoint1ArmId);
-        string endpoint2Name = ReadResourceName(endpoint2ArmId);
+        string endpoint1Name = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            endpoint1ArmId,
+            null,
+            null,
+            InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored);
+        string endpoint2Name = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            endpoint2ArmId,
+            null,
+            null,
+            InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored);
         string typeLabel = string.IsNullOrWhiteSpace(connectionType)
             ? "Relationship was not stored"
             : connectionType.Trim();
@@ -719,13 +801,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     private static string ReadResourceName(string armId)
     {
-        int lastSlash = armId.LastIndexOf('/');
+        _ = armId;
 
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return MermaidIdSanitizer.Sanitize(armId);
-        }
-
-        return armId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored;
     }
 }

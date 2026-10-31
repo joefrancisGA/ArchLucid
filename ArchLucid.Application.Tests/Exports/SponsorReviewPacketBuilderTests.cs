@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.User;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings;
@@ -62,7 +63,7 @@ public sealed class SponsorReviewPacketBuilderTests
     }
 
     [Fact]
-    public async Task BuildMarkdownAsync_counts_error_severity_findings_as_high_in_sponsor_report()
+    public async Task BuildMarkdownAsync_counts_error_severity_findings_in_sponsor_report()
     {
         ArchitectureRunDetail detail = new()
         {
@@ -71,7 +72,9 @@ public sealed class SponsorReviewPacketBuilderTests
             {
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -116,7 +119,7 @@ public sealed class SponsorReviewPacketBuilderTests
         string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
 
         markdown.Should().NotBeNull();
-        markdown.Should().Contain("1 critical and 1 high findings");
+        markdown.Should().Contain("1 critical and 1 Error-severity findings");
     }
 
     [Fact]
@@ -131,7 +134,9 @@ public sealed class SponsorReviewPacketBuilderTests
             {
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -215,6 +220,8 @@ public sealed class SponsorReviewPacketBuilderTests
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -366,6 +373,8 @@ public sealed class SponsorReviewPacketBuilderTests
                 RunId = runId,
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = manifest,
             HasBrokenManifestReference = false,
@@ -420,7 +429,7 @@ public sealed class SponsorReviewPacketBuilderTests
             Mock.Of<IGraphSnapshotRepository>(),
             SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
-            configuration ?? SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+            configuration ?? SealedExportReceiptTestSupport.CreateSponsorReviewPacketBuilderConfiguration(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }

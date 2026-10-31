@@ -24,5 +24,9 @@ public sealed class PolicyPackSimulateRequestValidator : AbstractValidator<Polic
             .InclusiveBetween(0, 3)
             .When(x => x.BlockCommitMinimumSeverity.HasValue)
             .WithMessage("blockCommitMinimumSeverity must be between 0 (Info) and 3 (Critical).");
+
+        RuleFor(x => x.ProposedPolicyPackId)
+            .Must(id => !id.HasValue || id.Value != Guid.Empty)
+            .WithMessage("proposedPolicyPackId must not be the empty guid when provided.");
     }
 }

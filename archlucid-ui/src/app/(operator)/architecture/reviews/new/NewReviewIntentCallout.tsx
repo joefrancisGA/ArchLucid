@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 
 /**
  * Surfaces query-string intent from {@link PostCommitRetentionRail} next-cycle dialog — lineage attachment remains API-owned.
@@ -18,6 +19,7 @@ export function NewReviewIntentCallout() {
   const policyPackId: string = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
 
   if (policyPackId.length > 0) {
+    const policyPackLine = policyPackBuyerLabel(policyPackId, "");
     return (
       <div
         className={cn(
@@ -27,9 +29,9 @@ export function NewReviewIntentCallout() {
         role="status"
         data-testid="reviews-new-policy-pack-intent-callout"
       >
-        <strong className="font-semibold">Policy pack pre-selected.</strong> This review includes policy pack{" "}
-        <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{policyPackId}</span> in its policy references.
-        Confirm the pack is enabled in your workspace —{" "}
+        <strong className="font-semibold">Policy pack pre-selected.</strong> The intake URL names{" "}
+        <span className="font-semibold">{policyPackLine}</span>. The wizard still records which pack is attached when
+        you submit — confirm the pack is enabled in your workspace —{" "}
         <Link
           href={`${GOVERNANCE_POLICY_PACKS_PATH}/${encodeURIComponent(policyPackId)}`}
           className={OPERATOR_LINK.nav}
@@ -47,9 +49,9 @@ export function NewReviewIntentCallout() {
         className={cn("rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
         role="status"
       >
-        <strong className="font-semibold">Revised review (carry-forward).</strong> Started from review{" "}
-        <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{cloneFrom}</span>. Finish the wizard — prior-manifest linkage follows tenant
-        capability.
+        <strong className="font-semibold">Revised review (carry-forward).</strong> The intake URL names source review{" "}
+        <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{cloneFrom}</span>. Prior-manifest linkage is not
+        stored until you finish the wizard and the server accepts the new review.
       </div>
     );
   }
