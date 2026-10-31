@@ -142,6 +142,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
   );
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
+  const [dispositionHistoryLoading, setDispositionHistoryLoading] = useState(false);
   const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
   const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
   const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
@@ -163,6 +164,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
     setDispositionHistoryFailure(null);
     setDispositionHistoryBlockedReason(null);
+    setDispositionHistoryLoading(true);
 
     try {
       const [dispositions, waivers] = await Promise.all([
@@ -183,6 +185,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
       setDispositionHistoryBlockedReason(findingDispositionsBlockedReason(failure));
 
       throw error;
+    } finally {
+      setDispositionHistoryLoading(false);
     }
   }, [findingId, setActiveWaiver]);
 
@@ -535,6 +539,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     dispositionInlineSaveError,
     dispositionBaseline,
     dispositionHistoryAsOfUtc,
+    dispositionHistoryLoading,
     dispositionHistoryFailure,
     dispositionHistoryBlockedReason,
     refreshDispositionHistory: reload,

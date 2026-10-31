@@ -3545,6 +3545,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` registering a Terraform data-source leaf as the managed address `azurerm_app_service.main`, so `module.network.data.azurerm_app_service.main` indexed first stole that key from the managed resource; data-source leaves no longer occupy the managed address and do not join its shared-leaf group; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`; scoped filter 1015/1015 (`RunAnalyzers=false`). Private beta: when an invited operator's topology includes both a Terraform data source and the managed resource with the same type and name, a relationship that cites the managed address stays on the managed resource instead of attaching to the data source that was indexed first.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — Terraform data source indexed first claimed the managed resource address — **hit 2026-10-30 seed hunt:** release a data-source-owned bare leaf and group data sources under a `data.` identity; regression `MapRelationships_resolves_managed_address_when_module_data_source_is_indexed_first`. [class:state-machine-gap]
+
+2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` leaf fallback binding `module.other.azurerm_app_service.main` to the first child module after a shared leaf was registered; once that leaf maps to more than one topology node it is removed from the unique resolution map, so only an exact module address or the ambiguous fan-out path can use it; regression `MapRelationships_does_not_bind_unmatched_module_address_to_first_shared_leaf`; scoped filter 1014/1014 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal names a Terraform module that is not in the inventory, and other modules declare the same resource address, the merged graph no longer draws that relationship onto the first inventoried module.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — unmatched module prefix resolved through a shared Terraform leaf to the first indexed module — **hit 2026-10-30 seed hunt:** drop the ambiguous leaf from the unique resolution map after alias registration; regression `MapRelationships_does_not_bind_unmatched_module_address_to_first_shared_leaf`. [class:state-machine-gap]
+
+2026-10-30 seed hunt (seed→hit): promoted `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins leaf registration when two Terraform child modules share a resource address (`module.hub.azurerm_app_service.main` and `module.spoke.azurerm_app_service.main`); a relationship citing the leaf `azurerm_app_service.main` attached only to the first module. Shared leaves now fan out the way unindexed count roots do, while a full module address still resolves to that module; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`; scoped filter 1013/1013 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal cites a Terraform resource address declared in more than one module, the merged graph keeps a relationship to every inventoried module instance instead of attaching that edge only to the module indexed first.
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — shared Terraform leaf across child modules resolved only to the first indexed module — **hit 2026-10-30 seed hunt:** fan out when the same normalized leaf maps to more than one topology node; regression `MapRelationships_emits_edges_for_each_module_when_relationship_uses_shared_leaf_terraform_address`. [class:state-machine-gap]
+
 2026-10-29 seed hunt (seed→hit): promoted declared `endpointAliases` Terraform keys that keep quoted for_each instance keys while relationship lookup strips those quotes, so the edge mapper dropped the relationship; register the canonical Terraform key beside the raw alias key; regression `MapRelationships_resolves_unquoted_for_each_endpoint_when_declared_alias_key_uses_quoted_instance_key`; scoped filter 1011/1011 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal maps a relationship to a Terraform for_each address, a declared rename alias stored with quoted instance keys (`["primary"]`) now resolves the same node as the unquoted form (`[primary]`), so the graph merge keeps the edge instead of dropping it.
 
 2026-10-27 seed hunt (seed-only, pass 8): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`MapRelationships` `EdgeId` vs manifest `RelationshipType` — `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes` shows both project to `ConnectsTo` with identical `EdgeId` by design; `TryResolveStrippedTerraformInstanceKey` indexed guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`; dual ARM property vs `SourceId` keys — `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` and terraform property regressions; synthetic fallback before category preference — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`; unknown endpoint empty resolve — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
@@ -3673,11 +3685,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 108
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3687,11 +3699,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 108
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3797,11 +3809,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 105
-- **bugs-found:** 74
+- **hunts:** 108
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — Terraform data source indexed first claimed the managed resource address
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3905,7 +3917,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 80 · **Bugs found:** 12 · **Consecutive dry hunts:** 12
+**Hunts:** 74 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+
+2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; none met the hunt-ready bar. `CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync` returns at most one reason (`ArchitectureVersionContentFingerprintVerifier.GetViolations` is a single κ-drift string, and every other branch returns one string), so `architectureVersionPinReasons[0]` cannot drop a second violation. Create-time pins can list a policy-pack failure and an evidence-package failure together, and `createTimePinReasons[0]` still throws, so the commit stays blocked. `QualityRejected` with recorded `Accepted` still blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`). A null second run header skips evidence referential integrity only (hunt #72). Whitespace-only `TaskId` chains with a missing task id (`Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`). Private beta: n/a.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped commit-output-integrity filter passed (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
@@ -3915,11 +3929,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — null `traces` argument throws before mode guard — **cheap-disproof 2026-10-27 seed hunt #80:** `ArgumentNullException`; regression `GetBlockingReasons_throws_when_traces_null`.
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — empty input returns empty list without throwing — **cheap-disproof 2026-10-27 seed hunt #80:** fast path; regression `Select_when_empty_traces_returns_empty_list`.
 
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — throws only `architectureVersionPinReasons[0]` when the arch-version pin evaluator returns multiple violations — locus: `architectureVersionPinReasons[0]` ~141–142; input: commit body with both stale knowledge-model pin and draft-request architecture version mismatch (operators see first failure only).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `createTimePinReasons[0]` surfaces a single create-time pin failure when policy-pack and evidence-package pins both fail — locus: ~162–163; input: Real run header with conflicting pinned policy pack and evidence package ids at finalize.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` on the winning latest-per-task row still blocks — locus: loop ~45–46; input: upsert-drift row after acceptance (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingEvidenceReferentialIntegrityValidator` skipped when the second `GetByIdAsync` returns null even though findings reference evidence rows — locus: ~206–222; input: Guid run id whose header row disappears between create-time pin pass and evidence integrity phase (optional gate skip).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` chains retries on `agent:{AgentType}` like a missing task id — locus: ~55–62; input: traces with `TaskId` `"   "` (`Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`).
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — throws only `architectureVersionPinReasons[0]` when the arch-version pin evaluator returns multiple violations — **cheap-disproof 2026-10-30 thorough hunt:** `ArchitectureVersionContentFingerprintVerifier.GetViolations` returns one κ-drift string or none, and every other `CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync` branch returns a one-element list, so the list never has a second reason to drop.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `createTimePinReasons[0]` surfaces a single create-time pin failure when policy-pack and evidence-package pins both fail — **cheap-disproof 2026-10-30 thorough hunt:** `CommitCreateTimePinIntegrityEvaluator` can collect both `ConflictException` messages, and the service still throws the first, so finalize stays blocked. Pin services throw non-empty messages (`RunPolicyPackPinService.VerifyPinIntegrityOrThrowAsync`, `RunEvidencePackagePinService.VerifyPinIntegrityOrThrowAsync`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` on the winning latest-per-task row still blocks — **cheap-disproof 2026-10-30 thorough hunt:** durable reject flag is independent of the recorded outcome; regression `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks` (extends 2026-10-07 #76).
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingEvidenceReferentialIntegrityValidator` skipped when the second `GetByIdAsync` returns null even though findings reference evidence rows — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of hunt #72; a missing header skips the optional evidence pass only. Quality, provenance, and scorecard gates still run.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` chains retries on `agent:{AgentType}` like a missing task id — **cheap-disproof 2026-10-30 thorough hunt:** same legacy retry key as a missing `TaskId`; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 107 scoped zone tests passed (63 Application + 44 Core).
 
@@ -4039,13 +4053,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 73
+- **hunts:** 74
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-25 seed hunt (seed-only): reseeded commit-output-integrity after #3469 empty-trace fail-closed change; removed stale `GetBlockingReasons_when_empty_traces_returns_empty` test superseded by `GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason`; 88 scoped tests passed; no new hunt-ready rows.
 
@@ -4569,9 +4583,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
+- **last-bug:** 2026-10-30 — a spaced topology hint was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed→hit): promoted `Prefer outbox or transactional inbox for consistency` being dropped because path-reference materialization rejected ordinary spaces; policy references, topology hints, security baselines, and capability lines now keep U+0020 and still reject a no-break space; regression `Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces`; scoped payload JSON tests 41/41. Private beta: when an invited operator's deferred authority run includes a topology hint, policy reference, security baseline, or required capability written with spaces, that entry stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.MaterializePathReferenceStringList` — a topology hint with internal spaces was dropped — **hit 2026-10-30 seed hunt:** `HasUsableProseReferenceText` keeps U+0020; regression `Deserialize_keeps_topology_hint_when_entry_contains_internal_spaces`.
+
+- [ ] (candidate) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — a document name with an internal space is dropped. Input: name `network diagram` with content type `text/plain`.
+
+2026-10-30 seed hunt (seed→hit): promoted `text/plain; charset=utf-8` being dropped because compact identifier checks treated the MIME parameter space as internal whitespace; content type is now judged after `NormalizeContentTypeForLookup`; regression `Deserialize_keeps_document_when_content_type_has_charset_parameter`; scoped payload JSON tests 40/40. Private beta: when an invited operator's deferred authority run includes a source document whose content type has a charset parameter, that document stays in the resumed pipeline.
+
+- [x] (proven) `AuthorityPipelineWorkPayload.HasSubstantiveDocument` — `text/plain; charset=utf-8` dropped the document — **hit 2026-10-30 seed hunt:** judge the content type after `NormalizeContentTypeForLookup`; regression `Deserialize_keeps_document_when_content_type_has_charset_parameter`.
 
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.
 
@@ -4587,11 +4611,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 47
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
+- **hunts:** 49
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — a spaced topology hint was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5539,9 +5563,58 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
+- **last-bug:** 2026-10-30 — a negated pair said no declared priority selected either dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-30 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` after the explicit-balance rationale fix. No hunt-ready row. Closed three sibling lenses. Left three candidates. Private beta: n/a.
+
+- [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — Fail + `GovernanceDisposition.Accepted` still emits a must-change recommendation. Input: a Fail finding whose disposition is Accepted.
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — an unverified Fail finding is stamped `SupportStatus.IndirectlySupported`. Input: Fail + `EvidenceCondition.Unverified`.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — the trade-off `RequiresHumanApproval` flag is true when the parent recommendation flag is false. Input: High Security Fail and High Cost Fail.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — `Cost` then `Do not prefer Cost` stays cost-first — **closed 2026-10-30 seed hunt:** sibling of the later negated-pair clear; do not extend `Any()` as another last-negation synonym.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.ExplicitDimensionOverDimensionPattern` — `availability-first` / `recovery-first` — **closed 2026-10-30 seed hunt:** sibling of the position-label `-first` suffix; those labels are not dimension tokens.
+- [x] (invalid) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForTradeOff` — a second verified finding with the same title gets no trade-off — **closed 2026-10-30 seed hunt:** one trade-off per dimension pair stays on the first actionable finding.
+
+2026-10-30 seed hunt (seed→hit): promoted `Security over Cost` then `Do not prefer Security over Cost` staying balanced while the rationale said no declared priority selected either dimension; an explicit balance now says the declared priorities kept the findings balanced; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`; Alternatives/ProposedChange/TradeOff tests 119/119. Private beta: when an invited operator lists security over cost and then says not to prefer security over cost, the security-versus-cost recommendation stays balanced and the rationale says the declared priorities kept the findings balanced.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — a negated pair used the no-priority rationale — **hit 2026-10-30 seed hunt:** `DeclaredPairChoice.Balanced` gets its own rationale; regression `BuildRecommendations_says_declared_priorities_kept_findings_balanced_when_a_pair_is_negated`.
+
+2026-10-30 seed hunt (seed→hit): promoted an unverified security finding listed before a verified security finding with the same title, so the security-versus-cost trade-off attached to the evidence-only recommendation; the lookup now uses the recommendation id of the actionable finding; regression `BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match`; Alternatives/ProposedChange/TradeOff tests 118/118. Private beta: when an invited operator's review has an unverified security finding and a verified security finding with the same title, the security-versus-cost trade-off appears on the verified recommendation.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.FindRecommendationForTradeOff` — shared title attached the trade-off to the unverified finding — **hit 2026-10-30 seed hunt:** match `ArchitectureRecommendationStableId.FromFinding` for the actionable finding; regression `BuildRecommendations_attaches_trade_off_to_verified_finding_when_security_titles_match`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Reliability over Cost to reduce unreliability` resolving balanced because `unreliability` negated every Reliability mention; an explicit Reliability pair now keeps the preference while a bare unreliability priority still does not; regression `BuildRecommendations_prefers_recovery_first_when_reliability_over_cost_mentions_unreliability`; Alternatives/ProposedChange/TradeOff tests 117/117. Private beta: when an invited operator says reliability over cost to reduce unreliability, the reliability-versus-cost recommendation follows that pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `unreliability` canceled `Reliability over Cost` — **hit 2026-10-30 seed hunt:** the hazard word no longer negates an explicit Reliability pair; regression `BuildRecommendations_prefers_recovery_first_when_reliability_over_cost_mentions_unreliability`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Security over Cost` then `Do not prefer Security over Cost` still resolving security-first because a later negated pair did not clear the earlier preference; a priority whose only relevant pair is negated now balances that trade-off; regression `BuildRecommendations_balances_security_and_cost_when_later_priority_negates_security_over_cost`; Alternatives/ProposedChange/TradeOff tests 116/116. Private beta: when an invited operator lists security over cost and then says not to prefer security over cost, the security-versus-cost recommendation stays balanced.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — a later `Do not prefer Security over Cost` left the earlier pair in place — **hit 2026-10-30 seed hunt:** a negated relevant pair clears the previous choice so dimension fallback cannot restore it; regression `BuildRecommendations_balances_security_and_cost_when_later_priority_negates_security_over_cost`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Prioritize security-first over cost-first.` resolving balanced because the pair matcher required the dimension token to sit directly against `over`; the optional `-first` position-label suffix now stays inside the pair; regression `BuildRecommendations_prefers_security_first_when_priority_uses_position_label_pair`; Alternatives/ProposedChange/TradeOff tests 115/115. Private beta: when an invited operator writes a declared priority as security-first over cost-first, the security-versus-cost recommendation follows that pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.ExplicitDimensionOverDimensionPattern` — `security-first over cost-first` stayed balanced — **hit 2026-10-30 seed hunt:** pair grammar allows the position-label `-first` suffix on either side; regression `BuildRecommendations_prefers_security_first_when_priority_uses_position_label_pair`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost. Cost over Security.` resolving balanced because a negated earliest pair continued to the next priority string and hid the later affirmative pair; the pair scan now skips a negated left side and keeps the first non-negated pair in that string; regression `BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security`; Alternatives/ProposedChange/TradeOff tests 114/114. Private beta: when an invited operator says not to prefer security over cost and then says cost over security in the same priority, the security-versus-cost recommendation follows the later pair.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — a negated pair hid a later affirmative pair in the same priority — **hit 2026-10-30 seed hunt:** keep scanning the string after a negated left side; regression `BuildRecommendations_prefers_cost_first_when_negated_pair_is_followed_by_cost_over_security`.
+
+2026-10-30 seed hunt (seed→hit): promoted `priority #1: Cost over Security` resolving balanced because path canonicalization cut the priority at `#`; prose without a slash or backslash now skips that canonicalizer; regression `BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests passed (`RunAnalyzers=false`). Private beta: when an invited operator numbers a priority as priority #1 and then says cost over security, the security-versus-cost recommendation follows that pair.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — `priority #1: Cost over Security` dropped the pair at `#` — **hit 2026-10-30 seed hunt:** skip path canonicalization unless the priority contains `/` or `\`; regression `BuildRecommendations_prefers_cost_first_when_numbered_priority_uses_hash`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Security before Cost, Cost over Security` resolving cost-first because `over` was searched before `before`; the earliest explicit pair in the string now wins; regression `BuildRecommendations_prefers_security_first_when_before_clause_precedes_over_clause`; Alternatives/ProposedChange/TradeOff tests 112/112. Private beta: when an invited operator writes security before cost and then cost over security in the same priority, the security-versus-cost recommendation follows the earlier clause.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — a later `over` hid an earlier `before` — **hit 2026-10-30 seed hunt:** `FirstExplicitDimensionPairMatch` keeps the earliest pair; regression `BuildRecommendations_prefers_security_first_when_before_clause_precedes_over_clause`.
+
+2026-10-30 seed hunt (seed→hit): promoted closed-loop `ClosedLoopDeclaredPrioritiesNormalizer` alphabetical sort so `Security over Cost` then `Cost over Security` resolved security-first; normalization now keeps encounter order for `TryResolveDeclaredPairPrecedence`; regression `BuildRecommendations_keeps_later_explicit_pair_after_declared_priority_normalization`; Alternatives/ProposedChange/TradeOff plus declared-priority hash tests 123/123. Private beta: when an invited operator lists security over cost and then cost over security, the security-versus-cost recommendation follows the later bullet.
+
+- [x] (proven) `ClosedLoopDeclaredPrioritiesNormalizer.Normalize` — alphabetical sort reversed a later `Cost over Security` — **hit 2026-10-30 seed hunt:** drop `OrderBy` so the last explicit pair stays last; regression `BuildRecommendations_keeps_later_explicit_pair_after_declared_priority_normalization`.
+
+2026-10-30 seed hunt (seed→hit): promoted `Do not prefer Security over Cost` still resolving Security-first because `TryResolveDeclaredPairPrecedence` accepted the `over` match without `IsNegatedDimensionMention`; a pair whose left dimension is negated is now skipped; regression `BuildRecommendations_balances_security_and_cost_when_priority_negates_security_over_cost`; scoped Alternatives/ProposedChange/TradeOff tests 110/110. Private beta: when an invited operator's review priorities say not to prefer security over cost, a security-versus-cost recommendation stays balanced instead of resolving as security-first.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryResolveDeclaredPairPrecedence` — `Do not prefer Security over Cost` still selected Security — **hit 2026-10-30 seed hunt:** pair match consults `IsNegatedDimensionMention` for the left dimension; regression `BuildRecommendations_balances_security_and_cost_when_priority_negates_security_over_cost`. [class:fail-open-validation]
 
 2026-10-29 seed hunt (seed→hit): promoted bare `Deprioritize Cost` still selecting Cost because negation required `do not` / `don't` before the verb; added `CreateBareDeprioritizeDimensionPattern` on `IsNegatedDimensionMention`; regression `BuildRecommendations_balances_security_and_cost_when_priority_says_deprioritize_cost`; scoped Alternatives/ProposedChange/TradeOff tests 109/109. Private beta: when an invited operator's review priorities say to deprioritize cost, a security-versus-cost recommendation no longer resolves as cost-first; the competing findings stay balanced unless another priority actually selects a dimension.
 
@@ -5854,11 +5927,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 70
-- **last-hunt:** 2026-10-29
-- **bugs-found:** 25
+- **hunts:** 81
+- **last-hunt:** 2026-10-30
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — bare `Deprioritize Cost` still selected the Cost dimension
+- **last-bug:** 2026-10-30 — a negated pair said no declared priority selected either dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5913,6 +5986,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: extraction-router
+
+2026-10-30 thorough hunt (dry): the only hunt-ready row was a doubled checkbox (`- [ ] - [x] (proven-stale)`) for email-domain `owner`. `ContinuesLexicalTokenBefore` already treats `@` as a token continuation, so `ops@owner.example.com` does not start an ownership marker. Existing regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. The inverse, dropping a real owner token that follows `@`, has no architecture-prose citation beyond that email label. No production code changed. Private beta: n/a.
 
 2026-10-23 thorough hunt (hit): proved markdown bold `**owner**` RACI labels still matched as prose ownership tokens when `unowned` appeared elsewhere, falsely emitting Unowned component; fixed by treating `*` as ownership label delimiter (same class as backticks and quotes); matrix regression `markdown-bold-owner`; 82 scoped DifficultyBasedExtractionRouter tests passed. Private beta: architecture-intelligence extraction on pasted runbooks and workshop notes no longer invents operational-ownership gaps from emphasized RACI column headers.
 
@@ -5974,13 +6049,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — markdown bold `**owner**` false ownership token
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
@@ -6051,7 +6126,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
-- [ ] - [x] (proven-stale) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` via `@` start boundary — **proven 2026-10-20**; regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`. (supersedes candidate), paired with a separate `unowned` mention, can match `owner` because `@` is accepted as a start boundary and emit a false operational-ownership gap; input originates from architecture source prose containing email addresses.
+- [x] (valid-no-repro) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — email-domain `owner` via `@` start boundary — **cheap-disproof 2026-10-30 thorough hunt:** doubled open checkbox over the 2026-10-20 proven row. `ContinuesLexicalTokenBefore` includes `@`. Regression `Extract_does_not_emit_ownership_gap_for_email_domain_owner_label_with_unowned`.
 
 ---
 
@@ -16431,13 +16506,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
-2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+2026-10-30 thorough hunt (dry): five open `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks did not meet the hunt-ready bar. `GovernanceApprovals`, `GovernanceRejections`, and `ComparisonOrDriftDetections` are audit-export counts (`PilotValueReportService` lines 125–128), so an empty detail timeline does not zero them. The metadata count cell prefers the detail-sample qualifier, and `| Committed-run inventory truncated |` still prints the inventory flag. `bool.TryParse("true ")` returns true, so the padded string does not suppress the demo warning. A positive window that contains its midpoint keeps `weekEndUtc` after `weekStartUtc` after the digest clamp. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — locus: metadata precedence between inventory and detail-sample qualifiers; input: truncated inventory with zero detail rows; wrong outcome: only one qualifier shown.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — locus: approvals/rejections without scope note; input: empty timeline with tenant-wide audit totals; wrong outcome: mixed scope without footnote.
-- [ ] (candidate) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — locus: Summary audit row; input: positive drift count with empty timeline; wrong outcome: appears run-scoped without audit-scope note.
-- [ ] (candidate) `BuyerProofPackCommitGuard` — non-canonical boolean strings for `isDemoTenant` — locus: `TryParseJsonBoolean`; input: `"true "` padded JSON; wrong outcome: false demo warning on pack build.
-- [ ] (candidate) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — sub-day override window — locus: digest clamp; input: 12-hour board-pack window; wrong outcome: `weekEndUtc` not after `weekStartUtc`.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when both inventory truncated and `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** count cell shows the detail-sample qualifier; `| Committed-run inventory truncated |` still discloses the keyset stop. Combining both phrases on the count cell is a `[state-machine-gap]` sibling of the 2026-10-23 qualifier.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — governance Summary rows when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** approvals and rejections are audit-window totals (`PilotValueReportService` 125–126), not detail-sample zeros. An extra `(audit)` label is a saturated `[state-machine-gap]` sibling.
+- [x] (valid-no-repro) `PilotValueReportMarkdownFormatter` — `Comparison / drift detections` when `RunDetailSampleLoadedNoRows` — **cheap-disproof 2026-10-30 thorough hunt:** audit-window total stays on the summary row; regression `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`.
+- [x] (invalid) `BuyerProofPackCommitGuard.TryParseJsonBoolean` — `"true "` padded string — **cheap-disproof 2026-10-30 thorough hunt:** `bool.TryParse("true ")` returns true, so the demo caution stays on. `PilotRunDeltas.IsDemoTenant` serializes as a JSON boolean, not a padded string.
+- [x] (valid-no-repro) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — 12-hour override window — **cheap-disproof 2026-10-30 thorough hunt:** clamp keeps the ISO week inside a positive window that contains the midpoint, so `weekEndUtc` stays after `weekStartUtc`; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`.
+
+2026-10-23 seed hunt (seed→hit): promoted metadata `Committed runs` count reading as full inventory when `RunDetailSampleLoadedNoRows`; metadata row now qualifies `(0 loaded for detail in partial sample)`; regression extended on `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproof closed four sibling `(candidate)` rows; seeded five follow-on rows; 69 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
 - [x] (proven) `PilotValueReportMarkdownFormatter` — metadata `Committed runs` when `RunDetailSampleLoadedNoRows` — **hit 2026-10-23 seed hunt:** detail-sample qualifier on metadata row; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`.
 - [x] (valid-no-repro) `PilotValueReportService` — `TotalFindings` non-zero when every detail fetch fails — **cheap-disproof 2026-10-23 seed hunt:** severities rollup only on successful detail loads; formatter not-computed path for summary findings.
@@ -16468,13 +16545,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 39
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — metadata committed-runs count without detail-load qualifier
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
@@ -16732,13 +16809,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
-2026-10-23 thorough hunt (hit): promoted `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` omitting `quality_gate_threshold_reject` when reject was driven only by calibrated confidence; pass `calibratedConfidence` into summary gate re-check; extended regression on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`; cheap-disproved stale picker duplicate rows (already closed 2026-10-22); seeded five mechanism-backed `(candidate)` rows below; 229 scoped Evaluation tests passed.
+2026-10-30 thorough hunt (dry): five open follow-on `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all five. Inverse checks stayed inside the saturated `[state-machine-gap]` summary-token class. Eighteen duplicate `(candidate)` rows still open under `### Hypotheses` were the 2026-10-22 closes left unchecked; those copies are ticked with the same disposition. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — `ClassifyThresholdFailure` uses `OverallSemanticScore` when `evaluationReason` is `quality_gate_threshold_reject` but reject used calibrated confidence — locus: `ClassifyThresholdFailure`; input: calibrated semantic reject with high raw semantic score.
-- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` — PilotStrict `pilot_semantic_score_below_floor` compares uncalibrated `OverallSemanticScore` — locus: PilotStrict semantic floor branch; input: calibrated reject with raw semantic above `PilotStrictMinSemanticScore`.
-- [ ] (candidate) `AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsyncCore` — `ApplyJudgeHeuristicDisagreementElevation` runs after gate evaluate and may upgrade outcome without updating rejection summary parts — locus: post-gate elevation; input: disagreement elevation to Rejected after summary-eligible path.
-- [ ] (candidate) `CompositeAgentOutputSemanticEvaluator` — calibrated confidence pipeline may diverge from `OverallSemanticScore` surfaced on `AgentOutputSemanticScore` for sponsor read paths — locus: composite vs heuristic score merge; input: enrichment task with low calibrated overlay.
-- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator` — `WouldPilotStrictBlockSponsorEvidenceAsync` mirrors gate without asserting rejection summary tokens match recorder — locus: sponsor gate vs trace evaluator parity; input: calibrated-only semantic reject trace.
+- [x] (valid-no-repro) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated reject with a high raw semantic score — **cheap-disproof 2026-10-30 thorough hunt:** when neither raw floor fails the ladder returns semantic; when structural completeness also fails it returns structural, the same category as counting a calibrated semantic failure.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — `pilot_semantic_score_below_floor` uses `OverallSemanticScore` — **cheap-disproof 2026-10-30 thorough hunt:** that token names the published semantic score. A calibrated-only reject already adds `quality_gate_threshold_reject` via `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`. `ApplyPilotStrictScoreFloors` rejects on the published score by the option contract.
+- [x] (invalid) `AgentOutputTraceQualityEvaluator.ApplyJudgeHeuristicDisagreementElevation` — elevation to Rejected without a summary — **cheap-disproof 2026-10-30 thorough hunt:** the method returns unless the outcome is Accepted, then sets Warned only. Rejection summary is built after that call and only for Rejected.
+- [x] (valid-no-repro) `CompositeAgentOutputSemanticEvaluator` — blend versus calibrated confidence — **cheap-disproof 2026-10-30 thorough hunt:** `OverallSemanticScore` is the judge/heuristic blend. Calibrated confidence is a separate enrichment value the gate consults. The two signals are different on purpose.
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — summary-token parity — **cheap-disproof 2026-10-30 thorough hunt:** the sponsor contract is a boolean block. It calls the same `TryEvaluateTraceAsync` path. Regressions `WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_calibrated_confidence_below_semantic_reject_floor` and `WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_pilot_strict_trace_is_warned`.
+
+2026-10-23 thorough hunt (hit): promoted `AgentOutputTraceRejectionSummaryBuilder.BuildPublicRejectionSummary` omitting `quality_gate_threshold_reject` when reject was driven only by calibrated confidence; pass `calibratedConfidence` into summary gate re-check; extended regression on `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor`; cheap-disproved stale picker duplicate rows (already closed 2026-10-22); seeded five mechanism-backed `(candidate)` rows below; 229 scoped Evaluation tests passed.
 
 2026-10-22 thorough hunt (hit): promoted `AgentOutputQualityGate.ResolveRejectReasonCategory` mis-mapping `finding_citation_coverage_below_floor` to structural telemetry; regression `ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic`; cheap-disproved saturated JSON-casing and scalar-coercion picker rows; 229 scoped Evaluation tests passed.
 
@@ -16840,13 +16919,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-30
 - **last-bug:** 2026-10-23 — rejection summary omitted calibrated-confidence threshold token
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-12 seed hunt (seed-only): re-read the selected evaluation boundary and focused heuristic, structural, citation, faithfulness, and harness paths. No distinct new reachable mechanism-backed wrong outcome met the promotion bar; the scoped Evaluation filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No new candidate was added and no production or regression code changed.
 
@@ -16854,20 +16933,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-12 seed hunt (seed-only): re-read the structured parser, aggregate scalar/property readers, confidence/citation callouts, and focused explanation tests. No fresh candidate reached the same-run failing-repro bar; the focused `RunExplanation` filter was blocked before discovery on both attempts by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. Seeded three bounded scalar-coercion candidates; no production or regression code changed.
 
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings such as `"yes"` or `"enabled"` are accepted as `1.0` for aggregate `faithfulnessSupportRatio`, so malformed persisted aggregate data could produce a full-support ratio instead of an unavailable value; input is aggregate JSON consumed by explanation confidence callouts.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — boolean values are accepted as count `1` for aggregate count fields, so malformed `unresolvedIssueCount`, `decisionCount`, or `complianceGapCount` data could create a synthetic count and misleading callout; input is aggregate JSON consumed by explanation callout builders.
-- [ ] (candidate) `StructuredExplanationParser.TryReadStringList` — scalar/object coercion accepts numeric and boolean values as evidence-reference strings, so malformed LLM `evidenceRefs` can become citation identifiers rather than causing the structured response to fall back; input is the reachable LLM structured-explanation JSON boundary.
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — boolean-like strings such as `"yes"` or `"enabled"` are accepted as `1.0` for aggregate `faithfulnessSupportRatio`, so malformed persisted aggregate data could produce a full-support ratio instead of an unavailable value; input is aggregate JSON consumed by explanation confidence callouts. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — boolean values are accepted as count `1` for aggregate count fields, so malformed `unresolvedIssueCount`, `decisionCount`, or `complianceGapCount` data could create a synthetic count and misleading callout; input is aggregate JSON consumed by explanation callout builders. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `StructuredExplanationParser.TryReadStringList` — scalar/object coercion accepts numeric and boolean values as evidence-reference strings, so malformed LLM `evidenceRefs` can become citation identifiers rather than causing the structured response to fall back; input is the reachable LLM structured-explanation JSON boundary. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 
 2026-10-12 seed hunt (seed-only): re-read the selected Evaluation paths and focused heuristic, structural, citation, faithfulness, and harness tests. A proposed-changes casing candidate is bounded and reachable at the untrusted agent JSON boundary; a focused finding-casing repro was attempted but the AgentRuntime test build was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No candidate was promoted and no production or regression code changed.
 
-- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — a reachable topology result using case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` keys can be recognized as topology-only by the case-insensitive overall-presence check but receive a zero proposed-surface ratio from exact nested lookups; input is untrusted agent-result JSON at the evaluation boundary.
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — a reachable topology result using case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` keys can be recognized as topology-only by the case-insensitive overall-presence check but receive a zero proposed-surface ratio from exact nested lookups; input is untrusted agent-result JSON at the evaluation boundary. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 
 2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
 
-- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable real-agent result using `Citations` casing may be treated as citation-free and rejected under PilotStrict despite containing a usable citation; locus: exact top-level citation property read; input: untrusted agent-result JSON.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — a reachable real-agent result using `EvidenceRefs` casing may fail the configured PilotStrict evidence-reference floor despite usable references; locus: exact top-level evidence-reference property read; input: untrusted agent-result JSON.
-- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding fields with casing variants such as `Severity` or `Recommendation` may score as incomplete even though the serialized agent result is structurally valid; locus: exact finding-property reads; input: untrusted agent-result JSON.
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable real-agent result using `Citations` casing may be treated as citation-free and rejected under PilotStrict despite containing a usable citation; locus: exact top-level citation property read; input: untrusted agent-result JSON. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — a reachable real-agent result using `EvidenceRefs` casing may fail the configured PilotStrict evidence-reference floor despite usable references; locus: exact top-level evidence-reference property read; input: untrusted agent-result JSON. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding fields with casing variants such as `Severity` or `Recommendation` may score as incomplete even though the serialized agent result is structurally valid; locus: exact finding-property reads; input: untrusted agent-result JSON. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 
 2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.
 
@@ -16892,15 +16971,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` counted the null slot toward `MinimumFindingCount`, so a case requiring one finding could pass with no valid finding — **hit 2026-10-10 seed hunt:** count only non-null findings before applying the minimum; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`.
 
-- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
+- [x] (valid-no-repro) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 - [x] (proven) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate persisted `AgentResult` rows for one retried task used the first result for mode/prompt selection while the latest trace represented another duplicate; **hit 2026-10-10 seed hunt:** shared latest-result selection by creation time; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`.
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks compare ordinal names, so a configuration key such as `Findings` can falsely fail against Web/camelCase serialized `findings`; **hit 2026-10-11 seed hunt:** required-key matching now uses ordinal-ignore-case comparison; regressions `ComputeAnyPassingReferenceCase_matches_required_json_keys_case_insensitively` and `Evaluate_matches_required_json_keys_case_insensitively`.
 - [x] (proven) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted results supplied the first-row structural execution mode while calibrated confidence used the latest-row overwrite, so confidence enrichment evaluated one retry with mixed-attempt metadata — **hit 2026-10-10 seed hunt:** reuse `AgentResultLatestForTaskSelector` when building the structural-mode lookup; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`.
 - [x] (proven) `AgentOutputReferenceCaseCatalog.Cases` — the lazy cache stored an empty result from an initially disabled reference-evaluation configuration and ignored a later enabled/path update, so configured reference cases remained unavailable — **hit 2026-10-10 seed hunt:** reload when the monitored enabled/path options differ; regression `Cases_reload_when_reference_evaluation_is_enabled_after_an_initial_disabled_read`.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable agent-result citation object with a nonblank unknown property can satisfy PilotStrict citation presence even though the `Citation` contract exposes source identity/description fields; a downstream schema contract is still required before promotion.
-- [ ] (candidate) `AgentResultEmbeddingFaithfulnessScorer.TryComputeMeanCosineAsync` / `EmbeddingFaithfulnessVectorMath.CosineSimilarity` — an embedding provider response containing a non-finite vector component can yield a non-finite mean cosine after the same-count batch check, so embedding telemetry and downstream quality summaries may receive `NaN`; input: reachable `IEmbeddingService.EmbedManyAsync` output from the configured embedding provider; a provider finite-vector contract is still required before promotion.
+- [x] (valid-no-repro) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable agent-result citation object with a nonblank unknown property can satisfy PilotStrict citation presence even though the `Citation` contract exposes source identity/description fields; a downstream schema contract is still required before promotion. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (valid-no-repro) `AgentResultEmbeddingFaithfulnessScorer.TryComputeMeanCosineAsync` / `EmbeddingFaithfulnessVectorMath.CosineSimilarity` — an embedding provider response containing a non-finite vector component can yield a non-finite mean cosine after the same-count batch check, so embedding telemetry and downstream quality summaries may receive `NaN`; input: reachable `IEmbeddingService.EmbedManyAsync` output from the configured embedding provider; a provider finite-vector contract is still required before promotion. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 - [x] (proven) `AgentOutputTraceFindingCitationCoverageApplicator.Apply` — a Real-task findings payload that failed deserialization left citation coverage unset, allowing PilotStrict to skip the configured coverage floor; **hit 2026-10-12 seed hunt:** malformed or non-array findings now set coverage to `0.0`; regression `TryEvaluateTrace_pilot_strict_real_rejects_when_findings_payload_cannot_be_parsed`.
-- [ ] (candidate) `FindingClaimCoverageEvaluator.Evaluate` — any non-empty finding `EvidenceRefs` list counts as supported without checking that references resolve to the evidence package; a reachable caller contract connecting this report to resolved evidence is still required before promotion.
+- [x] (valid-no-repro) `FindingClaimCoverageEvaluator.Evaluate` — any non-empty finding `EvidenceRefs` list counts as supported without checking that references resolve to the evidence package; a reachable caller contract connecting this report to resolved evidence is still required before promotion. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 - [x] (proven) `AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync` / `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — confidence enrichment omitted the host `AgentExecutionOptions.Mode` when persisted task mode was absent, so a real trace could skip real-only finding-citation coverage — **hit 2026-10-10 seed hunt:** thread host execution mode through the confidence pipeline and quality evaluator; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null or blank evidence-reference items was counted toward the PilotStrict minimum without validating each reference — **hit 2026-10-10 seed hunt:** count only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`.
@@ -16908,15 +16987,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-09 seed hunt (seed-only): re-read the quality gate, evaluation harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge after the prior seed; no new hypothesis met the same-run failing-repro bar. Seeded five additional reachable `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — a rejected PilotStrict result caused only by citation coverage can be classified from free-form reason tokens rather than the gate outcome cause — locus: `AgentOutputQualityGate.cs` ~49–75; input: rejected PilotStrict evaluation with a non-empty generic reason.
-- [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys are compared case-sensitively even though web serialization uses camelCase — locus: `AgentOutputEvaluationHarness.cs` ~50–73; input: expectation requiring `Findings` against serialized `findings`.
-- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair.
+- [x] (invalid) `AgentOutputQualityGate.ResolveRejectReasonCategory` — a rejected PilotStrict result caused only by citation coverage can be classified from free-form reason tokens rather than the gate outcome cause — locus: `AgentOutputQualityGate.cs` ~49–75; input: rejected PilotStrict evaluation with a non-empty generic reason. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 proven row; regression `ResolveRejectReasonCategory_maps_finding_citation_coverage_below_floor_to_semantic`.
+- [x] (invalid) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys are compared case-sensitively even though web serialization uses camelCase — locus: `AgentOutputEvaluationHarness.cs` ~50–73; input: expectation requiring `Findings` against serialized `findings`. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (invalid) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the presence gate — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
-- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
+- [x] (valid-no-repro) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 - [x] (proven) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepted a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal was treated as an automatically grounded category when the rest of the finding text overlapped evidence. **Hit 2026-10-10 seed hunt:** require `Enum.IsDefined` after parsing; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` had a property and therefore satisfied the presence gate despite containing no usable citation value — **hit 2026-10-10 seed hunt:** require at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
-- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks use ordinal property-name matching while actual `AgentResult` JSON is emitted with Web/camelCase naming; a configured key with casing that differs from the wire name can produce a false reference-case or harness failure. Reachability: reference-case and harness expectations are configuration inputs paired with serialized agent output.
-- [ ] (candidate) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — an external judge response with `overallQuality` outside `[0,1]` is clamped into the valid range instead of treated as malformed; this overlaps the saturated score-validation class and needs shared parsing treatment before promotion. Reachability: keyed LLM completion response consumed by the semantic-judge parser.
+- [x] (invalid) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks use ordinal property-name matching while actual `AgentResult` JSON is emitted with Web/camelCase naming; a configured key with casing that differs from the wire name can produce a false reference-case or harness failure. Reachability: reference-case and harness expectations are configuration inputs paired with serialized agent output. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
+- [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — an external judge response with `overallQuality` outside `[0,1]` is clamped into the valid range instead of treated as malformed; this overlaps the saturated score-validation class and needs shared parsing treatment before promotion. Reachability: keyed LLM completion response consumed by the semantic-judge parser. — **cheap-disproof 2026-10-30 thorough hunt:** duplicate of the 2026-10-22 zone-header close.
 
 ### Hypotheses
 
@@ -16997,6 +17076,46 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-30 seed hunt (seed-only): reread decisioning after the half-minute RPO fix. No row met the hunt-ready bar without repeating a saturated class or the minute-rounding, NSG field, visit-key, or SKU-token mechanisms. Seeded five candidates below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `DatastoreSkuReader.TryRead` — `zoneRedundant=false` together with `accountReplicationType=GRS` returns SingleRegion before the SKU token is read. [class:boolean-coercion]
+- [ ] (candidate) `DeclarationSecurityBaselineClassifier.IsHttpsOnlyDisabled` — `httpsOnly` value `0` is not falsy, so the app service is not flagged. [class:boolean-coercion]
+- [ ] (candidate) `InMemoryGoldenManifestRepository.UpdateSealedHasherBoundSliceAsync` — a missing in-scope row inserts `manifest` when `manifest.TenantId` is not `scope.TenantId`; the SQL update throws instead. [class:authz-scope]
+- [ ] (candidate) `DeclarationPremiseConflictClassifier.MapThemeToConflictKind` — `k8s.hostNetwork` value `false` still remaps a network-isolation baseline to workload isolation. [class:boolean-coercion]
+- [ ] (candidate) `DrReplicaPropertyHeuristic.IsDisabledReplicaValue` — `zone_redundant` value `no` is not disabled, so it counts as replica evidence. [class:boolean-coercion]
+
+2026-10-30 seed hunt (seed→hit): promoted `DrRpoQualityAttributeParser.ConvertHoursToMinutes`, which rounds `rpoHours` `0.0083` (the hours `RequestQualityAttributeMaterializer` stores for `RPO 0.5 minutes`) to 0 minutes, so the recovery finding states `RPO 0 min`; a positive fraction under half a minute now stays at 1 minute while exact hour products such as 0.25 hours stay 15 minutes; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1402/1416** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator records a recovery objective of half a minute, the review states that RPO as 1 minute instead of 0 minutes.
+
+- [x] (proven) `DrRpoQualityAttributeParser.ConvertHoursToMinutes` — `rpoHours` `0.0083` from `RPO 0.5 minutes` became 0 minutes — **hit 2026-10-30 seed hunt:** a positive fraction under half a minute stays at 1 minute; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`. [class:off-by-one]
+
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.TryGetRiskyPort`, which treated any isolated admin-port digits in the security_rule body as the destination port, so `destination_port_range = "443"` with `destination_address_prefix = "10.22.0.0/16"` or `priority = 3389` was reported as internet-to-22 or internet-to-3389; the port is now read from `destination_port_range(s)`, `from_port`, and `to_port`; regressions `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`, `ParseRiskyRules_does_not_treat_priority_number_as_admin_destination_port`, and `ParseRiskyRules_detects_admin_port_from_aws_from_port`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1401/1415** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows HTTPS from the internet to a subnet such as 10.22.0.0/16, the review no longer reports that rule as SSH open to the internet.
+
+- [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
+
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.SourceAddressPrefixRegex`, which matched only singular `source_address_prefix`, so an azurerm list `source_address_prefixes = ["*"]` or `["Internet"]` on port 22 produced no risky rule; the source check now reads the list form and still ignores a private CIDR in that list; regressions `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`, `ParseRiskyRules_detects_internet_service_tag_in_source_address_prefixes_list`, and `ParseRiskyRules_ignores_private_cidr_in_source_address_prefixes_list`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1398/1412** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port from the internet through `source_address_prefixes`, the review reports that exposure.
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on port 22 was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
+
+2026-10-30 seed hunt (seed→hit): promoted `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities`, which did not treat `principalId` on `azurerm_user_assigned_identity` as a declared principal, so golden case-65 reported that principal missing on both the identity and the role assignment that references it; principal values now count when the node is not a role assignment; regressions `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity` and `Analyze_still_flags_principal_id_when_no_identity_declares_it`; case-65 expected findings drop the two false dangling rows; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1395/1409** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's package includes a user-assigned identity and a role assignment for that same principal, the review no longer says the principal is missing from the package.
+
+- [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on `azurerm_user_assigned_identity` was not a declared principal — **hit 2026-10-30 seed hunt:** role-assignment `principalId` stays a reference; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
+
+2026-10-30 seed hunt (seed→hit): promoted `SegmentationRuleParser.HasInternetSource`, which treated any `= *` in an NSG rule blob as an internet source whenever `source_address_prefix` appeared; a simple-terraform `security_rule` body with `source_address_prefix = "10.0.0.0/8"`, `source_port_range = "*"`, and `destination_address_prefix = "*"` was reported as internet-to-22; the internet check now reads the source prefix value; regressions `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`, `ParseRiskyRules_still_detects_internet_source_when_port_and_destination_are_wildcards`, and `ParseRiskyRules_detects_azure_internet_service_tag_with_destination_wildcard`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1393/1407** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's network security group allows an admin port only from a private address range, and the rule still uses the usual any-source-port and any-destination wildcards, the review no longer reports that rule as internet-exposed.
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` — **hit 2026-10-30 seed hunt:** only the source prefix value counts as internet; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
+
+2026-10-30 seed hunt (seed→hit): promoted `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` visit set that keyed only on node id, so a private-endpoint arrival at a datastore dropped a later public path to the same store; visit identity is now the node plus whether that arrival already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1390/1404** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when an invited operator's architecture has both a private-endpoint route and a public route to the same datastore, the review still reports the public route.
+
+- [x] (proven) `DataFlowTrustBoundaryPathAnalyzer.CollectPathsFromActor` — private-endpoint arrival consumed the datastore node — **hit 2026-10-30 seed hunt:** visit key includes whether the path already crossed a trust boundary; regression `Analyze_returns_unprotected_path_when_private_endpoint_path_reaches_datastore_first`.
+
+2026-10-30 thorough hunt (dry): three open `(candidate)` rows were lenses, not hunt-ready. Cheap-disproof closed all three. `expectation.topologyCategories.add` and `expectation.requirementThemes.add` are an additive floor (`docs/library/POLICY_PACK_EXPECTATION_FACET.md`); union after the serverless/negation heuristics is the pack extra, not a reverted omission. `ResolveExpectedThemes` still adds `network-isolation` when the Network pillar remains, and a requirement whose text says `network` is classified into that theme, so the keyword-list difference does not leave the theme missing. Existing tests passed 3/3 (`RunAnalyzers=false`): `Topology_resolver_unions_identity_extra_and_keeps_default_pillars`, `ResolveExpectedCategories_WhenServerlessScope_OmitsNetworkUnlessPrivateNetworkingMentioned`, `ResolveExpectedThemes_WhenConstraintSaysNoPrivateLinkRequired_DoesNotAddNetworkIsolationTheme`. No production code changed.
+
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — **cheap-disproof 2026-10-30 thorough hunt:** `expectation.topologyCategories.add` is an additive floor; union after heuristic removal is the documented pack extra.
+- [x] (valid-no-repro) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — **cheap-disproof 2026-10-30 thorough hunt:** `expectation.requirementThemes.add` unions after the negation heuristics on purpose.
+- [x] (valid-no-repro) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — **cheap-disproof 2026-10-30 thorough hunt:** missing themes are expected minus present. The Network pillar still adds `network-isolation`, and a requirement that says `network` is classified into that theme.
+
+2026-10-30 seed hunt (seed→hit): promoted `RequirementRedundancyParser.GeoRedundancyRegex` whole-word `grs`, which does not match Azure SKUs `RAGRS`, `GZRS`, or `RA-GZRS`, so a locally redundant account linked to that requirement produced no SKU-tier gap; the geo pattern now includes those abbreviations; regressions `TryParse_detects_azure_geo_sku_abbreviations` and `AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1389/1403** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when a pilot requirement says the store must use RAGRS or GZRS and the linked account is locally redundant, the review flags that single-region SKU.
+
 2026-10-29 seed hunt (seed→hit): promoted `IdentityPathAnalyzer` visit state that keyed only on node id, so a Key Vault Secrets User assignment linked before Contributor marked the vault visited and dropped the write path; visit identity is now the node plus the write role carried in; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1385/1399** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when a pilot machine identity has both a key-vault reader role and Contributor on the same vault, the blast-radius path still names Contributor. Cheap-disproof closed two open `(candidate)` rows (`networking` product-prefix is the documented five-letter rule; `non private endpoint` is already rejected by `ContainsStandalonePhrase`).
 
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** `TokenContainsKeyword` documents that a keyword of five letters or more may prefix a longer product token, and names `network` in `networking` as that rule.
@@ -17011,10 +17130,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `invulnerability` vs `vulnerab` — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement` (2026-10-16).
 - [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** `RequestConstraintTokenMatcher.ImmediateSuffixIndicatesNegation` treats `is optional` suffix as negation before `TextAffirmsPrivateEndpoint` affirms.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — serverless scope with `non-network` constraint still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; theme path does not scan bare `network` keyword.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
-- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
-- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
 
 2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
@@ -17054,11 +17170,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 57
-- **bugs-found:** 47
+- **hunts:** 66
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — reader role assignment hid a Contributor blast-radius path to the same key vault
+- **last-hunt:** 2026-10-30
+- **last-bug:** 2026-10-30 — half-minute RPO hours rounded to 0 minutes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17165,6 +17281,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `DrRpoQualityAttributeParser.ConvertHoursToMinutes` — `rpoHours` `0.0083` from `RPO 0.5 minutes` became 0 minutes — **hit 2026-10-30 seed hunt:** a positive fraction under half a minute stays at 1 minute; regression `TryParseRecoveryObjectives_does_not_round_half_minute_rpo_hours_to_zero`. [class:off-by-one]
+
+- [x] (proven) `SegmentationRuleParser.TryGetRiskyPort` — `destination_address_prefix = "10.22.0.0/16"` with destination port 443 was reported as port 22 — **hit 2026-10-30 seed hunt:** admin ports are read from the destination port fields; regression `ParseRiskyRules_does_not_treat_address_octet_as_admin_destination_port`. [class:other]
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — `source_address_prefixes = ["*"]` on an admin port was not an internet source — **hit 2026-10-30 seed hunt:** the list form is read with the singular prefix; regression `ParseRiskyRules_detects_internet_when_source_address_prefixes_list_is_wildcard`. [class:fail-open-validation]
+
+- [x] (proven) `DanglingDeclarationReferenceAnalyzer.BuildKnownIdentities` — `principalId` on a user-assigned identity was reported missing, including on the identity node itself — **hit 2026-10-30 seed hunt:** that value is a declared principal unless the node is a role assignment; regression `Analyze_does_not_flag_principal_id_declared_on_user_assigned_identity`. [class:other]
+
+- [x] (proven) `SegmentationRuleParser.HasInternetSource` — private `source_address_prefix` with `source_port_range = "*"` and `destination_address_prefix = "*"` counted as internet-to-22 — **hit 2026-10-30 seed hunt:** internet evidence is the source prefix value; regression `ParseRiskyRules_ignores_private_source_when_port_and_destination_are_wildcards`. [class:other]
+
+- [x] (proven) `RequirementRedundancyParser.GeoRedundancyRegex` — `RAGRS`, `GZRS`, and `RA-GZRS` requirement text did not count as geo redundancy, so an LRS datastore produced no SKU-tier finding — **hit 2026-10-30 seed hunt:** geo pattern includes those abbreviations; regressions `TryParse_detects_azure_geo_sku_abbreviations` and `AnalyzeAsync_emits_finding_when_ragrs_requirement_and_lrs_sku`. [class:other]
 
 - [x] (proven) `IdentityPathAnalyzer` — Key Vault Secrets User assignment linked before Contributor hid the write path to the same vault — **hit 2026-10-29 seed hunt:** visit identity is node id plus the carried write role; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`. [class:state-machine-gap]
 

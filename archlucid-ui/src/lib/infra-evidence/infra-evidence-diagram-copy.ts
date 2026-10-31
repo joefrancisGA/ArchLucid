@@ -4,7 +4,7 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_CONNECTOR_PROVENANCE_NOT_STORED =
   "Connector provenance was not stored for this diagram." as const;
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED =
-  "Solid — stored Azure inventory relationship (not live traffic or reachability proof)";
+  "Solid — stored inventory relationship with ObservedFact provenance (not live traffic or reachability proof)";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
   "Dashed — declared (human assertion; not an ARM fact)";
@@ -152,6 +152,9 @@ export const INFRA_EVIDENCE_DIAGRAM_NEIGHBOR_ON_VIEW_ISOLATION_DISCLAIMER =
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED =
   "Observed (inventory stored; not live traffic)";
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED =
+  "Derived (structural; not observed traffic)";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
 

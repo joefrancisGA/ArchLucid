@@ -117,6 +117,27 @@ describe("riskRegisterRows", () => {
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
   });
 
+  it("labels omitted human review status when stored flag is false (P-11)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-hr",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Review gap",
+        severity: "High",
+        category: "Security",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+        humanReviewStatus: null,
+        humanReviewStatusStored: false,
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.humanReviewStatusLabel).toBe("Human review status was not stored");
+  });
+
   it("labels missing risk-register category without blank CSV cells (P-14)", () => {
     const [row] = riskRegisterRows([
       {

@@ -25,5 +25,10 @@ Do not build any of the following while implementing SN-PROC prompts:
 - A write to customer Azure, `terraform apply`, or remediation that changes Azure.
 - ArchLucid list prices reused as SecureNow plans.
 - More than one SN-PROC prompt in the same session.
+- Copying fee amounts, meter caps, currency amounts, or the 45-day evaluation length from `docs/securenow/PRIVATE_PRICE_SHEET.md` into a buyer-facing file.
+- Filling a `<<blank>>` in the data-processing schedule with a number the source docs do not already state.
+- Editing `docs/go-to-market/SUBPROCESSORS.md` to add a SecureNow vendor. The delta file is the only SecureNow reading of that register.
+- Calling the questionnaire crosswalk a completed SIG or CAIQ.
+- Setting `continue-on-error` to false on the SecureNow pack checker. The ArchLucid pack step stays warn-only until an owner changes branch protection.
 
 If the session is about to do one of these, stop and report which line it hit.

@@ -271,10 +271,12 @@ public static class InventoryDiagramIndirectRelationshipResolver
                 AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
                 StringComparison.OrdinalIgnoreCase))
         {
-            string targetName = ReadResourceName(
-                toNode is null ? string.Empty : ReadArmId(toNode),
-                toNode?.Label ?? string.Empty);
-            return $"private endpoint → {targetName}";
+            string privateEndpointName = ReadResourceName(
+                fromNode is null ? string.Empty : ReadArmId(fromNode),
+                fromNode?.Label ?? string.Empty);
+
+            return InventoryDiagramRelationshipLabelTexts.FormatPrivateEndpointStoredLinkEdgeLabel(
+                string.IsNullOrWhiteSpace(privateEndpointName) ? null : privateEndpointName);
         }
 
         if (string.Equals(

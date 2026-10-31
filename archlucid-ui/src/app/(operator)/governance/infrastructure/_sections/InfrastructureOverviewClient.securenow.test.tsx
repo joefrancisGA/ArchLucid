@@ -43,6 +43,10 @@ import {
   SECURENOW_INFRASTRUCTURE_HOME_ROWS,
   SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING,
 } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import {
+  SECURENOW_SPONSOR_HOME_ROWS,
+  SECURENOW_SPONSOR_HOME_SECTION_HEADING,
+} from "@/lib/product-line/securenow-sponsor-home-copy";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
@@ -65,6 +69,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(sectionTestIds).toEqual([
       "securenow-home-environment-context",
       "securenow-home-work-summary",
+      "securenow-reviewer-home-section",
+      "securenow-sponsor-home-section",
       "securenow-findings-home-section",
       "securenow-infrastructure-home-section",
       "securenow-remediation-home-section",
@@ -79,6 +85,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(screen.getByRole("heading", { name: "Data sources" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_COMPLIANCE_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: SECURENOW_SPONSOR_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId(`securenow-compliance-home-link-${SECURENOW_POLICY_PACKS_PATH}`)).toHaveAttribute(
       "href",
       SECURENOW_POLICY_PACKS_PATH,
@@ -93,6 +100,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
     expect(screen.queryByTestId("securenow-findings-home-link-/security/assigned-to-me")).not.toBeInTheDocument();
     expect(screen.getByTestId("securenow-data-sources-home-link-/integrations/cloud-connections")).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`securenow-sponsor-home-link-${SECURENOW_SPONSOR_HOME_ROWS[0]?.href}`),
+    ).toHaveAttribute("href", SECURENOW_SPONSOR_HOME_ROWS[0]?.href);
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/teams")).not.toBeInTheDocument();

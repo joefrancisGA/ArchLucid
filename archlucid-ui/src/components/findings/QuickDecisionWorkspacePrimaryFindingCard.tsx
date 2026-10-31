@@ -96,6 +96,18 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
     isWorkingMode,
   };
   const showDecisionGradeHonesty = isDecisionGradeFinding(finding);
+  const confidenceHelper = isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel)
+    ? "How strongly the cited evidence supports this finding. It is not a probability that the finding is correct."
+    : "Confidence level was not stored on this finding.";
+  const evidenceCountHelper =
+    evidenceRefCount === null
+      ? "Evidence reference count was not stored on this finding."
+      : "How many evidence references support this finding.";
+  const decisionStateLabel = reviewStatus?.label ?? "Human review status was not stored";
+  const decisionStateHelper =
+    reviewStatus === null
+      ? "No human review decision is stored on this finding."
+      : "The decision recorded for this finding. Opening this card does not record a new decision.";
 
   return (
     <article
@@ -124,7 +136,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           ) : null}
           <StatusTag
             kind="neutral"
-            label={findingEnforcementTierLabel(finding.enforcementTier)}
+            label={findingEnforcementTierLabel(
+              finding.enforcementTierStored === false ? null : finding.enforcementTier,
+            )}
             className={cn("shrink-0", FINDINGS_ROW_METADATA_TAG_SIZE)}
           />
           {architectWorkspaceChrome ? (
@@ -211,9 +225,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">
             <span>Confidence</span>
-            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              How strongly the cited evidence supports this finding. It is not a probability that the finding is correct.
-            </span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>{confidenceHelper}</span>
           </dt>
           <dd className="m-0 mt-0.5">
             {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
@@ -226,11 +238,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">
             <span>Evidence</span>
-            {evidenceRefCount !== null ? (
-              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                How many evidence references support this finding.
-              </span>
-            ) : null}
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>{evidenceCountHelper}</span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
             {evidenceRefCount === null
@@ -241,12 +249,10 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">
             <span>Decision state</span>
-            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              The decision recorded for this finding. Opening this card does not record a new decision.
-            </span>
+            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>{decisionStateHelper}</span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
-            {reviewStatus?.label ?? "Decision state was not stored"}
+            {decisionStateLabel}
           </dd>
         </div>
       </dl>

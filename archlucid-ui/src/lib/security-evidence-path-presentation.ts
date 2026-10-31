@@ -16,8 +16,8 @@ const PROVENANCE_KIND_LABELS: Readonly<Record<string, string>> = {
   HumanAssertion: "Human assertion",
 };
 
-const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
-  IntendedReachability: "Can reach",
+  const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
+  IntendedReachability: "Intended reachability",
   Privilege: "Privilege",
   CapabilityToFlow: "May access",
 };
@@ -71,7 +71,7 @@ const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
   UnrestrictedEgress: "unrestricted egress (declared NSG allow)",
   InsufficientEvidenceEgress: "egress not fully verified",
   SharedControlFanOut: "shared control fan-out",
-  PublicNetworkAccess: "public network exposure",
+  PublicNetworkAccess: "Public network hop. Observed traffic was not stored.",
 };
 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {

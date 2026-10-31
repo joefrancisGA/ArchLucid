@@ -188,7 +188,7 @@ public sealed class SponsorReviewPacketBuilder(
             : "is not committed";
 
         return
-            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the top set. "
+            $"Architecture review for {systemName} {committedStatusClause} with {critical} critical and {errorSeverity} Error-severity findings in the first-five preview. "
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 
@@ -218,6 +218,9 @@ public sealed class SponsorReviewPacketBuilder(
                 SelectedOption = entry.SelectedOption,
                 ConfidenceLabel = entry.BuyerConfidenceSource ?? entry.ConfidenceSource,
                 EvidenceHref = string.Empty,
+                SupportingFindingIdsSummary =
+                    SponsorReviewPacketExportHonestyCopy.FormatSupportingFindingIdsSummary(entry.SupportingFindingIds),
+                Rationale = entry.Rationale,
             });
         }
 

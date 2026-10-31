@@ -43,6 +43,7 @@ import {
   CREATE_WORK_ITEM_FIELD_FINDINGS,
   CREATE_WORK_ITEM_FIELD_OWNER,
   CREATE_WORK_ITEM_FIELD_PRIORITY,
+  CREATE_WORK_ITEM_FIELD_SEVERITY,
   CREATE_WORK_ITEM_FIELD_SOURCE,
   CREATE_WORK_ITEM_FIELD_TITLE,
   CREATE_WORK_ITEM_INVALID_CONNECTION,
@@ -114,9 +115,17 @@ function WorkItemPreviewPanel(props: { readonly preview: ArchitectureWorkItemPre
         </div>
         <div>
           <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {CREATE_WORK_ITEM_FIELD_SEVERITY}
+          </dt>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {preview.highestFindingSeverity}
+          </dd>
+        </div>
+        <div>
+          <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {CREATE_WORK_ITEM_FIELD_PRIORITY}
           </dt>
-          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{preview.priority}</dd>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Priority was not stored.</dd>
         </div>
         <div>
           <dt className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -138,6 +147,12 @@ function WorkItemPreviewPanel(props: { readonly preview: ArchitectureWorkItemPre
                 </p>
               ))
             )}
+            {preview.findingsOmittedCount > 0 ? (
+              <p className="m-0 text-al-text-secondary">
+                {preview.findingsOmittedCount} additional finding
+                {preview.findingsOmittedCount === 1 ? "" : "s"} were not included in this preview.
+              </p>
+            ) : null}
           </dd>
         </div>
         <div>

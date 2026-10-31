@@ -42,11 +42,10 @@ public sealed class DocxExportManifestPostureHonestyTests
     }
 
     [Fact]
-    public void FormatRecommendedImprovementsOverflowLine_lists_cap_and_omitted()
+    public void RecommendedImprovementsGeneratedEmptyExportLabel_is_generated_not_recorded()
     {
-        DocxExportManifestPostureHonesty.FormatRecommendedImprovementsOverflowLine(15)
+        DocxExportManifestPostureHonesty.RecommendedImprovementsGeneratedEmptyExportLabel
             .Should()
-            .Contain("10 of 15")
-            .And.Contain("5 more were not listed");
+            .Be("No recommendations were generated for this export.");
     }
 }

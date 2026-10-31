@@ -163,8 +163,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         written += AppendStoredSecurityControls(sb, security.Controls);
 
-        foreach (SecurityPostureItem control in (security.Controls ?? []).Where(static c => c is not null))
+        foreach (SecurityPostureItem? control in security.Controls ?? [])
         {
+            if (control is null)
+            {
+                sb.AppendLine("- Control was not stored.");
+                written++;
+                continue;
+            }
+
             string controlId = string.IsNullOrWhiteSpace(control.ControlId)
                 ? "Control id was not stored."
                 : control.ControlId.Trim();
@@ -200,94 +207,138 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Operational Considerations");
 
-        if (manifest.Cost is null && manifest.UnresolvedIssues is null)
-        {
-            sb.AppendLine("Operational considerations were not stored.");
-            sb.AppendLine();
-            return;
-        }
-
-        CostSection cost = manifest.Cost ?? new CostSection();
-        UnresolvedIssuesSection issues = manifest.UnresolvedIssues ?? new UnresolvedIssuesSection();
+        CostSection? costSection = manifest.Cost;
+        UnresolvedIssuesSection? issuesSection = manifest.UnresolvedIssues;
         int written = 0;
 
-        if (cost.MaxMonthlyCost.HasValue)
+        if (costSection is null && issuesSection is null)
         {
-            sb.AppendLine($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
-            written++;
-        }
-        else if (manifest.Cost is not null)
-        {
-            sb.AppendLine("- Max Monthly Cost: Max monthly cost was not stored.");
-            written++;
-        }
-
-        if (manifest.Cost is not null)
-        {
-            sb.AppendLine(
-                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(cost.CurrencyCode)}");
-            written++;
-            written += AppendStoredCostStringList(
-                sb,
-                cost.CostRisks,
-                "Cost risks were not stored.",
-                "Cost risks were stored as an empty list.",
-                "Cost risk");
-            written += AppendStoredCostStringList(
-                sb,
-                cost.Notes,
-                "Cost notes were not stored.",
-                "Cost notes were stored as an empty list.",
-                "Cost note");
-        }
-
-        if (manifest.UnresolvedIssues is null)
-        {
-            if (manifest.Cost is not null)
-            {
-                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
-                written++;
-            }
-        }
-        else if (issues.Items is null)
-        {
-            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
-            written++;
-        }
-        else if (issues.Items.Count == 0)
-        {
-            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty}");
+            sb.AppendLine("- Cost and unresolved issues were not stored.");
             written++;
         }
         else
         {
-            foreach (ManifestIssue issue in issues.Items.Where(static i => i is not null))
+            CostSection cost = costSection ?? new CostSection();
+            UnresolvedIssuesSection issues = issuesSection ?? new UnresolvedIssuesSection();
+
+            if (costSection is null)
             {
-                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    issue.Severity,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored,
-                    "Severity was stored empty.");
-                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    issue.IssueType,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored,
-                    "Issue type was stored empty.");
-                string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    issue.Title,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored,
-                    "Issue title was stored empty.");
-                string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
-                    issue.Description,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored,
-                    "Issue description was stored empty.");
-                sb.AppendLine($"- [{severity}] {issueType} {issueTitle}: {issueDescription}");
+                sb.AppendLine("- Cost section was not stored.");
                 written++;
             }
+            else if (cost.MaxMonthlyCost.HasValue)
+            {
+                sb.AppendLine($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
+                written++;
+            }
+            else
+            {
+                sb.AppendLine("- Max Monthly Cost: Max monthly cost was not stored.");
+                written++;
+            }
+
+            if (costSection is not null)
+            {
+                sb.AppendLine(
+                    $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(cost.CurrencyCode)}");
+                written++;
+                written += AppendStoredCostStringList(
+                    sb,
+                    cost.CostRisks,
+                    "Cost risks were not stored.",
+                    "Cost risks were stored as an empty list.",
+                    "Cost risk");
+                written += AppendStoredCostStringList(
+                    sb,
+                    cost.Notes,
+                    "Cost notes were not stored.",
+                    "Cost notes were stored as an empty list.",
+                    "Cost note");
+            }
+
+            if (issuesSection is null)
+            {
+                if (costSection is not null)
+                {
+                    sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+                    written++;
+                }
+            }
+            else if (issues.Items is null)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+                written++;
+            }
+            else if (issues.Items.Count == 0)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty}");
+                written++;
+            }
+            else
+            {
+                foreach (ManifestIssue issue in issues.Items.Where(static i => i is not null))
+                {
+                    string severity = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        issue.Severity,
+                        ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored,
+                        "Severity was stored empty.");
+                    string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        issue.IssueType,
+                        ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored,
+                        "Issue type was stored empty.");
+                    string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        issue.Title,
+                        ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored,
+                        "Issue title was stored empty.");
+                    string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                        issue.Description,
+                        ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored,
+                        "Issue description was stored empty.");
+                    sb.AppendLine($"- [{severity}] {issueType} {issueTitle}: {issueDescription}");
+                    written++;
+                }
+            }
         }
+
+        written += AppendOperationalComplianceConsiderations(sb, manifest.Compliance);
 
         if (written == 0)
             sb.AppendLine("No operational considerations were recorded.");
 
         sb.AppendLine();
+    }
+
+    private static int AppendOperationalComplianceConsiderations(StringBuilder sb, ComplianceSection? compliance)
+    {
+        if (compliance is null)
+        {
+            sb.AppendLine("- Compliance posture was not stored.");
+            return 1;
+        }
+
+        StringBuilder complianceSection = new();
+        ManifestPostureListHonesty.AppendCompliancePostureSection(complianceSection, compliance, referenceStyle: false);
+        string complianceText = complianceSection.ToString().TrimEnd();
+
+        if (complianceText.Length == 0)
+        {
+            sb.AppendLine("- Compliance posture was stored empty.");
+            return 1;
+        }
+
+        foreach (string line in complianceText.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            string trimmed = line.Trim();
+
+            if (trimmed.Length == 0)
+            {
+                continue;
+            }
+
+            sb.AppendLine(trimmed.StartsWith("- ", StringComparison.Ordinal) ? trimmed : $"- {trimmed}");
+        }
+
+        return 1;
     }
 
     private static int AppendNonEmptyBullets(StringBuilder sb, IEnumerable<string>? values, string label)
@@ -298,6 +349,8 @@ public static class ArchitectureRequiredMarkdownSections
         {
             if (value is null)
             {
+                sb.AppendLine($"- {label} was not stored.");
+                written++;
                 continue;
             }
 
@@ -466,8 +519,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestService service in services.Where(static s => s is not null))
+        foreach (ManifestService? service in services)
         {
+            if (service is null)
+            {
+                sb.AppendLine("- Service was not stored.");
+                written++;
+                continue;
+            }
+
             string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
             sb.AppendLine(
                 $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}){FormatServicePurposeSuffix(service.Purpose)}");
@@ -493,8 +553,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestDatastore datastore in datastores.Where(static d => d is not null))
+        foreach (ManifestDatastore? datastore in datastores)
         {
+            if (datastore is null)
+            {
+                sb.AppendLine("- Datastore was not stored.");
+                written++;
+                continue;
+            }
+
             string datastoreName = FormatComponentName(
                 datastore.DatastoreName,
                 "Datastore name was not stored.",
@@ -523,8 +590,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestService service in services.Where(static s => s is not null))
+        foreach (ManifestService? service in services)
         {
+            if (service is null)
+            {
+                sb.AppendLine("- Service was not stored.");
+                written++;
+                continue;
+            }
+
             string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
             sb.AppendLine(
                 $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}, {FormatRuntimePlatform(service.RuntimePlatform)})");
@@ -550,8 +624,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestDatastore datastore in datastores.Where(static d => d is not null))
+        foreach (ManifestDatastore? datastore in datastores)
         {
+            if (datastore is null)
+            {
+                sb.AppendLine("- Datastore was not stored.");
+                written++;
+                continue;
+            }
+
             string datastoreName = FormatComponentName(
                 datastore.DatastoreName,
                 "Datastore name was not stored.",
@@ -583,8 +664,15 @@ public static class ArchitectureRequiredMarkdownSections
 
         int written = 0;
 
-        foreach (ManifestRelationship relationship in relationships.Where(static r => r is not null))
+        foreach (ManifestRelationship? relationship in relationships)
         {
+            if (relationship is null)
+            {
+                sb.AppendLine("- Relationship was not stored.");
+                written++;
+                continue;
+            }
+
             string sourceLabel = FormatTopologyEndpointLabel(topology, relationship.SourceId, "Relationship source id was not stored.");
             string targetLabel = FormatTopologyEndpointLabel(topology, relationship.TargetId, "Relationship target id was not stored.");
             string relationshipType = FormatRelationshipType(relationship.RelationshipType);

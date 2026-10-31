@@ -1,6 +1,8 @@
 using System.Globalization;
 
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Pilots;
@@ -75,7 +77,9 @@ public static class FirstValueReportSemanticSupportBandSummary
     {
         ArgumentNullException.ThrowIfNull(counts);
 
-        return counts.DecisionGradeTotal > 0 && counts.Unsupported == 0;
+        return counts.DecisionGradeTotal > 0
+               && counts.Unsupported == 0
+               && counts.NotScored == 0;
     }
 
     public static string? FormatStampSemanticSupportBandLine(
@@ -155,7 +159,9 @@ public static class FirstValueReportSemanticSupportBandSummary
 
         if (message.Length > 0)
         {
-            return message.Length <= 96 ? message : string.Concat(message.AsSpan(0, 93), "...");
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(
+                message,
+                ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
         }
 
         return finding.FindingId;

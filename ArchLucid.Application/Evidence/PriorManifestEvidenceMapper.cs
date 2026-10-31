@@ -79,7 +79,7 @@ public static class PriorManifestEvidenceMapper
         string change = metadata.ChangeDescription.Trim();
 
         if (change.Length > MaxChangeDescriptionChars)
-            change = change.Substring(0, MaxChangeDescriptionChars) + "…";
+            return baseSummary + " Change note shortened; full text was not stored.";
 
         return baseSummary + " Change note: " + change;
     }

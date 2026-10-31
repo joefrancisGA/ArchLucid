@@ -35,7 +35,7 @@ describe("RunDetailEngineProvenanceRow", () => {
   it.each([
     [null, "Output schema version was not stored."],
     [undefined, "Output schema version was not stored."],
-    ["", ""],
+    ["", "Output schema version was stored empty."],
     ["FindingsSnapshot v3", "FindingsSnapshot v3"],
   ])("always renders the output schema value %s", (outputSchemaVersion, expectedValue) => {
     render(
@@ -45,13 +45,7 @@ describe("RunDetailEngineProvenanceRow", () => {
     );
 
     expect(screen.getByText("Output schema")).toBeInTheDocument();
-
-    if (expectedValue === "") {
-      const outputSchemaLabel = screen.getByText("Output schema");
-      expect(outputSchemaLabel.nextElementSibling).toBeEmptyDOMElement();
-    } else {
-      expect(screen.getByText(expectedValue)).toBeInTheDocument();
-    }
+    expect(screen.getByText(expectedValue)).toBeInTheDocument();
   });
 
   it("labels omitted prompt pack, policy pack, catalog alias, and cost (P-14–P-16)", () => {
@@ -88,6 +82,19 @@ describe("RunDetailEngineProvenanceRow", () => {
     expect(screen.getByText("Task evaluations were not stored.")).toBeInTheDocument();
   });
 
+  it("labels empty task evaluation list separately from omitted list", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          taskEvaluationSnapshotsAtSelection: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Task evaluations were stored empty.")).toBeInTheDocument();
+  });
+
   it("preserves stored empty and task evaluation values", () => {
     render(
       <RunDetailEngineProvenanceRow
@@ -101,7 +108,7 @@ describe("RunDetailEngineProvenanceRow", () => {
       />,
     );
 
-    expect(screen.getByText("Engine profile").nextElementSibling).toBeEmptyDOMElement();
+    expect(screen.getByText("Engine profile was stored empty.")).toBeInTheDocument();
     expect(screen.getByText("Task evaluation: Finding")).toBeInTheDocument();
     expect(screen.getByText("Passed")).toBeInTheDocument();
   });

@@ -11,6 +11,8 @@ import {
   WHY_SECURENOW_DRAFT_PITCH,
   WHY_SECURENOW_DRAFT_REFUSALS,
   WHY_SECURENOW_DRAFT_STEPS,
+  WHY_SECURENOW_REVIEWER_PACK_BODY,
+  WHY_SECURENOW_REVIEWER_PACK_HEADING,
 } from "@/lib/marketing/why-securenow-draft-copy";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +20,7 @@ import { cn } from "@/lib/utils";
 export function WhySecureNowDraftView(): React.JSX.Element {
   return (
     <MarketingPageShell variant="reading" data-testid="why-securenow-draft-page">
-      <div className={cn(MARKETING_LAYOUT.sectionY, "space-y-8")}>
+      <div className={cn(MARKETING_LAYOUT.sectionStack, "space-y-8")}>
         <p
           className={cn(MARKETING_TYPOGRAPHY.lead, "text-amber-900 dark:text-amber-200")}
           data-testid="why-securenow-draft-banner"
@@ -60,6 +62,17 @@ export function WhySecureNowDraftView(): React.JSX.Element {
               <li key={refusal}>{refusal}</li>
             ))}
           </ul>
+        </section>
+
+        <section
+          id="reviewer-pack"
+          className="space-y-2"
+          aria-labelledby="why-securenow-reviewer-pack-heading"
+        >
+          <h2 id="why-securenow-reviewer-pack-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+            {WHY_SECURENOW_REVIEWER_PACK_HEADING}
+          </h2>
+          <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_REVIEWER_PACK_BODY}</p>
         </section>
 
         <p className={MARKETING_TYPOGRAPHY.body}>

@@ -32,7 +32,7 @@ public sealed class DiagramExecutiveSparseResourceCaptionTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
 
         ast.CaptionLines.Should().ContainSingle()
-            .Which.Should().Be("This view is the first 12 resources in the snapshot. It is not a sponsor summary.");
+            .Which.Should().Be("This view shows the first 12 resources drawn on this diagram from the collected snapshot. It is not a sponsor summary.");
         ast.Nodes.Should().HaveCount(12);
     }
 

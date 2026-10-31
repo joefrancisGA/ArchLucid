@@ -1,3 +1,6 @@
+import {
+  formatExportPreviewShortenedText,
+} from "@/lib/export-preview-caption-honesty";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   isDecisionGradeFinding,
@@ -20,11 +23,15 @@ export type SemanticSupportBandStampCounts = {
   readonly notScored: number;
   readonly missingStoredBand: number;
   readonly storedEmptyBand: number;
+  readonly unrecognizedBand: number;
   readonly decisionGradeTotal: number;
 };
 
 export const FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY =
   "Semantic support band was stored empty." as const;
+
+export const FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY =
+  "Semantic support band was not recognized." as const;
 
 export function countDecisionGradeSemanticSupportBands(
   findings: readonly QuickDecisionFinding[],
@@ -35,6 +42,7 @@ export function countDecisionGradeSemanticSupportBands(
   let notScored = 0;
   let missingStoredBand = 0;
   let storedEmptyBand = 0;
+  let unrecognizedBand = 0;
   let decisionGradeTotal = 0;
 
   for (const finding of findings) {
@@ -58,6 +66,10 @@ export function countDecisionGradeSemanticSupportBands(
     const band = normalizeFindingSemanticSupportBand(rawBand);
 
     if (band === null) {
+      if (typeof rawBand === "string" && rawBand.trim().length > 0) {
+        unrecognizedBand += 1;
+      }
+
       continue;
     }
 
@@ -86,6 +98,7 @@ export function countDecisionGradeSemanticSupportBands(
     notScored,
     missingStoredBand,
     storedEmptyBand,
+    unrecognizedBand,
     decisionGradeTotal,
   };
 }
@@ -97,6 +110,7 @@ export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandSta
     && counts.unchecked === 0
     && counts.missingStoredBand === 0
     && counts.storedEmptyBand === 0
+    && counts.unrecognizedBand === 0
     && counts.notScored === 0
   );
 }
@@ -130,6 +144,7 @@ export function countDecisionGradeSemanticSupportBandsForPresentation(
     notScored: decisionGradeTotal,
     missingStoredBand: 0,
     storedEmptyBand: 0,
+    unrecognizedBand: 0,
     decisionGradeTotal,
   };
 }
@@ -193,6 +208,10 @@ export function formatStampSemanticSupportBandLine(
     segments.push(formatBandCountSegment("Not scored", counts.notScored));
   }
 
+  if (options?.compact !== true && counts.unrecognizedBand > 0) {
+    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_UNRECOGNIZED_COPY);
+  }
+
   if (counts.missingStoredBand > 0) {
     segments.push(FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY);
   }
@@ -229,8 +248,11 @@ export function listUnsupportedDecisionGradeSemanticSupportFindings(
 
     entries.push({
       findingId: finding.findingId,
-      title:
-        finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
+      title: formatExportPreviewShortenedText(
+        finding.title,
+        "Finding title was not stored.",
+        96,
+      ),
     });
   }
 

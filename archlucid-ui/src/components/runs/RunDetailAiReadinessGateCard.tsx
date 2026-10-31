@@ -94,7 +94,12 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
             {" "}
             LLM calls on this review: <span className="font-mono tabular-nums">{llmCalls}</span>.
           </>
-        ) : null}
+        ) : (
+          <>
+            {" "}
+            LLM call count was not stored.
+          </>
+        )}
       </p>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         <button

@@ -40,8 +40,11 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         foreach (DiagramDropGateRow row in ast.DropGateRows)
         {
-            sb.AppendLine(
-                $"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {EscapeCommentToken(row.FromNodeId)} {EscapeCommentToken(row.ToNodeId)}");
+            string fromToken = EscapeCommentToken(row.FromNodeId);
+            string toToken = string.IsNullOrWhiteSpace(row.ToNodeId)
+                ? "_"
+                : EscapeCommentToken(row.ToNodeId);
+            sb.AppendLine($"    %% al-ledger-drop {EscapeCommentToken(row.Reason)} {fromToken} {toToken}");
         }
 
         if (InventoryDiagramResourceGroupMapBuilder.TitleMarksResourceGroupMap(ast.Title))

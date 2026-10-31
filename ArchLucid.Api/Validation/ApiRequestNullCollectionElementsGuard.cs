@@ -17,14 +17,46 @@ public static class ApiRequestNullCollectionElementsGuard
     ///     Returns true when <paramref name="root" /> has a null non-nullable collection property, or contains a null
     ///     element in any enumerable collection (excluding strings and byte arrays) whose element type is not annotated nullable.
     /// </summary>
-    public static bool ContainsNullCollectionElement(object? root)
+    public static bool ContainsNullCollectionElement(object? root) =>
+        ContainsNullCollectionElement(root, bodyParameter: null);
+
+    /// <summary>
+    ///     Validates a bound <c>[FromBody]</c> model. When the body parameter type is itself a collection (for example
+    ///     batch JSON array roots), <paramref name="bodyParameter" /> supplies element nullability for that enumerable.
+    /// </summary>
+    public static bool ContainsNullCollectionElement(object? root, ParameterInfo? bodyParameter)
     {
         if (root is null)
             return false;
 
         HashSet<object> visited = new(ReferenceEqualityComparer.Instance);
 
+        if (bodyParameter is not null
+            && TryVisitRootBodyCollection(root, bodyParameter, visited, out bool rootInvalid)
+            && rootInvalid)
+        {
+            return true;
+        }
+
         return VisitObject(root, visited);
+    }
+
+    private static bool TryVisitRootBodyCollection(
+        object root,
+        ParameterInfo bodyParameter,
+        HashSet<object> visited,
+        out bool invalid)
+    {
+        invalid = false;
+        Type parameterType = Nullable.GetUnderlyingType(bodyParameter.ParameterType) ?? bodyParameter.ParameterType;
+
+        if (!IsEnumerableCollection(parameterType) || !parameterType.IsInstanceOfType(root))
+            return false;
+
+        NullabilityInfo parameterNullability = NullabilityContext.Create(bodyParameter);
+        invalid = VisitCollection((IEnumerable)root, parameterNullability, visited);
+
+        return true;
     }
 
     private static bool VisitObject(object value, HashSet<object> visited)

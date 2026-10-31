@@ -46,6 +46,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (trimmed.Length < 4)
             return false;
 
+        if (ConfigurationSensitiveConfigValueScanner.TryScanJsonForEmbeddedCredentials(trimmed))
+            return true;
+
         if (ContainsUrlUserInfoCredentials(trimmed))
             return true;
 
@@ -143,17 +146,317 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsBasicAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int basicIndex = trimmed.IndexOf("Basic".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int searchStart = 0;
 
-        if (basicIndex < 0)
+        while (searchStart < trimmed.Length)
+        {
+            ReadOnlySpan<char> remainder = trimmed.Slice(searchStart);
+            int basicIndex = remainder.IndexOf("Basic".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+            if (basicIndex < 0)
+                return false;
+
+            int absoluteBasicIndex = searchStart + basicIndex;
+            ReadOnlySpan<char> afterBasic = trimmed.Slice(absoluteBasicIndex + "Basic".Length);
+
+            if (!afterBasic.IsEmpty && char.IsWhiteSpace(afterBasic[0])
+                && TryBasicAuthorizationHeaderToken(afterBasic))
+                return true;
+
+            searchStart = absoluteBasicIndex + "Basic".Length;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationHeaderToken(ReadOnlySpan<char> afterBasic)
+    {
+        ReadOnlySpan<char> token = TrimLeadingByteOrderMarks(afterBasic.Trim());
+
+        if (TryBasicAuthorizationPayloadFromToken(token))
+            return true;
+
+        string tokenText = token.ToString();
+
+        foreach (string segment in tokenText.Split(',', ';', '\t', '\v', '\f', '\r', '\n', '|', '&', '\\', ':', '=', '_', '-', '~', '^', '!', '#', '$', '*', '%', ' '))
+        {
+            if (segment.Length == 0)
+                continue;
+
+            if (TryBasicAuthorizationPayloadFromToken(segment.AsSpan().Trim()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromToken(ReadOnlySpan<char> token)
+    {
+        token = TrimLeadingByteOrderMarks(token);
+
+        if (TryBasicAuthorizationPayloadFromCollapsedToken(token))
+            return true;
+
+        int semicolonIndex = token.IndexOf(';');
+
+        if (semicolonIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, semicolonIndex).Trim()))
+            return true;
+
+        int pipeIndex = token.IndexOf('|');
+
+        if (pipeIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, pipeIndex).Trim()))
+            return true;
+
+        int slashIndex = token.IndexOf('/');
+
+        if (slashIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, slashIndex).Trim()))
+            return true;
+
+        int ampersandIndex = token.IndexOf('&');
+
+        if (ampersandIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, ampersandIndex).Trim()))
+            return true;
+
+        int tabIndex = token.IndexOf('\t');
+
+        if (tabIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, tabIndex).Trim()))
+            return true;
+
+        int verticalTabIndex = token.IndexOf('\v');
+
+        if (verticalTabIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, verticalTabIndex).Trim()))
+            return true;
+
+        int formFeedIndex = token.IndexOf('\f');
+
+        if (formFeedIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, formFeedIndex).Trim()))
+            return true;
+
+        int carriageReturnIndex = token.IndexOf('\r');
+
+        if (carriageReturnIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, carriageReturnIndex).Trim()))
+            return true;
+
+        int lineFeedIndex = token.IndexOf('\n');
+
+        if (lineFeedIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, lineFeedIndex).Trim()))
+            return true;
+
+        int lineSeparatorIndex = token.IndexOf('\u2028');
+
+        if (lineSeparatorIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, lineSeparatorIndex).Trim()))
+            return true;
+
+        int paragraphSeparatorIndex = token.IndexOf('\u2029');
+
+        if (paragraphSeparatorIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, paragraphSeparatorIndex).Trim()))
+            return true;
+
+        int nextLineIndex = token.IndexOf('\u0085');
+
+        if (nextLineIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, nextLineIndex).Trim()))
+            return true;
+
+        int noBreakSpaceIndex = token.IndexOf('\u00a0');
+
+        if (noBreakSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, noBreakSpaceIndex).Trim()))
+            return true;
+
+        int narrowNoBreakSpaceIndex = token.IndexOf('\u202f');
+
+        if (narrowNoBreakSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, narrowNoBreakSpaceIndex).Trim()))
+            return true;
+
+        int figureSpaceIndex = token.IndexOf('\u2007');
+
+        if (figureSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, figureSpaceIndex).Trim()))
+            return true;
+
+        int thinSpaceIndex = token.IndexOf('\u2009');
+
+        if (thinSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, thinSpaceIndex).Trim()))
+            return true;
+
+        int hairSpaceIndex = token.IndexOf('\u200a');
+
+        if (hairSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, hairSpaceIndex).Trim()))
+            return true;
+
+        int punctuationSpaceIndex = token.IndexOf('\u2008');
+
+        if (punctuationSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, punctuationSpaceIndex).Trim()))
+            return true;
+
+        int mediumMathematicalSpaceIndex = token.IndexOf('\u205f');
+
+        if (mediumMathematicalSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, mediumMathematicalSpaceIndex).Trim()))
+            return true;
+
+        int ideographicSpaceIndex = token.IndexOf('\u3000');
+
+        if (ideographicSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, ideographicSpaceIndex).Trim()))
+            return true;
+
+        int zeroWidthSpaceIndex = token.IndexOf('\u200b');
+
+        if (zeroWidthSpaceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, zeroWidthSpaceIndex).Trim()))
+            return true;
+
+        int zeroWidthNonJoinerIndex = token.IndexOf('\u200c');
+
+        if (zeroWidthNonJoinerIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, zeroWidthNonJoinerIndex).Trim()))
+            return true;
+
+        int zeroWidthJoinerIndex = token.IndexOf('\u200d');
+
+        if (zeroWidthJoinerIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, zeroWidthJoinerIndex).Trim()))
+            return true;
+
+        int byteOrderMarkIndex = token.IndexOf('\uFEFF');
+
+        if (byteOrderMarkIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, byteOrderMarkIndex).Trim()))
+            return true;
+
+        int quoteIndex = token.IndexOf('"');
+
+        if (quoteIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, quoteIndex).Trim()))
+            return true;
+
+        int closeParenIndex = token.IndexOf(')');
+
+        if (closeParenIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeParenIndex).Trim()))
+            return true;
+
+        int closeBracketIndex = token.IndexOf(']');
+
+        if (closeBracketIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBracketIndex).Trim()))
+            return true;
+
+        int closeBraceIndex = token.IndexOf('}');
+
+        if (closeBraceIndex > 0 && TryBasicAuthorizationPayloadFromCollapsedToken(token.Slice(0, closeBraceIndex).Trim()))
+            return true;
+
+        if (TryBasicAuthorizationPayloadFromRealmEqualsParameter(token))
+            return true;
+
+        return TryBasicAuthorizationPayloadFromQuotedSegments(token);
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromRealmEqualsParameter(ReadOnlySpan<char> token)
+    {
+        int realmIndex = token.IndexOf("realm=".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (realmIndex < 0)
             return false;
 
-        ReadOnlySpan<char> afterBasic = trimmed.Slice(basicIndex + "Basic".Length);
+        ReadOnlySpan<char> realmValue = token.Slice(realmIndex + "realm=".Length).Trim();
+        int commaIndex = realmValue.IndexOf(',');
 
-        if (afterBasic.IsEmpty || !char.IsWhiteSpace(afterBasic[0]))
-            return false;
+        if (commaIndex > 0)
+            realmValue = realmValue.Slice(0, commaIndex).Trim();
 
-        ReadOnlySpan<char> token = afterBasic.Trim();
+        if (TryBasicAuthorizationPayloadFromCollapsedToken(realmValue))
+            return true;
+
+        return TryBasicAuthorizationPayloadFromQuotedSegments(realmValue);
+    }
+
+    private static ReadOnlySpan<char> TrimLeadingByteOrderMarks(ReadOnlySpan<char> token)
+    {
+        while (token.Length > 0 && token[0] == '\uFEFF')
+            token = token.Slice(1);
+
+        return token;
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromQuotedSegments(ReadOnlySpan<char> token)
+    {
+        for (int index = 0; index < token.Length; index++)
+        {
+            if (token[index] == '<')
+            {
+                ReadOnlySpan<char> angleRemainder = token.Slice(index + 1);
+                int closingAngle = angleRemainder.IndexOf('>');
+
+                if (closingAngle > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(angleRemainder.Slice(0, closingAngle)))
+                    return true;
+
+                if (closingAngle >= 0)
+                    index += closingAngle + 1;
+
+                continue;
+            }
+
+            if (token[index] == '[')
+            {
+                ReadOnlySpan<char> bracketRemainder = token.Slice(index + 1);
+                int closingSquare = bracketRemainder.IndexOf(']');
+
+                if (closingSquare > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(bracketRemainder.Slice(0, closingSquare)))
+                    return true;
+
+                if (closingSquare >= 0)
+                    index += closingSquare + 1;
+
+                continue;
+            }
+
+            if (token[index] == '(')
+            {
+                ReadOnlySpan<char> parenRemainder = token.Slice(index + 1);
+                int closingParen = parenRemainder.IndexOf(')');
+
+                if (closingParen > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(parenRemainder.Slice(0, closingParen)))
+                    return true;
+
+                if (closingParen >= 0)
+                    index += closingParen + 1;
+
+                continue;
+            }
+
+            if (token[index] == '{')
+            {
+                ReadOnlySpan<char> braceRemainder = token.Slice(index + 1);
+                int closingBrace = braceRemainder.IndexOf('}');
+
+                if (closingBrace > 0
+                    && TryBasicAuthorizationPayloadFromCollapsedToken(braceRemainder.Slice(0, closingBrace)))
+                    return true;
+
+                if (closingBrace >= 0)
+                    index += closingBrace + 1;
+
+                continue;
+            }
+
+            char quote = token[index];
+
+            if (quote is not '"' and not '\'' and not '`')
+                continue;
+
+            ReadOnlySpan<char> remainder = token.Slice(index + 1);
+            int closingQuote = remainder.IndexOf(quote);
+
+            if (closingQuote < 0)
+                continue;
+
+            if (closingQuote > 0
+                && TryBasicAuthorizationPayloadFromCollapsedToken(remainder.Slice(0, closingQuote)))
+                return true;
+
+            index += closingQuote + 1;
+        }
+
+        return false;
+    }
+
+    private static bool TryBasicAuthorizationPayloadFromCollapsedToken(ReadOnlySpan<char> token)
+    {
         string payload = CollapseBasicAuthorizationBase64Characters(token);
 
         if (payload.Length == 0)
@@ -165,7 +468,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
             for (int layer = 0; layer < 8; layer++)
             {
-                byte[] bytes = Convert.FromBase64String(payloadSpan.ToString());
+                byte[] bytes = Convert.FromBase64String(NormalizeBase64PayloadPadding(payloadSpan));
                 string decoded = Encoding.UTF8.GetString(bytes);
                 ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
 
@@ -200,7 +503,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         foreach (char character in token)
         {
-            if (char.IsWhiteSpace(character))
+            if (ShouldIgnoreInBasicBase64Collapse(character))
                 continue;
 
             if (char.IsLetterOrDigit(character) || character is '+' or '/' or '=')
@@ -213,6 +516,25 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return collapsed.ToString();
+    }
+
+    private static bool ShouldIgnoreInBasicBase64Collapse(char character)
+    {
+        if (char.IsWhiteSpace(character))
+            return true;
+
+        return character is '\u200B' or '\u200C' or '\u200D' or '\uFEFF';
+    }
+
+    private static string NormalizeBase64PayloadPadding(ReadOnlySpan<char> payload)
+    {
+        string normalized = payload.ToString();
+        int remainder = normalized.Length % 4;
+
+        if (remainder == 0)
+            return normalized;
+
+        return normalized + new string('=', 4 - remainder);
     }
 
     private static bool LooksLikeBase64Payload(ReadOnlySpan<char> value)
@@ -236,12 +558,17 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsBearerAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int bearerIndex = trimmed.IndexOf("Bearer ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int bearerIndex = trimmed.IndexOf("Bearer".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (bearerIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(bearerIndex + "Bearer ".Length).Trim();
+        ReadOnlySpan<char> afterBearer = trimmed.Slice(bearerIndex + "Bearer".Length);
+
+        if (afterBearer.IsEmpty || !char.IsWhiteSpace(afterBearer[0]))
+            return false;
+
+        ReadOnlySpan<char> token = afterBearer.Trim();
 
         return CollapsedBearerCredentialLength(token) >= 8;
     }
@@ -316,38 +643,36 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsNegotiateAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int negotiateIndex = trimmed.IndexOf("Negotiate ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int negotiateIndex = trimmed.IndexOf("Negotiate".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (negotiateIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(negotiateIndex + "Negotiate ".Length).Trim();
-        int end = 0;
+        ReadOnlySpan<char> afterNegotiate = trimmed.Slice(negotiateIndex + "Negotiate".Length);
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
+        if (afterNegotiate.IsEmpty || !char.IsWhiteSpace(afterNegotiate[0]))
+            return false;
 
-        token = token.Slice(0, end);
+        ReadOnlySpan<char> token = afterNegotiate.Trim();
 
-        return token.Length >= 8;
+        return CollapsedBearerCredentialLength(token) >= 8;
     }
 
     private static bool ContainsNtlmAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int ntlmIndex = trimmed.IndexOf("NTLM ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int ntlmIndex = trimmed.IndexOf("NTLM".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (ntlmIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(ntlmIndex + "NTLM ".Length).Trim();
-        int end = 0;
+        ReadOnlySpan<char> afterNtlm = trimmed.Slice(ntlmIndex + "NTLM".Length);
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
+        if (afterNtlm.IsEmpty || !char.IsWhiteSpace(afterNtlm[0]))
+            return false;
 
-        token = token.Slice(0, end);
+        ReadOnlySpan<char> token = afterNtlm.Trim();
 
-        return token.Length >= 8;
+        return CollapsedBearerCredentialLength(token) >= 8;
     }
 
     private static bool ContainsSetCookieHeaderCredentials(ReadOnlySpan<char> trimmed)
@@ -356,6 +681,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return true;
 
         if (ContainsCredentialCookieHeaderValue(trimmed, "Set-Cookie2:"))
+            return true;
+
+        if (ContainsCredentialCookieHeaderValue(trimmed, "Cookie2:"))
             return true;
 
         return ContainsCredentialCookieHeaderValue(trimmed, "Cookie:");

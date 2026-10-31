@@ -83,11 +83,11 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Related graph nodes | {(chain.RelatedGraphNodeIds.Count == 0 ? "Related graph node ids were not stored." : chain.RelatedGraphNodeIds.Count.ToString(CultureInfo.InvariantCulture))} |");
+                $"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Agent execution traces | {(chain.AgentExecutionTraceIds.Count == 0 ? "Agent execution trace ids were not stored." : chain.AgentExecutionTraceIds.Count.ToString(CultureInfo.InvariantCulture))} |");
+                $"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         }
 
         sb.AppendLine(

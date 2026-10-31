@@ -7,6 +7,9 @@ namespace ArchLucid.Core.Costing;
 /// </summary>
 public static class IllustrativeInfrastructureCostFallback
 {
+    public const string UnknownPlatformIllustrativeUsdPlaceholderSentence =
+        "Unknown runtime platform uses a $25/month illustrative placeholder — not measured spend.";
+
     /// <summary>Same values as fallback line items (deterministic).</summary>
     public static decimal EstimateIllustrativeMonthlyUsd(RuntimePlatform platform)
     {
@@ -69,7 +72,7 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.S3 => "Amazon S3",
                 RuntimePlatform.ElastiCache => "Amazon ElastiCache",
                 RuntimePlatform.Unknown => "AWS product label was not stored.",
-                _ => "AWS workload",
+                _ => "AWS product label was not stored.",
             };
         }
 
@@ -82,7 +85,7 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.CloudSql => "Google Cloud SQL",
                 RuntimePlatform.Gcs => "Google Cloud Storage",
                 RuntimePlatform.Unknown => "GCP product label was not stored.",
-                _ => "GCP workload",
+                _ => "GCP product label was not stored.",
             };
         }
 
@@ -100,7 +103,7 @@ public static class IllustrativeInfrastructureCostFallback
             RuntimePlatform.Redis => "Azure Cache for Redis",
             RuntimePlatform.BlobStorage => "Azure Blob Storage",
             RuntimePlatform.KeyVault => "Azure Key Vault",
-            _ => "Azure workload",
+            _ => "Azure product label was not stored.",
         };
     }
 

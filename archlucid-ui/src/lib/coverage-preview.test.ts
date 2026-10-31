@@ -18,6 +18,8 @@ describe("coverage-preview helpers", () => {
     expect(resolveCoveragePreviewCloudHonesty("")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
     expect(resolveCoveragePreviewCloudHonesty("  ")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
     expect(resolveCoveragePreviewCloudHonesty("Azure")).toBeNull();
+    expect(resolveCoveragePreviewCloudHonesty("None")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
+    expect(resolveCoveragePreviewCloudHonesty("none")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
     expect(resolveCoveragePreviewCloudHonesty("Oracle")).toBe(COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE);
   });
 

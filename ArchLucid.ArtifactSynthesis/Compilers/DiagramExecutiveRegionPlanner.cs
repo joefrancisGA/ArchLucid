@@ -16,13 +16,13 @@ internal static class DiagramExecutiveRegionPlanner
     public const string RegionNotStoredCaption = "Region was not stored.";
 
     public const string SingleRegionCaptionTemplate =
-        "All located resources in this snapshot are in region {0}. Region swimlanes appear when two or more regions are present.";
+        "All located resources drawn on this diagram are in region {0}. Region swimlanes appear when two or more regions are present.";
 
     public const string SingleRegionUnlocatedSuffixTemplate =
         "{0} resource(s) had no stored region and are not in region swimlanes.";
 
     public const string DefaultExecutiveInventoryCaption =
-        "This executive inventory diagram shows resources collected in this snapshot. It is not a complete subscription inventory.";
+        "This executive inventory diagram shows resources drawn on this canvas from the collected snapshot. It is not a complete subscription inventory.";
 
     public static string? BuildSingleRegionCaption(
         IReadOnlyList<GraphNode> topologyNodes,

@@ -604,6 +604,67 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_inbound_syncs_disposition_when_state_is_whole_number_float_string_matching_map_key()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn-disp-float" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-disp-float",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(It.IsAny<ScopeContext>(), "f-sn-disp-float", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r =>
+                    r.Disposition == FindingDisposition.Remediated
+                    && r.Rationale == "ITSM inbound sync: external status '6'."),
+                It.IsAny<ScopeContext>(),
+                "servicenow-webhook",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingDispositionEventDto
+                {
+                    EventId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    FindingId = "f-sn-disp-float",
+                    Disposition = FindingDisposition.Remediated,
+                    ReviewerUserId = "servicenow-webhook",
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                });
+        IntegrationsItsmInboundOptions options = new()
+        {
+            ServiceNowStateDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["6"] = nameof(FindingDisposition.Remediated),
+            },
+        };
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options, dispositionService);
+
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"6.0"}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+        ItsmInboundWebhookProcessResult result =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
+
+        result.Accepted.Should().BeTrue();
+        JsonDocument payload = JsonDocument.Parse(result.DurableAuditEvent!.DataJson);
+        payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeTrue();
+        payload.RootElement.GetProperty("disposition").GetString().Should().Be(nameof(FindingDisposition.Remediated));
+        payload.RootElement.GetProperty("state").GetString().Should().Be("6");
+    }
+
+    [Fact]
     public async Task Jira_invalid_issue_key_format_is_rejected_with_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -1332,6 +1393,118 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_synthetic_replay_dedupes_json_number_state_and_leading_zero_string_state()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-sn-replay-norm",
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-norm",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 10_000 });
+        MemoryCacheItsmInboundWebhookReplayGuard replayGuard =
+            new(memoryCache, TimeProvider.System);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(
+            correlations,
+            new IntegrationsItsmInboundOptions(),
+            replayGuardImplementation: replayGuard);
+
+        const string jsonNumber = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":6}""";
+        const string jsonString = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"06"}""";
+        using JsonDocument docNumber = JsonDocument.Parse(jsonNumber);
+        using JsonDocument docString = JsonDocument.Parse(jsonString);
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docNumber.RootElement, CancellationToken.None);
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docString.RootElement, CancellationToken.None);
+
+        first.ReplayIgnored.Should().BeFalse();
+        second.ReplayIgnored.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-norm",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ServiceNow_synthetic_replay_dedupes_json_number_state_and_whole_number_float_string_state()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-sn-replay-float",
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-float",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 10_000 });
+        MemoryCacheItsmInboundWebhookReplayGuard replayGuard =
+            new(memoryCache, TimeProvider.System);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(
+            correlations,
+            new IntegrationsItsmInboundOptions(),
+            replayGuardImplementation: replayGuard);
+
+        const string jsonNumber = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":6}""";
+        const string jsonFloatString = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"6.0"}""";
+        using JsonDocument docNumber = JsonDocument.Parse(jsonNumber);
+        using JsonDocument docFloatString = JsonDocument.Parse(jsonFloatString);
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docNumber.RootElement, CancellationToken.None);
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docFloatString.RootElement, CancellationToken.None);
+
+        first.ReplayIgnored.Should().BeFalse();
+        second.ReplayIgnored.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-float",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -1525,6 +1698,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IFindingDispositionService>? dispositionService = null,
         bool configureDefaultFindingExists = true,
         Mock<IItsmInboundWebhookReplayGuard>? replayGuard = null,
+        IItsmInboundWebhookReplayGuard? replayGuardImplementation = null,
         IManifestHashService? manifestHashService = null,
         IAuthorityQueryService? authorityQueryService = null)
     {
@@ -1541,6 +1715,18 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             new(disposition.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
 
         Mock<IItsmInboundWebhookReplayGuard> replay = replayGuard ?? new Mock<IItsmInboundWebhookReplayGuard>();
+
+        if (replayGuardImplementation is not null)
+        {
+            return CreateSut(
+                correlations.Object,
+                monitor.Object,
+                dispositionSync,
+                replayGuardImplementation,
+                pipelineLogger: null,
+                manifestHashService: manifestHashService,
+                authorityQueryService: authorityQueryService);
+        }
 
         if (replayGuard is null)
         {

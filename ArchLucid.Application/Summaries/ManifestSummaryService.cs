@@ -107,6 +107,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Relationships");
             sb.AppendLine();
             int max = options.MaxRelationships ?? int.MaxValue;
+            int relationshipIndex = 0;
             foreach (var relationship in relationships
                          .Select(r => new
                          {
@@ -118,12 +119,21 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                          }).OrderBy(x => x.SourceName, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.TargetName, StringComparer.OrdinalIgnoreCase)
                          .ThenBy(x => x.LinkLabel, StringComparer.OrdinalIgnoreCase).Take(max))
             {
+                relationshipIndex++;
                 sb.AppendLine(
                     $"- **{relationship.SourceName}** {relationship.LinkLabel} **{relationship.TargetName}**");
                 string description = string.IsNullOrWhiteSpace(relationship.Relationship.Description)
                     ? "Relationship description was not stored."
                     : relationship.Relationship.Description.Trim();
                 sb.AppendLine($"  - {description}");
+            }
+
+            int omittedRelationships = relationships.Count - relationshipIndex;
+
+            if (omittedRelationships > 0)
+            {
+                sb.AppendLine(
+                    $"- {ArchitectureManifestMarkdownSummaryExport.FormatRelationshipsSummaryCapRemainderLine(omittedRelationships)}");
             }
 
             sb.AppendLine();

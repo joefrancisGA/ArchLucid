@@ -124,7 +124,11 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
             </li>
           ))}
         </ul>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Source evidence links were not stored.
+        </p>
+      )}
 
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">

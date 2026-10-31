@@ -91,7 +91,8 @@ export function PilotValueReportFindingsSection(props: Props) {
     setTechnicalDetailsOpenState(parsePilotOutcomesTechnicalDetailsOpenFromSearch(pilotOutcomesTechnicalDetailsOpenParam));
   }, [pilotOutcomesTechnicalDetailsOpenParam]);
 
-  const timelineRows = data.committedRunsTimeline ?? [];
+  const timelineOmitted = data.committedRunsTimeline === undefined || data.committedRunsTimeline === null;
+  const timelineRows = timelineOmitted ? [] : data.committedRunsTimeline;
   const showTimelineCapNote = data.runDetailsTruncated === true && (data.runDetailCap ?? 0) > 0;
 
   return (
@@ -165,6 +166,15 @@ export function PilotValueReportFindingsSection(props: Props) {
             </Link>
           </p>
         ) : null}
+        {timelineOmitted ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finalized review list was not stored.
+          </p>
+        ) : timelineRows.length === 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finalized review list was stored empty.
+          </p>
+        ) : (
         <EnterpriseTable ariaLabel="Finalized reviews in pilot value report" className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
           <EnterpriseTableHead className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
             <EnterpriseTableHeadRow>
@@ -219,6 +229,7 @@ export function PilotValueReportFindingsSection(props: Props) {
             ))}
           </EnterpriseTableBody>
         </EnterpriseTable>
+        )}
       </section>
 
       <CollapsibleSection

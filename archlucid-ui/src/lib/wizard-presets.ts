@@ -91,11 +91,22 @@ const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = 
   "requiredCapabilities",
 ];
 
+/** True when React Hook Form marked a scalar or array field dirty. */
+export function isWizardFormFieldDirty(dirty: unknown): boolean {
+  if (Array.isArray(dirty)) {
+    return dirty.some(Boolean);
+  }
+
+  return dirty === true;
+}
+
 /** Fields that still match the starter preset and were not dirtied — for recap honesty. */
 export function resolveWizardRecapPresetMatchingFields(input: {
   readonly presetId: string | null | undefined;
   readonly formValues: WizardFormValues;
-  readonly dirtyFields: Partial<Record<keyof WizardFormValues, boolean | boolean[]>>;
+  readonly dirtyFields: {
+    readonly [K in keyof WizardFormValues]?: unknown;
+  };
 }): readonly (keyof WizardFormValues)[] {
   const presetId = input.presetId?.trim() ?? "";
 
@@ -104,17 +115,7 @@ export function resolveWizardRecapPresetMatchingFields(input: {
   }
 
   return WIZARD_RECAP_PRESET_TRACKED_FIELDS.filter((field) => {
-    if (field === "constraints" || field === "requiredCapabilities") {
-      const dirty = input.dirtyFields[field];
-
-      if (Array.isArray(dirty) && dirty.some(Boolean)) {
-        return false;
-      }
-
-      if (dirty === true) {
-        return false;
-      }
-    } else if (input.dirtyFields[field] === true) {
+    if (isWizardFormFieldDirty(input.dirtyFields[field])) {
       return false;
     }
 

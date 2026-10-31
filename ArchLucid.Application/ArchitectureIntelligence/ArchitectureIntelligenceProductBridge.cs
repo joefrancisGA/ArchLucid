@@ -266,7 +266,7 @@ public static class ArchitectureIntelligenceProductBridge
             GovernanceDisposition.Accepted => (FindingHumanReviewStatus.Approved, true),
             GovernanceDisposition.Deferred => (FindingHumanReviewStatus.Pending, true),
             GovernanceDisposition.RemediationPlanned => (FindingHumanReviewStatus.Pending, true),
-            GovernanceDisposition.Open => (FindingHumanReviewStatus.NotRequired, true),
+            GovernanceDisposition.Open => (FindingHumanReviewStatus.NotRequired, false),
             _ => (FindingHumanReviewStatus.NotRequired, false),
         };
     }

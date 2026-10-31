@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
@@ -171,6 +172,16 @@ internal static class DiagramEdgeLabelHumanizer
         string? inferenceSource = null,
         IReadOnlyDictionary<string, string>? properties = null)
     {
+        if (properties != null
+            && properties.TryGetValue(
+                InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey,
+                out string? collapsedFlag)
+            && string.Equals(collapsedFlag, "true", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(edgeType, GraphEdgeTypes.RelatesTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgeLabel;
+        }
+
         if (string.Equals(
                 inferenceSource,
                 GraphEdgeInferenceSources.HumanDeclaredConnection,

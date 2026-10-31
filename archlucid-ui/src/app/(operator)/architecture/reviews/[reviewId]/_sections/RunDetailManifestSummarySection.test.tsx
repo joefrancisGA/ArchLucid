@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ManifestSummary } from "@/types/authority";
 
+import {
+  COMMITTED_REVIEW_STANDARDS_CLOUD_TARGET_NOT_CHOSEN,
+} from "@/lib/review-standards-cloud-target-display";
+
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
@@ -81,6 +85,25 @@ describe("RunDetailManifestSummarySection operator summary", () => {
     expect(screen.getByText(/Cloud target was stored empty/)).toBeInTheDocument();
     expect(screen.getByText(/Focused review scope was off/)).toBeInTheDocument();
     expect(screen.getByText(/0 merge conflict\(s\)/)).toBeInTheDocument();
+  });
+
+  it("labels None cloud target as not chosen on committed manifest standards", () => {
+    render(
+      <RunDetailManifestSummarySection
+        manifestSummary={{
+          ...summary,
+          reviewStandardsAtCommit: {
+            cloudProvider: "None",
+            focusedPilotModeEnabled: true,
+            policyReferences: [],
+            reviewedQualityDimensions: [],
+          },
+        }}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.getByText(new RegExp(COMMITTED_REVIEW_STANDARDS_CLOUD_TARGET_NOT_CHOSEN))).toBeInTheDocument();
   });
 
   it("labels a missing focused review scope flag without guessing false", () => {

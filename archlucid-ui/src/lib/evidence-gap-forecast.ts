@@ -380,21 +380,58 @@ export function deriveEvidenceAttachmentHonestyNotices(
   return notices;
 }
 
+/** True when a stored inventory row kind marks an evidence class present (not filename heuristics). */
+export function inventoryKindMarksEvidenceClassPresent(
+  kind: string,
+  classId: EvidenceGapClass,
+): boolean {
+  const normalized = kind.trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  if (normalized.includes("graph snapshot") || normalized.includes("findings snapshot")) {
+    return false;
+  }
+
+  switch (classId) {
+    case "architecture-brief":
+      return normalized.includes("architecture brief");
+    case "cloud-inventory":
+      return normalized.includes("cloud inventory")
+        || normalized === "inventory"
+        || normalized.endsWith(" inventory export");
+    case "infrastructure-as-code":
+      return normalized.includes("infrastructure as code");
+    case "architecture-diagram":
+      return normalized.includes("architecture diagram")
+        || normalized.includes("topology diagram")
+        || (normalized.includes("diagram") && !normalized.includes("snapshot"));
+    case "operational-evidence":
+      return normalized.includes("runbook")
+        || normalized.includes("operational evidence")
+        || normalized.includes("monitor");
+    default:
+      return false;
+  }
+}
+
 export function deriveEvidencePresenceFromInventoryKinds(input: {
   readonly inventoryKinds: readonly string[];
   readonly submittedArchitecturePresent: boolean;
 }): EvidencePresenceFlags {
-  const normalizedKinds = input.inventoryKinds.map((kind) => kind.toLowerCase());
-
   return {
     hasArchitectureBrief:
       input.submittedArchitecturePresent
-      || normalizedKinds.some((kind) => kind.includes("architecture brief")),
-    hasCloudInventory: normalizedKinds.some((kind) => kind.includes("cloud inventory") || kind.includes("inventory")),
-    hasInfrastructureAsCode: normalizedKinds.some((kind) => kind.includes("infrastructure as code")),
-    hasArchitectureDiagram: normalizedKinds.some((kind) => kind.includes("diagram") || kind.includes("snapshot")),
-    hasOperationalEvidence: normalizedKinds.some(
-      (kind) => kind.includes("runbook") || kind.includes("operational") || kind.includes("monitor"),
-    ),
+      || input.inventoryKinds.some((kind) => inventoryKindMarksEvidenceClassPresent(kind, "architecture-brief")),
+    hasCloudInventory: input.inventoryKinds.some((kind) =>
+      inventoryKindMarksEvidenceClassPresent(kind, "cloud-inventory")),
+    hasInfrastructureAsCode: input.inventoryKinds.some((kind) =>
+      inventoryKindMarksEvidenceClassPresent(kind, "infrastructure-as-code")),
+    hasArchitectureDiagram: input.inventoryKinds.some((kind) =>
+      inventoryKindMarksEvidenceClassPresent(kind, "architecture-diagram")),
+    hasOperationalEvidence: input.inventoryKinds.some((kind) =>
+      inventoryKindMarksEvidenceClassPresent(kind, "operational-evidence")),
   };
 }

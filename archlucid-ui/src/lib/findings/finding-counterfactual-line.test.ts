@@ -79,4 +79,13 @@ describe("finding-counterfactual-line (DX-26)", () => {
       FINDING_COUNTERFACTUAL_STORED_EMPTY,
     );
   });
+
+  it("returns wire-not-readable copy when finding wire JSON cannot be parsed", () => {
+    const line = extractCounterfactualFromQuickDecisionFinding({
+      recommendation: "",
+      aiReasoning: { wireJson: "{not-json" },
+    });
+
+    expect(line).toBe("Counterfactual was not readable from stored finding JSON.");
+  });
 });

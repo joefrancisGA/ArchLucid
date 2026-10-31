@@ -32,6 +32,8 @@ public static class RunSummaryOnePagerDocumentFactory
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())
             .ToArray();
+        int totalHighCritical = CountHighCriticalFindings(detail);
+        int topHighCriticalRemainder = Math.Max(0, totalHighCritical - topTitles.Length);
         string runId = detail.Run.RunId;
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
@@ -86,8 +88,35 @@ public static class RunSummaryOnePagerDocumentFactory
             ArchitectRestatementMarkdown = string.IsNullOrWhiteSpace(architectRestatementMarkdown)
                 ? null
                 : architectRestatementMarkdown.Trim(),
+            TopHighCriticalRemainderLine = topHighCriticalRemainder > 0
+                ? $"{topHighCriticalRemainder} {RunSummaryOnePagerHonestyCopy.TopHighCriticalRemainderLine}"
+                : null,
 
         };
+    }
+
+    public static int CountHighCriticalFindings(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        if (!detail.AgentResultsIncludedInDetail)
+            return 0;
+
+        int count = 0;
+
+        foreach (AgentResult result in detail.Results)
+        {
+            foreach (ArchitectureFinding finding in result.Findings ?? [])
+            {
+                if (finding is null || finding.IsMuted)
+                    continue;
+
+                if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
+                    count++;
+            }
+        }
+
+        return count;
     }
 
     public static IReadOnlyList<ArchitectureFinding> SelectTopHighCriticalFindings(ArchitectureRunDetail detail, int maxCount)

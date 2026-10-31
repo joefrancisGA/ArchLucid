@@ -63,7 +63,8 @@ public static class ArchitectureMandatedMarkdownSections
             static assumption => $"- {assumption}",
             "Assumptions were not stored.",
             "Assumptions were stored empty.",
-            "Assumption was stored empty.");
+            "Assumption was stored empty.",
+            "Assumption was not stored.");
     }
 
     private static void AppendConstraints(StringBuilder markdown, ManifestDocument manifest)
@@ -111,7 +112,8 @@ public static class ArchitectureMandatedMarkdownSections
             static pattern => $"- Pattern: {pattern}",
             "Architecture patterns were not stored.",
             "Architecture patterns were stored empty.",
-            "Pattern was stored empty.");
+            "Pattern was stored empty.",
+            "Pattern was not stored.");
     }
 
     private static void AppendComponentBreakdown(StringBuilder markdown, ManifestDocument manifest)
@@ -136,14 +138,21 @@ public static class ArchitectureMandatedMarkdownSections
 
         if (topology.Services is null)
         {
-            lines.Add("- Services were not stored.");
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.ServicesNotStored}");
+        }
+        else if (topology.Services.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.ServicesStoredEmpty}");
         }
         else
         {
-            foreach (ManifestService service in topology.Services)
+            foreach (ManifestService? service in topology.Services)
             {
                 if (service is null)
+                {
+                    lines.Add("- Service was not stored.");
                     continue;
+                }
 
                 string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
                 string serviceId = string.IsNullOrWhiteSpace(service.ServiceId)
@@ -155,14 +164,21 @@ public static class ArchitectureMandatedMarkdownSections
 
         if (topology.Datastores is null)
         {
-            lines.Add("- Datastores were not stored.");
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.DatastoresNotStored}");
+        }
+        else if (topology.Datastores.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.DatastoresStoredEmpty}");
         }
         else
         {
-            foreach (ManifestDatastore datastore in topology.Datastores)
+            foreach (ManifestDatastore? datastore in topology.Datastores)
             {
                 if (datastore is null)
+                {
+                    lines.Add("- Datastore was not stored.");
                     continue;
+                }
 
                 string datastoreName = FormatComponentName(
                     datastore.DatastoreName,
@@ -242,12 +258,23 @@ public static class ArchitectureMandatedMarkdownSections
         SecuritySection security = manifest.Security;
         List<string> lines = [];
 
-        if (security.Controls is not null)
+        if (security.Controls is null)
         {
-            foreach (SecurityPostureItem control in security.Controls)
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.SecurityControlsNotStored}");
+        }
+        else if (security.Controls.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.SecurityControlsStoredEmpty}");
+        }
+        else
+        {
+            foreach (SecurityPostureItem? control in security.Controls)
             {
                 if (control is null)
+                {
+                    lines.Add("- Control was not stored.");
                     continue;
+                }
 
                 string controlId = string.IsNullOrWhiteSpace(control.ControlId)
                     ? "Control id was not stored."
@@ -263,10 +290,6 @@ public static class ArchitectureMandatedMarkdownSections
                     ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
                 lines.Add($"- {controlId} {controlName} ({impact}): {status}");
             }
-        }
-        else
-        {
-            lines.Add("- Security controls were not stored.");
         }
 
         AppendStoredStringListToLines(
@@ -291,6 +314,8 @@ public static class ArchitectureMandatedMarkdownSections
         if (cost is null)
         {
             lines.Add($"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
+            lines.Add(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(null)}");
             lines.Add("- Cost risks were not stored.");
             lines.Add("- Cost notes were not stored.");
         }
@@ -300,6 +325,8 @@ public static class ArchitectureMandatedMarkdownSections
                 cost.MaxMonthlyCost.HasValue
                     ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
                     : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
+            lines.Add(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(cost.CurrencyCode)}");
 
             AppendStoredStringListToLines(
                 lines,
@@ -376,9 +403,10 @@ public static class ArchitectureMandatedMarkdownSections
                 if (issue is null)
                     continue;
 
-                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     issue.Severity,
-                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityStoredEmpty);
                 string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
                     issue.IssueType,
                     ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
@@ -396,10 +424,10 @@ public static class ArchitectureMandatedMarkdownSections
     }
 
     private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type stored as Unknown." : serviceType.ToString();
+        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
 
     private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type stored as Unknown." : datastoreType.ToString();
+        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
 
     private static string FormatRelationshipType(RelationshipType relationshipType) =>
         relationshipType switch
@@ -416,8 +444,8 @@ public static class ArchitectureMandatedMarkdownSections
                 "has a stored subscription link. Observed consumption was not stored.",
             RelationshipType.AuthenticatesWith =>
                 "has a stored authentication link. Observed sign-in was not stored.",
-            _ when !Enum.IsDefined(relationshipType) =>
-                "Relationship type stored as Unknown.",
+            _ when !Enum.IsDefined(relationshipType) || relationshipType == default =>
+                "Relationship type was not stored.",
             _ when Enum.IsDefined(relationshipType) && relationshipType != default =>
                 $"has a stored {relationshipType} link. Observed action was not stored.",
             _ => "Relationship type was not stored.",
@@ -467,7 +495,8 @@ public static class ArchitectureMandatedMarkdownSections
         Func<string, string> formatLine,
         string notStoredFallback,
         string storedEmptyFallback,
-        string whitespaceItemLabel)
+        string whitespaceItemLabel,
+        string nullItemLabel)
     {
         ArgumentNullException.ThrowIfNull(markdown);
         ArgumentNullException.ThrowIfNull(formatLine);
@@ -480,10 +509,13 @@ public static class ArchitectureMandatedMarkdownSections
 
         List<string> lines = [];
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
             if (item is null)
+            {
+                lines.Add(formatLine(nullItemLabel));
                 continue;
+            }
 
             if (item.Length == 0 || item.Trim().Length == 0)
             {
@@ -542,10 +574,13 @@ public static class ArchitectureMandatedMarkdownSections
         if (items is null)
             return;
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
             if (item is null)
+            {
+                lines.Add($"- {prefix} was not stored.");
                 continue;
+            }
 
             if (item.Length == 0 || item.Trim().Length == 0)
             {

@@ -4,7 +4,7 @@
 
 Use [`../go-to-market/PROCUREMENT_PACK_INDEX.md`](../go-to-market/PROCUREMENT_PACK_INDEX.md) for platform-wide controls on the ArchLucid vendor relationship. Use this table only where the SecureNow product-line answer differs from architecture-review diligence.
 
-**Last reviewed:** 2026-10-29 (UTC)
+**Last reviewed:** 2026-10-30 (UTC)
 
 | Theme | Question | Answer | Source |
 | --- | --- | --- | --- |
@@ -24,7 +24,7 @@ Use [`../go-to-market/PROCUREMENT_PACK_INDEX.md`](../go-to-market/PROCUREMENT_PA
 | Verification | When is a remediation labeled verified? | Requires a later successful capture, chronology, completed analysis, and substantive postcondition. Otherwise label **NOT VERIFIED** or insufficient evidence. | [Executive proof packet template](EXECUTIVE_PROOF_PACKET_TEMPLATE.md) |
 | Synthetic demo | Can a demo script count as customer evidence? | No. A fixture or synthetic demonstration is **not** customer evidence. | [Buyer demonstration script](BUYER_PROOF_DEMO.md) |
 | Beta release | Is SecureNow generally available? | Beta remains **NO_GO** until the 22-row evidence gate and owner checklist are cleared with observed PASS provenance. Do not mark matrix rows PASS from this overlay. | [Beta evidence gate](BETA_EVIDENCE_GATE.md) |
-| Subprocessors | Who are subprocessors? | Use the platform subprocessors register; customer policy still applies to SecureNow pilots. | [Subprocessors](../go-to-market/SUBPROCESSORS.md) |
+| Subprocessors | Who are subprocessors? | Use the platform subprocessors register via the SecureNow delta; customer policy still applies to SecureNow pilots. The register that changes is [`SUBPROCESSORS.md`](../go-to-market/SUBPROCESSORS.md). | [Subprocessors delta](SUBPROCESSORS_DELTA.md) |
 | Identity | What identity provider does SecureNow use? | Customers use their existing Microsoft Entra tenant; the product binds work to tenant, workspace, and project scope. SecureNow does not replace customer IdP. | [Controlled pilot proposal](CONTROLLED_PILOT_OFFER.md) |
 | Security contact | How do we report a vulnerability? | Route coordinated disclosure through **security@archlucid.net** and the platform security.txt path. No separate SecureNow-only mailbox. | [Trust Center](../go-to-market/trust-center.md) |
 | Breach warranty | Does SecureNow guarantee breach prevention? | No breach-prevention warranty. SecureNow prioritizes evidence-linked path clarity, not guaranteed breach avoidance. | [Controlled pilot objection table](CONTROLLED_PILOT_OFFER.md) |

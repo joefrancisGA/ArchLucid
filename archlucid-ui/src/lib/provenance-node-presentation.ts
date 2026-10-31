@@ -323,6 +323,8 @@ export function wrapProvenanceLabel(text: string, maxCharsPerLine: number, maxLi
     if (!last.endsWith("…")) {
       lines[maxLines - 1] = `${last.replace(/…$/, "")}…`;
     }
+
+    lines[maxLines - 1] = `${lines[maxLines - 1]} Label shortened; remainder omitted.`;
   }
 
   return lines.length > 0 ? lines : [text.slice(0, maxCharsPerLine)];

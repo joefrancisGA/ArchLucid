@@ -19,7 +19,28 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (inboundRules.Count == 0)
         {
-            return [];
+            List<DiagramNsgInboundRuleChip> honestyOnly = [];
+
+            int outboundOnlyCount = rules.Count(rule =>
+                string.Equals(rule.Direction, "Outbound", StringComparison.OrdinalIgnoreCase));
+
+            if (outboundOnlyCount > 0)
+            {
+                honestyOnly.Add(new DiagramNsgInboundRuleChip(
+                    $"{outboundOnlyCount} outbound rules were not listed on inbound chips.",
+                    IsRisky: false));
+            }
+
+            int directionMissingOnlyCount = rules.Count(rule => string.IsNullOrWhiteSpace(rule.Direction));
+
+            if (directionMissingOnlyCount > 0)
+            {
+                honestyOnly.Add(new DiagramNsgInboundRuleChip(
+                    $"Direction was not stored for {directionMissingOnlyCount} security rules.",
+                    IsRisky: false));
+            }
+
+            return honestyOnly;
         }
 
         List<AzureInventoryNsgSecurityRule> inboundWithPriority = inboundRules
@@ -56,7 +77,8 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
                 IsRisky: false));
         }
 
-        int outboundRuleCount = rules.Count(rule => !IsInboundRule(rule));
+        int outboundRuleCount = rules.Count(rule =>
+            string.Equals(rule.Direction, "Outbound", StringComparison.OrdinalIgnoreCase));
 
         if (outboundRuleCount > 0)
         {
@@ -65,13 +87,12 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
                 IsRisky: false));
         }
 
-        int inboundMissingDirection = inboundRules.Count(rule =>
-            string.IsNullOrWhiteSpace(rule.Direction));
+        int directionMissingRuleCount = rules.Count(rule => string.IsNullOrWhiteSpace(rule.Direction));
 
-        if (inboundMissingDirection > 0)
+        if (directionMissingRuleCount > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"Direction was not stored for {inboundMissingDirection} inbound rules.",
+                $"Direction was not stored for {directionMissingRuleCount} security rules.",
                 IsRisky: false));
         }
 

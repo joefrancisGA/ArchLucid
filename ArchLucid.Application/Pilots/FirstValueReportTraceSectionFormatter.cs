@@ -17,12 +17,14 @@ public static class FirstValueReportTraceSectionFormatter
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(baseUrl);
 
-        sb.AppendLine("## Decision trace summary (top 5)");
+        sb.AppendLine("## Decision trace summary (first five, not ranked)");
         sb.AppendLine();
-        List<DecisionTraceDto> traces = detail.DecisionTraces.Where(static _ => true).Take(5).ToList();
+        List<DecisionTraceDto> allTraces = detail.DecisionTraces.Where(static _ => true).ToList();
+        List<DecisionTraceDto> traces = allTraces.Take(5).ToList();
+        int omittedTraceCount = Math.Max(0, allTraces.Count - traces.Count);
         if (traces.Count == 0)
         {
-            sb.AppendLine("_(No decision traces on this run — typical before commit or for coordinator-only paths.)_");
+            sb.AppendLine("_(No decision traces were stored on this run.)_");
             sb.AppendLine();
             return;
         }
@@ -51,6 +53,12 @@ public static class FirstValueReportTraceSectionFormatter
             }
 
             index++;
+        }
+
+        if (omittedTraceCount > 0)
+        {
+            sb.AppendLine(
+                $"_{omittedTraceCount} more decision trace(s) were stored but are not listed in this summary._");
         }
 
         sb.AppendLine();

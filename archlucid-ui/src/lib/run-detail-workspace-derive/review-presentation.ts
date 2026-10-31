@@ -68,7 +68,7 @@ export function deriveReviewNextActionLabel(input: {
       if (evidenceRefCount > 0) {
         // Evidence is linked — do not invent a missing-evidence next action.
       } else {
-        return `Confirm evidence and remediation ownership for ${primaryFindingTitleForCopy(primary.title)}`;
+        return `No evidence references were stored for ${primaryFindingTitleForCopy(primary.title)}.`;
       }
     }
   }
@@ -383,19 +383,13 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
 }
 export function deriveOverallPostureLabel(
   riskPosture: string | null | undefined,
-  governanceGateLabel: string | null | undefined,
-  highestSeverity: string | null,
+  _governanceGateLabel: string | null | undefined,
+  _highestSeverity: string | null,
 ): string {
   const posture = riskPosture?.trim() ?? "";
 
   if (posture.length > 0) {
     return posture;
-  }
-
-  const gate = governanceGateLabel?.trim() ?? "";
-
-  if (gate.length > 0) {
-    return gate;
   }
 
   return "Risk posture was not stored.";

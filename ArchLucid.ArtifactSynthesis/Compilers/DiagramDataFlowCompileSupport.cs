@@ -68,12 +68,13 @@ internal static class DiagramDataFlowCaptionBuilder
                     && inferred.Family is AzureInventoryDataFlowEvidenceFamily.StructuralNetworkPath
                         or AzureInventoryDataFlowEvidenceFamily.InferredHostname));
 
-        List<string> captions =
-        [
-            hasNonAdfFamilies
+        string primarySentence = hasObservedRuntime
+            ? DiagramDataFlowHonestyLegend.ObservedRuntimeLeadingPrimarySentence
+            : hasNonAdfFamilies
                 ? DiagramDataFlowHonestyLegend.EvidenceFamiliesPrimarySentence
-                : DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence,
-        ];
+                : DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence;
+
+        List<string> captions = [primarySentence];
 
         if (hasAuthorizedAccess)
         {

@@ -12,4 +12,6 @@ public static class BuyerDecisionConfidenceSource
     public const string NotComputed = "Not computed";
 
     public const string NotStored = "Confidence source was not stored.";
+
+    public const string Unrecognized = "Persisted confidence source was not recognized.";
 }

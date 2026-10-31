@@ -11,6 +11,7 @@ import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispo
 import {
   INHABIT_DISPOSITION_HISTORY_BLOCKED_FALLBACK,
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
+  INHABIT_DISPOSITION_HISTORY_FINDING_ID_NOT_STORED,
   INHABIT_DISPOSITION_HISTORY_LOADING,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
   INHABIT_DISPOSITION_HISTORY_STORED_EMPTY_BODY,
@@ -50,7 +51,7 @@ export function FindingDispositionHistorySection(
           {INHABIT_DISPOSITION_HISTORY_SECTION_TITLE}
         </h3>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {INHABIT_DISPOSITION_HISTORY_EMPTY_BODY}
+          {INHABIT_DISPOSITION_HISTORY_FINDING_ID_NOT_STORED}
         </p>
       </section>
     );

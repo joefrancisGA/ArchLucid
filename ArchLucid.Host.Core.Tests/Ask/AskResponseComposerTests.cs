@@ -1,4 +1,8 @@
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Services.Ask;
 
 using FluentAssertions;
@@ -50,5 +54,47 @@ public sealed class AskResponseComposerTests
         AskResponse response = composer.Parse(threadId, "  Plain text answer.  ");
 
         response.Answer.Should().Be("Plain text answer.");
+    }
+
+    [Fact]
+    public void BuildFallbackResponse_distinguishes_empty_manifest_decisions_from_missing_manifest()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse emptyDecisions = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                new ManifestDocument { Decisions = [] },
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        AskResponse missingManifest = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        emptyDecisions.Answer.Should().Contain("Manifest decisions were stored empty on this answer.");
+        missingManifest.Answer.Should().Contain("Manifest decisions were not stored on this answer.");
     }
 }

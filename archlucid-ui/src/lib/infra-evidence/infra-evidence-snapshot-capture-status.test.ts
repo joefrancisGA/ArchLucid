@@ -61,8 +61,8 @@ describe("resolveInfraEvidenceSnapshotCaptureStatusPresentation", () => {
   it("does not treat an unrecognized status as a failed capture", () => {
     expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("nope")).toEqual({
       kind: "needs-attention",
-      label: "Needs attention",
-      description: "Inventory capture status is not recognized.",
+      label: "Capture status was not recognized",
+      description: "Inventory capture status is not recognized (not the same as a partial capture).",
     });
     expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("   ")).toEqual({
       kind: "needs-attention",

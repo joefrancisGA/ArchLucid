@@ -11,6 +11,8 @@ export type HolisticCriticInput = {
 export type HolisticCriticResponse = {
   disclaimer: string;
   critiqueMarkdown: string;
+  omittedFindingLinesCount?: number;
+  omittedThemeSummariesCount?: number;
 };
 
 /** POST /v1/explain/runs/{runId}/holistic-critic — unstructured architecture critique (not persisted). */

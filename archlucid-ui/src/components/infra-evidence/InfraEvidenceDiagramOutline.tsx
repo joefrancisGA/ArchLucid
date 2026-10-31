@@ -23,6 +23,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING,
+  startingDiagramOutlineResourceGroupStored,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION,
@@ -33,6 +35,7 @@ import {
 import {
   filterDiagramOutlineUnknownNodes,
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
+  resolveDiagramOutlineStartingNode,
   type DiagramOutlineUnknownNodeFilterScope,
 } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import { formatDiagramArmTypeForOutline } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
@@ -711,6 +714,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   );
   const unknownFilterActive = filteredUnknownNodes.length !== unknownNodes.length;
   const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
+  const startingOutlineNode = useMemo(
+    () => resolveDiagramOutlineStartingNode(outline, startingResourceSeedId),
+    [outline, startingResourceSeedId],
+  );
+  const startingResourceGroupStored = startingDiagramOutlineResourceGroupStored(startingOutlineNode);
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
   const ledgerDropsStoredEmpty = ledgerDropsKnown && outline.ledgerDrops.length === 0;
@@ -856,13 +864,21 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             <option value="all">
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_ALL}
                             </option>
-                            <option value="startingResourceGroup" disabled={startingSeedTrimmed.length === 0}>
+                            <option value="startingResourceGroup" disabled={startingSeedTrimmed.length === 0 || !startingResourceGroupStored}>
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_STARTING_RG}
                             </option>
                             <option value="diagramNeighbor" disabled={startingSeedTrimmed.length === 0}>
                               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIAGRAM_NEIGHBOR}
                             </option>
                           </select>
+                          {startingSeedTrimmed.length > 0 && !startingResourceGroupStored ? (
+                            <p
+                              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-diagrams-unknown-filter-starting-rg-missing"
+                            >
+                              {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_STARTING_RG_MISSING}
+                            </p>
+                          ) : null}
                         </div>
                         <div className="flex min-w-[14rem] flex-1 flex-col gap-1">
                           <Label htmlFor="infra-diagrams-unknown-filter-search">

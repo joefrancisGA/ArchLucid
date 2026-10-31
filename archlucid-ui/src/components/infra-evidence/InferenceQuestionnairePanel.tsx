@@ -93,6 +93,8 @@ export function InferenceQuestionnairePanel(
   const [panelError, setPanelError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [listCapReached, setListCapReached] = useState(false);
+  const [listTotalCount, setListTotalCount] = useState<number | null>(null);
 
   const proposedItems = useMemo(
     () => items.filter(
@@ -119,6 +121,8 @@ export function InferenceQuestionnairePanel(
     try {
       const response = await listInferenceQuestionnaireItems(snapshotId);
       setItems(response.items);
+      setListCapReached(response.capReached);
+      setListTotalCount(response.totalCount);
       setCurrentIndex(0);
       setChoice(null);
       setSelectedCatalog("");
@@ -211,6 +215,14 @@ export function InferenceQuestionnairePanel(
       data-testid="inference-questionnaire-panel"
       aria-label="Inference questionnaire"
     >
+      {snapshotId.trim().length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="inference-questionnaire-snapshot-id-not-stored"
+        >
+          Inventory snapshot id was not stored.
+        </p>
+      ) : (
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Inference questionnaire</h2>
@@ -250,6 +262,15 @@ export function InferenceQuestionnairePanel(
 
         {currentItem != null ? (
           <>
+            {listCapReached && listTotalCount !== null && listTotalCount > proposedItems.length ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="inference-questionnaire-cap-honesty"
+              >
+                Showing {proposedItems.length} of {listTotalCount} proposed questionnaire item(s). The list cap was
+                reached; additional items were not loaded.
+              </p>
+            ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-progress">
               Question {currentIndex + 1} of {proposedItems.length}
             </p>
@@ -388,6 +409,7 @@ export function InferenceQuestionnairePanel(
           </p>
         ) : null}
       </div>
+      )}
     </section>
   );
 }

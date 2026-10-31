@@ -157,6 +157,11 @@ public static class ExportBundleCareerPostureResolver
         {
             string? text = element.GetString();
 
+            if (string.IsNullOrEmpty(text))
+                return false;
+
+            text = text.Trim();
+
             if (string.Equals(text, "true", StringComparison.OrdinalIgnoreCase))
                 return true;
 

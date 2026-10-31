@@ -99,6 +99,17 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
+  it("shows Internal trust origin on scope lines when the actor name is missing", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human", trustOrigin: "Internal" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "Actor name was not stored (Human; Internal).",
+    );
+  });
+
   it("appends a remainder when more than four people names were stored (P-12)", () => {
     const bullets = deriveScopeUnderstandingBullets({
       architectureName: "Vertex",

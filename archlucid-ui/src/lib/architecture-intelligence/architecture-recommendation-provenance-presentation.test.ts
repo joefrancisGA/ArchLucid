@@ -29,7 +29,26 @@ describe("architecture-recommendation-provenance-presentation (LP-07)", () => {
         origin: "SystemProposed",
         supportStatus: "IndirectlySupported",
       }),
-    ).toBe("Origin: System proposed · Support: IndirectlySupported");
+    ).toBe("Origin: System proposed · Support: Indirect support (not evidence-backed)");
+  });
+
+  it("does not treat indirectly supported recommendations as evidence-backed", () => {
+    expect(
+      isArchitectureRecommendationEvidenceBacked({
+        origin: "SystemProposed",
+        supportStatus: "IndirectlySupported",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("architecture-recommendation-provenance-presentation (P-20)", () => {
+  it("labels missing support status instead of omitting support from the line", () => {
+    expect(
+      formatArchitectureRecommendationProvenanceLine({
+        origin: "ModelInferred",
+      }),
+    ).toBe("Origin: Model proposed · Support: Support status was not stored.");
   });
 });
 

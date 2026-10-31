@@ -33,7 +33,7 @@ describe("security-evidence-path-presentation", () => {
   });
 
   it("maps path kinds to reader-facing labels and preserves unknown values", () => {
-    expect(formatSecurityEvidencePathKindLabel("IntendedReachability")).toBe("Can reach");
+    expect(formatSecurityEvidencePathKindLabel("IntendedReachability")).toBe("Intended reachability");
     expect(formatSecurityEvidencePathKindLabel("Privilege")).toBe("Privilege");
     expect(formatSecurityEvidencePathKindLabel("CapabilityToFlow")).toBe("May access");
     expect(formatSecurityEvidencePathKindLabel("FutureKind")).toBe("Path kind was not recognized.");

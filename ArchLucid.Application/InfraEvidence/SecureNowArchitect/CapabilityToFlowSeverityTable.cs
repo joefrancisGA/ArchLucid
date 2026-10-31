@@ -19,19 +19,19 @@ internal static class CapabilityToFlowSeverityTable
 
         if (candidate.Hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.CanWrite))
         {
-            return new PrivilegePathSeverityResult
-            {
-                Severity = "High",
-                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
-                BlastRadius = "PossibleMovement",
-            };
-        }
-
         return new PrivilegePathSeverityResult
         {
-            Severity = "Medium",
+            Severity = "High",
             BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
-            BlastRadius = "PossibleMovement",
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
+    }
+
+    return new PrivilegePathSeverityResult
+    {
+        Severity = string.Empty,
+        BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+        BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
+    };
     }
 }

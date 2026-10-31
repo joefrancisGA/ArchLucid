@@ -15,6 +15,10 @@ export { runListPrimaryTitle };
 
 export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
 
+export const CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Context snapshot flag was not stored." as const;
+
+export const GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Graph snapshot flag was not stored." as const;
+
 export const RUN_LIST_FINDING_COUNT_NOT_STORED_LABEL = "Finding count was not stored." as const;
 
 export const RUN_LIST_WARNING_COUNT_NOT_STORED_LABEL = "Warning count was not stored." as const;
@@ -126,14 +130,20 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
     tokens.push("Artifacts bundled");
   }
 
+  const omittedSnapshotFlags = [
+    run.hasContextSnapshot === undefined ? CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
+    run.hasGraphSnapshot === undefined ? GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
+    run.hasFindingsSnapshot === undefined ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
+  ].filter((token): token is string => token !== null);
+
   const reviewTrailSummary =
     run.hasContextSnapshot === true &&
     run.hasGraphSnapshot === true &&
     run.hasFindingsSnapshot === true &&
     run.hasGoldenManifest === true
       ? "Review trail complete"
-      : run.hasFindingsSnapshot === undefined
-        ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL
+      : omittedSnapshotFlags.length > 0
+        ? omittedSnapshotFlags.join(" · ")
         : run.hasContextSnapshot === true ||
             run.hasGraphSnapshot === true ||
             run.hasFindingsSnapshot === true ||

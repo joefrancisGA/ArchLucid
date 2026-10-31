@@ -240,6 +240,32 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_custom_authorize_data_platform_deletion_policy_skips_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/admin/tenants/" + TenantA + "/delete",
+            new AuthorizeDataStub(ArchLucidPolicies.PlatformTenantDeletionAuthority));
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_platform_lifecycle_policy_skips_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -288,6 +314,33 @@ public sealed class RouteTenantScopeBindingFilterTests
             });
 
         next.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_guid_object_route_tenant_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantA,
+            "/v1/admin/tenants/" + TenantA + "/catalog-migration/default-scope");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
     [SkippableFact]
@@ -399,5 +452,14 @@ public sealed class RouteTenantScopeBindingFilterTests
     private static ActionExecutedContext BuildExecutedContext(ActionExecutingContext executing)
     {
         return new ActionExecutedContext(executing, [], new object());
+    }
+
+    private sealed class AuthorizeDataStub(string? policy) : IAuthorizeData
+    {
+        public string? Policy { get; set; } = policy;
+
+        public string? Roles { get; set; }
+
+        public string? AuthenticationSchemes { get; set; }
     }
 }

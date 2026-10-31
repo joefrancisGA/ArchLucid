@@ -34,6 +34,7 @@ import {
   FINDING_EXPLAINABILITY_ENGINE_NOT_STORED,
   FINDING_EXPLAINABILITY_TITLE_NOT_STORED,
 } from "@/lib/findings/finding-explainability-summary";
+import { resolveFindingExplainabilityTraceListDisplay } from "@/lib/findings/finding-explainability-trace-list-display";
 import { ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import {
   FINDING_TRACE_FIELD_FILL_LABEL,
@@ -156,6 +157,61 @@ export function FindingExplainabilityDialog({
     data !== null ? resolveFindingTraceCompletenessDisplay(data.traceCompletenessRatio) : null;
 
   const missingFields = data?.missingTraceFields?.filter((s) => s.trim().length > 0) ?? [];
+
+  const rulesAppliedDisplay =
+    data !== null
+      ? resolveFindingExplainabilityTraceListDisplay({
+          values: data.rulesApplied,
+          fieldKey: "rulesApplied",
+          missingTraceFields: data.missingTraceFields,
+          notStoredLabel: "Rules applied were not stored.",
+          storedEmptyLabel: "Rules applied were stored empty.",
+        })
+      : null;
+
+  const decisionsTakenDisplay =
+    data !== null
+      ? resolveFindingExplainabilityTraceListDisplay({
+          values: data.decisionsTaken,
+          fieldKey: "decisionsTaken",
+          missingTraceFields: data.missingTraceFields,
+          notStoredLabel: "Decisions taken were not stored.",
+          storedEmptyLabel: "Decisions taken were stored empty.",
+        })
+      : null;
+
+  const notesDisplay =
+    data !== null
+      ? resolveFindingExplainabilityTraceListDisplay({
+          values: data.notes,
+          fieldKey: "notes",
+          missingTraceFields: data.missingTraceFields,
+          notStoredLabel: "Notes were not stored.",
+          storedEmptyLabel: "Notes were stored empty.",
+        })
+      : null;
+
+  const alternativePathsDisplay =
+    data !== null
+      ? resolveFindingExplainabilityTraceListDisplay({
+          values: data.alternativePathsConsidered,
+          fieldKey: "alternativePathsConsidered",
+          missingTraceFields: data.missingTraceFields,
+          notStoredLabel: "Alternative paths were not stored.",
+          storedEmptyLabel: "Alternative paths were stored empty.",
+        })
+      : null;
+
+  const graphNodesDisplay =
+    data !== null
+      ? resolveFindingExplainabilityTraceListDisplay({
+          values: data.graphNodeIdsExamined,
+          fieldKey: "graphNodeIdsExamined",
+          missingTraceFields: data.missingTraceFields,
+          notStoredLabel: "Graph nodes examined were not stored.",
+          storedEmptyLabel: "Graph nodes examined were stored empty.",
+        })
+      : null;
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -413,37 +469,37 @@ export function FindingExplainabilityDialog({
                 ) : null}
                 <section>
                   <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Rules applied</h3>
-                  {data.rulesApplied.length > 0 ? (
+                  {rulesAppliedDisplay?.kind === "items" ? (
                     <ul className="m-0 list-disc space-y-0.5 pl-5">
-                      {data.rulesApplied.map((r, i) => (
+                      {rulesAppliedDisplay.items.map((r, i) => (
                         <li key={`${r}-${i}`}>{r}</li>
                       ))}
                     </ul>
                   ) : (
                     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Rules applied were not stored.
+                      {rulesAppliedDisplay?.message ?? "Rules applied were not stored."}
                     </p>
                   )}
                 </section>
                 <section>
                   <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions taken</h3>
-                  {data.decisionsTaken.length > 0 ? (
+                  {decisionsTakenDisplay?.kind === "items" ? (
                     <ol className="m-0 list-decimal space-y-0.5 pl-5">
-                      {data.decisionsTaken.map((d, i) => (
+                      {decisionsTakenDisplay.items.map((d, i) => (
                         <li key={`${d}-${i}`}>{d}</li>
                       ))}
                     </ol>
                   ) : (
                     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Decisions taken were not stored.
+                      {decisionsTakenDisplay?.message ?? "Decisions taken were not stored."}
                     </p>
                   )}
                 </section>
                 <section>
                   <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Graph nodes examined</h3>
-                  {data.graphNodeIdsExamined.length > 0 ? (
+                  {graphNodesDisplay?.kind === "items" ? (
                     <div className="flex flex-wrap gap-1">
-                      {data.graphNodeIdsExamined.map((nid, i) => (
+                      {graphNodesDisplay.items.map((nid, i) => (
                         <Badge key={`${nid}-${i}`} variant="outline" className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                           {nid}
                         </Badge>
@@ -451,15 +507,15 @@ export function FindingExplainabilityDialog({
                     </div>
                   ) : (
                     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Graph nodes examined were not stored.
+                      {graphNodesDisplay?.message ?? "Graph nodes examined were not stored."}
                     </p>
                   )}
                 </section>
-                {data.alternativePathsConsidered.length > 0 ? (
+                {alternativePathsDisplay?.kind === "items" ? (
                   <section className={cn("rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS)}>
                     <h3 className={cn("mb-1 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Alternative paths considered</h3>
                     <ul className="m-0 list-disc space-y-0.5 pl-5 text-amber-950 dark:text-amber-50">
-                      {data.alternativePathsConsidered.map((a, i) => (
+                      {alternativePathsDisplay.items.map((a, i) => (
                         <li key={`${a}-${i}`}>{a}</li>
                       ))}
                     </ul>
@@ -468,15 +524,15 @@ export function FindingExplainabilityDialog({
                   <section className={cn("rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS)}>
                     <h3 className={cn("mb-1 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Alternative paths considered</h3>
                     <p className={cn("m-0 text-amber-950 dark:text-amber-50", OPERATOR_TYPOGRAPHY.helper)}>
-                      Alternative paths were not stored.
+                      {alternativePathsDisplay?.message ?? "Alternative paths were not stored."}
                     </p>
                   </section>
                 )}
-                {data.notes.length > 0 ? (
+                {notesDisplay?.kind === "items" ? (
                   <section>
                     <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Notes</h3>
                     <ul className="m-0 list-disc space-y-0.5 pl-5">
-                      {data.notes.map((n, i) => (
+                      {notesDisplay.items.map((n, i) => (
                         <li key={`${n}-${i}`}>{n}</li>
                       ))}
                     </ul>
@@ -485,7 +541,7 @@ export function FindingExplainabilityDialog({
                   <section>
                     <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Notes</h3>
                     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                      Notes were not stored.
+                      {notesDisplay?.message ?? "Notes were not stored."}
                     </p>
                   </section>
                 )}

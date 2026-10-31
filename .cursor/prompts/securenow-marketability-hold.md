@@ -16,8 +16,15 @@ Do not build any of the following while implementing SN-MKT prompts:
 - A "Start trial", "Buy", or "Sign up" control.
 - The phrases "guaranteed ROI", "guaranteed savings", "guaranteed breach prevention", "autonomous remediation", "automatically apply", "SOC 2 certified", or "observed exploit".
 - A numeric probability or a numeric confidence score.
-- A link to `/why-securenow` from the marketing header, footer, welcome page, or resources menu.
+- A link to `/why-securenow` from the marketing header, footer, welcome page, or resources menu. The only allowed in-product link is the SecureNow Home "For reviewers" section from SN-MKT-06.
+- Rendering `MarketingPublicHeader`, the marketing footer, signup, pricing, or analytics on the security-shell draft.
+- Letting any marketing path other than exact `/why-securenow` (trailing slash allowed) render on the security product line.
+- Changing the blocked-prefix matcher so `/why` also matches `/why-securenow`.
 - `robots` index true on `/why-securenow`.
+- A `$` or a copied fee in `docs/securenow/BUYER_OVERVIEW.md`.
+- A sidebar or header nav item for the reviewer section.
+- Setting `continue-on-error` to false on the marketability checker.
+- Treating the draft page or `BUYER_OVERVIEW.md` as approved buyer communication.
 - A rewrite of `SECURENOW_HOME_PAGE_LEAD` or `SECURENOW_HOME_CLAIM_DISCIPLINE` (SN-HOME-01, already shipped).
 - A new SecureNow mailbox. Intake stays `support@archlucid.net` and `security@archlucid.net`.
 - A 24×7 support claim, a service-credit SLA, or a hired-rotation geography.

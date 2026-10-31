@@ -39,6 +39,7 @@ public sealed partial class InMemoryValueReportJobQueue(
         local.Phase switch
         {
             JobPhase.Pending when distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            JobPhase.Pending when distributed.Phase == JobPhase.Completed => distributed,
             JobPhase.Pending when IsAuthoritativeDistributedTerminalFailure(distributed) => distributed,
             JobPhase.Completed when distributed.Phase == JobPhase.Failed &&
                                     local.Bytes is not { Length: > 0 } => distributed,
@@ -46,6 +47,7 @@ public sealed partial class InMemoryValueReportJobQueue(
                                     distributed.Phase == JobPhase.Pending => distributed,
             JobPhase.Completed when local.Bytes is not { Length: > 0 } &&
                                     distributed is { Phase: JobPhase.Completed, Bytes: { Length: > 0 } } => distributed,
+            JobPhase.Failed when distributed.Phase == JobPhase.Pending => distributed,
             JobPhase.Failed when distributed.Phase is JobPhase.Completed or JobPhase.Failed => distributed,
             _ => local,
         };

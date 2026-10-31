@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
+using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Persistence.Context;
 using System.Globalization;
 
@@ -163,8 +164,26 @@ public sealed class AuthorityPipelineWorkPayload
             return [];
 
         return values
-            .Where(static value => value is not null && HasUsableCompactIdentifierText(value))
+            .Where(static value => value is not null && HasUsableProseReferenceText(value))
             .ToList();
+    }
+
+    /// <summary>
+    ///     Policy references, topology hints, security baselines, and capability lines are sentences.
+    ///     Ordinary spaces stay. Whitespace other than U+0020 still fails because those consumers only trim the ends.
+    /// </summary>
+    private static bool HasUsableProseReferenceText(string? value)
+    {
+        if (!HasUsableIdentifierText(value))
+            return false;
+
+        foreach (char character in value!.Trim())
+        {
+            if (char.IsWhiteSpace(character) && character != ' ')
+                return false;
+        }
+
+        return true;
     }
 
     private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
@@ -179,8 +198,18 @@ public sealed class AuthorityPipelineWorkPayload
 
     private static bool HasSubstantiveDocument(ContextDocumentReference document) =>
         HasUsableCompactIdentifierText(document.Name)
-        && HasUsableCompactIdentifierText(document.ContentType)
+        && HasUsableDocumentContentType(document.ContentType)
         && HasUsableIdentifierText(document.Content);
+
+    /// <summary>
+    ///     MIME parameters such as <c>; charset=utf-8</c> contain a space. Judge the type token
+    ///     after the same lookup cut the parser uses, and keep the raw value on the document.
+    /// </summary>
+    private static bool HasUsableDocumentContentType(string? value)
+    {
+        string normalized = SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup(value);
+        return HasUsableCompactIdentifierText(normalized);
+    }
 
     private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
         List<InfrastructureDeclarationReference>? values)

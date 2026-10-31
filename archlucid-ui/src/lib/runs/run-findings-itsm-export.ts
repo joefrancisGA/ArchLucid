@@ -38,6 +38,7 @@ export type RunFindingsItsmJsonExportDocument = {
   exportedAtUtc: string;
   findingCount: number;
   omittedChecklistCoverageCount?: number;
+  omittedUnclassifiedClassificationCount?: number;
   recordStatus?: string;
   semanticSupportBandStamp?: SemanticSupportBandExportStampDocument;
   workItems: FindingWorkItemJsonDocument[];
@@ -51,7 +52,17 @@ export type GovernanceFindingsItsmJsonExportDocument = {
 };
 
 function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): string {
+  if (finding.severityStored === false) {
+    return "Severity was not stored";
+  }
+
   return severityBadgeLabel(finding.severityValue);
+}
+
+function humanReviewStatusLabelForExport(finding: QuickDecisionFinding): string {
+  return humanReviewStatusDisplay(finding.humanReviewStatus, {
+    stored: finding.humanReviewStatusStored,
+  }).label;
 }
 
 function formatItsmFindingIdCell(findingId: string | null | undefined): string {
@@ -198,12 +209,17 @@ export function buildQuickDecisionFindingsCsv(
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
-  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
   const checklistOmissionLine =
     omittedChecklistCount > 0
       ? `Checklist coverage rows omitted from this file: ${omittedChecklistCount}`
       : "No checklist coverage rows were omitted.";
+  const unclassifiedOmissionLine =
+    omittedUnclassifiedCount > 0
+      ? `Unclassified classification rows omitted from this file: ${omittedUnclassifiedCount}`
+      : "No unclassified classification rows were omitted.";
   const header =
     "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,ItsmLinkage,RecordStatus";
   const lines = exportableFindings.map((finding) => {
@@ -238,12 +254,8 @@ export function buildQuickDecisionFindingsCsv(
             : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
       semanticSupportBand,
-      finding.semanticSupportBand !== null
-        && finding.semanticSupportBand !== undefined
-        && finding.semanticSupportBand.length > 0
-        ? resolveFindingSemanticSupportBandScorerVersion(finding)
-        : "Semantic support band scorer version was not stored",
-      finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      resolveFindingSemanticSupportBandScorerVersion(finding),
+      finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
       escapeCsvCell(recordStatus),
     ].join(",");
@@ -254,7 +266,9 @@ export function buildQuickDecisionFindingsCsv(
       ? "No ITSM work-item rows were exported."
       : null;
 
-  return [checklistOmissionLine, exportRowsAbsentLine, header, ...lines].filter((line) => line !== null).join("\n");
+  return [checklistOmissionLine, unclassifiedOmissionLine, exportRowsAbsentLine, header, ...lines]
+    .filter((line) => line !== null)
+    .join("\n");
 }
 
 export function downloadQuickDecisionFindingsCsv(
@@ -273,7 +287,8 @@ export function buildRunFindingsItsmJsonExportDocument(
   siteOrigin: string,
   options?: RunFindingsExportOptions,
 ): RunFindingsItsmJsonExportDocument {
-  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount, omittedUnclassifiedCount } =
+    partitionFindingsForItsmExport(findings);
   const workItems: FindingWorkItemJsonDocument[] = exportableFindings.map((finding) => {
     const jsonBody = buildTraceRowWorkItemBody("json", {
       runId,
@@ -281,7 +296,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       findingTitle: finding.title,
       severityLabel: severityLabelFromQuickDecisionFinding(finding),
       recommendedAction: finding.recommendation,
-      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusLabelForExport(finding),
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
@@ -301,6 +316,8 @@ export function buildRunFindingsItsmJsonExportDocument(
     exportedAtUtc: new Date().toISOString(),
     findingCount: workItems.length,
     omittedChecklistCoverageCount: omittedChecklistCount > 0 ? omittedChecklistCount : undefined,
+    omittedUnclassifiedClassificationCount:
+      omittedUnclassifiedCount > 0 ? omittedUnclassifiedCount : undefined,
     semanticSupportBandStamp: {
       scorerVersion: semanticStamp.scorerVersion,
       supported: semanticStamp.counts.supported,

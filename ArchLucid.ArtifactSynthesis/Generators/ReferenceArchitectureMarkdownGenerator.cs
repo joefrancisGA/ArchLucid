@@ -102,23 +102,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Security");
 
-        foreach (SecurityPostureItem control in manifest.Security.Controls)
-        {
-            string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-            string controlName =
-                DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-            string impact = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact");
-            string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
-            sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
-        }
-
-        foreach (string gap in manifest.Security.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
-
-        if (manifest.Security.Controls.Count == 0 && manifest.Security.Gaps.Count == 0)
-
-            sb.AppendLine("- No security posture recorded.");
+        ManifestPostureListHonesty.AppendSecurityPostureSection(sb, manifest.Security, referenceStyle: true);
 
         sb.AppendLine();
 

@@ -114,7 +114,9 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
       evidenceRefCount: null,
-      humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus),
+      humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus, {
+        stored: entry.humanReviewStatusStored,
+      }),
       itsmLinkedTicketsSummary:
         (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0
           ? (entry.itsmLinkedTicketsSummary ?? "").trim()

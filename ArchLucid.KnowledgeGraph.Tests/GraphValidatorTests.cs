@@ -188,6 +188,32 @@ public sealed class GraphValidatorTests
     }
 
     [Fact]
+    public void Validate_DuplicateDirectedEdgesWithEdgeIdsDifferingOnlyByCasing_ThrowsInvalidOperationException()
+    {
+        GraphNode a = ValidNode("a");
+        GraphNode b = ValidNode("b");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "edge-contains",
+            FromNodeId = "a",
+            ToNodeId = "b",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "EDGE-CONTAINS",
+            FromNodeId = "a",
+            ToNodeId = "b",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate directed edges*");
+    }
+
+    [Fact]
     public void Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException()
     {
         GraphNode a = ValidNode("a");
@@ -206,6 +232,32 @@ public sealed class GraphValidatorTests
             FromNodeId = " a ",
             ToNodeId = " b ",
             EdgeType = $" {GraphEdgeTypes.Contains} ",
+        });
+
+        Action act = () => _sut.Validate(snapshot);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*duplicate directed edges*");
+    }
+
+    [Fact]
+    public void Validate_DuplicateDirectedEdgesDifferingOnlyByEndpointAndEdgeTypeCasing_ThrowsInvalidOperationException()
+    {
+        GraphNode a = ValidNode("NodeA");
+        GraphNode b = ValidNode("NodeB");
+        GraphSnapshot snapshot = BuildSnapshot(a, b);
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1",
+            FromNodeId = "nodea",
+            ToNodeId = "nodeb",
+            EdgeType = GraphEdgeTypes.Contains,
+        });
+        snapshot.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e2",
+            FromNodeId = "NODEA",
+            ToNodeId = "NODEB",
+            EdgeType = GraphEdgeTypes.Contains.ToUpperInvariant(),
         });
 
         Action act = () => _sut.Validate(snapshot);

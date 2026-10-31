@@ -53,6 +53,7 @@ internal static class InventoryDiagramExternalTargetApplier
             ast,
             graph,
             graphToDiagramNodeId,
+            graphNodesById,
             diagramNodeIdByArmId,
             externalDiagramNodeIdByArmId,
             ref nextOrderKey);
@@ -114,6 +115,13 @@ internal static class InventoryDiagramExternalTargetApplier
                     {
                         existingDiagramNode.Label = FormatExternalTargetLabel(targetArmId, scopeSubscription);
                         externalDiagramNodeIdByArmId[targetArmId] = existingDiagramNodeId;
+                        InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
+                            ast,
+                            localDiagramNodeId,
+                            existingDiagramNodeId,
+                            InventoryDiagramRelationshipLabelTexts.Peered,
+                            GraphEdgeInferenceSources.InventoryVnetPeering,
+                            ProvenanceKind.ObservedFact.ToString());
                     }
 
                     continue;
@@ -140,6 +148,7 @@ internal static class InventoryDiagramExternalTargetApplier
         DiagramAst ast,
         GraphSnapshot graph,
         IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
         IReadOnlyDictionary<string, string> diagramNodeIdByArmId,
         Dictionary<string, string> externalDiagramNodeIdByArmId,
         ref int nextOrderKey)
@@ -180,8 +189,20 @@ internal static class InventoryDiagramExternalTargetApplier
 
                 if (sourceDiagramNode is not null)
                 {
-                    string backendName = ReadBackendResourceName(targetArmId);
-                    string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+                    GraphNode? backendGraphNode = graphNodesById.Values.FirstOrDefault(node =>
+                        string.Equals(
+                            ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                            targetArmId,
+                            StringComparison.OrdinalIgnoreCase));
+                    string backendName = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                        backendTarget.TargetArmId,
+                        backendGraphNode?.Label,
+                        backendGraphNode?.NodeId,
+                        InventoryDiagramArmSegmentResourceNames.BackendNameNotStored);
+                    string outlineSentence =
+                        string.Equals(backendName, InventoryDiagramArmSegmentResourceNames.BackendNameNotStored, StringComparison.Ordinal)
+                            ? "Backend name was not stored. Target is not on this diagram."
+                            : InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
 
                     if (!sourceDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
                     {
@@ -563,10 +584,12 @@ internal static class InventoryDiagramExternalTargetApplier
     {
         string? scopeSubscriptionId = scopeSubscription.SubscriptionId;
         string? targetSubscriptionId = TryReadSubscriptionIdFromArmId(targetArmId);
-        string resourceName = ReadBackendResourceName(targetArmId);
+        string resourceName = InventoryDiagramArmSegmentResourceNames.ReadArmLastSegmentOrNotStored(
+            targetArmId,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
         bool hasResourceName = !string.Equals(
             resourceName,
-            "Backend name was not stored.",
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored,
             StringComparison.Ordinal);
 
         if (string.IsNullOrWhiteSpace(scopeSubscriptionId) && !string.IsNullOrWhiteSpace(targetSubscriptionId))
@@ -599,10 +622,4 @@ internal static class InventoryDiagramExternalTargetApplier
             : "Target is not on this diagram.";
     }
 
-    private static string ReadBackendResourceName(string armId)
-    {
-        _ = armId;
-
-        return InventoryDiagramArmSegmentResourceNames.BackendNameNotStored;
-    }
 }

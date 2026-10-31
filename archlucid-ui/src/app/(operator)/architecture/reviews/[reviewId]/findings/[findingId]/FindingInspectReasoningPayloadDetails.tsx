@@ -23,6 +23,7 @@ import {
   formatFindingInspectReasoningTraceDisplay,
   isFindingInspectReasoningTraceRenderable,
 } from "@/lib/findings/finding-inspect-reasoning-trace-display";
+import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly runId: string;

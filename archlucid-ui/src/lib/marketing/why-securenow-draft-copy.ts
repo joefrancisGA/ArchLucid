@@ -30,3 +30,8 @@ export const WHY_SECURENOW_CONVERSATION_MAILTO =
   "mailto:support@archlucid.net?subject=SecureNow%20conversation" as const;
 
 export const WHY_SECURENOW_CONVERSATION_LABEL = "Request a conversation." as const;
+
+export const WHY_SECURENOW_REVIEWER_PACK_HEADING = "What a reviewer can ask for" as const;
+
+export const WHY_SECURENOW_REVIEWER_PACK_BODY =
+  "A reviewer can ask for the procurement evidence index, the quote cover, and the controlled pilot proposal. Those documents stay with the owner until buyer communication is approved. This page does not publish a price." as const;

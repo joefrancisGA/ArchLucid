@@ -18,8 +18,8 @@ internal static class DiagramForestDiagramNeighborOnViewCopy
 
     internal static string FormatNeighborCountStatus(int neighborCount) =>
         neighborCount == 0
-            ? NoNeighborOnViewStatus
-            : $"{neighborCount} diagram neighbors on this view.";
+            ? FormatNoNeighborOnViewStatusLine()
+            : $"{neighborCount} diagram neighbors on this view. {IsolationDisclaimer}";
 
     internal static string FormatRollupMemberNeighborSummary(int withNeighborCount, int withoutNeighborCount) =>
         $"{withNeighborCount} with a diagram neighbor on this view · {withoutNeighborCount} with no diagram neighbor on this view";

@@ -91,11 +91,15 @@ export function isDiagramArmTypeKnownCatalog(armType: string | null | undefined)
 
 /** Outline tables — do not invent camelCase labels for types outside the known catalog. */
 export function formatDiagramArmTypeForOutline(armType: string | null | undefined): string {
-  if (armType == null || armType.trim().length === 0) {
+  if (armType == null) {
     return "Resource type was not stored.";
   }
 
   const trimmed = armType.trim();
+
+  if (trimmed.length === 0) {
+    return "Resource type was stored empty.";
+  }
   const friendly = formatDiagramArmTypeFriendlyName(trimmed);
 
   if (isDiagramArmTypeKnownCatalog(trimmed) && friendly != null) {

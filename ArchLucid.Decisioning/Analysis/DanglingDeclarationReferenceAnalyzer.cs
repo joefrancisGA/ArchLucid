@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.KnowledgeGraph.Materialization;
 
 namespace ArchLucid.Decisioning.Analysis;
 
@@ -94,6 +95,12 @@ public static partial class DanglingDeclarationReferenceAnalyzer
 
             foreach (KeyValuePair<string, string> property in node.Properties)
             {
+                if (IsDeclaredPrincipalProperty(node, property.Key))
+                {
+                    AddIdentity(identities, property.Value);
+                    continue;
+                }
+
                 if (!IsIdentityPropertyKey(property.Key))
                 {
                     continue;
@@ -105,6 +112,80 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         }
 
         return identities;
+    }
+
+    /// <summary>
+    ///     A user-assigned identity stores its principal on <c>principalId</c>. A role assignment
+    ///     stores the same key as a reference. Only the declaring node makes that principal known.
+    /// </summary>
+    private static bool IsDeclaredPrincipalProperty(GraphNode node, string? propertyKey)
+    {
+        if (!IsPrincipalPropertyKey(propertyKey))
+        {
+            return false;
+        }
+
+        if (TryGetProperty(node.Properties, "terraformType", out string? terraformType)
+            && DeclarationIamTerraformTypes.IsRoleAssignmentTerraformType(terraformType))
+        {
+            return false;
+        }
+
+        if (TryGetProperty(node.Properties, "resourceType", out string? resourceType)
+            && resourceType!.Contains("roleAssignments", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsPrincipalPropertyKey(string? propertyKey)
+    {
+        if (string.IsNullOrWhiteSpace(propertyKey))
+        {
+            return false;
+        }
+
+        string trimmed = propertyKey.Trim();
+
+        if (trimmed.StartsWith("tf.", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[3..];
+        }
+
+        string normalized = trimmed
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace(".", string.Empty, StringComparison.Ordinal);
+
+        return string.Equals(normalized, "principalid", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(normalized, "identityprincipalid", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetProperty(
+        IReadOnlyDictionary<string, string>? properties,
+        string key,
+        out string? value)
+    {
+        value = null;
+
+        if (properties is null)
+        {
+            return false;
+        }
+
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(entry.Value))
+            {
+                value = entry.Value.Trim();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsIdentityPropertyKey(string? propertyKey)

@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -74,7 +75,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
 
         return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
-            ?? DiagramArmTypeFriendlyName.FormatUnmappedArmTypeCaption(node.ArmResourceType);
+            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
@@ -175,9 +176,11 @@ public static class DiagramNodeHumanCaptionFactory
             };
             combined = $"{combined} · {resourceGroupLine}";
         }
-        string accessibilityTitle = resourceGroupCaption is null
+        string accessibilityTitle = node.IncludeResourceGroupInCaption
             ? combined
-            : $"{combined} · {resourceGroupCaption}";
+            : resourceGroupCaption is null
+                ? combined
+                : $"{combined} · {resourceGroupCaption}";
 
         return new DiagramNodeHumanCaption(
             ResourceName: resourceName,

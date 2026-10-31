@@ -26,7 +26,12 @@ internal static class ItsmInboundExternalStatusMapper
         if (rawMap.Count is 0)
             return false;
 
-        foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), incomingKey, StringComparison.OrdinalIgnoreCase)))
+        string normalizedIncoming = ItsmInboundJsonElementReader.NormalizeStatusText(incomingKey);
+
+        if (normalizedIncoming.Length is 0)
+            return false;
+
+        foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), normalizedIncoming, StringComparison.OrdinalIgnoreCase)))
         {
             if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingDisposition parsed))
                 return false;

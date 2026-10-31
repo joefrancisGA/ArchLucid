@@ -9,6 +9,25 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 public sealed class SecureNowQuestionDisplayCopyTests
 {
     [Fact]
+    public void Inferred_connection_without_resource_name_does_not_imply_stored_name()
+    {
+        SecureNowQuestionRecord question = new()
+        {
+            Source = SecureNowQuestionSource.InferredConnection,
+            QuestionText = string.Empty,
+            ResourceId = string.Empty,
+        };
+
+        SecureNowQuestionRecord result = SecureNowQuestionDisplayCopy.WithResourceIdentity(
+            question,
+            string.Empty,
+            string.Empty);
+
+        result.QuestionText.Should().Be(
+            "Should SecureNow record this inferred connection without a stored resource name?");
+    }
+
+    [Fact]
     public void Orphan_still_needed_uses_resource_id_tail_without_lowercased_display_name()
     {
         SecureNowQuestionRecord question = new()

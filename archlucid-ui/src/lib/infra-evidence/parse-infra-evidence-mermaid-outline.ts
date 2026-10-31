@@ -2,6 +2,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
@@ -329,7 +330,7 @@ export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind:
   }
 
   if (normalized === "DerivedFact") {
-    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE;
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DERIVED;
   }
 
   if (normalized === "DeterministicInference" || normalized === "AiInference") {

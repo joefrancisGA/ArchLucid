@@ -10,6 +10,7 @@ import {
   feasibilityVerdictTone,
 } from "@/lib/feasibility-verdict-display";
 import { DECISION_RECEIPT_COST_ESTIMATE_LABEL } from "@/lib/decision-receipt-export";
+import { GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE } from "@/lib/guided-intake-copy";
 import {
   formatDraftIntakeRedirectReasonForDisplay,
   formatDraftIntakeSystemNameForDisplay,

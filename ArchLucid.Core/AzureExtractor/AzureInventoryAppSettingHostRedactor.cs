@@ -178,6 +178,14 @@ public static partial class AzureInventoryAppSettingHostRedactor
         }
 
         string host = match.Groups["host"].Value.Trim().ToLowerInvariant();
+        int queryOrFragmentStart = host.IndexOfAny(['?', '#']);
+
+        if (queryOrFragmentStart >= 0)
+        {
+            host = host[..queryOrFragmentStart];
+        }
+
+        host = host.TrimEnd('/');
 
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -191,7 +199,16 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return null;
         }
 
-        return host;
+        return NormalizeHttpsInventoryHost(host);
+    }
+
+    private static string NormalizeHttpsInventoryHost(string host)
+    {
+        string decoded = Uri.UnescapeDataString(host);
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded;
     }
 
     public static (string? KeyVaultHost, string? SecretName) TryParseKeyVaultReference(string? value)

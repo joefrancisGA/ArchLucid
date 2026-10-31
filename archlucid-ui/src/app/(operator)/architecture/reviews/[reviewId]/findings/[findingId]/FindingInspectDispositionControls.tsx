@@ -167,6 +167,7 @@ export function FindingInspectDispositionControls(props: FindingInspectDispositi
       <FindingInspectWaiverPanel
         canMutate={viewModel.canMutate}
         history={viewModel.history}
+        dispositionHistoryLoading={viewModel.dispositionHistoryLoading}
         activeWaiver={viewModel.activeWaiver}
         waiverRationale={viewModel.waiverRationale}
         setWaiverRationale={viewModel.setWaiverRationale}

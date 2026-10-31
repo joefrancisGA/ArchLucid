@@ -161,10 +161,10 @@ describe("adr-from-run", () => {
         riskPosture: "",
         themeSummaries: [],
         summary: "",
-        keyDrivers: [],
-        riskImplications: [],
-        costImplications: [],
-        complianceImplications: [],
+        keyDrivers: null,
+        riskImplications: null,
+        costImplications: null,
+        complianceImplications: null,
         detailedNarrative: "",
         structuredReasoning: null,
         alternativesConsidered: null,
@@ -203,6 +203,8 @@ describe("adr-from-run", () => {
       findings: [],
     });
 
+    expect(missing).toContain("Key drivers were not stored.");
+    expect(storedEmpty).toContain("Key drivers were stored empty.");
     expect(missing).toContain("Structured reasoning was not stored.");
     expect(missing).toContain("Alternatives considered were not stored.");
     expect(missing).toContain("Caveats were not stored.");
@@ -372,6 +374,38 @@ describe("adr-from-run", () => {
     expect(input.findings.length).toBe(2);
     expect(input.findings[0]?.findingId).toBe("high");
     expect(input.findings[1]?.findingId).toBe("low");
+    expect(input.omittedMutedFindingCount).toBe(1);
+  });
+
+  it("buildMadrMarkdownFromRun labels muted-only exports separately from missing findings", () => {
+    const muted: QuickDecisionFinding = {
+      findingId: "muted",
+      title: "Muted",
+      recommendation: "r",
+      severityValue: 3,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "c" },
+      isMuted: true,
+      muteReason: "noise",
+    };
+
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [muted],
+      maxFindings: 5,
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    const md = buildMadrMarkdownFromRun(input);
+
+    expect(md).toContain("Muted findings were stored on this review and are not included in this ADR export.");
   });
 
   it("buildAdrGeneratorRunInput forwards trust labels from quick decision findings", () => {

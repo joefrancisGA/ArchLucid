@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate SecureNow procurement pack markdown (index, one-pager, overlay).
+"""Validate SecureNow procurement pack markdown (index, brief, overlay, wave-2 exhibits).
 
 Run from repo root: python scripts/ci/check_securenow_procurement_pack.py
 """
@@ -15,6 +15,21 @@ ROOT = Path(__file__).resolve().parents[2]
 INDEX = ROOT / "docs/securenow/PROCUREMENT_PACK_INDEX.md"
 ONE_PAGER = ROOT / "docs/securenow/BUYER_SECURITY_ONE_PAGER.md"
 OVERLAY = ROOT / "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md"
+SCHEDULE = ROOT / "docs/securenow/DATA_PROCESSING_SCHEDULE.md"
+SUBPROCESSORS_DELTA = ROOT / "docs/securenow/SUBPROCESSORS_DELTA.md"
+CROSSWALK = ROOT / "docs/securenow/QUESTIONNAIRE_CROSSWALK.md"
+QUOTE_COVER = ROOT / "docs/securenow/QUOTE_COVER.md"
+
+PACK_MARKDOWN = (
+    INDEX,
+    ONE_PAGER,
+    OVERLAY,
+    SCHEDULE,
+    SUBPROCESSORS_DELTA,
+    CROSSWALK,
+    QUOTE_COVER,
+)
+WAVE2_MARKDOWN = (SCHEDULE, SUBPROCESSORS_DELTA, CROSSWALK, QUOTE_COVER)
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 STATUS_MAP_HEADING = "## Procurement artifact status map (buyer-safe classification)"
@@ -160,20 +175,105 @@ def _forbidden_line_errors(text: str, label: str) -> list[str]:
     return errors
 
 
+def _count_table_data_rows(text: str, header_prefix: str) -> int:
+    count = 0
+    in_block = False
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if line.startswith(header_prefix):
+            in_block = True
+            continue
+        if not in_block:
+            continue
+        if not line.startswith("|"):
+            if count:
+                break
+            continue
+        if "---" in line.replace(" ", ""):
+            continue
+        parts = [p.strip() for p in line.strip("|").split("|")]
+        if parts and parts[0] in ("Theme", "Register row"):
+            continue
+        if parts:
+            count += 1
+    return count
+
+
+def _wave2_content_checks(root: Path, errors: list[str]) -> None:
+    schedule_path = root / "docs/securenow/DATA_PROCESSING_SCHEDULE.md"
+    delta_path = root / "docs/securenow/SUBPROCESSORS_DELTA.md"
+    crosswalk_path = root / "docs/securenow/QUESTIONNAIRE_CROSSWALK.md"
+    cover_path = root / "docs/securenow/QUOTE_COVER.md"
+
+    schedule_text = schedule_path.read_text(encoding="utf-8")
+    if "TO BE NEGOTIATED" not in schedule_text:
+        errors.append("schedule: missing TO BE NEGOTIATED")
+    if "90 days" not in schedule_text:
+        errors.append("schedule: missing platform template 90 days reference")
+    if "0104" not in schedule_text:
+        errors.append("schedule: missing ADR 0104 reference")
+
+    delta_text = delta_path.read_text(encoding="utf-8")
+    if "SUBPROCESSORS.md" not in delta_text:
+        errors.append("subprocessors_delta: must reference SUBPROCESSORS.md")
+    if "Not offered" not in delta_text:
+        errors.append("subprocessors_delta: missing Not offered row")
+
+    crosswalk_text = crosswalk_path.read_text(encoding="utf-8")
+    if "Not a completed SIG" not in crosswalk_text:
+        errors.append("crosswalk: missing Not a completed SIG scope statement")
+    crosswalk_rows = _count_table_data_rows(crosswalk_text, "| Theme |")
+    if crosswalk_rows < 24:
+        errors.append(f"crosswalk: expected at least 24 data rows, found {crosswalk_rows}")
+
+    cover_text = cover_path.read_text(encoding="utf-8")
+    for token in ("SN-EVAL", "NOT AN APPROVED", "HOLD_NO_PUBLICATION"):
+        if token not in cover_text:
+            errors.append(f"quote_cover: missing token {token!r}")
+    if "$" in cover_text:
+        errors.append("quote_cover: must not contain dollar amounts")
+
+    for rel_path in (
+        "docs/securenow/DATA_PROCESSING_SCHEDULE.md",
+        "docs/securenow/SUBPROCESSORS_DELTA.md",
+        "docs/securenow/QUESTIONNAIRE_CROSSWALK.md",
+        "docs/securenow/QUOTE_COVER.md",
+    ):
+        path = root / rel_path
+        text = path.read_text(encoding="utf-8")
+        _check_links(text, path, rel_path.replace("/", "_"), errors)
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
-    index_path = root / "docs/securenow/PROCUREMENT_PACK_INDEX.md"
-    one_pager_path = root / "docs/securenow/BUYER_SECURITY_ONE_PAGER.md"
-    overlay_path = root / "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md"
-    for path in (index_path, one_pager_path, overlay_path):
+    pack_paths = [
+        root / "docs/securenow/PROCUREMENT_PACK_INDEX.md",
+        root / "docs/securenow/BUYER_SECURITY_ONE_PAGER.md",
+        root / "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md",
+        root / "docs/securenow/DATA_PROCESSING_SCHEDULE.md",
+        root / "docs/securenow/SUBPROCESSORS_DELTA.md",
+        root / "docs/securenow/QUESTIONNAIRE_CROSSWALK.md",
+        root / "docs/securenow/QUOTE_COVER.md",
+    ]
+    for path in pack_paths:
         if not path.is_file():
             errors.append(f"missing {path.relative_to(root)}")
     if errors:
         return errors
 
+    index_path = pack_paths[0]
+    one_pager_path = pack_paths[1]
+    overlay_path = pack_paths[2]
+
     index_text = index_path.read_text(encoding="utf-8")
     one_pager_text = one_pager_path.read_text(encoding="utf-8")
     overlay_text = overlay_path.read_text(encoding="utf-8")
+    wave2_bodies = {
+        "schedule": (root / "docs/securenow/DATA_PROCESSING_SCHEDULE.md").read_text(encoding="utf-8"),
+        "subprocessors_delta": (root / "docs/securenow/SUBPROCESSORS_DELTA.md").read_text(encoding="utf-8"),
+        "crosswalk": (root / "docs/securenow/QUESTIONNAIRE_CROSSWALK.md").read_text(encoding="utf-8"),
+        "quote_cover": (root / "docs/securenow/QUOTE_COVER.md").read_text(encoding="utf-8"),
+    }
 
     if STATUS_MAP_HEADING not in index_text:
         errors.append(f"index: missing heading {STATUS_MAP_HEADING!r}")
@@ -217,8 +317,11 @@ def validate(root: Path = ROOT) -> list[str]:
         ("index", index_text),
         ("one_pager", one_pager_text),
         ("overlay", overlay_text),
+        *wave2_bodies.items(),
     ):
         errors.extend(_forbidden_line_errors(body, label))
+
+    _wave2_content_checks(root, errors)
 
     return errors
 

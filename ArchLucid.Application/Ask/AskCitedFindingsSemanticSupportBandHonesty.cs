@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 
@@ -223,14 +224,14 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
 
         if (title.Length > 0)
         {
-            return title.Length <= 96 ? title : string.Concat(title.AsSpan(0, 93), "...");
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(title, FindingTitleNotStored);
         }
 
         string rationale = finding.Rationale?.Trim() ?? string.Empty;
 
         if (rationale.Length > 0)
         {
-            return rationale.Length <= 96 ? rationale : string.Concat(rationale.AsSpan(0, 93), "...");
+            return PilotExportPreviewHonestyCopy.FormatShortenedPreview(rationale, FindingTitleNotStored);
         }
 
         return FindingTitleNotStored;

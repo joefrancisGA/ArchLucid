@@ -1516,6 +1516,7 @@ export interface components {
             evidenceHref?: string;
             findingId?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isStale?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             /** Format: date-time */
@@ -4704,6 +4705,7 @@ export interface components {
             findingId?: string;
             hasActiveWaiver?: boolean;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            humanReviewStatusStored?: boolean;
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
@@ -4733,6 +4735,7 @@ export interface components {
             runId?: string;
             semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
+            severityStored?: boolean;
             trackedExternally?: boolean;
             treatment?: null | components["schemas"]["FindingTreatment"];
             trustLabel?: null | string;
@@ -5365,6 +5368,10 @@ export interface components {
         HolisticCriticResponse: {
             critiqueMarkdown?: string;
             disclaimer?: string;
+            /** Format: int32 */
+            omittedFindingLinesCount?: number;
+            /** Format: int32 */
+            omittedThemeSummariesCount?: number;
         };
         HostLeaderLeaseSnapshot: {
             holderInstanceId?: string;

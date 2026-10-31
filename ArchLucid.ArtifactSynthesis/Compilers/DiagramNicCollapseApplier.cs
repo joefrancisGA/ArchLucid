@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -234,7 +235,7 @@ internal static class DiagramNicCollapseApplier
                 FromNodeId = publicIpDiagramNodeId,
                 ToNodeId = ownerDiagramNodeId,
                 Label = exposureLabel,
-                ProvenanceKind = graphEdge.ProvenanceKind,
+                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                 InferenceSource = graphEdge.InferenceSource,
             });
         }

@@ -376,3 +376,28 @@ describe("FIRST_REVIEW_GUIDE_STEPS inventory evidence copy (P-02)", () => {
     expect(step?.explanation.toLowerCase()).not.toMatch(/follow seal/);
   });
 });
+
+describe("first-review-guide inventory step honesty (P-17)", () => {
+  it("does not mark inventory evidence complete from seal alone", () => {
+    const steps = resolveFirstReviewGuideSteps({
+      commitContext: {
+        ...emptyContext,
+        hasCommittedManifest: true,
+        firstCommittedRunId: "run-sealed",
+        latestRunId: "run-sealed",
+        sealedReviewRecord: {
+          runId: "run-sealed",
+          displayName: null,
+          finalizedOnUtc: null,
+          finalizedByUserId: null,
+        },
+      },
+      canExecute: true,
+      finishSetupContext: null,
+      finishSetupLoaded: true,
+      latestRunHasInventoryEvidence: false,
+    });
+
+    expect(steps[5]?.status).not.toBe("complete");
+  });
+});

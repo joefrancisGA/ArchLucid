@@ -262,4 +262,62 @@ public sealed class CostBreachFindingEngineTests
             CultureInfo.CurrentCulture = previousCulture;
         }
     }
+
+    [Fact]
+    public async Task AnalyzeAsync_uses_budget_name_not_stored_when_label_and_budget_name_missing()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "cost-node-id",
+                    NodeType = "CostConstraint",
+                    Label = " ",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Be("Monthly cost breach: Budget name was not stored.");
+        CostBreachFindingPayload payload = finding.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.BudgetName.Should().Be("Budget name was not stored.");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_appends_illustrative_spend_note_when_confidence_reasoning_is_illustrative()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["budgetName"] = "Prod",
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                        ["confidenceReasoning"] = "Topology-derived projected monthly spend (illustrative fallback).",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Subject.Rationale.Should()
+            .Contain("Projected spend uses illustrative pricing — not measured tenant spend.");
+    }
 }

@@ -118,6 +118,10 @@ internal static class InventoryDiagramResourceGroupMapBuilder
                 ToNodeId = toNode.NodeId,
                 EdgeType = GraphEdgeTypes.RelatesTo,
                 Weight = 1.0d,
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    [InventoryDiagramResourceGroupMapHonestyCopy.CollapsedRelatesToEdgePropertyKey] = "true",
+                },
             });
         }
 

@@ -15,6 +15,7 @@ import {
   findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
 } from "@/lib/findings/finding-explainability-summary";
+import { resolveFindingExplainabilityTraceListDisplay } from "@/lib/findings/finding-explainability-trace-list-display";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -26,6 +27,8 @@ export const EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY =
 export const EXPLAINABILITY_TRACE_DECISION_NOT_STORED = "Decision text was not stored." as const;
 
 export const EXPLAINABILITY_TRACE_RULES_NOT_STORED = "Rules applied were not stored." as const;
+
+export const EXPLAINABILITY_TRACE_RULES_STORED_EMPTY = "Rules applied were stored empty." as const;
 
 export const EXPLAINABILITY_TRACE_CONCLUSION_HEADING = "Conclusion" as const;
 
@@ -116,6 +119,13 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
   const evidenceRefs = data.evidence?.evidenceRefs;
   const rules = data.rulesApplied;
+  const rulesDisplay = resolveFindingExplainabilityTraceListDisplay({
+    values: rules,
+    fieldKey: "rulesApplied",
+    missingTraceFields: data.missingTraceFields,
+    notStoredLabel: EXPLAINABILITY_TRACE_RULES_NOT_STORED,
+    storedEmptyLabel: EXPLAINABILITY_TRACE_RULES_STORED_EMPTY,
+  });
   const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
   const evidenceRefCount =
     evidenceRefs === null || evidenceRefs === undefined ? null : evidenceRefs.length;
@@ -216,14 +226,14 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         openSectionKey={openSectionKey}
         onOpenChange={setOpenSectionKey}
       >
-        {rules.length === 0 ? (
-          <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_RULES_NOT_STORED}</p>
-        ) : (
+        {rulesDisplay.kind === "items" ? (
           <ul className="m-0 list-disc space-y-1 pl-5">
-            {rules.map((rule, index) => (
+            {rulesDisplay.items.map((rule, index) => (
               <li key={`${rule}-${index}`}>{formatFindingExplainabilityPolicyRuleDisplay(rule)}</li>
             ))}
           </ul>
+        ) : (
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">{rulesDisplay.message}</p>
         )}
       </TraceSection>
     </div>

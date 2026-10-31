@@ -129,6 +129,10 @@ function buyerRiskPostureHonestyLine(
     return "Low risk posture.";
   }
 
+  if (key.includes("not derived")) {
+    return raw.endsWith(".") ? raw : `${raw}.`;
+  }
+
   return null;
 }
 

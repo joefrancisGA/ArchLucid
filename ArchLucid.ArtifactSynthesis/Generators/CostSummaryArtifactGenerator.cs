@@ -35,6 +35,13 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
             notes.Add("Max monthly cost was not stored.");
         }
 
+        notes.Add(CostSummaryArtifactHonesty.HourlyMonthAssumptionNote);
+
+        if (infra.Lines.Any(static line => UsesDefaultInventoryQuantity(line.LineKind)))
+        {
+            notes.Add(ManifestInfrastructureCostNodes.InventoryInstanceCountDefaultNote);
+        }
+
         CostSummaryArtifactModel model =
             new()
             {
@@ -88,4 +95,10 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
                     ? "Price source was not stored."
                     : line.PriceSource.ToString(),
             };
+
+    private static bool UsesDefaultInventoryQuantity(string lineKind) =>
+        string.Equals(lineKind, "TerraformResource", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(lineKind, "AzureResource", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(lineKind, "AwsResource", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(lineKind, "GcpResource", StringComparison.OrdinalIgnoreCase);
 }

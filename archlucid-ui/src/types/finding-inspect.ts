@@ -20,6 +20,10 @@ export type FindingInspectPayload = FindingInspectResponseSchema &
     >
   > & {
     typedPayload: unknown;
+    /** False when inspect omitted relational severity (Info default is not a stored fact). */
+    severityStored?: boolean;
+    /** False when inspect omitted relational human review (NotRequired default is not a stored fact). */
+    humanReviewStatusStored?: boolean;
     /** Deterministic template-built narrative from inspect API when metadata is sufficient. */
     reasoningSummary?: string | null;
     /** False when the inspect wire payload omitted `evidence` (distinct from an empty stored list). */

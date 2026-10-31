@@ -106,9 +106,7 @@ internal static class DiagramStoredHiddenPathShortcutApplier
                     FromNodeId = leftId,
                     ToNodeId = rightId,
                     Label = ResolveLabel(graphEdge),
-                    ProvenanceKind = string.IsNullOrWhiteSpace(graphEdge.ProvenanceKind)
-                        ? ProvenanceKind.DerivedFact.ToString()
-                        : graphEdge.ProvenanceKind,
+                    ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
                     InferenceSource = graphEdge.InferenceSource,
                     IsLayoutOnly = false,
                 });
@@ -333,7 +331,7 @@ internal static class DiagramStoredHiddenPathShortcutApplier
             return label;
         }
 
-        return ShortcutLabelPrefix + label;
+        return ShortcutLabelPrefix + label + " Intermediate nodes were not stored on this diagram.";
     }
 
     private static bool IsStoredEvidenceEdge(GraphEdge edge)

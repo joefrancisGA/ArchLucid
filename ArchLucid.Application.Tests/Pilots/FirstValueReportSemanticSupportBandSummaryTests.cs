@@ -105,6 +105,19 @@ public sealed class FirstValueReportSemanticSupportBandSummaryTests
         FirstValueReportSemanticSupportBandSummary.StampSemanticSupportShowsAllClear(counts).Should().BeFalse();
     }
 
+    [Fact]
+    public void StampSemanticSupportShowsAllClear_is_false_when_not_scored_present()
+    {
+        FirstValueReportSemanticSupportBandSummary.SemanticSupportBandStampCounts counts = new(
+            Supported: 1,
+            Unchecked: 0,
+            Unsupported: 0,
+            NotScored: 1,
+            DecisionGradeTotal: 2);
+
+        FirstValueReportSemanticSupportBandSummary.StampSemanticSupportShowsAllClear(counts).Should().BeFalse();
+    }
+
     private static ArchitectureFinding CreateFinding(
         string findingId,
         FindingSemanticSupportBand band,

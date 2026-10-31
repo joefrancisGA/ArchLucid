@@ -7,7 +7,7 @@ import {
   isUsableGoldenManifestExportJson,
 } from "./export-markdown";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
-import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
+import { pushPolicyAtCommitMarkdownLines, formatAtCommitPolicyPackIdForExport, POLICY_PACK_ID_NOT_STORED_COPY, POLICY_PACK_ID_STORED_EMPTY_COPY } from "./export-markdown-policy-section";
 
 describe("isUsableGoldenManifestExportJson", () => {
   it("rejects placeholders and empty objects", () => {
@@ -653,6 +653,16 @@ describe("formatGoldenManifestMarkdown", () => {
     const md = formatGoldenManifestMarkdown({ demo: true });
 
     expect(md).toContain("Review record JSON was not available");
+  });
+});
+
+describe("formatAtCommitPolicyPackIdForExport (P-06)", () => {
+  it("distinguishes null, empty, and stored pack ids", () => {
+    expect(formatAtCommitPolicyPackIdForExport(null)).toBe(POLICY_PACK_ID_NOT_STORED_COPY);
+    expect(formatAtCommitPolicyPackIdForExport(undefined)).toBe(POLICY_PACK_ID_NOT_STORED_COPY);
+    expect(formatAtCommitPolicyPackIdForExport("")).toBe(POLICY_PACK_ID_STORED_EMPTY_COPY);
+    expect(formatAtCommitPolicyPackIdForExport("   ")).toBe(POLICY_PACK_ID_STORED_EMPTY_COPY);
+    expect(formatAtCommitPolicyPackIdForExport("pack-1")).toBe("pack-1");
   });
 });
 

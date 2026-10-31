@@ -23,6 +23,8 @@ import {
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED,
+  FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY,
+  FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY,
   FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY,
   FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX,
 } from "@/lib/findings/findings-what-if-analysis";
@@ -213,6 +215,8 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
           <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
             {baseline === null
               ? "Baseline annual cost was not stored."
+              : !enabled
+                ? FINDINGS_WHAT_IF_PROJECTED_COST_OFF_COPY
               : enabled && selectedSavingsRollup.incomplete
                 ? FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY
                 : projected !== null
@@ -220,7 +224,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   : enabled && selectedIds.size > 0
                     ? FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED
                     : enabled && selectedIds.size === 0
-                      ? "Select findings to project a cost"
+                      ? FINDINGS_WHAT_IF_NOTHING_SELECTED_COPY
                       : FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED}
             {props.isIllustrativePricing && baseline !== null && enabled ? (
               <span className={cn("mt-1 block font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

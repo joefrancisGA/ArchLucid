@@ -12,6 +12,9 @@ internal static class DocxExportManifestPostureHonesty
     internal const string RecommendedImprovementsGeneratedExportLabel =
         "These recommendations were generated for this export and are not stored on the committed manifest.";
 
+    internal const string RecommendedImprovementsGeneratedEmptyExportLabel =
+        "No recommendations were generated for this export.";
+
     internal static string FormatRecommendedImprovementsOverflowLine(int totalCount)
     {
         int omitted = totalCount - RecommendedImprovementsExportCap;

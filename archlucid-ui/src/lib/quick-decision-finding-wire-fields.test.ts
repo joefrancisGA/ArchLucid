@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  QUICK_DECISION_FINDING_MESSAGE_STORED_EMPTY,
   QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED,
   QUICK_DECISION_FINDING_TITLE_NOT_STORED,
   resolveQuickDecisionFindingPresentation,
@@ -59,6 +60,15 @@ describe("quick-decision-finding-wire-fields", () => {
 
     expect(result.title).toBe("Finding title was stored empty.");
     expect(result.recommendation).toBe("Port 22 is open");
+  });
+
+  it("uses stored-empty message copy when wire message is whitespace only", () => {
+    const result = resolveQuickDecisionFindingPresentation({
+      title: "Title",
+      message: "   ",
+    });
+
+    expect(result.recommendation).toBe(QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED);
   });
 
   it("returns omission copy when no recommendation fields are stored", () => {

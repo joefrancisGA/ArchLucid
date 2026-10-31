@@ -572,6 +572,16 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
               {classificationCounts.checklist} checklist {classificationCounts.checklist === 1 ? "row remains" : "rows remain"} on this package — open the Checklist band to triage them.
             </p>
           ) : null}
+          {classificationCounts.unclassified > 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="run-detail-findings-unclassified-hint"
+            >
+              {classificationCounts.unclassified}{" "}
+              {classificationCounts.unclassified === 1 ? "finding has" : "findings have"} no stored classification band
+              — they are not decision-grade exports.
+            </p>
+          ) : null}
         </div>
       ) : null}
       {createHomeSurface ? (

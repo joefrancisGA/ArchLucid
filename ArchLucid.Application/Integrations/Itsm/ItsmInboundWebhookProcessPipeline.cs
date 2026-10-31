@@ -84,7 +84,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         }
 
         IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
-        string primaryStatusValue = payload.StatusValue.Trim();
+        string primaryStatusValue = ItsmInboundJsonElementReader.NormalizeStatusText(payload.StatusValue);
         string effectiveStatusValue = payload.StatusValue;
         bool humanReviewResolvedFromAlternate = false;
         (string humanReview, bool mapped) = statusMapper.MapToHumanReview(payload.StatusValue, options);
@@ -243,7 +243,7 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             if (mappedDisposition is null
                 && !string.IsNullOrWhiteSpace(effectivePayload.AlternateStatusValue))
             {
-                string alternateStatus = effectivePayload.AlternateStatusValue.Trim();
+                string alternateStatus = ItsmInboundJsonElementReader.NormalizeStatusText(effectivePayload.AlternateStatusValue);
                 FindingDisposition? alternateDisposition = statusMapper.TryMapToDisposition(alternateStatus, options);
 
                 if (alternateDisposition is not null)
@@ -463,12 +463,13 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         if (string.IsNullOrWhiteSpace(primaryStatusValue))
             return null;
 
-        string primaryTrimmed = primaryStatusValue.Trim();
+        string primaryCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(primaryStatusValue);
+        string effectiveCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(effectiveState);
 
-        if (string.Equals(primaryTrimmed, effectiveState, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(primaryCanonical, effectiveCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        return primaryTrimmed;
+        return primaryCanonical;
     }
 
     private static string? SelectServiceNowAuditIncidentState(string? alternateStatusValue)
@@ -476,6 +477,6 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         if (string.IsNullOrWhiteSpace(alternateStatusValue))
             return null;
 
-        return alternateStatusValue.Trim();
+        return ItsmInboundJsonElementReader.NormalizeStatusText(alternateStatusValue);
     }
 }

@@ -11,6 +11,8 @@ public static class FindingArchitectRestatementExportComposer
     public const string NotTrailBackedHonestyLabel =
         "Operator restatement — not sealed engine prose.";
 
+    public const string OccurredAtUtcNotStoredLabel = "Recorded time was not stored.";
+
     public static string ResolveHonestyLabel(bool isTrailBacked) =>
         isTrailBacked ? TrailBackedHonestyLabel : NotTrailBackedHonestyLabel;
 
@@ -44,7 +46,10 @@ public static class FindingArchitectRestatementExportComposer
                 : row.Restatement.Trim();
             sb.AppendLine(restatement);
             sb.AppendLine();
-            sb.AppendLine($"Recorded (UTC): {row.OccurredAtUtc:yyyy-MM-dd HH:mm:ss} Z");
+            sb.AppendLine(
+                row.OccurredAtUtc == default
+                    ? $"Recorded (UTC): {OccurredAtUtcNotStoredLabel}"
+                    : $"Recorded (UTC): {row.OccurredAtUtc:yyyy-MM-dd HH:mm:ss} Z");
             sb.AppendLine();
         }
     }

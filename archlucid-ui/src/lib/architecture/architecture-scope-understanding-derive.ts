@@ -41,7 +41,7 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
 
   const trustOrigin = actor.trustOrigin?.trim() ?? "";
 
-  if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
+  if (trustOrigin.length > 0) {
     return `Actor name was not stored (${kind}; ${trustOrigin}).`;
   }
 

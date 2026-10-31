@@ -154,6 +154,25 @@ describe("RunDetailOutcomeCards", () => {
     );
   });
 
+  it("does not use governance gate label as buyer decision posture", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={1}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={0}
+        governanceGateLabel="No approval decision recorded"
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Decision was not stored.");
+    expect(screen.getByTestId("buyer-review-decision-summary")).not.toHaveTextContent(
+      "No approval decision recorded",
+    );
+  });
+
   it("does not show blocking issues zero when unresolved count was omitted", () => {
     render(
       <RunDetailOutcomeCards

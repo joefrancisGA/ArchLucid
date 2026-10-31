@@ -5,7 +5,7 @@ import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidence
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
-import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
+import { formatExportPreviewCapIntro, formatExportPreviewShortenedText } from "@/lib/export-preview-caption-honesty";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -52,9 +52,14 @@ function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | 
   return firstNonEmptyLine(raw);
 }
 
+function visibleSponsorFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
+  return findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  );
+}
+
 function topFindings(findings: readonly QuickDecisionFinding[]): readonly QuickDecisionFinding[] {
-  return [...findings]
-    .filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding))
+  return [...visibleSponsorFindings(findings)]
     .sort((a, b) => {
       const severityDelta = compareFindingSeverity(a.severityValue, b.severityValue);
 
@@ -71,6 +76,7 @@ export function RunDetailSponsorModeExplanationCard(
   props: RunDetailSponsorModeExplanationCardProps,
 ): ReactElement | null {
   const { explanationSummary, findings, buyerPolishedArtifactTable } = props;
+  const visibleFindings = visibleSponsorFindings(findings);
   const top = topFindings(findings);
 
   if (explanationSummary === null && top.length === 0) {
@@ -130,17 +136,21 @@ export function RunDetailSponsorModeExplanationCard(
 
       <div className="mt-4">
         <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
-          Top sponsor talking points
+          Sponsor talking points ({formatExportPreviewCapIntro(top.length, visibleFindings.length, "preview lines")})
         </p>
         {top.length > 0 ? (
           <ul className="mt-2 space-y-2 pl-5">
             {top.map((finding) => (
               <li key={finding.findingId}>
                 <span className="font-semibold">{severityBadgeLabel(finding.severityValue)}:</span>{" "}
-                {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
+                {formatExportPreviewShortenedText(finding.title, "Finding title was not stored.")}
               </li>
             ))}
           </ul>
+        ) : visibleFindings.length === 0 && findings.length > 0 ? (
+          <p className={cn("m-0 mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Only muted or closed findings remain on this review; no open sponsor talking points were listed.
+          </p>
         ) : (
           <p className={cn("m-0 mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             Sponsor talking points were not stored.

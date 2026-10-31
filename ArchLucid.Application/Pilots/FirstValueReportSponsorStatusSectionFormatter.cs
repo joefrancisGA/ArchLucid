@@ -98,20 +98,24 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
     private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)
     {
-        List<ArchitectureFinding> topFindings = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas)
+        List<ArchitectureFinding> materialFindings = PilotSponsorMaterialFindingsResolver.Resolve(detail, deltas)
             .Select(static (Finding, Index) => new { Finding, Index })
             .OrderByDescending(static f => f.Finding.Severity)
             .ThenBy(static f => f.Index)
-            .Take(3)
             .Select(static f => f.Finding)
             .ToList();
+
+        List<ArchitectureFinding> topFindings = materialFindings.Take(3).ToList();
 
         if (topFindings.Count == 0)
             return "No active findings recorded in this package.";
 
-        return string.Join(
-            "<br />",
-            topFindings.Select(FormatSponsorTopFindingLine));
+        string intro = PilotExportPreviewHonestyCopy.FormatCappedListIntro(
+            topFindings.Count,
+            materialFindings.Count,
+            "top finding preview line(s)");
+
+        return $"{intro}<br />{string.Join("<br />", topFindings.Select(FormatSponsorTopFindingLine))}";
     }
 
     private static string FormatSponsorTopFindingLine(ArchitectureFinding finding)
@@ -159,15 +163,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
     private static string TruncateSponsorFinding(string value)
     {
-        string trimmed = value.Trim();
-
-        if (trimmed.Length == 0)
-            return "Finding text was not stored.";
-
-        if (trimmed.Length <= 96)
-            return trimmed;
-
-        return string.Concat(trimmed.AsSpan(0, 93), "...");
+        return PilotExportPreviewHonestyCopy.FormatShortenedPreview(value, "Finding text was not stored.");
     }
 
     private static string FormatRoiConfidenceLabel(string? label)

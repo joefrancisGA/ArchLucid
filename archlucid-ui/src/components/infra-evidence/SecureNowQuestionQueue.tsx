@@ -9,6 +9,7 @@ import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-que
 import {
   secureNowQuestionDispositionMutationResourceId,
   secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionPackAnswerChoiceLabel,
   secureNowQuestionReviewerEvidenceFingerprintLine,
   secureNowQuestionReviewerScopeLabel,
   secureNowQuestionReviewerSourceLabel,
@@ -365,7 +366,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                       ? "Not sure. This does not store an answer."
                       : answerCode.trim().length === 0
                         ? "Answer choice was stored empty."
-                        : secureNowQuestionAnswerLabel(answerCode)}
+                        : secureNowQuestionPackAnswerChoiceLabel(currentQuestion, answerCode)}
                   </Button>
                   );
                 })}

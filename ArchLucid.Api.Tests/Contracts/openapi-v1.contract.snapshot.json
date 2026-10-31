@@ -5177,6 +5177,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isStale": {
             "type": "boolean"
           },
@@ -16369,6 +16372,9 @@
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
+          "humanReviewStatusStored": {
+            "type": "boolean"
+          },
           "isMuted": {
             "type": "boolean"
           },
@@ -16516,6 +16522,9 @@
           },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "severityStored": {
+            "type": "boolean"
           },
           "trackedExternally": {
             "type": "boolean"
@@ -18621,6 +18630,14 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "omittedFindingLinesCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "omittedThemeSummariesCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"

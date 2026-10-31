@@ -85,7 +85,7 @@ const FINDING_EVIDENCE_GRAPH_REASONING_PATH_HELPER =
   "Teal marks node ids stored on this finding's trace. One-hop neighbors are shown for context and were not stored as the examined path." as const;
 
 const FINDING_EVIDENCE_GRAPH_CONTEXT_HELPER =
-  "The full architecture graph, with stored examined node ids marked in teal." as const;
+  "Architecture graph slice for this review, with stored examined node ids marked in teal." as const;
 
 function FindingEvidenceGraphCanvas(props: {
   readonly graph: GraphViewModel;

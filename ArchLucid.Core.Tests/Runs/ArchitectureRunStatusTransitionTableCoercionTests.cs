@@ -63,6 +63,15 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_coerces_empty_string_legacy_status_to_created()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus(string.Empty, out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_negative_fractional_whole_number_ordinal()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-5.0", out ArchitectureRunStatus status);
@@ -127,6 +136,26 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
 
         ok.Should().BeFalse();
         status.Should().Be(default);
+    }
+
+    [Fact]
+    public void TryParseStatus_coerces_unicode_nbsp_whitespace_only_legacy_status_to_created()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("\u00A0", out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
+
+    [Fact]
+    public void TryTransition_allows_commit_finalized_from_ready_for_commit()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.ReadyForCommit,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeTrue();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Committed);
     }
 
     [Fact]
@@ -208,9 +237,61 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void DocumentedRules_does_not_return_mutable_shared_rules_array()
+    {
+        IReadOnlyList<ArchitectureRunStatusTransitionRule> documented =
+            ArchitectureRunStatusTransitionTable.DocumentedRules;
+
+        documented.Should().NotBeOfType<ArchitectureRunStatusTransitionRule[]>(
+            "callers must not cast DocumentedRules to the shared Rules backing array");
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_execution_completed_quality_rejected()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.ExecutionCompletedQualityRejected,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.ExecutionCompletedQualityRejected);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_partially_completed()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.PartiallyCompleted,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.PartiallyCompleted);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_committed()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Committed,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Committed);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_negative_integer_ordinal_string()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-6", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
+
+    [Fact]
+    public void TryParseStatus_rejects_whole_number_double_outside_int32_range()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("4294967296.0", out ArchitectureRunStatus status);
 
         ok.Should().BeFalse();
         status.Should().Be(default);

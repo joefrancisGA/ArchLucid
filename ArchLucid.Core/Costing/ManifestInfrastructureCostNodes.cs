@@ -14,6 +14,9 @@ public static class ManifestInfrastructureCostNodes
     internal const string AzureResourceNameNotStoredLabel = "Azure resource name was not stored.";
     internal const string AwsResourceNameNotStoredLabel = "AWS resource name was not stored.";
     internal const string GcpResourceNameNotStoredLabel = "GCP resource name was not stored.";
+    internal const string TerraformResourceNameNotStoredLabel = "Terraform resource name was not stored.";
+    public const string InventoryInstanceCountDefaultNote =
+        "Inventory and Terraform cost rows use quantity 1 when instance count was not stored.";
 
     /// <summary>Produces nodes from canonical manifest services/datastores plus optional SKU/region hints.</summary>
     public static List<InfrastructureCostQueryNode> FromGoldenTopology(
@@ -63,7 +66,8 @@ public static class ManifestInfrastructureCostNodes
                 platform.Value,
                 NormalizeRegion(line.Location),
                 NormalizeSkuHint(line.SkuName),
-                1));
+                1,
+                InstanceCountWasNotStored: true));
         }
 
         return nodes;
@@ -97,7 +101,9 @@ public static class ManifestInfrastructureCostNodes
             if (!TerraformResourceCostMapper.TryInferPlatformFromTerraformType(row.TerraformType, out RuntimePlatform platform))
                 continue;
 
-            string label = string.IsNullOrWhiteSpace(row.DisplayName) ? row.TerraformType : row.DisplayName;
+            string label = string.IsNullOrWhiteSpace(row.DisplayName)
+                ? TerraformResourceNameNotStoredLabel
+                : row.DisplayName.Trim();
 
             nodes.Add(new InfrastructureCostQueryNode(
                 "TerraformResource",
@@ -105,7 +111,8 @@ public static class ManifestInfrastructureCostNodes
                 platform,
                 NormalizeRegion(row.Region),
                 null,
-                1));
+                1,
+                InstanceCountWasNotStored: true));
         }
 
         return nodes;
@@ -144,7 +151,8 @@ public static class ManifestInfrastructureCostNodes
                 platform.Value,
                 NormalizeRegion(line.Location),
                 NormalizeSkuHint(line.SkuName),
-                1));
+                1,
+                InstanceCountWasNotStored: true));
         }
 
         return nodes;

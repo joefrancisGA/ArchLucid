@@ -285,7 +285,7 @@ export function RunDetailOutcomeCards({
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Decision</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
-                  {aggregateRiskPosture?.trim() || governanceGateLabel?.trim() || "Decision was not stored."}
+                  {aggregateRiskPosture?.trim() || "Decision was not stored."}
                 </dd>
               </div>
               <div>
