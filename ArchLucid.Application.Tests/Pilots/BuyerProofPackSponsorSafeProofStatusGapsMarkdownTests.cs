@@ -393,6 +393,104 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_demo_tenant_omits_projected_dollar_matching_gate_caveats()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "run-a",
+            RequestId = "req-a",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = "run-a",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1",
+                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            },
+            Governance = new ManifestGovernance(),
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = run.CreatedUtc,
+            ManifestCommittedUtc = manifest.Metadata.CreatedUtc,
+            TimeToCommittedManifest = manifest.Metadata.CreatedUtc - run.CreatedUtc,
+            IsDemoTenant = true,
+            AuditRowCount = 2,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+        };
+
+        ValueReportSnapshot snapshot = new(
+            TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId: Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId: Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            PeriodFromUtc: DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            PeriodToUtc: DateTimeOffset.Parse("2026-02-01T00:00:00Z"),
+            RunStatusRows: [],
+            RunsCompletedCount: 0,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0m,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0m,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0m,
+            EstimatedTotalArchitectHoursSaved: 0m,
+            EstimatedLlmCostForWindowUsd: 0m,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0m,
+            AnnualizedLlmCostUsd: 0m,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0m,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0m,
+            RoiAnnualizedPercentVersusRoiBaseline: 10m,
+            TenantBaselineReviewCycleHours: 8m,
+            TenantBaselineReviewCycleSource: "signup",
+            TenantBaselineReviewCycleCapturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            MeasuredAverageReviewCycleHoursForWindow: 8m,
+            MeasuredReviewCycleSampleSize: 2,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
+            ReviewCycleHoursDelta: 2m,
+            ReviewCycleHoursDeltaPercent: 10m,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snapshot);
+
+        ProofPackageCompletenessResponse proof = PilotProofPackageCompletenessMapper.Build(
+            run,
+            manifest,
+            deltas,
+            gate,
+            snapshot);
+
+        string projectedDollarGap = PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine();
+
+        gate.SoftGaps.Should().NotContain(projectedDollarGap);
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                run)
+            .ToList();
+
+        gaps.Should().NotContain(projectedDollarGap);
+        gaps.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
     public void Concrete_gaps_when_manifest_or_status_missing_matches_proof_package_row()
     {
         PilotRunDeltas deltas = new();

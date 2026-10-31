@@ -137,7 +137,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
             yield return PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow();
 
-        if (proof.RoiBaselineInputs is { ProjectedDollarClaimsSponsorSafe: false })
+        if (!deltas.IsDemoTenant && proof.RoiBaselineInputs is { ProjectedDollarClaimsSponsorSafe: false })
             yield return PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (run.RealModeFellBackToSimulator)
