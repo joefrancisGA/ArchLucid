@@ -26035,6 +26035,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ExecDigestWeeklyDeliveryScanner` — unsubscribe absolute URL built from raw trimmed `operatorBase` before `TryNormalizeOperatorBaseAuthority` — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — lowercase ISO-week idempotency key bypasses `WeeklyDigestIsoWeekIdempotencyKeyValidator` normalization — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
 - [x] (invalid) `DigestSubscriptionsController.Update` — advisory webhook `Destination` persist without `AlertRoutingWebhookDestinationPolicy` line-break guard parity to create path — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+2026-10-31 seed hunt (seed-only): reread digest subscription create/list/toggle/attempts scope boundaries, batch GUID parsing and pagination, weekly/exec digest dispatch normalization and idempotency, unsubscribe token protection, and ChatOps delivery validators. No fresh reachable mechanism-backed candidate met the hunt-ready bar; the focused digest dispatcher tests passed 72/72. No production code changed.
 
 2026-10-13 seed hunt (seed-only): cheap-disproved five template/text candidates; added trial welcome, weekly sponsor text, and recurrence href regression locks; reseeded five follow-on candidates; 182 scoped Application tests passed.
 
