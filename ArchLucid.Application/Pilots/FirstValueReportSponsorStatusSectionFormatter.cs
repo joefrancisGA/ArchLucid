@@ -75,13 +75,19 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
             && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
             && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)
-            return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
+        {
+            return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
+                proof.RoiEvidenceConfidence,
+                $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}");
+        }
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
             ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
             : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
-        return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
+        return PilotRoiEvidenceConfidenceHonestyCopy.EnsurePartialOrLowSponsorWording(
+            proof.RoiEvidenceConfidence,
+            $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}");
     }
 
     private static string FormatSponsorTopFindings(ArchitectureRunDetail detail, PilotRunDeltas deltas)

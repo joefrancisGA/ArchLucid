@@ -21,4 +21,14 @@ internal static class PilotRoiEvidenceConfidenceHonestyCopy
     }
 
     internal static string FormatSponsorSafeConcreteGapLineWhenPartialOrLow() => PartialOrLowSponsorWordingPlain;
+
+    internal static string EnsurePartialOrLowSponsorWording(PilotRoiEvidenceConfidence confidence, string cell)
+    {
+        if (confidence is not (PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low))
+            return cell;
+
+        return cell.Contains(PartialOrLowSponsorWordingPlain, StringComparison.Ordinal)
+            ? cell
+            : FormattableString.Invariant($"{cell}; {PartialOrLowSponsorWordingPlain}");
+    }
 }

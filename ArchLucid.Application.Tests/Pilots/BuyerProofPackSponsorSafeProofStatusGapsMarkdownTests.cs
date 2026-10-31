@@ -968,4 +968,55 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .Contain(prose);
     }
+
+    [Fact]
+    public void Sponsor_status_roi_basis_includes_partial_wording_matching_proof_package_row()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Partial,
+            RoiConfidenceLabel = "Partial",
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Partial,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain;
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI basis status |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI evidence confidence |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
 }
