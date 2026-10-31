@@ -1188,6 +1188,21 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-31 thorough hunt (hit #353): promoted `(candidate)` `CommandDefinition` stored-proc via `ExecuteAsync(command)` local — #351/#352 skipped stored-proc on `new CommandDefinition(...)` and string `commandType`, but `AnalyzeInvocation` still analyzed unwrapped SQL when the `command` parameter was a `CommandDefinition` local (false **ARCH006** on `CommandDefinition command = new("SELECT … dbo.Runs …", commandType: StoredProcedure); await connection.ExecuteAsync(command)`); `IsCommandDefinitionSqlArgument` defers invocation analysis to the object-creation callback (single diagnostic, stored-proc gate unchanged); regression `ARCH006_does_not_analyze_execute_async_local_command_definition_when_command_type_is_stored_procedure`; cheap-disproof closed five monitor rows (`QueryAsync` + `commandType: StoredProcedure` — covered by #352 `IsStoredProcedureDapperInvocation`; runtime `CommandType` variable — intentional constant-only skip; `StringBuilder`/`string.Create` SQL — resolver has no Persistence builder fold path; `global using Dapper` — `IsDapperSqlMapperMethod` still requires `Dapper.SqlMapper` containing type; `file-local` repository `[TenantScopeExempt]` — `ClassDeclaration` registration covers `file` types); reseeded five follow-on `(candidate)` rows; scoped stored-proc + CommandDefinition regressions **8/8** passed (`RunAnalyzers=false`). Private beta: no direct pilot-path change; Persistence Release builds stop false ARCH006 on stored-procedure `CommandDefinition` locals passed into `ExecuteAsync`.
+
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `ExecuteAsync(CommandDefinition)` local with stored-proc SQL text — **hit 2026-10-31 thorough hunt #353:** `IsCommandDefinitionSqlArgument`; regression `ARCH006_does_not_analyze_execute_async_local_command_definition_when_command_type_is_stored_procedure`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: StoredProcedure` — **cheap-disproof 2026-10-31 thorough hunt #353:** same invocation gate as #352.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — non-constant `commandType` on stored-proc skip — **cheap-disproof 2026-10-31 thorough hunt #353:** `TryGetConstantCommandType` by design.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — `StringBuilder` / `string.Create` appended SQL — **cheap-disproof 2026-10-31 thorough hunt #353:** no user-code builder folding.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `global using Dapper` breaks `IsDapperSqlMapperMethod` — **cheap-disproof 2026-10-31 thorough hunt #353:** namespace + type name check unchanged.
+- [x] (invalid) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository — **cheap-disproof 2026-10-31 thorough hunt #353:** `ClassDeclaration` syntax action.
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — locus: defer path + object creation; input: local `CommandDefinition` passed to `QueryAsync` overload (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — locus: `TryGetConstantCommandType`; input: numeric enum constant (monitor).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — locus: resolver coverage; input: span-based SQL assembly (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — locus: symbol containment; input: partial declaration split (monitor).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on nested private repository class — locus: type declaration registration; input: nested class exemption (monitor).
+
 2026-10-31 thorough hunt (hit #352): promoted `(candidate)` `ExecuteAsync` string overload with `commandType: StoredProcedure` — #351 fixed `CommandDefinition` object creation but `AnalyzeInvocation` still parsed the `sql` argument when `commandType` was `StoredProcedure`; probe `connection.ExecuteAsync("SELECT … dbo.Runs …", commandType: StoredProcedure)` emitted **ARCH006** before fix; `IsStoredProcedureDapperInvocation` gate; regression `ARCH006_does_not_analyze_execute_async_string_when_command_type_is_stored_procedure`; cheap-disproof closed four sibling rows (CommandDefinition object initializer — `CommandDefinition` has no init-only `CommandType` property in Dapper API / no Persistence usage; literal `+` concat — `ResolveBinaryAdd` already merges static branches, regression `ARCH006_reports_unscoped_sql_for_non_const_local_variable`; partial-method `[TenantScopeExempt]` — partial methods use `MethodDeclaration` syntax on each part; whitespace-only exempt — `ValidateExemptionAttributes` uses `IsNullOrWhiteSpace`, stub attribute has no ctor throw); reseeded five follow-on `(candidate)` rows; scoped stored-proc regressions **4/4** passed (`RunAnalyzers=false`). Private beta: no direct pilot-path change; Persistence builds align ARCH006 stored-proc handling across `CommandDefinition` and `ExecuteAsync` invocations.
 
 - [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — `ExecuteAsync` string overload with `commandType: StoredProcedure` but SQL-shaped proc name — **hit 2026-10-31 thorough hunt #352:** `IsStoredProcedureDapperInvocation`; regression `ARCH006_does_not_analyze_execute_async_string_when_command_type_is_stored_procedure`.
@@ -1196,11 +1211,11 @@
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — partial method `[TenantScopeExempt]` — **cheap-disproof 2026-10-31 thorough hunt #352:** `MethodDeclaration` callback covers partial method declarations.
 - [x] (invalid) `TenantScopeExemptSymbolHelper.TryGetExemption` — whitespace-only justification — **cheap-disproof 2026-10-31 thorough hunt #352:** whitespace does not grant exemption in `TryReadExemptionFromAttributes`; ARCH006b covers blank/whitespace in validation.
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: StoredProcedure` and SQL-literal first argument — locus: same gap as #352 before fix on other method names; input: `QueryAsync` SP overload (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandDefinition` stored-proc skip when `commandType` passed via `params` or non-constant — locus: `TryGetConstantCommandType`; input: runtime `CommandType` variable (monitor).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `string.Create` or `StringBuilder` appended SQL — locus: resolver coverage; input: builder pattern hiding scoped table (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `file-scoped namespace` + `global using Dapper` changing `IsDapperSqlMapperMethod` — locus: namespace compare; input: type-forwarding import (monitor).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository type — locus: type declaration registration; input: file-local class repository (monitor).
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: StoredProcedure` — **cheap-disproof 2026-10-31 thorough hunt #353:** see hit #353 diary.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandDefinition` stored-proc skip when `commandType` passed via non-constant — **cheap-disproof 2026-10-31 thorough hunt #353:** see hit #353 diary.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — `string.Create` or `StringBuilder` appended SQL — **cheap-disproof 2026-10-31 thorough hunt #353:** see hit #353 diary.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `file-scoped namespace` + `global using Dapper` — **cheap-disproof 2026-10-31 thorough hunt #353:** see hit #353 diary.
+- [x] (invalid) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository type — **cheap-disproof 2026-10-31 thorough hunt #353:** see hit #353 diary.
 
 2026-10-31 thorough hunt (hit #351): promoted `(candidate)` `CommandDefinition` + `CommandType.StoredProcedure` — `AnalyzeObjectCreation` treated the `command` argument as SQL even when `commandType` was `StoredProcedure`, so a probe `new CommandDefinition("SELECT … dbo.Runs …", commandType: StoredProcedure)` emitted **ARCH006** (false positive vs `ExecuteAsync` stored-proc behavior); skip SQL analysis when `commandType` resolves to `StoredProcedure`; regressions `ARCH006_does_not_analyze_sql_text_on_command_definition_when_command_type_is_stored_procedure` and `ARCH006_does_not_analyze_command_definition_when_command_type_is_stored_procedure`; cheap-disproof closed four sibling rows (collection-expression SQL — no resolver support / no reachability; nested `SqlMapper` type — `IsDapperSqlMapperMethod` requires `Dapper.SqlMapper`; `IDbConnection` interface receiver — extension `Query` still reports ARCH006 in probe); module/assembly `[TenantScopeExempt]` — **invalid** (`AttributeTargets.Class | Method` only); reseeded five follow-on `(candidate)` rows; scoped regressions **4/4** passed on new + recent tests (`RunAnalyzers=false`). Private beta: no direct pilot-path change; Persistence builds no longer false-positive ARCH006 on stored-procedure `CommandDefinition` shapes.
 
@@ -1253,11 +1268,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 44
-- **bugs-found:** 27
+- **hunts:** 46
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — ARCH006 false-positive on stored-procedure CommandDefinition
+- **last-bug:** 2026-10-31 — ARCH006 false-positive on stored-procedure CommandDefinition passed via ExecuteAsync local
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
