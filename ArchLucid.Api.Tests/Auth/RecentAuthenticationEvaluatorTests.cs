@@ -114,6 +114,21 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_true_when_a_later_parseable_iat_claim_is_used_even_if_first_is_garbage_without_auth_time()
+    {
+        long fresh = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, "garbage"));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, fresh.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_false_when_auth_time_is_present_but_unparseable()
     {
         long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

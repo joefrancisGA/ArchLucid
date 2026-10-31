@@ -316,6 +316,23 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_collapses_duplicate_direct_project_id_claims_with_same_guid_different_casing()
+    {
+        Guid projectId = ScopeIds.DefaultProject;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("project_id", projectId.ToString("D")),
+            new Claim("project_id", projectId.ToString("N")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "project_id").Should().Be(1);
+        identity.FindFirst("project_id")!.Value.Should().Be(projectId.ToString("D"));
+    }
+
+    [Fact]
     public void Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
