@@ -49,6 +49,9 @@ public static class ApiKeyMaterialNormalizer
 
         UnicodeCategory supplementaryCategory = Rune.GetUnicodeCategory(rune);
 
+        if (rune.Value == 0xFFFD)
+            return true;
+
         if (supplementaryCategory is UnicodeCategory.Format
             or UnicodeCategory.NonSpacingMark
             or UnicodeCategory.SpacingCombiningMark
@@ -86,6 +89,10 @@ public static class ApiKeyMaterialNormalizer
 
         // Combining grapheme joiner pastes invisibly between ASCII key bytes (Word/browser copy paths).
         if (character == '\u034F')
+            return true;
+
+        // Ill-formed UTF-16 paste and decoder replacement glyphs break config/header parity.
+        if (character == '\uFFFD')
             return true;
 
         // Word/HTML paste can embed no-break or thin spaces inside otherwise valid hex keys.
