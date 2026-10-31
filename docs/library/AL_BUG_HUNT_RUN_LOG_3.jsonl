@@ -2200,3 +2200,4 @@
 {"at":"2026-10-31T18:44:41.0662672Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:46:38.3091630Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:48:32.4122943Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:49:42.5172463Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared"}
