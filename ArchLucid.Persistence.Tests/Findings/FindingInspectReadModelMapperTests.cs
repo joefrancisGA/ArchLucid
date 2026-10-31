@@ -274,6 +274,14 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseFindingSeverity_parses_after_trailing_invisible_format_characters()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("Critical\u200B");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
+
+    [Fact]
     public void ParseFindingSeverity_parses_after_leading_invisible_format_characters()
     {
         FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("\u200BCritical");
