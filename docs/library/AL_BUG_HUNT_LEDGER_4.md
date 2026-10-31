@@ -1571,11 +1571,11 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 669
+- **hunts:** 670
 - **last-hunt:** 2026-10-31
-- **bugs-found:** 3532
+- **bugs-found:** 3533
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-28 — Cosmos `.us` suffix partial match on `.usgov` and invalid storage AccountName shapes
+- **last-bug:** 2026-10-31 — explicit storage endpoint port duplicated synthesized host
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 - **reseed-policy:** `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
@@ -1612,9 +1612,9 @@
 - [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendRedisHost` — a Redis hostname suffix inside a longer callback hostname may be truncated and emitted — **cheap-disproof 2026-10-31 seed hunt:** no reachable wrong-output repro was established for the longer callback hostname.
 - [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — a Queue endpoint whose host is a Blob hostname may be accepted without service-key/host consistency validation — **cheap-disproof 2026-10-31 seed hunt:** host-only output intentionally does not preserve endpoint service categories; no downstream harm was reproduced.
 
-2026-10-31 seed hunt (seed-only): reread the parser and its existing endpoint tests, closed five boundary candidates without claiming a defect, and seeded five fresh normalization and endpoint-value candidates. No production change. Private beta: n/a.
+2026-10-31 seed hunt (hit): promoted the explicit storage endpoint port candidate and reproduced duplicate inventory hosts when `BlobEndpoint` included `:443`; `NormalizeStorageHost` now canonicalizes explicit storage endpoint authorities while preserving Service Bus port behavior; the focused parser suite passed 328/328. Private beta: invited operators no longer see a duplicate port-bearing storage host in inventory evidence when an App Service connection string includes an explicit storage endpoint port.
 
-- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — an explicit storage endpoint containing a port may retain the port despite the host-only contract — locus: `NormalizeHost` trims slashes but not ports; input: `BlobEndpoint=https://shadow.blob.core.windows.net:443/`; wrong outcome: inventory host identity includes transport-port syntax; reachability: configuration exporters can preserve explicit endpoint ports.
+- [x] (proven) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — an explicit storage endpoint containing a port may retain the port despite the host-only contract — **hit 2026-10-31 seed hunt:** `NormalizeStorageHost` canonicalizes the explicit endpoint authority; regression `ParseSettingValues_storage_endpoint_with_port_yields_host_without_port`.
 - [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — an `EndpointSuffix` query segment may be copied into a synthesized host — locus: `StorageEndpointSuffixRegex` and suffix interpolation; input: `AccountName=shadow;EndpointSuffix=core.windows.net?region=west`; wrong outcome: malformed host contains query text; reachability: URI-like configuration values may retain query material.
 - [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendServiceBusHost` — an IPv6-literal Service Bus endpoint may be accepted as a host despite the hostname-only contract — locus: `ServiceBusEndpointRegex` accepts any non-delimiter host text; input: `Endpoint=sb://[2001:db8::1]/`; wrong outcome: non-DNS literal becomes Service Bus inventory host evidence; reachability: operator-controlled connection-string values can contain malformed endpoint literals.
 - [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendCosmosHost` — a Cosmos endpoint with an embedded user-info prefix may capture a noncanonical host segment — locus: `CosmosDocumentsHostRegex` accepts any non-delimiter prefix before `.documents.azure.com`; input: `Callback=https://user@shadow.documents.azure.com/`; wrong outcome: inventory host includes user-info syntax; reachability: callback URLs can be supplied through application settings.

@@ -57,7 +57,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
                 continue;
             }
 
-            string host = NormalizeHost(endpointMatch.Groups["host"].Value);
+            string host = NormalizeStorageHost(endpointMatch.Groups["host"].Value);
 
             if (!string.IsNullOrWhiteSpace(host))
             {
@@ -178,6 +178,15 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static string NormalizeHost(string host)
     {
         return host.Trim().TrimEnd('/').ToLowerInvariant();
+    }
+
+    private static string NormalizeStorageHost(string host)
+    {
+        string normalized = NormalizeHost(host);
+
+        return Uri.TryCreate($"https://{normalized}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : normalized;
     }
 
     private static Regex StorageEndpointRegex(string endpointKey)

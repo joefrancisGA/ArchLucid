@@ -36,6 +36,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_storage_endpoint_with_port_yields_host_without_port()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://starch.blob.core.windows.net:443/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
     public void ParseSettingValues_service_bus_endpoint_with_port_yields_host_including_port()
     {
         const string value =
