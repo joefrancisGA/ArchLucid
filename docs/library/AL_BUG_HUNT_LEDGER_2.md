@@ -5091,6 +5091,22 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #26): promoted comma-folded `Authorization` with halfwidth reverse solidus (`U+FE68`) and big solidus inverse (`U+29F9`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard on `Bearer﹨, Bearer <valid>` and `Bearer⧹, Bearer <valid>`; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+FE68` and `U+29F9`; regressions `HandleAuthenticateAsync_succeeds_when_halfwidth_reverse_solidus_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_big_solidus_inverse_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed five open `(candidate)` rows from seed hunt #25 (duplicate `Authorization` header values with revoked-then-valid covered by `HandleAuthenticateAsync_succeeds_when_separate_authorization_headers_list_revoked_token_before_valid_one`; bare `Bearer` scheme segment before comma-folded valid token covered by new `HandleAuthenticateAsync_succeeds_when_bearer_scheme_only_segment_precedes_comma_folded_valid_credential`; `maxAgeMinutes` above sixty clamped via `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty`; whitespace-only trial email rejected via `IssueAccessToken_throws_when_email_is_whitespace_only`; conflicting distinct inbound `tenant_id` GUIDs stripped via `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandler` + evaluator + trial issuer unit filter 73/73 (`RunAnalyzers=false`; zone SAML filter 159/161 — 2 SQL integration tests skipped on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a halfwidth reverse solidus or big solidus inverse placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — halfwidth reverse solidus (`U+FE68`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #26:** regression `HandleAuthenticateAsync_succeeds_when_halfwidth_reverse_solidus_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — big solidus inverse (`U+29F9`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #26:** regression `HandleAuthenticateAsync_succeeds_when_big_solidus_inverse_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — duplicate `Authorization` header values with revoked then valid Bearer — **cheap-disproof 2026-10-31 seed hunt #26:** regression `HandleAuthenticateAsync_succeeds_when_separate_authorization_headers_list_revoked_token_before_valid_one`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — `Bearer` scheme-only segment before comma-folded valid token — **cheap-disproof 2026-10-31 seed hunt #26:** regression `HandleAuthenticateAsync_succeeds_when_bearer_scheme_only_segment_precedes_comma_folded_valid_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above sixty clamped — **cheap-disproof 2026-10-31 seed hunt #26:** regression `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — `IssueAccessToken` rejects blank email — **cheap-disproof 2026-10-31 seed hunt #26:** regression `IssueAccessToken_throws_when_email_is_whitespace_only`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — conflicting distinct `tenant_id` source GUIDs stripped — **cheap-disproof 2026-10-31 seed hunt #26:** regression `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — asterisk operator (`U+2217`) glued after `Bearer` before comma-folded valid token — locus: `IsBearerDelimiterOnlyPlaceholder`; input: `Bearer∗, Bearer <valid>`; reachability: proxy delimiter monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter small slash (`U+02FF`) glued after `Bearer` — locus: placeholder set; input: hunt #25 monitor; reachability: pilot proxy corpus.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` below one clamped to one minute — locus: `Math.Clamp(maxAgeMinutes, 1, 60)`; input: `0`; reachability: step-up config monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — whitespace-only `role` rejected — locus: `ThrowIfNullOrWhiteSpace(role)`; input: decorative paste; reachability: trial issuer monitor.
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — non-Guid `sub` skips auth-version enforcement — locus: `Guid.TryParse` on `sub`; input: email-shaped subject; reachability: hunt #23 regression monitor.
+
 2026-10-30 seed hunt (seed-only #25): cheap-disproof closed five open `(candidate)` rows from seed hunt #24 without handler changes — `U+02FF` modifier glyph not in pilot proxy corpus (monitor deferred); `Bearer/,, Bearer valid` comma-fold already succeeds via slash placeholder + empty-segment drop (regression `HandleAuthenticateAsync_succeeds_when_slash_only_segment_precedes_double_comma_before_valid_credential`); whitespace-padded `auth_time` parses via `long.TryParse` leading/trailing whitespace rules; negative `accessTokenLifetimeMinutes` clamped per hunt #6; Guid-shaped `sub` auth-version enforcement is intentional for platform users (`Guid.TryParse` on `sub`); reseeded five follow-on `(candidate)` rows away from glued-slash glyph expansion; `ScimBearerAuthenticationHandlerTests` 54/54; scoped filter `FullyQualifiedName~ScimBearer` only (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (invalid) `ScimBearerAuthenticationHandler` — modifier letter small slash (`U+02FF`) glued after `Bearer` — **cheap-disproof 2026-10-30 seed hunt #25:** no pilot reachability; monitor deferred.
@@ -5098,12 +5114,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — whitespace-padded `auth_time` integer string — **cheap-disproof 2026-10-30 seed hunt #25:** `long.TryParse` accepts surrounding ASCII whitespace on claim values.
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — negative `accessTokenLifetimeMinutes` clamped — **cheap-disproof 2026-10-30 seed hunt #25:** `Math.Clamp(..., 5, 24*60)` per hunt #6.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — Guid-shaped `sub` requires auth-version stamp — **cheap-disproof 2026-10-30 seed hunt #25:** fail-closed when stamp missing; email-shaped `sub` skips stamp per hunt #23.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — duplicate `Authorization` header values with revoked then valid Bearer — locus: header combination; input: two header lines; reachability: proxy retry monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — `Bearer` scheme only segment before comma-folded valid token — locus: empty-segment skip; input: `Bearer, Bearer valid`; reachability: bare scheme monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above sixty clamped — locus: `Math.Clamp(maxAgeMinutes, 1, 60)`; input: `120`; reachability: step-up config monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — `IssueAccessToken` rejects blank email — locus: `ThrowIfNullOrWhiteSpace`; input: whitespace email; reachability: trial issuer monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — conflicting distinct `tenant_id` source GUIDs stripped — locus: `PromoteSingleValueIfMissing`; input: two GUID sources; reachability: hunt #8 regression monitor.
 
 2026-10-30 seed hunt (seed→hit #24): promoted comma-folded `Authorization` with fullwidth solidus (`U+FF0F`) and big solidus (`U+29F8`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard on `Bearer／, Bearer <valid>` and `Bearer⧸, Bearer <valid>`; consolidated glued delimiter placeholder code points into `BearerGluedDelimiterPlaceholderCodePoints` (includes hunts #18–#23 set plus new glyphs); regressions `HandleAuthenticateAsync_succeeds_when_fullwidth_solidus_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_big_solidus_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three sibling `(candidate)` rows from seed hunt #23 (negative `auth_time` rejected via `age < TimeSpan.Zero` per hunt #11; zero-minute lifetime clamped per hunt #12; workspace-only scope promotion requires configured source per existing normalizer tests); reseeded five follow-on `(candidate)` rows; `ScimBearerAuthenticationHandlerTests` 53/53. Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a fullwidth or big solidus placeholder before a valid token on the JwtBearer pilot path.
 
@@ -5366,11 +5376,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 52
-- **bugs-found:** 41
+- **hunts:** 53
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — SCIM Bearer mix guard rejected fullwidth and big solidus placeholders before valid comma-folded token
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected halfwidth reverse solidus and big solidus inverse placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses

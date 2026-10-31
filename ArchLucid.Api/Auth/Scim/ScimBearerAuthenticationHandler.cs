@@ -203,7 +203,7 @@ internal class ScimBearerAuthenticationHandler(
     }
 
     private const string BearerGluedDelimiterPlaceholderCodePoints =
-        "|/\\" + "\u2044\u2215\u2216\u2571\u29F8\uFF0F\uFF5C\uFF3C";
+        "|/\\" + "\u2044\u2215\u2216\u2571\u29F8\u29F9\uFE68\uFF0F\uFF5C\uFF3C";
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {

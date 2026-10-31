@@ -80,6 +80,22 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
         act.Should().Throw<InvalidOperationException>();
     }
 
+    [SkippableFact]
+    public void IssueAccessToken_throws_when_email_is_whitespace_only()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        Action act = () => issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "   ",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        act.Should().Throw<ArgumentException>();
+    }
+
     public void Dispose()
     {
         if (File.Exists(_privatePemPath))
