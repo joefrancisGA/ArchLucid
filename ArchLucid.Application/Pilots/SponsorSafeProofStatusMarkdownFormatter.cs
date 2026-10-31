@@ -138,7 +138,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (disposition == SponsorSafeProofDisposition.Sendable)
-            yield return "No remaining automated sponsor-blocking checks — structured gate detail is spelled out later; still reconcile qualitative baselines.";
+            yield return PilotSponsorSafeSendableAllClearHonestyCopy.FormatSponsorSafeConcreteGapLine();
     }
 
     private static string DescribeDisposition(SponsorSafeProofDisposition d) => d switch

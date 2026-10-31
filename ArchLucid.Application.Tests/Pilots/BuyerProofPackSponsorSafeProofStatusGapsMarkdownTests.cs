@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -595,6 +596,64 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString()
             .Split('\n')
             .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_sendable_matches_proof_package_sendability_row()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AuditRowCount = 3,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            SynthesizedArtifactDescriptorCount = 1,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            CommittedManifestTimestampResolved = true,
+            RunInCommittedStatus = true,
+            ArtifactDescriptorCount = 1,
+            ArtifactDescriptorCountResolved = true,
+            TimeToCommittedManifestResolved = true,
+            TopFindingEvidenceChainPresentOrNotApplicable = true,
+            AuditRowsPresentOrLowerBound = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+            PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.Sendable,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
+        gaps.Should().ContainSingle().Which.Should().Be(prose);
+
+        StringBuilder proofSb = new();
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
             .Should()
             .Contain(prose);
     }

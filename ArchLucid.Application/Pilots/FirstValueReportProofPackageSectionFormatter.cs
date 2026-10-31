@@ -57,7 +57,7 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| PilotStrict agent-output posture | {PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(c.AgentOutputPilotStrictEvidenceSatisfied)} |");
         sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
         sb.AppendLine(
-            $"| Proof sendability (API mirror) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ProofSendability ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.PublishingTier ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.EvidenceCompleteness ?? string.Empty)} |");
+            $"| Proof sendability (API mirror) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(c)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Sponsor-proof readiness (classification) | {PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(c.SponsorProofReadiness)} |");
