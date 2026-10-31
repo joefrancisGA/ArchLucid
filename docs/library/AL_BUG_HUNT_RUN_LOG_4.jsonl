@@ -3007,8 +3007,5 @@
 {"at":"2026-10-31T04:19:17.4523160Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T04:20:41.0556211Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T04:25:18.3983424Z","zoneId":"archlucid-core","outcome":"dry","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-31T04:29:59.4919274Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
-=======
 {"at":"2026-10-31T04:30:27.2807077Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
->>>>>>> 52b648f9eb (Ledger: archlucid-core seed hunt hit — SQL comma decode and Cosmos substring boundary.)
