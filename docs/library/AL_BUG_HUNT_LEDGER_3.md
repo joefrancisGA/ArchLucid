@@ -2466,11 +2466,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 50
-- **bugs-found:** 34
+- **hunts:** 51
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — blank source contents were marked as loaded intake
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — empty reasoning payload marked analysis complete
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2484,9 +2484,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
+2026-10-31 thorough hunt (hit): promoted the reasoning-result state candidate; `runState.kind === "reasoning"` marked the checklist complete for an empty payload, so the page could show “Done” without actionable output. Added `hasActionableArchitectureIntelligenceResult` and regression coverage for empty and populated payloads; the focused checklist suite passed 5/5. Private beta: invited architects no longer see the analysis checklist complete when the reasoning API returns no actionable result, so they retain the correct next-step state.
+
 ### Hypotheses
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+- [x] (proven) `ArchitectureIntelligencePageClient` — reasoning result kind alone marked analysis complete before a usable result payload existed — **hit 2026-10-31 thorough hunt:** `hasActionableArchitectureIntelligenceResult` requires actionable model/review/recommendation/violation/interview/adversarial/validation content; regressions in `architecture-intelligence-analysis-checklist.test.ts`.
 - [x] (proven) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST without usable `runId` cleared deep-linked scope while results remained — **hit 2026-10-29 seed hunt:** same non-empty trimmed id gate; regression `keeps contextRunId scope banner when continue response omits runId`.
 - [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression `syncs contextRunId in the URL when product source context returns a canonical run id`.
 - [x] (proven) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` when setting `runId` — **hit 2026-10-29 thorough hunt:** delete `contextRunId` on pick.
