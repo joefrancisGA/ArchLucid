@@ -317,7 +317,8 @@ public sealed class FirstValueReportBuilder(
             tenantBranding,
             proofCompleteness,
             careerArtifactBlock?.Message,
-            careerArtifactBlock?.Code);
+            careerArtifactBlock?.Code,
+            deltas);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

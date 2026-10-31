@@ -27,7 +27,7 @@ public static class SponsorEvidenceBasisLabelResolver
         if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
             labels.Add("Demo-derived");
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (!deltas.AgentOutputPilotStrictSignalsResolved || deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
             labels.Add("Low support");
 
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)

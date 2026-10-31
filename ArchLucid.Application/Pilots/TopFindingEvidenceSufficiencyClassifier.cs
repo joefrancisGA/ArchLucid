@@ -43,9 +43,6 @@ public static class TopFindingEvidenceSufficiencyClassifier
             return TopFindingEvidenceSufficiency.Low;
         }
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
-            return TopFindingEvidenceSufficiency.Low;
-
         if (run.RealModeFellBackToSimulator)
             return TopFindingEvidenceSufficiency.Low;
 

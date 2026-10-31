@@ -46,7 +46,12 @@ public sealed class SponsorEvidenceBasisLabelResolverTests
             RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Low,
         };
 
-        PilotRunDeltas deltas = new() { IsDemoTenant = true };
+        PilotRunDeltas deltas = new()
+        {
+            IsDemoTenant = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
         ArchitectureRun run = new() { RealModeFellBackToSimulator = true };
 
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, run);

@@ -316,6 +316,36 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
         proofRow.Should().Contain(prose);
     }
 
+    [Fact]
+    public void Evidence_card_evidence_basis_when_pilot_strict_failed_uses_deltas_not_stale_proof_flag()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse(),
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof, new ArchitectureRun());
+
+        cardSb.ToString()
+            .Should()
+            .Contain("| Evidence-basis label (top finding) | **Low support**");
+
+        cardSb.ToString()
+            .Should()
+            .Contain("| Evidence sufficiency (top finding) | **Low**");
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

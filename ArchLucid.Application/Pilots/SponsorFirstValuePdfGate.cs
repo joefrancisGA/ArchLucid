@@ -30,7 +30,13 @@ public static class SponsorFirstValuePdfGate
         if (proof is null)
             return null;
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (built.PilotRunDeltas is { AgentOutputPilotStrictSignalsResolved: false }
+            or { AgentOutputPilotStrictViolatesSponsorEvidence: true })
+        {
+            return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
+        }
+
+        if (built.PilotRunDeltas is null && !proof.AgentOutputPilotStrictEvidenceSatisfied)
         {
             return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
         }

@@ -11,4 +11,5 @@ public sealed record FirstValueReportBuildResult(
     TenantReportBrandingForExport? TenantReportBranding = null,
     ProofPackageCompletenessResponse? ProofPackageCompleteness = null,
     string? CareerArtifactBlockedReason = null,
-    string? CareerArtifactBlockedReasonCode = null);
+    string? CareerArtifactBlockedReasonCode = null,
+    PilotRunDeltas? PilotRunDeltas = null);
