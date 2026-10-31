@@ -728,4 +728,41 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         statusSb.ToString().Should().Contain("`Sendable`");
         statusSb.ToString().Should().Contain("`Complete`");
     }
+
+    [Fact]
+    public void Evidence_basis_verdict_labels_match_proof_package_when_simulator_substitution()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            RealModeFellBackToSimulator = true,
+        };
+
+        StringBuilder verdictSb = new();
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(verdictSb, proof, deltas, run);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(proofSb, deltas, proof, manifest: null, run);
+
+        string prose = PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain;
+
+        verdictSb.ToString().Should().Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence-basis labels |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
 }
