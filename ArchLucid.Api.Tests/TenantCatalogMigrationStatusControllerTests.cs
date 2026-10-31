@@ -94,4 +94,37 @@ public sealed class TenantCatalogMigrationStatusControllerTests
         body.InMigration.Should().BeTrue();
         body.CorrelationId.Should().Be("corr-1");
     }
+
+    [Fact]
+    public async Task GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory()
+    {
+        TenantMigrationStatusSnapshot snapshot = new() { InMigration = false };
+
+        Mock<ITenantMigrationStatusService> migrationService = new();
+        migrationService
+            .Setup(s => s.GetForTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        TenantCatalogMigrationStatusController controller = new(
+            migrationService.Object,
+            tenantRepository.Object,
+            scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        await controller.GetCatalogMigrationStatusAsync(CancellationToken.None);
+
+        tenantRepository.Verify(
+            r => r.ListWorkspacesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

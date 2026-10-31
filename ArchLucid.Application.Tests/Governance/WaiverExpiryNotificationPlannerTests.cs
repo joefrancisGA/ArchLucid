@@ -71,6 +71,17 @@ public sealed class WaiverExpiryNotificationPlannerTests
     }
 
     [Fact]
+    public void Plan_returns_identical_notifications_when_called_twice_with_same_inputs()
+    {
+        IReadOnlyList<RiskExceptionRecord> waivers = [Waiver(daysUntilExpiry: 6)];
+
+        IReadOnlyList<WaiverExpiryNotification> first = WaiverExpiryNotificationPlanner.Plan(waivers, NowUtc);
+        IReadOnlyList<WaiverExpiryNotification> second = WaiverExpiryNotificationPlanner.Plan(waivers, NowUtc);
+
+        second.Should().BeEquivalentTo(first, options => options.ComparingByMembers<WaiverExpiryNotification>());
+    }
+
+    [Fact]
     public void Plan_rejects_null_input()
     {
         Action act = () => WaiverExpiryNotificationPlanner.Plan(null!, NowUtc);

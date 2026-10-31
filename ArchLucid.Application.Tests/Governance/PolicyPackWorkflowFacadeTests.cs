@@ -678,6 +678,72 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TrySimulateBulkAsync_counts_interior_ascii_space_in_opaque_ids_as_distinct_bulk_keys()
+    {
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        PolicyPack pack = CreateInScopePack(packId);
+        PolicyPackVersion version = new()
+        {
+            PolicyPackId = packId,
+            Version = "1.0.0",
+            ContentJson = """{"complianceRuleIds":[]}""",
+        };
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(r => r.GetByPackAndVersionAsync(packId, "1.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(version);
+
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                version.ContentJson,
+                It.IsAny<string>(),
+                null,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                packId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (string _, string runId, Guid? _, bool? _, int? _, Guid _, CancellationToken _) =>
+                    new PolicyPackGovernanceDryRunResult
+                    {
+                        ResolvedRunId = runId,
+                        GateResult = new PreCommitGateResult { Blocked = false },
+                    });
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            versions: versions.Object,
+            dryRun: dryRun.Object);
+
+        PolicyPackSimulateBulkSummary? summary = await sut.TrySimulateBulkAsync(
+            packId,
+            ["run key", "run  key"],
+            blockCommitOnCritical: null,
+            blockCommitMinimumSeverity: null,
+            CancellationToken.None);
+
+        summary.Should().NotBeNull();
+        summary!.RequestedRunCount.Should().Be(2);
+        dryRun.Verify(
+            s => s.EvaluateAsync(
+                version.ContentJson,
+                It.IsAny<string>(),
+                null,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                packId,
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task TrySimulateBulkAsync_deduplicates_dashed_and_canonical_n_guid_run_ids()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
