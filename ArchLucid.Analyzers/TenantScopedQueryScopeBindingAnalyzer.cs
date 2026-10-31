@@ -133,6 +133,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (!TryGetSqlArgument(invocation, context.SemanticModel, out ExpressionSyntax? sqlExpression))
             return;
 
+        if (IsCommandDefinitionSqlArgument(sqlExpression, context.SemanticModel))
+            return;
+
         if (IsStoredProcedureDapperInvocation(invocation, context.SemanticModel))
             return;
 
@@ -283,6 +286,16 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         }
 
         return false;
+    }
+
+    private static bool IsCommandDefinitionSqlArgument(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        ITypeSymbol? type = semanticModel.GetTypeInfo(sqlExpression).Type;
+
+        return type is not null &&
+               string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal);
     }
 
     private static bool IsStoredProcedureDapperInvocation(

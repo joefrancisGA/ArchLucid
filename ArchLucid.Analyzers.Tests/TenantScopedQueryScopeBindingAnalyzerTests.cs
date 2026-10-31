@@ -182,7 +182,7 @@ public sealed class ExecuteAsyncCommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 15, 71, 77)
+            .WithSpan(87, 13, 89, 54)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -216,7 +216,7 @@ public sealed class ExecuteAsyncSplitLocalCommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(70, 19, 72, 40)
+            .WithSpan(87, 19, 89, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -249,7 +249,7 @@ public sealed class ExecuteAsyncLocalCommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(69, 39, 71, 40)
+            .WithSpan(86, 37, 88, 50)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -1322,6 +1322,35 @@ public sealed class ExecuteAsyncStoredProcSqlRepository
         return connection.ExecuteAsync(
             "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
             commandType: CommandType.StoredProcedure);
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
+    [Fact]
+    public async Task ARCH006_does_not_analyze_execute_async_local_command_definition_when_command_type_is_stored_procedure()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using System.Threading;
+using Dapper;
+
+public sealed class ExecuteAsyncLocalStoredProcCommandDefinitionRepository
+{
+    public async System.Threading.Tasks.Task LoadAsync(IDbConnection connection, CancellationToken cancellationToken)
+    {
+        CommandDefinition command = new(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL",
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+        await connection.ExecuteAsync(command);
     }
 }
 }
