@@ -18,6 +18,27 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 {
     [Fact]
+    public void Concrete_gaps_when_manifest_missing_uses_gate_not_stale_proof_committed_manifest_flag()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                new PilotRunDeltas(),
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest: null)
+            .Should()
+            .Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_run_not_committed_uses_run_not_stale_proof_run_in_committed_flag()
     {
         ProofPackageCompletenessResponse proof = new()
@@ -49,19 +70,20 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             TimeToCommittedManifestResolved = false,
         };
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest)
             .ToList();
 
         string prose = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
         gaps.Should().Contain(prose);
         gaps.Should().NotContain("Time-to-committed-manifest is unresolved");
-
-        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
 
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
@@ -127,12 +149,15 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             ArtifactDescriptorCountResolved = true,
         };
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest)
             .Should()
             .Contain(PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
@@ -307,19 +332,20 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             ArtifactDescriptorCountResolved = false,
         };
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest)
             .ToList();
 
         string prose = PilotArtifactDescriptorCountHonestyCopy.UnresolvedPlain;
         gaps.Should().Contain(prose);
         gaps.Should().NotContain("Artifact descriptor inventory did not resolve");
-
-        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
 
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
@@ -344,12 +370,18 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             CommittedManifestTimestampResolved = false,
         };
 
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata { CreatedUtc = default },
+        };
+
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.NeedsOperatorReview,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest)
             .ToList();
 
         string gapLine = PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
@@ -361,7 +393,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             proofSb,
             deltas,
             proof,
-            manifest: null,
+            manifest,
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
 
         proofSb.ToString().Should().Contain(PilotCommittedManifestTimestampHonestyCopy.UnresolvedSuffixPlain);
@@ -3231,19 +3263,21 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse { ProjectedDollarClaimsSponsorSafe = true },
         };
 
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
+
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
             .EnumerateConcreteGapsEnumerable(
                 SponsorSafeProofDisposition.Sendable,
                 proof,
                 deltas,
-                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest)
             .ToList();
 
         string prose = PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain;
         gaps.Should().ContainSingle().Which.Should().Be(prose);
 
         StringBuilder proofSb = new();
-        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = DateTime.UtcNow } };
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
             deltas,

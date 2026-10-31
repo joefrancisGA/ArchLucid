@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -21,7 +22,8 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         PilotBuyerSafeEvidenceGateResult gate,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        GoldenManifest? manifest = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(gate);
@@ -61,7 +63,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine("**Concrete gaps (automated)**");
         sb.AppendLine();
 
-        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run))
+        foreach (string bullet in EnumerateConcreteGaps(disposition, proof, deltas, run, manifest))
             sb.AppendLine(CultureInfo.InvariantCulture, $"- {bullet}");
 
         sb.AppendLine();
@@ -90,13 +92,16 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run) => EnumerateConcreteGaps(disposition, proof, deltas, run);
+        ArchitectureRun run,
+        GoldenManifest? manifest = null) =>
+        EnumerateConcreteGaps(disposition, proof, deltas, run, manifest);
 
     private static IEnumerable<string> EnumerateConcreteGaps(
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        GoldenManifest? manifest)
     {
         if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
             yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
@@ -104,19 +109,17 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (string.IsNullOrWhiteSpace(run.RunId))
             yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (run.Status != ArchitectureRunStatus.Committed || !proof.CommittedManifestPresent)
+        if (!HasSponsorCompleteCommittedPosture(run, manifest))
             yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
+        if (manifest is not null && manifest.Metadata.CreatedUtc == default)
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (run.Status == ArchitectureRunStatus.Committed
-            && proof.CommittedManifestPresent
+        if (HasSponsorCompleteCommittedPosture(run, manifest)
             && deltas.TimeToCommittedManifest is null)
             yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
-        if (run.Status == ArchitectureRunStatus.Committed
-            && proof.CommittedManifestPresent
+        if (HasSponsorCompleteCommittedPosture(run, manifest)
             && !deltas.SynthesizedArtifactDescriptorCountResolved)
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
@@ -151,6 +154,9 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (disposition == SponsorSafeProofDisposition.Sendable)
             yield return PilotSponsorSafeSendableAllClearHonestyCopy.FormatSponsorSafeConcreteGapLine();
     }
+
+    private static bool HasSponsorCompleteCommittedPosture(ArchitectureRun run, GoldenManifest? manifest) =>
+        manifest is not null && run.Status == ArchitectureRunStatus.Committed;
 
     private static string DescribeDisposition(SponsorSafeProofDisposition d) => d switch
     {
