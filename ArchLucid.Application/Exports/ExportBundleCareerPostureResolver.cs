@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Text;
 using ArchLucid.Contracts.User;
 using ArchLucid.Decisioning.CareerArtifacts;
 
@@ -164,6 +165,7 @@ public static class ExportBundleCareerPostureResolver
 
             text = text.Trim();
             text = RemoveInvisibleBooleanTokenChars(text);
+            text = NormalizeLatinHomoglyphSpelling(text);
 
             if (text.Length == 0)
                 return false;
@@ -287,6 +289,19 @@ public static class ExportBundleCareerPostureResolver
 
         value = default;
         return false;
+    }
+
+    private static string NormalizeLatinHomoglyphSpelling(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        Span<char> buffer = value.Length <= 64 ? stackalloc char[value.Length] : new char[value.Length];
+
+        for (int i = 0; i < value.Length; i++)
+            buffer[i] = UnicodeLatinHomoglyphMapper.MapToLatinLookalike(value[i]);
+
+        return new string(buffer[..value.Length]);
     }
 
     private static string RemoveInvisibleBooleanTokenChars(string value)

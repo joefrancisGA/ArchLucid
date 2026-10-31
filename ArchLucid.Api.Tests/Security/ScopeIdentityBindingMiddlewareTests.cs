@@ -294,6 +294,83 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_development_bypass_on_scim_path_rebinds_scim_bearer_before_scope_validation()
+    {
+        Guid scimTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "DevelopmentBypass"));
+        context.Request.Headers["x-tenant-id"] = scimTenant.ToString("D");
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", scimTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+        authentication.Verify(
+            service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_development_bypass_on_scim_path_rejects_forged_header_when_scim_authentication_fails()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "DevelopmentBypass"));
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Fail("invalid token"));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_request_invokes_next()
     {
         DefaultHttpContext context = CreateContext();
@@ -506,6 +583,42 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer()
+    {
+        Guid tokenTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/SCIM/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.Request.Headers["x-tenant-id"] = tokenTenant.ToString("D");
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", tokenTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+        authentication.Verify(
+            service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_scim_path_without_authentication_service_calls_next()
     {
         DefaultHttpContext context = CreateContext();
@@ -522,6 +635,76 @@ public sealed class ScopeIdentityBindingMiddlewareTests
         });
 
         nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_lowercase_saml2_with_tenant_claim_rejects_x_workspace_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+            "saml2"));
+        context.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_lowercase_apikey_with_tenant_claim_allows_x_project_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+            "apikey"));
+        context.Request.Headers["x-project-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_invokes_next_with_forged_header_when_scim_authentication_fails()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Fail("invalid token"));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue(
+            "scope binding validates only authenticated principals; SCIM bearer auth at authorization rejects unauthenticated steering");
     }
 
     private static DefaultHttpContext CreateContext()

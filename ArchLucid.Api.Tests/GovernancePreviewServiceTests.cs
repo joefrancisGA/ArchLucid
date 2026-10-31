@@ -291,6 +291,49 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task CompareEnvironmentsAsync_loads_manifest_when_activation_version_differs_only_by_casing()
+    {
+        ManifestGovernance gov = new() { RiskClassification = "Moderate", CostClassification = "Moderate" };
+        GoldenManifest devManifest = Manifest(R1, "v1", _ => { });
+        devManifest.Governance = gov;
+        GoldenManifest prodManifest = Manifest(R2, "v2", _ => { });
+        prodManifest.Governance = gov;
+
+        GovernanceEnvironmentActivation devAct = new()
+        {
+            RunId = R1,
+            ManifestVersion = "V1",
+            Environment = "dev",
+            IsActive = true,
+        };
+        GovernanceEnvironmentActivation prodAct = new()
+        {
+            RunId = R2,
+            ManifestVersion = "v2",
+            Environment = "prod",
+            IsActive = true,
+        };
+
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([devAct]);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([prodAct]);
+        _unifiedManifestReader
+            .Setup(goldenManifestRepository =>
+                goldenManifestRepository.GetByVersionAsync("V1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(devManifest);
+        _unifiedManifestReader
+            .Setup(goldenManifestRepository =>
+                goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(prodManifest);
+
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "prod" });
+
+        result.Differences.Should().BeEmpty();
+        result.Notes.Should().NotContain(note =>
+            note.Contains("Could not load GoldenManifest", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
     public async Task CompareEnvironmentsAsync_WhenActivationManifestRunMismatch_OmitsForeignManifest()
     {
         GovernanceEnvironmentActivation srcAct = new()
