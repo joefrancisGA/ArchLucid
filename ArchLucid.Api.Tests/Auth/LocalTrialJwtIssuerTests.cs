@@ -4,6 +4,7 @@ using System.Text;
 
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 
 using FluentAssertions;
 
@@ -97,6 +98,38 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
     }
 
     [SkippableFact]
+    public void IssueAccessToken_throws_when_email_is_empty_string()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        Action act = () => issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            string.Empty,
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_throws_when_role_is_empty_string()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        Action act = () => issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            string.Empty,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [SkippableFact]
     public void IssueAccessToken_throws_when_role_is_whitespace_only()
     {
         LocalTrialJwtIssuer issuer = CreateIssuer();
@@ -110,6 +143,151 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
             Guid.NewGuid());
 
         act.Should().Throw<ArgumentException>();
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_omits_auth_version_claim_when_auth_version_is_empty_guid()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+        Guid userId = Guid.NewGuid();
+
+        string token = issuer.IssueAccessToken(
+            userId,
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            authVersion: Guid.Empty);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        jwt.Claims.Should().NotContain(c => c.Type == PlatformIdentityClaimTypes.AuthVersion);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 2000);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(24 * 60 * 60, 120);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_honors_twenty_four_hour_ceiling_when_exactly_1440_minutes_requested()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 1440);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(24 * 60 * 60, 120);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 1);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(5 * 60, 120);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_honors_five_minute_floor_when_exactly_five_minutes_requested()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 5);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(5 * 60, 120);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 0);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(5 * 60, 120);
+    }
+
+    [SkippableFact]
+    public void IssueAccessToken_clamps_requested_access_token_lifetime_when_negative_minutes_requested()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: -1);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(5 * 60, 120);
     }
 
     public void Dispose()
