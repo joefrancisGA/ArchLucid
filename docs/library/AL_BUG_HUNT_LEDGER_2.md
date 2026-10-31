@@ -5091,6 +5091,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #38): promoted comma-folded `Authorization` with modifier letter cent (`U+02C2`) and box drawings heavy vertical (`U+2503`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02C2` and `U+2503`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_cent_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #37 (unparseable `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_unparseable_iat_is_present_without_auth_time`; omitted trial lifetime via existing `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`; duplicate `workspace_id` GUID casing via `Apply_collapses_duplicate_direct_workspace_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 4/4 new tests plus existing omitted-lifetime test (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a modifier cent or heavy box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — modifier letter cent (`U+02C2`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #38:** regression `HandleAuthenticateAsync_succeeds_when_modifier_letter_cent_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings heavy vertical (`U+2503`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #38:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — unparseable `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #38:** regression `HasRecentAuthentication_returns_false_when_only_unparseable_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — omitted lifetime still honors configured default after clamp path — **cheap-disproof 2026-10-31 seed hunt #38:** regression `IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `workspace_id` GUID strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #38:** regression `Apply_collapses_duplicate_direct_workspace_id_claims_with_same_guid_different_casing`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter right arrowhead (`U+02C3`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings double vertical (`U+2551`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — garbage `iat` with later parseable `iat` sibling when `auth_time` absent — locus: iat fallback; reachability: step-up monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — whitespace-only email rejected before lifetime clamp — locus: validation; reachability: hunt #12 monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `project_id` GUID strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
+
 2026-10-31 seed hunt (seed→hit #37): promoted comma-folded `Authorization` with modifier letter low macron (`U+02CD`) and box drawings light vertical (`U+2502`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02CD` and `U+2502`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_low_macron_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #36 (doubled fullwidth vertical line segment via `HandleAuthenticateAsync_succeeds_when_doubled_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential`; future `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`; duplicate `tenant_id` GUID casing via `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a low-macron or box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — modifier letter low macron (`U+02CD`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #37:** regression `HandleAuthenticateAsync_succeeds_when_modifier_letter_low_macron_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5494,11 +5508,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 64
-- **bugs-found:** 53
+- **hunts:** 65
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected low macron and box-drawing vertical placeholders before valid comma-folded token
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected modifier cent and heavy box-drawing vertical placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
