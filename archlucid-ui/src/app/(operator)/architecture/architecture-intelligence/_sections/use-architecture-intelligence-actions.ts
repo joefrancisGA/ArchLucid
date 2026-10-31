@@ -76,6 +76,7 @@ export function useArchitectureIntelligenceActions(
 
       setLoadingAction(action);
       setError(null);
+      setRunState(null);
 
       if (shouldPublish) {
         setPublishToProduct(true);

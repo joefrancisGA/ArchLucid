@@ -46,6 +46,12 @@ export type ArchitectureIntelligenceLoadingAction =
 
 type ProductContextStatus = "idle" | "loading" | "loaded" | "empty" | "error";
 
+export function hasUsableArchitectureSourceText(
+  sources: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return sources.some((source) => source.content.trim().length > 0);
+}
+
 export type UseArchitectureIntelligenceProductContextResult = {
   buyerPolishedShell: boolean;
   inboundRunId: string;
@@ -397,7 +403,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       return hydratedPrioritiesFromQuery;
     });
 
-    setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
+    setProductContextStatus(hasUsableArchitectureSourceText(sources) ? "loaded" : "empty");
     setLoadingAction(null);
   }, [
     hydratedDescriptionFromQuery,
