@@ -136,7 +136,11 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     {
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun);
-        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+        string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+
+        return basisRun.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(table)
+            : table;
     }
 
     private static string FormatGuid(Guid? id, string missingValue = "(none)")

@@ -264,6 +264,58 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
             .Contain(prose);
     }
 
+    [Fact]
+    public void Evidence_card_evidence_basis_row_matches_proof_package_when_simulator_substitution()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Error",
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = nameof(ProofPackageSendability.SendableWithCaveats),
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Incomplete),
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            RealModeFellBackToSimulator = true,
+        };
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof, run);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            run);
+
+        string prose = PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain;
+
+        string proofRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence-basis labels |", StringComparison.Ordinal));
+
+        cardSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence-basis label (top finding) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofRow.Should().Contain(prose);
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {
