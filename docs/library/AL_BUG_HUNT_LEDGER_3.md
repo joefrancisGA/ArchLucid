@@ -1371,7 +1371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 46
+- **hunts:** 47
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
@@ -1382,6 +1382,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
 2026-10-31 seed hunt (seed-only): reread `RunsListClient`, `useRunsList`, the continue-last resolver, and the focused Runs List suites; no candidate met the same-run proof bar. Retained two bounded input-shape candidates for invalid server dates and recent-view row validity. No production change. Private beta: n/a.
 2026-10-31 seed hunt (seed-only): cheap-disproof found that the continue strip does not render or sort on the malformed date, and alias-shaped recent-view links intentionally canonicalize at the route boundary; the focused Runs List suites passed 69/69. No production change. Private beta: n/a.
+2026-10-31 seed hunt (seed-only): reread the current URL/popstate synchronization and resume-collapse paths; the dedicated resume tests and malformed-date regression cover the retained recent-view boundaries, and no new reachable mechanism survived cheap-disproof. No production change. Private beta: n/a.
 
 - [x] (valid-no-repro) `resolveContinueLastRunsListRow` — malformed `createdUtc` on a recent-view row — **cheap-disproof 2026-10-31 seed hunt:** the continue strip renders only title and route, and the recent-view match does not use the timestamp; the main list’s finite-date filter prevents the malformed row from appearing in the table, but no user-visible wrong outcome was reproduced.
 - [x] (valid-no-repro) `resolveContinueLastRunsListRow` — recent-view matching before demo alias normalization — **cheap-disproof 2026-10-31 seed hunt:** alias links are intentionally canonicalized by the review route, and the continue strip does not expose a non-canonical data row; no wrong outcome was reproduced.
