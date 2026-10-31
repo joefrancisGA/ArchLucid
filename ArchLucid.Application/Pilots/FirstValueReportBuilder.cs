@@ -268,7 +268,7 @@ public sealed class FirstValueReportBuilder(
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
         FirstValueReportRunSectionFormatter.AppendMarkdownSection(sb, run, manifest, baseUrl);
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, manifest, run);
-        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas, proofCompleteness);
         SponsorRoiNarrativeGateMarkdownFormatter.AppendMarkdownSection(sb, roiClaimGate);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate.Disposition);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate);
@@ -282,7 +282,7 @@ public sealed class FirstValueReportBuilder(
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
         FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportSemanticSupportBandSectionFormatter.AppendMarkdownSection(sb, detail, deltas);
-        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas, proofCompleteness);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run);

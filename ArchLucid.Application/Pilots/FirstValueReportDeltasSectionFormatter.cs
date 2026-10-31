@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -11,7 +12,10 @@ public static class FirstValueReportDeltasSectionFormatter
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
     public const string DemoTenantBanner = "_demo tenant — replace before publishing._";
 
-    public static void AppendComputedDeltasSection(StringBuilder sb, PilotRunDeltas deltas)
+    public static void AppendComputedDeltasSection(
+        StringBuilder sb,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse? proofCompleteness = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -26,7 +30,8 @@ public static class FirstValueReportDeltasSectionFormatter
 
         sb.AppendLine("| Metric | Value | Source |");
         sb.AppendLine("| --- | --- | --- |");
-        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
+        sb.AppendLine(
+            $"| Time to committed manifest | {FormatTimeToCommit(deltas, proofCompleteness)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine(
             $"| Findings (total) | {PilotRunDeltasFindingsTotalFormatter.FormatMarkdownTableCell(deltas)} | {FormatFindingsTotalSource(deltas)} |");
         sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
@@ -105,13 +110,26 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
-    public static void AppendElapsedSection(StringBuilder sb, PilotRunDeltas deltas)
+    public static void AppendElapsedSection(
+        StringBuilder sb,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse? proofCompleteness = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
 
         sb.AppendLine("## Time to committed output");
         sb.AppendLine();
+        if (proofCompleteness is not null
+            && proofCompleteness is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        {
+            sb.AppendLine(
+                FormattableString.Invariant(
+                    $"_({PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain})_"));
+            sb.AppendLine();
+            return;
+        }
+
         if (deltas.TimeToCommittedManifest is not { } wall)
         {
             sb.AppendLine(
@@ -127,8 +145,16 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
-        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
+    private static string FormatTimeToCommit(PilotRunDeltas deltas, ProofPackageCompletenessResponse? proofCompleteness)
+    {
+        if (proofCompleteness is not null
+            && proofCompleteness is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        {
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
+        return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
+    }
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);

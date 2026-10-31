@@ -641,6 +641,60 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         timeRow.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
     }
 
+    [Fact]
+    public void Computed_deltas_and_elapsed_when_run_not_committed_match_proof_package_not_wall_clock_prose()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TimeToCommittedManifest = null,
+            AuditRowCount = 2,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            FindingsBySeverity = [],
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            TimeToCommittedManifestResolved = false,
+        };
+
+        string notComplete = PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        string wallClockPlain = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created });
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(computedSb, deltas, proof);
+
+        StringBuilder elapsedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(elapsedSb, deltas, proof);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .Should()
+            .Contain(notComplete)
+            .And.NotContain(wallClockPlain);
+
+        computedSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .Should()
+            .Contain(notComplete)
+            .And.NotContain(wallClockPlain);
+
+        elapsedSb.ToString().Should().Contain(notComplete).And.NotContain(wallClockPlain);
+    }
+
     private static ValueReportSnapshot MinimalValueReportSnapshot() =>
         new(
             TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
