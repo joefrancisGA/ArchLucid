@@ -2,6 +2,20 @@
 
 ## Zone: weekly-digest-email
 
+2026-10-31 thorough hunt #1081 (dry): no rotation (`shouldRotate: false`; `weekly-digest-email` low-yield streak **2/3** in run log after hunt #1080 — below `minLowYieldStreak` 3). Cheap-disproof closed five header `(candidate)` rows from hunt #1080 reseed — **valid-no-repro** executive-path cancellation after provider accept before ledger record (shared `MultiRecipientEmailDispatch` send-then-record TB-089 tradeoff; hunt #1051), **valid-no-repro** report dispatcher partial multi-recipient `false` while first mailbox stays ledger-recorded (intentional retry contract; `WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`), **valid-no-repro** provider exception after remote accept without ledger row (ambiguous failure retries safely — hunt #1051), **valid-no-repro** options reload mid-dispatch (`EmailNotificationOptions` captured once via `CurrentValue` before URL/product/model/subject use in weekly dispatchers), **valid-no-repro** Unicode line separators in summary markdown (`EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional` on trim; `EmailMultipartPlainTextLineBreakNormalizerTests`). Reseeded five `(candidate)` rows; scoped **2/2** `WeeklyExecutiveSummaryJobTests` passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` — host cancellation between successful `SendAsync` and `TryRecordSentAsync` may duplicate weekly summary on job retry — locus: shared `MultiRecipientEmailDispatch`; input: cancellation after provider accept; wrong outcome: duplicate summary email (monitor; TB-089 tradeoff).
+- [ ] (candidate) `ExecDigestEmailDispatcher.TryDispatchAsync` — partial multi-recipient failure returns `false` while ledger-recorded mailboxes skip on retry — locus: aggregate return vs per-mailbox ledger; input: second mailbox send failure; wrong outcome: operator-visible total failure despite partial delivery (monitor; exec digest).
+- [ ] (candidate) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — provider-normalized `To` diverges from mailbox-scoped idempotency key suffix — locus: `BuildMailboxIdempotencyKey`; input: provider address rewrite; wrong outcome: duplicate SMTP idempotency acceptance (monitor; transactional stack).
+- [ ] (candidate) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — losing concurrent `TryRecordSentAsync` race returns aggregate failure after successful send — locus: concurrent insert; input: parallel retries; wrong outcome: job retry despite idempotent delivery (monitor; hunt #1051).
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` — whitespace-only recipient list renders templates before discovering no valid mailboxes — locus: normalization vs render order; input: `["  ", "\t"]`; wrong outcome: wasted render without send (monitor; hunt #1080 invalid class).
+
+- [x] (valid-no-repro) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — host cancellation between successful `SendAsync` and `TryRecordSentAsync` may duplicate executive summary mail on job retry — **cheap-disproof 2026-10-31 thorough hunt #1081:** regression above.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — second mailbox `SendAsync` failure returns aggregate `false` while first mailbox remains ledger-recorded — **cheap-disproof 2026-10-31 thorough hunt #1081:** regression above.
+- [x] (valid-no-repro) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — provider exception after remote accept retries without ledger row — **cheap-disproof 2026-10-31 thorough hunt #1081:** regression above.
+- [x] (valid-no-repro) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — `IOptionsMonitor<EmailNotificationOptions>` changes between URL resolution and template render — **cheap-disproof 2026-10-31 thorough hunt #1081:** regression above.
+- [x] (valid-no-repro) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — summary markdown with Unicode line separators reaches plain-text body without normalization — **cheap-disproof 2026-10-31 thorough hunt #1081:** regression above.
+
 2026-10-31 thorough hunt #1080 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (dry, dry, seed-only; run log). Picker rotated with **`-AvoidZoneId`** to `weekly-digest-email`. Cheap-disproof closed five header `(candidate)` rows from hunt #1051 reseed — **valid-no-repro** summary dispatcher cancellation after provider accept before ledger record (send-then-record TB-089 tradeoff; hunt #1051 `#425` family), **valid-no-repro** exec digest partial multi-recipient failure returning `false` while skipping ledger-recorded mailboxes on retry (`WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry` / intentional partial-progress contract), **valid-no-repro** report dispatcher provider `To` normalization vs mailbox-scoped idempotency keys (ledger suffix and `EmailMessage.To` both derive from the same normalized mailbox list in `MultiRecipientEmailDispatch`), **valid-no-repro** `TryRecordSentAsync` returning false after send when a concurrent winner recorded the mailbox (caller may return false without duplicate delivery — hunt #1051 thorough note), **invalid** whitespace-only mailbox list paying template render cost (`WeeklySponsorSummaryEmailDispatcher` returns false when `normalizedMailboxes.Count == 0` **before** `RenderHtmlAsync`). Reseeded five `(candidate)` rows; scoped **2/2** `WeeklyExecutiveSummaryJobTests` passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [ ] (candidate) `WeeklyExecutiveSummaryEmailDispatcher.TryDispatchAsync` — host cancellation between successful `SendAsync` and `TryRecordSentAsync` may duplicate executive summary mail on job retry — locus: shared `MultiRecipientEmailDispatch`; input: cancellation after provider accept; wrong outcome: duplicate weekly executive email (monitor; TB-089 tradeoff).
@@ -36,9 +50,9 @@
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
