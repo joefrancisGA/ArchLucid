@@ -14557,6 +14557,8 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("Storage account is unable to comply with the constraint on public blob access.")]
     [InlineData("Storage account is not able to comply with the constraint on public blob access.")]
     [InlineData("Storage account is incapable of complying with the constraint on public blob access.")]
+    [InlineData("Storage account cannot comply with the constraint on public blob access.")]
+    [InlineData("Storage account could not comply with the constraint on public blob access.")]
     public void HasFalsifiabilitySignal_recognizes_conflict_wording_variants(string message)
     {
         GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(message).Should().BeTrue();
@@ -14567,6 +14569,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("Users are disallowed from enable mfa on legacy apps.")]
     [InlineData("Users are denied from enable mfa on legacy apps.")]
     [InlineData("Users are rejected from enable mfa on legacy apps.")]
+    [InlineData("Users are refused from enable mfa on legacy apps.")]
     public void IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing(string message)
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
