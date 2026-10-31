@@ -28699,16 +28699,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: chatops-delivery
 
+2026-10-31 thorough hunt #1059 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-tenancy-commercial` (dry ×3; run log). Picker rotated with **`-AvoidZoneId`** to `chatops-delivery`. Cheap-disproof closed five header `(candidate)` rows from hunt #963 — **valid-no-repro** both Slack and Teams notify flags disabled completing integration handling (`NotifyAsync_skips_delivery_when_disabled_or_uri_invalid`; operator opt-out is intentional — not fail-closed; hunt #1369 misconfiguration-skip family), **valid-no-repro** `Guid.Empty` tenant/run ids forwarded without handler guard (producer contract; telemetry carries correlation — no in-handler rejection by design), **valid-no-repro** whitespace-only `Description` with non-zero `FindingCount` using generic body copy while headline still reports finding count (`BuildMessage` headline includes `FindingCount`; body fallback `"Run finished successfully."` is intentional when detail absent — regression lock in hook tests), **valid-no-repro** Slack delivery success while Teams skipped for invalid URI without throw (`DeliverIfEnabledAsync` skip before attempt; partial sibling success completes event — hunt #1368 `#1369`), **invalid** integration handler ignoring finding deep links beyond array length (notice contract maps `FindingCount` + `Description` only; link fan-out is out of scope for informational ChatOps hook). Reseeded five `(candidate)` rows; scoped **22** AuthorityRunCommitted/Completed ChatOps tests passed. Private beta: n/a.
+
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — `OperationCanceledException` from one target swallowed while sibling still running leaves Service Bus message completed — locus: `DeliverIfEnabledAsync` catch vs cancellation rethrow; input: cooperative cancel mid-`WhenAll`; wrong outcome: duplicate delivery on retry (monitor; cancellation propagates today).
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — malformed JSON root array deserializes to null payload without distinct error — locus: `JsonSerializer.Deserialize` shape; input: JSON array root; wrong outcome: poison message completes (monitor; FormatException path).
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — negative `FindingCount` on notice produces misleading headline grammar — locus: headline interpolation; input: `FindingCount=-1`; wrong outcome: operator-facing copy claims negative findings (monitor; producer non-negative contract).
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — both targets enabled and both return HTTP 400 completes without throw — locus: all-target failure guard; input: mocked 400 on Slack and Teams; wrong outcome: silent drop (monitor; hunt #1369 throws when all enabled targets fail).
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — missing `runId` property deserializes `Guid.Empty` and still notifies ChatOps — locus: default struct deserialization; input: payload omitting `runId`; wrong outcome: empty correlation in webhook telemetry (monitor; schema contract).
+
 - **id:** chatops-delivery
 - **status:** open
 - **impact:** medium
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-30
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -28719,11 +28727,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — all enabled targets misconfigured (invalid HTTPS URI) completes without throw — **cheap-disproof 2026-10-30 thorough hunt #963:** regression above.
 - [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` — Slack path relies on downstream `ChatOpsIncomingWebhookBodies.ForSlack` to escape `Title` while hook only pre-escapes `Body` — **cheap-disproof 2026-10-30 thorough hunt #963:** regression above.
 
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — both Slack and Teams authority-run notifications disabled completes integration handling without delivery attempt or fail-closed signal — locus: dual `DeliverIfEnabledAsync` early return when `enabled` is false; input: `ChatOpsIncomingWebhooksOptions` with both `*NotifyOnAuthorityRunCompleted` flags false after operator disables alerts; mechanism: Service Bus message completes while ops assumes ChatOps fan-out remains enabled.
-- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — deserializes `tenantId`/`runId` without rejecting `Guid.Empty` before calling `NotifyAsync` — locus: notice mapping after JSON deserialize; input: replayed Service Bus payload with zeroed tenant or run identifiers; mechanism: webhook telemetry and headline reference empty correlation context.
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — whitespace-only `Description` on notice is replaced with generic success copy while `FindingCount` still reflects payload — locus: `string.IsNullOrWhiteSpace(detail)` default branch; input: integration payload with `description: "   "` and non-zero `findings` array length; mechanism: ChatOps body understates a findings-heavy run (monitor).
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — Slack delivery succeeds while Teams target skipped for invalid URI does not surface Teams misconfiguration in thrown error — locus: partial success branch when `slackSucceeded && !teamsAttempted`; input: Slack HTTPS webhook valid, Teams enabled with blank URI; mechanism: operators lose Teams notifications without retry or explicit failure (monitor).
-- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `Findings` list elements deserialized but only array length contributes to notice (link/severity fields ignored) — locus: handler maps `FindingCount` without forwarding link DTOs to hook; input: canonical payload whose `findings` rows include deep links not reflected in ChatOps body; mechanism: future hook enhancement gap vs integration contract (monitor).
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — both Slack and Teams authority-run notifications disabled completes integration handling without delivery attempt or fail-closed signal — **cheap-disproof 2026-10-31 thorough hunt #1059:** regression above.
+- [x] (valid-no-repro) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — deserializes `tenantId`/`runId` without rejecting `Guid.Empty` before calling `NotifyAsync` — **cheap-disproof 2026-10-31 thorough hunt #1059:** regression above.
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.BuildMessage` — whitespace-only `Description` on notice is replaced with generic success copy while `FindingCount` still reflects payload — **cheap-disproof 2026-10-31 thorough hunt #1059:** regression above.
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.NotifyAsync` — Slack delivery succeeds while Teams target skipped for invalid URI does not surface Teams misconfiguration in thrown error — **cheap-disproof 2026-10-31 thorough hunt #1059:** regression above.
+- [x] (invalid) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — `Findings` list elements deserialized but only array length contributes to notice (link/severity fields ignored) — **cheap-disproof 2026-10-31 thorough hunt #1059:** regression above.
 
 2026-09-13 seed hunt #2264 (seed-only): reseeded chatops-delivery with `-Hint webhook`; no new hunt-ready rows.
 
