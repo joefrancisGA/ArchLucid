@@ -1704,6 +1704,60 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_audit_zero_uses_deltas_not_stale_proof_audit_flags()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            AuditRowCountResolved = true,
+            AuditRowCount = 0,
+        };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AuditRowCountResolved = true,
+            AuditRowsPresentOrLowerBound = true,
+            LlmCallCountResolved = true,
+        };
+
+        string prose = PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_llm_unresolved_uses_deltas_not_stale_proof_flag()
+    {
+        PilotRunDeltas deltas = new() { LlmCallCountResolved = false };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            LlmCallCountResolved = true,
+        };
+
+        string prose = PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_simulator_substitution_matches_proof_package_evidence_basis_row()
     {
         PilotRunDeltas deltas = new();

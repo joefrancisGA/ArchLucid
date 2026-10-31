@@ -118,12 +118,12 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
             yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();
 
-        if (!proof.AuditRowCountResolved)
+        if (!deltas.AuditRowCountResolved)
             yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
-        else if (!proof.AuditRowsPresentOrLowerBound)
+        else if (deltas is { AuditRowCountResolved: true, AuditRowCount: 0, AuditRowCountTruncated: false })
             yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
 
-        if (!proof.LlmCallCountResolved)
+        if (!deltas.LlmCallCountResolved)
             yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved)
