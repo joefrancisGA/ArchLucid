@@ -55,6 +55,25 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
         sb.ToString().Should().Contain("``tier`broken``");
     }
 
+    [Fact]
+    public void Evidence_card_when_chain_missing_uses_shared_unavailable_prose()
+    {
+        StringBuilder sb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingSeverity = "Error",
+                TopFindingEvidenceChain = null,
+            },
+            MinimalProof());
+
+        string md = sb.ToString();
+        md.Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse);
+        md.Should().NotContain("did not resolve to a persisted chain");
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

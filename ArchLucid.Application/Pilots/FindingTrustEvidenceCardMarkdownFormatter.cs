@@ -53,7 +53,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         if (chain is null)
         {
             sb.AppendLine(
-                "| Evidence chain | **Missing** — top finding did not resolve to a persisted chain (see table above). |");
+                CultureInfo.InvariantCulture,
+                $"| Evidence chain | {PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse} |");
         }
         else
         {
