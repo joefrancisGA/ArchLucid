@@ -147,7 +147,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (disposition == SponsorSafeProofDisposition.Sendable)
             return "Send sponsor packet after human redaction review and qualitative baseline confirmation.";
 
-        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+        if (deltas.IsDemoTenant)
             return "Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send.";
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved

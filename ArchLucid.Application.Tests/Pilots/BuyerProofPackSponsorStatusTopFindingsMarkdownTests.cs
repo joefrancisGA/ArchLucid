@@ -83,6 +83,43 @@ public sealed class BuyerProofPackSponsorStatusTopFindingsMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_status_next_action_when_stale_proof_demo_flag_but_not_demo_on_deltas_uses_caveats_not_walkthrough()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = true,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+            },
+            new PilotRunDeltas
+            {
+                IsDemoTenant = false,
+                AgentOutputPilotStrictSignalsResolved = true,
+                AgentOutputPilotStrictViolatesSponsorEvidence = false,
+            },
+            new ArchitectureRun { RealModeFellBackToSimulator = false },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Warn,
+                PilotRoiEvidenceConfidence.Partial,
+                "",
+                false,
+                "WARN",
+                "WARN narrative"));
+
+        sb.ToString()
+            .Should()
+            .Contain("| Recommended next action | Review caveats, collect missing ROI/evidence fields, then regenerate the packet. |");
+        sb.ToString()
+            .Should()
+            .NotContain("Use this only as a demo walkthrough");
+    }
+
+    [Fact]
     public void Sponsor_status_next_action_when_pilot_strict_failed_uses_deltas_not_stale_proof_flag()
     {
         StringBuilder sb = new();
