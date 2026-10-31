@@ -177,16 +177,25 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
 
     private static string NormalizeHost(string host)
     {
-        return host.Trim().TrimEnd('/').ToLowerInvariant();
+        string normalized = host.Trim().TrimEnd('/').ToLowerInvariant();
+        int queryOrFragmentStart = normalized.IndexOfAny(['?', '#']);
+
+        if (queryOrFragmentStart >= 0)
+        {
+            normalized = normalized[..queryOrFragmentStart];
+        }
+
+        return normalized.TrimEnd('/');
     }
 
     private static string NormalizeStorageHost(string host)
     {
         string normalized = NormalizeHost(host);
+        string decoded = Uri.UnescapeDataString(normalized);
 
-        return Uri.TryCreate($"https://{normalized}/", UriKind.Absolute, out Uri? uri)
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
-            : normalized;
+            : decoded;
     }
 
     private static string NormalizeEndpointSuffix(string suffix)

@@ -114,6 +114,31 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_cosmos_documents_host_with_fragment_yields_host_without_fragment()
+    {
+        const string value = "https://myaccount.documents.azure.com#fragment/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_explicit_blob_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=contoso;BlobEndpoint=https://%63ontoso.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("contoso.blob.core.windows.net");
+    }
+
+    [Fact]
     public void ParseSettingValues_cosmos_china_account_endpoint_without_https_scheme()
     {
         const string value = "AccountEndpoint=mycosmos.documents.azure.cn;AccountKey=abc";
