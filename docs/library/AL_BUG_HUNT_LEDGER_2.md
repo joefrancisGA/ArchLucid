@@ -3315,6 +3315,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-10-31 thorough hunt (dry #7): cheap-disproof closed five open `(candidate)` rows from seed hunt #6 (split `CheckoutSecretKey` vs wallet `SecretKey` is documented host wiring — resolver/gateway/guard PM retrieve all use `SecretKey`; mis-split fails closed on guard null linked customer per seed #6; `PendingRefillCredits` and `LlmWalletSettlementQueue` are in-process retry hints while `ApplyWebhookPaymentIntentSucceededAsync` credits succeeded intents idempotently after recycle; guard customer-only PUT omitting PM is intentional — auto-replenish enable with null persisted PM rejected by `UpdateWalletAsync_rejects_enabling_auto_replenish_when_no_payment_method_is_persisted` and `TryAutoRefillAsync` requires both persisted ids before charge; optional wallet PUT row version is documented optional OCC per seed #6); seeded five follow-on `(candidate)` rows; scoped filter **7/7** Persistence guard + **10/10** Application wallet auto-refill/update tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — checkout `CheckoutSecretKey` vs resolver `SecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** split-key checkout is intentional; wallet paths share `SecretKey`; see seed hunt #6 diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — charges always use `SecretKey` after checkout used `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** same host-config contract as resolver; not reachable wrong-account charge without mis-wiring both keys.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage` — `PendingRefillCredits` lost on restart — **cheap-disproof 2026-10-31 thorough hunt #7:** webhook `ApplyWebhookPaymentIntentSucceededAsync` + payment-intent idempotency credits async completion; in-memory map is same-process optimization only.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — customer-id-only update when PM omitted — **cheap-disproof 2026-10-31 thorough hunt #7:** auto-refill and enable-with-persisted-ids paths require PM; guard skip is partial PUT contract.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable auto-replenish without fresh `ExpectedRowVersion` — **cheap-disproof 2026-10-31 thorough hunt #7:** optional OCC by design; SQL substitutes current row version when expected length zero (2026-08-24 proven hit).
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — single PUT sets `AutoReplenishEnabled=true` with linked `StripeCustomerId` but no payment method — locus: enable re-validation ~77-100 runs only when both stripe fields omitted; input: enable + customer in one request; wrong outcome: auto-replenish enabled without charge-ready PM; reachability: staged wallet onboarding UX.
+- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — `StripeException` swallowed to null — locus: catch ~42-44; input: transient Stripe outage during wallet PUT; wrong outcome: guard blocks updates without distinguishing outage vs unlinked tenant; reachability: operator retry semantics.
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — deferred `processing` intent relies on webhook while wallet route signing secret misconfigured — locus: defer path ~120-127 vs webhook ingress; input: processing PI + missing wallet webhook secret; wrong outcome: balance stays low with no credit path; reachability: split webhook secret configuration.
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.IsPaymentMethodAttachedToCustomerAsync` — uses `paymentMethod.CustomerId` only when PM expanded object omits id — locus: ~82 ordinal compare; input: Stripe retrieve shape with empty `CustomerId`; wrong outcome: valid PM rejected; reachability: API version / expand differences (recycle seed #5 invalid class unless new repro).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — payment-method-only PUT backfills customer from resolver after guard allowed omitted customer — locus: ~103-110; input: PUT `pm_` only for tenant whose linked customer differs from PM attachment; wrong outcome: persisted customer backfill bypasses explicit customer guard intent; reachability: operator partial updates.
+
 2026-10-31 seed hunt #6 (seed-only): cheap-disproof closed five open `(candidate)` rows from seed hunt #5; seeded five follow-on `(candidate)` rows; scoped filter passed (7 Persistence `StripeWalletPaymentIdentifierGuard` tests + 1 Application `UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks`, `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (invalid) `StripeWalletPaymentIdentifierGuard` vs `StripeBillingProvider.CreateCheckoutSessionAsync` — payment-method retrieve uses `SecretKey` while checkout may use `CheckoutSecretKey` — **cheap-disproof 2026-10-31 seed hunt #6:** split-key misconfiguration fails closed on guard PM retrieve; resolver and gateway also use `SecretKey`; restricted checkout key is an intentional checkout-surface option, not wallet guard drift without host mis-wiring.
@@ -3323,11 +3337,11 @@
 - [x] (valid-no-repro) `StripeWalletGateway.ChargeRefillAsync` — off-session `Confirm=true` surfaces SCA failures only as Stripe errors — **cheap-disproof 2026-10-31 seed hunt #6:** `StripeException` and non-succeeded intents map to `StripeWalletChargeResult.Failed`; processing defers without double charge.
 - [x] (valid-no-repro) `WalletController.PutAsync` — blank `RowVersionBase64` skips optimistic concurrency — **cheap-disproof 2026-10-31 seed hunt #6:** optional OCC; SQL substitutes current `RowVersion` when expected length is zero (`SqlLlmTenantWalletRepository.Consume.cs` ~55-82); malformed base64 remains 400 per proven 2026-08-24 hit.
 
-- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — subscription/checkout resolution always uses `Billing:Stripe:SecretKey` while checkout creation may use `CheckoutSecretKey` — locus: resolver ~24-39 vs `ResolveCheckoutApiKey`; input: restricted checkout key creates `cs_` ref on account B while resolver reads account A; reachability: wallet guard linked-customer mismatch fail-closed vs silent null.
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — wallet charges always use `SecretKey` even when checkout used `CheckoutSecretKey` for the tenant subscription — locus: gateway ~25-51; input: same split-key host config; reachability: auto-refill `customer`/`payment_method` exist only on checkout account.
-- [ ] (candidate) `LlmTenantWalletRefillStage` — static in-process `PendingRefillCredits` is lost on restart while Stripe payment intent may still complete — locus: `ConcurrentDictionary` ~24; input: processing intent after app recycle; reachability: settlement queue vs in-memory pending map.
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — customer-id-only update allowed when payment method omitted — locus: ~52-53 returns true without PM attachment check; input: PUT linked `cus_` without `pm_` then enable auto-replenish; reachability: auto-refill requires both persisted ids (~84-85).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish with null Stripe fields re-validates persisted ids but does not require PUT to include fresh `ExpectedRowVersion` when omitted — locus: enable branch ~77-100 with optional OCC; input: concurrent admin PUT omitting row version; reachability: last-writer on wallet settings.
+- [x] (invalid) `StripeLinkedCustomerResolver.TryResolveLinkedCustomerIdAsync` — subscription/checkout resolution always uses `Billing:Stripe:SecretKey` while checkout creation may use `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — wallet charges always use `SecretKey` even when checkout used `CheckoutSecretKey` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage` — static in-process `PendingRefillCredits` is lost on restart — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — customer-id-only update allowed when payment method omitted — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enabling auto-replenish with null Stripe fields without fresh `ExpectedRowVersion` — **cheap-disproof 2026-10-31 thorough hunt #7:** see thorough hunt #7 diary.
 
 2026-10-30 seed hunt #5 (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-27; seeded five follow-on `(candidate)` rows; scoped filter passed (7 Persistence `StripeWalletPaymentIdentifierGuard` tests + 2 Application guard/refill regressions, `RunAnalyzers=false`). Private beta: n/a.
 
@@ -3339,9 +3353,9 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
