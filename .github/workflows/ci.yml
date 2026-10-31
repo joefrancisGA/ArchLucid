@@ -660,6 +660,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_stickiness
 
+      - name: SecureNow adoption friction
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_adoption_friction.py
+
+      - name: SecureNow adoption friction unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_adoption_friction
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py
