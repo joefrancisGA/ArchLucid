@@ -115,7 +115,15 @@ function refreshOperatorScopeDependentClientState(): void {
   // the new tenant's scope synchronously during this event.
   clearFrictionlessTrialSessionForAuthenticatedOperator();
   clearOperatorShellStableCache();
-  clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
+  const queryClient = getOperatorQueryClient();
+  clearOperatorShellStatusScopeAgnosticCaches(queryClient);
+  // Shell-status keys are not an exhaustive registry. Other operator queries
+  // (including tenant identity-provider configuration and admin page bundles)
+  // omit tenant scope from their keys and could otherwise show tenant A's
+  // cached data after selecting tenant B. Evict every operator query before
+  // notifying observers; preserve account preferences under ["user"] and
+  // public marketing queries under ["marketing"].
+  queryClient.removeQueries({ queryKey: ["operator"] });
   clearOperatorRecentViewsStorage();
   clearHasExistingRunsCache();
   clearHasSeenWelcomeOnboarding();

@@ -148,6 +148,46 @@ describe("operator-shell-status-scope-cache", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.userPreferences)).toEqual({ theme: "dark" });
   });
 
+  it("evicts every operator cache when tenants change, including unscoped sensitive admin queries", () => {
+    writeOperatorScopeToStorage({
+      tenantId: SCOPE_A.tenantId,
+      workspaceId: SCOPE_A.workspaceId,
+      projectId: SCOPE_A.projectId,
+      workspaceLabel: "Tenant A",
+      projectLabel: "Project A",
+    });
+
+    const queryClient = getOperatorQueryClient();
+    const tenantBoundKeys = [
+      operatorQueryKeys.tenantIdentityProviderConfiguration,
+      operatorQueryKeys.adminIdentityProvidersPageBundle,
+      operatorQueryKeys.corePilotTeamChecklist,
+      operatorQueryKeys.tenantBaselineRoi,
+      operatorQueryKeys.architectureIntelligenceSourceContext(SCOPE_A, "run-a"),
+    ];
+
+    for (const queryKey of tenantBoundKeys) {
+      queryClient.setQueryData(queryKey, { tenantId: "tenant-a", marker: "A" });
+      expect(queryClient.getQueryData(queryKey)).toBeDefined();
+    }
+    queryClient.setQueryData(operatorQueryKeys.userPreferences, { theme: "dark" });
+    queryClient.setQueryData(operatorQueryKeys.marketingPublicPricing, { public: true });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Tenant B",
+      projectLabel: "Project B",
+    });
+
+    for (const queryKey of tenantBoundKeys) {
+      expect(queryClient.getQueryData(queryKey)).toBeUndefined();
+    }
+    expect(queryClient.getQueryData(operatorQueryKeys.userPreferences)).toEqual({ theme: "dark" });
+    expect(queryClient.getQueryData(operatorQueryKeys.marketingPublicPricing)).toEqual({ public: true });
+  });
+
   it("removeQueries targets every scope-agnostic shell-status key", () => {
     const queryClient = createOperatorQueryClient();
 
