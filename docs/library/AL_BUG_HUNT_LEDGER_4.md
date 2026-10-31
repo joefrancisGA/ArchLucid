@@ -16487,6 +16487,22 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-findings-advice
 
+2026-10-31 thorough hunt #1069 (hit): no rotation (`shouldRotate: false`). Cheap-disproof promoted five header `(candidate)` rows with failing repros — punctuation space (`U+2008`) and four-per-em space (`U+2005`) Jaccard token splits (`Jaccard_similarity_treats_punctuation_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_four_per_em_space_separated_resource_tokens_as_space_separated_peers`), `cannot comply with` / `could not comply with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `refused from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1695** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Same pilot-path finding-quality win as #1068 for punctuation/four-per-em spaced resource tokens plus cannot/could-not compliance conflict titles and refused-from negation phrasing.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — em space (`U+2003`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2003sql\u2003db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — three-per-em space (`U+2004`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2004sql\u2004db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `did not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `did not comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `will not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `will not comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `EnglishNegationTokenizer` — `blocked from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: prohibitive-from phrasing with `blocked from`; wrong outcome: `IsObviousGenericAdvice` true.
+
+2026-10-31 seed hunt #1068 (seed→hit, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-tenancy-commercial` (dry ×3; run log). Picker rotated with **`-AvoidZoneId`** to `core-findings-advice` (`seedHunt` with header queue empty — five `(candidate)` rows from the prior dry note sat below the second diary line). Promoted and proved five rows — hair space (`U+200A`) and six-per-em space (`U+2006`) Jaccard token splits (`Jaccard_similarity_treats_hair_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_six_per_em_space_separated_resource_tokens_as_space_separated_peers`), `not able to comply with` / `incapable of complying with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `rejected from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1692** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Near-duplicate finding suppression treats more Unicode-spaced resource tokens and conflict/negation phrasing correctly, so invited operators see fewer false “generic advice” demotions and cleaner conflict signals in review findings.
+
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — punctuation space (`U+2008`) separated resource tokens — **hit 2026-10-31 thorough hunt #1069:** split on `\u2008`; regression above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — four-per-em space (`U+2005`) separated resource tokens — **hit 2026-10-31 thorough hunt #1069:** split on `\u2005`; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `cannot comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-31 thorough hunt #1069:** `cannot comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `could not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-31 thorough hunt #1069:** `could not comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `EnglishNegationTokenizer` — `refused from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-31 thorough hunt #1069:** added `refused from` to multi-word negations; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt #854 (seed→hit): reseeded `core-findings-advice` after picker `seedHunt` and empty hypothesis list; promoted five freshly seeded `(candidate)` rows; `InsightDensityTextSimilarity.Tokenize` left thin space (`U+2009`), figure space (`U+2007`), and medium mathematical space (`U+205F`) glued between resource tokens so near-duplicate findings under-penalized duplication (`Jaccard_similarity_treats_thin_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_figure_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_medium_mathematical_space_separated_resource_tokens_as_space_separated_peers`); `ConflictFindingPattern` missed `unable to comply with the constraint` for `HasFalsifiabilitySignal` (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`); `EnglishNegationTokenizer` missed `denied from` prohibitive phrasing (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~GenericArchitectureAdvicePatterns` filter **1689/1689** (Release). Private beta: invited operators reviewing LLM findings see fewer near-duplicate checklist noise pairs when titles use Unicode thin or figure spaces, and conflict or negated compliance wording routes through falsifiability and generic-advice filters correctly.
 
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — thin space (`U+2009`) separated resource tokens — **hit 2026-10-29 seed hunt #854:** split on `\u2009`; regression above. [class:fail-open-validation]
@@ -16497,11 +16513,11 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-31 thorough hunt (dry): all five picker rows remained `(candidate)` because they lacked the required reachability citation for a hunt-ready repro; reread the Findings similarity, conflict-pattern, and negation-tokenizer mechanisms, and the scoped suite passed 1,689/1,689. No production change. Private beta: n/a.
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — hair space (`U+200A`) separated resource tokens vs space-separated peer under-penalized duplication — locus: `Tokenize` split set; input: `prod\u200Asql\u200Adb` vs `prod sql db`; wrong outcome: Jaccard below 0.85 high-duplication threshold.
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — six-per-em space (`U+2006`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2006sql\u2006db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not able to comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: conflict title with `not able to comply with`; wrong outcome: falsifiability bonus skipped.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incapable of complying with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `incapable of complying with`; wrong outcome: falsifiability bonus skipped.
-- [ ] (candidate) `EnglishNegationTokenizer` — `rejected from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: prohibitive-from phrasing with `rejected from`; wrong outcome: `IsObviousGenericAdvice` true.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — hair space (`U+200A`) separated resource tokens vs space-separated peer under-penalized duplication — **hit 2026-10-31 seed hunt #1068:** split on `\u200A`; regression above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — six-per-em space (`U+2006`) separated resource tokens — **hit 2026-10-31 seed hunt #1068:** split on `\u2006`; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not able to comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-31 seed hunt #1068:** `(?:not able to|unable to) comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incapable of complying with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-31 seed hunt #1068:** `incapable of complying with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `EnglishNegationTokenizer` — `rejected from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-31 seed hunt #1068:** added `rejected from` to multi-word negations; regression above. [class:fail-open-validation]
 
 2026-10-21 thorough hunt (hit, lane D): narrow no-break space / NBSP token delimiter parity; 1743 scoped tests passed.
 
@@ -16516,11 +16532,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 32
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 1
+- **hunts:** 33
+- **bugs-found:** 40
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-29 — Unicode thin/figure/math spaces in Jaccard tokenization, unable-to-comply conflict wording, denied-from negation
+- **last-bug:** 2026-10-31 — hair/six-per-em Jaccard spaces, not-able/incapable conflict wording, rejected-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17051,13 +17067,29 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-tenancy-commercial
 
+2026-10-31 thorough hunt #1067 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **3/3** in run log after hunt #1066 — next `/4` should `-AvoidZoneId` rotate). Cheap-disproof closed five header `(candidate)` rows from hunt #1066 — **valid-no-repro** Pending Standard tenant eligible for weekly sponsor while only **Active** trials blocked (`IsEligibleForWeeklySponsorReport` — hunt #1063), **invalid** empty-string `PlanIdTierMap` value mapping Enterprise (`NormalizeConfiguredTier` defaults **Standard** — hunt #1063), **valid-no-repro** null commercial label with 5-seat subscription yielding null spend plan (`FromCommercialPackaging` requires explicit label — hunt #1063), **invalid** `(seats=0, workspaces=1)` subscription returning Team label (zero-seat cap math — hunt #1063), **valid-no-repro** string `"1e2"` vs JSON `1e2` quantity (both whole **100** — hunt #1063). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **67** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — locus: gate vs automation split; input: suspended checkout (monitor; hunt #970).
+- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Converted` on Standard tier eligible while Active trial blocked — locus: non-Active trial lifecycle; input: converted checkout (monitor; hunt #1067).
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Team label with 1-seat subscription maps Architect before Team bundle inference — locus: label ordering; input: Team + 1 seat (monitor; hunt #972).
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=8, workspacesUsed=1)` returns Team label — locus: below Professional caps; input: 8 seats usage (monitor; hunt #1056).
+- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON `null` `planId` property coerces empty plan id — locus: null token handling; input: `"planId":null` (monitor; hunt #970).
+
+2026-10-31 thorough hunt #1066 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **2/3** in run log after hunt #1065). Cheap-disproof closed five header `(candidate)` rows from hunt #1065 — **invalid** Pending on Standard enum passing Enterprise gate (`(int)Standard >= Enterprise` false — hunt #1058), **valid-no-repro** JSON object `planId` (`ValueKind` not String/Number/Boolean returns false — hunt #1058), **invalid** Professional label with 5-seat subscription mapping Architect (`FromCommercialPackaging` returns **Professional** — hunt #1058), **invalid** sales-led `(seatsUsed=11, workspacesUsed=1)` returning Team (`seatsUsed > TeamSeatsMax` → Professional — hunt #1058), **invalid** `ReadQuantity` subscription fallback on GA ChangeQuantity (`TryReadQuantity`-only defer — hunt #970/#1058). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — Pending Standard tenant passes weekly sponsor while Active trial blocked — **cheap-disproof 2026-10-31 thorough hunt #1067:** regression above.
+- [x] (invalid) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — empty-string map tier value promotes Enterprise — **cheap-disproof 2026-10-31 thorough hunt #1067:** regression above.
+- [x] (valid-no-repro) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null label with 5-seat subscription returns Team spend plan — **cheap-disproof 2026-10-31 thorough hunt #1067:** regression above.
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — `(seats=0, workspaces=1)` subscription returns Team label — **cheap-disproof 2026-10-31 thorough hunt #1067:** regression above.
+- [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — string `"1e2"` vs JSON `1e2` quantity parse asymmetry — **cheap-disproof 2026-10-31 thorough hunt #1067:** regression above.
+
 2026-10-31 thorough hunt #1065 (dry): no rotation (`shouldRotate: false`; `core-requests-constraints` low-yield streak 1/3 in run log after hunt #1064). Cheap-disproof closed five header `(candidate)` rows from hunt #1063 — **valid-no-repro** Converted trial on Free tier vs Standard gate (only **Active** trials block; `(int)Free >= Standard` false — hunt #972/#1060), **valid-no-repro** JSON array `planId` (non-scalar kind returns false — hunt #1057), **invalid** sales-led `(seatsUsed=10, workspacesUsed=2)` returning Team (`workspacesUsed=2` → Professional — hunt #1057), **valid-no-repro** Canceled trial seat-claim (`RequiresSeatClaim` **Active** only — hunt #1057), **valid-no-repro** JSON `"quantity":1e2` as whole **100** seats (intentional whole-number coercion — hunt #1057). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — `TrialStatus=Pending` on `TenantTier.Standard` passes Enterprise gate — locus: active-trial block; input: pending Standard checkout; wrong outcome: premature Enterprise surface (monitor; hunt #1058 invalid).
-- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON object `planId` serialized via `ToString()` — locus: kind guards; input: nested object planId (monitor; hunt #1058).
-- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional label with 5-seat subscription maps Architect plan — locus: label ordering; input: Professional label + Team-shaped subscription (monitor; hunt #1058 invalid).
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=11, workspacesUsed=1)` returns Team label — locus: Team max seats; input: no billing row (monitor; hunt #1058 invalid).
-- [ ] (candidate) `MarketplaceQuantityReader.ReadQuantity` — missing quantity applies subscription seat fallback on GA ChangeQuantity — locus: TryReadQuantity-only handler; input: absent quantity (monitor; hunt #1058 invalid).
+- [x] (invalid) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — `TrialStatus=Pending` on `TenantTier.Standard` passes Enterprise gate — **cheap-disproof 2026-10-31 thorough hunt #1066:** regression above.
+- [x] (valid-no-repro) `MarketplaceChangePlanReader.TryGetPlanId` — JSON object `planId` serialized via `ToString()` — **cheap-disproof 2026-10-31 thorough hunt #1066:** regression above.
+- [x] (invalid) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional label with 5-seat subscription maps Architect plan — **cheap-disproof 2026-10-31 thorough hunt #1066:** regression above.
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=11, workspacesUsed=1)` returns Team label — **cheap-disproof 2026-10-31 thorough hunt #1066:** regression above.
+- [x] (invalid) `MarketplaceQuantityReader.ReadQuantity` — missing quantity applies subscription seat fallback on GA ChangeQuantity — **cheap-disproof 2026-10-31 thorough hunt #1066:** regression above.
 
 2026-10-31 thorough hunt #1063 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-requests-constraints` (dry ×3; run log). Picker rotated with **`-AvoidZoneId`** to `core-tenancy-commercial`. Cheap-disproof closed five header `(candidate)` rows from hunt #1058 — **valid-no-repro** Pending trial on Standard tier vs weekly sponsor (`IsEligibleForWeeklySponsorReport` blocks **Active** trials only — same class as HTTP gate; Pending is not promoted to sponsor automation without Standard tier — hunt #971 suspension split family), **invalid** empty-string `PlanIdTierMap` value mapping Enterprise (`NormalizeConfiguredTier` logs warning and defaults **Standard** — hunt #1052 whitespace parity), **valid-no-repro** null commercial label with 5-seat subscription returning Team spend plan (`FromCommercialPackaging` requires explicit Team/Professional label — hunt #1052 null label → null), **invalid** `(seats=0, workspaces=1)` subscription returning Team label (cap inequalities with zero seats — hunt #970 invalid), **valid-no-repro** string `"1e2"` vs JSON number `1e2` quantity asymmetry (both coerce whole **100** via `TryParseWholeNumberString` / `TryReadWholeNumberInt32` — hunt #1057 numeric token parity). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -17150,9 +17182,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
