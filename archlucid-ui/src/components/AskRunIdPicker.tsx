@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -29,6 +29,9 @@ import {
 } from "@/components/ui/select";
 
 export { ASK_WORKSPACE_ALL_REVIEWS_VALUE };
+
+// Stable fallback prevents unnecessary effect work while the query has no data.
+const EMPTY_RUN_SUMMARIES: RunSummary[] = [];
 
 export type AskRunIdPickerProps = {
   readonly value: string;
@@ -99,9 +102,13 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
   const allowsSyntheticAskRunPick = operatorAllowsSyntheticAskRunPick(isWorkingMode);
-  const [items, setItems] = useState<RunSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  // Query data is the source of truth. Mirroring it into state caused an
+  // unbounded render loop when a query adapter/mock returned equal fresh
+  // objects on every render: the effect wrote a new items array each time.
+  const { data: projectRunsData, isLoading: loading, isError: projectRunsError } =
+    useAskProjectRunsQuery("default", { committedOnly });
+  const items = projectRunsData?.items ?? EMPTY_RUN_SUMMARIES;
+  const loadError = projectRunsData?.loadError ?? projectRunsError;
 
   const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
@@ -137,15 +144,6 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       usingSyntheticSample,
     });
   }, [allowsSyntheticAskRunPick, autoSelectSyntheticSample, items.length, loadError, loading, preferAutoPick, value]);
-
-  const { data: projectRunsData, isLoading: projectRunsLoading, isError: projectRunsError } =
-    useAskProjectRunsQuery("default", { committedOnly });
-
-  useEffect(() => {
-    setItems(projectRunsData?.items ?? []);
-    setLoadError(projectRunsData?.loadError ?? projectRunsError);
-    setLoading(projectRunsLoading);
-  }, [projectRunsData, projectRunsError, projectRunsLoading]);
 
   useEffect(() => {
     if (!preferAutoPick) {

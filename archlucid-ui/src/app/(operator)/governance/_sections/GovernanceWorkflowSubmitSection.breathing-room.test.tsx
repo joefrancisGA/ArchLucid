@@ -1,17 +1,27 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OPERATOR_FORM_FIELD_STACK_CLASS } from "@/lib/design-tokens";
 
+// Deliberately return a fresh query snapshot on every render; the picker must
+// not mirror referentially unstable query data into a render-triggering state.
+const queryMockState = vi.hoisted(() => ({ calls: 0 }));
+
 vi.mock("@/hooks/use-ask-project-runs-query", () => ({
-  useAskProjectRunsQuery: () => ({
-    data: {
-      items: [{ runId: "run-1", displayName: "", description: "" }],
-      loadError: false,
-    },
-    isLoading: false,
-    isError: false,
-  }),
+  useAskProjectRunsQuery: () => {
+    queryMockState.calls += 1;
+    if (queryMockState.calls > 20) {
+      throw new Error("AskRunIdPicker query-data render loop");
+    }
+    return {
+      data: {
+        items: [{ runId: "run-1", displayName: "", description: "" }],
+        loadError: false,
+      },
+      isLoading: false,
+      isError: false,
+    };
+  },
 }));
 
 import { GovernanceWorkflowSubmitSection } from "./GovernanceWorkflowSubmitSection";
@@ -27,6 +37,7 @@ function renderSubmitSection(): void {
       submitRunId=""
       setSubmitRunId={vi.fn()}
       submitManifestVersion=""
+      maxPersistedManifestVersion={null}
       setSubmitManifestVersion={vi.fn()}
       submitSource=""
       setSubmitSource={vi.fn()}
@@ -41,6 +52,15 @@ function renderSubmitSection(): void {
 }
 
 describe("GovernanceWorkflowSubmitSection breathing room (TB-2000)", () => {
+  beforeEach(() => {
+    queryMockState.calls = 0;
+  });
+
+  it("does not loop on fresh-but-equivalent project-runs query objects", () => {
+    renderSubmitSection();
+    expect(queryMockState.calls).toBeLessThan(20);
+  });
+
   it("uses OPERATOR_FORM_FIELD_STACK_CLASS on label-control field stacks", () => {
     renderSubmitSection();
 
