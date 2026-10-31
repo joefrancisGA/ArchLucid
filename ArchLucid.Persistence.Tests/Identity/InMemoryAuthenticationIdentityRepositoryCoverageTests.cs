@@ -285,4 +285,45 @@ public sealed class InMemoryAuthenticationIdentityRepositoryCoverageTests
         any.Should().NotBeNull();
         any!.DisabledUtc.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task FindAnyByExternalKeyAsync_returns_newest_disabled_identity_when_multiple_disabled_rows_share_external_key()
+    {
+        InMemoryAuthenticationIdentityRepository sut = new();
+        ExternalIdentityKey key = new()
+        {
+            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+            NormalizedIssuer = "issuer",
+            Subject = "subject",
+        };
+
+        AuthenticationIdentityRecord first = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = key.ProviderType,
+                NormalizedIssuer = key.NormalizedIssuer,
+                Subject = key.Subject,
+            },
+            CancellationToken.None);
+
+        await sut.DisableAsync(first.Id, DateTimeOffset.UtcNow.AddMinutes(-5), CancellationToken.None);
+
+        AuthenticationIdentityRecord second = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = key.ProviderType,
+                NormalizedIssuer = key.NormalizedIssuer,
+                Subject = key.Subject,
+            },
+            CancellationToken.None);
+
+        await sut.DisableAsync(second.Id, DateTimeOffset.UtcNow, CancellationToken.None);
+
+        AuthenticationIdentityRecord? any = await sut.FindAnyByExternalKeyAsync(key, CancellationToken.None);
+
+        any.Should().NotBeNull();
+        any!.Id.Should().Be(second.Id);
+    }
 }
