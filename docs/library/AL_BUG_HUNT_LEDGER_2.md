@@ -3366,13 +3366,27 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from seed hunt #68 (marketplace JWT null rejects before `TryInsertWebhookEventAsync` ~25–47 same class as missing-bearer regression; replay-guard whitespace `providerName` throws fail-closed like `eventId`/`RememberAsync`; Stripe controller `413` before `HandleWebhookAsync` is TB-967 hostile-input contract; in-memory `HasSeenAsync` before ledger insert is intentional with `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected` proving no ledger write); seeded five follow-on `(candidate)` rows; 39 scoped billing webhook unit tests passed (24 Persistence + 15 Application, `RunAnalyzers=false`); 2 Api architecture-order tests passed; Api SQL integration HTTP suites not run (no SQL Server on cloud VM).
+
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** `validated is null` returns rejected at ~25–26 before replay guard/ledger ~41–47; complements `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** `ThrowIfNullOrWhiteSpace(providerName)` fail-closed; symmetric to `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only` and `RememberAsync_throws_when_provider_name_is_whitespace_only`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** same guard as `eventId`; not a replay bypass defect.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — **cheap-disproof 2026-10-31 thorough hunt:** intentional bounded reader before signature verification; reaffirmed 2026-10-07 zone diary and `WebhookMiddlewareOrderingTests`.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** intentional ordering per `BILLING_WEBHOOK_REPLAY_GUARD.md`; regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected` verifies ledger insert never runs.
+
+- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — malformed JSON after JWT validation throws before `TryInsertWebhookEventAsync` — locus: `JsonDocument.Parse` ~28 after `ValidateAsync`; input: bearer-valid body that is not JSON; reachability: hostile or truncated marketplace POST.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — oversize payload returns `413` before provider dispatch — locus: `InboundWebhookBoundedBodyReader` failure branch; input: body over `InboundWebhookBodyLimits.DefaultMaxUtf8Bytes`; reachability: parity with Stripe controller TB-967 contract.
+- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — invalid Stripe signature rejects in `ConstructEvent` before ledger insert — locus: `StripeException` catch ~44–46 before ~55; input: tampered body with syntactically present signature header; reachability: webhook secret rotation / replay attacks.
+- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — in-memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — locus: ~41–47; input: duplicate marketplace dedupe key within 24h window; reachability: Entra/marketplace redelivery semantics vs ledger idempotency.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — non-positive amount metadata skips wallet credit without surfacing provider-level failure — locus: amount guard before wallet call; input: `payment_intent.succeeded` with zero/negative amount fields; reachability: Stripe test-mode misconfiguration.
+
 2026-10-15 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing`, `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`, `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only`, `RememberAsync_throws_when_provider_name_is_whitespace_only`, and `TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed`; 68 scoped billing webhook unit tests passed (53 Persistence + 15 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
 - [x] (valid-no-repro) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` returns HTTP `200 Ok` without body — **cheap-disproof 2026-10-15 seed hunt #68:** intentional Stripe ack contract; reaffirmed `BillingStripeWebhookReplayHttpTests.Duplicate_stripe_event_returns_ok_without_reprocessing` and prior hunt #62 classification.
@@ -3381,11 +3395,11 @@
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — `ChangePlan` with `GaEnabled` true does not set `Returns202Accepted` — **cheap-disproof 2026-10-15 seed hunt #68:** GA-on synchronous mutation; regression `ChangePlan_ga_on_invokes_ledger_change_plan` (`Returns202Accepted` false).
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — failed handler marks ledger `Failed` without `RememberAsync` — **cheap-disproof 2026-10-15 seed hunt #68:** intentional Stripe retry after failure; regression `HandleWebhookAsync_wallet_payment_intent_missing_tenant_id_marks_failed_without_credit`.
 
-- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — locus: `validated is null` (`AzureMarketplaceBillingProvider.WebhookDispatch.cs` ~25–26); input: verifier returns null with non-empty bearer.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — locus: `ThrowIfNullOrWhiteSpace(providerName)` (`MemoryCacheBillingWebhookReplayGuard.cs` ~65); input: `TryRegisterEventAsync("   ", "evt_1")`.
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — locus: `ThrowIfNullOrWhiteSpace(providerName)` ~26; input: `HasSeenAsync("   ", "evt_1")`.
-- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — locus: `InboundWebhookBoundedBodyReader` failure branch (`BillingStripeWebhookController.cs` ~46–50); input: body over `InboundWebhookBodyLimits.DefaultMaxUtf8Bytes`.
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — locus: ordering ~49–55 (`StripeBillingProvider.Webhook.cs`); input: `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`.
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — JWT validation failure rejects before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — throws on whitespace-only `providerName` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — oversize payload returns `413` before provider dispatch — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — memory replay guard `HasSeenAsync` runs before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
