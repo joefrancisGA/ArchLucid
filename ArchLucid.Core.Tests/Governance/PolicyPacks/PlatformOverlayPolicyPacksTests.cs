@@ -20,4 +20,15 @@ public sealed class PlatformOverlayPolicyPacksTests
     {
         PlatformOverlayPolicyPacks.IsOverlayDisplayName(displayName, cloudProvider).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsOverlayDisplayName_rejects_fullwidth_latin_homoglyph_overlay_name()
+    {
+        const string fullwidthAzureWaf = "\uFF21zure Well-Architected Framework";
+
+        PlatformOverlayPolicyPacks
+            .IsOverlayDisplayName(fullwidthAzureWaf, CloudProvider.Azure)
+            .Should()
+            .BeFalse("catalog overlay names are canonical Latin; homoglyph typos are not auto-normalized");
+    }
 }
