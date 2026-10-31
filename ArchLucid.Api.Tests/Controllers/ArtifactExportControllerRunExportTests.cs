@@ -94,6 +94,35 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task PushRunExportToBlob_returns_400_when_destination_has_uppercase_percent_encoded_blob_host()
+    {
+        ArtifactExportController sut = CreateController(
+            out _,
+            out _,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox);
+
+        IActionResult result = await sut.PushRunExportToBlob(
+            Guid.NewGuid(),
+            new RunExportBlobPushRequest
+            {
+                DestinationSasUrl =
+                    "https://acct.BLOB%2ECORE%2Ewindows%2enet/exports/run.zip?sas=token",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DownloadTerraformAdvisoryExport_returns_404_when_run_has_no_committed_manifest()
     {
         Guid runId = Guid.NewGuid();

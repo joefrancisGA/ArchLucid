@@ -48,6 +48,7 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     [InlineData("https://127%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://10%2e0%2e0%2e1.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://acct.blob%2ecore%2ewindows%2enet/container/run.zip?sas=token")]
+    [InlineData("https://acct.BLOB%2ECORE%2Ewindows%2enet/container/run.zip?sas=token")]
     public void TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl(string url)
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)

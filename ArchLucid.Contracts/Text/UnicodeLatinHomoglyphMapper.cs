@@ -48,6 +48,14 @@ public static class UnicodeLatinHomoglyphMapper
             '\u0445' => 'x',
             '\u0406' => 'I',
             '\u0456' => 'i',
+            '\u1D00' => 'a',
+            '\u1D07' => 'e',
+            '\u1D08' => 'f',
+            '\u1D0B' => 'l',
+            '\u1D18' => 's',
+            '\u1D1B' => 't',
+            '\u1D1C' => 'u',
+            '\u0280' => 'r',
             _ => ch,
         };
 }
