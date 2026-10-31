@@ -192,7 +192,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     {
         string normalized = NormalizeHost(host);
         string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
-            Uri.UnescapeDataString(normalized));
+            AzureInventoryAppSettingHostRedactor.DecodeInventoryHostPercentEncoding(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -203,7 +203,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     {
         string normalized = NormalizeHost(host);
         string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
-            Uri.UnescapeDataString(normalized));
+            AzureInventoryAppSettingHostRedactor.DecodeInventoryHostPercentEncoding(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -214,7 +214,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     {
         string normalized = NormalizeHost(host);
         string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
-            Uri.UnescapeDataString(normalized));
+            AzureInventoryAppSettingHostRedactor.DecodeInventoryHostPercentEncoding(normalized));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
@@ -238,7 +238,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     {
         string normalized = NormalizeHost(host);
         string decoded = AzureInventoryAppSettingHostRedactor.StripDecodedInventoryHostPathSeparators(
-            Uri.UnescapeDataString(normalized));
+            AzureInventoryAppSettingHostRedactor.DecodeInventoryHostPercentEncoding(normalized));
 
         int portSeparatorIndex = decoded.LastIndexOf(':');
 

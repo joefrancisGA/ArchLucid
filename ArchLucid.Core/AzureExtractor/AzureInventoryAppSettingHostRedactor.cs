@@ -215,7 +215,11 @@ public static partial class AzureInventoryAppSettingHostRedactor
         return vaultHost.Contains("%2f", StringComparison.OrdinalIgnoreCase)
                || vaultHost.Contains("%5c", StringComparison.OrdinalIgnoreCase)
                || vaultHost.Contains("%23", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%3f", StringComparison.OrdinalIgnoreCase);
+               || vaultHost.Contains("%3f", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%252f", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%255c", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%2523", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%253f", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string DecodeInventoryHostPercentEncoding(string value)
@@ -256,7 +260,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     private static string NormalizeHttpsInventoryHost(string host)
     {
-        string decoded = StripDecodedInventoryHostPathSeparators(Uri.UnescapeDataString(host));
+        string decoded = StripDecodedInventoryHostPathSeparators(DecodeInventoryHostPercentEncoding(host));
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
