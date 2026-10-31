@@ -3102,3 +3102,4 @@
 {"at":"2026-10-31T17:10:29.4998988Z","zoneId":"notifications-pipeline","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T17:14:08.8526596Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T17:14:10.9781570Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T17:17:25.0517913Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
