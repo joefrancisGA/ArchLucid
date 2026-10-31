@@ -136,7 +136,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.SoftGaps.Should().Contain(g => g.Contains("audit-event row count **not attested**", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(PilotRunDeltasAuditRowCountFormatter.NotAttestedPlain);
         gate.HardGaps.Should().NotContain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
     }
 

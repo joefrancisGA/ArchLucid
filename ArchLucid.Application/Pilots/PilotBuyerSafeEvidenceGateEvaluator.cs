@@ -45,8 +45,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (!deltas.AuditRowCountResolved)
         {
-            softGapMessages.Add(
-                "Scoped audit-event row count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no audit continuity.");
+            softGapMessages.Add(PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
         }
         else if (deltas.AuditRowCount == 0)
         {
