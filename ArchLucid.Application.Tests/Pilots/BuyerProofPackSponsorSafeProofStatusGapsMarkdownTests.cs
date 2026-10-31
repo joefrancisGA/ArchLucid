@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Pilots;
@@ -891,6 +892,39 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .FormatPlainText(deltas, proof, run, manifest: null)
             .Should()
             .Be(notComplete);
+    }
+
+    [Fact]
+    public void Proof_package_committed_timestamp_when_stale_proof_flags_use_run_and_manifest_not_lagging_dto()
+    {
+        DateTime committedUtc = DateTime.Parse("2026-03-15T12:00:00Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { CreatedUtc = committedUtc } };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            CommittedManifestTimestampResolved = false,
+        };
+
+        ArchitectureRun run = new() { RunId = "run-a", Status = ArchitectureRunStatus.Committed };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest,
+            run);
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Committed manifest timestamp (UTC) |", StringComparison.Ordinal));
+
+        row.Should().Contain("Present —");
+        row.Should().Contain(committedUtc.ToString("O", CultureInfo.InvariantCulture));
+        row.Should().NotContain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
     }
 
     [Fact]

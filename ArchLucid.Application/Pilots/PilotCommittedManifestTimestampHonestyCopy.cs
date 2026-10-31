@@ -1,6 +1,9 @@
 namespace ArchLucid.Application.Pilots;
 
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 internal static class PilotCommittedManifestTimestampHonestyCopy
@@ -12,19 +15,18 @@ internal static class PilotCommittedManifestTimestampHonestyCopy
     internal static string FormatProofPackageCell(
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse c,
-        GoldenManifest? manifest)
+        GoldenManifest? manifest,
+        ArchitectureRun run)
     {
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(c);
+        ArgumentNullException.ThrowIfNull(run);
 
-        if (!c.CommittedManifestPresent)
+        if (!PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest))
         {
-            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
-        }
-
-        if (!c.RunInCommittedStatus)
-        {
-            if (!c.CommittedManifestTimestampResolved)
+            if (manifest is not null
+                && run.Status != ArchitectureRunStatus.Committed
+                && !c.CommittedManifestTimestampResolved)
             {
                 return
                     $"Missing — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(MetadataCreatedUtcFieldLabel)} {UnresolvedSuffixPlain}";
@@ -33,13 +35,13 @@ internal static class PilotCommittedManifestTimestampHonestyCopy
             return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
         }
 
-        if (!c.CommittedManifestTimestampResolved)
+        if (manifest!.Metadata.CreatedUtc == default)
         {
             return
                 $"Missing — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(MetadataCreatedUtcFieldLabel)} {UnresolvedSuffixPlain}";
         }
 
-        DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
+        DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest.Metadata.CreatedUtc;
         return
             $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(committedUtc.ToString("O", System.Globalization.CultureInfo.InvariantCulture))} ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(MetadataCreatedUtcFieldLabel)}).";
     }

@@ -36,7 +36,8 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine(
             $"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(!string.IsNullOrWhiteSpace(run.RunId))} |");
         sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(run, manifest)} |");
-        sb.AppendLine($"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest)} |");
+        sb.AppendLine(
+            $"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest, run)} |");
         sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(deltas, run, manifest)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, run, manifest)} |");
         sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
