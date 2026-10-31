@@ -3109,6 +3109,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): no rotation (`lowYieldStreak` 1 on `ui-review-detail-workspace`); cooldown fallback kept saturated `ui-oidc` selected. Reread BFF refresh response expiry parsing/skew, concurrent refresh deduplication, activity ping mutation headers, and optional token field normalization before cookie sync. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed.
+
 2026-10-31 seed hunt (seed-only): no rotation (`lowYieldStreak` 2/3 on `ui-oidc`); cooldown fallback kept saturated `ui-oidc` selected. Reread token response application into session storage, session-generation invalidation, nonce/state verification on callback, idle-broadcast on sign-out, and authorize callback human-readable error mapping. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): no rotation (`lowYieldStreak` 1 on `ui-oidc`); cooldown fallback kept saturated `ui-oidc` selected. Reread supplemental Google OIDC env resolution, primary vs Google PKCE storage keys, token exchange error surfacing to session policy, and sign-out/session clear ordering across BFF and sessionStorage. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed.
@@ -3161,7 +3163,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only, rotation): rotation avoided `ui-form-validation` after three consecutive seed-only outcomes and selected saturated `ui-oidc`; fresh rereading of discovery endpoint validation/cache, authorize URL construction, PKCE generation/storage, OIDC configuration defaults, and current test coverage found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
 
-**Hunts:** 111 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+**Hunts:** 112 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
 
 2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread PKCE storage-key isolation, primary/supplemental authorize redirect cleanup, discovery query preservation, response-mode enforcement, and parameter normalization. The scoped `src/lib/oidc` suite passed 1030/1030; no new reachable mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
