@@ -95,7 +95,7 @@ public static class FirstValueReportProofPackageSectionFormatter
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
     {
         if (deltas.TopFindingId is null)
-            return "Not applicable — no findings on this run.";
+            return PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain;
         return deltas.TopFindingEvidenceChain is not null
             ? "Present"
             : PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse;

@@ -260,4 +260,29 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         traceSb.ToString().Should().Contain(prose);
         proofSb.ToString().Should().NotContain("Explicitly unavailable — persisted finding");
     }
+
+    [Fact]
+    public void Proof_package_evidence_chain_cell_when_no_top_finding_uses_shared_skip_prose()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { TopFindingId = null },
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Top finding evidence-chain pointer |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain);
+        row.Should().NotContain("Not applicable — no findings on this run.");
+    }
 }
