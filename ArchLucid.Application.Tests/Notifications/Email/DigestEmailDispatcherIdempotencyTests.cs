@@ -1148,6 +1148,62 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_throws_for_iso_week_key_with_embedded_vertical_tab()
+    {
+        WeeklySponsorReportEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        const string smuggledKey = "2026-W22\u000Bextra";
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("24242424-2424-2424-2424-242424242424"),
+            smuggledKey,
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W22",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("isoWeekIdempotencyKey");
+    }
+
+    [Fact]
+    public async Task ExecDigestEmailDispatcher_throws_for_iso_week_key_with_embedded_line_break()
+    {
+        ExecDigestEmailDispatcher sut = new(
+            Mock.Of<IEmailTemplateRenderer>(),
+            Mock.Of<IEmailProvider>(),
+            Mock.Of<ISentEmailLedger>(),
+            Mock.Of<IOptionsMonitor<EmailNotificationOptions>>(),
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        ExecDigestComposition composition = new(
+            WeekLabel: "W22",
+            ComplianceDriftMarkdown: null,
+            CommittedManifestsInWeek: null,
+            TopManifestRuns: [],
+            FindingsDeltaSummary: null,
+            DashboardUrl: "https://example.test/d",
+            SponsorValueReportUrl: "https://example.test/sponsor",
+            LatestCommittedRunIdHex: null);
+
+        Func<Task> act = () => sut.TryDispatchAsync(
+            Guid.Parse("24242424-2424-2424-2424-242424242424"),
+            "2026-W22\r\nBcc: injected",
+            composition,
+            ["exec@example.test"],
+            "https://example.test/unsub",
+            cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("isoWeekIdempotencyKey");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only()
     {
         WeeklySponsorReportEmailModel? capturedModel = null;

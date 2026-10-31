@@ -16,6 +16,42 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
+    public void Compute_does_not_throw_when_manifest_supporting_finding_ids_contain_null_placeholder()
+    {
+        ProvenanceBuildInput input = CreateInput(
+            [],
+            decisions:
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-1",
+                    Title = "Decision",
+                    Category = "c",
+                    SelectedOption = "opt",
+                    Rationale = "r",
+                    SupportingFindingIds = [null!, "find-1"],
+                },
+            ],
+            findings:
+            [
+                new Finding
+                {
+                    FindingId = "find-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Info,
+                    Title = "Finding",
+                    Rationale = "r",
+                },
+            ]);
+
+        Action act = () => ProvenanceSnapshotRevisionHasher.Compute(input, BundleId);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Compute_changes_when_manifest_rule_set_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()
     {
         ProvenanceBuildInput baseline = CreateInput([]);

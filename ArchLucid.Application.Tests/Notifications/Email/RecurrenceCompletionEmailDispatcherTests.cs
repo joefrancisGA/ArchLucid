@@ -452,4 +452,49 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
         capturedModel.ScheduleName.Should().NotContain("\r");
         capturedModel.ScheduleName.Should().NotContain("\n");
     }
+
+    [Fact]
+    public async Task TryDispatchAsync_strips_embedded_vertical_tab_from_schedule_name_in_template_model()
+    {
+        RecurrenceCompletionEmailModel? capturedModel = null;
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as RecurrenceCompletionEmailModel)
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        RecurrenceCompletionEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<RecurrenceCompletionEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("36363636-3636-3636-3636-363636363636"),
+            Guid.Parse("37373737-3737-3737-3737-373737373737"),
+            Guid.Parse("38383838-3838-3838-3838-383838383838"),
+            scheduleName: "Weekly\u000Bscan",
+            newFindingCount: 1,
+            resolvedFindingCount: 0,
+            Guid.Parse("39393939-3939-3939-3939-393939393939"),
+            ["ops@example.test"],
+            null,
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        capturedModel.Should().NotBeNull();
+        capturedModel!.ScheduleName.Should().Be("Weekly scan");
+        capturedModel.ScheduleName.Should().NotContain("\u000B");
+    }
 }
