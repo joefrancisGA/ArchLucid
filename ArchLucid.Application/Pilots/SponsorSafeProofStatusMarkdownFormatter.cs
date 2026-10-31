@@ -112,7 +112,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Committed manifest timestamp is default/absent — commit-time proof cannot be audited from metadata.";
 
         if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
-            yield return "Time-to-committed-manifest is unresolved — wall-clock throughput claims are unsubstantiated.";
+            yield return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
 
         if (!proof.ArtifactDescriptorCountResolved)
             yield return "Artifact descriptor inventory did not resolve — package completeness cannot be attested.";

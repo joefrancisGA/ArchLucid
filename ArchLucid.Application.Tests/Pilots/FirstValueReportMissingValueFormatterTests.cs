@@ -28,7 +28,8 @@ public sealed class FirstValueReportMissingValueFormatterTests
                 FindingsBySeverity = [],
             });
 
-        markdown.ToString().Should().Contain("Time to committed manifest was not stored.");
+        markdown.ToString().Should().Contain(PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain);
+        markdown.ToString().Should().NotContain("Time to committed manifest was not stored.");
         markdown.ToString().Should().NotContain("pending");
     }
 
