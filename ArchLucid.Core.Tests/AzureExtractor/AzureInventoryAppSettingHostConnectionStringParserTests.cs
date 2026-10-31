@@ -4126,4 +4126,68 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Catalog.Should().Be("app;shadow");
     }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_backslash_yields_host_without_backslash_debris()
+    {
+        const string value = "Host=%70g%5c.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_endpoint_suffix_doubly_percent_encoded_yields_decoded_blob_host()
+    {
+        const string value = "AccountName=starch;AccountKey=abc;EndpointSuffix=%63ore%2ewindows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_underscore_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%5fprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders_prod.servicebus.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoded_partial_template_yields_no_catalog()
+    {
+        const string value = "Database=%7Btenant%7Dname;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().BeNull();
+        parsed[0].WarningCode.Should().Be(
+            AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsCatalogTemplate);
+    }
+
+    [Fact]
+    public void ParseSettingValues_prefixed_https_cosmos_china_yields_single_host_row()
+    {
+        const string value =
+            "AccountEndpoint=https://acc.documents.azure.cn/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("acc.documents.azure.cn");
+    }
 }
