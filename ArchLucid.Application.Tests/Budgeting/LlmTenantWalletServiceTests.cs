@@ -327,6 +327,57 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_with_stripe_customer_but_no_payment_method_in_same_request()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeLinkedCustomerResolver> linkedCustomer = new();
+        linkedCustomer
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_linked",
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object,
+            stripeLinkedCustomerResolver: linkedCustomer.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                StripeCustomerId = "cus_linked",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "enabling auto-replenish in one PUT must require a charge-ready payment method, not customer id alone");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted()
     {
         InMemoryLlmTenantWalletRepository repository = new();
