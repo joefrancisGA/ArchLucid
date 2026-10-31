@@ -64,36 +64,11 @@ public static class FirstValueReportSponsorStatusSectionFormatter
     private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof) =>
         PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(proof.AgentOutputPilotStrictEvidenceSatisfied);
 
-    private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
-    {
-        if (!proof.LlmCallCountResolved)
-            return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
+    private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, proof);
 
-        if (deltas.LlmCallCount == 0)
-        {
-            return
-                $"**0** trace row(s) for this run ({PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain}).";
-        }
-
-        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run.";
-    }
-
-    private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
-    {
-        if (!proof.AuditRowCountResolved)
-            return "**Not attested** — audit row count query failed; do not cite an audit row count.";
-
-        if (deltas.AuditRowCount == 0)
-            return "**0** audit row(s) for this run.";
-
-        if (deltas.AuditRowCountTruncated)
-        {
-            return
-                $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}+** audit row(s) for this run (query cap reached — count is at least this many).";
-        }
-
-        return $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}** audit row(s) for this run.";
-    }
+    private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatProofPackageCell(deltas, proof);
 
     private static string FormatSponsorRoiBasis(
         ProofPackageCompletenessResponse proof,

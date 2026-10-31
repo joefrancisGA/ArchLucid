@@ -816,4 +816,106 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .Contain(prose);
     }
+
+    [Fact]
+    public void Sponsor_status_audit_row_basis_matches_proof_package_when_unresolved()
+    {
+        PilotRunDeltas deltas = new() { AuditRowCountResolved = false, AuditRowCount = 0 };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AuditRowCountResolved = false,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            deltas,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string expected = PilotRunDeltasAuditRowCountFormatter.FormatProofPackageCell(deltas, proof);
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Audit row basis |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Audit-row count or lower bound |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+    }
+
+    [Fact]
+    public void Sponsor_status_llm_call_basis_matches_proof_package_when_unresolved()
+    {
+        PilotRunDeltas deltas = new() { LlmCallCountResolved = false, LlmCallCount = 0 };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            LlmCallCountResolved = false,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            proof,
+            deltas,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Low,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string expected = PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, proof);
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM call basis |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| LLM-call count |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+    }
 }

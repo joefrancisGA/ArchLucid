@@ -1,5 +1,7 @@
 using System.Globalization;
 
+using ArchLucid.Contracts.Pilots;
+
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>Shared LLM-call count copy for markdown deltas tables and sponsor PDF delta rows.</summary>
@@ -39,4 +41,24 @@ internal static class PilotRunDeltasLlmCallCountFormatter
     internal static string FormatSponsorSafeConcreteGapLine() =>
         FormattableString.Invariant(
             $"**LLM-call count** _({NotAttestedPlain})_ — the displayed integer is not trustworthy evidence.");
+
+    internal static string FormatProofPackageCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(proof);
+
+        if (!deltas.LlmCallCountResolved)
+            return FormatMarkdownTableCell(deltas);
+
+        string countDisplay =
+            FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
+
+        if (deltas.LlmCallCount == 0)
+        {
+            return
+                $"{countDisplay} row(s) in execution traces ({ZeroSimulatorCaveatPlain}).";
+        }
+
+        return $"{countDisplay} row(s) in execution traces.";
+    }
 }

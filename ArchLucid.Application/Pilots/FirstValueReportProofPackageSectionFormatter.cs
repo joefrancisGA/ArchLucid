@@ -40,7 +40,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
-        sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
+        sb.AppendLine($"| LLM-call count | {PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, c)} |");
         sb.AppendLine(
             $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(c.RoiEvidenceConfidence, c.RoiConfidenceLabel)} |");
 
@@ -109,28 +109,6 @@ public static class FirstValueReportProofPackageSectionFormatter
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas) =>
         PilotTopFindingEvidenceChainHonestyCopy.FormatMarkdownProofPackageCell(deltas);
-
-    private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
-    {
-        ArgumentNullException.ThrowIfNull(deltas);
-        ArgumentNullException.ThrowIfNull(c);
-
-        if (!deltas.LlmCallCountResolved)
-        {
-            return PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
-        }
-
-        string countDisplay =
-            FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
-
-        if (deltas.LlmCallCount == 0)
-        {
-            return
-                $"{countDisplay} row(s) in execution traces ({PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain}).";
-        }
-
-        return $"{countDisplay} row(s) in execution traces.";
-    }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Not present on this run.";
 

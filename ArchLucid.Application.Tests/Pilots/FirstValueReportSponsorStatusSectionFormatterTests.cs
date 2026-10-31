@@ -88,7 +88,7 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
 
         string markdown = sb.ToString();
 
-        markdown.Should().Contain("| Audit row basis | **Not attested**");
+        markdown.Should().Contain("| Audit row basis | " + PilotRunDeltasAuditRowCountFormatter.NotAttestedPlain);
         markdown.Should().NotContain("| Audit row basis | **0**");
     }
 
@@ -121,7 +121,7 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
                 "Pass",
                 "Pass narrative"));
 
-        sb.ToString().Should().Contain("| Audit row basis | **500+**");
+        sb.ToString().Should().Contain(PilotRunDeltasAuditRowCountFormatter.TruncationCaveatPlain);
     }
 
     [Fact]
