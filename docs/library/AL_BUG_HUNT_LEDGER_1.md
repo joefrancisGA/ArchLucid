@@ -16647,6 +16647,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-31 seed hunt (hunt 251, seed-only): reseeded `application-pilots` after hunt 250 hit; re-read `PilotSponsorSafeSendableAllClearHonestyCopy`, `FindingTrustEvidenceCardMarkdownFormatter`, `FirstValueReportProofPackageSectionFormatter`, `SponsorSafeProofStatusMarkdownFormatter`, and `FirstValueReportBuilder` export wiring. Compared sibling surfaces: structured **Gate mirrors** and sendability footer already prefer live `PilotBuyerSafeEvidenceGateResult` (hunt 250); **Proof sendability (API mirror)** and evidence-card **API checklist** rows intentionally mirror persisted `ProofPackageCompletenessResponse` only (labeled separately from gate-derived readiness). No new mechanism met the hunt-ready bar for same-run failing repro without duplicating hunt 250 or the saturated **fail-open-validation** delimiter family; did not promote a `(hunt-ready)` row. Reseeded five `(candidate)` monitors below; scoped **267** BuyerProofPack/BoardPack-filter tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `FindingTrustEvidenceCardMarkdownFormatter` — evidence card **Buyer-safe proof sendability (API checklist)** mirrors only `ProofPackageCompletenessResponse` while sponsor-safe disposition derives from `PilotBuyerSafeEvidenceGateEvaluator` — locus: `FormatProofSendabilityMirrorCell(proof)`; input: API DTO `Sendable` with live gate `NotSendable` (monitor; by design label).
+- [ ] (candidate) `FirstValueReportProofPackageSectionFormatter` — ROI evidence confidence enum cell uses `roiClaimGate?.EvidenceConfidence ?? c.RoiEvidenceConfidence` while label uses `ResolveDisplayLabel` — locus: proof checklist row; input: stale enum tier vs gate-aligned label (monitor).
+- [ ] (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor.
+- [ ] (candidate) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — locus: computed deltas surfaces; input: monitor.
+- [ ] (candidate) `SponsorOnePagerPdfBuilder` — one-pager PDF path rebuild without persisted roi claim gate snapshot — locus: secondary PDF builder; input: monitor.
+
 2026-10-31 seed hunt (hunt 250, seed→hit): reseeded `application-pilots` after hunt 249; promoted sponsor-safe **Gate mirrors (structured)** footer still appending sendable all-clear suffix from stale `ProofPackageCompletenessResponse.ProofSendability` alone while live `PilotBuyerSafeEvidenceGateResult` was caveated—stale proof **Sendable** with gate **SendableWithCaveats** showed automated all-clear prose under a non-sendable verdict; `FormatGateMirrorsStructuredMarkdownLine` prefers gate `ProofSendability` for all-clear suffix when gate supplied; regression `Gate_mirrors_when_stale_proof_sendable_but_gate_not_sendable_omits_all_clear_suffix`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 249 reseed — sendability API mirror monitor retained (by design on proof checklist row), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, one-pager builder monitor retained, structured gate-mirror monitor closed this hit; scoped **267** BuyerProofPack/BoardPack-filter tests passed. Private beta: Sponsor-safe gate mirror all-clear suffix follows live buyer-safe gate sendability—not lagging proof-package sendability strings alone.
 
 - [x] (proven) `PilotSponsorSafeSendableAllClearHonestyCopy` / sponsor-safe gate mirrors — all-clear suffix vs gate — **hit 2026-10-31 seed hunt (hunt 250):** gate `ProofSendability`; regression above. [class:fail-open-validation]
@@ -16655,11 +16663,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown vs PDF quoting — **cheap-disproof 2026-10-31 seed hunt (hunt 250):** monitor retained.
 - [x] (valid-no-repro) `SponsorOnePagerPdfBuilder` — one-pager PDF path vs roi claim gate — **cheap-disproof 2026-10-31 seed hunt (hunt 250):** rebuild via `IFirstValueReportBuilder`; monitor retained.
 
-- (candidate) `FindingTrustEvidenceCardMarkdownFormatter` — evidence card **Buyer-safe proof sendability (API checklist)** mirrors only `ProofPackageCompletenessResponse` while sponsor-safe disposition derives from `PilotBuyerSafeEvidenceGateEvaluator` — locus: `FormatProofSendabilityMirrorCell(proof)`; input: API DTO `Sendable` with demo-tenant deltas contradicting gate `NotSendable` (monitor).
-- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor (monitor).
-- (candidate) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — locus: computed deltas surfaces; input: monitor.
-- (candidate) `SponsorOnePagerPdfBuilder` — one-pager PDF path rebuild without persisted roi claim gate snapshot — locus: secondary PDF builder; input: monitor.
-- (candidate) `PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell` — proof-package API mirror all-clear suffix vs live gate when stale proof replayed — locus: proof checklist row; input: monitor.
+- [x] (valid-no-repro) `FindingTrustEvidenceCardMarkdownFormatter` — evidence card **Buyer-safe proof sendability (API checklist)** mirrors only `ProofPackageCompletenessResponse` while sponsor-safe disposition derives from `PilotBuyerSafeEvidenceGateEvaluator` — **cheap-disproof 2026-10-31 seed hunt (hunt 251):** superseded by header reseed; monitor retained.
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — **cheap-disproof 2026-10-31 seed hunt (hunt 251):** superseded by header reseed; monitor retained.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — **cheap-disproof 2026-10-31 seed hunt (hunt 251):** superseded by header reseed; monitor retained.
+- [x] (valid-no-repro) `SponsorOnePagerPdfBuilder` — one-pager PDF path rebuild without persisted roi claim gate snapshot — **cheap-disproof 2026-10-31 seed hunt (hunt 251):** superseded by header reseed; monitor retained.
+- [x] (valid-no-repro) `PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell` — proof-package API mirror all-clear suffix vs live gate when stale proof replayed — **cheap-disproof 2026-10-31 seed hunt (hunt 251):** API mirror row by design after hunt 250 structured-line fix; monitor retained on checklist row only.
 
 2026-10-31 seed hunt (hunt 249, seed→hit): reseeded `application-pilots` after hunt 248; promoted remaining sponsor surfaces still OR-ing stale `ProofPackageCompletenessResponse.DemoTenantWarningRequired` with `PilotRunDeltas.IsDemoTenant` (evidence source, concrete gaps, proof checklist discipline, evidence-basis labels, decision-delta novelty, artifact badges, cost freshness, PDF gate demo scope) while hunts 223–224/248 aligned individual rows—stale proof demo flag on production deltas mis-labeled evidence source, injected demo gaps, and skipped sponsor PDF projected-dollar blocks; consolidated on `PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas)`; regressions `Sponsor_status_evidence_source_when_stale_proof_demo_flag_but_not_demo_on_deltas_uses_tenant_evidence_not_failed`, `Concrete_gaps_when_stale_proof_demo_flag_but_not_demo_on_deltas_omits_demo_gap`, and `EnsureCanGenerate_blocks_projected_dollar_when_stale_proof_demo_flag_but_not_demo_on_deltas`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 248 reseed — sendability API mirror monitor retained (by design), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, one-pager builder monitor retained, next-action simulator ordering monitor valid-no-repro (run-anchored simulator branch); scoped **277** BuyerProofPack/BoardPack/SponsorFirstValuePdfGate-filter tests passed. Private beta: Demo discipline across sponsor markdown, badges, and PDF gates follows live run delta posture—not lagging proof-package demo flags.
 
@@ -19115,13 +19123,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 85
+- **hunts:** 86
 - **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — sponsor PDF projected-dollar gate vs roi claim gate
+- **last-bug:** 2026-10-31 — sponsor-safe gate mirror all-clear suffix follows live buyer-safe gate sendability
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-22 thorough hunt (hit): promoted `RunDetailSampleLoadedNoRows` without requiring `RunDetailsTruncated` so committed runs with failed detail projection do not read as tenant-wide zero findings; regression `Format_when_committed_runs_exist_but_no_run_details_loaded_does_not_emit_zero_findings_as_tenant_total`; cheap-disproved five picker candidates; 68 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
 
