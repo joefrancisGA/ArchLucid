@@ -586,6 +586,61 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         artifactRow.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
     }
 
+    [Fact]
+    public void Proof_package_time_to_commit_row_when_run_not_committed_matches_gate_not_claiming_unresolved_wall_clock()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TimeToCommittedManifest = null,
+            AuditRowCount = 2,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            TimeToCommittedManifestResolved = false,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created },
+            manifest: null,
+            deltas,
+            MinimalValueReportSnapshot());
+
+        string wallClockPlain = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+        gate.SoftGaps.Should().NotContain(wallClockPlain);
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created })
+            .ToList();
+
+        gaps.Should().NotContain(wallClockPlain);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created });
+
+        string timeRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal));
+
+        timeRow.Should().NotContain(wallClockPlain);
+        timeRow.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+    }
+
     private static ValueReportSnapshot MinimalValueReportSnapshot() =>
         new(
             TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),

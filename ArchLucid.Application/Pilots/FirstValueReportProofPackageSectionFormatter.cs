@@ -84,6 +84,11 @@ public static class FirstValueReportProofPackageSectionFormatter
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(c);
 
+        if (c is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        {
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
         if (c.TimeToCommittedManifestResolved)
         {
             return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
