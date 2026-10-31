@@ -32,7 +32,7 @@ public static class SponsorDecisionDeltaNoveltyMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Evidence class:** {result.EvidenceClassLabel}");
+            $"**Evidence class:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(result.EvidenceClassLabel)}");
         sb.AppendLine();
         sb.AppendLine("**Confidence basis:**");
         sb.AppendLine();

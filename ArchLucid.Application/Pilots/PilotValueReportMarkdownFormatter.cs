@@ -25,10 +25,10 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Field", "Value");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | `{r.TenantId}` |");
+        sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(r.TenantId.ToString("D"))} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
+            $"| Window (UTC) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(_exportFormatter.FormatIso8601Utc(r.FromUtc))} inclusive → {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(_exportFormatter.FormatIso8601Utc(r.ToUtc))} exclusive |");
         if (RunDetailSampleLoadedNoRows(r))
         {
             sb.AppendLine(
@@ -46,7 +46,13 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
         }
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r) && !r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Run-detail cap | {r.RunDetailCap} (truncated: false; 0 committed runs loaded for detail in the partial sample) |");
+        }
+        else if (r.RunDetailsTruncated)
         {
             if (r.CommittedRunsTimeline.Count == 0 && r.TotalRunsCommitted > 0)
             {
@@ -72,7 +78,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             $"| Committed-run inventory truncated | {r.CommittedRunsInventoryTruncated} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| ROI source freshness disposition | {EscapeCell(r.RoiSourceFreshnessDisposition)} |");
+            $"| ROI source freshness disposition | {FormatRoiSourceFreshnessDispositionCell(r.RoiSourceFreshnessDisposition)} |");
         sb.AppendLine();
 
         sb.AppendLine("## Summary");
@@ -174,7 +180,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         else
         {
-            sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => $"`{t}`")));
+            sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(t))));
         }
         sb.AppendLine();
 
@@ -210,7 +216,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| `{row.RunId}` | {_exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CreatedUtc)} | {committedCell} | {EscapeCell(row.SystemName)} |");
+                $"| {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(row.RunId)} | {_exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CreatedUtc)} | {committedCell} | {FormatTimelineSystemCell(row.SystemName)} |");
         }
 
         sb.AppendLine();
@@ -247,10 +253,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         return s >= 60 ? $"{s / 60:0.##} min" : $"{s:0.##} s";
     }
 
-    private static string EscapeCell(string value)
+    private static string FormatRoiSourceFreshnessDispositionCell(string disposition)
     {
-        return string.IsNullOrEmpty(value)
-            ? "System name was not stored."
-            : value.Replace("|", "\\|", StringComparison.Ordinal);
+        if (string.IsNullOrEmpty(disposition))
+            return "ROI source freshness disposition was not computed.";
+
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition);
+    }
+
+    private static string FormatTimelineSystemCell(string? value)
+    {
+        return FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(
+            string.IsNullOrEmpty(value) ? "System name was not stored." : value);
     }
 }

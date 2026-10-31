@@ -49,7 +49,8 @@ public static class FirstValueReportTraceSectionFormatter
             }
             else
             {
-                sb.AppendLine($"{index}. **Trace** — `{trace.Kind}`");
+                sb.AppendLine(
+                    $"{index}. **Trace** — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trace.Kind.ToString())}");
             }
 
             index++;
@@ -83,7 +84,7 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine();
         if (deltas.TopFindingId is null)
         {
-            sb.AppendLine("_(No findings on this run; evidence-chain excerpt skipped.)_");
+            sb.AppendLine(FormattableString.Invariant($"_({PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain})_"));
             sb.AppendLine();
             return;
         }
@@ -94,19 +95,20 @@ public static class FirstValueReportTraceSectionFormatter
         if (chain is null)
         {
             sb.AppendLine(
-                "_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
+                FormattableString.Invariant($"_({PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse})_"));
             sb.AppendLine();
             return;
         }
 
         sb.AppendLine("| Pointer | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Manifest version | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
-        sb.AppendLine($"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
-        sb.AppendLine($"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
+        sb.AppendLine(
+            $"| Manifest version | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(chain.ManifestVersion ?? "Manifest version was not stored.")} |");
+        sb.AppendLine($"| Findings snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored."))} |");
+        sb.AppendLine($"| Context snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored."))} |");
+        sb.AppendLine($"| Graph snapshot id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored."))} |");
+        sb.AppendLine($"| Decision trace id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored."))} |");
+        sb.AppendLine($"| Golden manifest id | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored."))} |");
         sb.AppendLine($"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
         sb.AppendLine($"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         sb.AppendLine();
@@ -119,6 +121,8 @@ public static class FirstValueReportTraceSectionFormatter
 
     private static string FormatStoredTraceField(string? value, string missingLabel)
     {
-        return string.IsNullOrWhiteSpace(value) ? missingLabel : $"`{value.Trim()}`";
+        return string.IsNullOrWhiteSpace(value)
+            ? missingLabel
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim());
     }
 }

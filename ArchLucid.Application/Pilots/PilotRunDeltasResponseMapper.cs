@@ -82,6 +82,7 @@ public static class PilotRunDeltasResponseMapper
             FindingsBySeverity = deltas.FindingsBySeverity.Select(p => new PilotRunDeltaSeverityCountResponse { Severity = p.Key, Count = p.Value }).ToList(),
             AuditRowCount = deltas.AuditRowCount,
             AuditRowCountTruncated = deltas.AuditRowCountTruncated,
+            AuditRowCountResolved = deltas.AuditRowCountResolved,
             LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
             LlmCallCountResolved = deltas.LlmCallCountResolved,
             TopFindingSeverity = deltas.TopFindingSeverity,

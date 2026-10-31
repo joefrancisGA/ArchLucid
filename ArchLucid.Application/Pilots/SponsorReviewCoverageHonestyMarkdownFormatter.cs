@@ -47,7 +47,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         sb.AppendLine("## Architecture package honesty");
         sb.AppendLine();
         sb.AppendLine(
-            $"> Sponsor KPIs for review `{runId}` are **not** an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.");
+            $"> Sponsor KPIs for review {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(runId)} are **not** an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.");
         sb.AppendLine();
 
         if (verdict is not null && DecisionReceiptComposer.IsExportableVerdict(verdict.Kind))
@@ -65,7 +65,8 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         if (skippedMustKeys.Count > 0)
         {
-            sb.AppendLine($"- **Skipped required questions:** {string.Join(", ", skippedMustKeys)}");
+            sb.AppendLine(
+                $"- **Skipped required questions:** {FormatSkippedMustQuestionKeysForMarkdown(skippedMustKeys)}");
         }
 
         TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, verdict?.TransparencyTrail);
@@ -85,7 +86,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
         List<string> lines =
         [
             "Architecture package honesty",
-            $"Sponsor KPIs for review {context.RunId.Trim()} are not an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.",
+            $"Sponsor KPIs for review {PilotPlainTextSafeLabelFormatter.FormatLabel(context.RunId.Trim())} are not an all-clear bill of health. Open the architecture package in ArchLucid before steering or procurement use.",
         ];
 
         FeasibilityVerdict? verdict = context.Verdict;
@@ -105,7 +106,7 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         if (skippedMustKeys.Count > 0)
         {
-            lines.Add($"Skipped required questions: {string.Join(", ", skippedMustKeys)}");
+            lines.Add($"Skipped required questions: {FormatSkippedMustQuestionKeysPlainText(skippedMustKeys)}");
         }
 
         return lines;
@@ -150,4 +151,10 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
 
         return keys;
     }
+
+    private static string FormatSkippedMustQuestionKeysForMarkdown(IReadOnlyList<string> keys)
+        => string.Join(", ", keys.Select(static key => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(key)));
+
+    private static string FormatSkippedMustQuestionKeysPlainText(IReadOnlyList<string> keys)
+        => string.Join(", ", keys.Select(static key => PilotPlainTextSafeLabelFormatter.FormatLabel(key)));
 }

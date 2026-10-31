@@ -165,7 +165,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 });
                 page.Content().Column(column =>
                 {
-                    column.Item().Text($"Run: {run.RunId}").FontSize(11);
+                    column.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatRunHeaderLine(run.RunId)).FontSize(11);
                     column.Item().Text($"Generated (UTC): {TimeProvider.System.UtcNowDateTime():O}");
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     if (coverageHonestyLines.Count > 0)
@@ -220,8 +220,11 @@ public sealed class SponsorOnePagerPdfBuilder(
                         .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
                     {
-                        column.Item().PaddingTop(4).Text($"Committed manifest version: {FormatManifestVersion(manifest)}");
-                        column.Item().Text($"System: {FormatSystemName(manifest)}");
+                        column.Item().PaddingTop(4).Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatCommittedManifestVersionLine(
+                                manifest.Metadata.ManifestVersion));
+                        column.Item().Text(
+                            PilotSponsorOnePagerPlainTextFormatter.FormatSystemNameLine(manifest.SystemName));
                     }
                     else
                     {
@@ -284,7 +287,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             });
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
             AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
-            AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
+            AddDeltaRow(table, "Findings by severity", PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
         });
@@ -296,48 +299,20 @@ public sealed class SponsorOnePagerPdfBuilder(
         table.Cell().Padding(2).Text(value).Bold();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas)
-    {
-        return deltas.TimeToCommittedManifest is not { } wall
-            ? "Time to committed manifest was not stored."
-            : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
-    }
+    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas);
 
-    private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
-    {
-        if (!deltas.AgentResultsIncludedInDetail && deltas.FindingsBySeverity.Count == 0 && !deltas.FindingsCountsFromSnapshot)
-        {
-            return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
-        }
+    private static string FormatAuditRows(PilotRunDeltas deltas) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatPlainText(deltas);
 
-        return deltas.FindingsBySeverity.Count == 0
-            ? "No findings were stored on agent results for this run."
-            : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
-    }
-
-    private static string FormatAuditRows(PilotRunDeltas deltas)
-    {
-        if (!deltas.AuditRowCountResolved)
-            return "Audit row count was not attested.";
-
-        if (deltas.AuditRowCount == 0)
-            return "0";
-        return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private static string FormatLlmCallCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.LlmCallCountResolved)
-            return "(not attested — execution trace query failed)";
-
-        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatPlainText(deltas);
 
     private static void RenderEvidenceChain(IContainer column, PilotRunDeltas deltas)
     {
         if (deltas.TopFindingId is null)
         {
-            column.Text("(No findings on this run; evidence-chain excerpt skipped.)").Italic();
+            column.Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfNoFindingsSkipItalicLine()).Italic();
             return;
         }
 
@@ -347,11 +322,11 @@ public sealed class SponsorOnePagerPdfBuilder(
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {
-                c.Item().Text("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)").Italic();
+                c.Item().Text(PilotTopFindingEvidenceChainHonestyCopy.FormatPdfUnavailableItalicLine()).Italic();
                 return;
             }
 
-            c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "Manifest version was not stored."}");
+            c.Item().Text(PilotSponsorOnePagerPlainTextFormatter.FormatManifestVersionLine(chain.ManifestVersion));
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
@@ -373,19 +348,5 @@ public sealed class SponsorOnePagerPdfBuilder(
         }
 
         return $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).";
-    }
-
-    private static string FormatManifestVersion(GoldenManifest manifest)
-    {
-        return string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion)
-            ? "Manifest version was not stored."
-            : manifest.Metadata.ManifestVersion.Trim();
-    }
-
-    private static string FormatSystemName(GoldenManifest manifest)
-    {
-        return string.IsNullOrWhiteSpace(manifest.SystemName)
-            ? "System name was not stored."
-            : manifest.SystemName.Trim();
     }
 }

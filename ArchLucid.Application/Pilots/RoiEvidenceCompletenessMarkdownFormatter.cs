@@ -34,7 +34,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         if (disposition is not null)
         {
             sb.AppendLine();
-            sb.AppendLine($"**Claim disposition:** {disposition.DispositionLeadLine}");
+            sb.AppendLine($"**Claim disposition:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.DispositionLeadLine)}");
         }
 
         sb.AppendLine();
@@ -67,7 +67,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         };
 
         if (disposition is not null)
-            body = $"{body} {disposition.NarrativeBlock}";
+            body = $"{body} {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(disposition.NarrativeBlock)}";
 
         return (headline, body);
     }
@@ -85,14 +85,14 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         List<string> parts = [$"{prefix}."];
 
         if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } cap)
-            parts.Add($"**Captured UTC:** `{cap.ToString("O", CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Captured UTC:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(cap.ToString("O", CultureInfo.InvariantCulture))}.");
 
         if (snapshot.TenantBaselineManualPrepHoursPerReview is { } manual)
-            parts.Add($"**Manual prep hrs/review:** `{manual.ToString(CultureInfo.InvariantCulture)}`.");
+            parts.Add($"**Manual prep hrs/review:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(manual.ToString(CultureInfo.InvariantCulture))}.");
 
         if (BaselineReviewCycleSourceMarkers.FormatReviewCycleSourceNoteForDisplay(snapshot.TenantBaselineReviewCycleSource)
             is { } noteTrimmed)
-            parts.Add($"**Source note:** {noteTrimmed}");
+            parts.Add($"**Source note:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(noteTrimmed)}");
 
         return string.Join(" ", parts);
     }

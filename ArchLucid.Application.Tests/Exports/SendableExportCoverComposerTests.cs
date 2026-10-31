@@ -87,7 +87,7 @@ public sealed class SendableExportCoverComposerTests
 
         SendableExportCoverComposer.AppendMarkdownSection(sb, input);
 
-        sb.ToString().Should().Contain("**Review record status:** Committed");
+        sb.ToString().Should().Contain("**Review record status:** `Committed`");
     }
 
     private static CareerExportCoverageHonestyInput CreateInput(

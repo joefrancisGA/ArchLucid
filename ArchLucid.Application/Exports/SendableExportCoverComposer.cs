@@ -91,7 +91,8 @@ public static class SendableExportCoverComposer
 
         if (!string.IsNullOrWhiteSpace(input.CoverageContext.RunId))
         {
-            sb.AppendLine($"- **Review id:** `{input.CoverageContext.RunId.Trim()}`");
+            sb.AppendLine(
+                $"- **Review id:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(input.CoverageContext.RunId.Trim())}");
         }
         else
         {
@@ -119,7 +120,8 @@ public static class SendableExportCoverComposer
 
         if (id.Length > 0 && version.Length > 0)
         {
-            return $"{id} @ {version}";
+            return FormattableString.Invariant(
+                $"{PilotPlainTextSafeLabelFormatter.FormatLabel(id)} @ {PilotPlainTextSafeLabelFormatter.FormatLabel(version)}");
         }
 
         List<string> parts = [];
@@ -147,7 +149,7 @@ public static class SendableExportCoverComposer
         string trimmed = reviewRecordStatus.Trim();
 
         return trimmed.Length > 0
-            ? $"- **Review record status:** {trimmed}"
+            ? $"- **Review record status:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
             : "- **Review record status:** Review record status was stored empty.";
     }
 

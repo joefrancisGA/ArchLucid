@@ -17,6 +17,29 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class SponsorDecisionDeltaNoveltyResolverTests
 {
     [Fact]
+    public void Resolve_when_audit_row_basis_unresolved_does_not_claim_pilot_strict_attested_evidence_class()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = false,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            proof,
+            BuildGate());
+
+        result.EvidenceClassLabel.Should().Be("Persisted run proof — audit row basis unresolved");
+        result.EvidenceClassLabel.Should().NotContain("PilotStrict posture attested");
+    }
+
+    [Fact]
     public void Resolve_when_committed_with_findings_emits_partial_or_strong_novelty()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
@@ -400,6 +423,7 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
         {
             AgentOutputPilotStrictEvidenceSatisfied = true,
             LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
             DemoTenantWarningRequired = false,
             BuyerSafeRedactionProfile = "tenant-default",
         };

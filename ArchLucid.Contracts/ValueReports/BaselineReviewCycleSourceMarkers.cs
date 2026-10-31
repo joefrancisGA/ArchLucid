@@ -45,13 +45,17 @@ public static class BaselineReviewCycleSourceMarkers
         const string prefix = OperatorSettingsToken + ":";
 
         if (!t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            return t;
+            return SanitizeOperatorSourceNoteForDisplay(t);
 
         string tail = t[prefix.Length..].Trim();
 
-        return tail.Length == 0 ? null : tail;
+        return tail.Length == 0 ? null : SanitizeOperatorSourceNoteForDisplay(tail);
 
     }
+
+    /// <summary>Collapses operator-entered line breaks so markdown/DOCX export cannot forge structure from baseline notes.</summary>
+    internal static string SanitizeOperatorSourceNoteForDisplay(string note)
+        => note.Replace("\r", " ", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal).Trim();
 
     /// <summary>Persisted JSON shape for operator baseline wizard / settings saves.</summary>
     public static string FormatOperatorSettingsPersistence(string? optionalHumanNote)

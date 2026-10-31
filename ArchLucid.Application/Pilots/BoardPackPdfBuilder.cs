@@ -54,6 +54,7 @@ public sealed class BoardPackPdfBuilder(
         ArgumentNullException.ThrowIfNull(operatorBaseUrl);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         (DateTimeOffset qStart, DateTimeOffset qEnd) = BoardPackQuarterWindow.Resolve(year, quarter, overrideStartUtc, overrideEndUtc);
+        bool customPeriod = BoardPackPdfCoverCopy.UsesCustomPeriod(overrideStartUtc, overrideEndUtc);
         (DateTime digestStart, DateTime digestEnd) = BoardPackQuarterWindow.DigestWeekInsideQuarter(qStart, qEnd);
         PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(operatorBaseUrl, out string baseUrl);
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
@@ -78,10 +79,9 @@ public sealed class BoardPackPdfBuilder(
         ValueReportSnapshot value = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, qStart, qEnd, cancellationToken);
         string valueMd = _valueReportSnapshotMarkdownFormatter.Format(value);
         StringBuilder combined = new();
-        combined.AppendLine($"# ArchLucid board pack — Q{quarter.ToString(CultureInfo.InvariantCulture)} {year.ToString(CultureInfo.InvariantCulture)} (UTC)");
+        combined.AppendLine(BoardPackPdfCoverCopy.BuildTitle(year, quarter, qStart, qEnd, customPeriod));
         combined.AppendLine();
-        combined.AppendLine(
-            "This pack combines the **weekly sponsor digest pipeline** (one representative ISO week inside the quarter) with the **tenant value-report metrics** for the full quarter window. Figures come only from existing builders — no ad-hoc ROI math.");
+        combined.AppendLine(BoardPackPdfCoverCopy.BuildIntroParagraph(customPeriod));
         combined.AppendLine();
         combined.AppendLine($"**Sponsor ROI honesty:** {SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine}");
         combined.AppendLine($"**Policy influence:** {SendableExportCoverComposer.PolicyPackInfluenceHonestyLine}");
@@ -102,7 +102,7 @@ public sealed class BoardPackPdfBuilder(
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Helvetica"));
-                page.Header().Text("ArchLucid — quarterly board pack").Bold().FontSize(14);
+                page.Header().Text(BoardPackPdfCoverCopy.BuildPdfHeaderLabel(customPeriod)).Bold().FontSize(14);
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));
                 page.Footer().AlignCenter().Text(text =>
                 {

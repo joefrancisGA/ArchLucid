@@ -28,7 +28,7 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| --- | --- | --- |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine(
-            $"| Findings (total) | {FormatFindingsTotal(deltas)} | {FormatFindingsTotalSource(deltas)} |");
+            $"| Findings (total) | {PilotRunDeltasFindingsTotalFormatter.FormatMarkdownTableCell(deltas)} | {FormatFindingsTotalSource(deltas)} |");
         sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
         sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.CountFilteredAsync(RunId)` |");
         sb.AppendLine();
@@ -43,14 +43,41 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
         if (deltas.FindingsBySeverity.Count == 0)
         {
-            if (deltas.MutedFindingsExcludedCount > 0)
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
             {
                 sb.AppendLine(
-                    "_(Unmuted finding count was zero; muted findings were excluded from severity counts.)_");
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.FindingsBySeverityNotAttestedLabel})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsTotalFormatter.MutedOnlyFindingsTotalLabel})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.SnapshotZeroUnmutedFindingsPlainLabel})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored})_");
+            }
+            else if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel})_");
             }
             else
             {
-                sb.AppendLine("_(No unmuted findings were stored for this run.)_");
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"_({PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel})_");
             }
 
             sb.AppendLine();
@@ -60,7 +87,10 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| Severity | Count |");
         sb.AppendLine("| --- | ---: |");
         foreach (KeyValuePair<string, int> row in deltas.FindingsBySeverity)
-            sb.AppendLine($"| {row.Key} | {row.Value} |");
+        {
+            string severity = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(row.Key);
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| {severity} | {row.Value} |");
+        }
         sb.AppendLine();
     }
 
@@ -84,51 +114,39 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
         if (deltas.TimeToCommittedManifest is not { } wall)
         {
-            sb.AppendLine("_(Run has no committed manifest — elapsed time not computed.)_");
+            sb.AppendLine(
+                FormattableString.Invariant($"_({PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain})_"));
             sb.AppendLine();
             return;
         }
 
-        sb.AppendLine($"Wall-clock from `RunRecord.CreatedUtc` to `GoldenManifest.CommittedUtc`: **{wall:c}**.");
-        sb.AppendLine($"Created: `{deltas.RunCreatedUtc:O}` · Committed: `{deltas.ManifestCommittedUtc:O}`.");
+        sb.AppendLine(
+            $"Wall-clock from {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("RunRecord.CreatedUtc")} to {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.CommittedUtc")}: **{wall:c}**.");
+        sb.AppendLine(
+            $"Created: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.RunCreatedUtc.ToString("O", CultureInfo.InvariantCulture))} · Committed: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deltas.ManifestCommittedUtc?.ToString("O", CultureInfo.InvariantCulture) ?? "Committed time was not stored.")}.");
         sb.AppendLine();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas)
-    {
-        return deltas.TimeToCommittedManifest is not { } wall
-            ? "Time to committed manifest was not stored."
-            : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
-    }
+    private static string FormatTimeToCommit(PilotRunDeltas deltas) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas);
 
-    private static string FormatAuditRowCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.AuditRowCountResolved)
-            return "Audit row count was not attested.";
+    private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
 
-        if (deltas.AuditRowCount == 0)
-            return "0";
-        return deltas.AuditRowCountTruncated
-            ? $"{deltas.AuditRowCount}+ _(query cap reached — exact count is at least this many)_"
-            : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private static string FormatLlmCallCount(PilotRunDeltas deltas)
-    {
-        if (!deltas.LlmCallCountResolved)
-            return "_(not attested — execution trace query failed)_";
-
-        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
-    }
+    private static string FormatLlmCallCount(PilotRunDeltas deltas) =>
+        PilotRunDeltasLlmCallCountFormatter.FormatMarkdownTableCell(deltas);
 
     private static string FormatFindingsTotal(PilotRunDeltas deltas) =>
         PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas);
 
     private static string FormatFindingsTotalSource(PilotRunDeltas deltas)
     {
-        string list = deltas.FindingsCountsFromSnapshot
-            ? "`FindingsSnapshot.Findings` (unmuted only)"
-            : "`ArchitectureRunDetail.Results[*].Findings` (unmuted only)";
+        string list = PilotRunDeltasFindingsEmptySeverityHonesty.ResolveFindingsTotalSourceList(deltas);
+
+        if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+        {
+            return list;
+        }
 
         return deltas.MutedFindingsExcludedCount > 0
             ? $"{list}; muted findings excluded"

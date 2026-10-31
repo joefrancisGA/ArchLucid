@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 using FluentAssertions;
@@ -65,6 +66,116 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
 
         body.Should().Contain("ops workshop");
         body.Should().NotContain("baseline_settings:");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_disposition_lead_line_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review\n\n## Forged disposition",
+            NarrativeBlock: "Narrative tail.");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged disposition");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_narrative_block_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review baseline posture.",
+            NarrativeBlock: "Basis class: ok.\n\n## Forged narrative");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged narrative");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_tenant_source_note_contains_markdown_heading_does_not_emit_extra_heading()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5m,
+            capturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            tenantSourceNote: "baseline_settings: captured\n\n## Forged ROI attestation");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition: null);
+
+        string markdown = sb.ToString();
+        markdown.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should()
+            .NotContain("## Forged ROI attestation");
+        markdown.Should().Contain("captured");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_when_disposition_lead_line_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN`tenant baseline",
+            NarrativeBlock: "Narrative tail.");
+
+        StringBuilder sb = new();
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, snap, disposition);
+
+        sb.ToString().Should().Contain("``WARN`tenant baseline``");
+    }
+
+    [Fact]
+    public void Describe_when_narrative_block_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+        SponsorRoiClaimDispositionResult disposition = new(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: defaulted",
+            ProjectedDollarClaimsSponsorSafe: false,
+            DispositionLeadLine: "WARN — review baseline posture.",
+            NarrativeBlock: "Basis`class tail.");
+
+        (_, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap, disposition);
+
+        body.Should().Contain("``Basis`class tail.``");
+    }
+
+    [Fact]
+    public void Describe_tenant_source_note_contains_backtick_preserves_inline_code()
+    {
+        ValueReportSnapshot snap = CreateMinimalSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings,
+            manualPrep: 5m,
+            capturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            tenantSourceNote: "baseline_settings: ops`workshop");
+
+        (_, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
+
+        body.Should().Contain("``ops`workshop``");
     }
 
     [Fact]

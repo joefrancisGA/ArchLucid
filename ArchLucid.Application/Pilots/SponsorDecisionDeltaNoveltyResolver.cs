@@ -76,8 +76,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             string severity = finding.Severity.ToString();
             string category = string.IsNullOrWhiteSpace(finding.Category) ? "Category was not stored." : finding.Category.Trim();
             string message = Truncate(finding.Message, 180);
+            string categoryDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(category);
+            string messageDisplay = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message);
 
-            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({category}) — {message}");
+            sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({categoryDisplay}) — {messageDisplay}");
 
             if (index < findings.Count - 1)
             {
@@ -146,7 +148,10 @@ public static class SponsorDecisionDeltaNoveltyResolver
             finding.EvaluationConfidenceScore is >= 70
             || finding.ConfidenceLevel is FindingConfidenceLevel.High);
 
-        if (scoredFindings >= 2 && deltas.TopFindingEvidenceChain is not null && proof.LlmCallCountResolved)
+        if (scoredFindings >= 2
+            && deltas.TopFindingEvidenceChain is not null
+            && proof.LlmCallCountResolved
+            && proof.AuditRowCountResolved)
             return SponsorNoveltyConfidence.Strong;
 
         if (findings.Any(static finding => finding.EvidenceRefs.Count > 0))
@@ -166,13 +171,16 @@ public static class SponsorDecisionDeltaNoveltyResolver
         if (!IsBuyerSafeSendAllowed(buyerSafeGate))
             return "Internal review only — buyer-safe send gate failed";
 
-        if (proof.AgentOutputPilotStrictEvidenceSatisfied && proof.LlmCallCountResolved)
+        if (!proof.LlmCallCountResolved)
+            return "Persisted run proof — LLM call basis unresolved";
+
+        if (!proof.AuditRowCountResolved)
+            return "Persisted run proof — audit row basis unresolved";
+
+        if (proof.AgentOutputPilotStrictEvidenceSatisfied)
             return "Persisted run proof with PilotStrict posture attested";
 
-        if (proof.LlmCallCountResolved)
-            return "Persisted run proof — PilotStrict posture incomplete";
-
-        return "Persisted run proof — LLM call basis unresolved";
+        return "Persisted run proof — PilotStrict posture incomplete";
     }
 
     private static string BuildConfidenceBasisSummary(
@@ -187,6 +195,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
             $"PilotStrict posture: {(proof.AgentOutputPilotStrictEvidenceSatisfied ? "satisfied" : "failed")}",
             $"buyer-safe send gate: {(IsBuyerSafeSendAllowed(buyerSafeGate) ? "allowed" : "blocked")}",
             $"LLM trace rows resolved: {(proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
+            $"audit row count resolved: {(proof.AuditRowCountResolved ? "yes" : "no")}",
             "blind principal-architect sessions: not inferred — see repository `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`",
         ];
 

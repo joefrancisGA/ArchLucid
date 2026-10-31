@@ -65,7 +65,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Gate mirrors (structured):** ProofSendability = **{gate.ProofSendability}** · Publishing tier = **{gate.PublishingTier}** · Evidence completeness = **{proof.EvidenceCompleteness}**.");
+            $"**Gate mirrors (structured):** ProofSendability = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.ProofSendability.ToString())}** · Publishing tier = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.PublishingTier.ToString())}** · Evidence completeness = **{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.EvidenceCompleteness ?? string.Empty)}**.");
         sb.AppendLine();
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable
@@ -112,22 +112,21 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Committed manifest timestamp is default/absent — commit-time proof cannot be audited from metadata.";
 
         if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
-            yield return "Time-to-committed-manifest is unresolved — wall-clock throughput claims are unsubstantiated.";
+            yield return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
 
         if (!proof.ArtifactDescriptorCountResolved)
-            yield return "Artifact descriptor inventory did not resolve — package completeness cannot be attested.";
+            yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.TopFindingEvidenceChainPresentOrNotApplicable && deltas.TopFindingId is not null)
-            yield return "Top finding has **no resolved evidence-chain pointer** — sponsors cannot reconstruct the decision fingerprint.";
+            yield return PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable();
 
-        if (!deltas.AuditRowCountResolved)
-            yield return "**Scoped audit-event count is unattested** — the audit query did not resolve; do not treat zero as evidence.";
-
-        if (deltas.AuditRowCountResolved && !proof.AuditRowsPresentOrLowerBound)
-            yield return "Scoped audit-event count for this run is **zero** — durable audit continuity is not demonstrated.";
+        if (!proof.AuditRowCountResolved)
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        else if (!proof.AuditRowsPresentOrLowerBound)
+            yield return PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
 
         if (!proof.LlmCallCountResolved)
-            yield return "**LLM-call count is unattested** (trace/query failure) — the displayed integer is not trustworthy evidence.";
+            yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
             yield return "PilotStrict agent-output quality gate failed — do not circulate sponsor-grade real-mode assertions until traces read clean.";

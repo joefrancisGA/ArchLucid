@@ -39,9 +39,10 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
         sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
-        sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
+        sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
+        sb.AppendLine($"| Audit row basis | {FormatSponsorAuditRowBasis(deltas, proof)} |");
         sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail, deltas)} |");
         sb.AppendLine(
             $"| Semantic support | {FirstValueReportSemanticSupportBandSectionFormatter.FormatSponsorStatusTableCell(detail, deltas)} |");
@@ -56,7 +57,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             return "**Demo-derived** — illustrative sample output; do not present as buyer outcome.";
 
         return proof.BuyerSafeRedactionProfile.Length > 0
-            ? $"**{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.BuyerSafeRedactionProfile)}** — tenant-scoped persisted proof fields."
+            ? $"{FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.BuyerSafeRedactionProfile)} — tenant-scoped persisted proof fields."
             : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
     }
 
@@ -72,17 +73,40 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (!proof.LlmCallCountResolved)
             return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
 
-        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
+        if (deltas.LlmCallCount == 0)
+        {
+            return
+                $"**0** trace row(s) for this run ({PilotRunDeltasLlmCallCountFormatter.ZeroSimulatorCaveatPlain}).";
+        }
+
+        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run.";
+    }
+
+    private static string FormatSponsorAuditRowBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
+    {
+        if (!proof.AuditRowCountResolved)
+            return "**Not attested** — audit row count query failed; do not cite an audit row count.";
+
+        if (deltas.AuditRowCount == 0)
+            return "**0** audit row(s) for this run.";
+
+        if (deltas.AuditRowCountTruncated)
+        {
+            return
+                $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}+** audit row(s) for this run (query cap reached — count is at least this many).";
+        }
+
+        return $"**{deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture)}** audit row(s) for this run.";
     }
 
     private static string FormatSponsorRoiBasis(
         ProofPackageCompletenessResponse proof,
         SponsorRoiClaimDispositionResult roiClaimGate)
     {
-        string label = FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
+        string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(FormatRoiConfidenceLabel(proof.RoiConfidenceLabel));
         string inputsSummary = proof.RoiBaselineInputs is null
             ? string.Empty
-            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
+            : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
 
         if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
             && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
@@ -90,8 +114,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
-            ? FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : roiClaimGate.NarrativeBlock;
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.NarrativeBlock);
 
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }
@@ -125,7 +149,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
             ? SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle(finding)
             : TruncateSponsorFinding(finding.Message);
 
-        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(message)}";
+        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(message)}";
     }
 
     private static string FormatSponsorFindingSeverityLabel(ArchitectureFinding finding)

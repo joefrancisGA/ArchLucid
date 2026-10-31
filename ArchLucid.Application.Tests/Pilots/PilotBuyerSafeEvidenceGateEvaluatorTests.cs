@@ -109,13 +109,35 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             MinimalManifest(),
             MinimalDeltas(run) with
             {
-                AuditRowCount = 0
+                AuditRowCount = 0,
+                AuditRowCountResolved = true,
             },
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
         gate.HardGaps.Should().Contain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_UnresolvedAuditRowCount_IsPartialWithSoftGap_NotZeroRowsHardGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with
+            {
+                AuditRowCount = 0,
+                AuditRowCountResolved = false,
+            },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("audit-event row count **not attested**", StringComparison.Ordinal));
+        gate.HardGaps.Should().NotContain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

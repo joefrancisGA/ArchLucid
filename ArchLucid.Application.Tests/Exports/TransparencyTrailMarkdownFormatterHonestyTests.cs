@@ -64,8 +64,8 @@ public sealed class TransparencyTrailMarkdownFormatterHonestyTests
         TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, trail);
         string markdown = sb.ToString();
 
-        markdown.Should().Contain(" — Room");
-        markdown.Should().Contain(" — Question id: q-1");
+        markdown.Should().Contain(" — `Room`");
+        markdown.Should().Contain(" — Question id: `q-1`");
         markdown.Should().Contain(" — Answer recorded time:");
     }
 
