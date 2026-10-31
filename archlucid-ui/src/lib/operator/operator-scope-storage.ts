@@ -111,7 +111,8 @@ function refreshOperatorScopeDependentClientState(): void {
     return;
   }
 
-  window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+  // Clear outgoing scope data before notifying subscribers: listeners may read
+  // the new tenant's scope synchronously during this event.
   clearFrictionlessTrialSessionForAuthenticatedOperator();
   clearOperatorShellStableCache();
   clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
@@ -120,6 +121,7 @@ function refreshOperatorScopeDependentClientState(): void {
   clearHasSeenWelcomeOnboarding();
   clearOperatorHomeDisclosureStorage();
   clearOperatorHomeRunsSnapshotStale();
+  window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
 }
 
 function notifyOperatorScopeChanged(): void {
