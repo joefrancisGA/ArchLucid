@@ -206,7 +206,8 @@ public static partial class AzureInventoryAppSettingHostRedactor
     {
         return decoded.Replace("\\", string.Empty, StringComparison.Ordinal)
             .Replace("/", string.Empty, StringComparison.Ordinal)
-            .Replace("?", string.Empty, StringComparison.Ordinal);
+            .Replace("?", string.Empty, StringComparison.Ordinal)
+            .Replace("#", string.Empty, StringComparison.Ordinal);
     }
 
     private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
