@@ -2336,6 +2336,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-31 seed hunt (seed-only): reread the host-gate classifier and redirect decision with emphasis on malformed Host parsing, www equivalence, port preservation, delimiter decoding, and operator/marketing prefix boundaries. Existing tests cover the reachable normalization paths and malformed inputs conservatively fall through to `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
 2026-10-31 seed hunt (seed-only): fresh reread checked host-header and configured-origin normalization, split-site path canonicalization, marketing/operator boundary handling, and the proxy handoff contract after the recent trailing-dot fixes. The only plausible malformed-input branches remain conservative no-redirect behavior or already-covered canonicalization; no new reachable mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
 
 2026-10-31 seed hunt (seed-only): repeated source and focused-test review found no production churn since the trailing-dot fixes and no new reachable mechanism across host/origin normalization, proxy handoff, encoded paths, or marketing/operator prefix classification. Host-gate vitest passed 25/25 and no production code changed.
@@ -2352,7 +2354,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
 
-**Hunts:** 21 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 22 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
 - [x] (invalid) `normalizeHostGatePathname` — encoded `%3F` in `/architecture/reviews%3Ftab=activity` must redirect as the canonical operator route — **cheap-disproof 2026-10-31 seed hunt:** preserving the encoded delimiter makes this a distinct final path segment, so it does not satisfy the `/architecture/reviews` prefix contract; no host-gate defect was established.
 
