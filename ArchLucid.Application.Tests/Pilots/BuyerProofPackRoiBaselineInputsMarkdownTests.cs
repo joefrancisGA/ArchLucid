@@ -146,4 +146,33 @@ public sealed class BuyerProofPackRoiBaselineInputsMarkdownTests
             .Should()
             .Contain(expected);
     }
+
+    [Fact]
+    public void Roi_baseline_section_when_stale_fallback_copy_uses_roi_claim_gate_narrative_not_proof()
+    {
+        PilotRoiBaselineInputsStatusResponse inputs = new()
+        {
+            ProjectedDollarClaimsSponsorSafe = true,
+            SponsorSafeFallbackCopy = "Stale pass — safe to quote projected savings.",
+            ReviewCycleHoursBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            ArchitectPrepHoursPerReviewBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            EvidenceAssemblyEffortBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            ArchitectHourlyCostBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "HOLD — collect baselines.",
+            "Live gate narrative — do not quote savings.");
+
+        StringBuilder baselineSb = new();
+        PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(baselineSb, inputs, roiClaimGate);
+
+        string md = baselineSb.ToString();
+        md.Should().Contain("Live gate narrative");
+        md.Should().NotContain("Stale pass");
+    }
 }

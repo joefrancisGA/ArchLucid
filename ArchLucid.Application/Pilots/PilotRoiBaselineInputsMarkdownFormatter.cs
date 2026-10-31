@@ -42,7 +42,10 @@ public static class PilotRoiBaselineInputsMarkdownFormatter
 
         if (!projectedDollarClaimsSponsorSafe)
         {
-            sb.AppendLine($"> {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(inputs.SponsorSafeFallbackCopy)}");
+            string blockquoteCopy = roiClaimGate is not null
+                ? roiClaimGate.NarrativeBlock
+                : inputs.SponsorSafeFallbackCopy;
+            sb.AppendLine($"> {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(blockquoteCopy)}");
             sb.AppendLine();
         }
     }
