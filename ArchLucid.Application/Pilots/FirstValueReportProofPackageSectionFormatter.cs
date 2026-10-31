@@ -34,7 +34,7 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
         sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
         sb.AppendLine($"| Committed manifest + status | {FormatProofStatus(c is { CommittedManifestPresent: true, RunInCommittedStatus: true })} |");
-        sb.AppendLine($"| Committed manifest timestamp (UTC) | {FormatCommittedManifestTimestampProofCell(deltas, c, manifest)} |");
+        sb.AppendLine($"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommittedManifestProofCell(deltas, c)} |");
         sb.AppendLine($"| Findings by severity | {FormatFindingsBySeverityProofCell(deltas)} |");
@@ -70,21 +70,6 @@ public static class FirstValueReportProofPackageSectionFormatter
     {
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
         return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
-    }
-
-    private static string FormatCommittedManifestTimestampProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
-    {
-        if (!c.CommittedManifestPresent)
-            return "Missing — no committed architecture manifest on this run detail.";
-        if (!c.CommittedManifestTimestampResolved)
-        {
-            return
-                $"Missing — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.Metadata.CreatedUtc")} is default / not a real commit timestamp.";
-        }
-
-        DateTime committedUtc = deltas.ManifestCommittedUtc ?? manifest!.Metadata.CreatedUtc;
-        return
-            $"Present — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(committedUtc.ToString("O", CultureInfo.InvariantCulture))} ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode("GoldenManifest.Metadata.CreatedUtc")}).";
     }
 
     private static string FormatTimeToCommittedManifestProofCell(

@@ -109,7 +109,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "No committed architecture manifest or run is not Committed — there is nothing sponsor-complete to ship yet.";
 
         if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
-            yield return "Committed manifest timestamp is default/absent — commit-time proof cannot be audited from metadata.";
+            yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof is { CommittedManifestPresent: true, TimeToCommittedManifestResolved: false })
             yield return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
