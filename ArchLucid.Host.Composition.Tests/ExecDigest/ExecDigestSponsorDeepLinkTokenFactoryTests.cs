@@ -69,6 +69,18 @@ public sealed class ExecDigestSponsorDeepLinkTokenFactoryTests
             .WithParameterName("isoWeekIdempotencyKey");
     }
 
+    [Fact]
+    public void CreateDashboardToken_throws_for_iso_week_key_with_embedded_vertical_tab()
+    {
+        ExecDigestSponsorDeepLinkTokenFactory factory = CreateFactory();
+        const string smuggledKey = "2026-W33\u000Bextra";
+
+        Action act = () => factory.CreateDashboardToken(TenantId, smuggledKey);
+
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("isoWeekIdempotencyKey");
+    }
+
     private static ExecDigestSponsorDeepLinkTokenFactory CreateFactory()
     {
         ServiceCollection services = [];
