@@ -1571,12 +1571,13 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 698
+- **hunts:** 699
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3557
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-31 — quintuple Key Vault VaultName encoding + decode depth
 - **related-pd-tb:** none
+- **code-changed-since:** no
 - **code-changed-since:** yes
 - **reseed-policy:** `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
 
