@@ -2336,6 +2336,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-31 seed hunt (seed-only): fresh reread checked configured-origin/request-host canonicalization after the trailing-dot fixes plus encoded reserved delimiters, proxy handoff, path prefix boundaries, and recent host-gate churn. The encoded `%3F` path probe is not a canonical `/architecture/reviews` operator route after preserving its delimiter as a route segment; no new reachable mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
 2026-10-31 seed hunt (hit): promoted `hostnameFromOrigin` trailing-dot origin matching — valid configured origins such as `https://archlucid.net.` retained the DNS root-label dot while request Host normalization removed it, so split-host operator redirects returned `next`; canonicalize the origin host for comparison while preserving its configured redirect origin; regression `matches trailing-dot configured origins with their trailing-dot Host headers`; host-gate vitest 25/25 and UI typecheck passed. Private beta: deployments configured with fully qualified trailing-dot public/app origins now preserve operator-to-app handoff instead of leaving invited users on the wrong host.
 
 2026-10-31 seed hunt (hit): promoted `normalizeRequestHost` trailing-dot handling — a valid fully qualified `Host` header such as `archlucid.net.` did not match the configured public origin, so an operator path could remain on the marketing host; strip the DNS root label while preserving an optional port; regression `redirects marketing-host operator paths when the Host header has a trailing dot`; host-gate vitest 24/24 and UI typecheck passed. Private beta: invited users following operator links with a trailing-dot public host now reach the app origin instead of remaining on marketing-host routing.
@@ -2344,7 +2346,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
 
-**Hunts:** 17 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 18 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+
+- [x] (invalid) `normalizeHostGatePathname` — encoded `%3F` in `/architecture/reviews%3Ftab=activity` must redirect as the canonical operator route — **cheap-disproof 2026-10-31 seed hunt:** preserving the encoded delimiter makes this a distinct final path segment, so it does not satisfy the `/architecture/reviews` prefix contract; no host-gate defect was established.
 
 - [x] (proven) `hostnameFromOrigin` — valid trailing-dot configured origins fail to match normalized request Host headers — **hit 2026-10-31 seed hunt:** strip the root-label dot for host comparison while preserving the configured origin in redirect locations; regression above.
 
