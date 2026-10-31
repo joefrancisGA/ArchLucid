@@ -3078,6 +3078,10 @@
 {"at":"2026-10-31T16:01:13.5463683Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:04:27.2701477Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:07:30.0267068Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+<<<<<<< HEAD
 {"at":"2026-10-31T16:12:04.1575437Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:13:51.0242397Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:15:28.7499420Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-31T16:20:09.5180223Z","zoneId":"core-tenancy-commercial","outcome":"hit","productLine":"archlucid-shared"}
+>>>>>>> 637bace49f (Guard active trials before Enterprise packaging label resolution.)
