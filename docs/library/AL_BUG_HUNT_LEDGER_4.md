@@ -16621,13 +16621,21 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 
 ## Zone: core-requests-constraints
 
+2026-10-31 thorough hunt #1061 (dry): no rotation (`shouldRotate: false`; `core-requests-constraints` low-yield streak 2/3 in run log after hunt #1060). Cheap-disproof closed five header `(candidate)` rows from hunt #1060 — **valid-no-repro** spaced ASCII asterisk (`*` not in `NormalizeSpacedPhraseSeparators`; monitor class hunt #1060 backtick/$), **valid-no-repro** spaced ASCII comma between phrase words (`NormalizeSpacedListSeparators` maps spaced `,` to space — covers `managed , identity`), **valid-no-repro** spaced ASCII period (`.` omitted from delimiter table; compound slug guard), **valid-no-repro** spaced plus suffix negation (`RequestConstraintPhraseSpacedColonEqualsUnderscoreTests` locks `managed + identity is not required` → false), **valid-no-repro** duplicate spaces around spaced caret (`managed  ^  identity`; caret delimiter normalization + collapse — hunt #1060 doubled-plus parity). Reseeded five `(candidate)` rows; scoped RequestConstraint filter **935/935** passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII semicolon between phrase words (`managed ; identity`) may miss when not acting as list separator — locus: list vs phrase normalization; input: single phrase with spaced semicolon (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII backtick between phrase words (`managed \` identity`) may miss affirmative phrase detection — locus: normalization chain; input: spaced backtick (monitor; hunt #1060 closed).
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced ampersand inside negated suffix (`managed & identity is not required`) may false-affirm — locus: suffix negation; input: spaced ampersand + suffix (monitor; hunt #864 regression lock).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII dollar between phrase words (`managed $ identity`) may miss affirmative phrase detection — locus: delimiter table omission; input: spaced dollar (monitor).
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces inside `private  networking` phrase may miss private-endpoint detection — locus: slow-path collapse; input: doubled space in private networking phrase (monitor; hunt #862 duplicate-space valid-no-repro).
+
 2026-10-31 thorough hunt #1060 (dry): no rotation (`shouldRotate: false`; `chatops-delivery` low-yield streak 1/3 in run log). Cheap-disproof closed five header `(candidate)` rows from hunt #864 — **valid-no-repro** spaced ASCII backtick between phrase words (`NormalizeSpacedPhraseSeparators` omits `` ` `` by design; compact ``managed`identity`` slug stays suppressed — same monitor class as unlisted paste punctuation), **valid-no-repro** spaced ASCII dollar (`managed $ identity`; `$` not in delimiter table; compound slug guard), **valid-no-repro** spaced caret with suffix negation (`managed ^ identity is not required`; caret normalizes then `IsNegatedPhraseSuffix` suppresses — hunt #864 ampersand parity), **valid-no-repro** duplicate ASCII spaces around spaced plus (`managed  +  identity`; `NormalizeSpacedAsciiDelimiter` + `CollapseConsecutiveAsciiSpaces` yield `managed identity` — hunt #862 duplicate-space note), **valid-no-repro** spaced ASCII apostrophe between managed-identity words (apostrophe not a phrase delimiter; possessive/compound guards unchanged). Reseeded five `(candidate)` rows; scoped RequestConstraint filter **935/935** passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII asterisk between phrase words (`managed * identity`) may miss affirmative phrase detection — locus: normalization chain; input: spaced asterisk between identity phrase words (monitor).
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII comma between phrase words (`managed , identity`) may miss when not acting as list separator — locus: list vs phrase normalization; input: single phrase with spaced comma (monitor).
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII period between phrase words (`managed . identity`) may miss affirmative phrase detection — locus: normalization chain; input: spaced period between identity words (monitor).
-- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced plus inside negated suffix (`managed + identity is not required`) may false-affirm — locus: suffix negation after plus normalization; input: spaced plus phrase followed by suffix negation (monitor; hunt #862 regression lock).
-- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces around spaced caret (`managed  ^  identity`) may miss after collapse ordering — locus: delimiter normalization with doubled spaces; input: double spaces flanking caret (monitor).
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII asterisk between phrase words (`managed * identity`) may miss affirmative phrase detection — **cheap-disproof 2026-10-31 thorough hunt #1061:** regression above.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII comma between phrase words (`managed , identity`) may miss when not acting as list separator — **cheap-disproof 2026-10-31 thorough hunt #1061:** regression above.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII period between phrase words (`managed . identity`) may miss affirmative phrase detection — **cheap-disproof 2026-10-31 thorough hunt #1061:** regression above.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced plus inside negated suffix (`managed + identity is not required`) may false-affirm — **cheap-disproof 2026-10-31 thorough hunt #1061:** regression above.
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces around spaced caret (`managed  ^  identity`) may miss after collapse ordering — **cheap-disproof 2026-10-31 thorough hunt #1061:** regression above.
 
 - **id:** core-requests-constraints
 - **split-from:** archlucid-core
@@ -16636,9 +16644,9 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 41
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — spaced ASCII caret, tilde, exclamation, and question mark between phrase words broke managed identity detection
 
