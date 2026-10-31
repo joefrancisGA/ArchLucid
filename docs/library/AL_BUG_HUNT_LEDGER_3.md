@@ -1856,7 +1856,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-29
@@ -2191,6 +2191,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): repeated the webhook source/churn check and focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so no production change was made. Private beta: n/a.
 
 2026-10-31 seed hunt (seed-only): checked for post-hunt webhook source churn and reran the focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so the established refresh, failure, scope-generation, URL-confirmation, and mutation-state coverage remains the current boundary. No production change. Private beta: n/a.
 
