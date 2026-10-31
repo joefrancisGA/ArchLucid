@@ -3119,12 +3119,7 @@
 {"at":"2026-10-31T18:13:16.7863707Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:16:52.8710881Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:21:05.0439901Z","zoneId":"core-requests-constraints","outcome":"dry","productLine":"archlucid-shared"}
-<<<<<<< HEAD
 {"at":"2026-10-31T18:23:46.4067044Z","zoneId":"core-requests-constraints","outcome":"dry","productLine":"archlucid-shared"}
-<<<<<<< HEAD
-=======
 {"at":"2026-10-31T18:24:47.3235734Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","defectClass":"state-machine-gap"}
->>>>>>> 5ed78b2636 (Record host-core-jobs hunt #961 hit in AL_BUG_HUNT_RUN_LOG_4.)
-=======
 {"at":"2026-10-31T18:27:22.0868599Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
->>>>>>> 12054dfefb (al-bug4: record hunt #1112 dry in run log)
+{"at":"2026-10-31T18:30:03.0320938Z","zoneId":"core-requests-constraints","outcome":"dry","productLine":"archlucid-shared"}
