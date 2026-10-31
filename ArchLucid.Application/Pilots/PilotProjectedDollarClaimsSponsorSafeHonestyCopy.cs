@@ -9,4 +9,6 @@ internal static class PilotProjectedDollarClaimsSponsorSafeHonestyCopy
 
     internal static string FormatRoiBaselineInputsTableCell(bool projectedDollarClaimsSponsorSafe) =>
         projectedDollarClaimsSponsorSafe ? "**Yes**" : NoPlain;
+
+    internal static string FormatSponsorSafeConcreteGapLine() => NoPlain;
 }

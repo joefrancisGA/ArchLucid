@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Persistence.Pilots;
 
 using FluentAssertions;
 
@@ -47,7 +48,8 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             {
                 AuditRowCount = 3
             },
-            TenantCapturedSnapshot());
+            TenantCapturedSnapshot(),
+            BuyerProvidedScorecard());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
         gate.ProofSendability.Should().Be(ProofPackageSendability.Sendable);
@@ -156,6 +158,21 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
         gate.SoftGaps.Should().Contain(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
         gate.SoftGaps.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow());
+    }
+
+    [Fact]
+    public void Evaluate_WhenProjectedDollarClaimsNotSponsorSafe_AddsSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+        ValueReportSnapshot snap = MinimalSnapshotWith(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            snap);
+
+        gate.SoftGaps.Should().Contain(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
     [Fact]
@@ -383,7 +400,17 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             ReviewCycleHoursDeltaPercent: 10m,
             FindingFeedbackNetScore: 0,
             FindingFeedbackVoteCount: 0,
-            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselineManualPrepHoursPerReview: 2m,
             TenantBaselinePeoplePerReview: null);
     }
+
+    private static PilotBaselineRecord BuyerProvidedScorecard() =>
+        new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            BaselineHoursPerReview = 40m,
+            BaselineReviewsPerQuarter = 12,
+            BaselineArchitectHourlyCost = 175m,
+            UpdatedUtc = DateTimeOffset.UtcNow,
+        };
 }

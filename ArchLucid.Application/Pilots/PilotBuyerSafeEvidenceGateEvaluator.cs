@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -19,7 +20,8 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         ArchitectureRun run,
         GoldenManifest? manifest,
         PilotRunDeltas deltas,
-        ValueReportSnapshot valueWindowSnapshot)
+        ValueReportSnapshot valueWindowSnapshot,
+        PilotBaselineRecord? scorecardBaselines = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -109,6 +111,14 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
         {
             softGapMessages.Add(PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow());
+        }
+
+        PilotRoiBaselineInputsStatusResponse roiBaselineInputs =
+            PilotRoiBaselineInputsStatusResolver.Resolve(valueWindowSnapshot, deltas, scorecardBaselines);
+
+        if (!deltas.IsDemoTenant && !roiBaselineInputs.ProjectedDollarClaimsSponsorSafe)
+        {
+            softGapMessages.Add(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         (PilotBuyerSafeEvidencePublishingTier tier, ProofPackageSendability sendability) =

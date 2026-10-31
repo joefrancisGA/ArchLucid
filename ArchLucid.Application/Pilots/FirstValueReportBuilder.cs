@@ -166,7 +166,12 @@ public sealed class FirstValueReportBuilder(
             await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
-        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            manifest,
+            deltas,
+            valueWindowSnapshot,
+            scorecardBaselines);
         FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
         SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
         ProofPackageCompletenessResponse proofCompleteness =

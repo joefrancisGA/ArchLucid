@@ -37,7 +37,12 @@ public static class PilotRunDeltasResponseMapper
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(valueWindowSnapshot);
         PilotBuyerSafeEvidenceGateResult gate =
-            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+                run,
+                manifest,
+                deltas,
+                valueWindowSnapshot,
+                scorecardBaselines);
         ProofPackageCompletenessResponse completeness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot, scorecardBaselines);
 
