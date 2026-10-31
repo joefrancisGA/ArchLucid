@@ -9354,6 +9354,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed→hit): promoted `RunDetailReviewPackageStampViewport` — the sealed `hasGoldenManifest && feasibilityVerdict !== null` branch omitted `runId` when rendering `RunDetailFirstReviewSpineBand`, so an open decision-grade finding rendered “Review id was not stored.” instead of the Findings next-action link; pass the review id through the sealed stamp. Regression `keeps the findings next-action link on the sealed stamp`; focused regression passed 1/1. The full viewport file had one unrelated test-drift failure for the measurement-copy assertion. Private beta: invited architects viewing a finalized review package with open decision-grade findings can now follow the disposition action into that review’s Findings tab instead of seeing “Review id was not stored.”
+
+- [x] (proven) `RunDetailReviewPackageStampViewport` — sealed package stamps dropped `runId` when rendering the first-review spine, so disposition actions could not link to the review Findings tab; pass `runId={props.runId}` through the sealed branch; regression `keeps the findings next-action link on the sealed stamp`.
+
 2026-10-31 seed hunt (seed-only): rotation moved the hunt from saturated OIDC; reread presenter enter/exit URL commits, finding selection synchronization, workbench focus state, and mounted tab-shell/workbench panel ownership found no new reachable mechanism-backed candidate or hunt-ready row. Focused presenter, selection, workbench, workspace, and URL-sync tests passed 33/33. No production code changed.
 
 2026-10-31 seed→hit: promoted `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash returned early, leaving the visible tab/workbench focus on the hash-derived tab instead of the query-selected tab after browser back or hash clearing; synchronize tab and focus from the live URL before handling the empty-hash case. Regression `restores the query-selected tab when a mounted workspace hash is removed`; focused review workspace tests passed 33/33. Private beta: invited architects returning from a review deep link now see the tab and workbench focus represented by the current URL instead of stale hash-derived workspace chrome.
@@ -9968,11 +9972,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 51
-- **bugs-found:** 37
+- **hunts:** 52
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — mounted review hash left the prior workspace tab active
+- **last-bug:** 2026-10-31 — sealed review package stamp dropped run id from findings disposition action
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
