@@ -152,6 +152,70 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_reactivate_preserves_key_vault_secret_when_omitted_and_stored_row_is_inactive()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        IdentityClaimRoleMappingRequest mapping = new()
+        {
+            RoleClaimName = "groups",
+            Mappings =
+            [
+                new IdentityClaimRoleMappingEntryRequest
+                {
+                    IdpValue = "al-admins",
+                    ArchLucidRole = "Admin"
+                }
+            ]
+        };
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret"
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord? inactive = await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        inactive.Should().NotBeNull();
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = inactive!.TenantId,
+                Protocol = inactive.Protocol,
+                IssuerUri = inactive.IssuerUri,
+                MetadataXml = inactive.MetadataXml,
+                ClaimMappingJson = inactive.ClaimMappingJson,
+                KeyVaultSecretName = inactive.KeyVaultSecretName,
+                UpdatedUtc = inactive.UpdatedUtc,
+                UpdatedByActorId = inactive.UpdatedByActorId,
+                IsActive = false,
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping
+            },
+            CancellationToken.None);
+
+        record.IsActive.Should().BeTrue();
+        record.KeyVaultSecretName.Should().Be("tenant-idp-client-secret");
+    }
+
+    [Fact]
     public async Task ActivateAsync_reactivate_preserves_metadata_xml_when_omitted()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();

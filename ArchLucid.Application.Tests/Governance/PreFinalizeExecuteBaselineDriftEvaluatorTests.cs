@@ -424,6 +424,31 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     }
 
     [Fact]
+    public void CoverageAssignmentsMatch_ignores_evaluation_version_when_operational_fields_match()
+    {
+        CommittedCoverageAssignmentSnapshot legacy = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+            QualityDimension = QualityDimension.Security.ToString(),
+        };
+
+        CommittedCoverageAssignmentSnapshot current = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+            QualityDimension = QualityDimension.Security.ToString(),
+            EvaluationVersion = EffectiveGovernanceSnapshotBuilder.ExecuteScopeEvaluationVersion,
+        };
+
+        PreFinalizeExecuteBaselineDriftEvaluator.CoverageAssignmentsMatch([legacy], [current]).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions()
     {
         ArchitectureRequest request = CreateRequest();
