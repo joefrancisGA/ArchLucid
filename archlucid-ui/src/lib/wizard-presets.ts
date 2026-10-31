@@ -93,11 +93,20 @@ const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = 
 
 /** True when React Hook Form marked a scalar or array field dirty or touched. */
 export function isWizardFormFieldDirty(dirty: unknown): boolean {
-  if (Array.isArray(dirty)) {
-    return dirty.some(Boolean);
+  return isWizardFormBooleanOrArrayFlag(dirty);
+}
+
+/** True when React Hook Form marked a scalar or array field touched. */
+export function isWizardFormFieldTouched(touched: unknown): boolean {
+  return isWizardFormBooleanOrArrayFlag(touched);
+}
+
+function isWizardFormBooleanOrArrayFlag(flag: unknown): boolean {
+  if (Array.isArray(flag)) {
+    return flag.some(Boolean);
   }
 
-  return dirty === true;
+  return flag === true;
 }
 
 /** Fields that still match the starter preset and were not dirtied — for recap honesty. */

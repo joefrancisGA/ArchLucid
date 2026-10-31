@@ -9,9 +9,9 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
-export { runListPrimaryTitle };
-
 export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
+
+export { runListPrimaryTitle };
 
 export const FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL = "Findings snapshot flag was not stored." as const;
 
