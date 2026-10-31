@@ -199,8 +199,8 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
                 NonSimulatorRun())
             .ToList();
 
-        gaps.Should().Contain(s => s.Contains("Demo", StringComparison.Ordinal));
-        gaps.Should().Contain(s => s.Contains("customer ROI", StringComparison.OrdinalIgnoreCase));
+        gaps.Should().Contain(s => s.Contains("non-negotiable demo warning", StringComparison.OrdinalIgnoreCase));
+        gaps.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
     }
 
     [Fact]

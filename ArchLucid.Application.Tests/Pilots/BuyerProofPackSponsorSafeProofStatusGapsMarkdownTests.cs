@@ -249,4 +249,39 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         proofSb.ToString().Should().Contain(PilotCommittedManifestTimestampHonestyCopy.UnresolvedSuffixPlain);
         proofSb.ToString().Should().Contain(PilotCommittedManifestTimestampHonestyCopy.MetadataCreatedUtcFieldLabel);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_demo_tenant_matches_proof_package_discipline_row()
+    {
+        PilotRunDeltas deltas = new() { IsDemoTenant = true };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = true,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string failed = PilotDemoTenantDisciplineHonestyCopy.FailedPlain;
+        gaps.Should().Contain(failed);
+        gaps.Should().NotContain("Demo or sample tenant scope");
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        proofSb.ToString().Should().Contain(failed);
+    }
 }

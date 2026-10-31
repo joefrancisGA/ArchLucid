@@ -99,8 +99,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         ArchitectureRun run)
     {
         if (proof.DemoTenantWarningRequired)
-            yield return
-                "Demo or sample tenant scope — deltas are illustrative and must **not** be presented as verified customer ROI or procurement-safe proof.";
+            yield return PilotDemoTenantDisciplineHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.SupportRunIdPresent)
             yield return "Support run id missing — this export cannot be anchored to a persisted architecture review identity.";
