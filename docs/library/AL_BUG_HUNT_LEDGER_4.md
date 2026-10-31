@@ -4426,13 +4426,15 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 487
-- **last-hunt:** 2026-10-20
+- **hunts:** 488
+- **last-hunt:** 2026-10-31
 - **bugs-found:** 3521
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): reread the picker-selected retired `archlucid-core` entry; its configured path remains only `docs/library/AL_BUG_HUNT_LEDGER.md`, so no source-backed reachable hypothesis could be promoted without inventing a product defect. No production change. Private beta: n/a.
 
 2026-10-09 seed hunt (seed→hit): Event Grid `2022-06-15` destinations nest `resourceId` and webhook URLs under `destination.properties`; the extractor now reads that bag and still accepts a flattened destination; regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7407/7407.
 
