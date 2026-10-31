@@ -9323,7 +9323,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): reread review workspace tab hydration, hash navigation, selection, presenter, tab-strip rendering, and stale-banner state; the focused workspace URL-sync suite passed 4/4. Seeded two bounded candidates without production changes.
 
-- [ ] (candidate) `useReviewDetailWorkspaceTabs.onHashChange` — changing a review workspace hash after initial mount can scroll to another section without switching the active tab — locus: the `onHashChange` listener only calls `scheduleScrollToReviewDetailSection`, while active-tab selection is performed only by the one-shot `hashResolved` effect; input: an operator follows a same-page review anchor that changes `window.location.hash` from one tab section to another; wrong outcome: the URL points at a section in a different workspace tab while the visible tab remains unchanged; why this code: hash changes and tab state are handled by separate paths and the listener does not resolve the new hash to a tab; reachability: review workspace section anchors use URL hashes and can be activated by an operator after the workspace is mounted.
+2026-10-31 seed hunt (hit): promoted `useReviewDetailWorkspaceTabs.onHashChange` — changing a mounted review-section hash scrolled the new section but left the visible workspace tab on the prior tab; synchronize active tab and workbench focus from the new hash before scrolling. Regression `switches the active tab when a mounted workspace hash changes tabs`; focused tab-sync and mapping tests passed 16/16. Private beta: invited architects following in-review section links now see the section’s owning tab selected instead of a mismatched workspace tab.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs.onHashChange` — changing a review workspace hash after initial mount left the active tab unchanged; synchronize the new hash-derived tab and workbench focus before scrolling; regression `switches the active tab when a mounted workspace hash changes tabs`.
 
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
@@ -9904,11 +9906,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 46
-- **bugs-found:** 36
+- **hunts:** 47
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — mutable review status omitted from stale warning fingerprint
+- **last-bug:** 2026-10-31 — mounted review hash left the prior workspace tab active
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

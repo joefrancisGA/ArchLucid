@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { act, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -158,6 +158,21 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
     const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+  });
+
+  it("switches the active tab when a mounted workspace hash changes tabs", () => {
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+
+    act(() => {
+      window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview#run-explanation");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
     });
 
     expect(result.current.activeTab).toBe("findings");
