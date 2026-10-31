@@ -45,6 +45,18 @@ namespace Dapper
             object? param = null) =>
             throw null!;
 
+        public static async System.Collections.Generic.IAsyncEnumerable<T> QueryUnbufferedAsync<T>(
+            this System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null,
+            System.Data.IDbTransaction? transaction = null,
+            int? commandTimeout = null,
+            System.Data.CommandType? commandType = null)
+        {
+            await System.Threading.Tasks.Task.CompletedTask;
+            yield break;
+        }
+
         public static System.Threading.Tasks.Task<int> ExecuteAsync(
             this System.Data.IDbConnection cnn,
             CommandDefinition command) =>
@@ -1181,8 +1193,40 @@ public sealed record BadExemptionRecord;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
-            .WithSpan(68, 2, 68, 60)
+            .WithSpan(80, 2, 80, 60)
             .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRecord");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_static_sql_for_query_unbuffered_async()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class QueryUnbufferedRunsRepository
+{
+    public async System.Threading.Tasks.Task StreamAsync(IDbConnection connection)
+    {
+        await foreach (int _ in connection.QueryUnbufferedAsync<int>(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL"))
+        {
+        }
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(85, 33, 86, 68)
+            .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
