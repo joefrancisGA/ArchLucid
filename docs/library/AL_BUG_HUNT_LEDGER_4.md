@@ -26022,6 +26022,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-31 seed hunt #1075 (seed-only, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-tenancy-commercial` (#1072–#1074 dry; run log). Picker rotated with **`-AvoidZoneId`** to `notifications-pipeline` (`seedHunt`; header queue empty — `(candidate)` rows from hunt #948 sat below zone metadata). Cheap-disproof closed five `(candidate)` rows from hunt #948 reseed — **invalid** support inbox `ClientRequestId` plain-text gap (`EmailHeaderFragmentSanitizer.Sanitize` on client request and correlation ids — hunt #944), **valid-no-repro** Slack alert `TriggerValue` Unicode LS in supporting paragraph (`EscapeSupportingParagraphForSlack` — hunt #944), **valid-no-repro** exec digest scanner unsubscribe URL from operator base with userinfo (`TryNormalizeOperatorLinkBase` — hunt #944), **valid-no-repro** lowercase ISO-week idempotency key bypass (case-sensitive ledger prefix by design — hunt #944), **invalid** digest subscription update webhook destination guard (no update route; create uses shared policy — hunt #944). Reseeded five `(candidate)` rows; scoped picker filter **224/224** Application notification/digest tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `AlertTeamsWebhookDeliveryChannel.SendAsync` — bracket-wrapped `SeverityLabel` with spoofed closing `]` breaks Teams title prefix — locus: `SanitizeTeamsSeverityLabel`; input: `High] spoof` label (monitor; hunt #1075).
+- [ ] (candidate) `DigestTeamsWebhookDeliveryChannel.SendAsync` — digest `Summary` with raw HTML metacharacters after title encode — locus: Teams digest payload; input: `<script>` in summary (monitor; 2026-10-13 hit family).
+- [ ] (candidate) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — `runDetailUrl` relative path when operator base is scheme-only — locus: URL validation at dispatch; input: `https://` base only (monitor; hunt #940).
+- [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlack` — alert category line with unescaped `_` emphasis metacharacters — locus: mrkdwn escape on category; input: `_category_` spoof (monitor; 2026-10-13 hit family).
+- [ ] (candidate) `RecurrenceCompletionEmailDispatcher.TryDispatchAsync` — whitespace-only `CompareUrl` accepted after trim — locus: compare CTA validation; input: `"   "` compare url (monitor; exec digest URL guard family).
+
+- [x] (invalid) `SupportProblemReportNotifier.NotifySupportInboxAsync` — `ClientRequestId` / correlation display fields in support inbox plain-text without `EmailHeaderFragmentSanitizer` — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+- [x] (valid-no-repro) `AlertSlackWebhookDeliveryChannel.SendAsync` — alert `TriggerValue` with Unicode LS only in supporting paragraph mrkdwn — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+- [x] (valid-no-repro) `ExecDigestWeeklyDeliveryScanner` — unsubscribe absolute URL built from raw trimmed `operatorBase` before `TryNormalizeOperatorBaseAuthority` — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — lowercase ISO-week idempotency key bypasses `WeeklyDigestIsoWeekIdempotencyKeyValidator` normalization — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+- [x] (invalid) `DigestSubscriptionsController.Update` — advisory webhook `Destination` persist without `AlertRoutingWebhookDestinationPolicy` line-break guard parity to create path — **cheap-disproof 2026-10-31 seed hunt #1075:** regression hunt #944.
+
 2026-10-13 seed hunt (seed-only): cheap-disproved five template/text candidates; added trial welcome, weekly sponsor text, and recurrence href regression locks; reseeded five follow-on candidates; 182 scoped Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved Teams alert webhook title prefix forwarded raw HTML in `SeverityLabel` while title copy was encoded; `BuildTeamsTitle` HTML-encodes sanitized severity; 179 scoped Application tests passed; 15 body tests; 7 Teams alert channel tests passed.
@@ -26102,10 +26116,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 119
+- **hunts:** 120
 - **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-15 — percent-encoded Unicode line separator in navigable URL path
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -26117,12 +26131,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `MarketingPricingQuoteSalesNotifier.NotifyAsync` — sales inbox HTML part for public `message` without `HtmlEncode` — **cheap-disproof 2026-10-30 seed hunt #948:** `WebUtility.HtmlEncode(message)` on HTML; sanitizer on text.
 - [x] (valid-no-repro) `ChatOpsIncomingWebhookBodies.ForTeams` — raw digest markdown with angle-bracket autolink-shaped segments — **cheap-disproof 2026-10-30 seed hunt #948:** intentional digest markdown policy in Teams `text`.
 - [x] (valid-no-repro) `UserInvitationEmailNotifier.TrySendInvitationAsync` — `FormatPersonalMessageText` link labels with embedded CR — **cheap-disproof 2026-10-30 seed hunt #948:** `EmailHeaderFragmentSanitizer.Sanitize` before text formatting.
-
-- [ ] (candidate) `SupportProblemReportNotifier.NotifySupportInboxAsync` — `ClientRequestId` / correlation display fields in support inbox plain-text without `EmailHeaderFragmentSanitizer` — locus: support problem report text body; input: embedded CR in client request id (monitor).
-- [ ] (candidate) `AlertSlackWebhookDeliveryChannel.SendAsync` — alert `TriggerValue` with Unicode LS only in supporting paragraph mrkdwn — locus: `EscapeSupportingParagraphForSlack`; input: LS-only trigger label (monitor).
-- [ ] (candidate) `ExecDigestWeeklyDeliveryScanner` — unsubscribe absolute URL built from raw trimmed `operatorBase` before `TryNormalizeOperatorBaseAuthority` — locus: weekly exec digest scanner URL composition; input: operator base with embedded userinfo (monitor).
-- [ ] (candidate) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — lowercase ISO-week idempotency key bypasses `WeeklyDigestIsoWeekIdempotencyKeyValidator` normalization — locus: `weekly-sponsor-report:{tenant}:{isoWeek}` ledger key; input: lowercase `2026-w01` style key (monitor).
-- [ ] (candidate) `DigestSubscriptionsController.Update` — advisory webhook `Destination` persist without `AlertRoutingWebhookDestinationPolicy` line-break guard parity to create path — locus: subscription update facade; input: percent-encoded `%0A` in destination (monitor).
 
 2026-10-30 seed hunt #944 (seed-only, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#941–#943 dry), picker rotated with **`-AvoidZoneId`** to `notifications-pipeline`. Cheap-disproof closed five open `(candidate)` rows from hunt #940 reseed — invalid `SupportProblemReportNotifier.NotifySupportInboxAsync` plain-text `ClientRequestId` / correlation display gap (`EmailHeaderFragmentSanitizer.Sanitize` on `ClientRequestId` and `CorrelationId` before HTML encode and text body; actor-id CRLF regression family), valid-no-repro `AlertSlackWebhookDeliveryChannel.SendAsync` Unicode LS-only `TriggerValue` in supporting paragraph (`ChatOpsIncomingWebhookBodies.ForSlack` applies `EscapeSupportingParagraphForSlack` to category/trigger copy; 2026-10-13/14 hit family), valid-no-repro `ExecDigestWeeklyDeliveryScanner` unsubscribe URL from operator base with embedded userinfo (`PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase` → `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` before unsubscribe href composition; parity `ExecDigestEmailDispatcher_omits_user_info_from_unsubscribe_url_in_template_model`), valid-no-repro `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` lowercase ISO-week idempotency key bypass (`WeeklyDigestIsoWeekIdempotencyKeyValidator` trims/rejects line breaks only; canonical scanner emits uppercase `W`; regression `WeeklySponsorReportEmailDispatcher_lowercase_iso_week_idempotency_key_is_distinct_from_canonical_week` documents intentional case-sensitive ledger prefix), and invalid `DigestSubscriptionsController.Update` webhook destination line-break guard gap (no subscription update route; create persists through `DigestSubscriptionFacade.CreateAsync` + `AlertRoutingWebhookDestinationPolicy`; toggle-only mutator). Reseeded five follow-on `(candidate)` rows; scoped picker filter **224/224** Application notification/digest tests. Private beta: n/a.
 
