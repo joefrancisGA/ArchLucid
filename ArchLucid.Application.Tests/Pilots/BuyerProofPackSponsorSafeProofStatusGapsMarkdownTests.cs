@@ -531,6 +531,61 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         gaps.Should().Contain(PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
+    [Fact]
+    public void Proof_package_artifact_row_when_run_not_committed_matches_gate_not_claiming_unresolved()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            SynthesizedArtifactDescriptorCountResolved = false,
+            AuditRowCount = 2,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            ArtifactDescriptorCountResolved = false,
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created },
+            manifest: null,
+            deltas,
+            MinimalValueReportSnapshot());
+
+        string unresolved = PilotArtifactDescriptorCountHonestyCopy.UnresolvedPlain;
+        gate.SoftGaps.Should().NotContain(unresolved);
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created })
+            .ToList();
+
+        gaps.Should().NotContain(unresolved);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created });
+
+        string artifactRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Artifact descriptor count |", StringComparison.Ordinal));
+
+        artifactRow.Should().NotContain(unresolved);
+        artifactRow.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+    }
+
     private static ValueReportSnapshot MinimalValueReportSnapshot() =>
         new(
             TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),

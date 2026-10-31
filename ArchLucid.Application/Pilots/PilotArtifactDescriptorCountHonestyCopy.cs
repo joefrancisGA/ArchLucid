@@ -13,6 +13,11 @@ internal static class PilotArtifactDescriptorCountHonestyCopy
     {
         ArgumentNullException.ThrowIfNull(c);
 
+        if (c is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        {
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
         if (!c.ArtifactDescriptorCountResolved)
         {
             return UnresolvedPlain;
