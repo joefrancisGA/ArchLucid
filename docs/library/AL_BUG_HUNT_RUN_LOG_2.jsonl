@@ -2284,3 +2284,4 @@
 {"at":"2026-10-31T17:25:43.2121291Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T17:32:59.9244626Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T17:38:55.4817712Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T17:42:20.5147173Z","zoneId":"persistence-identity","outcome":"dry","productLine":"archlucid-shared"}

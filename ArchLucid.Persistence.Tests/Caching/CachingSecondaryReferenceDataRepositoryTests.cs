@@ -239,4 +239,44 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
         found.Should().NotBeNull();
         found!.TenantId.Should().Be(tenantId);
     }
+
+    [Fact]
+    public async Task TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSignInEmailDomainRepository inner = new();
+        CachingTenantSignInEmailDomainRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+        const string normalized = "REMOVED.COM";
+
+        await repo.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "Removed.com",
+                NormalizedDomain = normalized,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.FindByNormalizedDomainAsync(normalized, CancellationToken.None)).Should().NotBeNull();
+
+        TenantSignInEmailDomainRecord? loaded = await inner.TryGetAsync(tenantId, normalized, CancellationToken.None);
+        loaded.Should().NotBeNull();
+
+        await repo.UpdateAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = loaded!.TenantId,
+                DisplayDomain = loaded.DisplayDomain,
+                NormalizedDomain = loaded.NormalizedDomain,
+                CreatedUtc = loaded.CreatedUtc,
+                RemovedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.FindByNormalizedDomainAsync(normalized, CancellationToken.None)).Should().BeNull();
+    }
 }
