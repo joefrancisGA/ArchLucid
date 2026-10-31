@@ -33,8 +33,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (string.IsNullOrWhiteSpace(run.RunId))
         {
-            hardGapMessages.Add(
-                "Support run id is missing — the proof package cannot be anchored to a persisted architecture review.");
+            hardGapMessages.Add(PilotSupportRunIdHonestyCopy.MissingPlain);
         }
 
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)

@@ -226,7 +226,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             MinimalDeltas(run),
             TenantCapturedSnapshot());
 
-        gate.HardGaps.Should().Contain(g => g.Contains("run id is missing", StringComparison.OrdinalIgnoreCase));
+        gate.HardGaps.Should().Contain(PilotSupportRunIdHonestyCopy.MissingPlain);
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
     }
