@@ -1164,6 +1164,29 @@ public sealed partial class PartialFileRunsRepository
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task ARCH006b_reports_empty_exemption_justification_on_record_declaration()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Probe
+{
+using ArchLucid.Core.Tenancy;
+
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "")]
+public sealed record BadExemptionRecord;
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
+            .WithSpan(68, 2, 68, 60)
+            .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRecord");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
     private static async Task RunPersistenceAnalyzerTestAsync(
         string testCode,
         params DiagnosticResult[] expectedDiagnostics)

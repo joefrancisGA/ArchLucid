@@ -70,7 +70,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeTypeDeclaration(c, context.Compilation),
-            SyntaxKind.ClassDeclaration);
+            SyntaxKind.ClassDeclaration,
+            SyntaxKind.RecordDeclaration);
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeMethodDeclaration(c, context.Compilation),
@@ -97,10 +98,10 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeTypeDeclaration(SyntaxNodeAnalysisContext context, Compilation compilation)
     {
-        if (context.Node is not ClassDeclarationSyntax classDeclaration)
+        if (context.Node is not TypeDeclarationSyntax typeDeclaration)
             return;
 
-        ISymbol? symbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
+        ISymbol? symbol = context.SemanticModel.GetDeclaredSymbol(typeDeclaration);
 
         if (symbol is null)
             return;
