@@ -16151,6 +16151,8 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `unable to comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-29 seed hunt #854:** `unable to comply with` branch; regression above. [class:fail-open-validation]
 - [x] (proven) `EnglishNegationTokenizer` — `denied from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-29 seed hunt #854:** added `denied from` to multi-word negations; regression above. [class:fail-open-validation]
 
+2026-10-31 thorough hunt (dry): all five picker rows remained `(candidate)` because they lacked the required reachability citation for a hunt-ready repro; reread the Findings similarity, conflict-pattern, and negation-tokenizer mechanisms, and the scoped suite passed 1,689/1,689. No production change. Private beta: n/a.
+
 - [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — hair space (`U+200A`) separated resource tokens vs space-separated peer under-penalized duplication — locus: `Tokenize` split set; input: `prod\u200Asql\u200Adb` vs `prod sql db`; wrong outcome: Jaccard below 0.85 high-duplication threshold.
 - [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — six-per-em space (`U+2006`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2006sql\u2006db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
 - [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not able to comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: conflict title with `not able to comply with`; wrong outcome: falsifiability bonus skipped.
@@ -16170,10 +16172,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-29 — Unicode thin/figure/math spaces in Jaccard tokenization, unable-to-comply conflict wording, denied-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
