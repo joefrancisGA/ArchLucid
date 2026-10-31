@@ -5002,4 +5002,59 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
     }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_quadruple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "@Microsoft.KeyVault(SecretUri=https://ex%25252523ample.vault.azure.net/secrets/db)");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_https_key_vault_url_quadruple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "https://ex%25252523ample.vault.azure.net/");
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_quadruple_percent_encoded_hash_yields_decoded_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "BlobEndpoint=https://starch%25252523qa.blob.core.windows.net/;AccountKey=abc");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_vault_name_quintuple_percent_encoded_hash_yields_decoded_vault_host()
+    {
+        (string? KeyVaultHost, string? SecretName) parsed =
+            AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+                "@Microsoft.KeyVault(VaultName=ex%2525252523ample;SecretName=db)");
+
+        parsed.KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed.SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_quadruple_percent_encoded_hash_yields_full_host()
+    {
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(
+                "Host=pg%25252523.postgres.database.azure.com;Database=app;Password=secret");
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
 }

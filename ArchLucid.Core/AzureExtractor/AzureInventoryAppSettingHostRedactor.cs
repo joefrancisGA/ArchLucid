@@ -212,29 +212,38 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
     private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
     {
-        return vaultHost.Contains("%2f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%5c", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%23", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%3f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%252f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%255c", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%2523", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%253f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%252523", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%25252f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%25255c", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%25253f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%25252523", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%2525252f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%2525255c", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%2525253f", StringComparison.OrdinalIgnoreCase);
+        ReadOnlySpan<string> delimiterTokens = ["%23", "%3f", "%2f", "%5c"];
+
+        foreach (string delimiterToken in delimiterTokens)
+        {
+            string encodedToken = delimiterToken;
+
+            for (int depth = 0; depth < 6; depth++)
+            {
+                if (vaultHost.Contains(encodedToken, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                string nextEncodedToken = Uri.EscapeDataString(encodedToken);
+
+                if (string.Equals(nextEncodedToken, encodedToken, StringComparison.Ordinal))
+                {
+                    break;
+                }
+
+                encodedToken = nextEncodedToken;
+            }
+        }
+
+        return false;
     }
 
     internal static string DecodeInventoryHostPercentEncoding(string value)
     {
         string decoded = value;
 
-        for (int pass = 0; pass < 4 && decoded.Contains('%', StringComparison.Ordinal); pass++)
+        for (int pass = 0; pass < 6 && decoded.Contains('%', StringComparison.Ordinal); pass++)
         {
             string next = Uri.UnescapeDataString(decoded);
 
