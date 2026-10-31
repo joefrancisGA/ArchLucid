@@ -149,7 +149,7 @@ function hostnameFromOrigin(origin: string | null): string | null {
   if (origin == null) return null;
 
   try {
-    return new URL(origin).host.toLowerCase();
+    return new URL(origin).host.toLowerCase().replace(/\.(?=(:\d+)?$)/, "");
   } catch {
     return null;
   }

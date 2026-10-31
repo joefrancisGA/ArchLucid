@@ -139,6 +139,19 @@ describe("decideHostGateRedirect", () => {
     ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/architecture/reviews" });
   });
 
+  it("matches trailing-dot configured origins with their trailing-dot Host headers", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net.";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net.";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net.",
+        pathname: "/architecture/reviews",
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "https://app.archlucid.net./architecture/reviews" });
+  });
+
   it("preserves returnUrl on marketing-host /auth/signin redirects via pathAndQuery", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
