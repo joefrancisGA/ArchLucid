@@ -4442,13 +4442,15 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 488
+- **hunts:** 489
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3521
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-20 — ADO.NET Data Source SQL host alias omitted from app-setting host extraction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): re-read the picker-selected retired `archlucid-core` entry after the synced ledger churn; the catalog path remains only `docs/library/AL_BUG_HUNT_LEDGER.md`, so the source-looking rows below cannot be promoted or reproed within this zone without violating the picker scope. No production change. Private beta: n/a.
 
 2026-10-31 seed hunt (seed-only): reread the picker-selected retired `archlucid-core` entry; its configured path remains only `docs/library/AL_BUG_HUNT_LEDGER.md`, so no source-backed reachable hypothesis could be promoted without inventing a product defect. No production change. Private beta: n/a.
 
