@@ -3696,4 +3696,29 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
     }
+
+    [Fact]
+    public void ParseSettingValues_explicit_table_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;TableEndpoint=https://%73tarch.table.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.table.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=https://%6d%79account.documents.azure.com/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
 }
