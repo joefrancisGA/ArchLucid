@@ -19963,6 +19963,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-31 thorough hunt #1086 (dry): cheap-disproof closed the five monitor candidates carried from hunt #1084 — multiline block-comment password text is covered by the spanning-comment regression, inline block-comment suffixes are non-redacting, EOF heredoc masking is conservative by design, duplicate trimmed diagram IDs have no supported intake path, and non-heredoc string text is not promoted to resource headers. The application ContextIngestion/Canonicalization filter passed 43/43; no production change.
+
 2026-10-31 thorough hunt #1085 (dry): no rotation (`shouldRotate: false`; `context-ingestion` low-yield streak **3/3** in run log after this dry — next `/4` should `-AvoidZoneId` rotate away). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #1084 — same monitor class as #924/#1084: **invalid** multiline block-comment redact (hunt #920 regression), **valid-no-repro** inline block-comment suffix (hunt #920), **valid-no-repro** unclosed heredoc EOF masking (hunt #908), **invalid** duplicate diagram node ids without intake path (hunt #908), **valid-no-repro** decoy resource header inside multiline string property scan (hunt #920). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). No production change. Private beta: n/a.
 
 - [ ] (candidate) `SimpleTerraformResourceBlockParser.MaskHeredocBodies` — `#` or `//` comment lines containing `<<` may start heredoc masking before line-comment stripping — locus: scan order vs `MaskLineComments`; input: commented heredoc example followed by real `resource` header (monitor; hunt #908 regression family).
@@ -19978,6 +19980,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `SimpleTerraformResourceBlockParser.ParseBodyIntoProperties` — decoy `resource` header text inside a non-heredoc multiline string — **cheap-disproof 2026-10-31 thorough hunt #1085:** hunt #920 property-scan monitor.
 
 2026-10-31 thorough hunt #1084 (dry): no rotation (`shouldRotate: false`; `knowledge-graph-provenance` low-yield streak **1/3** in run log — below `minLowYieldStreak` 3). Cheap-disproof closed five header `(candidate)` rows reseeded after hunt #924 — **invalid** multiline `/* */` password false-positive redact (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_multiline_block_comment`; hunt #920), **valid-no-repro** inline `/* password = … */` suffix non-redacting (`TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_inline_block_comment_suffix`; hunt #920), **valid-no-repro** unclosed heredoc EOF masking on malformed uploads (conservative by design; hunt #908), **invalid** duplicate trimmed diagram node IDs without supported intake path (hunt #908), **valid-no-repro** decoy `resource` header text inside non-heredoc multiline strings emits properties only (`ParseBodyIntoProperties` does not promote string literals to resources; hunt #920). Reseeded five `(candidate)` rows; scoped ContextIngestion/Canonicalization filter **841/843** (two unrelated `AuditManualEvidenceSubmissionServiceTests` failures). No production change. Private beta: n/a.
+
 
 - [x] (invalid) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — multiline `/* */` block comment containing `password =` may still redact when comment spans lines — **cheap-disproof 2026-10-31 thorough hunt #1084:** hunt #920 regression above.
 - [x] (valid-no-repro) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — inline `/* password = … */` suffix on an assignment line — **cheap-disproof 2026-10-31 thorough hunt #1084:** hunt #920 regression above.
@@ -22101,7 +22104,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2396 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2390 (seed-only): reseeded context-ingestion; no new hunt-ready rows.
-- **status:** open
+- **status:** cooling
 - **impact:** medium
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
