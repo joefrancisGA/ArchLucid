@@ -2410,6 +2410,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-31 seed hunt (seed-only): reread the page-client action gates and the focused checklist regressions; the only fresh bounded concern is retained as a candidate because the large page-client suite is currently VM-heap constrained and did not provide a reliable repro result. No production change. Private beta: n/a.
+
 2026-10-30 thorough hunt #50 (hit): promoted blank source-context handling — a non-empty `sourceTexts` array with only whitespace contents was marked `loaded`, so the page showed loaded-intake messaging while the architecture description remained empty; require at least one trimmed source body before marking context loaded; regression `hasUsableArchitectureSourceText` rejects whitespace-only rows; focused helper suites passed 5/5. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
 
 - [x] (proven) `ArchitectureIntelligencePageClient` — loaded source context with only blank source contents marks the analysis checklist as complete enough to show loaded intake copy — **hit 2026-10-30 thorough hunt #50:** product context is `loaded` only when a source body has non-whitespace content; regression above. Private beta: invited architects opening reviews with blank intake records now see the empty-intake recovery guidance instead of believing source context loaded while analysis remains unavailable.
@@ -2478,7 +2480,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
@@ -2499,6 +2501,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-31 thorough hunt (hit): promoted the reasoning-result state candidate; `runState.kind === "reasoning"` marked the checklist complete for an empty payload, so the page could show “Done” without actionable output. Added `hasActionableArchitectureIntelligenceResult` and regression coverage for empty and populated payloads; the focused checklist suite passed 5/5. Private beta: invited architects no longer see the analysis checklist complete when the reasoning API returns no actionable result, so they retain the correct next-step state.
 
 ### Hypotheses
+
+- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action gate — an empty reasoning response with a returned `runId` may still enable “Publish to findings/advisory” because the button checks only `runState.kind === "reasoning"` rather than `hasActionableArchitectureIntelligenceResult`; input: reachable empty `/architecture-intelligence/run` response with `runId` (existing empty-result fixture); wrong outcome: publish affordance accepts a non-actionable result. Large page-client repro was inconclusive because the VM hit the worker heap limit; keep as candidate until an isolated test can prove or disprove it.
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
 - [x] (proven) `ArchitectureIntelligencePageClient` — reasoning result kind alone marked analysis complete before a usable result payload existed — **hit 2026-10-31 thorough hunt:** `hasActionableArchitectureIntelligenceResult` requires actionable model/review/recommendation/violation/interview/adversarial/validation content; regressions in `architecture-intelligence-analysis-checklist.test.ts`.
