@@ -25,6 +25,8 @@ Labels are **not** attestations. **Template** means legal or owner execution is 
 | Executive packet fill guide | Internal guide | [EXECUTIVE_PACKET_FILL_GUIDE.md](EXECUTIVE_PACKET_FILL_GUIDE.md) | Maps packet fields to evidence owners; does not populate customer outcomes. |
 | Sponsor readout outline | Internal guide | [SPONSOR_READOUT_OUTLINE.md](SPONSOR_READOUT_OUTLINE.md) | Stage 6 facilitation outline; not an approved offer and not customer evidence. |
 | Sponsor outcome scorecard | Fixture | [SPONSOR_OUTCOME_SCORECARD_FIXTURE.md](SPONSOR_OUTCOME_SCORECARD_FIXTURE.md) | Illustrative metrics only; replace with reviewed evidence before sponsor use. |
+| Pilot decision record | Internal template | [PILOT_DECISION_RECORD.md](PILOT_DECISION_RECORD.md) | Records a human proceed, extend, or stop disposition; does not authorize billing or beta GO. |
+| Decision path one-pager | Internal guide | [DECISION_PATH_ONE_PAGER.md](DECISION_PATH_ONE_PAGER.md) | Maps qualification through sponsor close; not a contract or customer evidence. |
 | Buyer demonstration script | Self-attested | [BUYER_PROOF_DEMO.md](BUYER_PROOF_DEMO.md) | Fixture or synthetic demonstration is **not** customer evidence. |
 | Control-evidence responsibility | Template | [CONTROL_EVIDENCE_RESPONSIBILITY.md](CONTROL_EVIDENCE_RESPONSIBILITY.md) | Duty split for customer control owners and SecureNow; not an attestation. |
 | Framework coverage card | Self-attested | [FRAMEWORK_COVERAGE.md](FRAMEWORK_COVERAGE.md) | Thematic coverage index; not a certification or full framework catalog. |

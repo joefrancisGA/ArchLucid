@@ -62,10 +62,7 @@ public sealed partial class PolicyPackWorkflowFacade
         int evaluated = 0;
         int requestedRunCount = 0;
 
-        foreach (string runId in runIds
-            .Where(static runIdRaw => !string.IsNullOrWhiteSpace(runIdRaw))
-            .Select(static runIdRaw => runIdRaw.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string runId in EnumerateDistinctBulkSimulateRunIds(runIds))
         {
             requestedRunCount++;
             PolicyPackGovernanceDryRunResult? dryRun = await _policyPackGovernanceDryRunService.EvaluateAsync(
@@ -118,4 +115,22 @@ public sealed partial class PolicyPackWorkflowFacade
         PolicyPackContentDocument document,
         CancellationToken ct) =>
         _policyPackContentAuthoringValidationService.ValidateAsync(document, ct);
+
+    private static IEnumerable<string> EnumerateDistinctBulkSimulateRunIds(IReadOnlyList<string> runIds)
+    {
+        List<string> distinctRunIds = [];
+
+        foreach (string runId in runIds
+                     .Where(static runIdRaw => !string.IsNullOrWhiteSpace(runIdRaw))
+                     .Select(static runIdRaw => runIdRaw.Trim()))
+        {
+            if (distinctRunIds.Exists(existing =>
+                    GovernanceRunIdNormalizer.AreEquivalent(existing, runId)
+                    || string.Equals(existing, runId, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            distinctRunIds.Add(runId);
+            yield return runId;
+        }
+    }
 }

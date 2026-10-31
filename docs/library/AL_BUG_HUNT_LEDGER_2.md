@@ -3611,11 +3611,82 @@
 
 ## Zone: api-key-auth
 
-<<<<<<< HEAD
 2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
-=======
-2026-10-30 thorough hunt (hit #137): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded combining grapheme joiner (`U+034F`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u034F`); regressions `When_admin_key_config_has_embedded_combining_grapheme_joiner_still_authenticates`, `Normalize_strips_embedded_combining_grapheme_joiner_from_key_material`, `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #136 (`ConstantTimeKeyEquals` SHA-256 design ~225–233, `HasConfiguredKeyMaterial` whitespace-only masker ~87–88, Production bypass guard ~64–67, legacy rotate invalidate ~85, duplicate normalization hit-suite recycle); reseeded five follow-on `(candidate)` rows; scoped filter 79/81 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from Word or browser copy paths that inject a combining grapheme joiner between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
->>>>>>> bugsmash-2
+
+2026-10-30 thorough hunt (hit #142): promoted `(candidate)` `ApiKeyMaterialNormalizer` paste corruption monitor — ill-formed UTF-16 lone surrogate in configured `AdminKey` (`sec\uD800ret-admin`) surfaced as embedded `U+FFFD` via `Rune` enumeration and broke auth against visible `X-Api-Key`; strip `U+FFFD` replacement characters in `IsInvisibleKeyMaterialBmpChar`/`IsInvisibleKeyMaterialRune`; regressions `When_admin_key_config_has_ill_formed_utf16_lone_surrogate_still_authenticates`, `Normalize_strips_replacement_char_embedded_in_key_material`, `Normalize_strips_ill_formed_utf16_lone_surrogate_from_key_material`, `GetSnapshot_treats_replacement_char_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #141 (duplicate-header language-tag-only first via `When_enabled_true_and_duplicate_api_key_headers_skip_language_tag_only_first_value`; variation-selector-supplement-only rotate replace via `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_variation_selector_supplement_only`; comma-segment supplementary paste via per-segment normalize + existing comma regressions; expired admin messaging via `When_admin_key_is_expired_returns_failure_with_expiry_message`; rotation audit plaintext via hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 95/97 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators whose deployment or paste path injects replacement characters or ill-formed UTF-16 into configured key material can authenticate with the visible secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer` — replacement character from ill-formed UTF-16 breaks config/header parity — **hit 2026-10-30 thorough hunt #142:** strip `\uFFFD`; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers skip language-tag-only first value — **cheap-disproof 2026-10-30 thorough hunt #142:** regression `When_enabled_true_and_duplicate_api_key_headers_skip_language_tag_only_first_value`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — variation-selector-supplement-only slot uses replace not append — **cheap-disproof 2026-10-30 thorough hunt #142:** regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_variation_selector_supplement_only`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment supplementary invisible paste normalizes per segment — **cheap-disproof 2026-10-30 thorough hunt #142:** per-segment `ApiKeyMaterialNormalizer.Normalize`; existing comma-separated regressions.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — expired admin key returns expiry message — **cheap-disproof 2026-10-30 thorough hunt #142:** regression `When_admin_key_is_expired_returns_failure_with_expiry_message`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit omits plaintext key material — **cheap-disproof 2026-10-30 thorough hunt #142:** hunt #88 audit contract; controller audit tests.
+
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — locus: ~225–233; input: timing-safe auth compare (reachability: constant-time monitor).
+- [ ] (candidate) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — locus: ~87–88; input: paste-only whitespace rotate (reachability: masker segment count).
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — locus: ~64–67; input: production host + disabled auth (reachability: bypass guard regressions).
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — locus: ~85; input: legacy invalidate route (#90 contract).
+- [ ] (candidate) `ApiKeyMaterialNormalizer` — comma-separated second segment replacement-char-only ignored — locus: masker + auth segment loop; input: `valid,\uFFFD`; reachability: rotation comma monitor.
+
+2026-10-30 thorough hunt (hit #141): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded variation selector supplement (`U+E0100`, supplementary-plane `NonSpacingMark` surrogate pair) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended supplementary `IsInvisibleKeyMaterialRune` to strip `NonSpacingMark`/`SpacingCombiningMark`/`EnclosingMark`/`Format` (hunt #140 only stripped supplementary `Format`); regressions `When_admin_key_config_has_embedded_variation_selector_supplement_still_authenticates`, `Normalize_strips_variation_selector_supplement_embedded_in_key_material`, `GetSnapshot_treats_variation_selector_supplement_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #140 (`ConstantTimeKeyEquals` SHA-256 design ~225–233; `HasConfiguredKeyMaterial` whitespace-only masker ~87–88; Production bypass guard ~64–67; legacy rotate invalidate ~85; inbound header language tag parity via `When_header_has_embedded_language_tag_char_and_config_is_plain_still_authenticates`); reseeded five follow-on `(candidate)` rows; scoped filter 90/92 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed supplementary-plane variation selectors or combining marks between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer.IsInvisibleKeyMaterialRune` — supplementary variation selector supplement breaks config/header parity — **hit 2026-10-30 thorough hunt #141:** supplementary Mn/Mc/Me/Cf strip; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-10-30 thorough hunt #141:** intentional timing-safe digest compare ~225–233.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — **cheap-disproof 2026-10-30 thorough hunt #141:** masker segment count; whitespace append→replace regressions.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — **cheap-disproof 2026-10-30 thorough hunt #141:** Production fail path ~64–67; regression `When_enabled_false_and_bypass_true_in_production_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-10-30 thorough hunt #141:** `InvalidatePrevious = true` ~85 by design (#90).
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — inbound header language tag matches plain config after rune normalization — **cheap-disproof 2026-10-30 thorough hunt #141:** regression `When_header_has_embedded_language_tag_char_and_config_is_plain_still_authenticates`.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers skip language-tag-only first value — **cheap-disproof 2026-10-30 thorough hunt #142:** see hunt #142 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append rotation when variation-selector-supplement-only slot — **cheap-disproof 2026-10-30 thorough hunt #142:** see hunt #142 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with supplementary invisible paste — **cheap-disproof 2026-10-30 thorough hunt #142:** see hunt #142 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — admin match on expired slot returns expiry before invalid key — **cheap-disproof 2026-10-30 thorough hunt #142:** see hunt #142 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit never stores plaintext key material — **cheap-disproof 2026-10-30 thorough hunt #142:** see hunt #142 diary.
+
+2026-10-30 thorough hunt (hit #140): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded language tag character (`U+E0020`, supplementary-plane `Format` as UTF-16 surrogate pair) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; iterate `Rune` code points in `RemoveInvisibleKeyMaterialChars` so surrogate-pair format characters strip like BMP paste invisibles; regressions `When_admin_key_config_has_embedded_language_tag_char_still_authenticates`, `Normalize_strips_language_tag_char_embedded_in_key_material`, `GetSnapshot_treats_language_tag_char_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #139 (duplicate-header variation-selector-only first value via `When_enabled_true_and_duplicate_api_key_headers_skip_variation_selector_only_first_value`; enclosing-mark-only rotate replace via `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_enclosing_mark_only`; trailing-comma empty segment via existing comma-blank regressions; dual-slot expiry messaging via shared-key expiry regression; rotation audit actor contract via hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 87/89 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed supplementary-plane language-tag format characters between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer.RemoveInvisibleKeyMaterialChars` — surrogate-pair language tag breaks config/header parity — **hit 2026-10-30 thorough hunt #140:** `Rune` enumeration + supplementary `Format` strip; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers skip variation-selector-only first value — **cheap-disproof 2026-10-30 thorough hunt #140:** regression `When_enabled_true_and_duplicate_api_key_headers_skip_variation_selector_only_first_value`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — enclosing-mark-only slot uses replace not append — **cheap-disproof 2026-10-30 thorough hunt #140:** regression `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_enclosing_mark_only`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — trailing comma empty segment ignored — **cheap-disproof 2026-10-30 thorough hunt #140:** `When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — dual-slot expiry ordering on shared material — **cheap-disproof 2026-10-30 thorough hunt #140:** `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit actor contract — **cheap-disproof 2026-10-30 thorough hunt #140:** hunt #88 controller audit tests.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare — **cheap-disproof 2026-10-30 thorough hunt #141:** see hunt #141 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots — **cheap-disproof 2026-10-30 thorough hunt #141:** see hunt #141 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production bypass guard — **cheap-disproof 2026-10-30 thorough hunt #141:** see hunt #141 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate invalidate — **cheap-disproof 2026-10-30 thorough hunt #141:** see hunt #141 diary.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — inbound header language tag parity — **cheap-disproof 2026-10-30 thorough hunt #141:** see hunt #141 diary.
+
+2026-10-30 thorough hunt (hit #139): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded enclosing mark (`U+0489` COMBINING CYRILLIC MILLIONS SIGN, `UnicodeCategory.EnclosingMark`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended combining-mark stripping in `IsInvisibleKeyMaterialChar` to include `SpacingCombiningMark` and `EnclosingMark` alongside existing `NonSpacingMark`; regressions `When_admin_key_config_has_embedded_enclosing_mark_still_authenticates`, `Normalize_strips_embedded_enclosing_mark_from_key_material`, `GetSnapshot_treats_enclosing_mark_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #138 (`ConstantTimeKeyEquals` SHA-256 design ~225–233; `HasConfiguredKeyMaterial` whitespace-only masker ~87–88; Production bypass guard ~64–67; legacy rotate invalidate ~85; normalization hit-suite recycle including #138 non-spacing marks); reseeded five follow-on `(candidate)` rows; scoped filter 83/85 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed enclosing or spacing combining marks between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer` — enclosing mark paste breaks config/header parity — **hit 2026-10-30 thorough hunt #139:** strip `SpacingCombiningMark`/`EnclosingMark`; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-10-30 thorough hunt #139:** intentional timing-safe digest compare ~225–233.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots treated as unconfigured — **cheap-disproof 2026-10-30 thorough hunt #139:** masker segment count; whitespace append→replace regressions.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production rejects `DevelopmentBypassAll` when `Enabled=false` — **cheap-disproof 2026-10-30 thorough hunt #139:** Production fail path ~64–67; regression `When_enabled_false_and_bypass_true_in_production_returns_failure`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-10-30 thorough hunt #139:** `InvalidatePrevious = true` ~85 by design (#90).
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — **cheap-disproof 2026-10-30 thorough hunt #139:** normalization hit suite covers Mn/Mc/Me paste parity through hunt #139.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers variation-selector-only first — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — enclosing-mark-only rotate replace — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — trailing comma empty segment — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — dual-slot expiry messaging — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit actor contract — **cheap-disproof 2026-10-30 thorough hunt #140:** see hunt #140 diary.
+
+2026-10-30 thorough hunt (hit #138): promoted `(candidate)` `ApiKeyMaterialNormalizer` invisible paste monitor — embedded variation selector (`U+FE00`, `UnicodeCategory.NonSpacingMark`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended `IsInvisibleKeyMaterialChar` to strip non-spacing marks (covers variation selectors and combining tone marks in paste paths); regressions `When_admin_key_config_has_embedded_variation_selector_still_authenticates`, `Normalize_strips_embedded_variation_selector_from_key_material`, `GetSnapshot_treats_variation_selector_only_admin_slot_as_unconfigured`, `Normalize_strips_embedded_combining_grave_tone_from_key_material`; cheap-disproof closed five open `(candidate)` rows from hunt #137 (duplicate-header invisible-first skip per hunt #136/`skip_invisible_only_first_value`; CGJ-only rotate slot unconfigured after #137 normalization; comma-segment ZWSP normalizes per existing suite; dual-slot expiry ordering per `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`; rotation audit omits plaintext per hunt #88 controller tests); reseeded five follow-on `(candidate)` rows; scoped filter 81/83 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys that embed variation selectors or other non-spacing marks between visible bytes can authenticate with the same secret the admin settings screen already shows as configured.
+
+- [x] (proven) `ApiKeyMaterialNormalizer` — variation selector paste breaks config/header parity — **hit 2026-10-30 thorough hunt #138:** strip `UnicodeCategory.NonSpacingMark`; regressions above.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers skip invisible-only first value — **cheap-disproof 2026-10-30 thorough hunt #138:** regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — invisible-only slot uses replace not append — **cheap-disproof 2026-10-30 thorough hunt #138:** `HasConfiguredKeyMaterial` false for `\u034F`-only admin slot after hunt #137; `GetSnapshot_treats_combining_grapheme_joiner_only_admin_slot_as_unconfigured`.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with embedded ZWSP normalizes — **cheap-disproof 2026-10-30 thorough hunt #138:** per-segment `ApiKeyMaterialNormalizer.Normalize`; existing comma+ZWSP regressions.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — reader slot used when admin expired on shared material — **cheap-disproof 2026-10-30 thorough hunt #138:** `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.CreateRotationAuditEvent` — rotation audit omits plaintext key — **cheap-disproof 2026-10-30 thorough hunt #138:** hunt #88 audit contract; controller audit tests.
+
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.HasConfiguredKeyMaterial` — whitespace-only slots — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — Production bypass guard — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate invalidate — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
+- [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization hit suite — **cheap-disproof 2026-10-30 thorough hunt #139:** see hunt #139 diary.
 
 - [x] (proven) `ApiKeyMaterialNormalizer` — combining grapheme joiner paste breaks config/header parity — **hit 2026-10-30 thorough hunt #137:** strip `\u034F`; regressions above.
 - [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ConstantTimeKeyEquals` — SHA-256 fixed-time compare for key material — **cheap-disproof 2026-10-30 thorough hunt #137:** intentional timing-safe digest compare ~225–233.
@@ -3624,11 +3695,11 @@
 - [x] (valid-no-repro) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy rotate always invalidates previous slot material — **cheap-disproof 2026-10-30 thorough hunt #137:** `InvalidatePrevious = true` ~85 by design (#90).
 - [x] (valid-no-repro) `ApiKeyMaterialNormalizer` — shared normalization on config segments and inbound headers — **cheap-disproof 2026-10-30 thorough hunt #137:** normalization hit suite covers config/header parity for pasted invisibles including hunt #137 CGJ fix.
 
-- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `Authorization`-style API key headers with invisible-only first value — locus: first-wins skip; input: two `X-Api-Key` lines; reachability: proxy duplicate-header monitor.
-- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when current slot is invisible-only material — locus: `HasConfiguredKeyMaterial`; input: CGJ-only slot; reachability: rotate replace monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
-- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
-- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate headers with invisible-only first value — **cheap-disproof 2026-10-30 thorough hunt #138:** see hunt #138 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsService.Rotate` — append rotation when invisible-only slot — **cheap-disproof 2026-10-30 thorough hunt #138:** see hunt #138 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with format paste — **cheap-disproof 2026-10-30 thorough hunt #138:** see hunt #138 diary.
+- [x] (valid-no-repro) `ApiKeyAuthenticationHandler` — reader slot expiry after admin match — **cheap-disproof 2026-10-30 thorough hunt #138:** see hunt #138 diary.
+- [x] (valid-no-repro) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — **cheap-disproof 2026-10-30 thorough hunt #138:** see hunt #138 diary.
 
 2026-10-30 thorough hunt (hit #136): proved embedded Braille pattern blank (`U+2800`) in configured `AdminKey` left admin snapshot `IsConfigured` true while auth rejected the visible header key; extended invisible stripping in `ApiKeyMaterialNormalizer` (`\u2800`/`\uFFFC`); regressions `When_admin_key_config_has_embedded_braille_blank_still_authenticates`, `Normalize_strips_embedded_braille_blank_from_key_material`, `GetSnapshot_treats_braille_blank_only_admin_slot_as_unconfigured`; cheap-disproof closed five open `(candidate)` rows from hunt #135 (admin-before-reader ordering ~88–114, snapshot `Enabled` echo ~19–25, comma rotation ~194–219, rotation audit redaction ~107–129, duplicate header first-wins ~144–157); reseeded five follow-on `(candidate)` rows; scoped filter 77/79 passed (`RunAnalyzers=false`; 2 `AdminApiKeySettingsEndpointTests` blocked — no SQL Server on cloud VM). Private beta: operators who paste API keys from spreadsheets or vault exports that inject Braille-blank padding can authenticate with the visible secret the admin settings screen already shows as configured.
 
@@ -4191,11 +4262,11 @@
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 137
-- **bugs-found:** 26
+- **hunts:** 142
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
+- **last-bug:** 2026-10-30 — replacement character from ill-formed UTF-16 broke API key auth while admin snapshot showed configured
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4586,6 +4657,15 @@
 
 ---
 
+>>>>>>> bugsmash-2
+- [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `Authorization`-style API key headers with invisible-only first value — locus: first-wins skip; input: two `X-Api-Key` lines; reachability: proxy duplicate-header monitor.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when current slot is invisible-only material — locus: `HasConfiguredKeyMaterial`; input: CGJ-only slot; reachability: rotate replace monitor.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
+- [ ] (candidate) `ApiKeyAuthenticationHandler` — reader slot expiry evaluated after admin match — locus: `IsKeyExpired`; input: expired admin + valid reader; reachability: dual-slot expiry monitor.
+- [ ] (candidate) `AdminApiKeySettingsController` — rotation audit never stores plaintext key — locus: `CreateRotationAuditEvent`; input: rotate response; reachability: hunt #88 audit contract monitor.
+- **hunts:** 137
+- **bugs-found:** 26
+- **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
 ## Zone: scope-binding-middleware
 
 2026-10-30 seed hunt (seed-only): re-read scope-binding middleware and route filter after post-#5156 integration churn; cheap-disproof closed unparseable-first `tenant_id` header-steering candidate (`ValidateHeaderOnlyScopeEscalation` still rejects Bearer steering), custom `IAuthorizeData` platform-deletion skip shape, and `Guid`-typed route `tenantId` binding; retired four reachability-limited candidates as `(invalid)`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_when_find_first_tenant_claim_unparseable`, `OnActionExecutionAsync_custom_authorize_data_platform_deletion_policy_skips_binding`, and `OnActionExecutionAsync_guid_object_route_tenant_enforces_binding`; 108 scoped unit tests passed (6 SQL-backed integration tests unavailable).
@@ -5203,6 +5283,20 @@
 
 ## Zone: tenant-data-export
 
+2026-10-31 thorough hunt (hit #946): promoted `(candidate)` `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside hand-edited `is_sample_run` string tokens (for example zero-width joiner in `"tr\u200Due"`) evaded exact `"true"` equality and bypassed CLI proof-packet sample-workspace block; strip format/combining/control invisibles from string boolean tokens after trim; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_has_interior_format_char`; cheap-disproof closed four sibling `(candidate)` rows (null `architectureDetail` replay gate matches `AuditExportCareerPostureGate.AllowedWithoutStamp` by design; metadata vs replay honesty-loader throw parity both fail closed through `CareerArtifactExportCompletenessGate`; HTML sendable cover via `ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml`; blob SAS host suffix enforced before DNS so non-Azure CNAME labels never reach resolver); reseeded five follow-on `(candidate)` rows; scoped filter **68/70** passed — 44 Application + 11 Api + 13 Core (`RunAnalyzers=false`; 1 pre-existing `ArchitectureReviewExportServiceTests` HTML copy assertion; 1 unrelated Core IPv4 blob-label expectation on VM). Private beta: CLI proof-packet bundles from hand-edited pilot deltas no longer slip past sample-workspace blocks when boolean tokens embed invisible format characters between visible letters.
+
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior format chars in `"true"`/`"false"` tokens — **hit 2026-10-31 thorough hunt #946:** `RemoveInvisibleBooleanTokenChars` before string boolean coercion; regression above.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null — **cheap-disproof 2026-10-31 thorough hunt #946:** matches `AuditExportCareerPostureGate` allow-without-stamp when architecture run detail is absent; facade `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` uses same gate before byte replay.
+- [x] (valid-no-repro) `RunExportCareerPostureGate` — metadata vs byte replay on transient honesty-loader errors — **cheap-disproof 2026-10-31 thorough hunt #946:** both paths invoke `CareerExportCoverageHonestyMaterialLoader` + `CareerArtifactExportCompletenessGate`; loader exceptions propagate (no silent allow on replay).
+- [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — HTML sendable cover stamp parity — **cheap-disproof 2026-10-31 thorough hunt #946:** `BuildMinimalHtml` calls `ArchitectureReviewBoardSendableExportCoverRenderer.AppendHtml`; regression `AppendHtml_includes_sendable_export_cover_when_plain_text_present`.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist — **cheap-disproof 2026-10-31 thorough hunt #946:** sync guard requires `*.blob.core.windows.net` / `*.blob.storage.azure.net` on `uri.IdnHost` before DNS; non-blob hostnames reject without lookup.
+
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — homoglyph Latin/Cyrillic `"true"` tokens on `is_demo_tenant` — locus: string equality after invisible strip; input: Cyrillic homoglyph spellings; reachability: CLI bundle deltas monitor.
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — consulting DOCX replay ignores career gate when `architectureDetail` loads but honesty material empty — locus: `CareerArtifactExportCompletenessGate` on non-null detail; input: stripped run graph with persisted export record.
+- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — career gate after sealed-hash when run detail appears mid-request — locus: TOCTOU between guards; input: concurrent run deletion (reachability: metadata read race monitor).
+- [ ] (candidate) `ArchitectureReviewExportService` — PDF export sendable cover parity vs DOCX/HTML — locus: PDF builder cover path; input: rehearsal-incomplete allowed export.
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy` — percent-encoded host labels vs `IdnHost` normalization — locus: `Uri.TryCreate` host parsing; input: encoded dot segments in blob hostname.
+
 2026-10-30 thorough hunt (hit): promoted `(candidate)` `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON string `is_sample_run` values with leading Unicode whitespace (for example NBSP before `"1"`) skipped exact `"1"` / numeric coercion and bypassed sample-workspace CLI bundle block; string branch now trims before parse; regression `ResolveFromDeltasJson_blocks_sample_workspace_run_when_is_sample_run_string_has_unicode_whitespace_padding`; cheap-disproof closed four sibling `(candidate)` rows; reseeded five follow-on `(candidate)` rows; scoped filter **23/24** passed — 10 `ExportBundleCareerPostureResolver` + 13 Api export tests (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML assertion on VM). Private beta: CLI proof-packet bundles from hand-edited pilot deltas no longer slip past sample-workspace export blocks when boolean tokens carry invisible Unicode padding.
 
 - [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — NBSP-padded `"1"` for `is_sample_run` — **hit 2026-10-30 thorough hunt:** `text.Trim()` before string boolean coercion; regression above.
@@ -5211,11 +5305,11 @@
 - [x] (valid-no-repro) `ArchitectureReviewExportService.GenerateReportAsync` — HTML/PDF vs DOCX career ordering — **cheap-disproof 2026-10-30 thorough hunt:** `EnsureCanExportFromHonestyMaterial` runs before format-specific builders (~110).
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy` — IDN blob hosts vs ASCII allowlist — **cheap-disproof 2026-10-30 thorough hunt:** validation uses `uri.IdnHost` after `Uri.TryCreate`; Azure blob suffix check applies to punycode labels the same as ASCII hosts; no SSRF bypass repro.
 
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside `"true"`/`"false"` tokens (for example zero-width joiner) may evade case-insensitive equality — locus: string branch after trim; input: hand-edited deltas JSON; reachability: CLI proof-packet bundle deltas.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null after sealed-hash guard — locus: ~129–147; input: run deleted after export record persisted; reachability: orphan export record row.
-- [ ] (candidate) `RunExportCareerPostureGate` — metadata-only export paths vs byte replay disagree when honesty material loader throws transient errors — locus: facade career gate vs `ExportReplayService`; input: compare failure modes on partial authority material.
-- [ ] (candidate) `ArchitectureReviewExportService` — `GenerateReportAsync` HTML export uses `ArchitectureReviewHtmlBuilder` after career gate but omits sendable cover stamp parity with DOCX — locus: HTML branch only; input: rehearsal-incomplete simulator run allowed export.
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist pass — locus: DNS guard vs sync host suffix; input: operator SAS URL resolving to non-Azure target.
+- [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — interior Unicode format characters inside `"true"`/`"false"` tokens (for example zero-width joiner) may evade case-insensitive equality — **hit 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — skips career gate when `architectureDetail` is null — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `RunExportCareerPostureGate` — metadata-only export paths vs byte replay disagree when honesty material loader throws transient errors — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (valid-no-repro) `ArchitectureReviewExportService` — `GenerateReportAsync` HTML export uses `ArchitectureReviewHtmlBuilder` after career gate but omits sendable cover stamp parity with DOCX — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
+- [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync` — CNAME to non-blob host after ASCII allowlist pass — **cheap-disproof 2026-10-31 thorough hunt #946:** see hunt #946 diary.
 
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (export-record metadata career gate, replay lifecycle re-check, review export HTTP mapping, padded CLI boolean strings, RunsExport career 409); reseeded five follow-on `(candidate)` rows; scoped filter **22/23** passed — 13 `ArchLucid.Api.Tests` + 9 `ArchLucid.Application.Tests` (`RunAnalyzers=false`; 1 pre-existing unrelated `ArchitectureReviewExportServiceTests` HTML copy assertion failure on VM). Private beta: n/a.
 
@@ -5231,11 +5325,11 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 945
-- **bugs-found:** 58
+- **hunts:** 946
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — NBSP-padded is_sample_run string bypassed CLI bundle block
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — interior format characters in CLI boolean tokens bypassed sample-workspace block
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -17288,6 +17382,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-31 thorough hunt (hit #211): promoted `(candidate)` `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — bulk simulate deduped only with `Distinct(StringComparer.OrdinalIgnoreCase)`, so the same logical run in dashed `D` and canonical-N `N` GUID strings consumed two bulk slots and double-invoked dry-run evaluation; `EnumerateDistinctBulkSimulateRunIds` now dedupes with `GovernanceRunIdNormalizer.AreEquivalent` plus case-insensitive fallback for opaque ids; regression `TrySimulateBulkAsync_deduplicates_dashed_and_canonical_n_guid_run_ids`; cheap-disproof closed four sibling `(candidate)` rows (non-GUID simulate returns null by contract per `EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`; compare-environment notes are operator-facing echo only; recurrence `LegacyRunStatus` uses commit-pipeline enum names; integration events resolve GUID keys today); reseeded five follow-on `(candidate)` rows; scoped filter **8/8** on touched bulk/normalizer tests plus prior zone baseline **834/843** PolicyPack/Governance Application filter (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: invited operators running bulk policy-pack simulate with mixed GUID string formats see one evaluation per run, not inflated counts from dashed vs canonical-N duplicates.
+
+- [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — dashed vs canonical-N GUID dedupe — **hit 2026-10-31 thorough hunt #211:** `EnumerateDistinctBulkSimulateRunIds`; regression above.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` — **cheap-disproof 2026-10-31 thorough hunt #211:** regression `EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`; simulate API is GUID-only today.
+- [x] (valid-no-repro) `GovernancePreviewService.CompareEnvironmentsAsync` — raw activation `RunId` in notes — **cheap-disproof 2026-10-31 thorough hunt #211:** manifest load uses `AreEquivalent`; note text is diagnostic only.
+- [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` — **cheap-disproof 2026-10-31 thorough hunt #211:** persistence stores canonical enum name from commit pipeline.
+- [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — opaque run ids on events — **cheap-disproof 2026-10-31 thorough hunt #211:** integration payloads use GUID run keys; future opaque support is out of scope for this path.
+
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — opaque run ids with invisible Unicode not deduped when not GUID-equivalent — locus: bulk dedupe loop; input: two paste-variant opaque keys; reachability: bulk simulate after #210 normalizer.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest-target simulate vs run-target GUID format drift — locus: manifest resolution; input: dashed manifest run id with N-format caller.
+- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — notes echo dashed run id while diff uses equivalent manifest — locus: operator notes; input: format mismatch in preview copy.
+- [ ] (candidate) `GovernanceMutationCorrectionService` — bulk correction subjects vs approval row GUID format — locus: subject equivalence; input: mixed-format approval store.
+- [ ] (candidate) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP layer passes run ids without trim before workflow dedupe — locus: controller/facade boundary; input: padded bulk payload strings.
+
 2026-10-30 seed hunt (seed-only): re-read `GovernanceRunIdNormalizer`, preview/mutation-correction run-id paths, policy-pack simulate bulk dedupe, and recurrence validation after #210 opaque equivalence hit; cheap-disproof closed five stale `(candidate)` rows that lived outside `### Hypotheses`; seeded five new mechanism-backed `(candidate)` rows below; scoped PolicyPack/Governance filter **834/843** passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — manifest `RunId` without re-normalize — **cheap-disproof 2026-10-30 seed hunt:** line 71 uses `GovernanceRunIdNormalizer.AreEquivalent(candidateManifest.RunId, runId)` after request trim; regression family `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats`.
@@ -17302,23 +17410,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 43
-- **bugs-found:** 36
+- **hunts:** 44
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-29 — opaque run id whitespace in GovernanceRunIdNormalizer.AreEquivalent (#210)
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — bulk policy-pack simulate double-counted dashed vs canonical-N GUID duplicates
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `Distinct(StringComparer.OrdinalIgnoreCase)` on trimmed run id strings treats dashed vs canonical-N GUID as two bulk slots — locus: bulk simulate loop ~65–68; input: same logical run twice with `D` and `N` format in one request; reachability: OpenAPI bulk policy-pack simulate payloads.
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` returns null at `Guid.TryParse` without opaque-id normalization path — locus: ~111–112; input: padded opaque architecture run key if simulate API expands beyond GUID; reachability: today simulate contract is GUID-only (404 parity).
-- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — compare notes echo raw activation `RunId` while manifest load uses `AreEquivalent` — locus: activation notes ~140–141; input: stored activation id with invisible Unicode; reachability: operator-facing note text only.
-- [ ] (candidate) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — locus: ~45; input: unexpected casing in persisted status column; reachability: DB contract stores exact enum name from commit pipeline.
-- [ ] (candidate) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — locus: ~233; input: opaque run ids on future event payloads; reachability: integration events use GUID run keys today.
+- [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `Distinct(StringComparer.OrdinalIgnoreCase)` on trimmed run id strings treats dashed vs canonical-N GUID as two bulk slots — **hit 2026-10-31 thorough hunt #211:** see hunt #211 diary.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` returns null at `Guid.TryParse` without opaque-id normalization path — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
+- [x] (valid-no-repro) `GovernancePreviewService.CompareEnvironmentsAsync` — compare notes echo raw activation `RunId` while manifest load uses `AreEquivalent` — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
+- [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
+- [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 
-**Hunts:** 43 · **Bugs found:** 36 · **Consecutive dry hunts:** 0
+**Hunts:** 44 · **Bugs found:** 37 · **Consecutive dry hunts:** 0
 
 2026-10-29 thorough hunt (hit #210): promoted `(candidate)` `GovernanceRunIdNormalizer.AreEquivalent` — opaque architecture run keys and finalize subjects compared ordinally without `Normalize`, so padded or paste-hidden Unicode run ids failed correction/preview subject checks even after inbound normalization; `AreEquivalent` now compares `Normalize(left)` to `Normalize(right)` for non-GUID ids; regressions `AreEquivalent_treats_outer_whitespace_on_opaque_run_ids_as_equivalent` and `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent`; scoped PolicyPack/Governance filter 834/843 passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: governance correction and preview flows accept the same opaque run id when vendors or operators paste padded run keys, so invited architects are not blocked by whitespace-only drift on non-GUID run identifiers.
 
