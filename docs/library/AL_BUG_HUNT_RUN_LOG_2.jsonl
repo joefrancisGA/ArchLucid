@@ -2317,4 +2317,6 @@
 {"at":"2026-10-31T20:45:59.7006884Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T20:48:48.9180049Z","zoneId":"finding-inspect-sql","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T20:52:00.0000000Z","zoneId":"application-governance-policy","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T20:58:00.0000000Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T20:56:03.0237600Z","zoneId":"application-governance-policy","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T21:01:25.5761153Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
