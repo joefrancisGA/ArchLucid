@@ -7,7 +7,7 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static partial class AzureInventoryAppSettingHostRedactor
 {
-    private const int InventoryHostPercentEncodingMaxDepth = 8;
+    private const int InventoryHostPercentEncodingMaxDepth = 10;
 
     private static readonly string[] SecretMarkerSubstrings =
     [
