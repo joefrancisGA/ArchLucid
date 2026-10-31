@@ -69,7 +69,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine(
             disposition == SponsorSafeProofDisposition.Sendable
                 ? PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenSendable()
-                : "**Sendability note:** Treat every exported number as provisional until reconciled gaps are cleared.");
+                : PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenNotSendable());
         sb.AppendLine();
     }
 

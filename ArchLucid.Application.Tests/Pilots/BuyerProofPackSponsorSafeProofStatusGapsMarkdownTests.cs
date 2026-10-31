@@ -1104,4 +1104,54 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Should()
             .Contain(prose);
     }
+
+    [Fact]
+    public void Sponsor_safe_status_sendability_note_when_not_sendable_matches_shared_provisional_copy()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            DemoTenantWarningRequired = true,
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            ProofSendability = nameof(ProofPackageSendability.NotSendable),
+            PublishingTier = "Demo-only",
+            EvidenceCompleteness = "Incomplete",
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.DemoOnly,
+            ProofPackageSendability.NotSendable,
+            ["Seeded/demo tenant"],
+            [],
+            []);
+
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.NotSponsorSafeYet,
+            gate,
+            proof,
+            new PilotRunDeltas { IsDemoTenant = true },
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas { IsDemoTenant = true },
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string note = PilotSponsorSafeSendableAllClearHonestyCopy.FormatSendabilityNoteWhenNotSendable();
+        string md = statusSb.ToString();
+        md.Should().Contain(note);
+        md.Should().NotContain(PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Proof sendability (API mirror) |", StringComparison.Ordinal))
+            .Should()
+            .NotContain(PilotSponsorSafeSendableAllClearHonestyCopy.AllClearConcreteGapPlain);
+    }
 }

@@ -21,8 +21,14 @@ internal static class PilotSponsorSafeSendableAllClearHonestyCopy
 
     internal static string FormatSponsorSafeConcreteGapLine() => AllClearConcreteGapPlain;
 
+    internal const string NotSendableSendabilityNotePlain =
+        "Treat every exported number as provisional until reconciled gaps are cleared.";
+
     internal static string FormatSendabilityNoteWhenSendable() =>
         FormattableString.Invariant($"**Sendability note:** {AllClearConcreteGapPlain}");
+
+    internal static string FormatSendabilityNoteWhenNotSendable() =>
+        FormattableString.Invariant($"**Sendability note:** {NotSendableSendabilityNotePlain}");
 
     internal static string FormatGateMirrorsStructuredMarkdownLine(ProofPackageCompletenessResponse proof)
     {
