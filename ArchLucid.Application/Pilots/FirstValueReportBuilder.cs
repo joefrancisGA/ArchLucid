@@ -250,7 +250,8 @@ public sealed class FirstValueReportBuilder(
             proofCompleteness,
             deltas,
             run,
-            proofCompleteness.DeferredBuyerRequirementsPresent);
+            proofCompleteness.DeferredBuyerRequirementsPresent,
+            roiClaimGate);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -286,7 +287,7 @@ public sealed class FirstValueReportBuilder(
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas, proofCompleteness, run, manifest);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
-        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run, buyerSafeGate);
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run, buyerSafeGate, roiClaimGate);
         FirstValueReportBaselineSectionFormatter.AppendMarkdownSection(sb);
         sb.AppendLine();
         sb.AppendLine("---");

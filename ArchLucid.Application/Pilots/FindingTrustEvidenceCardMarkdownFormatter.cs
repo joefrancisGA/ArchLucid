@@ -19,7 +19,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
         ArchitectureRun? run = null,
-        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null)
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -105,12 +106,12 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             $"| Agent output quality (PilotStrict, when attested) | {PilotAgentOutputPilotStrictHonestyCopy.FormatEvidenceCardCell(proof, deltas)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
+            $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run, roiClaimGate)} |");
 
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
 
         TopFindingEvidenceSufficiency? sufficiency =
-            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun);
+            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun, roiClaimGate);
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -133,10 +134,11 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     private static string DescribeTopFindingEvidenceBasis(
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
-        ArchitectureRun? run)
+        ArchitectureRun? run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
-        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun);
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun, deferredScopePresent: false, roiClaimGate);
         string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
 
         return basisRun.RealModeFellBackToSimulator

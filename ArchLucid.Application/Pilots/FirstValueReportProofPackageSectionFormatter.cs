@@ -65,7 +65,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Buyer-safe redaction profile | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.BuyerSafeRedactionProfile)} |");
         sb.AppendLine(
             $"| PilotStrict agent-output posture | {PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas)} |");
-        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
+        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run, roiClaimGate)} |");
         sb.AppendLine(
             $"| Proof sendability (API mirror) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(c)} |");
         sb.AppendLine(
@@ -77,9 +77,10 @@ public static class FirstValueReportProofPackageSectionFormatter
     private static string FormatEvidenceBasisLabels(
         ProofPackageCompletenessResponse c,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
-        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run, deferredScopePresent: false, roiClaimGate);
         string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
 
         return run.RealModeFellBackToSimulator

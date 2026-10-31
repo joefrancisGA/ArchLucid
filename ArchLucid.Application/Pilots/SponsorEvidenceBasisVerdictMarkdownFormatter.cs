@@ -16,7 +16,8 @@ public static class SponsorEvidenceBasisVerdictMarkdownFormatter
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
         ArchitectureRun run,
-        bool deferredScopePresent = false)
+        bool deferredScopePresent = false,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(proof);
@@ -27,7 +28,8 @@ public static class SponsorEvidenceBasisVerdictMarkdownFormatter
             proof,
             deltas,
             run,
-            deferredScopePresent);
+            deferredScopePresent,
+            roiClaimGate);
 
         string labelsTable = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
 

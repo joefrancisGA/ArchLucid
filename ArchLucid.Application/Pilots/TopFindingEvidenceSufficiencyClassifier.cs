@@ -21,7 +21,8 @@ public static class TopFindingEvidenceSufficiencyClassifier
     public static TopFindingEvidenceSufficiency? Classify(
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(proof);
@@ -33,12 +34,13 @@ public static class TopFindingEvidenceSufficiencyClassifier
         if (deltas.TopFindingEvidenceChain is null)
             return TopFindingEvidenceSufficiency.Insufficient;
 
-        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, run);
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, run, deferredScopePresent: false, roiClaimGate);
 
         if (labels.Contains("Deferred scope", StringComparer.Ordinal)
             || labels.Contains("Demo-derived", StringComparer.Ordinal)
             || labels.Contains("Low support", StringComparer.Ordinal)
-            || labels.Contains("Manual review required", StringComparer.Ordinal))
+            || labels.Contains("Manual review required", StringComparer.Ordinal)
+            || labels.Contains("Estimate", StringComparer.Ordinal))
         {
             return TopFindingEvidenceSufficiency.Low;
         }
