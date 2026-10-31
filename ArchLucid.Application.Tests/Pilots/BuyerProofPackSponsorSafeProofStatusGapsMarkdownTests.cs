@@ -3302,7 +3302,8 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             new PilotRunDeltas(),
             proof,
             manifest: null,
-            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            buyerSafeGate: gate);
 
         string prose = PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain;
         statusSb.ToString().Should().Contain(prose);
@@ -3312,7 +3313,47 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .Split('\n')
             .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal))
             .Should()
-            .Contain(prose);
+            .Contain(SponsorProofReadinessClassifier.DescribeForMarkdownTable(
+                SponsorProofReadinessClassification.Incomplete));
+    }
+
+    [Fact]
+    public void Proof_package_readiness_when_stale_sendable_on_proof_but_demo_on_deltas_uses_gate_classify_not_proof_string()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            DemoTenantWarningRequired = false,
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+        };
+
+        PilotRunDeltas deltas = new() { IsDemoTenant = true };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.DemoOnly,
+            ProofPackageSendability.NotSendable,
+            ["Seeded/demo tenant"],
+            [],
+            []);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            buyerSafeGate: gate);
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal));
+
+        row.Should().Contain("**DemoOnly**");
+        row.Should().NotContain("**Sendable**");
     }
 
     [Fact]

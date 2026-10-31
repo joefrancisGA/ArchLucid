@@ -18,7 +18,8 @@ public static class FirstValueReportProofPackageSectionFormatter
         ProofPackageCompletenessResponse c,
         GoldenManifest? manifest,
         ArchitectureRun run,
-        SponsorRoiClaimDispositionResult? roiClaimGate = null)
+        SponsorRoiClaimDispositionResult? roiClaimGate = null,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -69,8 +70,26 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| Proof sendability (API mirror) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(c)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness (classification) | {PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(c.SponsorProofReadiness)} |");
+            $"| Sponsor-proof readiness (classification) | {FormatSponsorProofReadinessProofCell(c, deltas, buyerSafeGate)} |");
         sb.AppendLine();
+    }
+
+    private static string FormatSponsorProofReadinessProofCell(
+        ProofPackageCompletenessResponse c,
+        PilotRunDeltas deltas,
+        PilotBuyerSafeEvidenceGateResult? buyerSafeGate)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (buyerSafeGate is not null)
+        {
+            SponsorProofReadinessClassification readiness =
+                SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate);
+            return SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness);
+        }
+
+        return PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(c.SponsorProofReadiness);
     }
 
     private static string FormatEvidenceBasisLabels(
