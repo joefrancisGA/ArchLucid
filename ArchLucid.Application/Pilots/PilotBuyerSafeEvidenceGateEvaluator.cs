@@ -55,8 +55,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true })
         {
-            hardGapMessages.Add(
-                "PilotStrict agent output quality posture failed for one or more LLM traces (or aggregate explanation faithfulness) — do not circulate this run as sponsor-grade real-mode evidence until traces are green.");
+            hardGapMessages.Add(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         if (manifest is not null && manifest.Metadata.CreatedUtc == default)

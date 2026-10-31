@@ -30,7 +30,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             deltas,
             TenantCapturedSnapshot());
 
-        gate.HardGaps.Should().Contain(g => g.Contains("PilotStrict", StringComparison.Ordinal));
+        gate.HardGaps.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.FailedPlain);
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
     }
