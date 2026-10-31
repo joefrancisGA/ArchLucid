@@ -2089,6 +2089,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
+
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
 
 - **id:** ui-webhooks-settings
@@ -2180,10 +2182,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
