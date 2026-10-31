@@ -213,6 +213,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
         }
 
         decoded = decoded.Replace("\\", string.Empty, StringComparison.Ordinal);
+        decoded = decoded.Replace("/", string.Empty, StringComparison.Ordinal);
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()

@@ -4190,4 +4190,65 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("acc.documents.azure.cn");
     }
+
+    [Fact]
+    public void ParseSettingValues_sql_data_source_percent_encoding_yields_decoded_host()
+    {
+        const string value = "Data Source=%70g.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_colon_port_yields_host_without_port()
+    {
+        const string value = "Host=pg.postgres.database.azure.com%3a5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_colon_before_options_yields_host_without_port_debris()
+    {
+        const string value = "shadow.redis.cache.windows.net%3a6380,password=secret,ssl=True";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_hyphen_yields_single_decoded_host()
+    {
+        const string value =
+            "AccountName=starch;BlobEndpoint=https://starch%2dstg.blob.core.windows.net/;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch-stg.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_forward_slash_yields_full_host_not_truncated_authority()
+    {
+        const string value = "Host=%70g%2f.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
 }
