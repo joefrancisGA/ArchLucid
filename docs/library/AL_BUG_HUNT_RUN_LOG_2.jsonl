@@ -2323,3 +2323,4 @@
 {"at":"2026-10-31T21:01:25.5761153Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T21:07:13.6152534Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T21:16:39.5858522Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T21:24:03.0671549Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
