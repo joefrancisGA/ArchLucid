@@ -194,7 +194,7 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
         if (host.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase))
         {
-            keyVaultHost = host;
+            keyVaultHost = NormalizeHttpsInventoryHost(host);
 
             return null;
         }
