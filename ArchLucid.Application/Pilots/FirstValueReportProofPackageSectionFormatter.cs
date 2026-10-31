@@ -91,14 +91,14 @@ public static class FirstValueReportProofPackageSectionFormatter
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(run);
 
-        if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
+        if (!PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest))
         {
             return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
         }
 
         if (deltas.TimeToCommittedManifest is not null)
         {
-            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness: null);
+            return PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness: null, run, manifest);
         }
 
         return PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;

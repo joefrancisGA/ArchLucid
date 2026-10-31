@@ -109,17 +109,17 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (string.IsNullOrWhiteSpace(run.RunId))
             yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!HasSponsorCompleteCommittedPosture(run, manifest))
+        if (!PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest))
             yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (manifest is not null && manifest.Metadata.CreatedUtc == default)
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (HasSponsorCompleteCommittedPosture(run, manifest)
+        if (PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest)
             && deltas.TimeToCommittedManifest is null)
             yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
-        if (HasSponsorCompleteCommittedPosture(run, manifest)
+        if (PilotSponsorCommittedPosture.HasCompleteCommittedPosture(run, manifest)
             && !deltas.SynthesizedArtifactDescriptorCountResolved)
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
@@ -154,9 +154,6 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (disposition == SponsorSafeProofDisposition.Sendable)
             yield return PilotSponsorSafeSendableAllClearHonestyCopy.FormatSponsorSafeConcreteGapLine();
     }
-
-    private static bool HasSponsorCompleteCommittedPosture(ArchitectureRun run, GoldenManifest? manifest) =>
-        manifest is not null && run.Status == ArchitectureRunStatus.Committed;
 
     private static string DescribeDisposition(SponsorSafeProofDisposition d) => d switch
     {

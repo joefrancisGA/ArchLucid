@@ -842,6 +842,58 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Computed_deltas_and_elapsed_when_stale_proof_committed_but_manifest_missing_use_run_posture_not_wall_clock()
+    {
+        PilotRunDeltas deltas = new() { TimeToCommittedManifest = null };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            TimeToCommittedManifestResolved = false,
+        };
+
+        ArchitectureRun run = new() { RunId = "run-a", Status = ArchitectureRunStatus.Committed };
+        string notComplete = PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        string wallClockPlain = PilotRunDeltasTimeToCommitFormatter.NoCommittedManifestWallClockPlain;
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            run);
+
+        StringBuilder computedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(computedSb, deltas, proof, run, manifest: null);
+
+        StringBuilder elapsedSb = new();
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(elapsedSb, deltas, proof, run, manifest: null);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .Should()
+            .Contain(notComplete)
+            .And.NotContain(wallClockPlain);
+
+        computedSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Time to committed manifest |", StringComparison.Ordinal))
+            .Should()
+            .Contain(notComplete)
+            .And.NotContain(wallClockPlain);
+
+        elapsedSb.ToString().Should().Contain(notComplete).And.NotContain(wallClockPlain);
+
+        PilotRunDeltasTimeToCommitFormatter
+            .FormatPlainText(deltas, proof, run, manifest: null)
+            .Should()
+            .Be(notComplete);
+    }
+
+    [Fact]
     public void Proof_package_committed_timestamp_row_when_no_manifest_matches_not_sponsor_complete_plain()
     {
         ProofPackageCompletenessResponse proof = new()

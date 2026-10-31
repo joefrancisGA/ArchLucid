@@ -215,7 +215,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                     }
 
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
-                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas, sponsorGate.ProofPackageCompleteness));
+                    column.Item().Element(c => RenderComputedDeltasTable(c, deltas, sponsorGate.ProofPackageCompleteness, run, manifest));
                     column.Item().PaddingTop(4)
                         .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
@@ -279,7 +279,9 @@ public sealed class SponsorOnePagerPdfBuilder(
     private static void RenderComputedDeltasTable(
         IContainer column,
         PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse? proofCompleteness)
+        ProofPackageCompletenessResponse? proofCompleteness,
+        ArchitectureRun run,
+        GoldenManifest? manifest)
     {
         column.PaddingTop(4).Table(table =>
         {
@@ -291,7 +293,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             AddDeltaRow(
                 table,
                 "Time to committed manifest",
-                PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas, proofCompleteness));
+                PilotRunDeltasTimeToCommitFormatter.FormatPlainText(deltas, proofCompleteness, run, manifest));
             AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
             AddDeltaRow(table, "Findings by severity", PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));

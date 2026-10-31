@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -15,7 +17,9 @@ public static class FirstValueReportDeltasSectionFormatter
     public static void AppendComputedDeltasSection(
         StringBuilder sb,
         PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse? proofCompleteness = null)
+        ProofPackageCompletenessResponse? proofCompleteness = null,
+        ArchitectureRun? run = null,
+        GoldenManifest? manifest = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -31,7 +35,7 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| Metric | Value | Source |");
         sb.AppendLine("| --- | --- | --- |");
         sb.AppendLine(
-            $"| Time to committed manifest | {FormatTimeToCommit(deltas, proofCompleteness)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
+            $"| Time to committed manifest | {FormatTimeToCommit(deltas, proofCompleteness, run, manifest)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine(
             $"| Findings (total) | {PilotRunDeltasFindingsTotalFormatter.FormatMarkdownTableCell(deltas)} | {FormatFindingsTotalSource(deltas)} |");
         sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
@@ -113,15 +117,16 @@ public static class FirstValueReportDeltasSectionFormatter
     public static void AppendElapsedSection(
         StringBuilder sb,
         PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse? proofCompleteness = null)
+        ProofPackageCompletenessResponse? proofCompleteness = null,
+        ArchitectureRun? run = null,
+        GoldenManifest? manifest = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
 
         sb.AppendLine("## Time to committed output");
         sb.AppendLine();
-        if (proofCompleteness is not null
-            && proofCompleteness is not { CommittedManifestPresent: true, RunInCommittedStatus: true })
+        if (PilotRunDeltasTimeToCommitFormatter.ShouldDeferWallClockCopy(proofCompleteness, run, manifest))
         {
             sb.AppendLine(
                 FormattableString.Invariant(
@@ -145,8 +150,12 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
-    private static string FormatTimeToCommit(PilotRunDeltas deltas, ProofPackageCompletenessResponse? proofCompleteness) =>
-        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness);
+    private static string FormatTimeToCommit(
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse? proofCompleteness,
+        ArchitectureRun? run,
+        GoldenManifest? manifest) =>
+        PilotRunDeltasTimeToCommitFormatter.FormatMarkdownTableCell(deltas, proofCompleteness, run, manifest);
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas) =>
         PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
