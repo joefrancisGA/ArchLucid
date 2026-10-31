@@ -215,6 +215,22 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
     }
 
     [Fact]
+    public void Evaluate_UnresolvedPilotStrictSignals_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with { AgentOutputPilotStrictSignalsResolved = false, },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved());
+    }
+
+    [Fact]
     public void Evaluate_EmptyRunId_HardGap_IsNotSendable()
     {
         ArchitectureRun run = CommittedRun();

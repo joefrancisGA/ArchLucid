@@ -126,7 +126,9 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (!proof.LlmCallCountResolved)
             yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (!deltas.AgentOutputPilotStrictSignalsResolved)
+            yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        else if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
             yield return PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)

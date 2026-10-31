@@ -181,6 +181,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
 
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
         gate.SoftGaps.Should().Contain(g => g.Contains("PilotStrict agent-output signals **not attested**", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved());
     }
 
     [Fact]

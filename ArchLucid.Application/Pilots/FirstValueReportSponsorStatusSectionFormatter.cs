@@ -38,7 +38,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
         sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run)} |");
-        sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
+        sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof, deltas)} |");
         sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
@@ -54,8 +54,8 @@ public static class FirstValueReportSponsorStatusSectionFormatter
     private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof) =>
         PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof);
 
-    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof) =>
-        PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(proof.AgentOutputPilotStrictEvidenceSatisfied);
+    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
+        PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas);
 
     private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof) =>
         PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, proof);

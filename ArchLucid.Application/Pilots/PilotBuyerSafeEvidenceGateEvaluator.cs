@@ -79,8 +79,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved)
         {
-            softGapMessages.Add(
-                "PilotStrict agent-output signals **not attested** — execution trace query failed; do not treat this run as sponsor-grade real-mode evidence.");
+            softGapMessages.Add(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved());
         }
 
         ReviewCycleBaselineProvenance prov = valueWindowSnapshot.ReviewCycleBaselineProvenance;

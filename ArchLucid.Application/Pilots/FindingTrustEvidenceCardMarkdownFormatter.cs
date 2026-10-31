@@ -101,7 +101,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Agent output quality (PilotStrict, when attested) | {PilotAgentOutputPilotStrictHonestyCopy.FormatEvidenceCardCell(proof)} |");
+            $"| Agent output quality (PilotStrict, when attested) | {PilotAgentOutputPilotStrictHonestyCopy.FormatEvidenceCardCell(proof, deltas)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");

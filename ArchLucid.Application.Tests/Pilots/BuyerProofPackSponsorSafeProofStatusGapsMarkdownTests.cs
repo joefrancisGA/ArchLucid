@@ -867,7 +867,11 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     [Fact]
     public void Concrete_gaps_when_pilot_strict_failed_matches_proof_package_row()
     {
-        PilotRunDeltas deltas = new();
+        PilotRunDeltas deltas = new()
+        {
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
         ProofPackageCompletenessResponse proof = new()
         {
             SupportRunIdPresent = true,
@@ -902,6 +906,45 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             .TrimEnd();
 
         row.Should().Contain(prose);
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_pilot_strict_unresolved_matches_proof_package_row()
+    {
+        PilotRunDeltas deltas = new() { AgentOutputPilotStrictSignalsResolved = false, };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .ToList();
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+        gaps.Should().Contain(prose);
+        gaps.Should().NotContain(PilotAgentOutputPilotStrictHonestyCopy.FailedPlain);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
     }
 
     [Fact]
@@ -1640,6 +1683,108 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Buyer_safe_gate_pilot_strict_unresolved_caveat_matches_proof_package_row()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "run-a",
+            RequestId = "req-a",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = "run-a",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1",
+                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
+            },
+            Governance = new ManifestGovernance(),
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = run.CreatedUtc,
+            ManifestCommittedUtc = manifest.Metadata.CreatedUtc,
+            AuditRowCount = 2,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictSignalsResolved = false,
+        };
+
+        ValueReportSnapshot snapshot = new(
+            TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId: Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId: Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            PeriodFromUtc: DateTimeOffset.Parse("2026-01-01T00:00:00Z"),
+            PeriodToUtc: DateTimeOffset.Parse("2026-02-01T00:00:00Z"),
+            RunStatusRows: [],
+            RunsCompletedCount: 0,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0m,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0m,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0m,
+            EstimatedTotalArchitectHoursSaved: 0m,
+            EstimatedLlmCostForWindowUsd: 0m,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0m,
+            AnnualizedLlmCostUsd: 0m,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0m,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0m,
+            RoiAnnualizedPercentVersusRoiBaseline: 10m,
+            TenantBaselineReviewCycleHours: 8m,
+            TenantBaselineReviewCycleSource: "signup",
+            TenantBaselineReviewCycleCapturedUtc: DateTimeOffset.Parse("2026-04-01T12:00:00Z"),
+            MeasuredAverageReviewCycleHoursForWindow: 8m,
+            MeasuredReviewCycleSampleSize: 2,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
+            ReviewCycleHoursDelta: 2m,
+            ReviewCycleHoursDeltaPercent: 10m,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
+
+        PilotBuyerSafeEvidenceGateResult gate =
+            PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snapshot);
+
+        StringBuilder gateSb = new();
+        PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(gateSb, gate);
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest,
+            run);
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved();
+
+        gateSb.ToString().Should().Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
     public void Execution_mode_blockquote_when_simulator_matches_concrete_gap_prose()
     {
         ArchitectureRun run = new()
@@ -1957,6 +2102,12 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     [Fact]
     public void Sponsor_status_quality_disposition_matches_proof_package_pilot_strict_row()
     {
+        PilotRunDeltas deltas = new()
+        {
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
         ProofPackageCompletenessResponse proof = new()
         {
             AgentOutputPilotStrictEvidenceSatisfied = false,
@@ -1965,14 +2116,16 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             RunInCommittedStatus = true,
         };
 
+        ArchitectureRun run = new() { RunId = "r1", Status = ArchitectureRunStatus.Committed };
+
         StringBuilder statusSb = new();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
             statusSb,
             new ArchitectureRunDetail(),
             SponsorSafeProofDisposition.NotSponsorSafeYet,
             proof,
-            new PilotRunDeltas(),
-            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            deltas,
+            run,
             new SponsorRoiClaimDispositionResult(
                 SponsorRoiClaimDisposition.Hold,
                 PilotRoiEvidenceConfidence.Low,
@@ -1984,10 +2137,10 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
             proofSb,
-            new PilotRunDeltas(),
+            deltas,
             proof,
             manifest: null,
-            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+            run);
 
         string prose = PilotAgentOutputPilotStrictHonestyCopy.FailedPlain;
 
