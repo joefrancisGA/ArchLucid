@@ -3896,4 +3896,52 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Catalog.Should().Be("app");
     }
+
+    [Fact]
+    public void ParseSettingValues_sql_database_percent_encoded_template_yields_no_catalog()
+    {
+        const string value =
+            "Database=%7Btenant%7D;Host=pg.postgres.database.azure.com;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Catalog.Should().BeNull();
+        parsed[0].WarningCode.Should().Be(AzureInventoryRelationshipCompletenessWarningCodes.AppSettingsCatalogTemplate);
+    }
+
+    [Fact]
+    public void ParseSettingValues_percent_encoded_storage_account_name_with_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=%73tarch;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_account_yields_decoded_host()
+    {
+        const string value = "%73hadow.redis.cache.windows.net,password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_usgov_percent_encoded_account_yields_no_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
 }

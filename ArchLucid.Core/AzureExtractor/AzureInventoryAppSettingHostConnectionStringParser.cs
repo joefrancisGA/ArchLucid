@@ -149,7 +149,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
             return;
         }
 
-        string host = NormalizeHost(match.Groups["host"].Value);
+        string host = NormalizeRedisHost(match.Groups["host"].Value);
 
         if (!string.IsNullOrWhiteSpace(host))
         {
@@ -199,6 +199,16 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     }
 
     private static string NormalizeCosmosHost(string host)
+    {
+        string normalized = NormalizeHost(host);
+        string decoded = Uri.UnescapeDataString(normalized);
+
+        return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
+            ? uri.Host.ToLowerInvariant()
+            : decoded;
+    }
+
+    private static string NormalizeRedisHost(string host)
     {
         string normalized = NormalizeHost(host);
         string decoded = Uri.UnescapeDataString(normalized);
