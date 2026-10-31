@@ -17415,6 +17415,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-31 thorough hunt (dry #212): cheap-disproof closed five open `(candidate)` rows from thorough hunt #211 (bulk simulate `EnumerateDistinctBulkSimulateRunIds` dedupes with `GovernanceRunIdNormalizer.AreEquivalent`, so invisible-Unicode opaque paste variants collapse like padded keys per `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent` and `TrySimulateBulkAsync_deduplicates_padded_run_ids_before_evaluation`; dry-run `EvaluateAsync` accepts dashed/N/trimmed GUID `targetRunId` via `Guid.TryParse` before scoped run load; preview activation binds manifest with `AreEquivalent` while operator notes intentionally echo trimmed caller `runId` (same diagnostic-only class as compare-environment notes in hunt #211); mutation correction finalize and approval subjects use `AreEquivalent` on stored rows (#210); HTTP `SimulateBulkAsync` forwards raw bulk strings but workflow trims before dedupe); seeded five follow-on `(candidate)` rows; scoped filter **835/844** PolicyPack/Governance Application (`RunAnalyzers=false`, 9 pre-existing unrelated Docx export VM failures). Private beta: n/a.
+
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — opaque run ids with invisible Unicode not deduped when not GUID-equivalent — **cheap-disproof 2026-10-31 thorough hunt #212:** `AreEquivalent` normalizes opaque ids (#210); bulk loop uses `AreEquivalent` before add; regressions above.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest-target simulate vs run-target GUID format drift — **cheap-disproof 2026-10-31 thorough hunt #212:** `Guid.TryParse` on trimmed `targetRunId` accepts dashed and N forms; manifest branch uses stored `manifest.RunId` Guid directly.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — notes echo dashed run id while diff uses equivalent manifest — **cheap-disproof 2026-10-31 thorough hunt #212:** manifest gate uses `AreEquivalent`; note text is operator-facing echo only (hunt #211 compare-environment class).
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService` — bulk correction subjects vs approval row GUID format — **cheap-disproof 2026-10-31 thorough hunt #212:** approval and finalize paths use `AreEquivalent(trimmedSubjectId, normalizedRunId)` (#210).
+- [x] (valid-no-repro) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP layer passes run ids without trim before workflow dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** trim and dedupe live in `EnumerateDistinctBulkSimulateRunIds`; HTTP boundary intentionally thin.
+
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — NFC vs NFD Unicode-normalized opaque bulk ids treated as distinct runs — locus: `AreEquivalent` ordinal compare after `Normalize`; input: decomposed vs composed accent on opaque key; reachability: bulk simulate after invisible-Unicode parity #210.
+- [ ] (candidate) `PolicyPackGovernanceDryRunService` / `PolicyPackSimulateSealedManifestGuard` — uppercase hex in N-format `targetRunId` fails sealed-manifest hash guard while lowercase succeeds — locus: hash guard string formatting; input: mixed-case GUID text; reachability: simulate after run resolve.
+- [ ] (candidate) `GovernancePreviewService.CompareEnvironmentsAsync` — environment comparison notes quote raw activation `RunId` while governance diff uses normalized manifest facets — locus: operator notes vs comparer; input: dashed activation row with N-format manifest run id; reachability: cross-env preview.
+- [ ] (candidate) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — committed source run id with leading/trailing format characters fails validation before repository lookup — locus: run id trim/normalize; input: paste-hidden Unicode on recurrence source run; reachability: schedule create after #210 normalizer elsewhere.
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder` — execute-time snapshot omits assignment when pack display name differs only by trailing whitespace from catalog allowlist — locus: display-name trim; input: padded org pack name on pinned assignment; reachability: focused review execute snapshot.
+
 2026-10-31 thorough hunt (hit #211): promoted `(candidate)` `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — bulk simulate deduped only with `Distinct(StringComparer.OrdinalIgnoreCase)`, so the same logical run in dashed `D` and canonical-N `N` GUID strings consumed two bulk slots and double-invoked dry-run evaluation; `EnumerateDistinctBulkSimulateRunIds` now dedupes with `GovernanceRunIdNormalizer.AreEquivalent` plus case-insensitive fallback for opaque ids; regression `TrySimulateBulkAsync_deduplicates_dashed_and_canonical_n_guid_run_ids`; cheap-disproof closed four sibling `(candidate)` rows (non-GUID simulate returns null by contract per `EvaluateAsync_returns_null_for_non_guid_target_run_id_without_id_format_oracle`; compare-environment notes are operator-facing echo only; recurrence `LegacyRunStatus` uses commit-pipeline enum names; integration events resolve GUID keys today); reseeded five follow-on `(candidate)` rows; scoped filter **8/8** on touched bulk/normalizer tests plus prior zone baseline **834/843** PolicyPack/Governance Application filter (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: invited operators running bulk policy-pack simulate with mixed GUID string formats see one evaluation per run, not inflated counts from dashed vs canonical-N duplicates.
 
 - [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — dashed vs canonical-N GUID dedupe — **hit 2026-10-31 thorough hunt #211:** `EnumerateDistinctBulkSimulateRunIds`; regression above.
@@ -17422,12 +17436,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernancePreviewService.CompareEnvironmentsAsync` — raw activation `RunId` in notes — **cheap-disproof 2026-10-31 thorough hunt #211:** manifest load uses `AreEquivalent`; note text is diagnostic only.
 - [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` — **cheap-disproof 2026-10-31 thorough hunt #211:** persistence stores canonical enum name from commit pipeline.
 - [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — opaque run ids on events — **cheap-disproof 2026-10-31 thorough hunt #211:** integration payloads use GUID run keys; future opaque support is out of scope for this path.
-
-- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — opaque run ids with invisible Unicode not deduped when not GUID-equivalent — locus: bulk dedupe loop; input: two paste-variant opaque keys; reachability: bulk simulate after #210 normalizer.
-- [ ] (candidate) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest-target simulate vs run-target GUID format drift — locus: manifest resolution; input: dashed manifest run id with N-format caller.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — notes echo dashed run id while diff uses equivalent manifest — locus: operator notes; input: format mismatch in preview copy.
-- [ ] (candidate) `GovernanceMutationCorrectionService` — bulk correction subjects vs approval row GUID format — locus: subject equivalence; input: mixed-format approval store.
-- [ ] (candidate) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP layer passes run ids without trim before workflow dedupe — locus: controller/facade boundary; input: padded bulk payload strings.
 
 2026-10-30 seed hunt (seed-only): re-read `GovernanceRunIdNormalizer`, preview/mutation-correction run-id paths, policy-pack simulate bulk dedupe, and recurrence validation after #210 opaque equivalence hit; cheap-disproof closed five stale `(candidate)` rows that lived outside `### Hypotheses`; seeded five new mechanism-backed `(candidate)` rows below; scoped PolicyPack/Governance filter **834/843** passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: n/a.
 
@@ -17443,9 +17451,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — bulk policy-pack simulate double-counted dashed vs canonical-N GUID duplicates
 - **related-pd-tb:** none
@@ -17459,7 +17467,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `RecurrenceScheduleValidation.ValidateCommittedSourceRunOrThrow` — case-sensitive `LegacyRunStatus` ordinal match — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 - [x] (invalid) `GovernanceWorkflowIntegrationEventSupport.TryResolveRunGuid` — requires `Guid.TryParse(trim)` for integration event run correlation — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 
-**Hunts:** 44 · **Bugs found:** 37 · **Consecutive dry hunts:** 0
+**Hunts:** 45 · **Bugs found:** 37 · **Consecutive dry hunts:** 1
+
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — invisible Unicode opaque bulk dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — manifest vs run-target GUID format drift — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — notes vs equivalent manifest — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionService` — mixed-format approval subjects — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.SimulateBulkAsync` — HTTP trim before bulk dedupe — **cheap-disproof 2026-10-31 thorough hunt #212:** see hunt #212 diary.
 
 2026-10-29 thorough hunt (hit #210): promoted `(candidate)` `GovernanceRunIdNormalizer.AreEquivalent` — opaque architecture run keys and finalize subjects compared ordinally without `Normalize`, so padded or paste-hidden Unicode run ids failed correction/preview subject checks even after inbound normalization; `AreEquivalent` now compares `Normalize(left)` to `Normalize(right)` for non-GUID ids; regressions `AreEquivalent_treats_outer_whitespace_on_opaque_run_ids_as_equivalent` and `AreEquivalent_treats_invisible_unicode_on_opaque_run_ids_as_equivalent`; scoped PolicyPack/Governance filter 834/843 passed (`RunAnalyzers=false`, 9 pre-existing unrelated Application failures on VM). Private beta: governance correction and preview flows accept the same opaque run id when vendors or operators paste padded run keys, so invited architects are not blocked by whitespace-only drift on non-GUID run identifiers.
 
