@@ -218,9 +218,28 @@ public static partial class AzureInventoryAppSettingHostRedactor
                || vaultHost.Contains("%3f", StringComparison.OrdinalIgnoreCase);
     }
 
+    internal static string DecodeInventoryHostPercentEncoding(string value)
+    {
+        string decoded = value;
+
+        for (int pass = 0; pass < 4 && decoded.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string next = Uri.UnescapeDataString(decoded);
+
+            if (string.Equals(next, decoded, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            decoded = next;
+        }
+
+        return decoded;
+    }
+
     private static string NormalizeSqlInventoryHost(string host)
     {
-        string decoded = Uri.UnescapeDataString(host);
+        string decoded = DecodeInventoryHostPercentEncoding(host);
         int commaIndex = decoded.IndexOf(',');
 
         if (commaIndex >= 0)
