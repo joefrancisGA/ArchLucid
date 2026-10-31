@@ -9313,8 +9313,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-review-detail-workspace
 
 2026-10-30 seed hunt #66 (seed-only): fresh rereading of pinned-review context, pin URL helpers, workspace shell/navigation, selection state, and review-detail sections found no hunt-ready repro. The focused review-detail workspace suite was run against the current navigation/state contracts; seeded one bounded candidate around pin close URL construction and made no production change.
+2026-10-31 thorough hunt (hit): promoted `usePinnedReviewContext.closePin` — after soft navigation, the hook removed `pinRunId` from the stale browser query and then rebuilt the close href from that stale query, restoring the prior review’s tab/disclosure parameters; build the replacement href from the current `useSearchParams()` snapshot. Regression `preserves the current router query when closing after soft navigation`; pinned URL tests passed 8/8. Private beta: invited architects closing a pinned review after navigating to another review now keep the current review’s tab and disclosure state instead of being sent back to stale prior-review chrome.
 
-- [ ] (candidate) `usePinnedReviewContext.closePin` — closing a pinned review after soft navigation can preserve the prior review's query state — locus: `use-pinned-review-context.ts` `closePin`; input: `useSearchParams()` reflects the newly opened review while `window.location.search` still reflects the previous review when the operator closes the pin; wrong outcome: the cleared URL retains stale prior-review tab/disclosure keys; why this code: `closePin` calls `writePinRunIdToUrl(null)` and then derives the replacement href from `window.location.search.slice(1)` instead of the current `searchParams.toString()`; reachability: an operator can open a pinned review from the review workspace, soft-navigate to another review, and close the pin before the App Router address-bar commit catches up.
+- [x] (proven) `usePinnedReviewContext.closePin` — closing a pinned review after soft navigation preserved the prior review's query state; fixed by deriving the replacement href from `searchParams.toString()` after the pin is removed; regression `preserves the current router query when closing after soft navigation`.
 
 2026-10-30 seed hunt #65 (seed-only): fresh rereading of review-detail workspace tab/presenter/selection/room state, next-review loading, provenance and submitted-architecture disclosures, and the recent export-navigation fix found one bounded timer lens; `RunDetailSubmittedArchitectureSection` preserved the new review’s “Copied” state when a prior review’s 2-second copy timer expired across `runId` navigation, and the focused section suite passed 3/3. No production code changed.
 
@@ -9891,11 +9892,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 42
-- **bugs-found:** 33
+- **hunts:** 43
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Technology baseline rationale dialog from prior run during cross-review load
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — pinned review close restored stale query state
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
