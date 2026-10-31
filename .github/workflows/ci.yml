@@ -4346,7 +4346,7 @@ jobs:
           last_shard="$((16 * shard_index))"
           for shard_in_cohort in $(seq "${first_shard}" "${last_shard}"); do
             echo "::group::Vitest shard ${shard_in_cohort}/64"
-            if ! npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/64"; then
+            if ! ARCHLUCID_VITEST_PROCESS_TELEMETRY=1 NODE_OPTIONS="${NODE_OPTIONS} --require=./testing/vitest-process-memory.cjs" npm run test:vitest-single-worker -- --shard="${shard_in_cohort}/64"; then
               failed=1
             fi
             echo "::endgroup::"

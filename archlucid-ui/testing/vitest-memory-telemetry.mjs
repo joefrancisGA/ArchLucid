@@ -29,7 +29,14 @@ if (process.env.CI === "true" && process.env.ARCHLUCID_VITEST_MEMORY_TELEMETRY !
     return memory;
   }
 
-  beforeAll(() => { sample(); });
+  beforeAll(() => {
+    sample();
+    // Log the identity before a test runs, so an OOM that kills its worker
+    // before afterAll cannot erase which file was being executed.
+    const state = expect.getState();
+    if (typeof state.testPath === "string") testPath = state.testPath;
+    console.info("VITEST_MEMORY_FILE_START " + JSON.stringify({ testPath, pid: process.pid }));
+  });
   afterEach(() => {
     sample();
     const state = expect.getState();
