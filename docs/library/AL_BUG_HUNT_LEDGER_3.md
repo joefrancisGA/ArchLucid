@@ -2,6 +2,16 @@
 
 ## Zone: ui-form-validation
 
+2026-10-31 seed hunt (seed-only): fresh reread covered `SignupForm` schema-backed submit gating, required-field and optional-field rendering, numeric payload shaping, “Other” industry transitions, response parsing, session persistence, first-touch attribution, and retry/navigation guards. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed.
+
+2026-10-31 seed hunt (seed-only): completed the third consecutive SignupForm seed reread; rendered limits, schema refinements, optional-field transitions, payload shaping, response handling, and retry/navigation guards remained aligned. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed. Rotation is now eligible for the next Set 3 invocation.
+
+2026-10-31 seed hunt (seed-only): repeated the fresh SignupForm/schema reread across rendered limits, schema trim/refinement behavior, optional numeric and “Other” industry transitions, payload shaping, response handling, and retry/navigation guards. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed.
+
+2026-10-31 seed hunt (seed-only): reread the rendered required-field limits, schema trim/refinement behavior, optional numeric and “Other” industry transitions, payload shaping, response handling, and retry/navigation guards. No fresh reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed.
+
+2026-10-31 seed hunt (seed-only): reread `SignupForm` submit gating, optional-field transitions, numeric payload shaping, success/error response handling, session persistence, and post-registration retry/navigation guards. The focused SignupForm suite passed 144/144; no new reachable mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
 2026-10-31 seed hunt (seed-only): cooldown fallback selected the low-yield `ui-form-validation` zone; reread `SignupForm` submit gating, optional-field transitions, response handling, and payload shaping. The five existing candidate lenses were not promoted to hunt-ready in this pass; the focused SignupForm suite passed 144/144. No production code changed.
 
 2026-10-30 seed hunt #93 (seed-only): re-read `signupFormSchema`, `SignupForm` field wiring, payload shaping, and the current 144-test focused suite; rendered limits match schema limits, submit gating and retry guards remain covered, and no new mechanism-backed candidate was supported. No production code changed.
@@ -366,7 +376,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 78
+- **hunts:** 82
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
@@ -775,7 +785,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 58 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; reread `DraftNewCommand.cs` and its focused core-test contract, including option parsing, cancellation delegation, interactive/JSON intake handoff, and the `DraftNewCommandIntakeLoop` boundary. The wrapper has no additional reachable mechanism beyond the covered delegation path; `DraftNewCommandCoreTests` passed 73/73 and no production code changed.
+
+**Hunts:** 59 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
 
 2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
@@ -2326,7 +2338,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
-**Hunts:** 15 · **Bugs found:** 5 · **Consecutive dry hunts:** 1
+2026-10-31 seed hunt (seed-only): reviewed the complete host-gate decision matrix again, including configured-origin precedence, `www` equivalence, non-default ports, invalid Host fallback, decoded path normalization, API proxy exclusions, and legacy operator handoff. All reachable branches are covered by the existing contract tests or conservatively return `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): reread the host-gate classifier and redirect decision with emphasis on malformed Host parsing, www equivalence, port preservation, delimiter decoding, and operator/marketing prefix boundaries. Existing tests cover the reachable normalization paths and malformed inputs conservatively fall through to `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread checked host-header and configured-origin normalization, split-site path canonicalization, marketing/operator boundary handling, and the proxy handoff contract after the recent trailing-dot fixes. The only plausible malformed-input branches remain conservative no-redirect behavior or already-covered canonicalization; no new reachable mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated source and focused-test review found no production churn since the trailing-dot fixes and no new reachable mechanism across host/origin normalization, proxy handoff, encoded paths, or marketing/operator prefix classification. Host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated fresh reread after the trailing-dot fixes covered configured/request host parity, proxy handoff, encoded path normalization, marketing/operator prefix boundaries, and recent host-gate churn. No new reachable mechanism-backed candidate met the hunt-ready bar; host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread checked configured-origin/request-host canonicalization after the trailing-dot fixes plus encoded reserved delimiters, proxy handoff, path prefix boundaries, and recent host-gate churn. The encoded `%3F` path probe is not a canonical `/architecture/reviews` operator route after preserving its delimiter as a route segment; no new reachable mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
+
+2026-10-31 seed hunt (hit): promoted `hostnameFromOrigin` trailing-dot origin matching — valid configured origins such as `https://archlucid.net.` retained the DNS root-label dot while request Host normalization removed it, so split-host operator redirects returned `next`; canonicalize the origin host for comparison while preserving its configured redirect origin; regression `matches trailing-dot configured origins with their trailing-dot Host headers`; host-gate vitest 25/25 and UI typecheck passed. Private beta: deployments configured with fully qualified trailing-dot public/app origins now preserve operator-to-app handoff instead of leaving invited users on the wrong host.
+
+2026-10-31 seed hunt (hit): promoted `normalizeRequestHost` trailing-dot handling — a valid fully qualified `Host` header such as `archlucid.net.` did not match the configured public origin, so an operator path could remain on the marketing host; strip the DNS root label while preserving an optional port; regression `redirects marketing-host operator paths when the Host header has a trailing dot`; host-gate vitest 24/24 and UI typecheck passed. Private beta: invited users following operator links with a trailing-dot public host now reach the app origin instead of remaining on marketing-host routing.
+
+2026-10-31 seed hunt (seed-only): fresh reread also checked the proxy handoff boundary and runtime/build-time origin precedence alongside host/path normalization, legacy operator coverage, and recent path canonicalization commits. No new reachable mechanism-backed candidate met the hunt-ready bar; the host-gate suite passed 23/23 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
+
+**Hunts:** 23 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+
+- [x] (invalid) `normalizeHostGatePathname` — encoded `%3F` in `/architecture/reviews%3Ftab=activity` must redirect as the canonical operator route — **cheap-disproof 2026-10-31 seed hunt:** preserving the encoded delimiter makes this a distinct final path segment, so it does not satisfy the `/architecture/reviews` prefix contract; no host-gate defect was established.
+
+- [x] (proven) `hostnameFromOrigin` — valid trailing-dot configured origins fail to match normalized request Host headers — **hit 2026-10-31 seed hunt:** strip the root-label dot for host comparison while preserving the configured origin in redirect locations; regression above.
+
+- [x] (proven) `normalizeRequestHost` — valid DNS trailing-dot `Host` header bypasses configured-origin matching — **hit 2026-10-31 seed hunt:** strip the root-label dot after URL host normalization while preserving non-default ports; regression above.
 
 2026-10-30 seed hunt #107 (seed-only): repeated the host-gate source review and focused regression suite after the prior seed-only pass; host-gate vitest passed 23/23 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
@@ -2418,7 +2456,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 6
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
@@ -2697,7 +2735,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 78 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
+2026-10-31 seed hunt (seed-only): reread idle-desk restore parsing/consumption, sign-in destination safety, proxy forwarding timeout and method branches, and BFF session idle/CSRF/public-anonymous handling after the prior auth/proxy pass. Existing regressions cover the reachable state transitions and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated the auth/proxy reread after the prior rotated pass, checking recent idle-desk/OIDC return-path churn, proxy forwarding and method coverage, BFF session/CSRF enforcement, bootstrap invitation/workspace requests, OTP failure mapping, and scope-header behavior. Existing tests cover the reachable branches and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
+
+2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; fresh auth/proxy reread covered proxy route forwarding, BFF session/CSRF guards, auth bootstrap and OTP clients, scope-header precedence, return-path encoding, host-gate ordering, and recent auth URL-writer churn. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
+
+2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-host-gate` outcomes; fresh auth/proxy reread covered proxy forwarding and path canonicalization, host-gate/demo-alias ordering, BFF/CSRF session guards, bearer/scope header precedence, post-auth bootstrap and OTP clients, correlation/error handling, and recent source churn. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated the auth/proxy reread across proxy forwarding and cache boundaries, BFF/CSRF session enforcement, bearer and scope-header precedence, host-gate/demo-alias routing, and post-auth bootstrap clients. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
+
+2026-10-31 seed hunt (seed-only): repeated the auth/proxy source reread across the BFF session guard, upstream bearer/scope header precedence, post-auth bootstrap and OTP response handling, proxy forwarding/error boundaries, and recent auth URL-writer churn. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread covered proxy path canonicalization and forwarding, host-gate and demo-alias ordering, BFF/CSRF session guards, post-auth bootstrap and invitation clients, scope-header merging, correlation/error handling, and the current auth/proxy tests. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 285/285. No production code changed.
+
+**Hunts:** 82 · **Bugs found:** 36 · **Consecutive dry hunts:** 1
 
 2026-10-30 seed hunt #110 (seed-only): repeated the auth/proxy source review and focused regression matrix after the prior seed-only pass; auth/proxy vitest passed 90/90 and no new mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
@@ -2815,7 +2867,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 65
+- **hunts:** 68
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-08
@@ -3023,7 +3075,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-31 seed hunt (seed-only): repeated the fresh OIDC reread across callback-message decoding, numeric hint parsing, discovery caching and endpoint safety, PKCE flow separation, authorize retry return paths, token-response classification, and session/BFF refresh-generation guards. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped OIDC suite passed 1030/1030 and no production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread covered discovery endpoint construction/validation/cache, primary and supplemental authorize setup, PKCE state isolation and consumption, token error classification, JWT display decoding, BFF sync/refresh/activity/logout, session-generation guards, and expiry/config normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped OIDC suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread covered PKCE generation, JWT payload/display-claim decoding, BFF token sync/refresh/activity/logout, numeric expiry boundaries, and remaining callback/session normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread covered public OIDC configuration defaults, authorize query construction and provider parameters, BFF refresh deduplication, session-expiry recovery, PKCE cleanup, and callback error normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc` after the auth-proxy low-yield streak; fresh reread covered session/BFF generation, PKCE state cleanup, discovery endpoint safety/cache failure handling, authorize retry return paths, and token error/expiry normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; fresh reread covered callback normalization and readable error descriptions, JWT display claims, numeric expiry coercion, BFF sync/refresh/activity/logout, and the current OIDC tests. No new reachable mechanism-backed candidate met the hunt-ready bar; the scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only): fresh reread covered callback-message normalization, JWT payload and expiry parsing, BFF session synchronization/refresh/logout, and the scoped OIDC test boundary; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
+2026-10-31 seed hunt (seed-only, rotation): rotation avoided `ui-form-validation` after three consecutive seed-only outcomes and selected saturated `ui-oidc`; fresh rereading of discovery endpoint validation/cache, authorize URL construction, PKCE generation/storage, OIDC configuration defaults, and current test coverage found no new reachable mechanism-backed candidate or hunt-ready row. The scoped `src/lib/oidc` suite passed 1030/1030. No production code changed.
+
 **Hunts:** 93 · **Bugs found:** 71 · **Consecutive dry hunts:** 1
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread PKCE storage-key isolation, primary/supplemental authorize redirect cleanup, discovery query preservation, response-mode enforcement, and parameter normalization. The scoped `src/lib/oidc` suite passed 1030/1030; no new reachable mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread token error classification for mixed success/error payloads, repeated callback-description decoding, public OIDC configuration defaults, and remaining scoped tests. The scoped `src/lib/oidc` suite passed 1030/1030; no new reachable mechanism-backed candidate or hunt-ready row emerged. No production code changed.
+
+2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread BFF refresh/activity/logout response handling, session expiry-generation guards, RP logout URL validation, CSRF/header construction, and numeric expiry boundary behavior. The scoped `src/lib/oidc` suite passed 1030/1030; no new reachable mechanism-backed candidate or hunt-ready row emerged. No production code changed.
 
 2026-10-31 seed hunt (seed-only): cooldown fallback selected saturated `ui-oidc`; reread token-endpoint numeric/error classification, callback-message decoding and confusable folding, discovery endpoint validation/cache, and recent OIDC test coverage. The scoped `src/lib/oidc` suite passed 1030/1030; discovery’s unused issuer field was not promoted because no browser security or user-visible behavior consumes it. No production code changed.
 
@@ -5995,6 +6069,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five follow-on candidates: authorize URL construction is parser-gated, malformed callback descriptions are intentionally tolerant, oversized provider details have no demonstrated wrong outcome, Web Crypto absence is an environment prerequisite, and incomplete PKCE storage has no reachable production caller. No failing repro or fix was established. The focused OIDC suite passed 71/71.
 
+2026-10-31 seed hunt (seed-only): rotation returned saturated `ui-oidc` via cooldown fallback; reread discovery URL construction and validation, authorization URL assembly, primary/supplemental PKCE state isolation, token-response error classification, BFF refresh generation guards, and retry return-path restoration. No fresh reachable mechanism-backed candidate met the hunt-ready bar; the scoped OIDC suite passed 1030/1030. No production code changed.
+
 2026-10-10 seed hunt (seed-only): re-read OIDC configuration, discovery URL construction, PKCE storage, and session cleanup boundaries. No new row met the full hunt-ready bar; seeded five bounded candidates for configuration URL validation, redirect URI shape, stale PKCE lifetime, missing browser storage, and callback state reuse. The focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five configuration/session candidates: discovery normalization is deterministic, redirect URI validation is deployment configuration, stale PKCE has no wrong outcome without state reuse, malformed storage has no production writer, and cross-provider selection requires an unreachable state collision. No failing repro or fix was established. The focused OIDC suite passed 71/71.
@@ -6035,10 +6111,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
+- **hunts:** 88
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-16 — hex/octal/binary epoch-ms hint literals in session and BFF refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9346,6 +9422,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed→hit): promoted `scheduleScrollToReviewDetailSection` — a deferred review section mounting after the scheduler's fixed eight retries (400ms) was never scrolled into view, leaving a valid review hash deep link at the top of the workspace; extend the bounded retry window to cover slow deferred imports. Regression `keeps retrying until a deferred review section mounts`; the baseline failed 1/4 and the focused workspace suite passed 48/48 after the fix. Private beta: invited architects following a deep link into a deferred review section can now reach the requested evidence or findings content even when its client chunk loads slowly.
+
+- [x] (proven) `scheduleScrollToReviewDetailSection` — deferred review sections mounting after the fixed eight retries were never scrolled into view — **hit 2026-10-31 seed hunt:** extended the bounded retry window from 400ms to 2s; regression `keeps retrying until a deferred review section mounts`.
+
+2026-10-31 seed hunt (seed→hit): promoted `RunDetailReviewPackageStampViewport` — the sealed `hasGoldenManifest && feasibilityVerdict !== null` branch omitted `runId` when rendering `RunDetailFirstReviewSpineBand`, so an open decision-grade finding rendered “Review id was not stored.” instead of the Findings next-action link; pass the review id through the sealed stamp. Regression `keeps the findings next-action link on the sealed stamp`; focused regression passed 1/1. The full viewport file had one unrelated test-drift failure for the measurement-copy assertion. Private beta: invited architects viewing a finalized review package with open decision-grade findings can now follow the disposition action into that review’s Findings tab instead of seeing “Review id was not stored.”
+
+- [x] (proven) `RunDetailReviewPackageStampViewport` — sealed package stamps dropped `runId` when rendering the first-review spine, so disposition actions could not link to the review Findings tab; pass `runId={props.runId}` through the sealed branch; regression `keeps the findings next-action link on the sealed stamp`.
+
 2026-10-31 seed hunt (seed-only): rotation moved the hunt from saturated OIDC; reread presenter enter/exit URL commits, finding selection synchronization, workbench focus state, and mounted tab-shell/workbench panel ownership found no new reachable mechanism-backed candidate or hunt-ready row. Focused presenter, selection, workbench, workspace, and URL-sync tests passed 33/33. No production code changed.
 
 2026-10-31 seed→hit: promoted `useReviewDetailWorkspaceTabs.onHashChange` — removing a mounted review-section hash returned early, leaving the visible tab/workbench focus on the hash-derived tab instead of the query-selected tab after browser back or hash clearing; synchronize tab and focus from the live URL before handling the empty-hash case. Regression `restores the query-selected tab when a mounted workspace hash is removed`; focused review workspace tests passed 33/33. Private beta: invited architects returning from a review deep link now see the tab and workbench focus represented by the current URL instead of stale hash-derived workspace chrome.
@@ -9379,7 +9463,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only, cooldown fallback): reread `RunDetailSectionNav`, the deferred tabbed workspace shell, and `useReviewDetailWorkspaceTabs`; workspace URL-sync, tabbed-shell, and evidence-panel tests passed 10/10. The sticky-offset assertion in `RunDetailSectionNav.test.tsx` remains test/setup drift because the shared workspace-mode mock resolves guided eval chrome despite the test’s operator environment override. Seeded one bounded deferred-section retry candidate and made no production change.
 
-- [ ] (candidate) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window is never scrolled into view — locus: `lib/review-detail-section-scroll.ts`; input: a review deep link/hash to a below-fold deferred section while its dynamic chunk takes longer than 400ms to mount; wrong outcome: the operator lands on the review page but the requested section remains unscrolled; reachability: `RunDetailSectionNav` and workspace hash navigation call the scheduler for sections rendered by deferred tabbed-workspace imports.
+- [x] (proven) `scheduleScrollToReviewDetailSection` — a deferred review section that mounts after the fixed eight-attempt retry window was never scrolled into view — **hit 2026-10-31 seed hunt:** extended the bounded retry window to 40 attempts (2s); regression `keeps retrying until a deferred review section mounts`.
 
 2026-10-31 seed hunt (hit): promoted `ReviewWorkspaceStaleBanner.runSummaryActivityFingerprint` — an authoritative `legacyRunStatus` change was invisible because the fingerprint compared only lifecycle phase, golden-manifest presence, and degraded execution; include the mutable status in the fingerprint so the operator receives refresh guidance. Regression `shows the stale warning when only the mutable run status changes`; focused stale-banner and workspace URL-sync tests passed 7/7. Private beta: invited architects now receive refresh guidance when a review’s mutable execution status changes remotely, instead of deciding from stale summary state.
 
@@ -9960,11 +10044,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 51
-- **bugs-found:** 37
+- **hunts:** 53
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — mounted review hash left the prior workspace tab active
+- **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
