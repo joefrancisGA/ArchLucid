@@ -18,6 +18,26 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 {
     [Fact]
+    public void Concrete_gaps_when_run_not_committed_uses_run_not_stale_proof_run_in_committed_flag()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NotSponsorSafeYet,
+                proof,
+                new PilotRunDeltas(),
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Created })
+            .Should()
+            .Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_wall_clock_missing_matches_proof_package_and_computed_deltas_prose()
     {
         PilotRunDeltas deltas = new() { TimeToCommittedManifest = null };
@@ -91,6 +111,28 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
                 new ArchitectureRun { RunId = "  ", Status = ArchitectureRunStatus.Committed })
             .Should()
             .Contain(PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
+    public void Concrete_gaps_when_artifact_unresolved_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        PilotRunDeltas deltas = new() { SynthesizedArtifactDescriptorCountResolved = false };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            ArtifactDescriptorCountResolved = true,
+        };
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine());
     }
 
     [Fact]
@@ -3161,6 +3203,8 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             LlmCallCountResolved = true,
             SynthesizedArtifactDescriptorCountResolved = true,
             SynthesizedArtifactDescriptorCount = 1,
+            TimeToCommittedManifest = TimeSpan.FromHours(1),
+            ManifestCommittedUtc = DateTime.UtcNow,
         };
 
         ProofPackageCompletenessResponse proof = new()

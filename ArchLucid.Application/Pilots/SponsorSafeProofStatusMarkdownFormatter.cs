@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -103,16 +104,20 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         if (string.IsNullOrWhiteSpace(run.RunId))
             yield return PilotSupportRunIdHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (!proof.CommittedManifestPresent || !proof.RunInCommittedStatus)
+        if (run.Status != ArchitectureRunStatus.Committed || !proof.CommittedManifestPresent)
             yield return PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (proof is { CommittedManifestPresent: true, CommittedManifestTimestampResolved: false })
             yield return PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
-        if (proof is { CommittedManifestPresent: true, RunInCommittedStatus: true, TimeToCommittedManifestResolved: false })
+        if (run.Status == ArchitectureRunStatus.Committed
+            && proof.CommittedManifestPresent
+            && deltas.TimeToCommittedManifest is null)
             yield return PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved();
 
-        if (proof is { CommittedManifestPresent: true, RunInCommittedStatus: true, ArtifactDescriptorCountResolved: false })
+        if (run.Status == ArchitectureRunStatus.Committed
+            && proof.CommittedManifestPresent
+            && !deltas.SynthesizedArtifactDescriptorCountResolved)
             yield return PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
