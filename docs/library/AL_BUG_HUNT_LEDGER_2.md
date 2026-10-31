@@ -1188,6 +1188,20 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-31 thorough hunt (dry #350): cheap-disproof closed five open `(candidate)` rows — stored-proc `CommandType` gate (no `CommandType` handling in analyzer; `ARCH006_does_not_analyze_stored_procedure_name_when_command_type_is_stored_procedure` passes because proc name is not SQL text with `dbo.Runs`); `ref readonly` / `scoped ref` SQL locals (no Persistence reachability citation); params-array Dapper SQL overload (no cataloged invocation; `TryGetSqlArgumentExpression` walks named/indexed parameters only); `global::Dapper.SqlMapper` qualification (probe `global::Dapper.SqlMapper.Query` produced ARCH006 on unscoped SQL — line-span only mismatch in exploratory run); method-level blank `[TenantScopeExempt]` (probe on `BadMethodExemptionRepository.Load` produced ARCH006b — `AnalyzeMethodDeclaration` already validates); reseeded five follow-on `(candidate)` rows; scoped regressions from recent hits **2/2** passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryAsync` with `CommandType.StoredProcedure` only — **cheap-disproof 2026-10-31 thorough hunt #350:** no stored-proc gate; proc-name arguments are not tenant-table SQL literals.
+- [x] (invalid) `TenantScopedSqlExpressionResolver` — `ref readonly` or `scoped ref` locals holding SQL — **cheap-disproof 2026-10-31 thorough hunt #350:** no reachable Persistence pattern cited.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgumentExpression` — params-array SQL overload — **cheap-disproof 2026-10-31 thorough hunt #350:** no Dapper params-SQL overload in repo; indexer walk covers normal overloads.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `global::Dapper.SqlMapper` alias qualification — **cheap-disproof 2026-10-31 thorough hunt #350:** `global::Dapper.SqlMapper.Query` still reports ARCH006 for unscoped SQL.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper.TryGetExemption` — blank justification skips exemption but does not report ARCH006b on method-only attribute — **cheap-disproof 2026-10-31 thorough hunt #350:** `AnalyzeMethodDeclaration` + `ValidateExemptionAttributes` report ARCH006b on method attributes (probe run this hunt).
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeSqlExpression` — `CommandDefinition` with `CommandType.StoredProcedure` — locus: object-creation path; input: `new CommandDefinition(proc, commandType: StoredProcedure)` where proc name embeds scoped table token (monitor).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — collection-expression SQL fragments — locus: static folding; input: C# 12 collection expr building SQL (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `Dapper.SqlMapper` nested in another static class — locus: `IsDapperSqlMapperMethod` containing type name only; input: type-forwarding wrapper (monitor).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgument` — generic `Query<T>` extension on `IDbConnection` via interface-typed receiver — locus: extension method symbol; input: connection typed as interface only (monitor).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper.ValidateExemptionAttributes` — attribute applied via `[module: TenantScopeExempt]` or assembly attribute — locus: not registered on module/assembly syntax (monitor).
+
 2026-10-31 thorough hunt (hit #349): promoted `(candidate)` `QueryUnbufferedAsync` omitted from `DapperQueryMethodNames` — prior dry hunts noted production `DapperAuditRepository.StreamFilteredExportAsync` SQL is scope-bound, but the analyzer must still flag unscoped static SQL on that invocation shape; probe `await foreach` over `connection.QueryUnbufferedAsync<int>(… dbo.Runs …)` produced **0** diagnostics before fix; added `QueryUnbufferedAsync` to monitored set; regression `ARCH006_reports_unscoped_static_sql_for_query_unbuffered_async`; adjusted `ARCH006b_reports_empty_exemption_justification_on_record_declaration` span after SharedStubs growth; cheap-disproof closed four sibling rows (`StructDeclarationSyntax` — `[TenantScopeExempt]` is `AttributeTargets.Class | Method` only; non-`SqlMapper` extension receivers — no Persistence wrapper pattern; inherited blank exempt on derived record — `ValidateExemptionAttributes` runs on each type declaration including base; partial record exempt in secondary file — same `RecordDeclaration` callback per partial file); reseeded five follow-on `(candidate)` rows; scoped regressions **2/2** passed (`RunAnalyzers=false`). Private beta: no direct pilot-path change today; Persistence builds treat streaming Dapper queries like other monitored shapes so a future unscoped audit/export stream fails CI before it ships.
 
 - [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` omitted — **hit 2026-10-31 thorough hunt #349:** add to immutable set; regression `ARCH006_reports_unscoped_static_sql_for_query_unbuffered_async`.
@@ -1195,12 +1209,6 @@
 - [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — extension-method invocations on non-SqlMapper receivers — **cheap-disproof 2026-10-31 thorough hunt #349:** `IsDapperSqlMapperMethod` requires `Dapper.SqlMapper`; no repo wrapper bypass found.
 - [x] (invalid) `TenantScopeExemptSymbolHelper.ValidateExemptionAttributes` — inherited blank justification on derived record — **cheap-disproof 2026-10-31 thorough hunt #349:** base `record` declaration is analyzed independently.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — partial type declarations across files — **cheap-disproof 2026-10-31 thorough hunt #349:** partial `RecordDeclaration` in each file registers the same analyzer callback (same pattern as partial class SQL test).
-
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryAsync` with `CommandType.StoredProcedure` only — locus: stored-proc gate in `AnalyzeSqlExpression`; input: proc name matching tenant table without scope (monitor).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `ref readonly` or `scoped ref` locals holding SQL — locus: assignment folding; input: future C# ref-local SQL indirection (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetSqlArgumentExpression` — params-array SQL overload — locus: argument index walk; input: Dapper overload passing SQL via `params object[]` (monitor).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `global::Dapper.SqlMapper` alias qualification — locus: `IsDapperSqlMapperMethod` namespace compare; input: file-scoped alias to Dapper (monitor).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper.TryGetExemption` — blank justification skips exemption but does not report ARCH006b on method-only attribute — locus: `TryReadExemptionFromAttributes` vs `ValidateExemptionAttributes`; input: method-level empty string when class has none (monitor).
 
 2026-10-31 thorough hunt (hit #348): promoted `(candidate)` `RecordDeclarationSyntax` ARCH006b gap — `#347` closed record monitoring as `(invalid)` because no production `record` carries `[TenantScopeExempt]`, but Roslyn `record` declarations use `RecordDeclarationSyntax`, not `ClassDeclarationSyntax`, so blank type-level exemptions on future record repositories bypassed `AnalyzeTypeDeclaration`; register `SyntaxKind.RecordDeclaration` and analyze `TypeDeclarationSyntax`; regression `ARCH006b_reports_empty_exemption_justification_on_record_declaration` (repro failed with 0 diagnostics before fix); cheap-disproof closed four sibling `(candidate)` rows (`QueryUnbufferedAsync` — 2026-10-02 valid-no-repro / scoped export SQL; `TenantScopedSqlExpressionResolver` format SQL — regressions `ARCH006a_reports_unanalyzable_sql_for_string_format_table_reference` and `ARCH006_reports_unscoped_sql_for_string_format_with_format_provider`; `ExecuteAsync(CommandDefinition)` — regressions `ARCH006_reports_unscoped_sql_for_execute_async_*`; `LoadRegistry` suffix — `ArchLucid.Persistence.csproj` links `tenant_scoped_tables.v1.json`); reseeded five follow-on `(candidate)` rows; scoped regression **1/1** passed on cloud VM for new test (`RunAnalyzers=false`; legacy suite still has +5 line-span harness drift vs SharedStubs — see #347). Private beta: no direct pilot-path change; Persistence contributors get ARCH006b on `record` types with blank `[TenantScopeExempt]` justifications at build time before unscoped SQL exemptions ship.
 
@@ -1229,9 +1237,9 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-31 — ARCH006 skipped Dapper QueryUnbufferedAsync invocations
 - **related-pd-tb:** none
