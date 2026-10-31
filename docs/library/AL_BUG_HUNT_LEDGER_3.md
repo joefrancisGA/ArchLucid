@@ -3109,7 +3109,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
-2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread discovery endpoint URL safety/cache failure paths, authorize URL provider-parameter normalization, initiate-redirect retry return handling, and BFF refresh deduplication. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed.
+2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected; reread discovery endpoint URL safety/cache failure paths, authorize URL provider-parameter normalization, initiate-redirect retry return handling, and BFF refresh deduplication. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): cooldown fallback kept saturated `ui-oidc` selected (`eligibleCount` 21); reread token-client mixed success/error payload handling, `resolveExpiresInSeconds` coercion boundaries, session post-sign-in return URL storage, and oauth callback message normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed 1034/1034. No production code changed.
 
@@ -9461,6 +9461,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+
+2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread presenter enter/exit URL commits with `notify`, tab/hash URL synchronization, finding selection state, and workspace tab-shell boundaries. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, workspace, and URL-state tests passed 45/45. No production code changed.
 
 2026-10-31 seed hunt (seed→hit): promoted `scheduleScrollToReviewDetailSection` — a deferred review section mounting after the scheduler's fixed eight retries (400ms) was never scrolled into view, leaving a valid review hash deep link at the top of the workspace; extend the bounded retry window to cover slow deferred imports. Regression `keeps retrying until a deferred review section mounts`; the baseline failed 1/4 and the focused workspace suite passed 48/48 after the fix. Private beta: invited architects following a deep link into a deferred review section can now reach the requested evidence or findings content even when its client chunk loads slowly.
 
