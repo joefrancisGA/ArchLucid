@@ -1313,6 +1313,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-31 seed hunt (seed-only): re-read `useRunsList`, `RunsListClient`, the URL/popstate state boundaries, and the focused 69-test Runs List suites; existing regressions cover the reachable inspector, compare, filter, pagination, card-layout, and disclosure branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
+
 2026-10-31 thorough hunt (dry): cheap-disproof closed the five picker candidates — compare soft navigation, combined inspector/compare popstate, debounced filter clearing, third-compare replacement notices, and the filter-disclosure URL monitor are covered by existing tests or lack a reachable branch; no production change. Private beta: n/a.
 
 2026-10-29 thorough hunt (hit): promoted url-driven `compareRuns` sync — after browser back narrowed committed `compareRuns`, the `urlCompareRunsRaw` effect restored two ids from lagging `useSearchParams` and resurrected the second compare checkbox while the inspector stayed open; effect now prefers committed compare ids when they disagree with router params; regression `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids`. Cheap-disproof closed `runsListFilterOpen` stale write (`invalid`, unreachable branch); `clearFilterText` vs debounce (`valid-no-repro`, regression `does not restore q= after Escape clears the filter before the debounce completes`); buyer card + compare deep link (`valid-no-repro`, regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`); pagination zero-match Next (`valid-no-repro`, regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). 67 scoped `RunsListClient` vitest passed. Private beta: backing out of a two-review compare selection no longer re-checks the dismissed review while compare query params are still catching up.
@@ -1369,7 +1371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 39
+- **hunts:** 40
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
