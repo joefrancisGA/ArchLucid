@@ -9474,6 +9474,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread finding selection state, workbench focus handoff, tab-shell vs deferred section mounting, and cross-review soft-navigation URL param reconciliation on open disclosures. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, and tab-mapping tests passed 47/47. No production code changed.
+
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread room elicitation URL sync, deferred section scroll scheduling, pinned-review layout boundaries, and stale-banner activity fingerprinting. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, and tab-mapping tests passed 47/47. No production code changed.
 
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread presenter enter/exit URL commits with `notify`, tab/hash URL synchronization, finding selection state, and workspace tab-shell boundaries. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, workspace, and URL-state tests passed 45/45. No production code changed.
