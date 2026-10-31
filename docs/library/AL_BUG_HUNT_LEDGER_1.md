@@ -6103,12 +6103,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 - [x] (proven) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
 
-- [x] (proven) `FindBoundedOwnershipMarkerIndex` — double angle brackets `《owner》` (U+300A/U+300B) CJK book-title labels — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
-- [x] (valid-no-repro) `ContainsPhraseMarker` — thin space `\u2009` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
-- [x] (valid-no-repro) `FindBoundedMarkerIndex` — en dash `\u2013` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
-- [x] (proven) `ContainsHumanReviewMarker` — `iso-27001` hyphenated checklist shorthand — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
-- [x] (proven) `InferLifecycleScopeForIndex` — figure dash `\u2012` inside `to‑be` token header — **hit 2026-10-31 thorough hunt (hunt 254):** see zone-header diary row above.
-
 - [x] (proven) `FindBoundedOwnershipMarkerIndex` — corner quotes `「owner」` (U+300C/U+300D) CJK labels — **hit 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
 - [x] (valid-no-repro) `ContainsPhraseMarker` — punctuation space `\u2008` inside spaced regulatory phrases — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
 - [x] (valid-no-repro) `FindBoundedMarkerIndex` — horizontal bar `\u2015` between `as` and `is` in slide headings — **cheap-disproof 2026-10-31 thorough hunt (hunt 255):** see zone-header diary row above.
@@ -19467,6 +19461,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-31 seed hunt (hunt 61, seed→hit): re-read evaluation join paths after hunt 60 dry streak; promoted outer-whitespace `TaskId` on traces breaking calibrated-confidence lookup and result joins while `AgentExecutionTraceLatestPerTaskSelector` already trims task keys; introduced `AgentEvaluationTaskIdKey` normalization across calibrated map build, quality evaluation, confidence pipeline dictionaries, and enricher lookups; regression `TryEvaluateTrace_rejects_when_calibrated_confidence_below_floor_and_trace_task_id_has_outer_whitespace`; reseeded five mechanism-backed `(candidate)` rows; scoped filter **231/231** passed (`RunAnalyzers=false`). Private beta: PilotStrict evaluation and finding-confidence enrichment honor calibrated confidence when persisted trace task ids carry benign outer whitespace from upsert drift.
+
+- [x] (proven) `AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsyncCore` — calibrated lookup keyed on raw `trace.TaskId` while builder maps use trimmed result ids — **hit 2026-10-31 seed hunt (hunt 61):** `AgentEvaluationTaskIdKey`; regression above.
+
+- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — `QualityGatePassed` treats `Warned` as passed for prompt-variant A/B metrics while sponsor gate blocks warned traces — locus: evaluation recorder; input: PilotStrict run with warned topology trace (monitor).
+- [ ] (candidate) `AgentCalibratedConfidenceByTaskIdBuilder.Build` — latest duplicate row with null `CalibratedConfidence` omits task from map — locus: builder; input: retried task where only older row has calibrated score (monitor).
+- [ ] (candidate) `QualityGateRecordedEvaluationSnapshotFactory.ResolveTriageScenarioId` — non-Accepted outcomes map to `GroundingInsufficiency` even for Warned-only traces — locus: snapshot triage; input: warned trace without structural reject (monitor).
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — summary-token parity vs boolean block contract — locus: sponsor aggregator; input: calibrated-only reject trace (monitor).
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate traces differing only by outer whitespace collapse in latest selector but pre-fix maps could diverge — locus: run context; input: regression guard for whitespace-normalized keys (monitor).
+
 2026-10-30 thorough hunt (dry): cheap-disproof closed five `(candidate)` rows from hunt 59; no failing repro. Duplicate calibrated confidence on sponsor gating is covered by hunt 57 `AgentCalibratedConfidenceByTaskIdBuilder` fix plus `TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results`. Recorded evaluation snapshots intentionally persist published `OverallSemanticScore` while the gate consults calibrated confidence separately (2026-10-23 rejection-summary hit). PilotStrict fail-closed on `!HasCheckableContent` is TB-256 by design (`AgentResultEvidenceFaithfulnessCheckerTests`). Top-level `evidenceRefs` floor is explicit (`TryEvaluateTrace_pilot_strict_rejects_when_evidence_ref_floor_not_met_even_with_citations`). LLM judge budget exhaustion skips judging by product rule, leaving heuristic semantic until budget resets. Scoped **230** `Evaluation` tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate stale `CalibratedConfidence` — **cheap-disproof 2026-10-30 thorough hunt (hunt 60):** shared builder fixed hunt 57; aggregator uses same map and evaluation path; pipeline regression above.
@@ -19605,11 +19609,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 60
-- **bugs-found:** 35
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-30
-- **last-bug:** 2026-10-30 — stale calibrated confidence on duplicate task results
+- **hunts:** 61
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — outer-whitespace trace task id skipped calibrated confidence lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -14,7 +14,8 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
         Dictionary<string, double?> map = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (IGrouping<string, AgentResult> group in agentResults.GroupBy(
-                     static result => result.TaskId,
+                     static result => AgentEvaluationTaskIdKey.Normalize(result.TaskId)
+                                      ?? result.TaskId,
                      StringComparer.OrdinalIgnoreCase))
         {
             AgentResult? latest = AgentResultLatestForTaskSelector.Select(group.ToList(), group.Key);

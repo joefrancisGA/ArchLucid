@@ -52,7 +52,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                                     ct,
                                     trace is not null
                                         && context.StructuralExecutionModeByTaskId.TryGetValue(
-                                            trace.TaskId,
+                                            AgentEvaluationTaskIdKey.Normalize(trace.TaskId) ?? trace.TaskId,
                                             out StructuralExecutionMode? mode)
                                         ? mode
                                         : null)

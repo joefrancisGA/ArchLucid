@@ -15,7 +15,7 @@ internal static class AgentResultLatestForTaskSelector
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
 
         return agentResults
-            .Where(result => string.Equals(result.TaskId, taskId, StringComparison.OrdinalIgnoreCase))
+            .Where(result => AgentEvaluationTaskIdKey.Equals(result.TaskId, taskId))
             .OrderByDescending(static result => result.CreatedUtc)
             .ThenByDescending(static result => result.ResultId, StringComparer.Ordinal)
             .FirstOrDefault();

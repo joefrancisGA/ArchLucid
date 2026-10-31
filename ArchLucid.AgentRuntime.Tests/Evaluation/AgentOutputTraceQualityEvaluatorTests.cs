@@ -724,6 +724,49 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateTrace_rejects_when_calibrated_confidence_below_floor_and_trace_task_id_has_outer_whitespace()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0.5,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = " task-1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+        };
+
+        Dictionary<string, double?> calibratedByTaskId = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["task-1"] = 0.2,
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                calibratedConfidenceByTaskId: calibratedByTaskId);
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        result.EvaluationReason.Should().Contain("quality_gate_threshold_reject");
+    }
+
+    [Fact]
     public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_calibrated_confidence_below_semantic_reject_floor()
     {
         AgentOutputQualityGateOptions options = new()
