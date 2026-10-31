@@ -1479,6 +1479,47 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Concrete_gaps_when_roi_baseline_inputs_null_matches_gate_projected_dollar_caveat()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            CommittedManifestTimestampResolved = true,
+            RunInCommittedStatus = true,
+            ArtifactDescriptorCount = 1,
+            ArtifactDescriptorCountResolved = true,
+            TimeToCommittedManifestResolved = true,
+            TopFindingEvidenceChainPresentOrNotApplicable = true,
+            AuditRowsPresentOrLowerBound = true,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            RoiBaselineInputs = null,
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            IsDemoTenant = false,
+            AuditRowCountResolved = true,
+            LlmCallCountResolved = true,
+            SynthesizedArtifactDescriptorCountResolved = true,
+        };
+
+        string prose = PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine();
+
+        SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed })
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
     public void Concrete_gaps_when_defaulted_roi_baseline_includes_comparative_baseline_matching_gate_caveats()
     {
         ArchitectureRun run = new()
@@ -2973,6 +3014,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             ProofSendability = nameof(ProofPackageSendability.Sendable),
             PublishingTier = "Complete",
             EvidenceCompleteness = "Strong",
+            RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse { ProjectedDollarClaimsSponsorSafe = true },
         };
 
         List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
@@ -3031,6 +3073,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             ProofSendability = nameof(ProofPackageSendability.Sendable),
             PublishingTier = "Complete",
             EvidenceCompleteness = "Strong",
+            RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse { ProjectedDollarClaimsSponsorSafe = true },
         };
 
         PilotBuyerSafeEvidenceGateResult gate = new(

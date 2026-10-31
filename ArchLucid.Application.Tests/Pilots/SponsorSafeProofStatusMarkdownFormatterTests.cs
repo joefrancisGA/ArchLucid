@@ -230,6 +230,49 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
     }
 
     [Fact]
+    public void EnumerateConcreteGaps_when_roi_baseline_inputs_null_includes_projected_dollar_gap()
+    {
+        ProofPackageCompletenessResponse proof = StrongProof();
+        proof = new ProofPackageCompletenessResponse
+        {
+            DemoTenantWarningRequired = proof.DemoTenantWarningRequired,
+            SupportRunIdPresent = proof.SupportRunIdPresent,
+            CommittedManifestPresent = proof.CommittedManifestPresent,
+            CommittedManifestTimestampResolved = proof.CommittedManifestTimestampResolved,
+            RunInCommittedStatus = proof.RunInCommittedStatus,
+            ArtifactDescriptorCount = proof.ArtifactDescriptorCount,
+            ArtifactDescriptorCountResolved = proof.ArtifactDescriptorCountResolved,
+            TimeToCommittedManifestResolved = proof.TimeToCommittedManifestResolved,
+            FindingsBySeverityPresent = proof.FindingsBySeverityPresent,
+            TopFindingEvidenceChainPresentOrNotApplicable = proof.TopFindingEvidenceChainPresentOrNotApplicable,
+            AuditRowsPresentOrLowerBound = proof.AuditRowsPresentOrLowerBound,
+            AuditRowCountResolved = proof.AuditRowCountResolved,
+            LlmCallCountResolved = proof.LlmCallCountResolved,
+            LlmCallCount = proof.LlmCallCount,
+            RoiEvidenceConfidence = proof.RoiEvidenceConfidence,
+            RoiConfidenceLabel = proof.RoiConfidenceLabel,
+            BuyerSafeRedactionProfile = proof.BuyerSafeRedactionProfile,
+            PublishingTier = proof.PublishingTier,
+            ProofSendability = proof.ProofSendability,
+            EvidenceCompleteness = proof.EvidenceCompleteness,
+            AgentOutputPilotStrictEvidenceSatisfied = proof.AgentOutputPilotStrictEvidenceSatisfied,
+            SponsorProofReadiness = proof.SponsorProofReadiness,
+            RoiBaselineInputs = null,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                CompleteDeltas(topFindingId: null),
+                NonSimulatorRun())
+            .ToList();
+
+        gaps.Should()
+            .Contain(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
+    [Fact]
     public void EnumerateConcreteGaps_defaulted_baseline_is_explicit()
     {
         ProofPackageCompletenessResponse proof = StrongProof(roiEvidenceConfidence: PilotRoiEvidenceConfidence.Partial);
@@ -272,7 +315,11 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             EvidenceCompleteness = evidenceCompleteness,
             AgentOutputPilotStrictEvidenceSatisfied = true,
             SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+            RoiBaselineInputs = SponsorSafeRoiBaselineInputs(),
         };
+
+    private static PilotRoiBaselineInputsStatusResponse SponsorSafeRoiBaselineInputs() =>
+        new() { ProjectedDollarClaimsSponsorSafe = true };
 
     private static PilotRunDeltas CompleteDeltas(string? topFindingId) =>
         new()
