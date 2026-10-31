@@ -70,7 +70,11 @@ public static class FirstValueReportProofPackageSectionFormatter
         ArchitectureRun run)
     {
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
-        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+        string table = SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
+
+        return run.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(table)
+            : table;
     }
 
     private static string FormatTimeToCommittedManifestProofCell(

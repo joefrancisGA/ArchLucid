@@ -134,8 +134,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow();
 
         if (run.RealModeFellBackToSimulator)
-            yield return
-                "**Simulator substitution is recorded on the run** — disclose before any sponsor conversation implies live-model spend or production agent execution.";
+            yield return PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine();
 
         if (disposition == SponsorSafeProofDisposition.Sendable)
             yield return "No remaining automated sponsor-blocking checks — structured gate detail is spelled out later; still reconcile qualitative baselines.";

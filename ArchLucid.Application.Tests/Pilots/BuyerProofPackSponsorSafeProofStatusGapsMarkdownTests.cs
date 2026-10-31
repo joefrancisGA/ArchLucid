@@ -487,4 +487,51 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
 
         row.Should().Contain(prose);
     }
+
+    [Fact]
+    public void Concrete_gaps_when_simulator_substitution_matches_proof_package_evidence_basis_row()
+    {
+        PilotRunDeltas deltas = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            RealModeFellBackToSimulator = true,
+        };
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                deltas,
+                run)
+            .ToList();
+
+        string prose = PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain;
+        gaps.Should().Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            run);
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Evidence-basis labels |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(prose);
+    }
 }
