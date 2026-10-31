@@ -3039,3 +3039,4 @@
 {"at":"2026-10-31T06:48:50.6799677Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-31T06:53:39.1083029Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T06:58:00.2767042Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T07:02:49.8704542Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared"}
