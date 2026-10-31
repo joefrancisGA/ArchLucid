@@ -73,7 +73,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
-        gate.DemoGaps.Should().Contain(g => g.Contains("Seeded/demo", StringComparison.Ordinal));
+        gate.DemoGaps.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
         gate.HardGaps.Should().BeEmpty();
         gate.SoftGaps.Should().BeEmpty();
     }

@@ -27,7 +27,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         List<string> demoGaps = [];
 
         if (deltas.IsDemoTenant)
-            demoGaps.Add("Seeded/demo tenant — replace before external sponsor screenshots or purchase narratives.");
+            demoGaps.Add(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
 
         List<string> hardGapMessages = [];
 
