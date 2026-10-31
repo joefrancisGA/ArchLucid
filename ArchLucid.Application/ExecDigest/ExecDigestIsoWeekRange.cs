@@ -1,5 +1,7 @@
 using System.Globalization;
 
+using ArchLucid.Application.Notifications.Email;
+
 namespace ArchLucid.Application.ExecDigest;
 
 /// <summary>Parses digest ISO-week idempotency keys into UTC week windows.</summary>
@@ -10,7 +12,7 @@ public static class ExecDigestIsoWeekRange
         if (string.IsNullOrWhiteSpace(isoWeekKey))
             throw new ArgumentException("ISO week key is required.", nameof(isoWeekKey));
 
-        string trimmed = isoWeekKey.Trim();
+        string trimmed = WeeklyDigestIsoWeekIdempotencyKeyValidator.NormalizeOrThrow(isoWeekKey);
         int separatorIndex = trimmed.LastIndexOf("-W", StringComparison.Ordinal);
         if (separatorIndex <= 0 || separatorIndex + 2 >= trimmed.Length)
             throw new FormatException($"ISO week key '{trimmed}' is not in yyyy-Www format.");

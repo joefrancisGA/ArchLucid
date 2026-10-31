@@ -17,11 +17,12 @@ public sealed class EmailHeaderFragmentSanitizerTests
     }
 
     [Fact]
-    public void Sanitize_collapses_paragraph_separator_and_next_line_to_spaces()
+    public void Sanitize_collapses_vertical_tab_and_form_feed_to_spaces()
     {
-        string sanitized = EmailHeaderFragmentSanitizer.Sanitize("tier\u2029suffix");
+        string sanitized = EmailHeaderFragmentSanitizer.Sanitize("Weekly\u000Bscan\ffollow");
 
-        sanitized.Should().Be("tier suffix");
-        sanitized.Should().NotContain("\u2029");
+        sanitized.Should().Be("Weekly scan follow");
+        sanitized.Should().NotContain("\u000B");
+        sanitized.Should().NotContain("\f");
     }
 }
