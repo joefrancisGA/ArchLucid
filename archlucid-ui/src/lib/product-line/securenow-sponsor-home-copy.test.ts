@@ -11,7 +11,9 @@ describe("SecureNow sponsor home copy", () => {
     expect(SECURENOW_SPONSOR_HOME_SECTION_HEADING).toBe("For sponsors");
     expect(SECURENOW_SPONSOR_HOME_SECTION_LEAD).toMatch(/NO_GO/);
     expect(SECURENOW_SPONSOR_HOME_ROWS).toHaveLength(3);
-    expect(SECURENOW_SPONSOR_HOME_ROWS.every((row) => row.href.startsWith("/why-securenow"))).toBe(true);
+    expect(SECURENOW_SPONSOR_HOME_ROWS[0]?.href).toBe("/why-securenow#reviewer-pack");
+    expect(SECURENOW_SPONSOR_HOME_ROWS[1]?.href).toBe("/why-securenow");
+    expect(SECURENOW_SPONSOR_HOME_ROWS[2]?.href).toBe("/administration/securenow-pilot-decision");
   });
 
   it("does not introduce commercial claims", () => {

@@ -35,3 +35,8 @@ export const WHY_SECURENOW_REVIEWER_PACK_HEADING = "What a reviewer can ask for"
 
 export const WHY_SECURENOW_REVIEWER_PACK_BODY =
   "A reviewer can ask for the procurement evidence index, the quote cover, and the controlled pilot proposal. Those documents stay with the owner until buyer communication is approved. This page does not publish a price." as const;
+
+export const WHY_SECURENOW_PILOT_DECISION_HEADING = "How the pilot closes" as const;
+
+export const WHY_SECURENOW_PILOT_DECISION_BODY =
+  "After the sponsor readout, the customer decision owner records one outcome: proceed to commercial discussion, extend with bounded scope, or stop. This is a human disposition, not a contract, beta GO, verified remediation, or ROI result. Fees stay in the owner-approved quote workflow." as const;
