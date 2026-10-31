@@ -2182,13 +2182,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-09 seed hunt (seed→hit): promoted failed-load deep-link clearing. `useWebhooksSettingsMutations` waited only on `loading`, so a rejected `listAlertRoutingSubscriptions` looked like a missing subscription and stripped `webhookEnableId`. `refreshSubscriptions` then called `setPendingEnable(null)` and rewrote the URL even though no dialog was open. The effect now returns until `hasLoadedSuccessfully`, and unchanged confirmation ids do not sync the URL. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
