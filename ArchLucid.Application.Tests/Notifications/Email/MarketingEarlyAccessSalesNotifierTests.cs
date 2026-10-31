@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Marketing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -104,6 +106,33 @@ public sealed class MarketingEarlyAccessSalesNotifierTests
                     m.IdempotencyKey.Contains("marketing-early-access", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task NotifyAsync_html_encodes_company_name_with_form_feed_in_html_body()
+    {
+        Mock<IEmailProvider> email = new();
+        email.SetupGet(x => x.ProviderName).Returns(EmailProviderNames.Smtp);
+        EmailMessage? captured = null;
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((m, _) => captured = m)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptionsMonitor(
+            new EmailNotificationOptions { PricingQuoteSalesInbox = "sales@archlucid.net" });
+
+        MarketingEarlyAccessSalesNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<MarketingEarlyAccessSalesNotifier>.Instance);
+
+        await sut.NotifyAsync(SampleInsert, "buyer@example.com", "Contoso\fLtd", "Architect", CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.HtmlBody.Should().Contain("Contoso Ltd");
+        captured.HtmlBody.Should().NotContain("\f");
+        captured.TextBody.Should().NotContain("\f");
     }
 
     private static IOptionsMonitor<EmailNotificationOptions> BuildOptionsMonitor(EmailNotificationOptions value)

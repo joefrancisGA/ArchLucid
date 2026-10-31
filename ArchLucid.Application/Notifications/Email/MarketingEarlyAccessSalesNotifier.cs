@@ -66,9 +66,13 @@ public sealed class MarketingEarlyAccessSalesNotifier(
             return;
         }
 
-        string safeEmail = WebUtility.HtmlEncode(email);
-        string safeCompany = string.IsNullOrWhiteSpace(companyName) ? "—" : WebUtility.HtmlEncode(companyName);
-        string safeRole = string.IsNullOrWhiteSpace(role) ? "—" : WebUtility.HtmlEncode(role);
+        string safeEmail = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(email));
+        string safeCompany = string.IsNullOrWhiteSpace(companyName)
+            ? "—"
+            : WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(companyName));
+        string safeRole = string.IsNullOrWhiteSpace(role)
+            ? "—"
+            : WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(role));
         string textEmail = EmailHeaderFragmentSanitizer.Sanitize(email);
         string textCompany = string.IsNullOrWhiteSpace(companyName) ? "—" : EmailHeaderFragmentSanitizer.Sanitize(companyName);
         string textRole = string.IsNullOrWhiteSpace(role) ? "—" : EmailHeaderFragmentSanitizer.Sanitize(role);
