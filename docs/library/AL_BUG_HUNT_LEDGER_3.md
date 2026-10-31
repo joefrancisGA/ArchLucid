@@ -3027,6 +3027,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): rotation fired after the review-workspace low-yield streak and cooldown fallback selected saturated `ui-oidc`; fresh reread of session/BFF refresh generation, PKCE state, token parsing, and endpoint safety found no new reachable mechanism-backed candidate. Focused OIDC session/BFF tests passed 178/178. No production code changed.
 
+2026-10-31 seed hunt (seed-only): repeated the saturated OIDC reread across token error normalization, expiry coercion, session/BFF generation, and recent OAuth churn; the focused session/BFF tests passed 178/178, with no new reachable mechanism-backed candidate and no production change.
+
 2026-10-31 seed hunt #92 (seed-only): cooldown fallback kept `ui-oidc` selected; rereading BFF refresh/activity/logout validation, discovery endpoint safety, public configuration, session generation/PKCE cleanup, and the focused OIDC tests found no new reachable mechanism-backed candidate. The scoped OIDC suite passed 1030/1030. No production code changed.
 
 2026-10-31 seed hunt #91 (seed-only): cooldown fallback selected `ui-oidc` after Runs List rotation; fresh rereading of OAuth callback normalization, token/error parsing, PKCE redirect setup, session/BFF generation, discovery, JWT display decoding, configuration, and expiry paths found no new reachable mechanism-backed candidate. The scoped OIDC suite passed 1030/1030. No production code changed.
