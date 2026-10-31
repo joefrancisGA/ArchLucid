@@ -172,6 +172,98 @@ public sealed class BuyerProofPackFindingTrustEvidenceCardMarkdownTests
             .Contain(expected);
     }
 
+    [Fact]
+    public void Evidence_card_pilot_strict_row_matches_proof_package_posture_row_when_failed()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Error",
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+            ProofSendability = "NotSendable",
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Incomplete),
+        };
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.FailedPlain;
+
+        cardSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Agent output quality (PilotStrict, when attested) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
+    public void Evidence_card_pilot_strict_row_matches_proof_package_posture_row_when_satisfied()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingSeverity = "Warning",
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            ProofSendability = nameof(ProofPackageSendability.Sendable),
+            PublishingTier = "Complete",
+            EvidenceCompleteness = "Strong",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+        };
+
+        StringBuilder cardSb = new();
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(cardSb, deltas, proof);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotAgentOutputPilotStrictHonestyCopy.SatisfiedPlain;
+
+        cardSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Agent output quality (PilotStrict, when attested) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| PilotStrict agent-output posture |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

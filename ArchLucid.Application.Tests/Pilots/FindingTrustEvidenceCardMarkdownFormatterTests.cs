@@ -82,7 +82,7 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("Golden manifest id was not stored.");
         md.Should().Contain("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         md.Should().Contain("**Not** a legal attestation");
-        md.Should().Contain("No PilotStrict failures");
+        md.Should().Contain(PilotAgentOutputPilotStrictHonestyCopy.SatisfiedPlain);
         md.Should().Contain("Sponsor-proof readiness");
         md.Should().Contain("Sendable");
         md.Should().Contain("Evidence-basis label (top finding)");

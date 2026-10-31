@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Pilots;
+
 namespace ArchLucid.Application.Pilots;
 
 internal static class PilotAgentOutputPilotStrictHonestyCopy
@@ -10,6 +12,12 @@ internal static class PilotAgentOutputPilotStrictHonestyCopy
 
     internal static string FormatProofPackageCell(bool agentOutputPilotStrictEvidenceSatisfied) =>
         agentOutputPilotStrictEvidenceSatisfied ? SatisfiedPlain : FailedPlain;
+
+    internal static string FormatEvidenceCardCell(ProofPackageCompletenessResponse proof)
+    {
+        ArgumentNullException.ThrowIfNull(proof);
+        return FormatProofPackageCell(proof.AgentOutputPilotStrictEvidenceSatisfied);
+    }
 
     internal static string FormatSponsorSafeConcreteGapLine() => FailedPlain;
 }

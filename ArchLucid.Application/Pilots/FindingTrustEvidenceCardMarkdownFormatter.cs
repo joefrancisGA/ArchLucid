@@ -99,7 +99,9 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"| Sponsor-proof readiness | {FormatSponsorProofReadiness(proof.SponsorProofReadiness)} |");
 
-        sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Agent output quality (PilotStrict, when attested) | {PilotAgentOutputPilotStrictHonestyCopy.FormatEvidenceCardCell(proof)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
@@ -135,17 +137,6 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
         IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun);
         return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
-    }
-
-    private static string DescribePilotStrict(PilotRunDeltas deltas)
-    {
-        if (!deltas.AgentOutputPilotStrictSignalsResolved)
-        {
-            return
-                "PilotStrict posture **not fully attested** — execution-trace aggregation did not complete; do not infer pass/fail from silence.";
-        }
-
-        return deltas.AgentOutputPilotStrictViolatesSponsorEvidence ? "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run." : "**No PilotStrict failures** recorded for attested traces on this run.";
     }
 
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
