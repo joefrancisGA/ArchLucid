@@ -96,7 +96,8 @@ public static class ProvenanceSnapshotRevisionHasher
             {
                 string supportingFindingIds = string.Join(
                     ",",
-                    group.SelectMany(decision => decision.SupportingFindingIds)
+                    group.SelectMany(decision => decision.SupportingFindingIds ?? [])
+                        .Where(static findingId => findingId is not null)
                         .Select(static findingId => findingId.Trim())
                         .Where(static findingId => findingId.Length > 0)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -125,7 +126,8 @@ public static class ProvenanceSnapshotRevisionHasher
             {
                 string relatedNodeIds = string.Join(
                     ",",
-                    group.SelectMany(finding => finding.RelatedNodeIds)
+                    group.SelectMany(finding => finding.RelatedNodeIds ?? [])
+                        .Where(static nodeId => nodeId is not null)
                         .Select(static nodeId => nodeId.Trim())
                         .Where(static nodeId => nodeId.Length > 0)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -207,7 +209,8 @@ public static class ProvenanceSnapshotRevisionHasher
 
                 string contributingDecisionIds = string.Join(
                     ",",
-                    group.SelectMany(static artifact => artifact.ContributingDecisionIds)
+                    group.SelectMany(static artifact => artifact.ContributingDecisionIds ?? [])
+                        .Where(static decisionId => decisionId is not null)
                         .Select(static decisionId => decisionId.Trim())
                         .Where(static decisionId => decisionId.Length > 0)
                         .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -266,6 +269,7 @@ public static class ProvenanceSnapshotRevisionHasher
             return string.Empty;
 
         IEnumerable<string> parts = ruleAudit.RuleAudit.AppliedRuleIds
+            .Where(static ruleId => ruleId is not null)
             .Select(static ruleId => ruleId.Trim())
             .Where(static ruleId => ruleId.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase)
