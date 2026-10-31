@@ -113,6 +113,21 @@ public sealed class AgentOutputQualityGateTests
             .Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
+    [SkippableTheory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void Evaluate_rejects_when_published_semantic_score_is_non_finite_even_with_finite_calibrated_confidence(
+        double nonFinitePublishedSemantic)
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(
+                Structural(AgentType.Topology, 0.95),
+                Semantic(AgentType.Topology, nonFinitePublishedSemantic),
+                calibratedConfidence: 0.9)
+            .Should().Be(AgentOutputQualityGateOutcome.Rejected);
+    }
+
     [SkippableFact]
     public void Evaluate_warns_when_above_reject_but_below_warn_on_either_score()
     {

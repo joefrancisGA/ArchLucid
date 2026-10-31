@@ -58,8 +58,14 @@ internal static class AgentOutputTracePilotStrictBuilders
         if (!pilotStrict)
             return;
 
-        if (structuralScore.StructuralCompletenessRatio < options.PilotStrictMinStructuralCompleteness ||
-            semanticScore.OverallSemanticScore < options.PilotStrictMinSemanticScore)
+        if (structuralScore.StructuralCompletenessRatio < options.PilotStrictMinStructuralCompleteness)
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+
+        double publishedSemantic = semanticScore.OverallSemanticScore;
+
+        if (double.IsNaN(publishedSemantic)
+            || double.IsInfinity(publishedSemantic)
+            || publishedSemantic < options.PilotStrictMinSemanticScore)
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
     }
 }

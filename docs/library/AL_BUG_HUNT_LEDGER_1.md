@@ -19461,6 +19461,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-31 thorough hunt (hunt 64, hit): no rotation (`shouldRotate: false`; streak zone `agent-runtime-evaluation` at **1/3** low-yield streak). Promoted `AgentOutputQualityGate.Evaluate` accepting traces when `OverallSemanticScore` was NaN/Infinity while finite `calibratedConfidence` bypassed the non-finite check; gate now rejects non-finite published semantic before applying calibrated override; `ApplyPilotStrictScoreFloors` treats non-finite published semantic as below PilotStrict semantic floor; regression `Evaluate_rejects_when_published_semantic_score_is_non_finite_even_with_finite_calibrated_confidence`. Cheap-disproof closed four sibling `(candidate)` rows — **valid-no-repro** calibrated-only threshold reject already occurs in `Evaluate` before PilotStrict floors (hunt 62 calibrated regressions); **invalid** calibration sample append on unparsed PilotStrict traces (`AppendCalibrationSampleIfEnabledAsync` intentionally records heuristic semantic for calibration training); **invalid** judge/heuristic blend when judge budget exhausted (hunt 60); **valid-no-repro** unresolved snapshot finding leaves `schemaPassed` false (`EvaluateTraceSignalsAsync` with null trace). Reseeded five `(candidate)` rows; scoped filter **238/238** passed (`RunAnalyzers=false`). Private beta: agent output with corrupt non-finite published semantic scores can no longer pass quality gates because a finite calibrated confidence value was present.
+
+- [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite published semantic with finite calibrated confidence — **hit 2026-10-31 thorough hunt (hunt 64):** reject non-finite published semantic first; regression above.
+- [x] (valid-no-repro) `AgentOutputTracePilotStrictBuilders.ApplyPilotStrictScoreFloors` — calibrated-only reject — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** primary gate uses calibrated ladder before floors.
+- [x] (invalid) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — calibration sample append on unparsed rejected trace — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** intentional calibration sampling path.
+- [x] (invalid) `CompositeAgentOutputSemanticEvaluator` — heuristic-only semantic when judge budget exhausted — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** hunt 60 product rule.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — schemaPassed when trace unresolved — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** null trace yields `schemaPassed` false by contract.
+
+- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — calibrated reject with passing published semantic floors — locus: telemetry category; input: low calibrated with high OverallSemanticScore (monitor).
+- [ ] (candidate) `AgentOutputTraceQualityEvaluator.ApplyJudgeHeuristicDisagreementElevation` — Warned traces with disagreement metric — locus: disagreement elevation; input: accepted scores with high disagreement (monitor).
+- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — low semantic histogram when gate Rejected early — locus: metrics; input: PilotStrict unparsed trace metrics flags (monitor).
+- [ ] (candidate) `HeuristicAgentOutputSemanticEvaluator` — zero semantic when claims missing vs empty JSON — locus: heuristic stage; input: empty object payload (monitor).
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — referenceMatched false does not block schemaPassed — locus: confidence signals; input: failing reference case with passing gate (monitor).
+
 2026-10-31 thorough hunt (hunt 63, dry): no rotation (`shouldRotate: false`). Cheap-disproof closed five `(candidate)` rows with no failing repro and no production change. **invalid** prompt-variant `QualityGatePassed` treats `Warned` as non-Rejected for A/B append while sponsor gate blocks separately by design; **valid-no-repro** calibrated map tie-break on equal `CreatedUtc` uses latest-result `ResultId` ordering (regression `CalibratedConfidenceByTaskId_breaks_created_utc_ties_by_result_id_when_both_rows_are_calibrated`); **valid-no-repro** Warned snapshots with structural reject category still map to schema-violation triage (regression `Recorded_evaluation_snapshot_maps_warned_structural_category_to_schema_violation_triage`); **valid-no-repro** Warned-only traces omit public rejection summary because `BuildPublicRejectionSummary` is Rejected-only (hunt 58/60 summary-token family); **valid-no-repro** snapshot finding prefix trace match (regression `TraceIdsLikelyMatch_uses_prefix_match_for_shortened_snapshot_finding_keys`, hunt 58). Reseeded five `(candidate)` rows; scoped filter **236/236** passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (invalid) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — append prompt-variant evaluation when Warned but sponsor blocks — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** A/B pass bit is `GateOutcome != Rejected`; sponsor gate reuses `TryEvaluateTraceAsync` block semantics.
@@ -19475,6 +19489,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [ ] (candidate) `CompositeAgentOutputSemanticEvaluator` — judge/heuristic blend when only heuristic ran — locus: semantic evaluator; input: judge budget exhausted trace (monitor).
 - [ ] (candidate) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — schemaPassed false when trace unresolved — locus: finding confidence; input: snapshot finding without trace prefix match (monitor).
 
+- [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite published semantic with finite calibrated confidence — **hit 2026-10-31 thorough hunt (hunt 64):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentOutputTracePilotStrictBuilders.ApplyPilotStrictScoreFloors` — calibrated-only reject — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** see zone-header diary row above.
+- [x] (invalid) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — calibration sample append on unparsed rejected trace — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** see zone-header diary row above.
+- [x] (invalid) `CompositeAgentOutputSemanticEvaluator` — heuristic-only semantic when judge budget exhausted — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — schemaPassed when trace unresolved — **cheap-disproof 2026-10-31 thorough hunt (hunt 64):** see zone-header diary row above.
+
 2026-10-31 thorough hunt (hunt 62, hit): no rotation (`shouldRotate: false`). Promoted `AgentCalibratedConfidenceByTaskIdBuilder.Build` dropping tasks when the latest duplicate `AgentResult` row had null `CalibratedConfidence`, letting PilotStrict gates ignore a still-valid older calibrated score; builder now falls back to the newest non-null calibrated value per task when the latest row is uncalibrated; regressions `CalibratedConfidenceByTaskId_uses_newest_non_null_calibrated_when_latest_result_row_is_uncalibrated` and `TryEvaluateTrace_rejects_when_latest_result_is_uncalibrated_but_older_calibrated_score_is_below_floor`. Cheap-disproof closed four sibling `(candidate)` rows — **invalid** `QualityGatePassed` records `Warned` as passed for prompt-variant A/B metrics by contract (`GateOutcome != Rejected`); **valid-no-repro** `ResolveTriageScenarioId` maps non-structural Warned/Rejected outcomes to grounding triage (`QualityGateRecordedEvaluationSnapshotFactoryTests.Create_maps_semantic_reject_to_grounding_insufficiency_triage`); **valid-no-repro** sponsor aggregator summary-token parity (`WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_calibrated_confidence_below_semantic_reject_floor`); **valid-no-repro** whitespace task-id map parity (hunt 61 `TryEvaluateTrace_rejects_when_calibrated_confidence_below_floor_and_trace_task_id_has_outer_whitespace`). Reseeded five `(candidate)` rows; scoped filter **233/233** passed (`RunAnalyzers=false`). Private beta: retried agent tasks whose newest result row is not yet calibrated still honor the latest available calibrated confidence for PilotStrict rejection and sponsor blocking.
 
 - [x] (invalid) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — `QualityGatePassed` treats `Warned` as passed for prompt-variant metrics — **cheap-disproof 2026-10-31 thorough hunt (hunt 62):** intentional non-Rejected pass bit for A/B telemetry; sponsor gate still blocks Warned traces.
@@ -19483,11 +19503,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — summary-token parity vs boolean block — **cheap-disproof 2026-10-31 thorough hunt (hunt 62):** shared `TryEvaluateTraceAsync` path; regression above.
 - [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — whitespace-normalized task keys — **cheap-disproof 2026-10-31 thorough hunt (hunt 62):** hunt 61 normalization; regression above.
 
-- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — append prompt-variant evaluation when gate outcome is Warned but sponsor would block — locus: recorder metrics; input: warned PilotStrict topology trace with variant key (monitor).
-- [ ] (candidate) `AgentCalibratedConfidenceByTaskIdBuilder.Build` — duplicate rows with conflicting non-null calibrated scores on same CreatedUtc — locus: builder tie-break; input: tie timestamp collision (monitor).
-- [ ] (candidate) `QualityGateRecordedEvaluationSnapshotFactory.Create` — structural Warned outcome triage id — locus: snapshot triage; input: warned trace with structural category token (monitor).
-- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — public summary tokens for Warned-only PilotStrict traces — locus: summary builder; input: warned citation floor trace (monitor).
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.ResolveTraceForSnapshotFinding` — prefix trace-id match vs whitespace task-id join — locus: snapshot enricher; input: shortened finding trace key (monitor).
+- [x] (invalid) `AgentOutputEvaluationRecorder.EvaluateOneAsync` — append prompt-variant evaluation when Warned but sponsor blocks — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentCalibratedConfidenceByTaskIdBuilder.Build` — conflicting calibrated scores on equal `CreatedUtc` — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** see zone-header diary row above.
+- [x] (valid-no-repro) `QualityGateRecordedEvaluationSnapshotFactory.Create` — structural Warned outcome triage id — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — public summary tokens for Warned-only traces — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.ResolveTraceForSnapshotFinding` — prefix trace-id match — **cheap-disproof 2026-10-31 thorough hunt (hunt 63):** see zone-header diary row above.
 
 2026-10-31 seed hunt (hunt 61, seed→hit): re-read evaluation join paths after hunt 60 dry streak; promoted outer-whitespace `TaskId` on traces breaking calibrated-confidence lookup and result joins while `AgentExecutionTraceLatestPerTaskSelector` already trims task keys; introduced `AgentEvaluationTaskIdKey` normalization across calibrated map build, quality evaluation, confidence pipeline dictionaries, and enricher lookups; regression `TryEvaluateTrace_rejects_when_calibrated_confidence_below_floor_and_trace_task_id_has_outer_whitespace`; reseeded five mechanism-backed `(candidate)` rows; scoped filter **231/231** passed (`RunAnalyzers=false`). Private beta: PilotStrict evaluation and finding-confidence enrichment honor calibrated confidence when persisted trace task ids carry benign outer whitespace from upsert drift.
 
@@ -19637,10 +19657,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 63
-- **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
+- **hunts:** 64
+- **bugs-found:** 38
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
+- **last-bug:** 2026-10-31 — non-finite published semantic bypassed gate when calibrated was finite
 - **last-bug:** 2026-10-31 — uncalibrated latest result row dropped calibrated confidence lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no

@@ -28,11 +28,17 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
 
         ResolveFloors(structuralScore.AgentType, out double sRej, out double semRej, out double sWarn, out double semWarn);
 
-        double structural = structuralScore.StructuralCompletenessRatio;
-        double semantic = calibratedConfidence ?? semanticScore.OverallSemanticScore;
+        double publishedSemantic = semanticScore.OverallSemanticScore;
+
+        if (double.IsNaN(publishedSemantic) || double.IsInfinity(publishedSemantic))
+            return AgentOutputQualityGateOutcome.Rejected;
+
+        double semantic = calibratedConfidence ?? publishedSemantic;
 
         if (double.IsNaN(semantic) || double.IsInfinity(semantic))
             return AgentOutputQualityGateOutcome.Rejected;
+
+        double structural = structuralScore.StructuralCompletenessRatio;
 
         if (structural < sRej || semantic < semRej)
             return AgentOutputQualityGateOutcome.Rejected;
