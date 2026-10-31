@@ -279,7 +279,7 @@ public sealed class FirstValueReportBuilder(
             RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot));
 
         if (proofCompleteness.RoiBaselineInputs is not null)
-            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
+            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs, roiClaimGate);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
         FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);

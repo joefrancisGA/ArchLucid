@@ -89,4 +89,61 @@ public sealed class BuyerProofPackRoiBaselineInputsMarkdownTests
             .Should()
             .Contain(expected);
     }
+
+    [Fact]
+    public void Roi_baseline_projected_dollar_when_stale_inputs_safe_but_roi_claim_gate_not_matches_proof_package()
+    {
+        PilotRoiBaselineInputsStatusResponse inputs = new()
+        {
+            ProjectedDollarClaimsSponsorSafe = true,
+            SponsorSafeFallbackCopy = "Use qualitative ROI only.",
+            ReviewCycleHoursBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            ArchitectPrepHoursPerReviewBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            EvidenceAssemblyEffortBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+            ArchitectHourlyCostBasis = PilotRoiBaselineInputBasis.BuyerProvided,
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: Defaulted from ROI model options",
+            false,
+            "WARN",
+            "WARN narrative");
+
+        StringBuilder baselineSb = new();
+        PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(baselineSb, inputs, roiClaimGate);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                RoiBaselineInputs = inputs,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            roiClaimGate: roiClaimGate);
+
+        string expected = PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain;
+
+        baselineSb.ToString().Should().Contain("**WARN**");
+        baselineSb.ToString().Should().NotContain("**PASS**");
+
+        baselineSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(expected);
+    }
 }
