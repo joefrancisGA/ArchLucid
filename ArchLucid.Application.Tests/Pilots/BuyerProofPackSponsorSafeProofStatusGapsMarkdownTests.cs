@@ -695,6 +695,34 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         elapsedSb.ToString().Should().Contain(notComplete).And.NotContain(wallClockPlain);
     }
 
+    [Fact]
+    public void Proof_package_committed_timestamp_row_when_no_manifest_matches_not_sponsor_complete_plain()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = false,
+            RunInCommittedStatus = false,
+            CommittedManifestTimestampResolved = false,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "run-a", Status = ArchitectureRunStatus.Created });
+
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Committed manifest timestamp (UTC) |", StringComparison.Ordinal));
+
+        row.Should().Contain(PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain);
+        row.Should().NotContain("Missing — no committed architecture manifest on this run detail.");
+        row.Should().NotContain(PilotCommittedManifestTimestampHonestyCopy.UnresolvedSuffixPlain);
+    }
+
     private static ValueReportSnapshot MinimalValueReportSnapshot() =>
         new(
             TenantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),

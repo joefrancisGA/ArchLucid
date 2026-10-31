@@ -19,7 +19,18 @@ internal static class PilotCommittedManifestTimestampHonestyCopy
 
         if (!c.CommittedManifestPresent)
         {
-            return "Missing — no committed architecture manifest on this run detail.";
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
+        }
+
+        if (!c.RunInCommittedStatus)
+        {
+            if (!c.CommittedManifestTimestampResolved)
+            {
+                return
+                    $"Missing — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(MetadataCreatedUtcFieldLabel)} {UnresolvedSuffixPlain}";
+            }
+
+            return PilotCommittedManifestStatusHonestyCopy.NotSponsorCompletePlain;
         }
 
         if (!c.CommittedManifestTimestampResolved)
