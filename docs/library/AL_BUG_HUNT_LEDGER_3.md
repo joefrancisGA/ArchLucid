@@ -785,6 +785,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-10-31 seed hunt (seed-only): after the rotated `cli-terraform-evidence` seed-only pass, reread `DraftNewCommandMustQuestionLoop` skip-all vs interactive answer paths, whitespace-only answer rejection, and scope validation on skip/answer responses. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
+
 2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread connect-stage API base URL resolution, intent trim vs interactive prompt paths, and connection failure exit mapping before admit. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): reread `DraftNewCommandHooks` prompt/readline cancellation seams, JSON-mode required-flag preflight (`missing_intent_text` / `missing_system_name` / `missing_business_outcome`), and the success-path JSON envelope fields after submit/execute. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
@@ -799,7 +801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): rotation fired after three low-yield `ui-auth-proxy` outcomes; reread `DraftNewCommand.cs` and its focused core-test contract, including option parsing, cancellation delegation, interactive/JSON intake handoff, and the `DraftNewCommandIntakeLoop` boundary. The wrapper has no additional reachable mechanism beyond the covered delegation path; `DraftNewCommandCoreTests` passed 73/73 and no production code changed.
 
-**Hunts:** 65 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
+**Hunts:** 66 · **Bugs found:** 17 · **Consecutive dry hunts:** 12
 
 2026-10-30 seed hunt #119 (seed-only): rotation kept `cli-draft-new` after one prior seed-only outcome, so the three-outcome avoidance threshold was not met; reread `DraftNewCommand.cs` and the focused core tests, including trimmed prompted intent validation and JSON preflight, and no new mechanism-backed candidate or hunt-ready row emerged. `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
