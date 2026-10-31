@@ -317,7 +317,7 @@ internal static class FindingInspectReadRepositoryCore
 
         foreach (JsonProperty property in payload.EnumerateObject())
         {
-            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(property.Name.Trim(), propertyName, StringComparison.OrdinalIgnoreCase))
             {
                 value = property.Value;
 
