@@ -17,7 +17,8 @@ public static class FirstValueReportProofPackageSectionFormatter
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse c,
         GoldenManifest? manifest,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult? roiClaimGate = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -44,8 +45,9 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatAuditRowsProofCell(deltas, c)} |");
         sb.AppendLine($"| LLM-call count | {PilotRunDeltasLlmCallCountFormatter.FormatProofPackageCell(deltas, c)} |");
+        PilotRoiEvidenceConfidence roiConfidenceForProofRow = roiClaimGate?.EvidenceConfidence ?? c.RoiEvidenceConfidence;
         sb.AppendLine(
-            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(c.RoiEvidenceConfidence, c.RoiConfidenceLabel)} |");
+            $"| ROI evidence confidence | {PilotRoiEvidenceConfidenceHonestyCopy.FormatProofPackageCell(roiConfidenceForProofRow, c.RoiConfidenceLabel)} |");
 
         if (c.RoiBaselineInputs is not null)
         {

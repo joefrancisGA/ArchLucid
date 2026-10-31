@@ -267,7 +267,7 @@ public sealed class FirstValueReportBuilder(
         FirstValueEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, evidenceCompleteness);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
         FirstValueReportRunSectionFormatter.AppendMarkdownSection(sb, run, manifest, baseUrl);
-        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, manifest, run);
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, manifest, run, roiClaimGate);
         FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas, proofCompleteness, run, manifest);
         SponsorRoiNarrativeGateMarkdownFormatter.AppendMarkdownSection(sb, roiClaimGate);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate.Disposition);

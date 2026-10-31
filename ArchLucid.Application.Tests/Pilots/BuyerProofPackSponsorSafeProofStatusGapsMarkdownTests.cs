@@ -3743,6 +3743,14 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             RunInCommittedStatus = true,
         };
 
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Partial,
+            "",
+            false,
+            "Hold",
+            "Hold narrative");
+
         StringBuilder statusSb = new();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
             statusSb,
@@ -3751,13 +3759,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             proof,
             new PilotRunDeltas(),
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
-            new SponsorRoiClaimDispositionResult(
-                SponsorRoiClaimDisposition.Hold,
-                PilotRoiEvidenceConfidence.Partial,
-                "",
-                false,
-                "Hold",
-                "Hold narrative"));
+            roiClaimGate);
 
         StringBuilder proofSb = new();
         FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
@@ -3765,7 +3767,8 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             new PilotRunDeltas(),
             proof,
             manifest: null,
-            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            roiClaimGate);
 
         string prose = PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain;
 
@@ -3842,6 +3845,14 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             SupportRunIdPresent = true,
         };
 
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Hold,
+            PilotRoiEvidenceConfidence.Low,
+            "review-cycle baseline: No measurement yet",
+            false,
+            "Hold",
+            "Hold narrative");
+
         StringBuilder statusSb = new();
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
             statusSb,
@@ -3850,13 +3861,7 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
             proof,
             new PilotRunDeltas(),
             new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
-            new SponsorRoiClaimDispositionResult(
-                SponsorRoiClaimDisposition.Hold,
-                PilotRoiEvidenceConfidence.Low,
-                "review-cycle baseline: No measurement yet",
-                false,
-                "Hold",
-                "Hold narrative"));
+            roiClaimGate);
 
         string row = statusSb.ToString()
             .Split('\n')
@@ -3865,5 +3870,22 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         row.Should().Contain("**Low**");
         row.Should().NotContain("**Strong**");
         row.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            roiClaimGate);
+
+        string proofRow = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| ROI evidence confidence |", StringComparison.Ordinal));
+
+        proofRow.Should().Contain("**Low**");
+        proofRow.Should().NotContain("**Strong**");
+        proofRow.Should().Contain(PilotRoiEvidenceConfidenceHonestyCopy.PartialOrLowSponsorWordingPlain);
     }
 }
