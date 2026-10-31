@@ -84,9 +84,8 @@ export function ReviewWorkspaceStaleBanner(props: ReviewWorkspaceStaleBannerProp
           void query.refetch().then((result) => {
             if (result.data !== undefined) {
               baselineFingerprintRef.current = runSummaryActivityFingerprint(result.data);
+              setShowBanner(false);
             }
-
-            setShowBanner(false);
           });
         }}
       >

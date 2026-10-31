@@ -9317,6 +9317,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `usePinnedReviewContext.closePin` — closing a pinned review after soft navigation preserved the prior review's query state; fixed by deriving the replacement href from `searchParams.toString()` after the pin is removed; regression `preserves the current router query when closing after soft navigation`.
 
+2026-10-31 seed hunt (seed→hit): promoted `ReviewWorkspaceStaleBanner` — clicking Refresh review hid the stale-activity warning even when the authoritative refetch completed without data, so a transient failed refresh could remove the operator’s warning before a decision; only clear the banner after a data-bearing refetch updates the baseline. Regression `keeps the stale warning visible when refresh returns no data`; focused review workspace tests passed 10/10. Private beta: invited architects retain the refresh warning when live review status cannot be reloaded, instead of losing the prompt and deciding on potentially stale evidence.
+
+- [x] (proven) `ReviewWorkspaceStaleBanner` — no-data refresh cleared the stale-activity warning; fixed by retaining the warning until a data-bearing refetch updates the baseline; regression `keeps the stale warning visible when refresh returns no data`.
+
 2026-10-30 seed hunt #65 (seed-only): fresh rereading of review-detail workspace tab/presenter/selection/room state, next-review loading, provenance and submitted-architecture disclosures, and the recent export-navigation fix found one bounded timer lens; `RunDetailSubmittedArchitectureSection` preserved the new review’s “Copied” state when a prior review’s 2-second copy timer expired across `runId` navigation, and the focused section suite passed 3/3. No production code changed.
 
 2026-10-30 thorough hunt #64 (hit): promoted `RunDetailArtifactsExportsSection` — a rejected export from the prior review surfaced `showError("Review export", …)` after navigation because the section retained busy state and late callbacks across `runId` changes; reset export busy state on run changes and ignore stale bundle/package/review-export callbacks by active run identity; regression `does not surface a prior review export failure after navigation`. Cheap-disproof retired `run-detail-page-presentation` as `(invalid)` because `derivePackageVersionLabel` reads only `RunSummary.currentManifestVersion` plus `manifestId`; no manifest-summary version fallback exists in that locus. Focused export tests passed 11/11. Private beta: invited architects navigating between reviews during an export no longer see a prior review’s failure toast or stale download state applied to the newly opened review.
@@ -9892,11 +9896,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 43
-- **bugs-found:** 34
+- **hunts:** 44
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — pinned review close restored stale query state
+- **last-bug:** 2026-10-31 — stale review warning cleared after no-data refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
