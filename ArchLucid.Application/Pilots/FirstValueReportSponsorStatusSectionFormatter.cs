@@ -37,7 +37,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
-        sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
+        sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
         sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");

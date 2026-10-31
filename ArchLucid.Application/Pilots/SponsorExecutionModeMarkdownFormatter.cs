@@ -31,6 +31,17 @@ public static class SponsorExecutionModeMarkdownFormatter
         return $"**{label}** — {caveat}";
     }
 
+    public static string FormatSponsorFirstPageTableCell(ArchitectureRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        string line = FormatSponsorExecutionMode(run);
+
+        return run.RealModeFellBackToSimulator
+            ? PilotSimulatorSubstitutionHonestyCopy.AppendToProofPackageEvidenceBasisCell(line)
+            : line;
+    }
+
     public static void AppendMarkdownSection(StringBuilder sb, ArchitectureRun run)
     {
         ArgumentNullException.ThrowIfNull(sb);

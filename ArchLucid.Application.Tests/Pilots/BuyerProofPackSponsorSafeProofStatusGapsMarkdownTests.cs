@@ -556,6 +556,51 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void Sponsor_status_execution_mode_matches_execution_section_when_simulator_substitution()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            Status = ArchitectureRunStatus.Committed,
+            StructuralExecutionMode = StructuralExecutionMode.Fallback,
+            RealModeFellBackToSimulator = true,
+        };
+
+        StringBuilder execSb = new();
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(execSb, run);
+
+        StringBuilder statusSb = new();
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            statusSb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            new PilotRunDeltas(),
+            run,
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        string prose = PilotSimulatorSubstitutionHonestyCopy.ConcreteGapPlain;
+        execSb.ToString().Should().Contain(prose);
+
+        statusSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Execution mode |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
+
+    [Fact]
     public void Sponsor_proof_readiness_when_unresolved_matches_proof_package_row()
     {
         ProofPackageCompletenessResponse proof = new()
