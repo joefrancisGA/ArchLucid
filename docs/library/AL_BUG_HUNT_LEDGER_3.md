@@ -2182,13 +2182,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-31 seed hunt (seed-only): checked for post-hunt webhook source churn and reran the focused 97-test suite; no new source change or reachable mechanism-backed candidate emerged, so the established refresh, failure, scope-generation, URL-confirmation, and mutation-state coverage remains the current boundary. No production change. Private beta: n/a.
 
 2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
