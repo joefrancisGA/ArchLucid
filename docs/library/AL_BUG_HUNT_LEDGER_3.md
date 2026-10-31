@@ -9498,6 +9498,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive low-yield outcomes on `ui-oidc` (`seed-only`, `seed-only`, `seed-only`); cooldown fallback selected saturated `ui-review-detail-workspace`. Reread `useIncrementalReviewFindingsRefresh` cross-run summary guard, workbench selection URL writers, presenter mode commits, tab-shell deferred imports, and chain-of-custody disclosure default-open contract when no section key is in the URL. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, tab-strip, and tab-mapping tests passed **70/70**. No production code changed.
+
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread deferred section scroll scheduling retries, workbench finding-selection sync bridges, presenter mode URL commits, and pinned-review close href construction after soft navigation. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, and tab-mapping tests passed 47/47. No production code changed.
 
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive seed-only outcomes; cooldown fallback selected saturated `ui-review-detail-workspace`. Reread `useReviewDetailWorkspaceTabs` hash/query synchronization, workbench focus updates on tab navigation, create-home tab intent preservation, and popstate vs soft-link URL reconciliation. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, and tab-mapping tests passed 47/47. No production code changed.
@@ -10132,7 +10134,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
