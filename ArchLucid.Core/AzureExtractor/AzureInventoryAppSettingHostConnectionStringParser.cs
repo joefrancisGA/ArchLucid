@@ -82,7 +82,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
             return;
         }
 
-        string suffix = suffixMatch.Groups["suffix"].Value.Trim().ToLowerInvariant();
+        string suffix = NormalizeEndpointSuffix(suffixMatch.Groups["suffix"].Value);
 
         if (string.IsNullOrWhiteSpace(suffix))
         {
@@ -187,6 +187,19 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
         return Uri.TryCreate($"https://{normalized}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
             : normalized;
+    }
+
+    private static string NormalizeEndpointSuffix(string suffix)
+    {
+        string trimmed = suffix.Trim().ToLowerInvariant();
+        int queryOrFragmentStart = trimmed.IndexOfAny(['?', '#']);
+
+        if (queryOrFragmentStart >= 0)
+        {
+            trimmed = trimmed[..queryOrFragmentStart];
+        }
+
+        return trimmed.Trim();
     }
 
     private static Regex StorageEndpointRegex(string endpointKey)
