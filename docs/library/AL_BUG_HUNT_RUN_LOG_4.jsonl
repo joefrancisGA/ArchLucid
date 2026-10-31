@@ -3117,3 +3117,4 @@
 {"at":"2026-10-31T18:03:20.2776911Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:07:28.0456328Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T18:13:16.7863707Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-31T18:16:52.8710881Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
