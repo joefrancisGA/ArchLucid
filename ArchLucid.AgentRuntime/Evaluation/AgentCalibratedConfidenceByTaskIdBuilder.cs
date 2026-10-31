@@ -18,10 +18,23 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
                                       ?? result.TaskId,
                      StringComparer.OrdinalIgnoreCase))
         {
-            AgentResult? latest = AgentResultLatestForTaskSelector.Select(group.ToList(), group.Key);
+            List<AgentResult> groupResults = group.ToList();
+            AgentResult? latest = AgentResultLatestForTaskSelector.Select(groupResults, group.Key);
 
             if (latest?.CalibratedConfidence is { } calibrated)
+            {
                 map[group.Key] = calibrated;
+                continue;
+            }
+
+            AgentResult? latestWithCalibrated = groupResults
+                .Where(static result => result.CalibratedConfidence is not null)
+                .OrderByDescending(static result => result.CreatedUtc)
+                .ThenByDescending(static result => result.ResultId, StringComparer.Ordinal)
+                .FirstOrDefault();
+
+            if (latestWithCalibrated?.CalibratedConfidence is { } fallbackCalibrated)
+                map[group.Key] = fallbackCalibrated;
         }
 
         return map;
