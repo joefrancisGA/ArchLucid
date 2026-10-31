@@ -154,6 +154,27 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
     }
 
     [SkippableFact]
+    public void IssueAccessToken_honors_twenty_four_hour_ceiling_when_exactly_1440_minutes_requested()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            accessTokenLifetimeMinutes: 1440);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(24 * 60 * 60, 120);
+    }
+
+    [SkippableFact]
     public void IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes()
     {
         LocalTrialJwtIssuer issuer = CreateIssuer();
