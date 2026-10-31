@@ -213,7 +213,9 @@ public static partial class AzureInventoryAppSettingHostRedactor
     private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
     {
         return vaultHost.Contains("%2f", StringComparison.OrdinalIgnoreCase)
-               || vaultHost.Contains("%5c", StringComparison.OrdinalIgnoreCase);
+               || vaultHost.Contains("%5c", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%23", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%3f", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizeSqlInventoryHost(string host)
