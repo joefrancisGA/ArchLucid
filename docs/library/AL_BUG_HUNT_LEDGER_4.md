@@ -1571,7 +1571,7 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 670
+- **hunts:** 671
 - **last-hunt:** 2026-10-31
 - **bugs-found:** 3533
 - **consecutive-dry-hunts:** 0
@@ -1581,6 +1581,20 @@
 - **reseed-policy:** `docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md` — arithmetic sibling classes saturated; no new per-integer tests (CI allowlist); reseed from churn/sibling-path/analyzer signal only.
 
 2026-10-29 seed hunt (seed-only, owner policy): retired hunt **#895** arithmetic `(candidate)` treadmill (`.e28`, `[117,"a"]`, U+16FFFE, 177-layer decode, U+1ED1) as `[class:*]` saturated siblings — **no new regressions**; reset **consecutive-dry-hunts** to **0** (prior **165** was artifact of reseed policy, not defect yield); set zone **cooling**; added parameterized pins (`AzureInventoryAppSettingHostPinnedMechanismTheoryTests`, firewall collection theory); reseeded five reachability-backed `(candidate)` rows from App Service connection-string shapes and Oct-2026 `AppendStorageHosts`/`AppendCosmosHost` paths; scoped pinned-mechanism filter **15/15** (Release); no production change.
+
+2026-10-31 seed hunt (seed-only): reread `AzureInventoryAppSettingHostConnectionStringParser` endpoint regexes and the 327-test focused suite after sync; cheap-disproof closed five open `(candidate)` rows (`StorageEndpointRegex` binds exact keys so `NotBlobEndpoint` never matches `BlobEndpoint`; Service Bus and mismatched Queue/Blob explicit endpoints follow intentional host-only extraction without service-key validation per prior zone closure; Cosmos/Redis suffix patterns match embedded Azure-shaped host labels in operator-controlled callback URLs by design); seeded five follow-on `(candidate)` rows; scoped parser filter **327/327** (Release); no production change. Private beta: n/a.
+
+- [x] (invalid) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — prefixed `NotBlobEndpoint` key accepted as `BlobEndpoint` — **cheap-disproof 2026-10-31 seed hunt:** `StorageEndpointRegex("BlobEndpoint")` requires the literal key name; `NotBlobEndpoint=` does not match.
+- [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendServiceBusHost` — `Endpoint=sb://shadow.example.com/` without suffix validation — **cheap-disproof 2026-10-31 seed hunt:** host-only inventory contract; no incorrect downstream classification repro.
+- [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendCosmosHost` — Cosmos hostname prefix inside longer callback hostname — **cheap-disproof 2026-10-31 seed hunt:** `.documents.azure.com` substring match in arbitrary setting values is intentional (prior seed closure class).
+- [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendRedisHost` — Redis hostname suffix inside longer callback hostname — **cheap-disproof 2026-10-31 seed hunt:** `.redis.cache.windows.net` substring match in metadata URLs is intentional host evidence only.
+- [x] (valid-no-repro) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — Queue endpoint whose host is a Blob hostname — **cheap-disproof 2026-10-31 seed hunt:** endpoint loop records normalized host without service-key/host consistency checks by design.
+
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — a `BlobEndpoint` value using the `http` scheme may be skipped while `https` endpoints are indexed — locus: `StorageEndpointRegex` optional scheme; input: mixed http/https explicit endpoints in one connection string; wrong outcome: partial host inventory; reachability: legacy exporters sometimes emit http storage endpoints.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendCosmosHost` — an `AccountEndpoint` value with a trailing `:443` port segment may fail the account-endpoint lookahead — locus: `CosmosAccountEndpointHostRegex` `(?=[;/\s]|$)`; input: `AccountEndpoint=https://shadow.documents.azure.com:443/;` wrong outcome: Cosmos host omitted when port is present; reachability: ARM-exported Cosmos connection strings often include explicit ports.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendServiceBusHost` — a second `Endpoint=` pair later in the string may override the first captured host — locus: `ServiceBusEndpointRegex().Match` first match only; input: duplicated Endpoint keys with different namespaces; wrong outcome: inventory reflects only the first namespace; reachability: merged connection-string blobs in app settings.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendStorageHosts` — `AccountName` value containing interior semicolon before the next key may truncate the captured account name — locus: `StorageAccountNameRegex` `[^;]+`; input: malformed exporter quoting; wrong outcome: suffix-synthesized blob host uses truncated account; reachability: hand-edited application settings.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.AppendRedisHost` — a Redis host immediately followed by `,ssl=True` without `=` separator may capture `ssl` as part of the hostname — locus: `RedisCacheHostRegex` stop set; input: `shadow.redis.cache.windows.net,ssl=True,abortConnect=False`; wrong outcome: malformed host token in inventory; reachability: StackExchange.Redis connection string shapes in app settings.
 
 2026-10-31 thorough hunt (dry, rotation): cheap-disproved the five connection-string candidates — explicit Blob/File/Table endpoints are enumerated before suffix fallback, Cosmos full HTTPS document endpoints match the case-insensitive regex, and Service Bus `SB://` is covered by `RegexOptions.IgnoreCase`; the focused parser suite passed 327/327. Seeded five fresh connection-string boundary candidates; no production change. Private beta: n/a.
 
