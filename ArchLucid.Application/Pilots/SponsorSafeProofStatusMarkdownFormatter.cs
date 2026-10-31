@@ -48,7 +48,8 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         else
         {
             sb.AppendLine(
-                "**Sponsor-proof readiness:** **Incomplete** — classification was not resolved server-side; treat this export as not sponsor-complete.");
+                CultureInfo.InvariantCulture,
+                $"**Sponsor-proof readiness:** {PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatSponsorSafeStatusSectionLine()}");
         }
 
         sb.AppendLine();

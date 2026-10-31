@@ -552,4 +552,50 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         execSb.ToString().Should().Contain(prose);
         execSb.ToString().Should().NotContain("unqualified live-model proof");
     }
+
+    [Fact]
+    public void Sponsor_proof_readiness_when_unresolved_matches_proof_package_row()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            SponsorProofReadiness = "not-a-classification",
+        };
+
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Partial,
+            ProofPackageSendability.SendableWithCaveats,
+            [],
+            [],
+            []);
+
+        StringBuilder statusSb = new();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            statusSb,
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            gate,
+            proof,
+            new PilotRunDeltas(),
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string prose = PilotSponsorProofReadinessUnresolvedHonestyCopy.UnresolvedPlain;
+        statusSb.ToString().Should().Contain(prose);
+        statusSb.ToString().Should().NotContain("classification unavailable");
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Sponsor-proof readiness (classification) |", StringComparison.Ordinal))
+            .Should()
+            .Contain(prose);
+    }
 }

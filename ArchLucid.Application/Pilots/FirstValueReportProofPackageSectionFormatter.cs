@@ -60,7 +60,7 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| Proof sendability (API mirror) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.ProofSendability ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.PublishingTier ?? string.Empty)} · {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(c.EvidenceCompleteness ?? string.Empty)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness (classification) | {(Enum.TryParse(c.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness) : "**Incomplete** — classification unavailable.")} |");
+            $"| Sponsor-proof readiness (classification) | {PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(c.SponsorProofReadiness)} |");
         sb.AppendLine();
     }
 
