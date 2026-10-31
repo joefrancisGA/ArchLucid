@@ -13,6 +13,7 @@ function runSummaryActivityFingerprint(summary: RunSummary): string {
     summary.authorityLifecyclePhase ?? "unknown-phase",
     summary.hasGoldenManifest === true ? "manifest" : "no-manifest",
     summary.runDegradedExecution === true ? "degraded" : "stable",
+    summary.legacyRunStatus ?? "unknown-status",
   ].join("|");
 }
 

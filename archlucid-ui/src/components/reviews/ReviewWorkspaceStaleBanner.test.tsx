@@ -7,6 +7,7 @@ const summaryByRunId = new Map<string, {
   authorityLifecyclePhase: string;
   hasGoldenManifest: boolean;
   runDegradedExecution: boolean;
+  legacyRunStatus?: string;
 }>();
 const refetch = vi.fn();
 
@@ -57,6 +58,20 @@ describe("ReviewWorkspaceStaleBanner", () => {
       fireEvent.click(screen.getByRole("button", { name: "Refresh review" }));
       await Promise.resolve();
     });
+
+    expect(screen.getByTestId("review-workspace-stale-banner")).toBeInTheDocument();
+  });
+
+  it("shows the stale warning when only the mutable run status changes", () => {
+    const { rerender } = render(<ReviewWorkspaceStaleBanner runId="run-a" />);
+
+    summaryByRunId.set("run-a", {
+      authorityLifecyclePhase: "committed",
+      hasGoldenManifest: true,
+      runDegradedExecution: false,
+      legacyRunStatus: "Completed",
+    });
+    rerender(<ReviewWorkspaceStaleBanner runId="run-a" />);
 
     expect(screen.getByTestId("review-workspace-stale-banner")).toBeInTheDocument();
   });
