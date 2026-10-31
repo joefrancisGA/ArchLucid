@@ -2843,6 +2843,8 @@
 
 ## Zone: scim-users
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from prior thorough dry (directory-removed `externalId` reprovision reactivates by design — regression `CreateAsync_after_directory_remove_reactivates_same_external_id`; list `count=10000` clamped in service — regression `ListAsync_count_above_max_clamped_to_200_items`; DELETE success `NoContent()` without SCIM body matches RFC 7644 and hunt #348; PATCH `notImplemented` maps to HTTP 501 — regression `FromParseException_returns_501_for_notImplemented_scim_type`; PATCH-deactivated users remain readable with `active:false` until directory-removed — regression `GetAsync_returns_inactive_user_after_patch_deactivates_without_directory_remove`); seeded five follow-on `(candidate)` rows; scoped filter **49** tests passed (42 `ScimUsersServiceUnitTests` + 7 Api SCIM unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
+
 2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from seed hunt #352 (duplicate live `externalId` 409 matches operator-documented-safe-retry honesty from hunt #349; tombstoned `externalId` reactivates in service by design; PATCH `ScimConflictException` catch order is intentional with `PatchAsync_tombstoned_external_id_throws_conflict`; list filter parse messages are operator-facing `invalidFilter` copy; post-replace/patch GET null → 404 is the tombstone race class from hunts #346/#350; `ScimErrorResultFactory.Create` sets `application/scim+json; charset=utf-8` on all SCIM errors); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — **cheap-disproof 2026-10-31 thorough hunt:** safe-retry means honest 409 on duplicate live row, not silent replay (`CreateAsync_duplicate_user_name_throws_conflict` family); hunt #349 diary.
@@ -2851,11 +2853,17 @@
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — **cheap-disproof 2026-10-31 thorough hunt:** directory-removed/tombstone visibility between write and reload; no failing repro; hunts #346/#350.
 - [x] (invalid) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` — **cheap-disproof 2026-10-31 thorough hunt:** `ScimErrorResultFactory.Create` line 37 sets `application/scim+json; charset=utf-8` for all SCIM error bodies.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — directory-removed `externalId` reprovision returns HTTP 201 (reactivation) rather than 409 replay — locus: `ScimUserService.Crud` tombstone branch ~39–46; input: POST same `externalId` after directory-removed row; reachability: Entra reprovision after connector delete.
-- [ ] (candidate) `ScimUsersController.ListAsync` — HTTP `count` query has no controller max while service clamps to 200 — locus: ~36–47 vs `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; input: `count=10000`; reachability: oversized list pages vs RFC pagination expectations.
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — success `NoContent()` omits explicit SCIM content-type on HTTP 204 — locus: ~222; input: DELETE existing user; reachability: strict clients expecting `application/scim+json` on every Users response including 204.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimErrorResultFactory.FromParseException` may return HTTP 501 for `notImplemented` scimType — locus: factory ~15–18; input: patch body triggering `notImplemented` parse path; reachability: Entra unsupported PATCH operations.
-- [ ] (candidate) `ScimUsersController.GetAsync` — deactivated users remain HTTP 200 with `active:false` until directory-removed — locus: GET after soft deactivate; input: Entra reconcile inactive user; reachability: filter/list vs direct GET visibility.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — directory-removed `externalId` reprovision returns HTTP 201 (reactivation) rather than 409 replay — **cheap-disproof 2026-10-31 thorough hunt:** Entra reprovision after connector delete reactivates tombstoned row; regression `CreateAsync_after_directory_remove_reactivates_same_external_id`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — HTTP `count` query has no controller max while service clamps to 200 — **cheap-disproof 2026-10-31 thorough hunt:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; regression `ListAsync_count_above_max_clamped_to_200_items`.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — success `NoContent()` omits explicit SCIM content-type on HTTP 204 — **cheap-disproof 2026-10-31 thorough hunt:** RFC 7644 §3.6 204 without body; errors still SCIM JSON (hunt #348).
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimErrorResultFactory.FromParseException` may return HTTP 501 for `notImplemented` scimType — **cheap-disproof 2026-10-31 thorough hunt:** intentional Entra unsupported PATCH mapping; regression `FromParseException_returns_501_for_notImplemented_scim_type`.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — deactivated users remain HTTP 200 with `active:false` until directory-removed — **cheap-disproof 2026-10-31 thorough hunt:** PATCH `active:false` keeps row visible; DELETE sets directory-removed; regression `GetAsync_returns_inactive_user_after_patch_deactivates_without_directory_remove`.
+
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT on PATCH-deactivated (`active:false`) user may skip seat re-reservation when reactivated in the same replace body.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` beyond `totalResults` may return non-empty `Resources` if service clamp disagrees with controller normalization.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — duplicate `userName` with distinct `externalId` may return 409 vs 201 depending on trim/case normalization in `ScimUserResourceParser`.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — PATCH path `members[value eq "<guid>"]` on Users returns 501 vs 400 depending on parser branch ordering.
+- [ ] (candidate) `ScimUsersController.GetAsync` — user row with `DirectoryRemovedUtc` set may still appear in list filter results if filter predicate matches tombstone before exclusion.
 
 2026-10-27 seed hunt (seed-only #352): cheap-disproof closed five open `(candidate)` rows from hunt #351 (seat reserve/release lives in `ScimUserService`; controller intentionally maps only typed SCIM exceptions; oversized filters are repository/SQL boundary; `meta.location` optional; DELETE soft-deactivate + GET read-back is Entra contract); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
@@ -2984,9 +2992,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
