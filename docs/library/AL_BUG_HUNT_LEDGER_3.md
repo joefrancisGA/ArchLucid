@@ -1073,6 +1073,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-10-31 seed hunt (seed-only): rotation fired after three consecutive low-yield outcomes on this zone (`-AvoidZoneId cli-terraform-evidence`) but the Set 3 picker had no alternate eligible zone (`eligibleCount` 1); reread the twenty-entry evidence list, em-dash annotation split contract, and python/C# ordering sync guards. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
+
 2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread `DocumentationRelativePath` forward-slash contract, `ExtractLeafPaths` vs sixteen-leaf reference parity, and `apply-saas.ps1` legacy-branch wiring. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed. Rotation is now eligible for the next Set 3 invocation.
 
 2026-10-31 seed hunt (seed-only): repeated terraform-evidence reread after the prior seed-only pass; checked hosted-wave partition parity, reference-doc advanced-table row numbering, duplicate-path guards, and report numbered-list contiguity. No new reachable mechanism-backed candidate met the hunt-ready bar; terraform reference + report tests passed 55/55; `assert_terraform_root_ordering_sync.py` OK. No production code changed.
@@ -1086,7 +1088,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — numbered Terraform summary without explicit entry-kind marker may mislead operators into applying metadata roots — **cheap-disproof 2026-10-31 thorough hunt:** annotated lines include `no Azure apply` / legacy orchestrator prose; section cites `REFERENCE_SAAS_STACK_ORDER.md`; regressions `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`; no repository automation executes apply from the numbered list alone.
 - [x] (invalid) `DefaultApplyOrderRoots` — export/import that preserves only path text loses legacy/hosted mode distinction — **cheap-disproof 2026-10-31 thorough hunt:** claim requires an external deployment-review normalizer; in-repo sync uses em-dash annotations and dedicated extractors covered by parity tests; no current consumer strips annotations inside this zone.
 
-**Hunts:** 57 · **Bugs found:** 2 · **Consecutive dry hunts:** 18
+**Hunts:** 58 · **Bugs found:** 2 · **Consecutive dry hunts:** 18
 
 2026-10-30 seed hunt #128 (seed-only): rotation fired after eight low-yield `cli-terraform-evidence` outcomes but no alternate Set 3 zone was eligible; reread `DeploymentEvidenceTerraformReference.cs` and its focused tests, and no new mechanism-backed hunt-ready row emerged. `DeploymentEvidenceTerraformReferenceTests` passed 48/48. No production code changed. Seeded two fresh reachable `(candidate)` rows for the generated deployment-evidence report’s mixed metadata/leaf presentation.
 
