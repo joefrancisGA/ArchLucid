@@ -380,6 +380,43 @@ public sealed class ScopeIdentityBindingValidatorTests
         result.FailureMessage.Should().Contain("x-tenant-id");
     }
 
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_scim_bearer_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("workspace_id", Guid.NewGuid().ToString("D"))],
+                "scimbearer"))
+        };
+        http.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "scimbearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-tenant-id");
+    }
+
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_tab_padded_tenant_header_without_claim_for_bearer()
+    {
+        Guid tenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Name, "JwtUser")],
+                "Bearer"))
+        };
+        http.Request.Headers["x-tenant-id"] = $"\t{tenant:D}\t";
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Bearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-tenant-id");
+    }
+
     [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_development_bypass_auth_type()
     {

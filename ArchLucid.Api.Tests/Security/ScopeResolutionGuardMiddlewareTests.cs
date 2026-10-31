@@ -521,6 +521,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_does_not_false_positive_tb304_on_literal_percent_encoded_robots_path()
+    {
+        DefaultHttpContext context = CreateContext("/robots%2Etxt");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "literal percent-encoded crawler paths miss the skip list and default scope does not trigger TB-304 in the test host");
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_rejects_development_default_tenant_claim()
     {
         DefaultHttpContext context = CreateContext("/v1/runs");
