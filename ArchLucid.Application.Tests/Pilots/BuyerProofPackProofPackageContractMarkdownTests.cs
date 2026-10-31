@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -284,6 +285,49 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Contain(PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain);
         row.Should().NotContain("Not applicable — no findings on this run.");
+    }
+
+    [Fact]
+    public void Proof_package_evidence_chain_cell_when_chain_present_surfaces_decision_trace_pointer()
+    {
+        Guid decisionTraceId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingTitle = "Gap",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                DecisionTraceId = decisionTraceId,
+            },
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder traceSb = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(traceSb, deltas);
+
+        string expectedCell = PilotTopFindingEvidenceChainHonestyCopy.FormatMarkdownProofPackageCell(deltas);
+        string row = proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Top finding evidence-chain pointer |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(expectedCell);
+        row.Should().Contain(decisionTraceId.ToString("D", System.Globalization.CultureInfo.InvariantCulture));
+        traceSb.ToString().Should().Contain(decisionTraceId.ToString("D", System.Globalization.CultureInfo.InvariantCulture));
+        row.Should().NotEndWith("| Present |");
     }
 
     [Fact]

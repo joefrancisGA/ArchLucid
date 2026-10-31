@@ -1,5 +1,9 @@
 namespace ArchLucid.Application.Pilots;
 
+using System.Globalization;
+
+using ArchLucid.Contracts.Explanation;
+
 internal static class PilotTopFindingEvidenceChainHonestyCopy
 {
     internal const string UnavailableProse =
@@ -13,4 +17,27 @@ internal static class PilotTopFindingEvidenceChainHonestyCopy
 
     internal static string FormatPdfNoFindingsSkipItalicLine() =>
         FormattableString.Invariant($"({NoFindingsSkipPlain})");
+
+    internal static string FormatMarkdownProofPackageCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (deltas.TopFindingId is null)
+        {
+            return NoFindingsSkipPlain;
+        }
+
+        FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
+        if (chain is null)
+        {
+            return UnavailableProse;
+        }
+
+        string decisionTraceLabel = chain.DecisionTraceId is { } traceId
+            ? traceId.ToString("D", CultureInfo.InvariantCulture)
+            : "Decision trace id was not stored.";
+
+        return FormattableString.Invariant(
+            $"Present — decision trace {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(decisionTraceLabel)}");
+    }
 }

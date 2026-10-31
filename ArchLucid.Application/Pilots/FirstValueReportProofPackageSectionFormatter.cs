@@ -122,14 +122,8 @@ public static class FirstValueReportProofPackageSectionFormatter
         return PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
     }
 
-    private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
-    {
-        if (deltas.TopFindingId is null)
-            return PilotTopFindingEvidenceChainHonestyCopy.NoFindingsSkipPlain;
-        return deltas.TopFindingEvidenceChain is not null
-            ? "Present"
-            : PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse;
-    }
+    private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas) =>
+        PilotTopFindingEvidenceChainHonestyCopy.FormatMarkdownProofPackageCell(deltas);
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
