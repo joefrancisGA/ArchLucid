@@ -4038,4 +4038,52 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
         gaps.Should().Contain(prose);
         gaps.Should().Contain(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
     }
+
+    [Fact]
+    public void Concrete_gaps_when_stale_proof_projected_dollar_safe_but_roi_claim_gate_not_uses_gate()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            SupportRunIdPresent = true,
+            CommittedManifestPresent = true,
+            RunInCommittedStatus = true,
+            RoiBaselineInputs = new PilotRoiBaselineInputsStatusResponse { ProjectedDollarClaimsSponsorSafe = true },
+        };
+
+        var roiClaimGate = new SponsorRoiClaimDispositionResult(
+            SponsorRoiClaimDisposition.Warn,
+            PilotRoiEvidenceConfidence.Partial,
+            "review-cycle baseline: Defaulted from ROI model options",
+            false,
+            "WARN",
+            "WARN narrative");
+
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                proof,
+                new PilotRunDeltas(),
+                new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+                manifest: null,
+                roiClaimGate)
+            .ToList();
+
+        string prose = PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine();
+        gaps.Should().Contain(prose);
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            new PilotRunDeltas(),
+            proof,
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            roiClaimGate: roiClaimGate);
+
+        proofSb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Projected dollar claims sponsor-safe |", StringComparison.Ordinal))
+            .Should()
+            .Contain(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.NoPlain);
+    }
 }
