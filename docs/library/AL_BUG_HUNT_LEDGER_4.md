@@ -16652,9 +16652,9 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 41
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — spaced ASCII caret, tilde, exclamation, and question mark between phrase words broke managed identity detection
 
@@ -17043,13 +17043,21 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-tenancy-commercial
 
+2026-10-31 thorough hunt #1063 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `core-requests-constraints` (dry ×3; run log). Picker rotated with **`-AvoidZoneId`** to `core-tenancy-commercial`. Cheap-disproof closed five header `(candidate)` rows from hunt #1058 — **valid-no-repro** Pending trial on Standard tier vs weekly sponsor (`IsEligibleForWeeklySponsorReport` blocks **Active** trials only — same class as HTTP gate; Pending is not promoted to sponsor automation without Standard tier — hunt #971 suspension split family), **invalid** empty-string `PlanIdTierMap` value mapping Enterprise (`NormalizeConfiguredTier` logs warning and defaults **Standard** — hunt #1052 whitespace parity), **valid-no-repro** null commercial label with 5-seat subscription returning Team spend plan (`FromCommercialPackaging` requires explicit Team/Professional label — hunt #1052 null label → null), **invalid** `(seats=0, workspaces=1)` subscription returning Team label (cap inequalities with zero seats — hunt #970 invalid), **valid-no-repro** string `"1e2"` vs JSON number `1e2` quantity asymmetry (both coerce whole **100** via `TryParseWholeNumberString` / `TryReadWholeNumberInt32` — hunt #1057 numeric token parity). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — `TrialStatus=Converted` on `TenantTier.Free` passes Standard gate before tier enum upgrade — locus: tier compare after trial block; input: converted Free tenant; wrong outcome: Standard HTTP surface before conversion (monitor; hunt #1060).
+- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — JSON array `planId` coerces first element — locus: property kind guards; input: `"planId":["team"]`; wrong outcome: silent map miss (monitor; hunt #1057).
+- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led `(seatsUsed=10, workspacesUsed=2)` returns Team label — locus: workspace cap inference; input: no billing row; wrong outcome: ignores second workspace (monitor; hunt #1057 invalid).
+- [ ] (candidate) `TenantTrialSeatPolicy.RequiresSeatClaim` — `TrialStatus=Canceled` treated as active for seat enforcement — locus: active-only equality; input: canceled trial; wrong outcome: blocks seat claims (monitor; hunt #1057).
+- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — JSON `"quantity":1e2` accepted as 100 seats — locus: whole-number double coercion; input: numeric scientific quantity; wrong outcome: non-literal seat apply (monitor; intentional whole-number contract).
+
 2026-10-31 thorough hunt #1058 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak **3/3** in run log after this hunt — next `/4` should `-AvoidZoneId` rotate). Cheap-disproof closed five header `(candidate)` rows from hunt #1057 — **invalid** Pending trial on Standard enum passing Enterprise gate (`(int)Standard >= Enterprise` is false; only **Active** trials block Standard+ surfaces — hunt #1054 active-trial note), **valid-no-repro** JSON object `planId` (`ValueKind` not String/Number/Boolean returns false; no `ToString()` coercion — hunt #1057 array parity), **invalid** Professional label with 5-seat subscription mapping Architect (`FromCommercialPackaging` returns **Professional** when label is Professional — regressions `FromCommercialPackaging_maps_professional_label` / `…_even_when_subscription_is_one_seat`), **invalid** sales-led `(seatsUsed=11, workspacesUsed=1)` returning Team (`seatsUsed > TeamSeatsMax` → Professional — hunt #1052 `#11` subscription parity), **invalid** `ReadQuantity` subscription fallback on GA ChangeQuantity (`MarketplaceChangeQuantityWebhookMutationHandler` calls `TryReadQuantity` only and defers when quantity missing — hunt #970). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Pending` on Standard tier passes weekly sponsor eligibility while HTTP gate blocks Active trials only — locus: sponsor checks vs `MeetsCommercialTenantTierGate`; input: pending Standard tenant; wrong outcome: weekly report to unpaid checkout (monitor; automation eligibility split).
-- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — empty-string configured map value maps to Enterprise when key matches partner plan id — locus: `NormalizeConfiguredTier`; input: map value `""`; wrong outcome: false Enterprise promotion (monitor; whitespace-only hunt #1052 parity).
-- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null commercial label with 5-seat active subscription returns Team spend plan via subscription shape alone — locus: label-required Architect/Team branches; input: `(seats=5, workspaces=1)` without label; wrong outcome: null cap when Team bundle present (monitor; label resolution ordering).
-- [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — active subscription with `(seats=0, workspaces=1)` returns Team label via cap inequalities — locus: purchased-cap branch; input: zero seats purchased; wrong outcome: Team label on empty seat bundle (monitor; hunt #970 zero-seat invalid).
-- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — string-encoded scientific quantity `"1e2"` accepted as 100 seats while JSON number `1e2` rejected — locus: string vs number parse asymmetry; input: `"quantity":"1e2"`; wrong outcome: inconsistent defer vs apply (monitor; #1057 number token parity).
+- [x] (valid-no-repro) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Pending` on Standard tier passes weekly sponsor eligibility while HTTP gate blocks Active trials only — **cheap-disproof 2026-10-31 thorough hunt #1063:** regression above.
+- [x] (invalid) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — empty-string configured map value maps to Enterprise when key matches partner plan id — **cheap-disproof 2026-10-31 thorough hunt #1063:** regression above.
+- [x] (valid-no-repro) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null commercial label with 5-seat active subscription returns Team spend plan via subscription shape alone — **cheap-disproof 2026-10-31 thorough hunt #1063:** regression above.
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — active subscription with `(seats=0, workspaces=1)` returns Team label via cap inequalities — **cheap-disproof 2026-10-31 thorough hunt #1063:** regression above.
+- [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — string-encoded scientific quantity `"1e2"` accepted as 100 seats while JSON number `1e2` rejected — **cheap-disproof 2026-10-31 thorough hunt #1063:** regression above.
 
 2026-10-31 thorough hunt #1057 (dry): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak 2/3 in run log after hunt #1056). Cheap-disproof closed five header `(candidate)` rows from hunt #1056 — **valid-no-repro** Converted trial on Free tier vs Standard gate (only **Active** trials block; `(int)Free >= Standard` remains false — hunt #972 parity), **valid-no-repro** JSON array `planId` (`ValueKind` not String/Number/Boolean returns false from `TryGetStringPropertyCaseInsensitive`; no first-element coercion), **invalid** sales-led `(seatsUsed=10, workspacesUsed=2)` returning Team while subscription at same caps returns Professional (`workspacesUsed=2` exceeds `TeamWorkspacesIncluded=1`; sales-led branch returns Professional — hunt #971 subscription parity), **valid-no-repro** Canceled trial enforcing seat-claim (`RequiresSeatClaim` requires **Active** only; `TenantTrialSeatPolicyTests` includes Canceled), **valid-no-repro** JSON `"quantity":1e2` accepted as 100 seats (whole-number double coercion via `TryReadWholeNumberInt32`; same contract as `5.0` quantity tokens — hunt #971). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **76** Core commercial/packaging/trial tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -17126,9 +17134,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
