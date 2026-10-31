@@ -2759,6 +2759,20 @@
 
 ## Zone: scim-users
 
+2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from seed hunt #352 (duplicate live `externalId` 409 matches operator-documented-safe-retry honesty from hunt #349; tombstoned `externalId` reactivates in service by design; PATCH `ScimConflictException` catch order is intentional with `PatchAsync_tombstoned_external_id_throws_conflict`; list filter parse messages are operator-facing `invalidFilter` copy; post-replace/patch GET null → 404 is the tombstone race class from hunts #346/#350; `ScimErrorResultFactory.Create` sets `application/scim+json; charset=utf-8` on all SCIM errors); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — **cheap-disproof 2026-10-31 thorough hunt:** safe-retry means honest 409 on duplicate live row, not silent replay (`CreateAsync_duplicate_user_name_throws_conflict` family); hunt #349 diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — **cheap-disproof 2026-10-31 thorough hunt:** ordering maps typed exceptions only; conflict regressions `PatchAsync_tombstoned_external_id_throws_conflict` / `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — **cheap-disproof 2026-10-31 thorough hunt:** intentional operator-facing filter failure envelope (same class as hunt #348 parse/SQL `invalidFilter` parity).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — **cheap-disproof 2026-10-31 thorough hunt:** directory-removed/tombstone visibility between write and reload; no failing repro; hunts #346/#350.
+- [x] (invalid) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` — **cheap-disproof 2026-10-31 thorough hunt:** `ScimErrorResultFactory.Create` line 37 sets `application/scim+json; charset=utf-8` for all SCIM error bodies.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — directory-removed `externalId` reprovision returns HTTP 201 (reactivation) rather than 409 replay — locus: `ScimUserService.Crud` tombstone branch ~39–46; input: POST same `externalId` after directory-removed row; reachability: Entra reprovision after connector delete.
+- [ ] (candidate) `ScimUsersController.ListAsync` — HTTP `count` query has no controller max while service clamps to 200 — locus: ~36–47 vs `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; input: `count=10000`; reachability: oversized list pages vs RFC pagination expectations.
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — success `NoContent()` omits explicit SCIM content-type on HTTP 204 — locus: ~222; input: DELETE existing user; reachability: strict clients expecting `application/scim+json` on every Users response including 204.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimErrorResultFactory.FromParseException` may return HTTP 501 for `notImplemented` scimType — locus: factory ~15–18; input: patch body triggering `notImplemented` parse path; reachability: Entra unsupported PATCH operations.
+- [ ] (candidate) `ScimUsersController.GetAsync` — deactivated users remain HTTP 200 with `active:false` until directory-removed — locus: GET after soft deactivate; input: Entra reconcile inactive user; reachability: filter/list vs direct GET visibility.
+
 2026-10-27 seed hunt (seed-only #352): cheap-disproof closed five open `(candidate)` rows from hunt #351 (seat reserve/release lives in `ScimUserService`; controller intentionally maps only typed SCIM exceptions; oversized filters are repository/SQL boundary; `meta.location` optional; DELETE soft-deactivate + GET read-back is Entra contract); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit on create not on delete controller path — **cheap-disproof 2026-10-27 seed hunt #352:** seat transitions in service (`DeactivateAsync_restores_seat_when_persistence_fails` family); controller maps `ScimSeatLimitExceededException` only where thrown.
@@ -2767,11 +2781,11 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 body without `meta.location` — **cheap-disproof 2026-10-27 seed hunt #352:** optional SCIM metadata; `id` in body suffices for Entra.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 deactivate vs subsequent GET — **cheap-disproof 2026-10-27 seed hunt #352:** soft deactivate until directory-removed; intentional SCIM lifecycle.
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — locus: idempotency comment ~73 vs `ScimConflictException` ~102–104; input: Entra retry same `externalId`; reachability: connector idempotency expectations vs uniqueness errors.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — locus: ~194–208; input: patch changing `externalId` to taken value; reachability: `PatchAsync_tombstoned_external_id_throws_conflict` service regression path.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — locus: ~51–53; input: syntactically invalid filter; reachability: Entra operator debugging (information disclosure lens).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — locus: ~142–144; input: directory-removed between write and reload (theoretical); reachability: same class as prior post-mutation GET races, controller-only locus.
-- [ ] (candidate) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` depending on `ScimErrorResultFactory` — locus: error factory content type; input: any 400/404 SCIM error; reachability: strict SCIM content-type clients.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
+- [x] (invalid) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` depending on `ScimErrorResultFactory` — **cheap-disproof 2026-10-31 thorough hunt:** see zone diary above.
 
 2026-10-27 seed hunt (seed-only #351): cheap-disproof closed five open `(candidate)` rows from hunt #350 (`Consumes` not required for `JsonSerializer.DeserializeAsync`; missing-user PUT/PATCH 404 before body validation conflicts is correct; PATCH parse errors use `FromParseException`; list cancel propagates; GET inactive users is SCIM-expected); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
@@ -2886,10 +2900,10 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
 - **code-changed-since:** no
