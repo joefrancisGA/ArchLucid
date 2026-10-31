@@ -269,7 +269,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     [GeneratedRegex(@"Endpoint\s*=\s*sb://(?<host>[^/;\s]+)/?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex ServiceBusEndpointRegex();
 
-    [GeneratedRegex(@"https?://(?<host>[^/\s;]+\.documents\.azure\.com)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"https?://(?<host>[^/\s;]+\.documents\.azure\.com)(?![-.\w])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex CosmosDocumentsHostRegex();
 
     [GeneratedRegex(

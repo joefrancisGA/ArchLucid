@@ -205,10 +205,16 @@ public static partial class AzureInventoryAppSettingHostRedactor
     private static string NormalizeSqlInventoryHost(string host)
     {
         string decoded = Uri.UnescapeDataString(host);
+        int commaIndex = decoded.IndexOf(',');
+
+        if (commaIndex >= 0)
+        {
+            decoded = decoded[..commaIndex];
+        }
 
         return Uri.TryCreate($"https://{decoded}/", UriKind.Absolute, out Uri? uri)
             ? uri.Host.ToLowerInvariant()
-            : decoded;
+            : decoded.ToLowerInvariant();
     }
 
     private static string NormalizeHttpsInventoryHost(string host)

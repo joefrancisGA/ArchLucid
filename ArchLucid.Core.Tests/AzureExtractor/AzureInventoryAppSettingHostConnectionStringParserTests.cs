@@ -4004,4 +4004,65 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("orders-prod.servicebus.windows.net");
     }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_china_scheme_less_account_endpoint_percent_encoding_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79account.documents.azure.cn;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_slash_yields_host_without_slash_escape()
+    {
+        const string value = "AccountName=starch;BlobEndpoint=https://starch.blob.core.windows.net%2f;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starch.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_tcp_host_percent_encoded_comma_yields_host_without_comma_or_port()
+    {
+        const string value =
+            "Host=tcp:pg.postgres.database.azure.com%2c5432;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_documents_substring_in_longer_hostname_does_not_emit_duplicate_cosmos_host_row()
+    {
+        const string value = "https://shadow-not-cosmos.documents.azure.com.evil.example/setting";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow-not-cosmos.documents.azure.com.evil.example");
+    }
+
+    [Fact]
+    public void ParseSettingValues_redis_percent_encoded_comma_separator_yields_decoded_host_without_comma_escape()
+    {
+        const string value = "%73hadow.redis.cache.windows.net%2cpassword=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.redis.cache.windows.net");
+    }
 }
