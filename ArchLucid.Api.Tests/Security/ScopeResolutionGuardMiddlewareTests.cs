@@ -612,6 +612,7 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [Theory]
     [InlineData("/robots.txt/")]
     [InlineData("/sitemap.xml/")]
+    [InlineData("/ROBOTS.TXT/")]
     public async Task InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths(string path)
     {
         DefaultHttpContext context = CreateContext(path);
