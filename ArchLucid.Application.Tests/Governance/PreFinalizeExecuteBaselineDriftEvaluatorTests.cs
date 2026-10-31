@@ -274,6 +274,68 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_adds_blocking_item_when_assignment_is_disabled_after_execute()
+    {
+        ArchitectureRequest request = CreateRequest();
+        string executeHash = PreFinalizeExecuteBaselineDriftEvaluator.HashPackAssignments([SnapshotRow("2.0.0")]);
+
+        CommittedCoverageAssignmentSnapshot executeCoverage = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+            QualityDimension = QualityDimension.Security.ToString(),
+            EvaluationVersion = EffectiveGovernanceSnapshotBuilder.ExecuteScopeEvaluationVersion,
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(new ExecutedEffectiveGovernanceSnapshotDescriptor
+        {
+            GeneratedUtc = DateTime.UtcNow,
+            CloudProvider = request.CloudProvider.ToString(),
+            CoverageAssignments = [executeCoverage],
+            GovernanceAssignmentsHashHex = executeHash,
+            RequestFingerprintHex = Convert.ToHexString(ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+        });
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(
+                TestScope.TenantId,
+                TestScope.WorkspaceId,
+                TestScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new PolicyPackAssignment
+                {
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    PolicyPackId = PackId,
+                    PolicyPackVersion = "2.0.0",
+                    ScopeLevel = GovernanceScopeLevel.Project,
+                    IsEnabled = false,
+                }
+            ]);
+
+        PreFinalizeExecuteBaselineDriftEvaluator sut = CreateSut(
+            policyPackAssignmentRepository: assignments.Object);
+
+        IReadOnlyList<PreFinalizeChecklistItem> items = await sut.EvaluateAsync(
+            TestScope,
+            request,
+            scopeJson,
+            CancellationToken.None);
+
+        items.Should().Contain(item =>
+            item.ItemId == "policy-pack-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+        items.Should().Contain(item =>
+            item.ItemId == "coverage-assignments-changed-since-execute"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+    }
+
+    [Fact]
     public async Task EvaluateAsync_adds_blocking_item_when_governance_conflict_count_drifts()
     {
         ArchitectureRequest request = CreateRequest();
