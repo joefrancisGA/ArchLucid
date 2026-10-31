@@ -73,6 +73,39 @@ public sealed class BuyerProofPackDecisionDeltaMarkdownTests
         sb.ToString().Should().Contain("**Evidence class:** `Demo\\|derived`");
     }
 
+    [Fact]
+    public void Novelty_when_pilot_strict_violates_uses_deltas_not_stale_proof_satisfied_flag()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail(
+            category: "Security",
+            message: "Rotate keys");
+
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            BuildGate());
+
+        result.NoveltyConfidence.Should().Be(SponsorNoveltyConfidence.Low);
+        result.EvidenceClassLabel.Should().Be("Persisted run proof — PilotStrict posture incomplete");
+        result.ConfidenceBasisSummary.Should().Contain("PilotStrict posture: failed");
+    }
+
     private static ArchitectureRunDetail BuildCommittedDetail(string category, string message)
     {
         GoldenManifest manifest = new()
@@ -133,6 +166,8 @@ public sealed class BuyerProofPackDecisionDeltaMarkdownTests
                 ManifestVersion = "v1",
             },
             IsDemoTenant = false,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
     private static ProofPackageCompletenessResponse BuildProof() =>

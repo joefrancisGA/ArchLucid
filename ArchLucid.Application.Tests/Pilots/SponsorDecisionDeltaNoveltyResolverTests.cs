@@ -416,6 +416,8 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
                 ManifestVersion = "v1",
             },
             IsDemoTenant = false,
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
     private static ProofPackageCompletenessResponse BuildProof() =>

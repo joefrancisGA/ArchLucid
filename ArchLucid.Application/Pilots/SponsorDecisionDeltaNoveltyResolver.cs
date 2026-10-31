@@ -138,7 +138,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
             return SponsorNoveltyConfidence.NotAssessed;
 
-        if (!IsBuyerSafeSendAllowed(buyerSafeGate) || !proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (!IsBuyerSafeSendAllowed(buyerSafeGate) || PilotStrictPostureBlocksSponsorGradeClaims(deltas))
             return SponsorNoveltyConfidence.Low;
 
         if (findings.Count == 0)
@@ -177,7 +177,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         if (!proof.AuditRowCountResolved)
             return "Persisted run proof — audit row basis unresolved";
 
-        if (proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (PilotStrictPostureSatisfied(deltas))
             return "Persisted run proof with PilotStrict posture attested";
 
         return "Persisted run proof — PilotStrict posture incomplete";
@@ -192,7 +192,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         List<string> parts =
         [
             $"active findings: {findings.Count.ToString(CultureInfo.InvariantCulture)}",
-            $"PilotStrict posture: {(proof.AgentOutputPilotStrictEvidenceSatisfied ? "satisfied" : "failed")}",
+            $"PilotStrict posture: {(PilotStrictPostureSatisfied(deltas) ? "satisfied" : "failed")}",
             $"buyer-safe send gate: {(IsBuyerSafeSendAllowed(buyerSafeGate) ? "allowed" : "blocked")}",
             $"LLM trace rows resolved: {(proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
             $"audit row count resolved: {(proof.AuditRowCountResolved ? "yes" : "no")}",
@@ -205,6 +205,12 @@ public static class SponsorDecisionDeltaNoveltyResolver
     private static bool IsBuyerSafeSendAllowed(PilotBuyerSafeEvidenceGateResult buyerSafeGate) =>
         buyerSafeGate.ProofSendability is ProofPackageSendability.Sendable
         or ProofPackageSendability.SendableWithCaveats;
+
+    private static bool PilotStrictPostureBlocksSponsorGradeClaims(PilotRunDeltas deltas) =>
+        !deltas.AgentOutputPilotStrictSignalsResolved || deltas.AgentOutputPilotStrictViolatesSponsorEvidence;
+
+    private static bool PilotStrictPostureSatisfied(PilotRunDeltas deltas) =>
+        deltas.AgentOutputPilotStrictSignalsResolved && !deltas.AgentOutputPilotStrictViolatesSponsorEvidence;
 
     private static string Truncate(string value, int maxLength)
     {
