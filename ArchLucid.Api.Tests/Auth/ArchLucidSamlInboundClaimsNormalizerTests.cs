@@ -364,6 +364,24 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_collapses_duplicate_direct_oid_claims_with_same_value_different_casing()
+    {
+        const string directoryKeyLower = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string directoryKeyUpper = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA";
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("oid", directoryKeyLower),
+            new Claim("oid", directoryKeyUpper));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "oid").Should().Be(1);
+        identity.FindFirst("oid")!.Value.Should().BeOneOf(directoryKeyLower, directoryKeyUpper);
+    }
+
+    [Fact]
     public void Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
