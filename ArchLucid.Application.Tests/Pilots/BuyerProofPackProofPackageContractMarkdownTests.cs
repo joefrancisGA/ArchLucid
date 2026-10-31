@@ -606,4 +606,54 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
         row.Should().Contain("`Warning`: 2");
         PilotRunDeltasFindingsBySeverityPlainTextFormatter.Format(deltas).Should().Contain("Warning: 2");
     }
+
+    [Fact]
+    public void Proof_package_support_run_id_when_stale_present_flag_uses_run_not_proof()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "  ", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Support run id |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotSupportRunIdHonestyCopy.MissingPlain);
+        row.Should().NotContain("| Support run id | Present |");
+    }
+
+    [Fact]
+    public void Proof_package_demo_discipline_when_deltas_demo_uses_deltas_not_stale_proof_flag()
+    {
+        StringBuilder sb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb,
+            new PilotRunDeltas { IsDemoTenant = true },
+            new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = false,
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        string row = sb.ToString()
+            .Split('\n')
+            .Single(line => line.Contains("| Non-demo / external-share discipline |", StringComparison.Ordinal))
+            .TrimEnd();
+
+        row.Should().Contain(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
+    }
 }

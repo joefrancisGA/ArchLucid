@@ -66,6 +66,30 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
     }
 
     [Fact]
+    public void Resolve_non_obvious_rationale_when_demo_on_deltas_uses_deltas_not_stale_proof_flag()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            LlmCallCountResolved = true,
+            AuditRowCountResolved = true,
+            DemoTenantWarningRequired = false,
+            BuyerSafeRedactionProfile = "tenant-default",
+        };
+        PilotRunDeltas deltas = BuildDeltas() with { IsDemoTenant = true };
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            BuildGate());
+
+        result.NonObviousRationale.Should().Contain("Demo-derived output");
+        result.NoveltyConfidence.Should().Be(SponsorNoveltyConfidence.NotAssessed);
+    }
+
+    [Fact]
     public void Resolve_when_committed_with_findings_emits_partial_or_strong_novelty()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: true);

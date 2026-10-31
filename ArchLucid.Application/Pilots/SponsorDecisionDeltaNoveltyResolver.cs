@@ -102,7 +102,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         PilotRunDeltas deltas,
         ProofPackageCompletenessResponse proof)
     {
-        if (proof.DemoTenantWarningRequired)
+        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
         {
             return "Demo-derived output — treat as illustrative only; novelty is not attested for buyer outcomes.";
         }

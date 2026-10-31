@@ -31,8 +31,9 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
-            $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(c.DemoTenantWarningRequired)} |");
-        sb.AppendLine($"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(c.SupportRunIdPresent)} |");
+            $"| Non-demo / external-share discipline | {PilotDemoTenantDisciplineHonestyCopy.FormatProofPackageCell(c.DemoTenantWarningRequired || deltas.IsDemoTenant)} |");
+        sb.AppendLine(
+            $"| Support run id | {PilotSupportRunIdHonestyCopy.FormatProofPackageCell(!string.IsNullOrWhiteSpace(run.RunId))} |");
         sb.AppendLine($"| Committed manifest + status | {PilotCommittedManifestStatusHonestyCopy.FormatProofPackageCell(c)} |");
         sb.AppendLine($"| Committed manifest timestamp (UTC) | {PilotCommittedManifestTimestampHonestyCopy.FormatProofPackageCell(deltas, c, manifest)} |");
         sb.AppendLine($"| Artifact descriptor count | {PilotArtifactDescriptorCountHonestyCopy.FormatProofPackageCell(c)} |");
