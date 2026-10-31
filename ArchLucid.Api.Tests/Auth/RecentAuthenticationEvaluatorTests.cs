@@ -406,6 +406,21 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_fractional_string_iat_is_present_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, "1700000000.5"),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_returns_true_when_auth_time_is_exactly_at_max_age_boundary()
     {
         const int maxAgeMinutes = 15;
