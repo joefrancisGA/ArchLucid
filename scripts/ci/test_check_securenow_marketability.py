@@ -7,13 +7,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.ci.check_securenow_marketability import ROOT, validate
+from scripts.ci.check_securenow_marketability import ROOT, STATUS_LINE, validate
 
 TRACKED_PATHS = (
     "docs/securenow/BUYER_OVERVIEW.md",
     "docs/securenow/FIXTURE_STORYBOARD.md",
     "archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts",
+    "archlucid-ui/src/lib/marketing/securenow-sample-copy.ts",
     "archlucid-ui/src/app/(marketing)/why-securenow/page.tsx",
+    "archlucid-ui/src/app/(marketing)/securenow-sample/page.tsx",
     "archlucid-ui/src/lib/product-line/securenow-marketing-route-policy.ts",
     "archlucid-ui/src/app/(marketing)/layout.tsx",
     "archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx",
@@ -42,17 +44,26 @@ class SecureNowMarketabilityTests(unittest.TestCase):
             errors = validate(root)
             self.assertTrue(any("contains '$'" in error for error in errors))
 
-    def test_marketing_menu_link_fails(self):
+    def test_missing_status_line_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts"
+            path.write_text(path.read_text(encoding="utf-8").replace(STATUS_LINE, ""), encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("missing public status line" in error for error in errors))
+
+    def test_missing_menu_link_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             _copy_tree(root)
             path = root / "archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx"
             path.write_text(
-                path.read_text(encoding="utf-8") + '\n<a href="/why-securenow">Draft</a>\n',
+                path.read_text(encoding="utf-8").replace('href="/why-securenow"', ""),
                 encoding="utf-8",
             )
             errors = validate(root)
-            self.assertTrue(any('href="/why-securenow"' in error for error in errors))
+            self.assertTrue(any('missing href="/why-securenow"' in error for error in errors))
 
 
 if __name__ == "__main__":

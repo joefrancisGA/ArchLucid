@@ -3,7 +3,7 @@
 
 # SecureNow marketability — Composer prompts
 
-**Created:** 2026-10-29 · **Updated:** 2026-10-31 · **Status:** SN-MKT-01–07 shipped on trunk. SN-MKT-08–11 not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-29 · **Updated:** 2026-10-31 · **Status:** SN-MKT-01–11 shipped on trunk. **Audience:** Composer 2.5 slow (`composer-2.5`)
 
 Marketability scored **36** on the 2026-10-29 desk review, **50** after SN-MKT-01–03, and **61** on the 31 October desk pass. Differentiability is **78**. ArchLucid’s comparable marketability score is **68**. The accepted SecureNow copy is the pitch, the audience, the six steps, and the five refusals. SN-MKT-08–11 publish that copy. They do not rewrite it.
 
@@ -20,10 +20,10 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 | **SN-MKT-05** | `securenow-marketability-05-buyer-overview.md` | `docs/securenow/BUYER_OVERVIEW.md` (**shipped**) |
 | **SN-MKT-06** | `securenow-marketability-06-reviewer-home-links.md` | SecureNow Home "For reviewers" (**shipped**) |
 | **SN-MKT-07** | `securenow-marketability-07-checker.md` | Warn-only checker for the internal draft (**shipped**; SN-MKT-11 retargets it) |
-| **SN-MKT-08** | `securenow-marketability-08-publish-why.md` | Index `/why-securenow`. Keep the accepted copy. Beta **NO_GO** status line. |
-| **SN-MKT-09** | `securenow-marketability-09-public-sample.md` | Indexed `/securenow-sample`. One synthetic path. Same ArchLucid mailto. |
-| **SN-MKT-10** | `securenow-marketability-10-marketing-menu.md` | Resources menu: Why SecureNow and SecureNow sample. |
-| **SN-MKT-11** | `securenow-marketability-11-public-checker.md` | Checker requires the public pages and still rejects a price. |
+| **SN-MKT-08** | `securenow-marketability-08-publish-why.md` | Index `/why-securenow`. Keep the accepted copy. Beta **NO_GO** status line. (**shipped**) |
+| **SN-MKT-09** | `securenow-marketability-09-public-sample.md` | Indexed `/securenow-sample`. One synthetic path. Same ArchLucid mailto. (**shipped**) |
+| **SN-MKT-10** | `securenow-marketability-10-marketing-menu.md` | Resources menu: Why SecureNow and SecureNow sample. (**shipped**) |
+| **SN-MKT-11** | `securenow-marketability-11-public-checker.md` | Checker requires the public pages and still rejects a price. (**shipped**) |
 | **SN-MKT-HOLD** | `securenow-marketability-hold.md` | Stop list |
 
-**SN-MKT-01** through **SN-MKT-07** are on trunk. Do not redo them. Run **SN-MKT-08**, then **09**, then **10**, then **11** in one pull request. **SN-MKT-HOLD** is not a build step.
+**SN-MKT-01** through **SN-MKT-11** are on trunk. Do not redo them. **SN-MKT-HOLD** is not a build step.

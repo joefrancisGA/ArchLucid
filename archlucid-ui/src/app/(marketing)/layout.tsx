@@ -7,7 +7,8 @@ import type { ReactNode } from "react";
 import { resolveProductLineIdForServer } from "@/lib/product-line/resolve-product-line-id-server";
 import {
   ARCHLUCID_PATHNAME_REQUEST_HEADER,
-  isSecureNowDraftMarketingPath,
+  isSecureNowSampleMarketingPath,
+  isSecureNowSecurityShellMarketingPath,
   shouldRedirectMarketingLayout,
   secureNowMarketingRedirectPath,
 } from "@/lib/product-line/securenow-marketing-route-policy";
@@ -43,11 +44,15 @@ export default async function MarketingLayout({ children }: { children: ReactNod
     redirect(secureNowMarketingRedirectPath());
   }
 
-  if (productLine === "security" && isSecureNowDraftMarketingPath(pathname)) {
+  if (productLine === "security" && isSecureNowSecurityShellMarketingPath(pathname)) {
+    const shellTestId = isSecureNowSampleMarketingPath(pathname)
+      ? "securenow-sample-security-shell"
+      : "why-securenow-security-shell";
+
     return (
       <ShellReadySurface
         className={cn("min-h-screen", MARKETING_LAYOUT.page)}
-        data-testid="why-securenow-security-shell"
+        data-testid={shellTestId}
       >
         {children}
       </ShellReadySurface>
