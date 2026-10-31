@@ -5091,6 +5091,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-10-31 seed hunt (seed→hit #37): promoted comma-folded `Authorization` with modifier letter low macron (`U+02CD`) and box drawings light vertical (`U+2502`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+02CD` and `U+2502`; regressions `HandleAuthenticateAsync_succeeds_when_modifier_letter_low_macron_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #36 (doubled fullwidth vertical line segment via `HandleAuthenticateAsync_succeeds_when_doubled_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential`; future `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`; duplicate `tenant_id` GUID casing via `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a low-macron or box-drawing vertical placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — modifier letter low macron (`U+02CD`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #37:** regression `HandleAuthenticateAsync_succeeds_when_modifier_letter_low_macron_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings light vertical (`U+2502`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #37:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — fullwidth vertical line (`U+FF5C`) duplicated in comma-fold segment only — **cheap-disproof 2026-10-31 seed hunt #37:** regression `HandleAuthenticateAsync_succeeds_when_doubled_fullwidth_vertical_line_only_bearer_segment_precedes_valid_comma_folded_credential` (single-glyph regression existed; doubled segment already placeholder-only).
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — future `iat` when `auth_time` absent — **cheap-disproof 2026-10-31 seed hunt #37:** regression `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `tenant_id` GUID strings with different casing collapsed — **cheap-disproof 2026-10-31 seed hunt #37:** regression `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid_different_casing`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — modifier letter cent (`U+02C2`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy vertical (`U+2503`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — unparseable `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
+- [ ] (candidate) `LocalTrialJwtIssuer` — omitted lifetime still honors configured default after clamp path — locus: default minutes; reachability: hunt #12 monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate `workspace_id` GUID strings with different casing collapsed — locus: scope dedup; reachability: SAML monitor.
+
 2026-10-31 seed hunt (seed→hit #36): promoted comma-folded `Authorization` with double low line (`U+2017`), overline (`U+203E`), and small hyphen-minus (`U+FE63`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2017`, `U+203E`, and `U+FE63`; regressions `HandleAuthenticateAsync_succeeds_when_double_low_line_only_bearer_segment_precedes_valid_comma_folded_credential`, `HandleAuthenticateAsync_succeeds_when_overline_only_bearer_segment_precedes_valid_comma_folded_credential`, and `HandleAuthenticateAsync_succeeds_when_small_hyphen_minus_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed two open `(candidate)` rows from seed hunt #35 (`iat` one second past max-age without `auth_time` via `HasRecentAuthentication_returns_false_when_only_iat_is_one_second_past_max_age_boundary_without_auth_time`; twenty-four-hour ceiling at `1440` minutes via `IssueAccessToken_honors_twenty_four_hour_ceiling_when_exactly_1440_minutes_requested`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a double low line, overline, or CJK small hyphen-minus placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — double low line (`U+2017`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #36:** regression `HandleAuthenticateAsync_succeeds_when_double_low_line_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5480,11 +5494,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 63
-- **bugs-found:** 52
+- **hunts:** 64
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected double low line, overline, and small hyphen-minus placeholders before valid comma-folded token
+- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected low macron and box-drawing vertical placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
