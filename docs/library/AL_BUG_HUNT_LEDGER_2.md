@@ -4774,7 +4774,6 @@
 
 ---
 
->>>>>>> bugsmash-2
 - [ ] (candidate) `ApiKeyAuthenticationHandler.ExtractProvidedApiKey` — duplicate `Authorization`-style API key headers with invisible-only first value — locus: first-wins skip; input: two `X-Api-Key` lines; reachability: proxy duplicate-header monitor.
 - [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation when current slot is invisible-only material — locus: `HasConfiguredKeyMaterial`; input: CGJ-only slot; reachability: rotate replace monitor.
 - [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — comma segment with only format-category paste — locus: per-segment normalize; input: `valid,sec\u200Bret`; reachability: rotation comma monitor.
