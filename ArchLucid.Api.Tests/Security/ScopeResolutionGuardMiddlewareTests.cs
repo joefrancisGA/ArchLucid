@@ -505,6 +505,50 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_scalar_explorer_path_with_trailing_slash()
+    {
+        DefaultHttpContext context = CreateContext("/scalar/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "Scalar explorer routes are not in the unscoped skip list on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2Fready");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /health/ready probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
     {
         DefaultHttpContext context = CreateContext("/openapifoo");

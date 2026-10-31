@@ -475,6 +475,41 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_lowercase_bearer_auth_type()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "bearer"))
+        };
+        http.Request.Headers["x-project-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "bearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-project-id");
+    }
+
+    [Fact]
+    public void ValidateHeaderOnlyScopeEscalation_allows_project_header_for_lowercase_apikey_when_tenant_claim_bound()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "apikey"))
+        };
+        http.Request.Headers["x-project-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "apikey");
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
     public void ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_saml2_auth_type()
     {
         DefaultHttpContext http = new()

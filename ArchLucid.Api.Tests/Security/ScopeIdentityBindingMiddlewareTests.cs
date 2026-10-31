@@ -638,6 +638,26 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_lowercase_apikey_with_tenant_claim_allows_x_project_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+            "apikey"));
+        context.Request.Headers["x-project-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_scim_path_invokes_next_with_forged_header_when_scim_authentication_fails()
     {
         DefaultHttpContext context = CreateContext();
