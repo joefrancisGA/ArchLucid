@@ -7,6 +7,21 @@ title = "ArchLucid"
 [extend]
 useDefault = true
 
+# OIDC bug-hunt narrative uses "PKCE storage-key isolation, primary/supplemental
+# authorize redirect cleanup". Gitleaks generic-api-key captured exactly the
+# 20-character phrase "primary/supplemental" (entropy 3.584184) from commit
+# 65b95208, ledger line 3030. This is prose, NOT a credential. Require BOTH
+# the exact detected token and this one documentation path; never exempt the
+# whole ledger or generic API-key rule, so actual secrets still fail the gate.
+[[allowlists]]
+description = "OIDC review prose (AL_BUG_HUNT_LEDGER_3.md): only primary/supplemental, not an API key"
+paths = [
+  '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_3\.md$''',
+]
+regexes = [
+  "^primary/supplemental$",
+]
+
 # v8.25+ requires [[allowlists]]; legacy [allowlist] is ignored (unlike rules.allowlist migration).
 # Path-only: gitleaks global allowlists default to condition AND; mixing these paths with
 # regexes below would require BOTH path and a regex match per finding — so eval fixtures
