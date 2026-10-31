@@ -279,4 +279,59 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
 
         (await repo.FindByNormalizedDomainAsync(normalized, CancellationToken.None)).Should().BeNull();
     }
+
+    [Fact]
+    public async Task TenantSignInEmailDomain_ListByTenantIdAsync_refreshes_after_insert()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSignInEmailDomainRepository inner = new();
+        CachingTenantSignInEmailDomainRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        (await repo.ListByTenantIdAsync(tenantId, CancellationToken.None)).Should().BeEmpty();
+
+        await repo.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "Acme.com",
+                NormalizedDomain = "ACME.COM",
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.ListByTenantIdAsync(tenantId, CancellationToken.None)).Should().ContainSingle(d =>
+            d.NormalizedDomain == "ACME.COM");
+    }
+
+    [Fact]
+    public async Task TenantSignInEmailDomain_insert_rejects_duplicate_normalized_domain_across_tenants()
+    {
+        InMemoryTenantSignInEmailDomainRepository inner = new();
+        const string normalized = "SHARED.COM";
+
+        await inner.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = Guid.NewGuid(),
+                DisplayDomain = "Shared.com",
+                NormalizedDomain = normalized,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        Func<Task> act = () => inner.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = Guid.NewGuid(),
+                DisplayDomain = "Shared.com",
+                NormalizedDomain = normalized,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }
