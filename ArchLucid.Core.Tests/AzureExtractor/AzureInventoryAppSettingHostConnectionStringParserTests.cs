@@ -3944,4 +3944,64 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_managed_redis_percent_encoding_yields_decoded_host()
+    {
+        const string value = "%73hadow.eastus.redis.azure.net,password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("shadow.eastus.redis.azure.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_doubly_percent_encoded_storage_account_name_yields_no_blob_host()
+    {
+        const string value = "AccountName=%73%74arch;EndpointSuffix=core.windows.net;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_host_percent_encoded_dot_yields_decoded_host()
+    {
+        const string value = "Host=%70g%2epostgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_standalone_https_cosmos_china_percent_encoding_yields_decoded_host()
+    {
+        const string value = "https://%6d%79account.documents.azure.cn/";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.cn");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoding_with_hyphen_yields_decoded_host()
+    {
+        const string value =
+            "Endpoint=sb://%6f%72ders-prod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders-prod.servicebus.windows.net");
+    }
 }
