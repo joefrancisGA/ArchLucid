@@ -124,7 +124,7 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             yield return "Scoped audit-event count for this run is **zero** — durable audit continuity is not demonstrated.";
 
         if (!proof.LlmCallCountResolved)
-            yield return "**LLM-call count is unattested** (trace/query failure) — the displayed integer is not trustworthy evidence.";
+            yield return PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine();
 
         if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
             yield return "PilotStrict agent-output quality gate failed — do not circulate sponsor-grade real-mode assertions until traces read clean.";
