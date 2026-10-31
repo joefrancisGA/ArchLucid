@@ -100,7 +100,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(c);
 
-        return PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
+        return PilotRunDeltasAuditRowCountFormatter.FormatProofPackageCell(deltas, c);
     }
 
     private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas) =>

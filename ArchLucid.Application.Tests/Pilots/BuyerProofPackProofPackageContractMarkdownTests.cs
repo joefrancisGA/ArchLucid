@@ -522,14 +522,14 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
             computedSb,
             deltas with { FindingsBySeverity = [], LlmCallCountResolved = true });
 
-        string expectedCell = PilotRunDeltasAuditRowCountFormatter.FormatMarkdownTableCell(deltas);
+        string zeroGap = PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero();
         string auditRow = proofSb.ToString()
             .Split('\n')
             .Single(line => line.Contains("| Audit-row count or lower bound |", StringComparison.Ordinal))
             .TrimEnd();
 
-        auditRow.Should().Contain(expectedCell);
-        computedSb.ToString().Should().Contain(expectedCell);
+        auditRow.Should().Contain(zeroGap);
+        computedSb.ToString().Should().Contain("0");
         auditRow.Should().NotContain("Not present on this run.");
     }
 
