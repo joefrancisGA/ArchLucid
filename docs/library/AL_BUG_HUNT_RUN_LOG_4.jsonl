@@ -3076,3 +3076,4 @@
 {"at":"2026-10-31T15:55:09.9296942Z","zoneId":"core-requests-constraints","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-31T15:57:52.2617799Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-31T16:01:13.5463683Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-31T16:04:27.2701477Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
