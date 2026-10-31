@@ -70,26 +70,8 @@ public static class FirstValueReportProofPackageSectionFormatter
             $"| Proof sendability (API mirror) | {PilotSponsorSafeSendableAllClearHonestyCopy.FormatProofSendabilityMirrorCell(c)} |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness (classification) | {FormatSponsorProofReadinessProofCell(c, deltas, buyerSafeGate)} |");
+            $"| Sponsor-proof readiness (classification) | {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, buyerSafeGate, c.SponsorProofReadiness)} |");
         sb.AppendLine();
-    }
-
-    private static string FormatSponsorProofReadinessProofCell(
-        ProofPackageCompletenessResponse c,
-        PilotRunDeltas deltas,
-        PilotBuyerSafeEvidenceGateResult? buyerSafeGate)
-    {
-        ArgumentNullException.ThrowIfNull(c);
-        ArgumentNullException.ThrowIfNull(deltas);
-
-        if (buyerSafeGate is not null)
-        {
-            SponsorProofReadinessClassification readiness =
-                SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate);
-            return SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness);
-        }
-
-        return PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(c.SponsorProofReadiness);
     }
 
     private static string FormatEvidenceBasisLabels(

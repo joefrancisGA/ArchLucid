@@ -3411,6 +3411,26 @@ public sealed class BuyerProofPackSponsorSafeProofStatusGapsMarkdownTests
     }
 
     [Fact]
+    public void BuyerProofPack_readiness_table_cell_shared_helper_ignores_stale_proof_when_gate_present()
+    {
+        PilotRunDeltas deltas = new() { IsDemoTenant = true };
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.DemoOnly,
+            ProofPackageSendability.NotSendable,
+            ["Seeded/demo tenant"],
+            [],
+            []);
+
+        string cell = SponsorProofReadinessClassifier.FormatMarkdownTableCell(
+            deltas,
+            gate,
+            nameof(SponsorProofReadinessClassification.Sendable));
+
+        cell.Should().Contain("**DemoOnly**");
+        cell.Should().NotContain("**Sendable**");
+    }
+
+    [Fact]
     public void Concrete_gaps_when_sendable_matches_proof_package_sendability_row()
     {
         PilotRunDeltas deltas = new()

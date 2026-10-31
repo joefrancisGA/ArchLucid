@@ -98,7 +98,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {FormatSponsorProofReadinessCell(proof, deltas, buyerSafeGate)} |");
+            $"| Sponsor-proof readiness | {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, buyerSafeGate, proof.SponsorProofReadiness)} |");
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -148,27 +148,6 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     {
         return id is null ? missingValue : id.Value.ToString("D");
     }
-
-    private static string FormatSponsorProofReadinessCell(
-        ProofPackageCompletenessResponse proof,
-        PilotRunDeltas deltas,
-        PilotBuyerSafeEvidenceGateResult? buyerSafeGate)
-    {
-        ArgumentNullException.ThrowIfNull(proof);
-        ArgumentNullException.ThrowIfNull(deltas);
-
-        if (buyerSafeGate is not null)
-        {
-            SponsorProofReadinessClassification readiness =
-                SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate);
-            return SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness);
-        }
-
-        return FormatSponsorProofReadiness(proof.SponsorProofReadiness);
-    }
-
-    private static string FormatSponsorProofReadiness(string? value) =>
-        PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(value);
 
     private static string FormatInlineCodeCell(string value)
         => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);

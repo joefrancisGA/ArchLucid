@@ -42,11 +42,9 @@ public static class SponsorSafeProofStatusMarkdownFormatter
             $"**Structural execution mode:** {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)}");
         sb.AppendLine();
 
-        SponsorProofReadinessClassification sponsorReadiness =
-            SponsorProofReadinessClassifier.Classify(deltas, gate);
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.DescribeForMarkdownTable(sponsorReadiness)}");
+            $"**Sponsor-proof readiness:** {SponsorProofReadinessClassifier.FormatMarkdownTableCell(deltas, gate, proof.SponsorProofReadiness)}");
 
         sb.AppendLine();
         sb.AppendLine(
