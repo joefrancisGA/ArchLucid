@@ -22495,6 +22495,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: knowledge-graph-provenance
 
+2026-10-31 thorough hunt (dry): repeated the five-candidate disproof after a concurrent same-zone record; existing overlay reasoning-trace, provenance influence-edge, ARM parent-backfill, artifact-format fingerprint, and GraphValidator regressions remained decisive. Additional focused verification passed 245/245 KnowledgeGraph and 160/160 Provenance tests. No production change. Private beta: n/a.
+
 2026-10-31 thorough hunt #1079 (dry): no rotation (`shouldRotate: false`; `knowledge-graph-provenance` low-yield streak **3/3** in run log after this hunt — next `/4` should `-AvoidZoneId` rotate). Cheap-disproof closed five header `(candidate)` rows from hunt #1078 reseed — **valid-no-repro** base-graph overlay duplicate **node** `ReasoningTrace` casing when base reasoning trace is whitespace-only (`Merge_coalesces_base_graph_overlay_duplicate_node_reasoning_traces_when_base_reasoning_trace_is_whitespace_only_and_overlay_rows_differ_only_by_casing`; hunt #1047/#1041), **valid-no-repro** `InfluencedByGraphNode` edges with padded related ids and case-variant graph nodes (`Build_deduplicates_influence_edges_when_duplicate_finding_rows_list_padded_related_ids_and_graph_lists_case_variant_nodes`; hunt #1047/#998), **valid-no-repro** duplicate ARM `arm.parentId` backfill when parent ids differ only by casing (`BuildOverlay_deduplicates_resources_and_stamps_normalized_parent_when_parent_resource_id_differs_only_by_case`; hunt #1047), **invalid** artifact fingerprint churn on duplicate-row `Format` casing alone (`Compute_changes_when_duplicate_artifact_rows_differ_only_by_format_casing_with_same_content_hash` — intentional ordinal fingerprint; hunt #1047/#1036), **valid-no-repro** duplicate directed edges whose `EdgeType` values differ only by casing (`GraphValidatorTests.Validate_DuplicateDirectedEdgesDifferingOnlyByEndpointAndEdgeTypeCasing_ThrowsInvalidOperationException`; hunt #1047/#1040). Reseeded five `(candidate)` rows; scoped **725** KnowledgeGraph + **208** Provenance tests passed (`RunAnalyzers=false`). No production change. Private beta: n/a.
 
 - [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay duplicate **nodes** on a base-graph normalized id may disagree on `Label` casing when the sealed base node label is whitespace-only — locus: duplicate-node scalar fallback; input: structured inventory overlay with case-variant labels; wrong outcome: merged graph drops display label metadata; reachability: Azure inventory overlay on sealed base graph.
@@ -22937,9 +22939,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 46
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-31
 - **last-bug:** 2026-10-30 — null supporting-finding and contributing-decision id entries crashed provenance edge wiring
 - **related-pd-tb:** none
