@@ -290,6 +290,22 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.SoftGaps.Should().Contain(PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
     }
 
+    [Fact]
+    public void Evaluate_UnresolvedArtifactDescriptorCount_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with { SynthesizedArtifactDescriptorCountResolved = false, },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine());
+    }
+
     private static ArchitectureRun CommittedRun() =>
         new()
         {
@@ -320,6 +336,8 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             ManifestCommittedUtc = m.Metadata.CreatedUtc,
             TimeToCommittedManifest = m.Metadata.CreatedUtc - run.CreatedUtc,
             AuditRowCount = 2,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            SynthesizedArtifactDescriptorCount = 1,
             IsDemoTenant = false,
             TopFindingId = null,
         };
