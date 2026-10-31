@@ -96,7 +96,9 @@ public static class FirstValueReportProofPackageSectionFormatter
     {
         if (deltas.TopFindingId is null)
             return "Not applicable — no findings on this run.";
-        return deltas.TopFindingEvidenceChain is not null ? "Present" : "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
+        return deltas.TopFindingEvidenceChain is not null
+            ? "Present"
+            : PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse;
     }
 
     private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)

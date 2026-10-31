@@ -227,4 +227,37 @@ public sealed class BuyerProofPackProofPackageContractMarkdownTests
 
         row.Should().Contain("`review-cycle hours: buyer-provided");
     }
+
+    [Fact]
+    public void Proof_package_evidence_chain_cell_when_chain_missing_matches_trace_section_prose()
+    {
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-1",
+            TopFindingTitle = "Gap",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = null,
+        };
+
+        StringBuilder proofSb = new();
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            proofSb,
+            deltas,
+            new ProofPackageCompletenessResponse
+            {
+                SupportRunIdPresent = true,
+                CommittedManifestPresent = true,
+                RunInCommittedStatus = true,
+            },
+            manifest: null,
+            new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed });
+
+        StringBuilder traceSb = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(traceSb, deltas);
+
+        string prose = PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse;
+        proofSb.ToString().Should().Contain(prose);
+        traceSb.ToString().Should().Contain(prose);
+        proofSb.ToString().Should().NotContain("Explicitly unavailable — persisted finding");
+    }
 }

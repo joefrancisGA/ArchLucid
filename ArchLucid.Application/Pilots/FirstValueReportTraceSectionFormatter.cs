@@ -87,7 +87,7 @@ public static class FirstValueReportTraceSectionFormatter
         if (chain is null)
         {
             sb.AppendLine(
-                "_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
+                FormattableString.Invariant($"_({PilotTopFindingEvidenceChainHonestyCopy.UnavailableProse})_"));
             sb.AppendLine();
             return;
         }
