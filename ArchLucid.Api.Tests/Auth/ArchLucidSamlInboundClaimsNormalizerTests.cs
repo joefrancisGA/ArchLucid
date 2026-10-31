@@ -73,6 +73,24 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_promotes_roles_when_source_claim_type_differs_by_case()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("HTTP://IDP.EXAMPLE/ROLE", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", ArchLucidRoles.Operator).Should().BeTrue();
+        identity.HasClaim(ClaimTypes.Role, ArchLucidRoles.Operator).Should().BeTrue();
+    }
+
+    [Fact]
     public void Apply_promotes_role_sources_scope_and_oid()
     {
         Guid tenantId = ScopeIds.DefaultTenant;
