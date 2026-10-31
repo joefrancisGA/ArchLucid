@@ -50,4 +50,24 @@ public sealed class SponsorFirstValuePdfGateTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void EnsureCanGenerate_throws_when_roi_baseline_inputs_null_and_not_demo()
+    {
+        FirstValueReportBuildResult built = new(
+            Markdown: "# report",
+            EvidenceCompleteness: FirstValueEvidenceCompletenessLevel.Strong,
+            SponsorProofReadiness: SponsorProofReadinessClassification.Sendable,
+            ProofPackageCompleteness: new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = false,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                RoiBaselineInputs = null,
+            });
+
+        Action act = () => SponsorFirstValuePdfGate.EnsureCanGenerate(built);
+
+        act.Should().Throw<SponsorFirstValuePdfBlockedException>()
+            .WithMessage("*projected-dollar*");
+    }
 }

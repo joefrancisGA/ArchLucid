@@ -82,6 +82,55 @@ public sealed class BuyerProofPackSponsorStatusTopFindingsMarkdownTests
         row.Should().NotContain("\n-evil");
     }
 
+    [Fact]
+    public void Sponsor_status_next_action_when_pilot_strict_failed_uses_deltas_not_stale_proof_flag()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse { AgentOutputPilotStrictEvidenceSatisfied = true },
+            new PilotRunDeltas
+            {
+                AgentOutputPilotStrictSignalsResolved = true,
+                AgentOutputPilotStrictViolatesSponsorEvidence = true,
+            },
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        sb.ToString()
+            .Should()
+            .Contain("| Recommended next action | Hold sponsor send; resolve AI quality/simulator disclosure before forwarding. |");
+    }
+
+    [Fact]
+    public void Sponsor_pdf_gate_blocks_when_roi_baseline_inputs_null_and_not_demo()
+    {
+        FirstValueReportBuildResult built = new(
+            Markdown: "# report",
+            EvidenceCompleteness: FirstValueEvidenceCompletenessLevel.Strong,
+            SponsorProofReadiness: SponsorProofReadinessClassification.Sendable,
+            ProofPackageCompleteness: new ProofPackageCompletenessResponse
+            {
+                DemoTenantWarningRequired = false,
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+                RoiBaselineInputs = null,
+            });
+
+        Action act = () => SponsorFirstValuePdfGate.EnsureCanGenerate(built);
+
+        act.Should().Throw<SponsorFirstValuePdfBlockedException>()
+            .WithMessage("*projected-dollar*");
+    }
+
     private static void AppendMinimalSection(StringBuilder sb, ArchitectureRunDetail detail) =>
         FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
             sb,

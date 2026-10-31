@@ -149,7 +149,9 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
             return "Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send.";
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied || run.RealModeFellBackToSimulator)
+        if (!deltas.AgentOutputPilotStrictSignalsResolved
+            || deltas.AgentOutputPilotStrictViolatesSponsorEvidence
+            || run.RealModeFellBackToSimulator)
             return "Hold sponsor send; resolve AI quality/simulator disclosure before forwarding.";
 
         return "Review caveats, collect missing ROI/evidence fields, then regenerate the packet.";

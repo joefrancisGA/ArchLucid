@@ -35,7 +35,8 @@ public static class SponsorFirstValuePdfGate
             return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
         }
 
-        if (proof.RoiBaselineInputs is not null && !proof.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe)
+        if (!proof.DemoTenantWarningRequired
+            && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe != true)
         {
             return "Sponsor PDF export is blocked until buyer-provided ROI baselines make projected-dollar claims sponsor-safe.";
         }

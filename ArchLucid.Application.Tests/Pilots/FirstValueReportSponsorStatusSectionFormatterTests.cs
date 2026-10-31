@@ -184,4 +184,36 @@ public sealed class FirstValueReportSponsorStatusSectionFormatterTests
 
         row.Should().Be("| ROI claim gate | `Hold\\|review baseline` |");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_next_action_when_pilot_strict_failed_uses_deltas_not_stale_proof_flag()
+    {
+        StringBuilder sb = new();
+
+        FirstValueReportSponsorStatusSectionFormatter.AppendMarkdownSection(
+            sb,
+            new ArchitectureRunDetail(),
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            new ProofPackageCompletenessResponse
+            {
+                AgentOutputPilotStrictEvidenceSatisfied = true,
+            },
+            new PilotRunDeltas
+            {
+                AgentOutputPilotStrictSignalsResolved = true,
+                AgentOutputPilotStrictViolatesSponsorEvidence = true,
+            },
+            new ArchitectureRun(),
+            new SponsorRoiClaimDispositionResult(
+                SponsorRoiClaimDisposition.Hold,
+                PilotRoiEvidenceConfidence.Strong,
+                "",
+                false,
+                "Hold",
+                "Hold narrative"));
+
+        sb.ToString()
+            .Should()
+            .Contain("| Recommended next action | Hold sponsor send; resolve AI quality/simulator disclosure before forwarding. |");
+    }
 }
