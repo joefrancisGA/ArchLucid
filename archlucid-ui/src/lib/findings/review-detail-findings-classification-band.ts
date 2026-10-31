@@ -20,6 +20,25 @@ export const FINDING_CLASSIFICATION_CHECKLIST_COVERAGE = "ChecklistCoverage" as 
 
 export const FINDING_CLASSIFICATION_NOT_STORED_LABEL = "Finding classification was not stored." as const;
 
+export type StoredFindingClassification =
+  | typeof FINDING_CLASSIFICATION_DECISION_GRADE
+  | typeof FINDING_CLASSIFICATION_CHECKLIST_COVERAGE;
+
+/** Wire classification is a free string; work-item exports only accept the two stored gate values. */
+export function coerceStoredFindingClassification(
+  classification: string | null | undefined,
+): StoredFindingClassification | null {
+  if (classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
+    return FINDING_CLASSIFICATION_DECISION_GRADE;
+  }
+
+  if (classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
+    return FINDING_CLASSIFICATION_CHECKLIST_COVERAGE;
+  }
+
+  return null;
+}
+
 export function isUnrecognizedFindingClassification(classification: unknown): boolean {
   if (classification === null || classification === undefined) {
     return false;

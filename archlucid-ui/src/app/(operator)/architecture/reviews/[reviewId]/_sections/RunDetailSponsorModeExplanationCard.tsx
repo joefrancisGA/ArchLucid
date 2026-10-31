@@ -3,8 +3,11 @@ import type { ReactElement } from "react";
 
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import {
+  compareFindingSeverity,
+  severityBadgeLabel,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 import { formatExportPreviewCapIntro, formatExportPreviewShortenedText } from "@/lib/export-preview-caption-honesty";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";

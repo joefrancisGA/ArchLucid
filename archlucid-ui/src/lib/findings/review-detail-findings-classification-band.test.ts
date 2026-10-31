@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
+  coerceStoredFindingClassification,
   countFindingsByClassificationBand,
   filterFindingsByClassificationBand,
   isUncitedFinding,
@@ -76,5 +77,16 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
       uncited: 1,
       unclassified: 0,
     });
+  });
+
+  it("coerces wire classification to stored gate values for work-item export", () => {
+    expect(coerceStoredFindingClassification(FINDING_CLASSIFICATION_DECISION_GRADE)).toBe(
+      FINDING_CLASSIFICATION_DECISION_GRADE,
+    );
+    expect(coerceStoredFindingClassification(FINDING_CLASSIFICATION_CHECKLIST_COVERAGE)).toBe(
+      FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+    );
+    expect(coerceStoredFindingClassification("LegacyGate")).toBeNull();
+    expect(coerceStoredFindingClassification(null)).toBeNull();
   });
 });

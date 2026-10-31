@@ -6,10 +6,10 @@ import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
-
-export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
+
+export const RUN_CREATED_TIME_NOT_STORED_COPY = "Created time was not stored." as const;
 
 export { runListPrimaryTitle };
 
@@ -134,7 +134,10 @@ export function runRowOutputReadinessLine(run: RunSummary): string {
     run.hasContextSnapshot === undefined ? CONTEXT_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
     run.hasGraphSnapshot === undefined ? GRAPH_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
     run.hasFindingsSnapshot === undefined ? FINDINGS_SNAPSHOT_FLAG_NOT_STORED_LABEL : null,
-  ].filter((token): token is string => token !== null);
+  ].filter(
+    // `as const` labels make `token is string` too wide for the literal union (TS2677).
+    (token): token is NonNullable<typeof token> => token !== null,
+  );
 
   const reviewTrailSummary =
     run.hasContextSnapshot === true &&
