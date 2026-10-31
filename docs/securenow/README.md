@@ -68,6 +68,7 @@
 - [Compliance readiness prompt index](../architecture/SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md) is the paste set for a control-evidence duty split, a framework coverage card, and a lineage markdown download. It is not a certification and not a CPA SOC 2 program.
 - [Proof-of-ROI prompt index](../architecture/SECURENOW_ROI_COMPOSER_PROMPTS.md) is the paste set for a blank timing log, a cost input, and a fixture worksheet. It is not a customer savings claim.
 - [Stickiness prompt index](../architecture/SECURENOW_STICKINESS_COMPOSER_PROMPTS.md) is the paste set for four reopen reasons. It is not a reminder product and not a usage claim.
+- [Return reasons](RETURN_REASONS.md) names four reopen reasons, not a reminder product.
 - [Commercial order template](ORDER_FORM_TEMPLATE.md) is a SecureNow quote and sign-off shell with SKU meters by reference. It is not an approved customer offer.
 - [Quote-to-pilot checklist](QUOTE_TO_PILOT_CHECKLIST.md) sequences owner, legal, security, and buyer attachments without authorizing commerce.
 - [SKU and meter card](SKU_METER_CARD.md) names SecureNow identifiers and capacity meters without printing fee amounts or a public list price.

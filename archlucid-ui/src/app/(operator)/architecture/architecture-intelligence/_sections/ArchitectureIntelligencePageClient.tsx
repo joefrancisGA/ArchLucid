@@ -36,6 +36,7 @@ import { ArchitectureIntelligenceRunModelGuardCallout } from "@/app/(operator)/a
 import { ArchitectureIntelligenceNextReviewFooterClient } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
+  hasActionableArchitectureIntelligenceResult,
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
   resolveArchitectureIntelligenceAnalysisSteps,
 } from "@/lib/architecture-intelligence-analysis-checklist";
@@ -82,7 +83,7 @@ export function ArchitectureIntelligencePageClient() {
 
   const reviewPicked = (activeRunId?.trim() ?? "").length > 0;
   const descriptionWritten = architectureDescription.trim().length > 0;
-  const analysisComplete = showReasoningWorkspace && runState?.kind === "reasoning";
+  const analysisComplete = showReasoningWorkspace && hasActionableArchitectureIntelligenceResult(runState);
   const analysisChecklistInput = {
     reviewPicked,
     descriptionWritten,
@@ -246,7 +247,7 @@ export function ArchitectureIntelligencePageClient() {
               disabled={
                 isBusy ||
                 activeRunId === null ||
-                runState?.kind !== "reasoning" ||
+                !analysisComplete ||
                 productContextLoadFailed ||
                 blocksLlmExecution
               }

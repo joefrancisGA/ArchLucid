@@ -50,10 +50,10 @@ export function usePinnedReviewContext(primaryRunId: string): UsePinnedReviewCon
 
   const closePin = useCallback(() => {
     writePinRunIdToUrl(null);
-    commitHrefIfChanged(reviewPinRunHrefFromSearch(window.location.search.slice(1), null, pathname), {
+    commitHrefIfChanged(reviewPinRunHrefFromSearch(searchParams.toString(), null, pathname), {
       notify: false,
     });
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   const summaryFailure = summaryQuery.error !== null && summaryQuery.error !== undefined
     ? toApiLoadFailure(summaryQuery.error)
