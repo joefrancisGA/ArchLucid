@@ -25,7 +25,8 @@ This index points contributors to security-relevant behavior and gates. It is no
 | Data retention operations | [`DATA_RETENTION_OPERATIONS.md`](DATA_RETENTION_OPERATIONS.md) |
 | Configuration reference | [`../CONFIGURATION_REFERENCE.md`](../CONFIGURATION_REFERENCE.md) |
 | Deployment | [`../../engineering/DEPLOYMENT.md`](../../engineering/DEPLOYMENT.md) |
-| Multi-tenant isolation | [`../../security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md) |
+| Multi-tenant isolation (current production: no SQL RLS) | [`../../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [ADR 0037](../../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
+| Historical RLS design (not an active control) | [`../../security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md) |
 
 ## Cross-links
 
