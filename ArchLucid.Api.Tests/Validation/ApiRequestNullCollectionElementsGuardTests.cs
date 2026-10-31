@@ -168,6 +168,26 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_linked_list_without_body_parameter()
+    {
+        LinkedList<string> linked = new();
+        linked.AddLast((string)null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(linked).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property()
+    {
+        ObservableCollectionRequest request = new()
+        {
+            Tags = new System.Collections.ObjectModel.ObservableCollection<string> { "ok", null! },
+        };
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(request).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_true_for_null_element_in_readonly_collection_property()
     {
         ReadOnlyCollectionRequest request = new()
@@ -222,6 +242,11 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     {
         public System.Collections.ObjectModel.ReadOnlyCollection<string> Tags { get; set; } =
             new(Array.Empty<string>());
+    }
+
+    private sealed class ObservableCollectionRequest
+    {
+        public System.Collections.ObjectModel.ObservableCollection<string> Tags { get; set; } = [];
     }
 
     private sealed class NullableStringListRequest
