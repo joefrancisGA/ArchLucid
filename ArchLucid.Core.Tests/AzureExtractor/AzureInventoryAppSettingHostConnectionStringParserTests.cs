@@ -4373,4 +4373,66 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("starchqa.file.core.windows.net");
     }
+
+    [Fact]
+    public void ParseSettingValues_key_vault_secret_uri_percent_encoded_forward_slash_yields_decoded_vault_host()
+    {
+        const string value = "@Microsoft.KeyVault(SecretUri=https://%65%2fxample.vault.azure.net/secrets/db)";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].KeyVaultHost.Should().Be("example.vault.azure.net");
+        parsed[0].SecretName.Should().Be("db");
+    }
+
+    [Fact]
+    public void ParseSettingValues_blob_endpoint_percent_encoded_backslash_yields_decoded_host()
+    {
+        const string value = "BlobEndpoint=https://starch%5cqa.blob.core.windows.net/;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("starchqa.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_account_endpoint_percent_encoded_backslash_yields_decoded_host()
+    {
+        const string value = "AccountEndpoint=%6d%79%5caccount.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_sql_server_percent_encoded_plus_yields_decoded_host()
+    {
+        const string value = "Server=pg%2b.postgres.database.azure.com;Database=app;Password=secret";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("pg+.postgres.database.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_service_bus_percent_encoded_backslash_yields_decoded_namespace_host()
+    {
+        const string value =
+            "Endpoint=sb://orders%5cprod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("ordersprod.servicebus.windows.net");
+    }
 }

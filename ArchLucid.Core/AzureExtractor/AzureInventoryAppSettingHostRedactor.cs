@@ -208,6 +208,12 @@ public static partial class AzureInventoryAppSettingHostRedactor
             .Replace("/", string.Empty, StringComparison.Ordinal);
     }
 
+    private static bool ShouldNormalizeKeyVaultSecretUriHost(string vaultHost)
+    {
+        return vaultHost.Contains("%2f", StringComparison.OrdinalIgnoreCase)
+               || vaultHost.Contains("%5c", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string NormalizeSqlInventoryHost(string host)
     {
         string decoded = Uri.UnescapeDataString(host);
@@ -247,7 +253,10 @@ public static partial class AzureInventoryAppSettingHostRedactor
 
         if (match.Success)
         {
-            string vaultHost = match.Groups["host"].Value.Trim().ToLowerInvariant();
+            string rawVaultHost = match.Groups["host"].Value.Trim();
+            string vaultHost = ShouldNormalizeKeyVaultSecretUriHost(rawVaultHost)
+                ? NormalizeHttpsInventoryHost(rawVaultHost)
+                : rawVaultHost.ToLowerInvariant();
             string secretName = match.Groups["secret"].Value.Trim();
 
             if (string.IsNullOrWhiteSpace(vaultHost) || string.IsNullOrWhiteSpace(secretName))
