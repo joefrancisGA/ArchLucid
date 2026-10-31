@@ -24,4 +24,15 @@ public sealed class EmailMultipartPlainTextLineBreakNormalizerTests
 
         normalized.Should().Be("first\nsecond");
     }
+
+    [Fact]
+    public void NormalizeOptional_maps_vertical_tab_and_form_feed_to_lf()
+    {
+        string? normalized = EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional(
+            "## Summary\u000Bline\fnext");
+
+        normalized.Should().Be("## Summary\nline\nnext");
+        normalized.Should().NotContain("\u000B");
+        normalized.Should().NotContain("\f");
+    }
 }
