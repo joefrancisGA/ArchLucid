@@ -16632,6 +16632,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-pilots
 
+2026-10-31 seed hunt (hunt 242, seed→hit): reseeded `application-pilots` after hunt 241; promoted **ROI baseline inputs (per field)** section still deriving projected-dollar PASS/WARN/HOLD and table **Yes/No** from stale `PilotRoiBaselineInputsStatusResponse.ProjectedDollarClaimsSponsorSafe` while proof checklist row already prefers `SponsorRoiClaimDispositionResult` (hunt 241)—stale inputs **true** with gate **false** showed **PASS** and **Yes** in baseline section while checklist showed **No**; thread optional `roiClaimGate` through `PilotRoiBaselineInputsMarkdownFormatter` and `FirstValueReportBuilder`; regression `Roi_baseline_projected_dollar_when_stale_inputs_safe_but_roi_claim_gate_not_matches_proof_package`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 241 reseed — sendability API mirror monitor retained (by design), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, baseline disposition monitor closed this hit, PDF gate vs gate monitor retained; scoped **261** BuyerProofPack/BoardPack-filter tests passed. Private beta: ROI baseline inputs projected-dollar disposition matches the ROI claim gate alongside the proof checklist—not lagging inputs DTO alone.
+
+- [x] (proven) `PilotRoiBaselineInputsMarkdownFormatter` — projected dollar disposition vs roi claim gate — **hit 2026-10-31 seed hunt (hunt 242):** `roiClaimGate.ProjectedDollarClaimsSponsorSafe`; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingTrustEvidenceCardMarkdownFormatter` — sendability API mirror vs gate — **cheap-disproof 2026-10-31 seed hunt (hunt 242):** API checklist mirror by design; monitor retained.
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — per-field basis inline-code — **cheap-disproof 2026-10-31 seed hunt (hunt 242):** monitor retained.
+- [x] (valid-no-repro) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown vs PDF quoting — **cheap-disproof 2026-10-31 seed hunt (hunt 242):** monitor retained.
+- [x] (valid-no-repro) `PilotRoiBaselineInputsMarkdownFormatter` — duplicate disposition monitor from hunt 241 header — **cheap-disproof 2026-10-31 seed hunt (hunt 242):** closed this hit.
+- [x] (valid-no-repro) `SponsorFirstValuePdfGate` — PDF gate vs roi claim gate — **cheap-disproof 2026-10-31 seed hunt (hunt 242):** build result lacks gate field; monitor retained.
+
+- (candidate) `FindingTrustEvidenceCardMarkdownFormatter` — evidence card **Buyer-safe proof sendability (API checklist)** mirrors only `ProofPackageCompletenessResponse` while sponsor-safe disposition derives from `PilotBuyerSafeEvidenceGateEvaluator` — locus: `FormatProofSendabilityMirrorCell(proof)`; input: API DTO `Sendable` with demo-tenant deltas contradicting gate `NotSendable` (monitor).
+- (candidate) `PilotRoiBaselineInputsMarkdownFormatter` — per-field ROI baseline table basis cells without inline-code wrap — locus: markdown table rows; input: monitor (monitor).
+- (candidate) `FirstValueReportDeltasSectionFormatter.FormatTimeToCommit` — markdown committed timestamp inline code vs PDF SQL quoting — locus: computed deltas surfaces; input: monitor.
+- (candidate) `SponsorFirstValuePdfGate.EnsureCanGenerate` — projected-dollar PDF block reads proof inputs only — locus: `ResolveBlockReason`; input: stale inputs true with live gate false (monitor).
+- (candidate) `FirstValueReportBuildResult` — omit persisted roi claim gate for downstream export gates — locus: PDF/DOCX parity; input: monitor.
+
 2026-10-31 seed hunt (hunt 241, seed→hit): reseeded `application-pilots` after hunt 240; promoted proof-package **Projected dollar claims sponsor-safe** row and sponsor-safe status projected-dollar **Concrete gaps** bullet still reading stale `proof.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe` while sponsor ROI claim gate and first-page narrative use `SponsorRoiClaimDispositionResult.ProjectedDollarClaimsSponsorSafe` (hunts 231–240 family)—stale proof **true** with gate **false** omitted automated gap copy and showed **Yes** in checklist; prefer `roiClaimGate.ProjectedDollarClaimsSponsorSafe` with proof fallback; regression `Concrete_gaps_when_stale_proof_projected_dollar_safe_but_roi_claim_gate_not_uses_gate`; cheap-disproof closed five header `(candidate)` monitor rows from hunt 240 reseed — sendability API mirror monitor retained (by design), per-field basis inline-code monitor retained, markdown vs PDF time-to-commit monitor retained, sufficiency vs heuristic badge monitor retained, mapper cache monitor retained; scoped **260** BuyerProofPack/BoardPack-filter tests passed. Private beta: Projected-dollar sponsor-safe checklist and gap bullets follow the ROI claim gate—not lagging proof baseline inputs alone.
 
 - [x] (proven) `FirstValueReportProofPackageSectionFormatter` / `SponsorSafeProofStatusMarkdownFormatter` — projected dollar sponsor-safe vs roi claim gate — **hit 2026-10-31 seed hunt (hunt 241):** `roiClaimGate.ProjectedDollarClaimsSponsorSafe`; regression above. [class:fail-open-validation]
@@ -18966,11 +18981,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 83
-- **bugs-found:** 61
+- **hunts:** 84
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — projected dollar sponsor-safe vs roi claim gate
+- **last-bug:** 2026-10-31 — ROI baseline projected-dollar disposition vs roi claim gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
