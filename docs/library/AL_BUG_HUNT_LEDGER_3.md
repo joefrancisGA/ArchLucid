@@ -10975,6 +10975,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-01 thorough hunt (hit): unknown `focusedFinding` deep links stayed in the address bar after the register finished loading because hydration waited for a matching row but never cleared stale tokens when the loaded queue had no such finding; strip unknown ids once displayed finding rows exist and close triage when needed; regressions `strips unknown focusedFinding after finding rows load` and `opens triage when focusedFinding rows arrive after an empty displayed queue`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 8 scoped vitest tests passed. Private beta: Invited operators landing on the governance findings queue with an obsolete or mistyped finding deep link no longer keep a broken `focusedFinding` param after data loads.
+
 2026-11-01 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` kept a one-shot `hydratedFromUrlRef` gate and rewrote closed-panel URLs by comparing trimmed empties, so a second `focusedFinding` deep link never opened triage and in-panel URL changes could not switch findings; re-hydrate on param/row changes, strip closed triage cursors in layout before hydration, and defer URL sync while URL and active row disagree; regressions `opens triage when focusedFinding changes to another finding without remounting` and `opens triage from a focusedFinding deep link after the panel was closed`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 6 scoped vitest tests passed. Private beta: Invited operators can follow successive governance finding deep links and switch `focusedFinding` targets without a stale triage panel or stripped bookmark URLs.
 
 2026-11-01 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` treated whitespace-only `focusedFinding` params as empty for hydration but left junk tokens in the address bar and kept triage open when the URL changed to a blank token after deep-link hydration; shared `governanceFindingTriageFocusedFindingParamIsBlankToken` and close plus strip in the URL sync effect; regressions `strips a whitespace-only focusedFinding param when triage is closed` and `closes triage and strips a whitespace-only focusedFinding param when the URL changes`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 4 scoped vitest tests passed. Private beta: Invited operators on the governance findings queue no longer keep a stale triage panel or a whitespace-only `focusedFinding` link after bookmarked or edited URLs.
@@ -11007,11 +11009,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 69
-- **bugs-found:** 48
+- **hunts:** 70
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — focusedFinding deep links ignored after first hydration
+- **last-bug:** 2026-11-01 — unknown focusedFinding persisted after register load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11058,11 +11060,17 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` href emits before register rows finish loading empty `displayedRows` — **cheap-disproof 2026-11-01 thorough hunt:** `resolveFirstFindingTriageTarget` returns `null` when no finding rows (`displayedRows.find` undefined).
 - [x] (valid-no-repro) `FindingKeyboardTriageHost` — Alt+1–3 disposition when focused card `data-finding-id` is whitespace-only — **cheap-disproof 2026-11-01 thorough hunt:** `onAction` returns when `normalizeGovernanceQueueFindingId` is empty.
 
-- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — async register load after invalid `focusedFinding` may leave triage closed while URL retains unknown id — locus: deep link before rows load; input: `focusedFinding=missing` with delayed fetch.
-- [ ] (candidate) `GovernanceFindingsQueueBulkActions` — bulk disposition POST uses raw selection order when padded and trimmed ids dedupe to one row — locus: bulk disposition API; input: duplicate padded ids in `bulkFindings`.
-- [ ] (candidate) `GovernanceFindingTriagePanel` — working-mode inspect href omits `findingsQueueRunId` when scoped run filter inactive but URL carries stale `runId` — locus: triage inspect CTA; input: scope cleared with lingering run param.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — continue-last target vs inactive `focusedFinding` when both URL params present — locus: continue-last strip; input: `focusedFinding` + recent-view mismatch.
-- [ ] (candidate) `FindingKeyboardTriageHost` — keyboard disposition blocked reason compares raw finding id from URL sync params — locus: `kbDispFindingIdParam`; input: padded keyboard URL token.
+- [x] (proven) `useGovernanceFindingTriageWithCursor` — async register load after invalid `focusedFinding` may leave triage closed while URL retains unknown id — **hit 2026-11-01 thorough hunt (third pass):** strip unknown ids once displayed finding rows exist; regressions `strips unknown focusedFinding after finding rows load` and `opens triage when focusedFinding rows arrive after an empty displayed queue`.
+- [x] (valid-no-repro) `GovernanceFindingsQueueBulkActions` — bulk disposition POST uses raw selection order when padded and trimmed ids dedupe to one row — **cheap-disproof 2026-11-01 thorough hunt:** UI selection uses trimmed `availableFindingIds`; server bulk path dedupes via `HashSet` (Set 2 ledger 2026-09-11 hits).
+- [x] (valid-no-repro) `GovernanceFindingTriagePanel` — working-mode inspect href omits `findingsQueueRunId` when scoped run filter inactive but URL carries stale `runId` — **cheap-disproof 2026-11-01 thorough hunt:** tenant queue passes architecture-only `inspectHrefOptions`; `getFindingEvidenceTraceHref` resolves run from row data, not stale scope params.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — continue-last target vs inactive `focusedFinding` when both URL params present — **cheap-disproof 2026-11-01 thorough hunt:** continue-last and triage cursors are independent affordances; cursor hook owns `focusedFinding` hydration without suppressing continue-last strip.
+- [x] (valid-no-repro) `FindingKeyboardTriageHost` — keyboard disposition blocked reason compares raw finding id from URL sync params — **cheap-disproof 2026-11-01 thorough hunt:** URL sync parses trimmed `kbDispFindingId`; queue host does not supply a blocked-reason callback and `resolveRunId` is trim-aware.
+
+- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — filtered-out finding deep link strips while register row still loaded off-display — locus: register filter hides focused row; input: `focusedFinding` for filtered finding.
+- [ ] (candidate) `GovernanceFindingsQueueBulkActions` — SecureNow remediation-factory selection vs bulkFindings when both URL params present — locus: dual selection params; input: factory + bulk deep link.
+- [ ] (candidate) `GovernanceFindingTriagePanel` — triage panel inspect href when `runId` trims empty but `runLabel` present — locus: inspect CTA; input: whitespace run id with label text.
+- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `dispositionRecorded` true while triage panel closed on first paint — locus: triage steps strip; input: rows with latestDisposition set.
+- [ ] (candidate) `FindingKeyboardTriageHost` — deep-linked keyboard confirm survives `clearAllFilters` on governance queue — locus: kbDisp params; input: clear-all href builder.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
