@@ -20,7 +20,12 @@ test.describe("Azure extractor ZIP wizard field", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await waitForReviewsNewBaselineSimplifiedWizard(page);
-    await expect(page.getByRole("textbox", { name: "System Name" })).not.toHaveValue("", { timeout: 15_000 });
+    // Baseline-first intake intentionally starts without an inferred identity.
+    // An extractor resource-group scope is evidence, not the architecture system name.
+    const systemName = page.getByRole("textbox", { name: "System Name" });
+    await expect(systemName).toBeVisible({ timeout: 15_000 });
+    await expect(systemName).toHaveValue("");
+    await systemName.fill("OperatorChosenSystem");
 
     const description = page.getByRole("textbox", { name: "Description" });
     const descriptionText = (await description.inputValue()).trim();
@@ -38,7 +43,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expandWizardBaselineZipEvidence(page);
   });
 
-  test("accepts a valid packager ZIP and prefills system name", async ({ page }) => {
+  test("accepts a valid packager ZIP and preserves an operator-entered system name", async ({ page }) => {
     const zipFile = {
       name: "valid-azure-pack.zip",
       mimeType: "application/zip",
@@ -58,7 +63,9 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
     await expect(page.getByTestId("wizard-azure-zip-ready")).toBeVisible({ timeout: 15_000 });
 
-    await expectBaselineWizardSystemNamePrefilled(page, "E2eMockRg");
+    // Manifest scope appears in the briefing, but must NOT overwrite operator identity.
+    await expectBaselineWizardSystemNamePrefilled(page, "OperatorChosenSystem");
+    await expect(page.getByRole("textbox", { name: "Description" })).toHaveValue(/resourceGroups\/E2eMockRg/);
   });
 
   test("rejects non-zip file types", async ({ page }) => {
