@@ -1555,6 +1555,22 @@
 
 ## Zone: sql-run-repository
 
+**Hunts:** 69 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
+
+2026-11-01 thorough hunt (dry #69): cheap-disproof closed five open `(candidate)` rows from thorough dry **#68** — **valid-no-repro** keyset vs unpaged first-page cache keys include clamped take so shapes do not collide (`RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`; seed **#64**); **valid-no-repro** recent-in-scope keyset `RecordNamedQueryLatencyMilliseconds` in `finally` on canceled connection open is observability-only (same class as `ListByProjectAsync` closed **#68**); **invalid** findings snapshot `fsWarn` aggregate without tenant predicate — outer `ScopeWhereTail` + `FK_FindingsSnapshots_Runs_RunId` block cross-tenant `HasWarnings` (`LeftJoinAggregates_groups_findings_and_open_alerts_by_run_id`); **valid-no-repro** in-memory list paths use harness scope matching instead of SQL `RequireScopedTenant` by design (`RequireScopedTenant_rejects_empty_tenant` on SQL); **valid-no-repro** `ForProjectKeysetPage` binds raw `ProjectSlug` and normalized slug like `ForProjectList` (`ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`); seeded five follow-on `(candidate)` rows; scoped zone filter **174/174** passed, **1** SQL integration skipped (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `CachingRunRepository.ListByProjectKeysetAsync` — keyset cache key includes clamped take while unpaged project list caches up to 200 — **cheap-disproof 2026-11-01 thorough hunt #69:** `:take:` segment differs when clamped sizes differ; regression `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
+- [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeKeysetAsync` — `RecordNamedQueryLatencyMilliseconds` in `finally` when `CreateOpenConnectionAsync` is canceled — **cheap-disproof 2026-11-01 thorough hunt #69:** metrics-only; dry **#68** diary on project list path.
+- [x] (invalid) `RunListWarningFlagSql.LeftJoinAggregates` — findings snapshot aggregate groups by `RunId` without tenant predicate — **cheap-disproof 2026-11-01 thorough hunt #69:** run PK + FK; regression `LeftJoinAggregates_groups_findings_and_open_alerts_by_run_id`.
+- [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectAsync` — does not call `PersistenceTenantScope.RequireScopedTenant` while SQL list paths do — **cheap-disproof 2026-11-01 thorough hunt #69:** in-memory harness scope; SQL guard `RequireScopedTenant_rejects_empty_tenant`.
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — binds both `ProjectSlug` and `NormalizedProjectSlug` like unpaged project list — **cheap-disproof 2026-11-01 thorough hunt #69:** shared parameter builder; regression `ForProjectList_preserves_raw_project_slug_for_try_convert_while_normalizing_slug_branch`.
+
+- [ ] (candidate) `CachingRunRepository.ListByProjectKeysetAsync` — continuation requests with cursor bypass hot-path cache while first page is cached — locus: `Lists.cs` ~46–47; input: paginate within 15s TTL after first-page cache fill (monitor dry **#69**).
+- [ ] (candidate) `CachingRunRepository.ListRecentInScopeKeysetAsync` — first-page cache key shares `RunListRecentInScopeFirstPage` shape with unpaged recent list at different default take — locus: ~68–96; input: switch dashboard list shapes within TTL (monitor).
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — malformed paired cursor throws before `PersistenceTenantScope.RequireScopedTenant` — locus: ~128–129; input: missing tenant scope plus partial cursor (monitor **#68** recycle).
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — open governance alert aggregate keys by `RunId` without project/workspace predicate — locus: `govWarn` subquery; input: mis-scoped alert row sharing run id (monitor dry **#68**).
+- [ ] (candidate) `InMemoryRunRepository.ListByProjectKeysetAsync` — keyset warning flags preserved on continuation without SQL left-join parity — locus: in-memory keyset assembly; input: paged list with `HasWarnings` on page 2+ (monitor seed **#64**).
+
 **Hunts:** 68 · **Bugs found:** 27 · **Consecutive dry hunts:** 7
 
 2026-10-21 thorough hunt (dry, lane B): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped zone filter 208 passed, 1 SQL integration skipped.
@@ -1565,13 +1581,6 @@
 - [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeOffsetAsync` — negative offset normalization and probe-row `HasMore` assembly — **cheap-disproof 2026-10-21 thorough hunt #68:** `RunPagination.NormalizeOffset` binds zero before fetch; probe trim semantics unchanged; regression `ForRecentInScopeOffsetPage_negative_offset_normalization_does_not_change_probe_trim_semantics`.
 - [x] (valid-no-repro) `RunListWarningFlagSql.LeftJoinAggregates` — open-alert aggregate not filtered by tenant/workspace before `RunId` join — **cheap-disproof 2026-10-21 thorough hunt #68:** `FK_AlertRecords_Runs_RunId` and detail EXISTS use the same run-id keying; regression `LeftJoinAggregates_governance_open_alert_presence_keys_by_run_id_like_detail_exists`.
 
-- [ ] (candidate) `CachingRunRepository.ListByProjectKeysetAsync` — keyset cache key includes clamped take while unpaged project list caches up to 200 — locus: `CachingRunRepository.Lists.cs`; input: switch list shapes within TTL; wrong outcome: stale rows when take differs.
-- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — `RecordNamedQueryLatencyMilliseconds` in `finally` when `CreateOpenConnectionAsync` is canceled — locus: `SqlRunRepository.List.cs` ~133–151; input: cancel before connection opens; wrong outcome: misleading success latency metric.
-- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — findings snapshot aggregate groups by `RunId` without tenant predicate — locus: `fsWarn` subquery; input: orphaned findings row referencing run id; wrong outcome: false `HasWarnings` on unrelated tenant list (blocked by FK).
-- [ ] (candidate) `InMemoryRunRepository.ListByProjectAsync` — does not call `PersistenceTenantScope.RequireScopedTenant` while SQL list paths do — locus: `InMemoryRunRepository.List.cs`; input: empty `TenantId` scope; wrong outcome: in-memory lists return rows SQL would reject.
-- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — binds both `ProjectSlug` and `NormalizedProjectSlug` like unpaged project list — locus: keyset parameter builder; input: tab-prefixed display slug; wrong outcome: keyset page misses rows unpaged list returns.
-
-**Hunts:** 67 · **Bugs found:** 27 · **Consecutive dry hunts:** 6
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed keyset probe/assembly clamping, offset probe/assembly clamping, GUID project matching, archived-run list filtering, and timestamp/RunId ordering; 172 focused Persistence tests passed and 1 SQL integration test skipped.
 
@@ -1724,10 +1733,10 @@
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 67
+- **hunts:** 69
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 7
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2721,13 +2730,27 @@
 
 ## Zone: finding-disposition
 
+2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` monitor rows from seed **#48** — optional single-character deferred rationale matches TB-2305 optional branch (only Accepted/Rejected require 10 chars; regression `Validate_deferred_accepts_single_character_optional_rationale`); invalid expected row version rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`, `RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository`); bulk batch uses one `IsWorkingDeskAsync` lookup by design (`RecordBulkAsync_queries_working_desk_mode_once_per_batch`); disposition history API omits non-disposition trail rows (`ListHistoryAsync_excludes_review_trail_events_without_disposition`); guided-desk remediated ignores client `ImpactPreviewCompleted` without working desk (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, hypothesis block). Reseeded five follow-on `(candidate)` rows; scoped **68/68** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional optional branch; regression above; TB-2305 parity.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository write — **cheap-disproof 2026-11-01 thorough hunt #49:** `TryDecodeRowVersion`; regressions above.
+- [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — one `IsWorkingDeskAsync` result governs preview attestation for entire batch — **cheap-disproof 2026-11-01 thorough hunt #49:** single reviewer desk mode per batch by design; regression above.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — **cheap-disproof 2026-11-01 thorough hunt #49:** disposition-history contract; regression above.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — **cheap-disproof 2026-11-01 thorough hunt #49:** early return when `!isWorkingDesk`; regression above.
+
+- [ ] (candidate) `FindingDispositionValidation.Validate` — `Remediated` disposition accepts optional rationale below 10 characters when provided — locus: optional branch ~71–88; input: two-character optional rationale (monitor seed **#48** themes).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` treated as absent concurrency token — locus: `TryDecodeRowVersion` trim; input: `"   "` (monitor concurrent race tests).
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — mixed Remediated rows in one batch share working-desk attestation outcome — locus: shared `isWorkingDesk`; input: batch with two remediated findings (monitor **#49**).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — disposition events from other workspace in same tenant omitted — locus: workspace equality filter; input: shared finding id across workspaces (monitor project filter parity).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working desk Remediated accepts `ImpactPreviewCompleted=true` without server preview artifact — locus: LP-14 attestation field; input: API client boolean (monitor LP-14 honesty contract).
+
 2026-11-01 seed hunt (seed-only #48): re-read `FindingDispositionService` (`RecordAsync`/`RecordBulkAsync` concurrency, working-desk remediated attestation, history scope filter) and `FindingDispositionValidation` (enum guard, substantive-text finding ids, optional vs required rationale, deferred revisit window, LP-14 preview attestation); no mechanism-backed row met the hunt-ready promotion bar without relying on non-zone callers or test doubles; seeded five `(candidate)` rows below; scoped **33/33** `FindingDispositionValidationTests` (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — locus: optional branch ~71–88; input: single visible character on `Deferred` (monitor).
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository write — locus: `TryDecodeRowVersion`; input: non-base64 padding string (monitor).
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — one `IsWorkingDeskAsync` result governs preview attestation for entire batch — locus: ~86–93; input: hypothetical per-row desk mode (monitor).
-- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — locus: ~235–236; input: mixed review/disposition history (monitor).
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — locus: early return when `!isWorkingDesk`; input: client-supplied boolean without server preview artifact (monitor).
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — **cheap-disproof 2026-11-01 thorough hunt #49:** see zone header; regression `Validate_deferred_accepts_single_character_optional_rationale`.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository write — **cheap-disproof 2026-11-01 thorough hunt #49:** see zone header.
+- [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — one `IsWorkingDeskAsync` result governs preview attestation for entire batch — **cheap-disproof 2026-11-01 thorough hunt #49:** see zone header.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — **cheap-disproof 2026-11-01 thorough hunt #49:** see zone header.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — **cheap-disproof 2026-11-01 thorough hunt #49:** see zone header.
 
 2026-10-21 seed hunt (seed→hit, lane C): `ListHistoryAsync` returned empty history when finding id casing differed from stored trail rows; case-insensitive lookup via `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; FindingDisposition filter 65/65.
 
@@ -2760,9 +2783,9 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
@@ -2986,6 +3009,20 @@
 
 ## Zone: review-recurrence
 
+2026-11-01 thorough hunt (dry #41): cheap-disproof closed five open `(candidate)` monitor rows from dry **#40** reseed — `@hourly` included in interval-alias MaxValue throw theory (`ComputeNextRunUtc_interval_alias_at_max_value_throws`); interior thin space U+2009 fails parse like U+00A0 nbsp (`IsSupportedCronExpression_rejects_interior_thin_space_between_cron_fields`, `ComputeNextRunUtc_returns_null_for_interior_thin_space_cron`); `@weekley` typo rejected while `@weekly` accepted (`IsSupportedCronExpression_rejects_weekley_typo_alias`); `@hourly` at `DateTime.MinValue` advances without throw (`ComputeNextRunUtc_from_min_value_with_hourly_alias_returns_future_instant`); large preview count stops on null after first normalized occurrence (`ComputeNextRunsUtc_stops_when_large_preview_count_hits_null_after_first_occurrence`, dry **#935** stub family). Reseeded five follow-on `(candidate)` rows; scoped **60/60** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` not covered by `@Theory` inline data for interval-alias throws — **cheap-disproof 2026-11-01 thorough hunt #41:** regression above; unreachable MaxValue reference; dry **#935**.
+- [x] (invalid) `IsSupportedCronExpression` — interior thin space U+2009 between cron fields — **cheap-disproof 2026-11-01 thorough hunt #41:** regressions above; dry **#39** / **#936** nbsp parity.
+- [x] (invalid) `IsSupportedCronExpression` — typo alias `@weekley` vs `@weekly` — **cheap-disproof 2026-11-01 thorough hunt #41:** regression above; dry **#39** `@montly` class.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` with `@hourly` alias — **cheap-disproof 2026-11-01 thorough hunt #41:** regression above; distinct from five-field MinValue probe.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — large preview count when normalization returns null after first occurrence — **cheap-disproof 2026-11-01 thorough hunt #41:** regression above; dry **#935**.
+
+- [ ] (candidate) `ComputeNextRunUtc` — `@monthly` at `DateTime.MaxValue` Cronos path vs interval `AddDays` throws — locus: alias routing; input: MaxValue probe (monitor dry **#39**).
+- [ ] (candidate) `IsSupportedCronExpression` — interior no-break space U+00A0 between cron fields — locus: parse; input: paste variant (monitor dry **#40**).
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@montly` vs `@monthly` — locus: Cronos parse; input: operator typo (monitor dry **#40**).
+- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` with five-field cron — locus: Cronos; input: MinValue reference (monitor dry **#40**).
+- [ ] (candidate) `ComputeNextRunsUtc` — batch preview omits `isScheduleEnabled` flag — locus: preview API; input: disabled persisted schedule (monitor dry **#40**).
+
 2026-11-01 thorough hunt (dry #40): cheap-disproof closed five open `(candidate)` rows from dry **#936** reseed — **valid-no-repro** `@hourly` at `DateTime.MaxValue` throws on alias `AddHours` like `@daily`/`@weekly` (unreachable MaxValue reference; dry **#935**); **invalid** interior no-break space U+00A0 — regressions `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields` and `ComputeNextRunUtc_returns_null_for_interior_no_break_space_cron`; **invalid** `@montly` typo — regression `IsSupportedCronExpression_rejects_montly_typo_alias`; **valid-no-repro** `DateTime.MinValue` with `"0 0 1 1 *"` — regression `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`; **valid-no-repro** batch preview omits `isScheduleEnabled` by design — regression `ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled` and hunt **#1469**; reseeded five follow-on `(candidate)` rows; scoped **54/54** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` throws on alias `AddHours` — **cheap-disproof 2026-11-01 thorough hunt #40:** throws `ArgumentOutOfRangeException`; persisted recurrence uses bounded references; dry **#935** `@daily`/`@weekly` theory + hourly probe class.
@@ -2993,12 +3030,6 @@
 - [x] (invalid) `IsSupportedCronExpression` — typo alias `@montly` vs `@monthly` — **cheap-disproof 2026-11-01 thorough hunt #40:** exact alias list; regression above.
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` with five-field cron — **cheap-disproof 2026-11-01 thorough hunt #40:** Cronos returns future instant; regression above.
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — batch preview omits `isScheduleEnabled` flag — **cheap-disproof 2026-11-01 thorough hunt #40:** preview API contract; single-run disable honored; regression above.
-
-- [ ] (candidate) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` not covered by `@Theory` inline data for interval-alias throws — locus: test matrix; input: MaxValue probe (monitor dry **#935**).
-- [ ] (candidate) `IsSupportedCronExpression` — interior thin space U+2009 between cron fields — locus: `Trim()` only; input: paste variant (monitor dry **#39**).
-- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@weekley` vs `@weekly` — locus: Cronos parse; input: operator typo (monitor dry **#39**).
-- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` with `@hourly` alias — locus: `AddHours`; input: MinValue reference (monitor dry **#39**).
-- [ ] (candidate) `ComputeNextRunsUtc` — large preview count when normalization returns null after first occurrence — locus: batch loop; input: stub ceiling (monitor dry **#39**).
 
 2026-11-01 thorough hunt (dry #39): cheap-disproof closed five open `(candidate)` monitor rows from dry **#936** reseed — `@monthly` / `@yearly` at `DateTime.MaxValue` use Cronos `GetNextOccurrence` (not `@daily`/`@weekly` `AddDays` throws); no persisted recurrence supplies MaxValue references (parity dry **#935** / **#936** `ComputeNextRunUtc_interval_alias_at_max_value_throws` for interval aliases); interior thin space U+2009 between fields fails parse like U+00A0 nbsp (dry **#936** `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields`); `@weekley` typo rejected while `@weekly` parses via Cronos (dry **#936** `@montly` class — `IsSupportedCronExpression_rejects_montly_typo_alias`); `@hourly` at `DateTime.MinValue` advances via `AddHours(1)` without throw (distinct from five-field cron MinValue probe — `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`); batch preview stops on null after normalization ceiling (dry **#935** stub regressions `ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`, `ComputeNextRunsUtc_stops_when_underlying_returns_null_after_first_occurrence`). Reseeded five follow-on `(candidate)` rows; scoped **54/54** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -3044,7 +3075,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 40
+- **hunts:** 41
 - **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
@@ -3054,7 +3085,7 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -3071,9 +3102,6 @@
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
-
-- **hunts:** 40
-- **last-hunt:** 2026-11-01
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
 
@@ -3179,6 +3207,20 @@
 
 ## Zone: scim-users
 
+2026-11-01 thorough hunt (dry #51): cheap-disproof closed five open `(candidate)` rows recycled from dry **#50** — **valid-no-repro** PUT/PATCH/POST cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (intentional host cancel contract; regressions `ReplaceAsync_propagates_operation_canceled_from_service_replace`, `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`, `PatchAsync_propagates_operation_canceled_from_service_patch`, `CreateAsync_propagates_operation_canceled_from_service_create`, parity `GetAsync_propagates_operation_canceled_from_service` / `DeleteAsync_propagates_operation_canceled_during_deactivate`); **valid-no-repro** omitted `filter` vs empty `filter=` yield identical totals (`ListAsync_null_filter_matches_empty_string_filter_totals`, `ScimFilterParser.Parse` whitespace class hunt **#49**/**#50**); seeded five follow-on `(candidate)` rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during service `ReplaceAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ReplaceAsync_propagates_operation_canceled_from_service_replace`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `OperationCanceledException` during service `PatchAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `PatchAsync_propagates_operation_canceled_from_service_patch`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — cooperative cancel during service `CreateAsync` propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `CreateAsync_propagates_operation_canceled_from_service_create`; deserialize cancel remains `CreateAsync_propagates_operation_canceled_during_json_deserialize`.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` cancel propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `filter=` empty query and omitted filter both return identical first page totals — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ListAsync_null_filter_matches_empty_string_filter_totals`; dry **#50** diary.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — locus: ~188; input: cancel between persist and reload (monitor dry **#51**).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `ScimSeatLimitExceededException` maps to SCIM 403 but cancel during seat reservation propagates — locus: ~97–108; input: cancel after parse before seat check completes (monitor).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `ScimConflictException` on external id uniqueness vs cooperative cancel ordering — locus: ~137–161; input: concurrent PUT with same external id (monitor).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count` above service clamp still returns `totalResults` for full tenant cardinality — locus: ~36–47; input: `count=10000` list probe (monitor dry **#48** recycle).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — non-SCIM fault after successful patch propagates as HTTP 500 — locus: ~185–209; input: faulting post-patch `GetAsync` (monitor hunt **#352**).
+
 2026-11-01 thorough hunt (dry #50): cheap-disproof closed five open `(candidate)` rows from dry **#49** — **valid-no-repro** PUT/PATCH cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (controller has no cancel catch; parity `GetAsync_propagates_operation_canceled_from_service`, `DeleteAsync_propagates_operation_canceled_during_deactivate`, hunt **#348** deserialize-only rethrow vs service cancel); **valid-no-repro** PUT on directory-removed id throws `ScimNotFoundException` at tombstone guard before uniqueness (`ScimUserService.Crud.cs` ~99–100; PATCH parity `PatchAsync_directory_removed_user_rejects_active_true_patch`); **valid-no-repro** omitted `filter` vs empty `filter=` both yield unfiltered list (`ScimFilterParser.Parse` `IsNullOrWhiteSpace` → null; `Parse_null_or_whitespace_returns_null`, hunt **#49** whitespace diary); **invalid** unknown id vs directory-removed share identical `notFound` copy by design (RFC 7644 non-enumeration; `GetAsync` maps both to null ~28–29; hunt **#350** static copy diary); seeded five follow-on `(candidate)` rows; scoped filter **52/52** (44 Application + 8 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — cooperative cancel during service `ReplaceAsync` or post-replace `GetAsync` propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional host cancel contract; parity `GetAsync_propagates_operation_canceled_from_service` / hunt **#49** DELETE diary.
@@ -3186,12 +3228,6 @@
 - [x] (valid-no-repro) `ScimUserService.ReplaceAsync` — PUT on directory-removed user id throws `ScimNotFoundException` before body uniqueness — **cheap-disproof 2026-11-01 thorough hunt #50:** tombstone guard ~99–100 before `EnsureExternalIdNotUsedByAnotherUserAsync`; POST reprovision remains separate path.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted `filter` query vs empty string both yield unfiltered first page — **cheap-disproof 2026-11-01 thorough hunt #50:** `string.IsNullOrWhiteSpace` in `ScimFilterParser.Parse`; empty `filter=` binds `""` → null AST; hunt **#49** whitespace class.
 - [x] (invalid) `ScimUsersController.GetAsync` — unknown id vs directory-removed both map to identical `notFound` SCIM copy — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional non-enumeration; service hides tombstones via null `GetAsync`; hunt **#350** static `"User not found."` diary.
-
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during service `ReplaceAsync` propagates without controller catch — locus: ~137–140; input: canceled token after PUT body deserialize; reachability: Entra connector mid-PUT (monitor).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `OperationCanceledException` during service `PatchAsync` propagates without controller catch — locus: ~185–188; input: canceled token after PATCH body deserialize (monitor).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — cooperative cancel during service `CreateAsync` propagates without SCIM envelope — locus: ~97–98; input: cancel after JSON deserialize succeeds (monitor).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` cancel propagates without SCIM envelope — locus: ~140; input: cancel between persist and reload (monitor).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `filter=` empty query and omitted filter both return identical first page totals — locus: ~34–47; input: Entra list probe without filter param vs empty filter (monitor).
 
 2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` rows from thorough dry **#48** (DELETE/GET cooperative cancel during service calls intentionally propagates without SCIM envelope — regressions `DeleteAsync_propagates_operation_canceled_during_deactivate` / `GetAsync_propagates_operation_canceled_from_service`, parity list cancel hunt **#351** and deserialize cancel hunt **#348**/**#48**; PATCH `active:true` on directory-removed id throws `ScimNotFoundException` before seat work — regression `PatchAsync_directory_removed_user_rejects_active_true_patch`, POST reprovision path hunt **#47**/**#348**; POST cancel during JSON deserialize rethrows before `invalidSyntax` — regression `CreateAsync_propagates_operation_canceled_during_json_deserialize`; whitespace-only list `filter` treated as no filter — regression `ListAsync_whitespace_only_filter_returns_unfiltered_page` and `ScimFilterParserTests.Parse_null_or_whitespace_returns_null`, hunt **#347**); reseeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -3420,13 +3456,13 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-10-21 seed hunt (seed->hit) #79: DiscoverAsync returned HTTP 200 with canonical issuer URIs longer than migration 183 NVARCHAR(2048) while test-login and activate already reject them; DiscoverAsync now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after WithCanonicalWizardUris; regression DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column; 99 scoped activation/controller/matrix tests passed.
@@ -3881,6 +3917,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-11-01 thorough hunt (dry #13): cheap-disproof closed five open `(candidate)` monitor rows from dry **#12** reseed (dry **#11** theme recycle) — explicit enable with `MonthlyCapUsd=0` fails at consume-stage enable pre-check before persist (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`, same class as persisted zero cap regression); whitespace payment method id normalizes to omitted partial PUT before guard (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`, dry **#11** diary); webhook-settled credits omit auto-refill counter by design (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`); disable-only PUT preserves persisted cap (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields` asserts cap); enable with payment method merges linked customer before enable guard (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`, dry **#10**). Reseeded five follow-on `(candidate)` rows from dry **#12** closed themes; scoped filter **7/7** Persistence guard + **28/28** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook credits omit monthly auto-refill counter increment — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#10**.
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded Stripe customer/payment method ids trimmed before guard and persist — locus: `NormalizeOptionalStripeId` ~210-211; input: leading/trailing spaces on PUT (monitor dry **#12**).
+- [ ] (candidate) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month rollover resets auto-refill count while cap dollars unchanged — locus: month bucket; input: operator timezone copy vs UTC cap math (monitor dry **#12**).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable/disable race without `ExpectedRowVersion` — locus: optional OCC; input: concurrent PUT (monitor dry **#12** / dry **#7**).
+- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — locus: repository bind; input: direct repository caller (monitor dry **#12**, **invalid** class).
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — locus: PaymentIntent create; input: PM rotation after decline (monitor dry **#12**, **invalid** class).
+
 2026-11-01 thorough hunt (dry #12): cheap-disproof closed five open `(candidate)` rows from dry **#11** reseed — `NormalizeOptionalStripeId` trims before guard/charge by design (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`; whitespace maps to omitted per dry **#11**); UTC month cap bucket is documented contract with rollover regressions (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); concurrent enable/disable without `ExpectedRowVersion` is optional OCC by design (dry **#7** / seed **#6**); `SqlLlmTenantWalletRepository` empty-string bind is internal-only — wallet PUT enters through consume stage normalize (comment ~208-211); `ChargeRefillAsync` creates a fresh PaymentIntent per call with `correlationId` metadata only — no Stripe idempotency-key reuse path (invalid monitor). Reseeded five follow-on `(candidate)` rows; scoped filter **7/7** Persistence guard + **26/26** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — trimming Stripe ids before guard — **cheap-disproof 2026-11-01 thorough hunt #12:** intentional `Trim()`; regressions above.
@@ -3889,11 +3939,11 @@
 - [x] (invalid) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe ids bypass Application normalize — **cheap-disproof 2026-11-01 thorough hunt #12:** public wallet path normalizes; repository is stage-backed entry.
 - [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — idempotency key reuse after PM rotation — **cheap-disproof 2026-11-01 thorough hunt #12:** no idempotency key on PaymentIntent create; new intent per charge attempt.
 
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — locus: enable validation ~48-49; input: same request sets cap zero and enable true (monitor dry **#11**).
-- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted — locus: stage normalize before guard; input: `"   "` PM on partial PUT (monitor dry **#11**).
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook credits omit monthly auto-refill counter increment — locus: `incrementMonthlyAutoRefillCount: false`; input: webhook-settled refill vs auto-refill cap headroom (monitor dry **#11**).
-- [ ] (candidate) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — locus: partial PUT + SQL COALESCE; input: PUT `{ autoReplenishEnabled: false }` only (monitor dry **#11**).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — locus: resolver merge before enable guard; input: enable PUT with PM only (monitor dry **#10** regression family).
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — **cheap-disproof 2026-11-01 thorough hunt #13:** see zone header.
+- [x] (valid-no-repro) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted — **cheap-disproof 2026-11-01 thorough hunt #13:** see zone header.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook credits omit monthly auto-refill counter increment — **cheap-disproof 2026-11-01 thorough hunt #13:** see zone header.
+- [x] (valid-no-repro) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — **cheap-disproof 2026-11-01 thorough hunt #13:** see zone header.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — **cheap-disproof 2026-11-01 thorough hunt #13:** see zone header.
 
 2026-11-01 thorough hunt (dry #11): cheap-disproof closed five open `(candidate)` rows from thorough hunt #10 (explicit enable + `MonthlyCapUsd=0` rejected at ~48-49 before persist — same class as persisted zero cap regression `UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_zero`; payment-method-only PUT while disabled still backfills linked customer by design — regression `UpdateWalletAsync_persists_linked_stripe_customer_when_put_updates_payment_method_only`; whitespace payment method id normalizes to omitted via `NormalizeOptionalStripeId` ~210-211; webhook `CreditRefillWithRetryAsync` passes `incrementMonthlyAutoRefillCount: false` so cap headroom math intentionally excludes webhook credits from auto-refill counter; disable-only PUT with null cap omits `MonthlyCapUsd` so SQL `COALESCE` / in-memory `HasValue` preserves persisted cap); seeded five follow-on `(candidate)` rows; scoped filter **7/7** Persistence guard + **26/26** Application wallet update/refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -3965,9 +4015,9 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
 - **related-pd-tb:** none
@@ -3999,6 +4049,28 @@
 
 ## Zone: billing-webhooks
 
+2026-11-01 thorough hunt (dry #79): cheap-disproof closed five open `(candidate)` rows from seed **#78** — **valid-no-repro** non-null metadata missing `purpose` returns before wallet idempotency insert (~190–194; regression `HandleWebhookAsync_wallet_payment_intent_missing_purpose_key_skips_idempotency_insert`); **valid-no-repro** malformed `correlation_id` falls back to `Guid.NewGuid()` (~208–211; regression `HandleWebhookAsync_wallet_malformed_correlation_metadata_generates_fresh_correlation`); **valid-no-repro** wallet route rejects `invoice.payment_failed` without marking ledger `Processed` (regression `HandleWebhookAsync_wallet_route_rejects_invoice_payment_failed_without_ledger_processed`; dry **#75**); **invalid** HTTP 200 empty body for processed vs replay-rejected (intentional Stripe ack; seed **#68** / `Duplicate_stripe_event_returns_ok_without_reprocessing`); **valid-no-repro** zero `amountCents` with `applied=false` does not throw (~41–43; regression `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting`); seeded five follow-on `(candidate)` rows; zone test-filter **39/39** (24 Persistence + 15 Application) plus **2/2** `StripeBillingProviderWalletWebhookTests` regressions (`RunAnalyzers=false`; Api SQL HTTP suites not run). Private beta: n/a.
+
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — non-null empty metadata dictionary returns before wallet idempotency insert — **cheap-disproof 2026-11-01 thorough hunt #79:** `purpose` key absent → early return ~190–194; regression `HandleWebhookAsync_wallet_payment_intent_missing_purpose_key_skips_idempotency_insert`.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — malformed `correlation_id` metadata falls back to `Guid.NewGuid()` — **cheap-disproof 2026-11-01 thorough hunt #79:** `Guid.TryParse` failure path ~208–211; regression `HandleWebhookAsync_wallet_malformed_correlation_metadata_generates_fresh_correlation`.
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — wallet route rejects subscription invoice events after ledger insert attempt — **cheap-disproof 2026-11-01 thorough hunt #79:** wallet dispatch guard; regression `HandleWebhookAsync_wallet_route_rejects_invoice_payment_failed_without_ledger_processed`; dry **#75** diary.
+- [x] (invalid) `BillingStripeWebhookController.HandleStripeWebhookAsync` — HTTP 200 body empty for both processed and replay-rejected outcomes — **cheap-disproof 2026-11-01 thorough hunt #79:** intentional Stripe ack contract; seed **#68** diary; `Duplicate_stripe_event_returns_ok_without_reprocessing`.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — zero `amountCents` with `applied=false` does not throw — **cheap-disproof 2026-11-01 thorough hunt #79:** guard ~41–43; regression `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting`.
+
+- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — duplicate Stripe event idempotency miss re-invokes processor when `LedgerContainsPaymentIntentAsync` is false — locus: ~217–225; input: idempotency row present without payment-intent ledger credit (monitor dry **#79**).
+- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — whitespace-only `correlation_id` metadata generates fresh correlation like absent key — locus: ~208–211; input: `"   "` correlation on wallet refill (monitor).
+- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — non-canonical casing on `llm_wallet_refill` purpose passes purpose gate — locus: ~192; input: `LLM_WALLET_REFILL` metadata (monitor).
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — negative `amountCents` with `applied=false` does not throw — locus: ~41–43; input: idempotent credit miss on negative succeeded amount (monitor dry **#71**).
+- [ ] (candidate) `StripeBillingProvider.TryGetPaymentIntentFromEvent` — wallet handler no-ops when typed `PaymentIntent` and RawObject fallback both fail — locus: ~251–258; input: event data without deserializable payment intent (monitor).
+
+2026-11-01 seed hunt (seed-only #78): re-read Stripe/marketplace controllers, `StripeBillingProvider` wallet/subscription dispatch, `LlmTenantWalletStripeWebhookProcessor`, and `MemoryCacheBillingWebhookReplayGuard`; cheap-disproof closed five open `(candidate)` rows from thorough dry **#77** — **valid-no-repro** null `PaymentIntent.Metadata` returns before `TryInsertStripeWebhookIdempotencyAsync` (~187–188 intentional no-op); **valid-no-repro** `IsReplayRejected` → HTTP 200 Ok (Stripe ack contract; seed **#68**); **valid-no-repro** concurrent duplicate `TryRegisterEventAsync` loses without TTL refresh (`TryRegisterEventAsync_only_first_concurrent_caller_wins`); **valid-no-repro** marketplace missing bearer rejects before dedupe/ledger (`HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`); **valid-no-repro** whitespace-only succeeded-path tenant metadata throws before wallet credit (`ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_whitespace_only_on_success`); no hunt-ready promotion; seeded five follow-on `(candidate)` rows; scoped billing-webhook unit filter **39/39** (24 Persistence + 15 Application, `RunAnalyzers=false`; Api SQL HTTP suites not run). Private beta: n/a.
+
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — null `PaymentIntent.Metadata` returns before wallet idempotency insert — **cheap-disproof 2026-11-01 seed hunt #78:** early return ~187–188; no idempotency/processor side effects.
+- [x] (valid-no-repro) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` and successful dispatch both map to HTTP 200 Ok — **cheap-disproof 2026-11-01 seed hunt #78:** intentional Stripe ack; seed **#68** diary.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — concurrent duplicate registration returns false without refreshing cache TTL — **cheap-disproof 2026-11-01 seed hunt #78:** first-claim wins; regression above.
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — missing bearer token rejects before dedupe key or ledger insert — **cheap-disproof 2026-11-01 seed hunt #78:** regression above.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-only `tenantIdRaw` on succeeded path throws after trim — **cheap-disproof 2026-11-01 seed hunt #78:** `IsNullOrWhiteSpace` gate ~29–30; regression above.
+
 2026-11-01 seed hunt (seed-only #76): re-read Stripe/marketplace controllers, `StripeBillingProvider` webhook dispatch (connectivity/ping, subscription null-object no-ops, wallet purpose gate, replay-before-ledger ordering), marketplace `IgnoredMissingTenant` ack without integration payload, wallet processor guards; cheap-disproof closed five open `(candidate)` rows from dry **#75**; seeded five follow-on `(candidate)` rows; scoped billing-webhook unit filter **39/39** (`RunAnalyzers=false`; Api SQL HTTP suites not run). Private beta: n/a.
 
 2026-11-01 thorough hunt (dry #77): cheap-disproof closed five open `(candidate)` rows from seed **#76** — **valid-no-repro** subscription/wallet-route `ping` connectivity ack without processor dispatch (`HandleWebhookAsync_wallet_ping_succeeds_without_wallet_processor_dispatch`, `StripeBillingProviderCheckoutWebhookIdempotencyTests` ping replay fixtures); **valid-no-repro** wallet `payment_intent` RawObject fallback mirrors checkout discriminator path (`TryGetPaymentIntentFromEvent` ~251–258; checkout regression `HandleWebhookAsync_checkout_session_completed_without_object_discriminator_still_activates`); **valid-no-repro** invalid wallet `tenant_id` after ledger insert marks `Failed` without credit for Stripe retry (`HandleWebhookAsync_wallet_payment_intent_missing_tenant_id_marks_failed_without_credit`); **invalid** GA-off `DeferredNoIntegration` → `AcknowledgedNoOp` + HTTP 202 (`ChangePlan_ga_off_skips_ledger_change_plan`, `BILLING.md` rollback contract); **invalid** marketplace `DuplicateIgnored` outbox skip (`AzureMarketplaceBillingProvider` does not emit `Duplicate()` today; seed **#62** / thorough **#6**); seeded five follow-on `(candidate)` rows; scoped billing-webhook unit filter **39/39** (`RunAnalyzers=false`; Api SQL HTTP suites not run). Private beta: n/a.
@@ -4009,19 +4081,19 @@
 - [x] (invalid) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — `DeferredNoIntegration` marks ledger `AcknowledgedNoOp` and returns `Returns202Accepted` — **cheap-disproof 2026-11-01 thorough hunt #77:** intentional GA-off deferral; regression `ChangePlan_ga_off_skips_ledger_change_plan`; dry **#74** diary.
 - [x] (invalid) `BillingMarketplaceWebhookController.MarketplaceAsync` — `DuplicateIgnored` success returns HTTP 200 without integration outbox publish — **cheap-disproof 2026-11-01 thorough hunt #77:** controller contract when provider sets flag; marketplace provider does not return `Duplicate()` with integration payload today; seed **#62** diary.
 
-- [ ] (candidate) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — null `PaymentIntent.Metadata` returns before wallet idempotency insert — locus: ~187–188; input: wallet-route `payment_intent.succeeded` with empty metadata object (monitor).
-- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` and successful dispatch both map to HTTP 200 Ok — locus: ~65–71; input: duplicate Stripe event id within replay window (monitor).
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — concurrent duplicate registration returns false without refreshing cache TTL — locus: ~70–71; input: parallel `TryRegisterEventAsync` for same provider/event id (monitor).
-- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — missing bearer token rejects before dedupe key or ledger insert — locus: ~19–20; input: unsigned marketplace POST (monitor).
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-only `tenantIdRaw` on succeeded path throws after trim — locus: ~29–33; input: refill metadata with spaces-only tenant id (monitor).
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — null `PaymentIntent.Metadata` returns before wallet idempotency insert — **cheap-disproof 2026-11-01 seed hunt #78:** see zone header.
+- [x] (valid-no-repro) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` and successful dispatch both map to HTTP 200 Ok — **cheap-disproof 2026-11-01 seed hunt #78:** see zone header.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — concurrent duplicate registration returns false without refreshing cache TTL — **cheap-disproof 2026-11-01 seed hunt #78:** see zone header.
+- [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — missing bearer token rejects before dedupe key or ledger insert — **cheap-disproof 2026-11-01 seed hunt #78:** see zone header.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-only `tenantIdRaw` on succeeded path throws after trim — **cheap-disproof 2026-11-01 seed hunt #78:** see zone header.
+
+- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — failed wallet retry skipped credit when Stripe idempotency row existed without payment-intent ledger row — **hit 2026-10-21 seed hunt lane C:** consult `LedgerContainsPaymentIntentAsync` before skipping processor; regressions above.
 
 - [x] (valid-no-repro) `StripeBillingProvider.DispatchSubscriptionWebhookEventAsync` — `checkout.session.completed` returns handled when typed session is null — **cheap-disproof 2026-11-01 seed hunt #76:** `TryGetCheckoutSessionFromEvent` RawObject fallback ~246–247; regression `HandleWebhookAsync_checkout_session_completed_without_object_discriminator_still_activates`.
 - [x] (valid-no-repro) `StripeBillingProvider.DispatchSubscriptionWebhookEventAsync` — subscription lifecycle handlers return handled when typed Stripe object is null — **cheap-disproof 2026-11-01 seed hunt #76:** intentional idempotent ack when both typed and RawObject deserialization fail; no mutation without a parsed resource (same class as checkout no-op).
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — in-memory `HasSeenAsync` short-circuit runs before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-11-01 seed hunt #76:** intentional hot-replay belt; regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`; dry **#71** diary.
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — `IgnoredMissingTenant` completes with provider `Ok()` and no `MarketplaceWebhookReceived` integration payload — **cheap-disproof 2026-11-01 seed hunt #76:** controller publish guard requires non-null payload ~84–88; dry **#75** diary.
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — wallet-route `payment_intent.*` without `llm_wallet_refill` purpose returns before wallet side effects while dispatch reports handled — **cheap-disproof 2026-11-01 seed hunt #76:** intentional no-op ack for non-refill intents; dry **#73** diary.
-
-- [x] (proven) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — failed wallet retry skipped credit when Stripe idempotency row existed without payment-intent ledger row — **hit 2026-10-21 seed hunt lane C:** consult `LedgerContainsPaymentIntentAsync` before skipping processor; regressions above.
 
 2026-11-01 thorough hunt (dry #74): cheap-disproof closed five open `(candidate)` rows from hunt #73 — **invalid** forwarding `StripeException.Message` in `Rejected` detail (intentional operator-facing signature failure copy; `HandleWebhookAsync_without_signature_rejected`); **valid-no-repro** `IgnoredMissingTenant` duplicate redelivery (`BillingWebhookLedgerReplayPolicy` rejects non-`Failed` statuses; regression `HandleWebhookAsync_missing_tenant_remembers_dedupe_key_and_replay_rejects_identical_payload`); **valid-no-repro** wallet-purpose `payment_intent.processing` ack without credit (same class as #1677 non-terminal `payment_intent.*`; regression `HandleWebhookAsync_wallet_payment_intent_created_succeeds_without_credit`); **invalid** GA-off `Returns202Accepted` skipping integration outbox (intentional deferral per hunt #64 `ChangePlan_ga_off_skips_ledger_change_plan` and controller publish guard ~84–88); **invalid** replay-guard `HasSeenAsync` after TTL eviction (post-eviction callback removes `_claimedKeys`; failed handlers omit `RememberAsync` so Stripe retry stays open per hunt #60/#61); seeded five follow-on `(candidate)` rows; scoped billing webhook unit tests **82/82** (67 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
 
@@ -4073,13 +4145,13 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 77
+- **hunts:** 79
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — marketplace JWT-valid non-JSON webhook returned HTTP 500 instead of 400
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 2026-11-01 thorough hunt (dry #71): cheap-disproof closed five open `(candidate)` rows from 2026-10-31 thorough hunt (marketplace malformed JSON after JWT fails at `JsonDocument.Parse` ~28 before replay guard/ledger ~41–47 — same fail-closed class as missing-bearer regression; marketplace oversize payload returns `413` via `InboundWebhookBoundedBodyReader` before provider dispatch — TB-967 hostile-input contract parity with Stripe; invalid Stripe signature rejected in `ConstructEvent` `StripeException` catch ~44–46 before `TryInsertWebhookEventAsync` ~55 — complements `HandleWebhookAsync_without_signature_rejected`; marketplace in-memory `HasSeenAsync` before ledger insert is intentional per `BILLING_WEBHOOK_REPLAY_GUARD.md` — same class as Stripe regression `HandleWebhookAsync_when_replay_guard_has_seen_event_returns_replay_rejected`; non-positive wallet `payment_intent.succeeded` amounts skip provider throw when `amountCents <= 0` — regressions `ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting` and `ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success`); seeded five follow-on `(candidate)` rows; scoped filter **39/39** billing webhook unit tests (24 Persistence + 15 Application, `RunAnalyzers=false`); Api SQL integration HTTP suites not run (no SQL Server on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — malformed JSON after JWT validation throws before `TryInsertWebhookEventAsync` — **cheap-disproof 2026-11-01 thorough hunt #71:** `JsonDocument.Parse` ~28 runs after JWT gate and before dedupe/ledger ~39–47; no ledger row on parse failure.
@@ -18560,6 +18632,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-tenancy-workspaces
 
+2026-11-01 thorough hunt (dry #40): cheap-disproof closed five open `(candidate)` monitor rows from dry **#39** reseed — null workspace inventory coalesces then **404** workspace-not-found (`ListAsync_returns_not_found_when_workspace_list_is_null`, proven **2026-10-20** / dry **#938**); caller-default delete fail-closed when active catalog empty with idempotent `AlreadyDeleted` retry path (`DeleteProjectAsync_returns_bad_request_when_caller_default_pinned_and_active_catalog_is_empty`, `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`, hit **2026-10-21**); duplicate inventory default resolution prefers active catalog over stale scope pin (`ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active`, proven **2026-10-20**); stale caller pin suppresses purge only when resolved default empty (`ListRecycleBinAsync_schedules_purge_when_stale_inventory_row_pins_deleted_project_but_active_default_moved`, dry **#36**); baseline artifacts read uses workspace scope preflight only, not project-active guard (`TenantWorkspaceBaselineArtifactsController` tests + dry **#36** diary). Reseeded five follow-on `(candidate)` rows; **72/72** scoped `FullyQualifiedName~TenantWorkspaces` tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — null `ListWorkspacesAsync` coalesces to empty inventory before **404** — **cheap-disproof 2026-11-01 thorough hunt #40:** coalesce then fail-closed **404**; regression above.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete fail-closed when active catalog empty — **cheap-disproof 2026-11-01 thorough hunt #40:** idempotent retry vs fail-closed; regressions above.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — duplicate inventory rows disagree on default metadata — **cheap-disproof 2026-11-01 thorough hunt #40:** active default wins over stale pin; regression above.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — stale caller pin suppresses purge only when resolved default empty — **cheap-disproof 2026-11-01 thorough hunt #40:** purge when default moved; regression above.
+- [x] (valid-no-repro) `TenantWorkspaceBaselineArtifactsController.GetAsync` — baseline read without project-active inventory guard — **cheap-disproof 2026-11-01 thorough hunt #40:** scope preflight parity by design; dry **#36** diary.
+
+- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — restore succeeds without clearing sibling-workspace default metadata pin — locus: post-restore inventory; input: foreign default still references restored project (monitor dry **#938** / **#39**).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign retention guard on recycle GET vs skipped on idempotent delete when caller row inactive — locus: delete vs GET asymmetry; input: stale foreign pin (monitor dry **#938**).
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — display name from inactive scoped inventory row vs purge schedule from resolved default — locus: cosmetic vs retention split; input: soft-deleted scoped project with active sibling default (monitor dry **#938**).
+- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — tenant maintenance snapshot without workspace inventory preflight — locus: tenant-scoped read; input: JWT workspace absent from inventory (monitor dry **#938**, **invalid** class).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — duplicate workspace inventory row pins caller default on non-first row — locus: `CallerWorkspacePinsProjectAsDefault`; input: null active catalog (monitor proven **2026-10-20** `DeleteProjectAsync_returns_bad_request_when_duplicate_workspace_row_pins_caller_default_and_active_list_is_null`).
+
 2026-11-01 thorough hunt (dry #39): cheap-disproof closed five open `(candidate)` monitor rows from dry **#938** reseed — empty coalesced workspace inventory yields **404** workspace-not-found, not **200** empty shell (`ListAsync_returns_not_found_when_workspace_list_is_null`, dry **#938**); delete idempotent retry skips foreign retention block when caller catalog row inactive while recycle-bin GET still applies `ForeignWorkspaceMetadataProtectsFromRetentionPurge` and schedules purge when resolved default moved (`DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`, `ListRecycleBinAsync_schedules_purge_when_foreign_workspace_stale_row_pins_deleted_project_but_active_default_moved`); restore does not clear sibling-workspace default metadata by design (`RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`, `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`); recycle-bin display name from `preferInactiveScopedInventoryRow` vs purge schedule from resolved default is intentional (`ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`); catalog migration status remains tenant-scoped maintenance read without workspace inventory preflight (`GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory`, `GetCatalogMigrationStatusAsync_returns_snapshot_when_tenant_exists`). Reseeded five follow-on `(candidate)` rows; scoped filter **72/72** (`FullyQualifiedName~TenantWorkspaces`, `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — coalesced empty workspace inventory returns **404** not **200** with empty projects shell — **cheap-disproof 2026-11-01 thorough hunt #39:** fail-closed workspace scope; regression above; dry **#938**.
@@ -18567,12 +18653,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — restore succeeds without clearing sibling-workspace default metadata pin — **cheap-disproof 2026-11-01 thorough hunt #39:** intentional; purge guard on GET; regressions above; dry **#938**.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — scoped inactive inventory row display name vs list GET default resolution — **cheap-disproof 2026-11-01 thorough hunt #39:** cosmetic vs retention split; regression above; dry **#938**.
 - [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — JWT workspace absent from coalesced inventory still returns snapshot — **cheap-disproof 2026-11-01 thorough hunt #39:** tenant maintenance banner by design; regressions above; dry **#938**.
-
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — null `ListWorkspacesAsync` coalesces to empty inventory before **404** — locus: `TenantWorkspaceInventoryCoalesce`; input: repository null vs empty tenant (monitor dry **#938**).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — caller default delete fail-closed when active catalog empty — locus: default metadata guard; input: idempotent retry vs `AlreadyDeleted` (monitor hit **2026-10-21**).
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — duplicate inventory rows disagree on default metadata — locus: `ResolveScopedWorkspaceDefaultProjectId`; input: JWT-scoped project vs sibling row pin (monitor proven **2026-10-20**).
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — stale caller pin suppresses purge only when resolved default empty — locus: purge schedule branch; input: active default moved while stale row remains (monitor dry **#36**).
-- [ ] (candidate) `TenantWorkspaceBaselineArtifactsController.GetAsync` — baseline read without project-active inventory guard — locus: scope preflight parity with list GET; input: soft-deleted scoped project (monitor dry **2026-10-31**).
 
 2026-11-01 thorough hunt (dry #938): cheap-disproof closed five open `(candidate)` rows from dry **#36** reseed — null `ListWorkspacesAsync` coalesces to empty inventory then **404** workspace-not-found, not **200** empty list (`TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces`; proven 2026-10-20 regression `ListAsync_returns_not_found_when_workspace_list_is_null`); restore does not re-write default metadata after `TryRestoreAsync` by design while recycle-bin purge suppression stays on GET via `ForeignWorkspaceMetadataProtectsFromRetentionPurge` (`RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`, `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`); delete idempotent path skips foreign retention block when caller catalog row inactive but recycle-bin still schedules purge when resolved default moved (`DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`, `ListRecycleBinAsync_schedules_purge_when_foreign_workspace_stale_row_pins_deleted_project_but_active_default_moved`); recycle-bin display name from `preferInactiveScopedInventoryRow` vs purge schedule from resolved `defaultProjectId` is intentional cosmetic/retention split (`ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`, purge regressions above); catalog migration status is tenant-scoped maintenance read without workspace inventory preflight (`GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory`, `GetCatalogMigrationStatusAsync_returns_snapshot_when_tenant_exists`). Reseeded five follow-on `(candidate)` rows; scoped filter **75/75** TenantWorkspaces + catalog migration (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -18614,9 +18694,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none

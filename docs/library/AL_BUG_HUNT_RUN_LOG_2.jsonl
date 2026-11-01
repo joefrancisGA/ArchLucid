@@ -2401,3 +2401,14 @@
 {"at":"2026-11-01T15:25:06.4812999Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T15:29:07.3752948Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T15:33:47.3573505Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:37:40.4017333Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:39:56.6452489Z","zoneId":"finding-disposition","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:43:25.3290273Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:45:48.5029998Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:48:40.7390583Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:53:00.0000000Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:53:00.7203171Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:55:42.0000000Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:55:42.5762581Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:01:11.0000000Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:01:11.8577690Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}

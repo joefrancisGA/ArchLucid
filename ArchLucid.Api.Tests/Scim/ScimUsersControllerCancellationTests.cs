@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Scim;
 using ArchLucid.Application.Scim;
 using ArchLucid.Core.Scoping;
@@ -33,6 +35,116 @@ public sealed class ScimUsersControllerCancellationTests
         cts.Cancel();
 
         Func<Task> act = () => sut.CreateAsync(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task CreateAsync_propagates_operation_canceled_from_service_create()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.CreateAsync(tenantId, It.IsAny<JsonElement>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        DefaultHttpContext httpContext = new();
+        httpContext.Request.Body = new MemoryStream("{\"userName\":\"scim@example.com\"}"u8.ToArray());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        Func<Task> act = () => sut.CreateAsync(CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task ReplaceAsync_propagates_operation_canceled_from_service_replace()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.ReplaceAsync(tenantId, userId, It.IsAny<JsonElement>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        DefaultHttpContext httpContext = new();
+        httpContext.Request.Body = new MemoryStream("{\"userName\":\"scim@example.com\"}"u8.ToArray());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        Func<Task> act = () => sut.ReplaceAsync(userId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task ReplaceAsync_propagates_operation_canceled_from_post_replace_get()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.ReplaceAsync(tenantId, userId, It.IsAny<JsonElement>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        users
+            .Setup(s => s.GetAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        DefaultHttpContext httpContext = new();
+        httpContext.Request.Body = new MemoryStream("{\"userName\":\"scim@example.com\"}"u8.ToArray());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        Func<Task> act = () => sut.ReplaceAsync(userId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task PatchAsync_propagates_operation_canceled_from_service_patch()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.PatchAsync(tenantId, userId, It.IsAny<JsonElement>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        DefaultHttpContext httpContext = new();
+        httpContext.Request.Body = new MemoryStream("{\"Operations\":[]}"u8.ToArray());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        Func<Task> act = () => sut.PatchAsync(userId, CancellationToken.None);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
