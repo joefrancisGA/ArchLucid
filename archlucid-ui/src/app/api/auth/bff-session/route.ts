@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
-  normalizeOptionalOidcOAuthFormToken,
   normalizeOptionalOidcOAuthFormTokenOrNull,
   normalizeRequiredOidcOAuthFormToken,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ title: "Invalid JSON body" }, { status: 400 });
   }
 
-  const accessToken = normalizeRequiredOidcOAuthFormToken(body.access_token);
+  const accessToken = normalizeRequiredOidcOAuthFormToken(body.access_token ?? undefined);
 
   if (accessToken.length === 0) {
     return NextResponse.json({ title: "access_token is required" }, { status: 400 });
@@ -57,8 +56,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const issueResult = createBffSessionCookieValue({
     accessToken,
     expiresAtMs,
-    refreshToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.refresh_token),
-    idToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.id_token),
+    refreshToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.refresh_token ?? undefined),
+    idToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.id_token ?? undefined),
     workingMode: body.working_mode === true,
   });
 

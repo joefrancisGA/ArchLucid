@@ -84,6 +84,46 @@ describe("POST /api/auth/bff-session", () => {
     issueSpy.mockRestore();
   });
 
+  it("rejects an explicit null access_token with 400", async () => {
+    const response = await POST(
+      buildPostRequest({
+        body: {
+          access_token: null,
+          expires_in: 3600,
+        },
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("issues a session without optional fields when refresh_token and id_token are explicit null", async () => {
+    const issueSpy = vi.spyOn(bffSessionCookie, "createBffSessionCookieValue");
+
+    const response = await POST(
+      buildPostRequest({
+        body: {
+          access_token: "access-token-1",
+          refresh_token: null,
+          id_token: null,
+          expires_in: 3600,
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(issueSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accessToken: "access-token-1",
+        refreshToken: null,
+        idToken: null,
+      }),
+    );
+
+    issueSpy.mockRestore();
+  });
+
   it("honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)", async () => {
     const before = Date.now();
     const issueSpy = vi.spyOn(bffSessionCookie, "createBffSessionCookieValue");
