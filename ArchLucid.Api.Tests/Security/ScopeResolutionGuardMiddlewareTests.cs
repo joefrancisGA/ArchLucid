@@ -549,6 +549,70 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash is a single path segment and does not match the /health aggregate probe skip");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/version/");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/health%2Fversion");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash keeps version in one segment so the path is not the /health/version probe skip");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_openapi_impostor_prefixed_path()
     {
         DefaultHttpContext context = CreateContext("/openapifoo");
@@ -696,6 +760,49 @@ public sealed class ScopeResolutionGuardMiddlewareTests
         nextCalled.Should().BeFalse(
             "encoded trailing slash is not normalized into an anonymous live probe skip on staging-like hosts");
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_robots_trailing_slash_path()
+    {
+        DefaultHttpContext context = CreateContext("/robots.txt%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded trailing slash is not normalized into a crawler hint skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_document_path_with_literal_encoded_trailing_slash_segment()
+    {
+        DefaultHttpContext context = CreateContext("/openapi/v1.json%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "StartsWithSegments(\"/openapi\") still matches when the trailing slash is percent-encoded inside the final segment");
     }
 
     [Theory]

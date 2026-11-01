@@ -618,6 +618,19 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
         _sut.ComputeNextRunUtc("@daily", from, isScheduleEnabled: false).Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("@monthly")]
+    [InlineData("@yearly")]
+    public void ComputeNextRunUtc_cronos_calendar_alias_at_max_value_throws(string alias)
+    {
+        DateTime max = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+
+        Action act = () => _sut.ComputeNextRunUtc(alias, max);
+
+        act.Should().Throw<ArgumentOutOfRangeException>(
+            "Cronos calendar aliases overflow when advancing from DateTime.MaxValue; persisted recurrence never supplies that reference");
+    }
+
     private sealed class PastThenUnspecifiedScanScheduleCalculator : IScanScheduleCalculator
     {
         private readonly DateTime _first;

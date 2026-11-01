@@ -2411,3 +2411,16 @@
 {"at":"2026-11-01T15:55:42.5762581Z","zoneId":"sql-run-repository","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T16:01:11.0000000Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T16:01:11.8577690Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:09:26.0000000Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:09:27.2897731Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:21:09.0000000Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:21:09.8726181Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:27:32.0000000Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:27:32.5438450Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:35:36.6348610Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:40:26.8144777Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:42:18.4463685Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:52:21.5640555Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:55:47.2037068Z","zoneId":"llm-wallet","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:58:37.7308154Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:00:02.8148243Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}

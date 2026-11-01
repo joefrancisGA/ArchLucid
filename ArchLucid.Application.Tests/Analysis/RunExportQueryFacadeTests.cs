@@ -580,6 +580,64 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task GetExportRecordAsync_throws_when_career_posture_blocks_and_export_id_differs_only_by_casing()
+    {
+        const string storedExportId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string lookupExportId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+
+        InMemoryRunExportRecordRepository inMemoryExports = new();
+        await inMemoryExports.CreateAsync(
+            new RunExportRecord
+            {
+                ExportRecordId = storedExportId,
+                RunId = RunId,
+                ExportType = "analysis-report-docx",
+                Format = "docx",
+                FileName = "report.docx",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((id, ct) => inMemoryExports.GetByIdAsync(id, ct));
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        Mock<IRunExportCareerPostureGate> careerGate = new();
+        careerGate
+            .Setup(g => g.EnsureAllowsExportRecordMetadataOrThrowAsync(runGuid, It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CareerArtifactExportBlockedException(
+                SimulatorCareerHonestyPresenter.SimulatorRehearsalBlockedMessage,
+                CareerArtifactCompletenessValidator.SimulatorRehearsalCode));
+
+        RunExportQueryFacade sut = CreateFacade(
+            runDetails,
+            exportRecords,
+            authority,
+            manifestHashService,
+            careerGate);
+
+        Func<Task> act = () => sut.GetExportRecordAsync(lookupExportId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<CareerArtifactExportBlockedException>();
+    }
+
+    [Fact]
     public async Task GetExportRecordAsync_invokes_career_gate_after_lineage_and_lifecycle_guards_on_success()
     {
         Guid runGuid = Guid.Parse(RunId);
