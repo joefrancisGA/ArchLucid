@@ -56,11 +56,11 @@
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
 - [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
 - [Self-service note](SELF_SERVICE.md) is the operator check before email. It is not a support SLA and not the ArchLucid support bundle.
-- [Customer self-sufficiency prompt index](../architecture/SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md) records the shipped four stuck-state checks before email. It does not open the ArchLucid support bundle on SecureNow and it is not a support SLA.
+- [Customer self-sufficiency prompt index](../architecture/SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md) records the shipped four stuck-state checks before email. It does not open the ArchLucid support bundle on SecureNow and it is not a support SLA. The owner check is **M-315**.
 - [Cutting-edge prompt index](../architecture/SECURENOW_CUTTING_EDGE_COMPOSER_PROMPTS.md) is the paste set for a ranked-path Ask topic over stored hops, rank, and cut point. It is not a new ranker and not a numeric likelihood.
 - [AI/Agent Readiness prompt index](../architecture/SECURENOW_AGENT_READINESS_COMPOSER_PROMPTS.md) is the paste set for a labeled live or simulator path explanation that falls back to the stored-path summary. It is not a new ranker. The owner walk is **M-313**.
 - [Decision cycle log](DECISION_CYCLE_LOG.md) is the blank qualify-to-close timer beside the pilot decision record. It is not a filled pilot and not the ROI minute log.
-- [Decision velocity prompt index](../architecture/SECURENOW_DECISION_VELOCITY_COMPOSER_PROMPTS.md) is the paste set for a blank qualify-to-close timer beside the existing pilot decision record. It is not a filled sponsor decision.
+- [Decision velocity prompt index](../architecture/SECURENOW_DECISION_VELOCITY_COMPOSER_PROMPTS.md) is the paste set for a blank qualify-to-close timer beside the existing pilot decision record. It is not a filled sponsor decision. The owner walk is **M-314**.
 - [Fixture storyboard](FIXTURE_STORYBOARD.md) is a facilitator script for fixture demos. It is not customer traction.
 - [Buyer overview](BUYER_OVERVIEW.md) is an internal draft for a champion. It is not approved buyer communication and not a price sheet.
 - [Accessibility scope](ACCESSIBILITY_SCOPE.md) states the shared WCAG target and the report mailbox. It is not a certification.

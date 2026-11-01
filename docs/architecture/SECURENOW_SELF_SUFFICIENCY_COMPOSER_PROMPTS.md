@@ -20,3 +20,11 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 | **SN-SELF-HOLD** | `securenow-self-hold.md` | Stop list |
 
 **SN-SELF-01** through **SN-SELF-04** are on trunk. Do not redo them. **SN-SELF-HOLD** is not a build step.
+
+## Human tasks (owner)
+
+These are not Composer sessions. The owner check is **M-315** in [`docs/go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md).
+
+1. Start at SecureNow Home **When you are stuck** and follow the four situations in [`docs/securenow/SELF_SERVICE.md`](../securenow/SELF_SERVICE.md).
+2. Record whether each situation lands on the named page: cloud connections, connection status, remediation factory or instances, and the `support@archlucid.net` mailto.
+3. Leave `/administration/support` closed. Do not add a mailbox or turn founder acknowledgement into an SLA. Leave beta **NO_GO** in place.
