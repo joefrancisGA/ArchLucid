@@ -92,6 +92,23 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_adds_role_surface_when_inbound_role_is_only_zero_width_space()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(new Claim("http://idp.example/role", "\u200B"));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", "\u200B").Should().BeTrue(
+            because: "U+200B is not whitespace under IsNullOrWhiteSpace; downstream policy extractors collapse decorative values");
+    }
+
+    [Fact]
     public void Apply_promotes_roles_when_source_claim_type_differs_by_case()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
