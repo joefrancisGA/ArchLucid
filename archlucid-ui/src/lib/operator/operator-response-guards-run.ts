@@ -166,8 +166,8 @@ const runDetailSchema = z
   .object({
     run: z
       .object({
-        runId: z.string(),
-        projectId: z.string(),
+        runId: z.string().trim().min(1),
+        projectId: z.string().trim().min(1),
         createdUtc: z.string(),
       })
       .passthrough(),

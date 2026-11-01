@@ -217,6 +217,28 @@ describe("coerceRunDetail", () => {
   it("rejects missing run", () => {
     expect(coerceRunDetail({}).ok).toBe(false);
   });
+
+  it("rejects whitespace-only runId or projectId", () => {
+    expect(
+      coerceRunDetail({
+        run: {
+          runId: "   ",
+          projectId: "p",
+          createdUtc: "2020-01-01T00:00:00Z",
+        },
+      }).ok,
+    ).toBe(false);
+
+    expect(
+      coerceRunDetail({
+        run: {
+          runId: "r",
+          projectId: " \t ",
+          createdUtc: "2020-01-01T00:00:00Z",
+        },
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe("coerceManifestSummary", () => {
