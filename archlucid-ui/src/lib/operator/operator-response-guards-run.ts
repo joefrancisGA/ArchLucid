@@ -200,11 +200,14 @@ export function coerceRunDetail(
 
     const run = data.run;
 
-    if (typeof run.runId !== "string" || typeof run.projectId !== "string") {
+    if (
+      !nonEmptyTrimmedString.safeParse(run.runId).success ||
+      !nonEmptyTrimmedString.safeParse(run.projectId).success
+    ) {
       return { ok: false, message: "Review detail is missing string runId or projectId." };
     }
 
-    if (typeof run.createdUtc !== "string") {
+    if (!nonEmptyTrimmedString.safeParse(run.createdUtc).success) {
       return { ok: false, message: "Review detail is missing string createdUtc." };
     }
 

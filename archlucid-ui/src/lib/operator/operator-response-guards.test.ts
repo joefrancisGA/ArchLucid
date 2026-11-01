@@ -279,8 +279,8 @@ describe("coerceRunDetail", () => {
           projectId: "p",
           createdUtc: "2020-01-01T00:00:00Z",
         },
-      }).ok,
-    ).toBe(false);
+      }),
+    ).toEqual({ ok: false, message: "Review detail is missing string runId or projectId." });
 
     expect(
       coerceRunDetail({
@@ -289,8 +289,8 @@ describe("coerceRunDetail", () => {
           projectId: " \t ",
           createdUtc: "2020-01-01T00:00:00Z",
         },
-      }).ok,
-    ).toBe(false);
+      }),
+    ).toEqual({ ok: false, message: "Review detail is missing string runId or projectId." });
 
     expect(
       coerceRunDetail({
@@ -299,8 +299,8 @@ describe("coerceRunDetail", () => {
           projectId: "p",
           createdUtc: "   ",
         },
-      }).ok,
-    ).toBe(false);
+      }),
+    ).toEqual({ ok: false, message: "Review detail is missing string createdUtc." });
   });
 });
 
