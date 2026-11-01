@@ -2620,22 +2620,36 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
+2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` monitor rows from dry **#48** reseed — **valid-no-repro** cooperative cancel during pre-audit `UpdateWalletAsync` (intentional host cancel; parity GET / scim-users **#50**); **valid-no-repro** optimistic retry exhaustion returns null → HTTP **409** (dry **#43** / settlement re-queue class); **valid-no-repro** explicit enable with `MonthlyCapUsd = 0` on fresh wallet rejected at consume enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings`, sibling `UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`); **invalid** undifferentiated `ConflictProblem` copy for validation vs stale row version (single operator retry message by design); **valid-no-repro** GET cancel during `GetWalletAsync` (dry **#48**, hit **#44**); reseeded five follow-on `(candidate)` rows; scoped **52/52** `LlmTenantWalletServiceTests`. Private beta: n/a.
+
+- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — locus: ~97–117; input: aborted connection during audit; reachability: Billing PUT under load (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — locus: ~68–69; input: empty PUT body; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — locus: consume `IsValidMonthlyCap`; input: cap not on `$50` step; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — locus: ~55–56; input: client row version drift; reachability: Billing PUT **409** (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — locus: class `AuthenticatedUserOnly` + action `AdminAuthority`; input: Reader role save attempt; reachability: Billing authz (monitor; hit **2026-10-09**).
+
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional cooperative cancel; dry **#48** GET/PUT cancel class.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop returns null after `MaxOptimisticRetries` under rowversion churn — **cheap-disproof 2026-11-01 thorough hunt #49:** exhausted retries → service null → HTTP **409**; dry **#43** diary.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only zero guard does not apply when explicit `AutoReplenishEnabled = true` with `MonthlyCapUsd = 0` on a fresh wallet — **cheap-disproof 2026-11-01 thorough hunt #49:** regression `UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings`; consume-stage enable pre-check.
+- [x] (invalid) `WalletController.PutAsync` — single `ConflictProblem` message for validation null and stale row version — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional unified conflict copy ~90–91; client refresh/revalidate UX.
+- [x] (valid-no-repro) `LlmTenantWalletService.GetWalletAsync` — cooperative cancel during `GetOrCreateAsync` propagates to Billing GET — **cheap-disproof 2026-11-01 thorough hunt #49:** dry **#48** / hit **#44** diary.
+
 2026-11-01 thorough hunt (dry #48): cheap-disproof closed five open `(candidate)` monitor rows from hit **#47** reseed — **valid-no-repro** post-update audit cancel after durable settings update (SCIM seat / api-key rotate audit class; dry **#45**–**#47**); **valid-no-repro** non-empty `ExpectedRowVersion` mismatch returns null → HTTP **409** without server-side retry (intentional client refresh contract); **valid-no-repro** omitted `RowVersionBase64` optional OCC / last-write-wins (persistence-billing-stripe seed **#6** / thorough **#7**, dry **#43**); **valid-no-repro** disable auto-replenish plus `MonthlyCapUsd = 0` in one PUT remains allowed after hit **#47** service guard (`UpdateWalletAsync_allows_disabling_auto_replenish_with_zero_cap_in_same_put`); **valid-no-repro** GET cancel propagation (hit **#44**, scim-users dry **#50**); reseeded five follow-on `(candidate)` rows; scoped **51/51** `LlmTenantWalletServiceTests`. Private beta: n/a.
 
-- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — locus: ~76–88; input: canceled token mid-service; reachability: Billing PUT under load (monitor).
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop returns null after `MaxOptimisticRetries` under rowversion churn — locus: ~51–56 / ~14; input: concurrent settings merges; reachability: Billing PUT **409** (monitor).
-- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — cap-only zero guard does not apply when explicit `AutoReplenishEnabled = true` with `MonthlyCapUsd = 0` on a fresh wallet — locus: ~40–45 vs consume enable pre-check; input: first PUT enable with zero cap; reachability: Billing wallet save (monitor; consume-stage reject expected).
-- [ ] (candidate) `WalletController.PutAsync` — single `ConflictProblem` message for validation null and stale row version — locus: ~90–91; input: cap step vs OCC mismatch; reachability: operator retry UX (monitor).
-- [ ] (candidate) `LlmTenantWalletService.GetWalletAsync` — cooperative cancel during `GetOrCreateAsync` propagates to Billing GET — locus: ~20–24; input: aborted billing GET; reachability: Billing GET under load (monitor).
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #49:** see dry #49 diary.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop returns null after `MaxOptimisticRetries` under rowversion churn — **cheap-disproof 2026-11-01 thorough hunt #49:** see dry #49 diary.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only zero guard does not apply when explicit `AutoReplenishEnabled = true` with `MonthlyCapUsd = 0` on a fresh wallet — **cheap-disproof 2026-11-01 thorough hunt #49:** see dry #49 diary.
+- [x] (invalid) `WalletController.PutAsync` — single `ConflictProblem` message for validation null and stale row version — **cheap-disproof 2026-11-01 thorough hunt #49:** see dry #49 diary.
+- [x] (valid-no-repro) `LlmTenantWalletService.GetWalletAsync` — cooperative cancel during `GetOrCreateAsync` propagates to Billing GET — **cheap-disproof 2026-11-01 thorough hunt #49:** see dry #49 diary.
 
 - [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` returns HTTP 500 while settings remain persisted — **cheap-disproof 2026-11-01 thorough hunt #48:** SCIM seat audit class; dry **#45**–**#47** diary.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — non-empty `ExpectedRowVersion` mismatch returns null without retry — **cheap-disproof 2026-11-01 thorough hunt #48:** intentional stale-version **409**; client refresh contract.

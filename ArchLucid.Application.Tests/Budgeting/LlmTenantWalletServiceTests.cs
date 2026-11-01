@@ -175,6 +175,28 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 0m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "service cap-only guard does not apply on fresh wallet, but consume-stage enable pre-check must still reject zero cap");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer()
     {
         InMemoryLlmTenantWalletRepository repository = new();
