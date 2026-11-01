@@ -188,7 +188,19 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             + "categories from distinct finding categories across agent results after execute.";
 
         string markdown = GoldenCohortDriftMarkdown.BuildReport(TimeProvider.System.GetUtcNow(), rows, preamble);
+        // Compact table stays under FluentAssertions MaxLines so all 20 SHA actuals appear in CI logs.
+        string compact = GoldenCohortDriftMarkdown.BuildCompactShaTable(rows);
+        Console.WriteLine(compact);
+        await WriteDriftDiagnosticsAsync(markdown, compact, rows);
 
+        rows.Should().OnlyContain(static r => r.ShaMatches && r.CategoryMatches, compact);
+    }
+
+    private async Task WriteDriftDiagnosticsAsync(
+        string markdown,
+        string compact,
+        IReadOnlyList<GoldenCohortDriftRow> rows)
+    {
         string? reportRoot = Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_DRIFT_REPORT_ROOT");
 
         if (!string.IsNullOrWhiteSpace(reportRoot))
@@ -205,6 +217,13 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             await File.WriteAllTextAsync(actualsPath, actualsJson);
         }
 
-        rows.Should().OnlyContain(static r => r.ShaMatches && r.CategoryMatches, markdown);
+        string? summaryPath = Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY");
+
+        if (string.IsNullOrWhiteSpace(summaryPath))
+            return;
+
+        await File.AppendAllTextAsync(
+            summaryPath,
+            markdown + Environment.NewLine + compact + Environment.NewLine);
     }
 }
