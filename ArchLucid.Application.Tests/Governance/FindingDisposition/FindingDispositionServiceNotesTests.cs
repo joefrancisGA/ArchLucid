@@ -149,6 +149,36 @@ public sealed class FindingDispositionServiceNotesTests
     }
 
     [Fact]
+    public async Task ListHistoryAsync_excludes_disposition_events_from_other_workspace()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        ScopeContext otherWorkspaceScope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            ProjectId = ProjectId,
+        };
+
+        await sut.RecordAsync(
+            new RecordFindingDispositionRequest
+            {
+                FindingId = "shared-finding-id",
+                Disposition = Disposition.Remediated,
+                Rationale = "Remediated in the other workspace.",
+            },
+            otherWorkspaceScope,
+            "bob",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> history =
+            await sut.ListHistoryAsync(Scope, "shared-finding-id", CancellationToken.None);
+
+        history.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ListHistoryAsync_excludes_review_trail_events_without_disposition()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();

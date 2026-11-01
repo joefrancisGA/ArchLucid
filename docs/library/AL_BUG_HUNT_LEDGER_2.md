@@ -2834,6 +2834,20 @@
 
 ## Zone: finding-disposition
 
+2026-11-01 thorough hunt (dry #50): cheap-disproof closed five open `(candidate)` monitor rows from dry **#49** reseed — **valid-no-repro** `Remediated` optional rationale below 10 characters when provided (TB-2305 optional branch — regressions `Validate_remediated_accepts_two_character_optional_rationale`, `Validate_deferred_accepts_single_character_optional_rationale`); **valid-no-repro** whitespace-only `ExpectedCurrentDispositionRowVersionBase64` decodes as absent token via `TryDecodeRowVersion` and conflicts when pointer exists (`RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`); **valid-no-repro** bulk `Remediated` rows share one `IsWorkingDeskAsync` attestation outcome by design (`RecordBulkAsync_queries_working_desk_mode_once_per_batch`; dry **#49**); **valid-no-repro** foreign workspace disposition events omitted from history (`ListHistoryAsync_excludes_disposition_events_from_other_workspace`; project parity `ListHistoryAsync_excludes_disposition_events_from_other_project`); **valid-no-repro** working desk accepts client `ImpactPreviewCompleted=true` without server artifact by LP-14 attestation contract (`Validate_working_remediated_accepts_impact_preview_completed`; guided-desk no-op `RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`); reseeded five follow-on `(candidate)` rows; scoped **70/70** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `FindingDispositionValidation.Validate` — `NeedsEvidence` accepts single-character `EvidenceRequestText` — locus: needs-evidence branch; input: one-character text (monitor `Validate_needs_evidence_accepts_single_character_evidence_request_text`).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository — locus: `TryDecodeRowVersion`; input: malformed base64 (monitor dry **#49** regressions).
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — case-variant duplicate finding ids rejected in one batch — locus: `HashSet` OrdinalIgnoreCase guard; input: `Finding-A`/`finding-a` (monitor bulk atomicity tests).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — review trail rows without disposition omitted — locus: `Disposition is null` skip; input: mixed trail (monitor `ListHistoryAsync_excludes_review_trail_events_without_disposition`).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — guided-desk `Remediated` ignores client `ImpactPreviewCompleted` — locus: `!isWorkingDesk` early return; input: boolean-only attestation (monitor hit **#1719**).
+
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` — `Remediated` disposition accepts optional rationale below 10 characters when provided — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `Validate_remediated_accepts_two_character_optional_rationale`.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` treated as absent concurrency token — **cheap-disproof 2026-11-01 thorough hunt #50:** `TryDecodeRowVersion` returns null; regression `RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`.
+- [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — mixed Remediated rows in one batch share working-desk attestation outcome — **cheap-disproof 2026-11-01 thorough hunt #50:** single desk lookup by design; dry **#49** regression.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — disposition events from other workspace in same tenant omitted — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `ListHistoryAsync_excludes_disposition_events_from_other_workspace`.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working desk Remediated accepts `ImpactPreviewCompleted=true` without server preview artifact — **cheap-disproof 2026-11-01 thorough hunt #50:** LP-14 request-field attestation; regression `Validate_working_remediated_accepts_impact_preview_completed`.
+
 2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` monitor rows from seed **#48** — optional single-character deferred rationale matches TB-2305 optional branch (only Accepted/Rejected require 10 chars; regression `Validate_deferred_accepts_single_character_optional_rationale`); invalid expected row version rejected before repository (`RecordAsync_rejects_invalid_base64_expected_row_version_before_repository`, `RecordBulkAsync_rejects_invalid_base64_expected_row_version_before_repository`); bulk batch uses one `IsWorkingDeskAsync` lookup by design (`RecordBulkAsync_queries_working_desk_mode_once_per_batch`); disposition history API omits non-disposition trail rows (`ListHistoryAsync_excludes_review_trail_events_without_disposition`); guided-desk remediated ignores client `ImpactPreviewCompleted` without working desk (`RecordAsync_guided_remediated_ignores_impact_preview_completed_in_notes`, hypothesis block). Reseeded five follow-on `(candidate)` rows; scoped **68/68** `FullyQualifiedName~FindingDisposition` in Application.Tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional optional branch; regression above; TB-2305 parity.
@@ -2842,11 +2856,11 @@
 - [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — **cheap-disproof 2026-11-01 thorough hunt #49:** disposition-history contract; regression above.
 - [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — **cheap-disproof 2026-11-01 thorough hunt #49:** early return when `!isWorkingDesk`; regression above.
 
-- [ ] (candidate) `FindingDispositionValidation.Validate` — `Remediated` disposition accepts optional rationale below 10 characters when provided — locus: optional branch ~71–88; input: two-character optional rationale (monitor seed **#48** themes).
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` treated as absent concurrency token — locus: `TryDecodeRowVersion` trim; input: `"   "` (monitor concurrent race tests).
-- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — mixed Remediated rows in one batch share working-desk attestation outcome — locus: shared `isWorkingDesk`; input: batch with two remediated findings (monitor **#49**).
-- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — disposition events from other workspace in same tenant omitted — locus: workspace equality filter; input: shared finding id across workspaces (monitor project filter parity).
-- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working desk Remediated accepts `ImpactPreviewCompleted=true` without server preview artifact — locus: LP-14 attestation field; input: API client boolean (monitor LP-14 honesty contract).
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` — `Remediated` disposition accepts optional rationale below 10 characters when provided — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `FindingDispositionService.RecordAsync` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` treated as absent concurrency token — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `FindingDispositionService.RecordBulkAsync` — mixed Remediated rows in one batch share working-desk attestation outcome — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` — disposition events from other workspace in same tenant omitted — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — working desk Remediated accepts `ImpactPreviewCompleted=true` without server preview artifact — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
 
 2026-11-01 seed hunt (seed-only #48): re-read `FindingDispositionService` (`RecordAsync`/`RecordBulkAsync` concurrency, working-desk remediated attestation, history scope filter) and `FindingDispositionValidation` (enum guard, substantive-text finding ids, optional vs required rationale, deferred revisit window, LP-14 preview attestation); no mechanism-backed row met the hunt-ready promotion bar without relying on non-zone callers or test doubles; seeded five `(candidate)` rows below; scoped **33/33** `FindingDispositionValidationTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -2887,9 +2901,9 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
