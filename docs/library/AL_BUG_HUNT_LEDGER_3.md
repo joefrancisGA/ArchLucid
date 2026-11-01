@@ -2,6 +2,20 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — plus-address verify query uses single `encodeURIComponent` on schema-valid email (`encodes plus-addressed email in the verify redirect query`; session JSON stores the same literal address); optional team size stays string-backed through RHF with schema/`canSubmit` before POST (existing UI POST team-size regressions); zod lists `adminEmail` before optional team size so readiness prefers email copy (`shows email-specific readiness when required fields are filled but email is invalid`; `issues[0]` path `adminEmail` when both invalid); malformed JSON `201` still navigates on `res.ok` by design (`still navigates after 201 when register response body is malformed JSON`); `-0` rejected by schema and omitted in builder (`signupFormSchema rejects negative zero optional architecture team size`; `omits negative zero optional architecture team size from the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` verify query encoding for plus-address emails — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** regression `encodes plus-addressed email in the verify redirect query`.
+- [x] (valid-no-repro) `SignupForm` autofill/coerced optional team size — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** RHF optional string; invalid values block submit before POST.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs optional team-size priority — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** zod issue order puts `adminEmail` first; email readiness regression above.
+- [x] (valid-no-repro) `SignupForm` malformed JSON `201` verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** intentional navigate-on-ok; regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — negative zero `-0` — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** schema reject + builder omit regressions above.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — plus-address `archlucid_last_registration` JSON may diverge from verify query if session write uses raw DOM value — locus: session snapshot vs `values.adminEmail`; input: `ops+alias@example.com`; wrong outcome: stored email differs from verify param decode; reachability: extend plus-address verify test with sessionStorage assertion.
+- [ ] (candidate) `SignupForm` — `type=number` optional team size `valueAsNumber` NaN after spinner clear may desync RHF — locus: controlled string register; input: clear optional field via spinner; wrong outcome: stale integer POST; reachability: monitor empty optional builder regression with DOM clear.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with invalid `industryVerticalOther` may surface industry copy before email — locus: zod issue order vs `prefers invalid email over incomplete Other industry`; input: bad email plus empty Other spec; wrong outcome: industry readiness wins; reachability: monitor existing Other-vs-email readiness unit test.
+- [ ] (candidate) `SignupForm` `onSubmit` — whitespace-only `tenantId` in parsed `201` JSON may still set `registerCompletedRef` before verify — locus: success flag vs scope header/session ids; input: `201` with `"   "` tenantId; wrong outcome: verify without usable session scope; reachability: monitor whitespace tenantId scope-header regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — optional team size `10000.0` string at upper bound — locus: `Number()` whole-number check; input: paste `10000.0`; wrong outcome: payload omits despite valid schema; reachability: monitor upper-bound builder/UI POST regressions.
+
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — verify `router.push` and session JSON both use schema-trimmed `values.adminEmail` for padded submit (tightened regression `persists trimmed required fields in archlucid_last_registration after successful register` asserts `/signup/verify?email=ops%40example.com`); optional team size spinner/empty paths remain gated by schema/`canSubmit` without stale POST (`omits architecture team size key when optional field is an empty string`); TB-2010 readiness copy is the intentional affordance when optional `<details>` is collapsed; toast throw before `router.push` is covered by `does not allow another register POST when success handling throws after a 201`; `1e4` upper-bound team size ships in builder (`serializes 1e4 optional architecture team size at the upper bound in the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` `router.push` verify query vs session JSON — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** same trimmed `values.adminEmail`; regression assertion above.
@@ -10,11 +24,11 @@
 - [x] (valid-no-repro) `SignupForm` toast throw skips verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** documented boundary in toast-throw regression; not a hunt-ready defect.
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — `1e4` upper bound — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** builder regression above.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — `encodeURIComponent` on verify navigation may not match session JSON for plus-address emails — locus: verify query encoding; input: `ops+alias@example.com`; wrong outcome: verify param encoding differs from stored email string; reachability: monitor existing plus-address verify navigation test.
-- [ ] (candidate) `SignupForm` — browser autofill may populate optional team size with non-string coerced value — locus: RHF register on number input; input: autofill integer into optional field; wrong outcome: schema/payload disagree; reachability: monitor UI POST team-size regressions.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with valid optional fields may surface optional-field readiness before email branch — locus: issue path ordering; input: invalid email plus invalid optional team size; wrong outcome: misleading readiness priority; reachability: monitor email vs team-size readiness tests.
-- [ ] (candidate) `SignupForm` `onSubmit` — malformed JSON `201` with `registerCompletedRef` set may still attempt verify navigation — locus: body parse vs success flag; input: `201` with invalid JSON body; wrong outcome: navigation with empty session ids; reachability: monitor malformed JSON 201 navigation tests.
-- [ ] (candidate) `buildSignupRegisterPayload` — negative zero `-0` optional team size — locus: `Number("-0")` integer check; input: paste `-0`; wrong outcome: payload includes zero against schema; reachability: monitor negative zero builder/schema regressions.
+- [x] (superseded) `SignupForm` `onSubmit` — `encodeURIComponent` plus-address verify query — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `SignupForm` — browser autofill optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — invalid email with invalid optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — malformed JSON `201` with `registerCompletedRef` — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — negative zero `-0` optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
 
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — session JSON uses schema-trimmed `values.adminEmail` matching POST (`persists trimmed required fields in archlucid_last_registration after successful register`; `trims padded work email in register POST JSON on UI submit`); optional team size empty string omits payload key (`omits architecture team size key when optional field is an empty string`); TB-2010 readiness surfaces whole-number copy with details opened (`shows whole-number readiness when optional architecture team size is fractional`; field errors remain on open optional section); `showSuccess` throw routes to `showError` without second POST while in-flight guard holds (`does not allow another register POST when success handling throws after a 201`); interior whitespace team size trim aligns schema and builder (`serializes interior-whitespace optional architecture team size in the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
@@ -456,9 +470,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 89
+- **hunts:** 90
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
