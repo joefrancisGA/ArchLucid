@@ -14,6 +14,7 @@ OPERATOR_COPY = Path("archlucid-ui/src/lib/product-line/securenow-first-hour-cop
 OPERATOR_PAGE = Path(
     "archlucid-ui/src/app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView.tsx"
 )
+ENVIRONMENT_CONTEXT = Path("archlucid-ui/src/components/product-line/SecureNowHomeEnvironmentContext.tsx")
 
 FORBIDDEN = (
     "minutes to value",
@@ -38,6 +39,7 @@ def validate(root: Path = ROOT) -> list[str]:
     home_copy = _read(root, HOME_COPY, errors)
     operator_copy = _read(root, OPERATOR_COPY, errors)
     operator_page = _read(root, OPERATOR_PAGE, errors)
+    environment_context = _read(root, ENVIRONMENT_CONTEXT, errors)
 
     if first_hour:
         for token in (
@@ -48,6 +50,8 @@ def validate(root: Path = ROOT) -> list[str]:
             "NOT VERIFIED",
             "/security/remediation-factory",
             "/administration/securenow-first-hour",
+            "Path inspect",
+            "Select a priority row",
         ):
             if token not in first_hour:
                 errors.append(f"{FIRST_HOUR}: missing {token!r}")
@@ -58,8 +62,18 @@ def validate(root: Path = ROOT) -> list[str]:
         for token in (
             "Start here",
             "NO_GO",
+            "A missing or stale capture is the current step",
+            "A blank ranking is not a clean result",
+            "Scope and freshness",
+            "One ranked path",
+            "Path inspect",
+            "Stop",
+            "First hour page",
+            "/integrations/cloud-connections",
+            "/security/remediation-factory",
+            "/administration/securenow-first-hour#path-inspect",
+            "/administration/securenow-first-hour#stop",
             "/administration/securenow-first-hour",
-            "First hour path",
         ):
             if token not in home_copy:
                 errors.append(f"{HOME_COPY}: missing {token!r}")
@@ -68,9 +82,26 @@ def validate(root: Path = ROOT) -> list[str]:
         for token in ("NO_GO", "NOT VERIFIED", "does not change Azure", "Advisory cut point"):
             if token not in operator_copy:
                 errors.append(f"{OPERATOR_COPY}: missing {token!r}")
+        step_three = operator_copy.split('title: "3 — Advisory cut point"', 1)
+        if len(step_three) == 2:
+            step_three_body = step_three[1].split('title: "4 — Stop"', 1)[0]
+            if "Path inspect" not in step_three_body or "Select a priority row" not in step_three_body:
+                errors.append(f"{OPERATOR_COPY}: step 3 missing Path inspect selection wording")
+            if "SECURENOW_REMEDIATION_FACTORY_PATH" in step_three_body or '"/security/remediation-factory"' in step_three_body:
+                errors.append(f"{OPERATOR_COPY}: step 3 reuses the remediation factory href")
+        else:
+            errors.append(f"{OPERATOR_COPY}: missing step 3")
 
     if operator_page and "securenow-first-hour-page" not in operator_page:
         errors.append(f"{OPERATOR_PAGE}: missing page test id")
+    for token in ('"path-inspect"', '"stop"'):
+        if operator_page and token not in operator_page:
+            errors.append(f"{OPERATOR_PAGE}: missing id {token}")
+
+    if environment_context:
+        for token in ("No collection yet", "/integrations/cloud-connections"):
+            if token not in environment_context:
+                errors.append(f"{ENVIRONMENT_CONTEXT}: missing {token!r}")
 
     catalog = _read(root, Path("archlucid-ui/src/lib/product-line/product-line-catalog.ts"), errors)
     if catalog and '"/administration/securenow-first-hour": "security"' not in catalog:

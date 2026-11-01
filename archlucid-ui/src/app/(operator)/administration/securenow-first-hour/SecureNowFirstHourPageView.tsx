@@ -23,7 +23,17 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
           </h2>
           <ol className="list-decimal space-y-3 pl-5">
             {SECURENOW_FIRST_HOUR_STEPS.map((step) => (
-              <li key={step.title} className={OPERATOR_TYPOGRAPHY.body}>
+              <li
+                key={step.title}
+                id={
+                  step.title === "3 — Advisory cut point"
+                    ? "path-inspect"
+                    : step.title === "4 — Stop"
+                      ? "stop"
+                      : undefined
+                }
+                className={OPERATOR_TYPOGRAPHY.body}
+              >
                 <span className="font-medium">{step.title}</span>
                 <span> — {step.body}</span>
                 {step.href ? (

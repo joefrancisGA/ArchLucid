@@ -25,8 +25,7 @@ export const SECURENOW_FIRST_HOUR_STEPS: readonly SecureNowFirstHourStep[] = [
   },
   {
     title: "3 — Advisory cut point",
-    body: "Read the proposed cut point and linked remediation pattern from path inspect. SecureNow recommends; it does not change Azure.",
-    href: SECURENOW_REMEDIATION_FACTORY_PATH,
+    body: "Select a priority row from step 2 and read the proposed cut point in Path inspect. The panel shows the cut point and linked remediation pattern. SecureNow recommends; it does not change Azure.",
   },
   {
     title: "4 — Stop",
