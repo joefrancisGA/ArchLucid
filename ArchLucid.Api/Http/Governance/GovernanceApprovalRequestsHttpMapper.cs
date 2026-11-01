@@ -14,7 +14,7 @@ public static class GovernanceApprovalRequestsHttpMapper
     public const int MaxBatchReviewCount = 50;
 
     public static string NormalizeApprovalRequestId(string approvalRequestId) =>
-        approvalRequestId.Trim();
+        GovernanceApprovalRequestIdNormalizer.Normalize(approvalRequestId);
 
     public static GovernanceHttpValidation? ValidateApprovalRequestId(string approvalRequestId)
     {
