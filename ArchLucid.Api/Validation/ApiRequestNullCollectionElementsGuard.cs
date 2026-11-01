@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace ArchLucid.Api.Validation;
@@ -105,7 +106,9 @@ public static class ApiRequestNullCollectionElementsGuard
                 || genericDefinition == typeof(HashSet<>)
                 || genericDefinition == typeof(Queue<>)
                 || genericDefinition == typeof(Stack<>)
-                || genericDefinition == typeof(LinkedList<>))
+                || genericDefinition == typeof(LinkedList<>)
+                || genericDefinition == typeof(ConcurrentBag<>)
+                || genericDefinition == typeof(ConcurrentQueue<>))
             {
                 return type.GetGenericArguments()[0];
             }
@@ -141,7 +144,9 @@ public static class ApiRequestNullCollectionElementsGuard
                || genericDefinition == typeof(HashSet<>)
                || genericDefinition == typeof(Queue<>)
                || genericDefinition == typeof(Stack<>)
-               || genericDefinition == typeof(LinkedList<>);
+               || genericDefinition == typeof(LinkedList<>)
+               || genericDefinition == typeof(ConcurrentBag<>)
+               || genericDefinition == typeof(ConcurrentQueue<>);
     }
 
     private static bool TryVisitRootBodyCollection(

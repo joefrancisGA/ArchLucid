@@ -19329,6 +19329,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-11-01 thorough hunt (hit #351): promoted `(candidate)` `ConcurrentBag<T>` / `ConcurrentQueue<T>` root without `ParameterInfo` (#350 LinkedList parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to concurrent bag/queue roots; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_bag_without_body_parameter` and `ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_queue_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows (`IImmutableList<T>` property walk uses `VisitCollection` when catalog adds immutable lists — same enumerable path as `ReadOnlyCollection`; filter `foreach` already validates every `[FromBody]` parameter — no cataloged action exposes dual body parameters; no cataloged `SortedDictionary<,>` request properties; `PriorityQueue<,>` still lacks non-generic `IEnumerable` — monitor closed per #350); reseeded five follow-on `(candidate)` rows; scoped filter **36/36** passed (`RunAnalyzers=false`). Private beta: concurrent collection batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentBag<T>` / `ConcurrentQueue<T>` root without `ParameterInfo` — **hit 2026-11-01 thorough hunt #351:** concurrent bag/queue root recognition; regressions above.
+- [x] (valid-no-repro) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `IImmutableList<T>` property on request DTOs — **cheap-disproof 2026-11-01 thorough hunt #351:** deserialized immutable lists implement `IEnumerable`; property walk uses existing `VisitCollection`.
+- [x] (invalid) `ApiRequestNullCollectionElementsFilter` — multiple `[FromBody]` parameters on one action — **cheap-disproof 2026-11-01 thorough hunt #351:** no cataloged action binds two body parameters; filter would validate each if introduced.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `SortedDictionary<,>` values — **cheap-disproof 2026-11-01 thorough hunt #351:** no cataloged request model exposes `SortedDictionary<,>`.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard` — `PriorityQueue<,>` root via `UnorderedItems` tuple walk — **cheap-disproof 2026-11-01 thorough hunt #351:** `PriorityQueue<,>` does not implement non-generic `IEnumerable`; no cataloged batch root (see #350).
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `BlockingCollection<T>` root without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future blocking collection batch root (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` property with explicit null reference slots — locus: struct collection property walk; input: if catalog adds `ImmutableArray<string?>` (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` parameter with `BindingSource.Body` override on minimal API endpoint — locus: filter descriptor type; input: future minimal-API body binding (monitor).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ConcurrentDictionary<,>` values — locus: dictionary value walk; input: if catalog adds concurrent map property (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — root `ChannelReader<T>` / async enumerable batch — locus: non-`IEnumerable` root collections; input: `[FromBody]` async stream roots if added (monitor).
+
 2026-10-31 thorough hunt (hit #350): promoted `(candidate)` root `LinkedList<T>` without `ParameterInfo` (#348 parity); extended root collection recognition to `LinkedList<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_linked_list_without_body_parameter`; cheap-disproof closed four sibling rows (`ObservableCollection<T>` property walk trips guard — `ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property`; `PriorityQueue<,>` does not implement non-generic `IEnumerable` so root walk is unreachable and no cataloged `[FromBody]` priority-queue root; no `[FromBody] CancellationToken`/`Stream` parameters — ct uses default binding source; no `FrozenDictionary`/`ImmutableHashSet` on cataloged DTOs; `TryVisitRootBodyCollection` `IsInstanceOfType` gate is intentional when runtime body does not match parameter type); reseeded five follow-on `(candidate)` rows; scoped filter **34/34** passed (`RunAnalyzers=false`). Private beta: linked-list-shaped batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `LinkedList<T>` / `PriorityQueue<,>` root without `ParameterInfo` — **hit 2026-10-31 thorough hunt #350:** `LinkedList<>` root recognition + regression above; **PriorityQueue<,> split invalid** (see below).
@@ -19412,11 +19426,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 11
-- **bugs-found:** 8
+- **hunts:** 12
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — single-arg guard skipped LinkedList root null slots
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — single-arg guard skipped ConcurrentBag/ConcurrentQueue root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
