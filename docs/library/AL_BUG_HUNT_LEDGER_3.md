@@ -3027,11 +3027,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (superseded) `buildProxyUpstreamHeaders` — register trusted scope (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
 - [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
 
-- [ ] (candidate) `passThrough` — upstream `Set-Cookie` on proxied auth responses may reach the browser — locus: header allowlist vs upstream auth cookies; input: upstream `Set-Cookie` on auth/me; wrong outcome: unintended cookie mutation; reachability: monitor pass-through header forwarding policy.
-- [ ] (candidate) `enforceProxyBffSessionGuard` — GET on protected bootstrap paths without session may still slide cookies when payload null — locus: allowed GET with null payload branch; input: bootstrap status GET without cookie; wrong outcome: unexpected Set-Cookie; reachability: monitor bootstrap GET guard regressions.
-- [ ] (candidate) `resolveBootstrapCompletePath` — unsafe explicit returnUrl consumes OIDC desk path before fallback — locus: consume ordering in bootstrap complete; input: unsafe arg with valid consumed desk path; wrong outcome: `/` instead of desk; reachability: monitor `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — production posture may attach trusted proxy scope on anonymous register POST — locus: `resolveAnonymousPublicProxyScopeHeaders`; input: register POST with registration session headers; wrong outcome: wrong tenant on anonymous route; reachability: monitor anonymous scope resolution tests.
-- [ ] (candidate) `fetchWithWarmupRetry` — auth/me GET retry may return stale body while BFF session slides twice — locus: warmup retry on interactive read; input: 503 then 200 on auth/me; wrong outcome: stale principal; reachability: monitor warmup retry + auth/me client cache contract.
+- [x] (superseded) `passThrough` — Set-Cookie (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register scope (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
 
 - [x] (superseded) `passThrough` — ETag/Vary cache validators — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
 - [x] (superseded) `handleRateLimitedForward` — 429 BFF slide — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
