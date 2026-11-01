@@ -2620,22 +2620,36 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
+2026-11-01 thorough hunt (dry #50): cheap-disproof closed five open `(candidate)` monitor rows from dry **#49** reseed — **valid-no-repro** post-update audit cancel after durable settings update (SCIM seat / api-key rotate audit class; dry **#45**–**#48**); **valid-no-repro** null PUT body returns **400** before service (`PutAsync_returns_bad_request_when_body_is_null`); **valid-no-repro** invalid monthly cap step rejected at consume stage (`UpdateWalletAsync_rejects_invalid_monthly_cap_step`); **valid-no-repro** stale non-empty `ExpectedRowVersion` immediate **409** without server retry (intentional client refresh; dry **#46**–**#49**); **valid-no-repro** Reader **403** on PUT / Admin **200** on GET by design (hit **2026-10-09** — `PutAsync_returns_403_for_reader_role`, `GetAsync_returns_wallet_for_reader_role`); reseeded five follow-on `(candidate)` rows; scoped **52/52** `LlmTenantWalletServiceTests`, **2/2** `WalletControllerUnitTests`. Private beta: n/a.
+
+- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — locus: ~76–88; input: canceled token mid-service; reachability: Billing PUT under load (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — malformed `RowVersionBase64` returns validation problem before `UpdateWalletAsync` — locus: ~73–74; input: invalid base64; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — `MonthlyCapUsd` above catalog max rejected at consume stage — locus: `IsValidMonthlyCap`; input: cap over max; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — omitted `RowVersionBase64` uses empty expected version and last-write-wins under concurrent admin saves — locus: ~139–144; input: parallel PUTs without row version; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `WalletController.GetAsync` — cooperative cancel during `GetWalletAsync` propagates without controller catch — locus: GET path; input: canceled token; reachability: Billing GET under load (monitor).
+
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — **cheap-disproof 2026-11-01 thorough hunt #50:** SCIM seat audit class; dry **#45**–**#48** diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `PutAsync_returns_bad_request_when_body_is_null`.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `UpdateWalletAsync_rejects_invalid_monthly_cap_step`.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional stale-version **409**; client refresh contract.
+- [x] (valid-no-repro) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional authz split (hit **2026-10-09**); `PutAsync_returns_403_for_reader_role` / `GetAsync_returns_wallet_for_reader_role`.
+
 2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` monitor rows from dry **#48** reseed — **valid-no-repro** cooperative cancel during pre-audit `UpdateWalletAsync` (intentional host cancel; parity GET / scim-users **#50**); **valid-no-repro** optimistic retry exhaustion returns null → HTTP **409** (dry **#43** / settlement re-queue class); **valid-no-repro** explicit enable with `MonthlyCapUsd = 0` on fresh wallet rejected at consume enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings`, sibling `UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`); **invalid** undifferentiated `ConflictProblem` copy for validation vs stale row version (single operator retry message by design); **valid-no-repro** GET cancel during `GetWalletAsync` (dry **#48**, hit **#44**); reseeded five follow-on `(candidate)` rows; scoped **52/52** `LlmTenantWalletServiceTests`. Private beta: n/a.
 
-- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — locus: ~97–117; input: aborted connection during audit; reachability: Billing PUT under load (monitor).
-- [ ] (candidate) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — locus: ~68–69; input: empty PUT body; reachability: Billing wallet save (monitor).
-- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — locus: consume `IsValidMonthlyCap`; input: cap not on `$50` step; reachability: Billing wallet save (monitor).
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — locus: ~55–56; input: client row version drift; reachability: Billing PUT **409** (monitor).
-- [ ] (candidate) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — locus: class `AuthenticatedUserOnly` + action `AdminAuthority`; input: Reader role save attempt; reachability: Billing authz (monitor; hit **2026-10-09**).
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
 
 - [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional cooperative cancel; dry **#48** GET/PUT cancel class.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop returns null after `MaxOptimisticRetries` under rowversion churn — **cheap-disproof 2026-11-01 thorough hunt #49:** exhausted retries → service null → HTTP **409**; dry **#43** diary.
