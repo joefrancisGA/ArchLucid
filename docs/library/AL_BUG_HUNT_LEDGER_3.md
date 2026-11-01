@@ -2993,6 +2993,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not copy upstream `Set-Cookie` (header allowlist only); null BFF payload on GET returns empty slide headers unless clearing an unparseable cookie (`slideCookieHeaders` only for unparseable clear, not activity slide); `resolveBootstrapCompletePath` falls back to consumed safe desk path when explicit returnUrl is unsafe (`falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`); anonymous routes use `resolveAnonymousPublicProxyScopeHeaders` which never applies trusted server scope fallback (`forwards tenant self-registration POST when BFF session is enabled`; scope resolution comment at `proxy-scope-resolution.ts`); auth/me warmup retry + client cache coupling is monitor-only with no failing repro in-zone. Targeted regressions **41/41** across `email-otp-post-auth.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-upstream-headers.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `Set-Cookie` — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** Set-Cookie not forwarded from upstream responses.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — GET without session slides cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** null payload branch does not slide activity; optional unparseable clear only.
+- [x] (invalid) `resolveBootstrapCompletePath` — unsafe returnUrl drops desk path — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** consumed safe desk path wins; regression above.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — trusted scope on anonymous register — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** anonymous resolver forwards browser scope only, not trusted server fallback.
+- [x] (valid-no-repro) `fetchWithWarmupRetry` — stale auth/me after retry — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** no failing repro; monitor-only lens.
+
+- [ ] (candidate) `appendProxyBffSlideCookieHeaders` — mutating upstream 502 may still append slide Set-Cookie — locus: error responses from upstream fetch; input: POST with active session and upstream 502; wrong outcome: session slide on failure; reachability: monitor upstream error pass-through + slide append ordering.
+- [ ] (candidate) `readProxyScopeFromAuthorizationHeader` — malformed JWT on anonymous path may still forward scope claims — locus: bearer parse on public anonymous route with browser Authorization; input: garbage bearer on register POST; wrong outcome: scope headers derived from junk; reachability: monitor bearer scope parse fail-closed tests.
+- [ ] (candidate) `verifyEmailOtpCode` — success navigation may consume OIDC return before bootstrap stores explicit returnUrl — locus: sign-in flow ordering vs `storePostSignInReturnUrl`; input: verify with desk path in OIDC storage; wrong outcome: bootstrap loses returnUrl; reachability: monitor OTP post-auth path + idle restore tests.
+- [ ] (candidate) `proxyRateLimitClientKey` — shared `unknown` bucket under missing X-Forwarded-For — locus: rate limit key fallback; input: many clients without forwarded-for; wrong outcome: collateral 429; reachability: monitor proxy rate-limit key tests.
+- [ ] (candidate) `handleRateLimitedForward` — Server-Timing header on 429 may leak upstream path segments — locus: telemetry normalization on rate-limited responses; input: nested proxy path; wrong outcome: sensitive segment in timing; reachability: monitor normalize-proxy-path-for-telemetry tests.
+
+- [x] (superseded) `passThrough` — upstream Set-Cookie — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide without session — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl consume ordering — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — trusted scope on register — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me stale retry — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` allowlists response headers and does not forward upstream `ETag`/`Vary` (only sets opt-in `Cache-Control` on auth/me); `enforceProxyRateLimit` runs before `forward` so 429 responses never reach BFF slide (intentional abuse fail-fast); OTP `Complete` and bootstrap complete are separate navigation entry points so paired `consumePostSignInReturnUrl` calls are not one buyer flow (`use-sign-in-flow-state` vs `PostAuthBootstrapClient`); anonymous public paths forward browser `Authorization` when present (`still forwards browser Authorization on public anonymous paths when present`); missing/`chunked` Content-Length skips declared-length 413 but streaming read still enforces cap (`body_too_large_streaming`; `declaredPostBodyExceedsLimit` returns false for non-numeric header). Targeted regressions **37/37** across `proxy-body-read.test.ts`, `proxy-upstream-headers.test.ts`, and `email-otp-post-auth.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `passThrough` — upstream `ETag`/`Vary` on auth/me — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** validators not forwarded; private cache hint only when opted in.
@@ -3000,6 +3020,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `consumePostSignInReturnUrl` — double consume OTP + bootstrap complete — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** separate client entry points; not a single verify-then-complete chain consuming twice for one desk landing.
 - [x] (valid-no-repro) `buildProxyUpstreamHeaders` — anonymous path omits browser bearer — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** regression forwards browser Authorization on public anonymous paths.
 - [x] (invalid) `forwardMutatingWithBody` — chunked POST bypasses body cap — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** streaming read limit returns 413 via `body_too_large_streaming`.
+
+- [x] (superseded) `passThrough` — Set-Cookie (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register trusted scope (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
 
 - [ ] (candidate) `passThrough` — upstream `Set-Cookie` on proxied auth responses may reach the browser — locus: header allowlist vs upstream auth cookies; input: upstream `Set-Cookie` on auth/me; wrong outcome: unintended cookie mutation; reachability: monitor pass-through header forwarding policy.
 - [ ] (candidate) `enforceProxyBffSessionGuard` — GET on protected bootstrap paths without session may still slide cookies when payload null — locus: allowed GET with null payload branch; input: bootstrap status GET without cookie; wrong outcome: unexpected Set-Cookie; reachability: monitor bootstrap GET guard regressions.
@@ -3209,9 +3235,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
