@@ -1331,6 +1331,11 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    setRenderResult(null);
+    setLoadError(null);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
     if (
       !shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(selectedMode, appliedSeedNodeId)
     ) {
@@ -1913,6 +1918,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     const activeRenderQuery = renderQuery;
+    const requestSnapshotId = selectedSnapshotId;
     let cancelled = false;
 
     async function loadRender() {
@@ -1920,9 +1926,9 @@ export function DiagramsWorkbenchClient() {
       setLoadError(null);
 
       try {
-        const response = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, activeRenderQuery);
+        const response = await fetchInfraEvidenceMermaidRender(requestSnapshotId, activeRenderQuery);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setRenderResult(response);
 
           if (

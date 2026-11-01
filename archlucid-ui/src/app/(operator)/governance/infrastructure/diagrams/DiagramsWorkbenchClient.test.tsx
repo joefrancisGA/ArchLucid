@@ -70,8 +70,11 @@ vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
 }));
 
 vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
-  ArchitectureDiagramViewer: (props: { scopeContextLine?: string | null }) => (
-    <div data-testid="architecture-diagram-viewer-mock">
+  ArchitectureDiagramViewer: (props: { scopeContextLine?: string | null; mermaidSource?: string }) => (
+    <div
+      data-testid="architecture-diagram-viewer-mock"
+      data-mermaid={props.mermaidSource ?? ""}
+    >
       {props.scopeContextLine != null ? (
         <p data-testid="architecture-diagram-scope-context">{props.scopeContextLine}</p>
       ) : null}
@@ -2467,6 +2470,113 @@ describe("DiagramsWorkbenchClient", () => {
       expect(routerReplaceMock).toHaveBeenCalled();
       const lastHref = String(routerReplaceMock.mock.calls.at(-1)?.[0] ?? "");
       expect(lastHref).not.toContain("seedNodeId=");
+    });
+  });
+
+  it("drops stale in-flight render when URL snapshot id changes before the prior request completes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    let resolveSlowSnapshotA: (() => void) | undefined;
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: 'flowchart TD\n    n_catalog["catalog-vnet"]',
+          metrics: {
+            nodeCount: 1,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 100,
+            layoutEstimate: 50,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      if (snapshotId === snapshotA) {
+        await new Promise<void>((resolve) => {
+          resolveSlowSnapshotA = resolve;
+        });
+      }
+
+      const marker = snapshotId === snapshotA ? "stale-snapshot-a-marker" : "snapshot-b-marker";
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: `flowchart TD\n    n_render["${marker}"]`,
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotA,
+        expect.objectContaining({ mode: "executive" }),
+      );
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&mermaidMode=executive`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const viewer = screen.getByTestId("architecture-diagram-viewer-mock");
+      expect(viewer.getAttribute("data-mermaid")).toContain("snapshot-b-marker");
+    });
+
+    await act(async () => {
+      resolveSlowSnapshotA?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      const mermaid = screen.getByTestId("architecture-diagram-viewer-mock").getAttribute("data-mermaid") ?? "";
+      expect(mermaid).toContain("snapshot-b-marker");
+      expect(mermaid).not.toContain("stale-snapshot-a-marker");
     });
   });
 });
