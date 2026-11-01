@@ -108,6 +108,17 @@ regexes = [
   "abcdef1234567890abcdef1234567890abcdef12",
 ]
 
+# Removed from HEAD in c1887c1c66 (#5785) but still present in git blobs;
+# gitleaks scans full history (ci.yml fetch-depth: 0). generic-api-key captured
+# `primary/supplemental` from hunt-ledger prose `storage-key isolation, primary/supplemental`.
+# Not a credential — two English words with a slash. Regex-only so the ledger
+# file stays covered for any real secret.
+[[allowlists]]
+description = "Hunt-ledger PKCE storage-key prose: captured secret primary/supplemental is two English words, not an API key; generic-api-key false positive in git history"
+regexes = [
+  "primary/supplemental",
+]
+
 [[allowlists]]
 description = "Feasibility verdict Vitest fixtures: transparency trail inferred keys are policy control ids, not API secrets (current + legacy review route paths in git history)"
 paths = [
