@@ -2993,6 +2993,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not forward upstream `Cache-Control` and sets `private, max-age=60` only for successful `/api/auth/me` GETs (no shared-cache override); `buildProxyUpstreamPath` rejects traversal but has no depth cap so long safe paths forward upstream rather than 400 (hypothesis inverted); `enforceProxyRateLimit` keys only on client IP (`proxyRateLimitClientKey`) by design so colocated traffic shares a bucket conservatively; `resolveEmailOtpPostAuthPath` prefers explicit safe `returnUrl` over consumed OIDC storage (`prefers explicit safe returnUrl over consumed OIDC return for Complete`; `prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`); sandbox mock short-circuit skips BFF slide cookies only when `ARCHLUCID_UI_SANDBOX_MOCKS` is enabled (local exploration, not production posture). Targeted regressions `email-otp-post-auth.test.ts` and `proxy-upstream-path.test.ts` passed **21/21**. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `Cache-Control` vs auth/me private hint — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** upstream cache headers not copied; opt-in private hint overwrites on auth/me only.
+- [x] (invalid) `buildProxyUpstreamPath` — overlong safe segment list — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** no depth limit; safe joins forward upstream; traversal tests cover rejection paths.
+- [x] (valid-no-repro) `enforceProxyRateLimit` — anonymous vs operator bucket sharing — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** IP-keyed fixed window; intentional conservative abuse posture.
+- [x] (invalid) `resolveEmailOtpPostAuthPath` — consumed OIDC overrides explicit safe path — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** explicit safe arg wins; regressions above.
+- [x] (valid-no-repro) `trySandboxProxyMock` — sandbox GET skips BFF slide cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** dev-only env gate; not a production / private-beta path.
+
+- [ ] (candidate) `passThrough` — upstream `ETag` / `Vary` on auth/me may leak cache validators without matching `Cache-Control` policy — locus: selective header forwarding; input: upstream auth/me with validators; wrong outcome: stale identity in intermediate caches; reachability: monitor pass-through header allowlist tests.
+- [ ] (candidate) `handleRateLimitedForward` — 429 response may omit BFF slide cookies on allowed requests that hit rate limit after guard — locus: rate limit before `forward`; input: burst GET with active session; wrong outcome: session not slid before 429; reachability: monitor rate-limit + session slide ordering tests.
+- [ ] (candidate) `consumePostSignInReturnUrl` — double consume during OTP verify + bootstrap complete may drop desk path — locus: OIDC return storage single-use; input: verify then bootstrap complete in one tab; wrong outcome: fallback `/` landing; reachability: monitor OTP post-auth path tests with paired consumes.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — anonymous public path with browser bearer may omit cookie bearer upstream — locus: `skipPrivilegedUpstreamAuth` bearer selection; input: marketing register with Authorization header; wrong outcome: wrong upstream auth mode; reachability: monitor anonymous marketing upstream header tests.
+- [ ] (candidate) `forwardMutatingWithBody` — chunked upload without Content-Length may bypass declared-size 413 guard — locus: streaming read limit vs header check; input: large chunked POST; wrong outcome: memory pressure; reachability: monitor body limit streaming regressions.
+
+- [x] (superseded) `passThrough` — upstream Cache-Control override — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong segment list — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — shared bucket — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — OIDC precedence — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `trySandboxProxyMock` — BFF slide skip — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF on anonymous marketing mutations is intentional with cookie clear (`allows anonymous marketing mutations when the BFF session cookie is expired`; `allows anonymous marketing mutations when the BFF session cookie is idle-expired`); `authMePrivateCacheSeconds` keys off `path.toLowerCase()` and canonical clients call lowercase `api/auth/me`; mutating forwards copy client `Content-Type` before empty-body upstream fetch (`copyMutatingRequestContentType`); `mergeRegistrationScopeForProxy` uppercases method before CSRF attachment (`method?.toUpperCase() ?? "GET"`); marketing-host `/runs` handoff preserves query before app-side alias rewrite (`hands off marketing-host legacy /runs alias bookmarks to the app origin before demo alias canonicalization`; `preserves query string when rewriting /runs alias paths`). Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired session + anonymous marketing POST — **cheap-disproof 2026-11-01 thorough hunt:** regressions above.
@@ -3001,11 +3021,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — lowercase PATCH method — **cheap-disproof 2026-11-01 thorough hunt:** `toUpperCase()` normalization; no PATCH bootstrap client in zone today.
 - [x] (valid-no-repro) `proxy.ts` / host gate — alias query loss on marketing host — **cheap-disproof 2026-11-01 thorough hunt:** host-gate handoff + alias redirect preserve `search`.
 
-- [ ] (candidate) `passThrough` — upstream `Cache-Control` on authenticated GET may override proxy private hint for `/api/auth/me` — locus: `proxy-passthrough.ts`; input: upstream public cache headers on auth/me; wrong outcome: shared cache of identity; reachability: monitor auth/me pass-through cache tests.
-- [ ] (candidate) `buildProxyUpstreamPath` — overlong proxy segment list may pass segment checks but fail resolved URL join — locus: segment vs resolved traversal; input: deeply nested safe segments at size limit; wrong outcome: 400 vs upstream 404; reachability: monitor traversal rejection tests.
-- [ ] (candidate) `enforceProxyRateLimit` — pre-auth anonymous POST may share bucket with authenticated operator traffic — locus: rate limit key selection; input: register burst from marketing host; wrong outcome: false 429 on operator session; reachability: monitor proxy rate-limit tests.
-- [ ] (candidate) `resolveEmailOtpPostAuthPath` — consumed OIDC return may override explicit safe bootstrap path when both present — locus: path precedence after idle restore hit; input: desk path in OIDC storage plus explicit safe arg; wrong outcome: wrong post-verify landing; reachability: monitor bootstrap complete path regressions.
-- [ ] (candidate) `trySandboxProxyMock` — sandbox mock short-circuit may skip BFF slide cookies on allowed GET — locus: mock branch before upstream fetch; input: sandbox-enabled GET with active session; wrong outcome: idle session not slid; reachability: monitor sandbox mock + session slide tests.
+- [x] (superseded) `trySandboxProxyMock` — sandbox mock short-circuit may skip BFF slide cookies — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — consumed OIDC return may override explicit safe bootstrap path — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — pre-auth anonymous POST may share bucket — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong proxy segment list — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `passThrough` — upstream Cache-Control on auth/me — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
+- [x] (superseded) `passThrough` — upstream Cache-Control on auth/me (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong proxy segment list (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — shared bucket (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — OIDC precedence (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `trySandboxProxyMock` — BFF slide skip (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
 
 - [x] (superseded) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST — **superseded 2026-11-01 thorough hunt:** see closed row above.
 - [x] (superseded) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header — **superseded 2026-11-01 thorough hunt:** see closed row above.
