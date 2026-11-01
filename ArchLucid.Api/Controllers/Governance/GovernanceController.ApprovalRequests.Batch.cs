@@ -4,6 +4,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> BatchReviewApprovalRequests(
         [FromBody] GovernanceApprovalBatchReviewRequest? body,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken = default)
     {
         if (body is null)
@@ -42,6 +44,23 @@ public sealed partial class GovernanceController
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
+
+        foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+                continue;
+
+            string approvalRequestId =
+                GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
+
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+                approvalRequestId,
+                approvalRepository,
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+        }
 
         try
         {
