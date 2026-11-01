@@ -185,6 +185,27 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
     }
 
     [SkippableFact]
+    public void IssueAccessToken_emits_auth_version_claim_when_caller_supplies_guid()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+        Guid userId = Guid.NewGuid();
+        Guid authVersion = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        string token = issuer.IssueAccessToken(
+            userId,
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            authVersion: authVersion);
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        jwt.Claims.Should().ContainSingle(
+            c => c.Type == PlatformIdentityClaimTypes.AuthVersion && c.Value == authVersion.ToString("D"));
+    }
+
+    [SkippableFact]
     public void IssueAccessToken_clamps_requested_access_token_lifetime_above_twenty_four_hours()
     {
         LocalTrialJwtIssuer issuer = CreateIssuer();

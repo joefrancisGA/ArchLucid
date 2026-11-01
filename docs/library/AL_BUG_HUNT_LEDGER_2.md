@@ -5355,6 +5355,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-01 seed hunt (seed→hit #45): promoted comma-folded `Authorization` with box drawings left heavy vertical (`U+2579`) and right light vertical (`U+257A`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2579` and `U+257A`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_left_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_right_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #44 (scientific-notation `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_scientific_notation_iat_is_present_without_auth_time`; explicit auth-version Guid emission via `IssueAccessToken_emits_auth_version_claim_when_caller_supplies_guid`; whitespace-only inbound role skipped via `Apply_skips_whitespace_only_inbound_role_values`); reseeded five follow-on `(candidate)` rows; scoped filter **217/219** (`RunAnalyzers=false`; 2 SQL integration tests blocked — no SQL Server on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a left heavy vertical or right light vertical box-drawing placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings left heavy vertical (`U+2579`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #45:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_left_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings right light vertical (`U+257A`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #45:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_right_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — scientific-notation `iat` when `auth_time` absent — **cheap-disproof 2026-11-01 seed hunt #45:** regression `HasRecentAuthentication_returns_false_when_only_scientific_notation_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — explicit auth-version Guid emitted when provided — **cheap-disproof 2026-11-01 seed hunt #45:** regression `IssueAccessToken_emits_auth_version_claim_when_caller_supplies_guid`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — skips role promotion when inbound role value is whitespace — **cheap-disproof 2026-11-01 seed hunt #45:** regression `Apply_skips_whitespace_only_inbound_role_values`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy down and right (`U+257B`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings heavy up and right (`U+257C`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — octal-string `iat` when `auth_time` absent — locus: `long.TryParse` fail-closed; reachability: step-up monitor.
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — inbound role value is zero-width space only — locus: `IsNullOrWhiteSpace` skip; reachability: SAML monitor.
+
 2026-10-31 seed hunt (seed→hit #44): promoted comma-folded `Authorization` with box drawings up heavy horizontal (`U+2577`) and left light vertical (`U+2578`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2577` and `U+2578`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_up_heavy_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_left_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #43 (hex-string `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_hex_string_iat_is_present_without_auth_time`; explicit null lifetime via `IssueAccessToken_honors_configured_lifetime_when_caller_passes_null_minutes`; role source case-insensitivity via `Apply_promotes_roles_when_source_claim_type_differs_by_case`); reseeded five follow-on `(candidate)` rows; regression filter 5/5 new tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an up heavy horizontal or left light vertical box-drawing placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — box drawings up heavy horizontal (`U+2577`) placeholder after `Bearer` trips mix guard — **hit 2026-10-31 seed hunt #44:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_up_heavy_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5363,11 +5377,11 @@
 - [x] (valid-no-repro) `LocalTrialJwtIssuer` — configured lifetime used when caller passes null minutes — **cheap-disproof 2026-10-31 seed hunt #44:** regression `IssueAccessToken_honors_configured_lifetime_when_caller_passes_null_minutes`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — promotes roles when source claim type differs by case — **cheap-disproof 2026-10-31 seed hunt #44:** regression `Apply_promotes_roles_when_source_claim_type_differs_by_case`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings left heavy vertical (`U+2579`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — box drawings right light vertical (`U+257A`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — scientific-notation `iat` when `auth_time` absent — locus: iat fallback fail-closed; reachability: step-up monitor.
-- [ ] (candidate) `LocalTrialJwtIssuer` — explicit auth-version Guid emitted when provided — locus: claim surface; reachability: hunt #12 monitor.
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — skips role promotion when inbound role value is whitespace — locus: inbound promotion; reachability: SAML monitor.
+- [x] (proven) `ScimBearerAuthenticationHandler` — box drawings left heavy vertical (`U+2579`) glued after `Bearer` — **hit 2026-11-01 seed hunt #45:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_left_heavy_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler` — box drawings right light vertical (`U+257A`) glued after `Bearer` — **hit 2026-11-01 seed hunt #45:** regression `HandleAuthenticateAsync_succeeds_when_box_drawings_right_light_vertical_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — scientific-notation `iat` when `auth_time` absent — **cheap-disproof 2026-11-01 seed hunt #45:** regression `HasRecentAuthentication_returns_false_when_only_scientific_notation_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — explicit auth-version Guid emitted when provided — **cheap-disproof 2026-11-01 seed hunt #45:** regression `IssueAccessToken_emits_auth_version_claim_when_caller_supplies_guid`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — skips role promotion when inbound role value is whitespace — **cheap-disproof 2026-11-01 seed hunt #45:** regression `Apply_skips_whitespace_only_inbound_role_values`.
 
 2026-10-31 seed hunt (seed→hit #43): promoted comma-folded `Authorization` with box drawings up light horizontal (`U+2575`) and heavy down horizontal (`U+2576`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2575` and `U+2576`; regressions `HandleAuthenticateAsync_succeeds_when_box_drawings_up_light_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_box_drawings_heavy_down_horizontal_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #42 (fractional-string `iat` without `auth_time` via `HasRecentAuthentication_returns_false_when_only_fractional_string_iat_is_present_without_auth_time`; empty Guid auth-version via existing `IssueAccessToken_omits_auth_version_claim_when_auth_version_is_empty_guid`; scope promotion case-insensitivity via existing `Apply_promotes_scope_claims_when_source_claim_type_differs_by_case`); reseeded five follow-on `(candidate)` rows; regression filter 3/3 new tests plus two existing cheap-disproof tests (`RunAnalyzers=false`). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an up light horizontal or heavy down horizontal box-drawing placeholder before a valid token on the JwtBearer pilot path.
 
@@ -5854,11 +5868,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 71
-- **bugs-found:** 60
+- **hunts:** 72
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — SCIM Bearer mix guard rejected up heavy horizontal and left light vertical box-drawing placeholders before valid comma-folded token
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — SCIM Bearer mix guard rejected left heavy vertical and right light vertical box-drawing placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses

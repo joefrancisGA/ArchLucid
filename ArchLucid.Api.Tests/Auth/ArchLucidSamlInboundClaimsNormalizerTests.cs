@@ -73,6 +73,25 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_skips_whitespace_only_inbound_role_values()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", "   "),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", ArchLucidRoles.Operator).Should().BeTrue();
+        identity.Claims.Should().NotContain(c => c.Type == "roles" && string.IsNullOrWhiteSpace(c.Value));
+    }
+
+    [Fact]
     public void Apply_promotes_roles_when_source_claim_type_differs_by_case()
     {
         ClaimsIdentity identity = CreateSamlIdentity(
