@@ -13,10 +13,14 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
 
         Dictionary<string, double?> map = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (IGrouping<string, AgentResult> group in agentResults.GroupBy(
-                     static result => AgentEvaluationTaskIdKey.Normalize(result.TaskId)
-                                      ?? result.TaskId,
-                     StringComparer.OrdinalIgnoreCase))
+        foreach (IGrouping<string, AgentResult> group in agentResults
+                     .Select(static result => new
+                     {
+                         Result = result,
+                         TaskIdKey = AgentEvaluationTaskIdKey.Normalize(result.TaskId) ?? result.TaskId
+                     })
+                     .Where(static x => !string.IsNullOrWhiteSpace(x.TaskIdKey))
+                     .GroupBy(static x => x.TaskIdKey, static x => x.Result, StringComparer.OrdinalIgnoreCase))
         {
             List<AgentResult> groupResults = group.ToList();
             AgentResult? latest = AgentResultLatestForTaskSelector.Select(groupResults, group.Key);
