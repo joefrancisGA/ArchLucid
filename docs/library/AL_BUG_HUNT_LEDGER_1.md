@@ -3945,7 +3945,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — trace load before create-time pin when Guid header exists but pins would fail — **hit 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.Select` — empty-input fast path returns original empty list reference — **hit 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
-- [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — short-circuit Real/Simulator guard before materializing trace list — **hit 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — short-circuit Real/Simulator guard before materializing trace list — **cheap-disproof 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — single mutable trace list cleared between Select and foreach — **cheap-disproof 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
 - [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.Select` — GroupBy path returns new list while single-trace path now copies — **cheap-disproof 2026-11-01 thorough hunt (hunt 82):** see zone-header note above.
 
