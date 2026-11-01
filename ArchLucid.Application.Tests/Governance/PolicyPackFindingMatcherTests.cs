@@ -79,6 +79,28 @@ public sealed class PolicyPackFindingMatcherTests
     }
 
     [Fact]
+    public void MatchesAssignment_does_not_match_rule_key_when_punctuation_suffix_extends_rule_id()
+    {
+        Guid packId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-punctuation-suffixed-rule",
+            PolicyRuleId = "cis-azure-1.2.1",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "assignment key cis-azure-1.2 must not match the distinct rule id cis-azure-1.2.1 via punctuation boundary");
+    }
+
+    [Fact]
     public void MatchesAssignment_matches_rule_key_embedded_in_longer_policy_rule_id_with_token_boundary()
     {
         Guid packId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -93,6 +115,27 @@ public sealed class PolicyPackFindingMatcherTests
         {
             FindingId = "f-embedded",
             PolicyRuleId = "compliance-engine:cis-azure-1.2",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
+
+    [Fact]
+    public void MatchesAssignment_matches_listed_key_after_policy_pack_d_wrapped_rule_prefix()
+    {
+        Guid packId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-policy-pack-wrapped",
+            PolicyRuleId = $"policy-pack-{packId:D}-cis-azure-1.2",
             EngineType = "compliance-engine",
         };
 

@@ -27,6 +27,9 @@ internal static class PolicyPackFindingMatcher
                 if (string.Equals(policyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
+                if (RuleIdentifierMatchesKey(policyRuleId, ruleKey))
+                    return true;
+
                 if (RuleKeyAppearsAsToken(policyRuleId, ruleKey))
                     return true;
             }
@@ -64,6 +67,35 @@ internal static class PolicyPackFindingMatcher
             return false;
 
         return PackIdsEquivalent(normalizedEngineType[prefix.Length..], packId);
+    }
+
+    private static bool RuleIdentifierMatchesKey(string policyRuleId, string ruleKey)
+    {
+        string unwrapped = ExtractRuleIdentifier(policyRuleId);
+
+        return string.Equals(unwrapped, ruleKey, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ExtractRuleIdentifier(string policyRuleId)
+    {
+        const string wrapperPrefix = "policy-pack-";
+
+        if (!policyRuleId.StartsWith(wrapperPrefix, StringComparison.OrdinalIgnoreCase))
+            return policyRuleId;
+
+        int guidStart = wrapperPrefix.Length;
+
+        if (policyRuleId.Length > guidStart + 36
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 36), "D", out _)
+            && policyRuleId[guidStart + 36] == '-')
+            return policyRuleId[(guidStart + 37)..];
+
+        if (policyRuleId.Length > guidStart + 32
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 32), "N", out _)
+            && policyRuleId[guidStart + 32] == '-')
+            return policyRuleId[(guidStart + 33)..];
+
+        return policyRuleId;
     }
 
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
