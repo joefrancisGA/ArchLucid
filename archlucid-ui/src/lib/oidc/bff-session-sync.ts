@@ -3,6 +3,8 @@ import {
   coerceAcceptedOidcEpochMsHint,
   normalizeOidcConfigurationString,
   normalizeOidcOAuthFormString,
+  normalizeOptionalOidcOAuthFormToken,
+  normalizeRequiredOidcOAuthFormToken,
   parseOidcEpochMsHint,
 } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
@@ -46,35 +48,20 @@ function buildBffMutationHeaders(): Headers {
   return headers;
 }
 
-function normalizeOptionalBffTokenField(value: string | undefined): string | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  const normalized = normalizeOidcOAuthFormString(value);
-
-  if (normalized.length === 0) {
-    return undefined;
-  }
-
-  return normalized;
-}
-
 /** LK-06 P2: mirror OIDC token material into the HttpOnly BFF cookie (no sessionStorage tokens). */
 export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenResponse): Promise<void> {
   if (typeof fetch === "undefined") {
     return;
   }
 
-  const accessToken =
-    tokens.access_token === undefined ? "" : normalizeOidcOAuthFormString(tokens.access_token);
+  const accessToken = normalizeRequiredOidcOAuthFormToken(tokens.access_token);
 
   if (accessToken.length === 0) {
     return;
   }
 
-  const refreshToken = normalizeOptionalBffTokenField(tokens.refresh_token);
-  const idToken = normalizeOptionalBffTokenField(tokens.id_token);
+  const refreshToken = normalizeOptionalOidcOAuthFormToken(tokens.refresh_token);
+  const idToken = normalizeOptionalOidcOAuthFormToken(tokens.id_token);
 
   try {
     await fetch(BFF_SESSION_SYNC_PATH, {

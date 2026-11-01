@@ -24,6 +24,37 @@ export function normalizeOidcOAuthFormString(value: string): string {
   ).trim();
 }
 
+/** Required bearer field on BFF session issue/refresh boundaries (access_token). */
+export function normalizeRequiredOidcOAuthFormToken(value: string | undefined): string {
+  if (value === undefined) {
+    return "";
+  }
+
+  return normalizeOidcOAuthFormString(value);
+}
+
+/** Optional bearer fields on BFF session sync/issue (refresh_token, id_token). */
+export function normalizeOptionalOidcOAuthFormToken(
+  value: string | undefined,
+): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const normalized = normalizeOidcOAuthFormString(value);
+
+  return normalized.length === 0 ? undefined : normalized;
+}
+
+/** Same as {@link normalizeOptionalOidcOAuthFormToken} for server routes that store null. */
+export function normalizeOptionalOidcOAuthFormTokenOrNull(
+  value: string | undefined,
+): string | null {
+  const normalized = normalizeOptionalOidcOAuthFormToken(value);
+
+  return normalized === undefined ? null : normalized;
+}
+
 /** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
 export function normalizeOidcDisplayString(value: string): string {
   return value

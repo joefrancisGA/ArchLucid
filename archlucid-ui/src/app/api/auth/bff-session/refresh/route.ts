@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
-import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
+import { normalizeRequiredOidcOAuthFormToken } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import { isOAuthRefreshTokenRejectedError, refreshAccessToken } from "@/lib/oidc/token-client";
 import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const cookieValue = request.cookies.get(BFF_SESSION_COOKIE_NAME)?.value ?? null;
   const payload = parseBffSessionPayloadFromRequest(request);
-  const refreshToken = normalizeOidcOAuthFormString(payload?.rt ?? "");
+  const refreshToken = normalizeRequiredOidcOAuthFormToken(payload?.rt);
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
 

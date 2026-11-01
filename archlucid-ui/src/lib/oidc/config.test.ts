@@ -23,6 +23,14 @@ describe("oidc config env normalization", () => {
     expect(getOidcClientId()).toBe("client-1");
   });
 
+  it("strips soft hyphens from OIDC client id and redirect URI env overrides", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_CLIENT_ID", "client\u00AD1");
+    vi.stubEnv("NEXT_PUBLIC_OIDC_REDIRECT_URI", "https://app.example/call\u00ADback");
+
+    expect(getOidcClientId()).toBe("client1");
+    expect(getOidcRedirectUri()).toBe("https://app.example/callback");
+  });
+
   it("strips zero-width padding from Google OIDC env values", () => {
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", `\u200bhttps://accounts.google.com\u200b`);
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", `\u200bgoogle-client\u200b`);

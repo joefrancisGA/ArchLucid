@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeOptionalOidcOAuthFormToken,
+  normalizeOptionalOidcOAuthFormTokenOrNull,
+  normalizeRequiredOidcOAuthFormToken,
+} from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import {
   buildBffSessionClearCookieHeaders,
@@ -20,24 +24,6 @@ type BffSessionPostBody = {
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
   return Date.now() + resolveExpiresInSeconds(expiresIn) * 1000;
-}
-
-function normalizeRequiredBffTokenField(value: string | undefined): string {
-  if (value === undefined) {
-    return "";
-  }
-
-  return normalizeOidcOAuthFormString(value);
-}
-
-function normalizeOptionalBffTokenField(value: string | undefined): string | null {
-  if (value === undefined) {
-    return null;
-  }
-
-  const normalized = normalizeOidcOAuthFormString(value);
-
-  return normalized.length === 0 ? null : normalized;
 }
 
 /** Issues the HttpOnly BFF session cookie after browser sign-in (ADR 0059 P1 / LK-05). */
@@ -61,7 +47,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ title: "Invalid JSON body" }, { status: 400 });
   }
 
-  const accessToken = normalizeRequiredBffTokenField(body.access_token);
+  const accessToken = normalizeRequiredOidcOAuthFormToken(body.access_token);
 
   if (accessToken.length === 0) {
     return NextResponse.json({ title: "access_token is required" }, { status: 400 });
@@ -71,8 +57,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const issueResult = createBffSessionCookieValue({
     accessToken,
     expiresAtMs,
-    refreshToken: normalizeOptionalBffTokenField(body.refresh_token),
-    idToken: normalizeOptionalBffTokenField(body.id_token),
+    refreshToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.refresh_token),
+    idToken: normalizeOptionalOidcOAuthFormTokenOrNull(body.id_token),
     workingMode: body.working_mode === true,
   });
 

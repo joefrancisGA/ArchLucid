@@ -32,7 +32,7 @@ export function getOidcClientId(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(clientId);
+  return normalizeOidcOAuthFormString(clientId);
 }
 
 export function getOidcScopes(): string {
@@ -56,7 +56,7 @@ export function getOidcRedirectUri(): string {
   const fixed = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI;
 
   if (fixed !== undefined) {
-    const normalized = normalizeOidcConfigurationString(fixed);
+    const normalized = normalizeOidcOAuthFormString(fixed);
 
     if (normalized.length > 0) {
       return normalized;
@@ -105,7 +105,7 @@ export function getGoogleOidcClientId(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(clientId);
+  return normalizeOidcOAuthFormString(clientId);
 }
 
 export function getGoogleOidcScopes(): string {
