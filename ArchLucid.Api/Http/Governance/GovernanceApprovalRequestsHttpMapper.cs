@@ -122,7 +122,7 @@ public static class GovernanceApprovalRequestsHttpMapper
         if (approvalRequestId is null)
             return null;
 
-        string normalizedApprovalRequestId = approvalRequestId.Trim();
+        string normalizedApprovalRequestId = GovernanceApprovalRequestIdNormalizer.Normalize(approvalRequestId);
 
         if (normalizedApprovalRequestId.Length == 0)
         {
@@ -172,7 +172,8 @@ public static class GovernanceApprovalRequestsHttpMapper
             if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
                 continue;
 
-            string normalizedApprovalRequestId = rawApprovalRequestId.Trim();
+            string normalizedApprovalRequestId =
+                GovernanceApprovalRequestIdNormalizer.Normalize(rawApprovalRequestId);
 
             if (normalizedApprovalRequestId.Length > GovernanceRequestValidationRules.ApprovalRequestIdMaxLength)
             {
