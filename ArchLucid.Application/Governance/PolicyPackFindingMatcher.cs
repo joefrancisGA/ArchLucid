@@ -54,11 +54,12 @@ internal static class PolicyPackFindingMatcher
             return false;
 
         const string prefix = "policy-pack:";
+        string normalizedEngineType = engineType.Trim();
 
-        if (!engineType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        if (!normalizedEngineType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return PackIdsEquivalent(engineType[prefix.Length..], packId);
+        return PackIdsEquivalent(normalizedEngineType[prefix.Length..], packId);
     }
 
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)

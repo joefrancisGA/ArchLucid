@@ -160,4 +160,44 @@ public sealed class PolicyPackFindingMatcherTests
 
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
     }
+
+    [Fact]
+    public void MatchesAssignment_treats_outer_whitespace_on_policy_pack_engine_type_as_pack_attributed()
+    {
+        Guid packId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-engine-padded",
+            PolicyRuleId = "unrelated",
+            EngineType = $" policy-pack:{packId:D} ",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
+
+    [Fact]
+    public void MatchesAssignment_treats_ascii_space_after_policy_pack_prefix_as_pack_attributed()
+    {
+        Guid packId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-engine-space",
+            PolicyRuleId = "unrelated",
+            EngineType = $"policy-pack: {packId:D}",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
 }
