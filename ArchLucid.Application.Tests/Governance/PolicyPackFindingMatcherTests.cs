@@ -67,7 +67,7 @@ public sealed class PolicyPackFindingMatcherTests
         Finding finding = new()
         {
             FindingId = "f-embedded",
-            PolicyRuleId = $"policy-pack-{packId:D}-cis-azure-1.2",
+            PolicyRuleId = "compliance-engine:cis-azure-1.2",
             EngineType = "compliance-engine",
         };
 
