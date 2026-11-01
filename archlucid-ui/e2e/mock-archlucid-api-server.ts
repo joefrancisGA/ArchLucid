@@ -488,6 +488,14 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      // Mirror the real user-preferences controller: successful desk-continuity
+      // writes return 204. Missing mock support previously emitted repeated 405s.
+      if (req.method === "PUT" && pathname === "/v1/user/preferences/desk-continuity") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       if (req.method === "PUT" && pathname === "/v1/user/preferences/sample-reviews-on-overview") {
         res.writeHead(204);
         res.end();
