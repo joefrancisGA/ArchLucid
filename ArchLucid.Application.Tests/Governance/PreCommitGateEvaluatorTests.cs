@@ -176,4 +176,34 @@ public sealed class PreCommitGateEvaluatorTests
         result.WarnOnly.Should().BeTrue();
         result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-blocking-critical");
     }
+
+    [Fact]
+    public void Evaluate_blocks_when_warn_only_list_names_finding_severity_but_threshold_label_is_higher()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-error",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Error,
+                Title = "Policy breach",
+                Rationale = "Policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: false,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Warning,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: ["Error"]);
+
+        result.Blocked.Should().BeTrue(
+            "warn-only severities match the effective minimum threshold label (Warning), not each finding severity name");
+        result.WarnOnly.Should().BeFalse();
+    }
 }

@@ -18696,6 +18696,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-11-01 thorough hunt (dry #57): cheap-disproof closed five open `(candidate)` monitor rows recycled from hit **#56** reseed — **valid-no-repro** pre-commit warn-only compares configured labels to the effective minimum threshold severity name, not per-finding severity mix (`Evaluate_blocks_when_warn_only_list_names_finding_severity_but_threshold_label_is_higher`; parity dry **#53**/**#54**); **valid-no-repro** skipped proof count by contract (`Evaluate_counts_skipped_outcome_as_unproven`; dry **#933**); **valid-no-repro** preview trailing newline on run `CurrentManifestVersion` routes to version reader (`PreviewActivationAsync_loads_manifest_by_version_when_run_current_manifest_version_has_trailing_newline`; dry **#219**); **valid-no-repro** drift hash omits `EvaluationVersion` (`CoverageAssignmentsMatch_ignores_evaluation_version_when_operational_fields_match`; dry **#219**); **invalid** uppercase hex `policy-pack:{N}` engine type — `PackIdsEquivalent` + `Guid.TryParse` after hit **#56** (`MatchesAssignment_treats_uppercase_hex_n_pack_token_in_engine_type_as_pack_attributed`). Reseeded five follow-on `(candidate)` rows; scoped filter **868/877** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
+
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — warn-only list vs per-finding severity mix — **cheap-disproof 2026-11-01 thorough hunt #57:** threshold label contract; regression above; monitor dry **#53**.
+- [x] (valid-no-repro) `PolicyPackCoverageProofEvaluator.Evaluate` — skipped assignments unproven — **cheap-disproof 2026-11-01 thorough hunt #57:** intentional contract; regression `Evaluate_counts_skipped_outcome_as_unproven`; monitor dry **#933**.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — run manifest version outer padding — **cheap-disproof 2026-11-01 thorough hunt #57:** version-reader path; regression above; monitor dry **#219**.
+- [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — omits `EvaluationVersion` — **cheap-disproof 2026-11-01 thorough hunt #57:** intentional hash contract; regression above; monitor dry **#219**.
+- [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — uppercase hex in `policy-pack:` engine type — **cheap-disproof 2026-11-01 thorough hunt #57:** `Guid.TryParse`; regression above; monitor hit **#56**.
+
+- [ ] (candidate) `PolicyPackFindingMatcher.EngineTypeReferencesPack` — suffix not trimmed before `PackIdsEquivalent` when only leading whitespace — locus: `EngineTypeReferencesPack`; input: `"policy-pack: {D}"` interior space after colon (monitor dry **#57**).
+- [ ] (candidate) `PreCommitGateThresholdParser.TryParseMinimumSeverity` — numeric string ordinals accepted when `Enum.IsDefined` — locus: TryParse; input: `"2"` for `FindingSeverity.Error` without alias (monitor dry **#57**).
+- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — embedded manifest when run current equals request after trim but stored run field uses CR/LF — locus: ~63; input: `"v1\r\n"` (monitor dry **#219**).
+- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — complete snapshot marks Evaluated without pack signal — locus: ~69; input: empty findings + Complete status (monitor dry **#933**).
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — trailing whitespace on pack `Name` misclassifies overlay — locus: catalog Contains; input: `"Azure WAF "` (monitor dry **#217**).
+
 2026-11-01 thorough hunt (hit #56): promoted monitor `(candidate)` on `PolicyPackFindingMatcher` — `PolicyRuleId` and `EngineType` pack attribution only recognized dashed **D** pack tokens after hit **#55** fixed properties, so N-format pack ids embedded in rule ids or `policy-pack:{N}` engine types missed assignments; `PolicyRuleIdReferencesPack` checks D and N substrings and `EngineTypeReferencesPack` reuses `PackIdsEquivalent`; regressions `MatchesAssignment_treats_canonical_n_pack_token_in_policy_rule_id_as_pack_attributed` and `MatchesAssignment_treats_canonical_n_pack_token_in_engine_type_as_pack_attributed`. Cheap-disproof closed four sibling monitor rows from hit **#55** reseed — **valid-no-repro** full GUID substring in `PolicyRuleId` (32/36-char tokens; no practical cross-pack collision); **invalid** `"Moderate"` threshold synonym (no OpenAPI/questionnaire path); **invalid** Turkish dotted-I manifest version labels (version strings are operator ASCII labels); **valid-no-repro** `HasPackEvaluationFailure` `"policy"` substring (conservative `Failed` classification); **valid-no-repro** disabled assignment exclusion reason whitespace (constant-backed snapshot contract). Reseeded five follow-on `(candidate)` rows; scoped filter **866/875** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: findings attributed via N-format pack tokens in rule ids or engine types again participate in coverage proof and execute-scope outcomes.
 
 - [x] (proven) `PolicyPackFindingMatcher.MatchesAssignment` — N-format pack token in `PolicyRuleId` / `EngineType` not recognized — **hit 2026-11-01 thorough hunt #56:** regressions above; parity hit **#55** property path.
@@ -18705,11 +18719,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPackAssignmentOutcomeRecorder.HasPackEvaluationFailure` — `EngineType.Contains("policy")` breadth — **cheap-disproof 2026-11-01 thorough hunt #56:** requires pack token correlation; conservative failure classification.
 - [x] (valid-no-repro) `EffectiveGovernanceSnapshotBuilder.BuildCoverageSnapshots` — disabled assignment exclusion reason whitespace — **cheap-disproof 2026-11-01 thorough hunt #56:** constant exclusion reason; monitor dry **#934**.
 
-- [ ] (candidate) `PreCommitGateEvaluator.Evaluate` — warn-only list still keyed to effective threshold label when minimum below finding severity mix — locus: ~76–77; input: `Error` finding with warn-only `["Error"]` and minimum `Medium` (monitor dry **#53**).
-- [ ] (candidate) `PolicyPackCoverageProofEvaluator.Evaluate` — skipped assignments remain unproven without findings — locus: proof contract; input: `EvaluationOutcome=Skipped` (monitor dry **#933**).
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — run `CurrentManifestVersion` outer padding vs trimmed request — locus: ~63; input: trailing newline (monitor dry **#219**).
-- [ ] (candidate) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — omits `EvaluationVersion` from drift hash — locus: hash contract (monitor dry **#219**).
-- [ ] (candidate) `PolicyPackFindingMatcher.MatchesAssignment` — dashed vs canonical-N `policy-pack:` engine prefix case-only drift — locus: `EngineTypeReferencesPack`; input: uppercase hex in engine type without normalize (monitor hit **#56**).
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — warn-only threshold label — **cheap-disproof 2026-11-01 thorough hunt #57:** see dry #57 diary.
+- [x] (valid-no-repro) `PolicyPackCoverageProofEvaluator.Evaluate` — skipped unproven — **cheap-disproof 2026-11-01 thorough hunt #57:** see dry #57 diary.
+- [x] (valid-no-repro) `GovernancePreviewService.PreviewActivationAsync` — manifest padding — **cheap-disproof 2026-11-01 thorough hunt #57:** see dry #57 diary.
+- [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — EvaluationVersion omitted — **cheap-disproof 2026-11-01 thorough hunt #57:** see dry #57 diary.
+- [x] (invalid) `PolicyPackFindingMatcher.MatchesAssignment` — uppercase hex engine type — **cheap-disproof 2026-11-01 thorough hunt #57:** see dry #57 diary.
 
 2026-11-01 thorough hunt (hit #55): promoted monitor `(candidate)` on `PolicyPackFindingMatcher` — `policyPackId` finding property compared with ordinal string equality to assignment `ToString("D")`, so canonical **N** GUID properties from engines/API payloads did not match and coverage/outcome paths missed pack-attributed findings; `PackIdsEquivalent` uses `Guid.TryParse` parity; regression `MatchesAssignment_treats_canonical_n_policy_pack_id_property_as_equivalent_to_assignment`. Cheap-disproof closed four sibling monitor rows from hit **#54** reseed — **invalid** `"Med"` threshold abbreviation (`TryParseMinimumSeverity_maps_known_labels` / no questionnaire path); **invalid** interior tab on run `CurrentManifestVersion` (same padding class as trailing newline **#219**); **valid-no-repro** `HashPackAssignments` omits `EvaluationOutcome` by contract (dry **#219**); **valid-no-repro** `descriptorNotApplicable` requires pack token in `EngineType` and `HasPackEvaluationFailure` wins when `EngineType` contains `"policy"`. Reseeded five follow-on `(candidate)` rows; scoped filter **864/873** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: pack-attributed findings with N-format `policyPackId` properties again count toward coverage proof and execute-scope outcomes on the pilot finalize path.
 
@@ -18847,9 +18861,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 41
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — N-format pack tokens in PolicyRuleId and EngineType did not match assignments
 - **related-pd-tb:** none
