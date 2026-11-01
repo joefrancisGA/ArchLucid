@@ -14593,13 +14593,27 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — dependency seed catalog ignored Show never-show after catalog cache early-return
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — stale dependency-neighborhood seedNodeId survived snapshot changes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-11-01 thorough hunt (hit): promoted **stale dependency-neighborhood `seedNodeId` surviving snapshot and subscription filter resets** — snapshot picker and soft URL snapshot navigation left deep-linked seeds applied while the executive catalog refreshed for a new snapshot; clear applied seed state and strip `seedNodeId` from the URL on snapshot change, clear `seedNodeId` when subscription filter resets mode, skip never-show refilter while catalog load is in flight, and pass `includeNeverShow` into catalog fetch deps; regressions `clears deep-linked seedNodeId when the snapshot picker changes in dependency neighborhood mode` and `pairs with never-show filtering so SQL master databases drop out of seed picker candidates`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped DiagramsWorkbenchClient and seed-catalog vitest passed. Private beta: Invited operators changing infra diagram snapshots or subscription scope while picking a dependency-neighborhood starting resource no longer keep a prior snapshot's seeded resource id in the URL or picker state.
+
+- [x] (proven) `DiagramsWorkbenchClient` — clearing applied seed after snapshot change does not remove deep-linked `seedNodeId` from the URL — **hit 2026-11-01 thorough hunt:** snapshot picker + URL snapshot resync clear `seedNodeId`; regression above.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — executive catalog refilter effect runs while `loadingSeedCatalog` true and flashes empty picker options — **cheap-disproof 2026-11-01 thorough hunt:** refilter effect now no-ops while `loadingSeedCatalog` is true.
+- [x] (proven) `DiagramsWorkbenchClient` — subscription filter change to ALL resets mode and leaves dependency-neighborhood URL mode out of sync with cleared picker state — **hit 2026-11-01 thorough hunt:** `applySubscriptionFilterChange` clears `seedNodeId` when mode resets.
+- [x] (valid-no-repro) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — SQL master database rows appear in seed catalog when never-show off but collapse report omits them — **cheap-disproof 2026-11-01 thorough hunt:** workbench applies `filterInfraEvidenceMermaidOutline` before picker candidates; regression above.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — seed catalog refetch after snapshot change ignores `includeNeverShow` until refilter effect runs — **cheap-disproof 2026-11-01 thorough hunt:** catalog fetch effect now depends on `includeNeverShow` and applies filter on load.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — soft URL snapshot change clears seed param but url seed effect re-applies before router settles — locus: url seed sync vs snapshot reset; input: back/forward between snapshots with stale seed still in interim search params.
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change to unselected clears mode without clearing deep-linked `mermaidMode` when snapshot stays visible — locus: `applySubscriptionFilterChange` unselected branch; input: filter to Select a subscription while dependency neighborhood awaiting seed.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — selected edge detail survives never-show refilter when catalog nodes shrink to zero — locus: refilter + outline panel; input: toggle never-show off with only filtered-out catalog nodes visible in picker.
+- [ ] (candidate) `DiagramsWorkbenchClient` — dependency neighborhood render query omits `includeNeverShow` when deep-linked seed is applied — locus: render query builder; input: applied seed with `includeNeverShow=1` in URL.
+- [ ] (candidate) `resolveSelectableInfraEvidenceDiagramFamily` — family chip stays selected when seed catalog refresh replaces outline node ids — locus: family filter + catalog reload; input: snapshot change with active evidenceFamily deep link.
 
 2026-10-29 thorough hunt (hit): `loadSeedCatalog` early-return left `seedCandidateNodes` stale when `includeNeverShow` toggled after the executive catalog was cached; dedicated effect refilters cached `seedCatalogOutline` for the current snapshot whenever `includeNeverShow` changes; regression `refilters dependency seed catalog candidates when Show never-show components is enabled`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood workbench vitest passed. Private beta: Invited operators who turn on Show never-show components while choosing a dependency-neighborhood starting resource see metric alerts and other filtered inventory rows in the seed picker without reloading the snapshot.
 
@@ -14669,43 +14683,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter confirm dialog applies filter without clearing seed catalog when selection survives filter — **cheap-disproof 2026-10-29 thorough hunt:** confirm path calls `applySubscriptionFilterChange`, which clears mode/render when the filter changes and resets catalog via `selectedSnapshotId` when the snapshot drops out of the filter.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadSnapshots` refetch after URL snapshot change races URL resync effect and briefly restores prior catalog — **cheap-disproof 2026-10-29 thorough hunt:** URL resync sets `selectedSnapshotId` immediately when snapshots are already loaded; catalog clear tracks selection id and `seedCatalogSnapshotId` pairing from the same-day hits.
 - [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — seed catalog reload replaces outline nodes but leaves selected inventory edge from prior catalog parse — **cheap-disproof 2026-10-29 thorough hunt:** dependency-neighborhood seed pick uses catalog outline for the picker only; `selectedInventoryEdge` clears when `familyFilteredOutline` changes from render, not catalog cache.
-
-- [ ] (candidate) `DiagramsWorkbenchClient` — clearing applied seed after snapshot change does not remove deep-linked `seedNodeId` from the URL — locus: snapshot change + URL seed param; input: applied neighborhood render after soft-nav snapshot without seed param update.
-- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog refilter effect runs while `loadingSeedCatalog` true and flashes empty picker options — locus: refilter vs load race; input: slow catalog fetch then rapid never-show toggle.
-- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change to ALL resets mode and leaves dependency-neighborhood URL mode out of sync with cleared picker state — locus: `applySubscriptionFilterChange` ALL branch; input: filter to ALL while awaiting seed.
-- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — SQL master database rows appear in seed catalog when never-show off but collapse report omits them — locus: never-show name heuristic vs catalog parse; input: executive catalog with master DB node.
-- [ ] (candidate) `DiagramsWorkbenchClient` — seed catalog refetch after snapshot change ignores `includeNeverShow` until refilter effect runs — locus: load + refilter ordering; input: deep-linked includeNeverShow=1 on snapshot change.
-
-- **id:** infra-evidence-diagrams
-- **status:** open
-- **impact:** medium
-- **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
-- **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
-- **test-filter:** InfraEvidence
-- **hunts:** 6
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — storage app-setting host-ref edges omitted panel hint and Likely connected family
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-2026-10-20 seed hunt (seed→hit): storage app-setting host-ref edges omitted panel hint and Likely connected family mapping; 8 focused vitest tests passed.
-2026-10-09 seed hunt (seed→hit): proved `mode=data` is named in the mermaid error and compiled by `DiagramMode.Data`, but the parser never accepted it, preview omitted the row, and the diagrams workbench dropped `mermaidMode=data`. The mode now compiles and stays on the type picker. Regressions `TryParse_data_maps_to_data_diagram_mode` and `Data_mode_renders_data_factory_and_omits_virtual_networks`.
-2026-10-03 seed hunt (hit): Mermaid preview accepted recovery-services, cross-group fan-out, and AVD display flags but forwarded only private-endpoint visibility to mode rendering; preview responses ignored reachable requested display options; focused service regression passed.
-2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
-2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
-2026-10-03 seed hunt (seed-only): reviewed snapshot-label formatting and diagram workbench picker behavior; the remaining UUID-label test failure is stale because resource counts were intentionally removed from picker labels, and no new mechanism-backed candidate met the reachability bar.
-2026-10-08 seed hunt (hit): Full subscription Show network details was dropped before compile. Merge kept a false default when another display flag built compile options, and the peel-budget options copy omitted IncludeNetworkDetails on every render. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set` passed with the preview-flag regression.
-
-### Hypotheses
-
-- [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
-- [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
-- [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
-- [x] (proven) `MergeDisplayCompileOptions` and `InventoryDiagramPeelBudgetApplier` — Full subscription `includeNetworkDetails=true` from the diagrams workbench Show network details control (including together with `includeCrossGroupFanOut=true`) reached the compiler as false. `??` does not replace a false bool on options built for another display flag, and every peel-budget options copy omitted `IncludeNetworkDetails`, so public IPs, NSGs, route tables, and private endpoints stayed hidden. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set`.
-- [x] (proven) `InfraEvidenceMermaidModeParser.TryParse` — `GET /v1/infra-evidence/snapshots/{id}/mermaid?mode=data` is listed in the rejection text and `DiagramMode.Data` already keeps data and storage nodes, but there was no `data` branch, so the call returned 400 and preview had no data row. The diagrams workbench also discarded `mermaidMode=data`. Regression `TryParse_data_maps_to_data_diagram_mode`.
-- [x] (proven) `InfraEvidenceInventoryEdgeDetailPanel.resolveEdgeHint` and `infra-evidence-diagram-family` — `inventory-storage-host-ref` / From app settings edges from app-setting host resolution lacked hostname hint copy and `InferredHostname` family; regressions `shows app-settings hostname copy for storage host-ref edges` and `maps app-setting host inference sources to Likely connected family`.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
 

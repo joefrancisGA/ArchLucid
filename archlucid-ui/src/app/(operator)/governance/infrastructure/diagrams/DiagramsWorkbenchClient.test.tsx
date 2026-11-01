@@ -2335,4 +2335,69 @@ describe("DiagramsWorkbenchClient", () => {
       expect(within(picker).getByRole("option", { name: "ops-metric-alert" })).toBeInTheDocument();
     });
   });
+
+  it("clears deep-linked seedNodeId when the snapshot picker changes in dependency neighborhood mode", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string) => ({
+      snapshotId,
+      mode: "executive",
+      fallbackKey: null,
+      status: "Succeeded",
+      mermaid: 'flowchart TD\n    n1["vnet"]',
+      metrics: {
+        nodeCount: 1,
+        edgeCount: 0,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 100,
+        layoutEstimate: 50,
+      },
+      fallbackArtifacts: [],
+    }));
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotA}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-seed-node-picker")).toBeInTheDocument();
+    });
+
+    routerReplaceMock.mockClear();
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-snapshot-picker"), {
+      target: { value: snapshotB },
+    });
+
+    await waitFor(() => {
+      expect(routerReplaceMock).toHaveBeenCalled();
+      const lastHref = String(routerReplaceMock.mock.calls.at(-1)?.[0] ?? "");
+      expect(lastHref).toContain(`snapshotId=${snapshotB}`);
+      expect(lastHref).not.toContain("seedNodeId=");
+    });
+  });
 });

@@ -647,6 +647,25 @@ export function DiagramsWorkbenchClient() {
 
   syncUrlRef.current = syncUrl;
 
+  const priorUrlSnapshotIdRef = useRef(urlSnapshotId);
+
+  useEffect(() => {
+    const priorSnapshotId = priorUrlSnapshotIdRef.current;
+    priorUrlSnapshotIdRef.current = urlSnapshotId;
+
+    if (priorSnapshotId === urlSnapshotId || priorSnapshotId.length === 0) {
+      return;
+    }
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      return;
+    }
+
+    setAppliedSeedNodeId("");
+    setSeedNodeDraft("");
+    syncUrlRef.current({ seedNodeId: "" });
+  }, [urlMermaidMode, urlSnapshotId]);
+
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
     [modePreviews, selectedMode],
@@ -1375,6 +1394,7 @@ export function DiagramsWorkbenchClient() {
   }, [
     deepLinkedSnapshotMissing,
     dependencyNeighborhoodAwaitingSeed,
+    includeNeverShow,
     seedCatalogOutline,
     seedCatalogSnapshotId,
     selectedMode,
@@ -1387,6 +1407,7 @@ export function DiagramsWorkbenchClient() {
       || !dependencyNeighborhoodAwaitingSeed
       || seedCatalogOutline == null
       || seedCatalogSnapshotId !== selectedSnapshotId
+      || loadingSeedCatalog
     ) {
       return;
     }
@@ -1397,6 +1418,7 @@ export function DiagramsWorkbenchClient() {
   }, [
     dependencyNeighborhoodAwaitingSeed,
     includeNeverShow,
+    loadingSeedCatalog,
     seedCatalogOutline,
     seedCatalogSnapshotId,
     selectedMode,
@@ -1666,7 +1688,12 @@ export function DiagramsWorkbenchClient() {
         setSelectedViewKey("");
         setRenderResult(null);
         setSubscriptionResourceGroupArtifacts([]);
-        syncUrl({ mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
 
       if (!snapshotStillVisible) {
@@ -1674,7 +1701,13 @@ export function DiagramsWorkbenchClient() {
         setSelectedMode("");
         setSelectedViewKey("");
         setRenderResult(null);
-        syncUrl({ snapshotId: "", mermaidMode: "", mermaidView: "", subscriptionFilter: nextSubscriptionFilter });
+        syncUrl({
+          snapshotId: "",
+          mermaidMode: "",
+          mermaidView: "",
+          seedNodeId: "",
+          subscriptionFilter: nextSubscriptionFilter,
+        });
       }
     },
     [selectedSnapshotId, snapshots, syncUrl],
@@ -1949,9 +1982,17 @@ export function DiagramsWorkbenchClient() {
       setSelectedSnapshotId(nextSnapshotId);
       setSelectedViewKey("");
       setRenderResult(null);
+
+      if (selectedMode === "dependencyNeighborhood") {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        syncUrl({ snapshotId: nextSnapshotId, mermaidView: "", seedNodeId: "" });
+        return;
+      }
+
       syncUrl({ snapshotId: nextSnapshotId, mermaidView: "" });
     },
-    [syncUrl],
+    [selectedMode, syncUrl],
   );
 
   const handleModeChange = useCallback(
