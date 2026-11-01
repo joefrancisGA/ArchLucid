@@ -3,11 +3,9 @@
 
 # SecureNow decision velocity — Composer prompts
 
-**Created:** 2026-11-01 · **Status:** Not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-11-01 · **Updated:** 2026-11-01 · **Status:** SN-DV-01–04 shipped. **Audience:** Composer 2.5 slow (`composer-2.5`)
 
-Decision Velocity scored **63** on the 1 November 2026 desk pass (weight 2). The six-step path, the blank pilot decision record, the operator prep page, and the sponsor Home link are already on master. What is missing is a qualify-to-close timer and a named stall step.
-
-These prompts add a blank cycle log, one Home row, an operator section, and an extension of the existing warn-only checker. They aim at about **66**. A person filling one `SYNTHETIC FIXTURE` row, with real start and close times and one stall step, is the human work that can move the score toward **70**.
+Decision Velocity scored **63** on the 1 November 2026 desk pass (weight 2). The six-step path, the blank pilot decision record, the operator prep page, and the sponsor Home link were already on master. SN-DV-01–04 add the blank qualify-to-close timer, the sponsor Home row, the operator stall section, and the checker extension. They aim at about **66**. A person filling one `SYNTHETIC FIXTURE` row, with real start and close times and one stall step, is the human work that can move the score toward **70**.
 
 Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/prompts/).
 
