@@ -208,6 +208,25 @@ describe("AlertSimulationContent P0-1 review scope precedence", () => {
     });
   });
 
+  it("preserves a locally edited review ID across equivalent fresh search wrappers", () => {
+    render(<AlertSimulationContent />);
+
+    const reviewId = screen.getByTestId("alert-simulation-simple-review-id");
+    fireEvent.change(reviewId, { target: { value: "review-local" } });
+    fireEvent.change(screen.getByLabelText("Threshold"), { target: { value: "17" } });
+
+    expect(reviewId).toHaveValue("review-local");
+    expect(screen.getByTestId("alert-simulation-simple-compared-review-id")).toBeEnabled();
+  });
+
+  it("still follows an actual change to the URL-scoped run ID", () => {
+    const { rerender } = render(<AlertSimulationContent />);
+    searchParamsState.value = "tab=test-alerts&runId=run-from-browser";
+    rerender(<AlertSimulationContent />);
+
+    expect(screen.getByTestId("alert-simulation-simple-review-id")).toHaveValue("run-from-browser");
+  });
+
   it("enables compared-to when URL-scoped review is set", () => {
     render(<AlertSimulationContent />);
 
