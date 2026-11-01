@@ -2346,3 +2346,4 @@
 {"at":"2026-11-01T02:02:27.0042204Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T02:10:30.9467627Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T02:53:15.8909622Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T03:01:24.3941872Z","zoneId":"tenant-scoped-analyzer","outcome":"dry","productLine":"archlucid-shared"}
