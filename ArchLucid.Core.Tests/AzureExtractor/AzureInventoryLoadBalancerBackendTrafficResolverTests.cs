@@ -263,6 +263,41 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_is_percent_encoded_plain_arm_scalar()
+    {
+        string encodedConfigurationId = Uri.EscapeDataString(NicIpConfigurationId);
+
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "backendIPConfigurations": [
+                            "{{encodedConfigurationId}}"
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        targets.Should().ContainSingle();
+        targets[0].TargetArmId.Should().Be(NicId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_id_is_json_string_scalar_wrapping_id_object()
     {
         string idScalar = JsonSerializer.Serialize(new { id = NicIpConfigurationId });
