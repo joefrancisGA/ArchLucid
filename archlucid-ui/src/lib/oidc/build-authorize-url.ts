@@ -24,7 +24,7 @@ export function buildAuthorizeUrl(params: {
   url.searchParams.set("client_id", trimAuthorizeOAuthFormQueryValue(params.clientId));
   url.searchParams.set("response_type", "code");
   url.searchParams.set("redirect_uri", trimAuthorizeOAuthFormQueryValue(params.redirectUri));
-  url.searchParams.set("scope", trimAuthorizeQueryValue(params.scope));
+  url.searchParams.set("scope", trimAuthorizeOAuthFormQueryValue(params.scope));
   url.searchParams.set("state", trimAuthorizeQueryValue(params.state));
   url.searchParams.set("nonce", trimAuthorizeQueryValue(params.nonce));
   url.searchParams.set("code_challenge", trimAuthorizeQueryValue(params.codeChallenge));

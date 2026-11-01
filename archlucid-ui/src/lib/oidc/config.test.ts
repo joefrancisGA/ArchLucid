@@ -8,6 +8,7 @@ import {
   getOidcClientId,
   getOidcPostLogoutRedirectUri,
   getOidcRedirectUri,
+  getOidcScopes,
 } from "@/lib/oidc/config";
 
 describe("oidc config env normalization", () => {
@@ -51,5 +52,13 @@ describe("oidc config env normalization", () => {
     vi.stubEnv("NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI", "https://app.example/\u00AD");
 
     expect(getOidcPostLogoutRedirectUri()).toBe("https://app.example/");
+  });
+
+  it("strips soft hyphens from OIDC and Google scope env overrides before authorize", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_SCOPES", "openid\u00AD profile offline_access");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_SCOPES", "openid\u00AD email");
+
+    expect(getOidcScopes()).toBe("openid profile offline_access");
+    expect(getGoogleOidcScopes()).toBe("openid email");
   });
 });

@@ -39,7 +39,7 @@ export function getOidcScopes(): string {
   const scopes = process.env.NEXT_PUBLIC_OIDC_SCOPES;
 
   if (scopes !== undefined) {
-    const normalized = normalizeOidcConfigurationString(scopes);
+    const normalized = normalizeOidcOAuthFormString(scopes);
 
     if (normalized.length > 0) {
       return normalized;
@@ -112,7 +112,7 @@ export function getGoogleOidcScopes(): string {
   const scopes = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES;
 
   if (scopes !== undefined) {
-    const normalized = normalizeOidcConfigurationString(scopes);
+    const normalized = normalizeOidcOAuthFormString(scopes);
 
     if (normalized.length > 0) {
       return normalized;
