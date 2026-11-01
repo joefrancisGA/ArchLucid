@@ -3057,6 +3057,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): **rotation** avoided `ui-form-validation` after **3** consecutive dry hunts (`shouldRotate`; outcomes dry/dry/dry); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — transport failures on mutating POST still return through `appendProxyBffSlideCookieHeaders` after `forwardMutatingWithBody` (same keep-alive pattern as local **413**/**502**; DELETE fetch failures omit slide in-branch); demo-workspace scope from proxy path is intentional pin merge (`demo-workspace-scope.test.ts`); unsafe OIDC return URLs are rejected and not consumed (`storePostSignInReturnUrl` / `consumePostSignInReturnUrl` session tests); bounded client `Idempotency-Key` forward is intentional for mutating proxy calls (`proxy-upstream-headers.ts`); warmup retry runs only on GET in `proxy-forward.ts` (`does not retry POST upstream 502`). Targeted regressions **116/116** across upstream errors, demo scope, OIDC session, warmup retry, and body-limit tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `respondWithUpstreamFetchFailure` — BFF slide on transport failure POST — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** intentional slide after guard-approved mutating attempt; parity with 413/502 pattern.
+- [x] (valid-no-repro) `resolveProxyUpstreamScopeHeaders` — demo path overrides bearer scope — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** intentional demo pin; demo-workspace-scope tests.
+- [x] (invalid) `consumePostSignInReturnUrl` — unsafe URL consumed without navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** unsafe values return null; not consumed.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — Idempotency-Key on anonymous register — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** bounded forward by design for client retries.
+- [x] (invalid) `fetchWithWarmupRetry` — GET retry on mutating paths — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** warmup retry wired only for GET; POST does not retry.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on mutating POST may clear cookie without 401 body detail — locus: expired payload branch; input: POST with expired BFF cookie; wrong outcome: silent clear; reachability: monitor expired session guard regressions.
+- [ ] (candidate) `passThrough` — upstream `Location` on proxied auth redirect may reach browser — locus: Location allowlist; input: upstream 302 with off-origin Location; wrong outcome: open redirect; reachability: monitor Location header pass-through policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — percent-encoded traversal segments — locus: path normalization; input: `%2e%2e` segments; wrong outcome: upstream traversal; reachability: monitor proxy upstream path rejection tests.
+- [ ] (candidate) `resolveBffSessionBearerFromRequest` — split cookie vs header bearer precedence — locus: bearer selection in `buildProxyUpstreamHeaders`; input: conflicting cookie and Authorization; wrong outcome: wrong bearer upstream; reachability: monitor BFF vs browser bearer precedence tests.
+- [ ] (candidate) `trySandboxProxyMock` — sandbox mock short-circuit may skip rate limit accounting — locus: mock before upstream; input: sandbox-enabled POST burst; wrong outcome: unbounded mock traffic; reachability: monitor sandbox mock + rate limit ordering tests.
+
+- [x] (superseded) `respondWithUpstreamFetchFailure` — transport slide — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `resolveProxyUpstreamScopeHeaders` — demo scope override — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — unsafe consume — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register Idempotency-Key — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — GET side-effect retry — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; picker returned `ui-auth-proxy`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — local proxy **413** responses still append BFF activity slide after `forwardMutatingWithBody` returns (same intentional keep-alive pattern as upstream **502**; `proxy-route-post-body.test.ts`); production-like posture ignores stale browser scope when BFF bearer resolves scope (`proxy-scope-resolution.test.ts` `ignores client scope in production unless explicitly allowed`); `resolveBootstrapCompletePath` prefers explicit safe `returnUrl` before consumed OIDC storage (`prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`); dev `enforceProxyRateLimit` no-op is documented with prod matrix tests (`proxy-rate-limit.test.ts`); `passThrough` does not forward upstream `Content-Encoding` and JSON auth/me reads decompress via `res.text()` before re-encoding (`proxy-passthrough.ts`). Targeted regressions **36/36** across OTP post-auth, scope resolution, rate limit, and proxy body-limit tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `forwardMutatingWithBody` — BFF slide on local 413 — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** intentional slide after guard-approved mutating attempt; body-limit tests above.
@@ -3065,16 +3085,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `enforceProxyRateLimit` — dev no-op hides prod bucket behavior — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** prod env matrix tests; dev no-op intentional.
 - [x] (valid-no-repro) `passThrough` — upstream Content-Encoding on JSON — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** encoding header not forwarded; fetch decompresses JSON text path.
 
-- [ ] (candidate) `respondWithUpstreamFetchFailure` — transport failure on mutating POST may still append BFF slide — locus: fetch throw before upstream response; input: timeout POST with session; wrong outcome: slide without upstream round-trip; reachability: monitor upstream fetch failure + slide ordering.
-- [ ] (candidate) `resolveProxyUpstreamScopeHeaders` — demo-workspace scope from path may override bearer scope on run-detail GET — locus: demo path pin merge; input: demo run id in proxy path; wrong outcome: scope mismatch; reachability: monitor demo workspace scope header tests.
-- [ ] (candidate) `consumePostSignInReturnUrl` — unsafe stored OIDC return may be consumed without navigation — locus: consume on bootstrap complete only; input: unsafe value in storage; wrong outcome: desk path lost; reachability: monitor OIDC returnUrl safety tests.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — Idempotency-Key header may pass through on anonymous register POST — locus: header copy rules; input: duplicate idempotency key on register; wrong outcome: unintended replay semantics; reachability: monitor anonymous register header tests.
-- [ ] (candidate) `fetchWithWarmupRetry` — non-auth/me GET may retry POST-like side-effect upstream paths — locus: warmup retry eligibility; input: GET that mutates upstream state; wrong outcome: double apply; reachability: monitor warmup retry method guards.
-
-- [x] (superseded) `forwardMutatingWithBody` — 413 slide — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `buildProxyUpstreamHeaders` — browser vs BFF scope — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `resolveEmailOtpPostAuthPath` — bootstrap returnUrl — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `enforceProxyRateLimit` — dev no-op — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
 - [x] (superseded) `passThrough` — Content-Encoding — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
 
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — mutating upstream responses including **502** still append BFF activity slide when the guard allowed the call (`proxy-forward.ts` always calls `appendProxyBffSlideCookieHeaders` after `forwardMutatingWithBody`; intentional keep-alive on attempted writes); public anonymous routes resolve scope via `resolveAnonymousPublicProxyScopeHeaders` without JWT claim extraction (`readProxyScopeFromAuthorizationHeader` returns null for `Bearer not-a-jwt`; `proxy-bearer-scope.test.ts`); OTP verify navigates via `resolveEmailOtpPostAuthPath` in `use-sign-in-flow-state` without consuming OIDC storage in `verifyEmailOtpCode` (`email-otp-post-auth.test.ts`); missing forwarded-for maps to shared `unknown` rate-limit key by design (`proxy-rate-limit.test.ts`); **429** responses only add `Server-Timing: proxy;dur=…` before forward runs — no upstream path in the header (`handleRateLimitedForward`; normalized paths used only in structured logs). Targeted regressions **28/28** across bearer scope, rate limit, telemetry normalize, OTP post-auth, and proxy warmup/502 POST tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
@@ -3330,9 +3340,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
