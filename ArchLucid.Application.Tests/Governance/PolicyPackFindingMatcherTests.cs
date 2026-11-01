@@ -315,4 +315,26 @@ public sealed class PolicyPackFindingMatcherTests
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue(
             "execute-time compliance keys must match when PolicyRuleId differs only by outer whitespace");
     }
+
+    [Fact]
+    public void MatchesAssignment_rejects_outer_whitespace_rule_id_that_extends_assigned_key()
+    {
+        Guid packId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-rule-padded-extended",
+            PolicyRuleId = " cis-azure-1.2x ",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "trimmed exact/token matching must not credit a distinct padded rule id that merely contains the assigned key");
+    }
 }
