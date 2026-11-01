@@ -18,6 +18,14 @@ public static class RealCommitAgentOutputQualityGateEvaluator
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(traces);
 
+        List<AgentExecutionTrace> materializedTraces = [];
+
+        foreach (AgentExecutionTrace? trace in traces)
+        {
+            if (trace is not null)
+                materializedTraces.Add(trace);
+        }
+
         if (run.StructuralExecutionMode != StructuralExecutionMode.Real)
             return [];
 
@@ -25,7 +33,7 @@ public static class RealCommitAgentOutputQualityGateEvaluator
             return [];
 
         IReadOnlyList<AgentExecutionTrace> latestTracesPerTask =
-            AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+            AgentExecutionTraceLatestPerTaskSelector.Select(materializedTraces);
 
         List<string> reasons = [];
 

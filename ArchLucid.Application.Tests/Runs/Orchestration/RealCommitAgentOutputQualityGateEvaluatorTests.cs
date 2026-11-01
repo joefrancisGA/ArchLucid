@@ -2074,4 +2074,42 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .BeEmpty("Real-only gate; CommitOutputIntegrityService blocks Fallback via StructuralExecutionModeCommitGuard first");
     }
 
+    [Fact]
+    public void GetBlockingReasons_when_trace_element_null_fails_closed_like_empty_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("no agent execution traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_skips_null_trace_element_when_valid_trace_present()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-accepted",
+            AgentType = AgentType.Topology,
+            TaskId = "task-1",
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!, accepted])
+            .Should().BeEmpty();
+    }
+
 }

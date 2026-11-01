@@ -1156,6 +1156,31 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_single_trace_element_null_returns_empty()
+    {
+        AgentExecutionTraceLatestPerTaskSelector.Select([null!]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Select_skips_null_trace_elements_when_selecting_latest_per_task()
+    {
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([null!, accepted]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-accepted");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_accepted_newer_and_rejected_older_prefers_accepted_trace()
     {
         DateTime olderUtc = new(2026, 12, 5, 21, 0, 0, DateTimeKind.Utc);
