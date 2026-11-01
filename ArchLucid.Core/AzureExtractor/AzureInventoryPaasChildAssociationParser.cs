@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -47,10 +49,13 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
+        string normalizedParentResourceId = NormalizeCompanionArmId(parentResourceId);
+        string normalizedChildResourceId = NormalizeCompanionArmId(childResourceId);
+
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = parentResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = normalizedParentResourceId,
+            ChildResourceId = normalizedChildResourceId,
             ChildName = childName.Trim(),
             ChildType = childType.Trim(),
             AssociationType = TryReadBoundedString(element, "associationType", MaxNameLength)
@@ -79,6 +84,32 @@ public static class AzureInventoryPaasChildAssociationParser
         }
 
         return trimmed;
+    }
+
+    private static string NormalizeCompanionArmId(string armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return string.Empty;
+        }
+
+        string working = armId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
