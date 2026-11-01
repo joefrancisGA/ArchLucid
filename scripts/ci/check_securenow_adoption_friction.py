@@ -56,14 +56,36 @@ def _home_rows_initializer(text: str) -> str:
         return ""
     depth = 1
     index = array_match.end()
-    while index < len(text) and depth > 0:
+    while index < len(text):
         char = text[index]
+        if text.startswith("//", index):
+            newline = text.find("\n", index + 2)
+            index = len(text) if newline == -1 else newline
+            continue
+        if text.startswith("/*", index):
+            end = text.find("*/", index + 2)
+            index = len(text) if end == -1 else end + 2
+            continue
+        if char in "\"'`":
+            quote = char
+            index += 1
+            while index < len(text):
+                if text[index] == "\\":
+                    index += 2
+                elif text[index] == quote:
+                    index += 1
+                    break
+                else:
+                    index += 1
+            continue
         if char == "[":
             depth += 1
         elif char == "]":
             depth -= 1
+            if depth == 0:
+                return text[array_match.end() : index]
         index += 1
-    return text[array_match.end() : index - 1]
+    return ""
 
 
 def _strip_comments(text: str) -> str:
