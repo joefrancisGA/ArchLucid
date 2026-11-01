@@ -3129,3 +3129,4 @@
 {"at":"2026-10-31T19:31:28.1187714Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:34:31.1077892Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:37:13.9123361Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T00:39:44.0787617Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
