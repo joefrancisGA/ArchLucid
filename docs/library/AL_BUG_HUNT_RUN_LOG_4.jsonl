@@ -3253,3 +3253,4 @@
 {"at":"2026-11-01T17:40:19.4090389Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T17:44:05.7271238Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T17:46:54.5739678Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:49:55.4812131Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
