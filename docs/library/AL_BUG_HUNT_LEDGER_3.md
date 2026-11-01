@@ -3145,6 +3145,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF `payload.exp` returns **401** before activity slide (`blocks bootstrap status GET when the BFF session cookie is expired`; guard branch precedes `slideBffSessionActivity`); `passThrough` allowlist does not copy upstream `Refresh` (only explicit headers such as `Location`); `%2E%2E` segments rejected via case-insensitive `%2e` detection in `containsPercentEncodedPathSeparator` (`proxy-upstream-path.ts`; encoded-dot route regressions); expired HttpOnly cookie yields empty `resolveBffSessionBearerFromCookieValue` so browser `Authorization` is used when guard allows the call — not stale cookie winning (`bff-session-cookie.test.ts` `rejects expired session cookies`); sandbox GET mocks run only after `enforceProxyRateLimit` in `handleRateLimitedForward`. Scoped proxy/auth regressions **120/120**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** **401** before slide; regression above.
+- [x] (valid-no-repro) `passThrough` — upstream `Refresh` — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** header not in allowlist; `proxy-passthrough.ts`.
+- [x] (valid-no-repro) `buildProxyUpstreamPath` — mixed-case `%2E%2E` — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** lowercase `%2e` scan; path builder tests.
+- [x] (invalid) `buildProxyUpstreamHeaders` — expired cookie bearer precedence — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** expired cookie bearer empty; header fallback when allowed — not stale cookie winning.
+- [x] (valid-no-repro) `handleRateLimitedForward` — sandbox bypasses rate limit — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** rate limit precedes `forward` / mock short-circuit.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — unparseable cookie on GET may slide activity — locus: null payload branch; input: GET with garbage cookie; wrong outcome: activity slide; reachability: monitor unparseable-cookie GET guard regressions.
+- [ ] (candidate) `passThrough` — upstream `WWW-Authenticate` may reach browser — locus: response header allowlist; input: upstream 401 with challenge; wrong outcome: challenge forwarded; reachability: monitor WWW-Authenticate forwarding policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — overlong segment list may bypass traversal guard — locus: join depth; input: many safe segments then `..`; wrong outcome: accepted path; reachability: monitor deep path rejection tests.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — server `ARCHLUCID_PROXY_BEARER_TOKEN` used when cookie and browser bearer absent — locus: bearer fallback chain; input: no cookie/header on protected path; wrong outcome: silent server token upstream; reachability: monitor server bearer fallback tests.
+- [ ] (candidate) `forwardMutatingWithBody` — declared Content-Length over cap may skip streaming guard — locus: declared length pre-check; input: `Content-Length` just above cap; wrong outcome: unbounded read; reachability: monitor `proxy-body-read` declared-length regressions.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired GET slide — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `passThrough` — Refresh — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — `%2E%2E` — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — expired cookie bearer — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — sandbox rate limit — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** — threshold **3**); picker chose `ui-auth-proxy`; attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF payload on blocked mutations returns **401** ProblemDetails (`BFF session expired` / `Sign in again to continue.`) plus session clear via `blockedMutationResponse` (parity with `blocks bootstrap status GET when the BFF session cookie is expired` and `rejects idle-expired Working sessions on mutations`); upstream `Location` forward is intentional for async operation handles (`forwards Location from upstream 202 Accepted on POST`; `passThrough` copies trimmed Location only); `%2e%2e` segments rejected at path build (`rejects percent-encoded dot traversal segments`; proxy-route PATCH regressions); HttpOnly BFF bearer wins over browser `Authorization` (`prefers the HttpOnly BFF session cookie over browser Authorization (LK-06 P2)`); sandbox mocks are GET-only and rate limiting runs in `handleRateLimitedForward` before `forward` (POST bursts never hit mock short-circuit). Scoped proxy/auth regressions **120/120**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired POST silent clear — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** **401** + detail + clear; guard implementation + regressions above.
@@ -3153,11 +3173,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveBffSessionBearerFromRequest` — cookie vs header precedence — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** LK-06 P2 regression above.
 - [x] (valid-no-repro) `trySandboxProxyMock` — POST bypasses rate limit — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** mocks GET-only; rate limit precedes `forward`.
 
-- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on GET may still slide activity cookies — locus: expired `payload.exp` branch; input: GET with expired cookie; wrong outcome: activity slide; reachability: monitor expired GET guard regressions.
-- [ ] (candidate) `passThrough` — upstream `Refresh` header may reach browser — locus: response header allowlist; input: upstream 401 with Refresh; wrong outcome: unsolicited navigation; reachability: monitor Refresh forwarding policy.
-- [ ] (candidate) `buildProxyUpstreamPath` — mixed-case `%2E%2E` traversal segments — locus: segment equality; input: uppercase-encoded dots; wrong outcome: accepted traversal; reachability: monitor encoded-dot case regressions.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — browser Authorization used when BFF cookie expired but present — locus: bearer resolution order; input: expired cookie + header bearer; wrong outcome: stale cookie wins; reachability: monitor expired-cookie bearer regressions.
-- [ ] (candidate) `handleRateLimitedForward` — sandbox GET mock may bypass prod rate-limit matrix — locus: mock return before upstream; input: sandbox GET burst; wrong outcome: unbounded reads; reachability: monitor sandbox + rate-limit interaction tests.
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired GET slide (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `passThrough` — Refresh (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — `%2E%2E` (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — expired cookie (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `handleRateLimitedForward` — sandbox (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
 
 - [x] (superseded) `enforceProxyBffSessionGuard` — expired POST silent clear — **superseded 2026-11-01 thorough hunt (pass 8):** see closed row above.
 - [x] (superseded) `passThrough` — Location open redirect — **superseded 2026-11-01 thorough hunt (pass 8):** see closed row above.
@@ -3448,9 +3468,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 77
+- **hunts:** 78
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
