@@ -528,6 +528,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **1/3** before this hunt — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestCommand` markdown/console report assembly, artifact path resolution, and overall verdict → process exit mapping for live vs offline runs. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-help-docs` after prior rotation hunt — below `minLowYieldStreak` 3; default picker returned **`cli-tenant-isolation`**). Reread `TenantIsolationNegativeTestRunner` live/offline orchestration, primary sanity gate before cross-tenant catalog probes, and unexpected-success counting for markdown summaries. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread live `ScanRunListForForeignRunIdAsync` pagination cap and `hasMore` without `nextCursor` → scan-incomplete SKIP, `EvaluateExcludeRunIdProbeVerdict` vs deny-status probes, and `DeriveOverallVerdict` live-mode overall SKIP when any cross-tenant probe SKIPs. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId cli-tenant-isolation`.
@@ -668,7 +670,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
