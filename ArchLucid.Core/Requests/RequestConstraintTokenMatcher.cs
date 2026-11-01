@@ -552,7 +552,7 @@ internal static class RequestConstraintTokenMatcher
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '!');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '?');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '*');
-        haystack = NormalizeSpacedAsciiDelimiter(haystack, '.');
+        haystack = CollapseConsecutiveAsciiSpaces(haystack.Replace(" . ", " ", StringComparison.Ordinal));
 
         return haystack;
     }
