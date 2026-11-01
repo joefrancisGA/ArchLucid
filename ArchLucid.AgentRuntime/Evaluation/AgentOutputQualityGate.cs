@@ -47,8 +47,11 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
             return AgentOutputQualityGateOutcome.Warned;
 
         if (_options.Mode == AgentOutputQualityGateMode.PilotStrict
-            && _options.PilotStrictMinCitationCoverageRatio.HasValue
-            && semanticScore.FindingCitationCoverageRatio < _options.PilotStrictMinCitationCoverageRatio)
+            && _options.PilotStrictMinCitationCoverageRatio is { } citationRejectFloor
+            && semanticScore.FindingCitationCoverageRatio is { } citationCoverageRatio
+            && (double.IsNaN(citationCoverageRatio)
+                || double.IsInfinity(citationCoverageRatio)
+                || citationCoverageRatio < citationRejectFloor))
             return AgentOutputQualityGateOutcome.Rejected;
 
         return AgentOutputQualityGateOutcome.Accepted;

@@ -56,7 +56,9 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
 
             if (options.PilotStrictMinCitationCoverageRatio is { } citationFloor &&
                 semantic.FindingCitationCoverageRatio is { } citationRatio &&
-                citationRatio < citationFloor)
+                (double.IsNaN(citationRatio)
+                 || double.IsInfinity(citationRatio)
+                 || citationRatio < citationFloor))
                 parts.Add("finding_citation_coverage_below_floor");
         }
 

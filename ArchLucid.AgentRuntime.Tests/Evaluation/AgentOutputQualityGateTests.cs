@@ -457,4 +457,33 @@ public sealed class AgentOutputQualityGateTests
             AgentOutputQualityGateOutcome.Rejected,
             because: "coverage check is skipped when the ratio was not evaluated");
     }
+
+    [SkippableTheory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void PilotStrict_NonFiniteCitationCoverageRatio_Rejects(double citationCoverageRatio)
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = citationCoverageRatio;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().Be(
+            AgentOutputQualityGateOutcome.Rejected,
+            because: "non-finite citation coverage must not bypass PilotStrict citation floor");
+    }
 }
