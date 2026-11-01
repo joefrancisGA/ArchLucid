@@ -1598,6 +1598,37 @@ describe("RunsListClient inspector", () => {
     expect(previousLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
   });
 
+  it("preserves compareRuns in the Next pagination link when useSearchParams lags committed compareRuns", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
+    expect(runsListSearchParamsHarness.state.routerQuery).not.toContain("compareRuns=");
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink.getAttribute("href")).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(nextLink.getAttribute("href")).toContain(secondRun.runId);
+  });
+
   it("preserves pending text filter in the Next pagination link before q= debounce completes", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

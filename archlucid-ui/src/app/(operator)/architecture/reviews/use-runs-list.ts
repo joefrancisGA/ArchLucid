@@ -26,6 +26,7 @@ import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
   runsListEffectiveSearchFromSearch,
+  runsListNavigationSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
 import {
@@ -581,8 +582,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const currentSearch = searchParams.toString();
-  const navigationSearch = runsListEffectiveSearchFromSearch(currentSearch, filterText);
+  const navigationSearch = runsListNavigationSearchFromSearch(
+    routerSearchString,
+    readWindowLocationSearch(),
+    filterText,
+  );
   const previousHref = runsListPreviousPageHrefFromSearch(
     navigationSearch,
     pathname,
