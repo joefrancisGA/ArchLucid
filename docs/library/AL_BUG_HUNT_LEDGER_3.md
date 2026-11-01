@@ -2,6 +2,26 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** in run log after this run — rotation at **3**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — **409** returns fixed duplicate-org copy before body parsing (`shows fixed duplicate organization toast when register returns 409 with HTML body`; status check precedes error detail); `"Infinity"` fails `Number.isFinite` superRefine (runtime safeParse); invalid email readiness precedes unsupported-character organization (runtime: bad email + NUL org → valid work email copy); work email input `maxLength` **254** plus schema `.max(254)` block overlong paste (`signupFormSchema rejects admin email longer than 254 characters`; maxLength regression); invalid `companySize` enum passes through builder on direct call by design while UI `canSubmit` blocks POST (`includes invalid company size enum in the register payload builder when called directly`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — **409** HTML toast — **cheap-disproof 2026-11-01 thorough hunt (pass 20):** fixed conflict copy; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — `"Infinity"` team size — **cheap-disproof 2026-11-01 thorough hunt (pass 20):** non-finite reject; runtime above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs unsupported org — **cheap-disproof 2026-11-01 thorough hunt (pass 20):** email wins; runtime above.
+- [x] (valid-no-repro) `SignupForm` — overlong email paste — **cheap-disproof 2026-11-01 thorough hunt (pass 20):** maxLength + schema; regressions above.
+- [x] (invalid) `buildSignupRegisterPayload` — invalid `companySize` omit — **cheap-disproof 2026-11-01 thorough hunt (pass 20):** intentional builder passthrough; UI gate blocks submit.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — numeric JSON `detail` on error may coerce to wrong toast — locus: error detail branch; input: **400** JSON number detail; wrong outcome: `[object Object]` toast; reachability: monitor numeric detail error regressions.
+- [ ] (candidate) `signupFormSchema` — negative team size `"-1"` may omit in builder without schema error on direct build — locus: builder vs resolver; input: `"-1"`; wrong outcome: POST with negative; reachability: monitor negative team-size regressions.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — incomplete Other with valid email — locus: Other branch; input: Other + empty spec; wrong outcome: generic required copy; reachability: monitor incomplete Other readiness regressions.
+- [ ] (candidate) `SignupForm` — autofill may submit before blur validation on team size — locus: blur/submit timing; input: autofill invalid team size; wrong outcome: POST; reachability: monitor autofill team-size regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — trims Other industry text only in UI path — locus: trim in builder; input: padded Other spec; wrong outcome: untrimmed POST; reachability: monitor Other trim builder regressions.
+
+- [x] (superseded) `SignupForm` `onSubmit` — **409** HTML — **superseded 2026-11-01 thorough hunt (pass 20):** see closed row above.
+- [x] (superseded) `signupFormSchema` — Infinity — **superseded 2026-11-01 thorough hunt (pass 20):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — unsupported org — **superseded 2026-11-01 thorough hunt (pass 20):** see closed row above.
+- [x] (superseded) `SignupForm` — overlong email — **superseded 2026-11-01 thorough hunt (pass 20):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — companySize enum — **superseded 2026-11-01 thorough hunt (pass 20):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-auth-proxy` low-yield streak **1** in run log); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — **201** with non-JSON body still navigates by resilience contract (`still navigates after 201 when register response body is not valid json`; parse failure → `body = null` then success path); `"1e-1"` fails whole-number superRefine (runtime safeParse; same class as `"3.5"` fractional regressions); invalid email readiness precedes overlong organization (runtime: bad email + 201-char org → valid work email copy; pass 15 pattern); Enter on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`); non-Other industry omits `industryVerticalOther` in builder (`omits industry vertical other from the register payload builder when industry is not Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (invalid) `SignupForm` `onSubmit` — **201** non-JSON navigate — **cheap-disproof 2026-11-01 thorough hunt (pass 19):** intentional post-commit navigation; regressions above.
@@ -716,9 +736,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 105
+- **hunts:** 106
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 19
+- **consecutive-dry-hunts:** 20
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
