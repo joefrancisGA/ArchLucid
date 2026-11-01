@@ -6191,6 +6191,8 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-01 seed hunt (seed-only #53): re-read `EntraMultiTenantJwtBearerConfigurator`, `ArchLucidJwtBearerConfiguration`, `LocalTrialJwtIssuer`, `TrialExternalIdJwtBearerSupport`, and SCIM bearer parsing; no mechanism-backed row met hunt-ready promotion without new integration fixtures; retained five open `(candidate)` monitor rows from seed **#52**; scoped **233/235** Api plus **2/2** Application filter tests (`RunAnalyzers=false`) — two Api SQL integration cases unavailable without `ARCHLUCID_SQL_TEST` on this VM. Private beta: n/a.
+
 2026-11-01 seed hunt (seed→hit #52): promoted comma-folded `Authorization` with full block (`U+2588`) and left seven eighths block (`U+2589`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2588` and `U+2589`; regressions `HandleAuthenticateAsync_succeeds_when_full_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_left_seven_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #51 (`maxAgeMinutes` exactly zero — regression `HasRecentAuthentication_clamps_max_age_minutes_below_one_to_one_minute`; stale auth-version on local Guid `sub` — regression `ValidateAsync_rejects_stale_auth_version`; cookie authentication type — regression `Apply_when_cookie_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped filter **233/235** (`RunAnalyzers=false`; 2 SQL integration tests blocked — no SQL Server on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a full block or left seven-eighths block placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — full block (`U+2588`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #52:** regression `HandleAuthenticateAsync_succeeds_when_full_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -6808,7 +6810,7 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 79
+- **hunts:** 80
 - **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
