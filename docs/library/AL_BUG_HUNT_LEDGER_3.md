@@ -3009,11 +3009,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `persistIdleDeskRestoreBeforeSessionClear` / `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` — scope-less idle clear dropped WS-18 livelihood snapshots — **hit 2026-11-01 seed hunt:** regressions above.
 
-- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST clears cookie but still forwards GET with stale bearer — locus: expired payload branch on `skipPublicAnonymousMutationGuard`; input: marketing register POST after idle expiry; wrong outcome: unexpected upstream auth; reachability: monitor anonymous marketing + expired BFF regressions.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header vs mixed-case upstream path — locus: `normalizedTailPath` in `proxy-forward.ts`; input: proxy GET with mixed-case tail segments; wrong outcome: missing private cache directive; reachability: monitor auth/me cache regressions.
-- [ ] (candidate) `forwardMutatingWithBody` — zero-byte body omits Content-Type on upstream when client sent empty JSON — locus: `fetchBody` undefined branch; input: POST with `Content-Length: 0` and application/json; wrong outcome: upstream rejects; reachability: monitor empty-body POST proxy tests.
-- [ ] (candidate) `mergeRegistrationScopeForProxy` — PATCH omits CSRF when method casing is lowercase in RequestInit — locus: method normalization; input: `{ method: 'patch' }`; wrong outcome: 403 on bootstrap PATCH; reachability: monitor CSRF attachment tests.
-- [ ] (candidate) `proxy.ts` host gate — demo-run alias 308 may run before marketing redirect drops operator query on alias paths — locus: ordering hostGate vs alias; input: marketing-host `/runs/alias?returnUrl=`; wrong outcome: query stripped; reachability: monitor alias redirect query preservation tests.
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — zero-byte body Content-Type (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `mergeRegistrationScopeForProxy` — PATCH method casing (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `proxy.ts` host gate — demo-run alias query (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
 
 2026-10-31 seed hunt (seed-only): after syncing `bugsmash-3` with latest `master`, reread idle-desk return canonicalization, BFF session idle/CSRF enforcement, proxy forwarding and host-gate ordering, bootstrap/OTP client boundaries, and scope-header precedence. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped auth/proxy vitest passed 60 files and 278/278 tests. No production code changed.
 
