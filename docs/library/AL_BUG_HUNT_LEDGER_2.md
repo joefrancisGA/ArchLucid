@@ -11309,6 +11309,20 @@
 
 ## Zone: persistence-identity
 
+2026-11-01 thorough hunt (dry #934): cheap-disproof closed five open `(candidate)` rows from dry **#933** — **invalid** `GetLatestRequestUtcByEmailAsync` binds application `@NowUtc` for expiry filter only (no `SYSUTCDATETIME()`; same clock-parameter class as hunt **#931**/`#933` batch SQL); **valid-no-repro** invalidate sweep vs `TryCompleteAsync` — resend uses locked `ReplaceActiveChallengeForEmailAsync`; verify holds `_completionLock` (hunt **#933**); **valid-no-repro** normalized-domain cache evicted on soft-remove `UpdateAsync` — regression `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update` (hunt **#930**); **valid-no-repro** SQL `FindAnyByExternalKeyAsync` active-first `ORDER BY` matches in-memory — regression `FindAnyByExternalKeyAsync_prefers_active_identity_over_disabled_with_same_external_key` (hunt **#933**); **valid-no-repro** IdP configuration MERGE last-writer — regression `UpsertAsync_last_writer_wins_for_same_tenant` (hunt **#930**); reseeded five follow-on `(candidate)` rows; scoped identity/OTP suites **43/45** (2 SQL integration skipped on cloud VM; `RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (invalid) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — application `nowUtc` vs SQL server clock on resend cooldown — **cheap-disproof 2026-11-01 thorough hunt #934:** SQL uses `@NowUtc` parameter for `ExpiresUtc > @NowUtc` only; no server clock in query body; hunt **#933** batch parameter class.
+- [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.InvalidateActiveChallengesForEmailAsync` — sweep vs `TryCompleteAsync` without shared lock — **cheap-disproof 2026-11-01 thorough hunt #934:** production resend uses `_completionLock` via `ReplaceActiveChallengeForEmailAsync`; `TryCompleteAsync` locks same object; hunt **#422**/#933 concurrency regressions.
+- [x] (valid-no-repro) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — global normalized-domain cache after tenant-scoped soft-remove — **cheap-disproof 2026-11-01 thorough hunt #934:** `UpdateAsync` calls `InvalidateTenantSignInEmailDomainAsync`; regression above.
+- [x] (valid-no-repro) `DapperAuthenticationIdentityRepository.FindAnyByExternalKeyAsync` — SQL parity with in-memory active-first ordering — **cheap-disproof 2026-11-01 thorough hunt #934:** SQL `ORDER BY CASE WHEN DisabledUtc IS NULL THEN 0 ELSE 1 END, CreatedUtc DESC`; in-memory regression above; SQL integration monitor-only on cloud VM.
+- [x] (valid-no-repro) `SqlTenantIdentityProviderConfigurationRepository.UpsertAsync` — MERGE without row-version guard under parallel admin edits — **cheap-disproof 2026-11-01 thorough hunt #934:** last-writer upsert contract; in-memory regression above; optimistic concurrency monitor-only.
+
+- [ ] (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — `ORDER BY CreatedUtc DESC` without secondary tie-break when timestamps equal — locus: cooldown anchor; input: identical `CreatedUtc` (monitor; hunt **#930** class).
+- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel completion attempts on same challenge id — locus: `_completionLock`; input: double-submit verify (monitor).
+- [ ] (candidate) `CachingTenantSignInEmailDomainRepository.TryGetAsync` — per-tenant cache key vs normalized-domain key after soft-remove — locus: dual cache keys; input: admin routing read (monitor; hunt **#932** class).
+- [ ] (candidate) `DapperAuthenticationIdentityRepository.FindByExternalKeyAsync` — active lookup excludes disabled rows after relink — locus: `DisabledUtc IS NULL`; input: IdP subject reuse (intentional; monitor).
+- [ ] (candidate) `DapperWorkspaceMembershipRepository.UpsertAsync` — SQL MERGE last-writer under concurrent SCIM membership writes — locus: upsert; input: parallel PATCH (monitor; SQL skipped on cloud VM).
+
 2026-11-01 thorough hunt (dry #933): cheap-disproof closed five open `(candidate)` rows from thorough dry **#932** (`CountRecentRequestsForRateLimitAsync` batch path uses `EmailOtpHourlyRequestRateLimitSql.Batch` with `@SinceUtc`/`@NowUtc` only — regression `Batch_uses_application_now_parameters_not_sysutcdatetime`; `ReplaceActiveChallengeForEmailAsync` and `TryCompleteAsync` share `_completionLock` (not separate locks) — existing `ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge` and `TryCompleteAsync_allows_only_one_successful_completion`; `ListByTenantIdAsync` list cache evicted on soft-remove `UpdateAsync` via `InvalidateTenantSignInEmailDomainAsync` — regression `TenantSignInEmailDomain_ListByTenantIdAsync_excludes_soft_removed_after_update`; `FindAnyByExternalKeyAsync` orders active before disabled then newest `CreatedUtc` — regression `FindAnyByExternalKeyAsync_prefers_active_identity_over_disabled_with_same_external_key`; `DapperWorkspaceMembershipRepository.UpsertAsync` MERGE last-writer — in-memory parity `UpsertAsync_last_writer_wins_for_same_user_and_workspace`, SQL integration monitor-only on cloud VM); reseeded five follow-on `(candidate)` rows; scoped identity/OTP suites **43/45** (2 SQL integration skipped on cloud VM; `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (invalid) `DapperEmailOtpChallengeRepository.CountRecentRequestsForRateLimitAsync` — passes application `nowUtc` into batch SQL parameters — **cheap-disproof 2026-11-01 thorough hunt #933:** same batch SQL as hunt **#932**; regression above.
@@ -11316,12 +11330,6 @@
 - [x] (valid-no-repro) `CachingTenantSignInEmailDomainRepository.ListByTenantIdAsync` — cached list after soft-remove `UpdateAsync` — **cheap-disproof 2026-11-01 thorough hunt #933:** list key invalidated on update; regression above.
 - [x] (valid-no-repro) `InMemoryAuthenticationIdentityRepository.FindAnyByExternalKeyAsync` — prefers active row then newest disabled — **cheap-disproof 2026-11-01 thorough hunt #933:** `OrderBy` active-first; regression above.
 - [x] (valid-no-repro) `DapperWorkspaceMembershipRepository.UpsertAsync` — MERGE without optimistic concurrency — **cheap-disproof 2026-11-01 thorough hunt #933:** last-writer contract; hunt **#932** in-memory regression; SQL parallel SCIM monitor-only.
-
-- [ ] (candidate) `DapperEmailOtpChallengeRepository.GetLatestRequestUtcByEmailAsync` — application `nowUtc` vs SQL server clock on resend cooldown — locus: `@NowUtc` parameter; input: clock skew (monitor recycle).
-- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.InvalidateActiveChallengesForEmailAsync` — sweep vs `TryCompleteAsync` without shared lock — locus: invalidate path; input: verify during invalidate sweep (monitor).
-- [ ] (candidate) `CachingTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` — global normalized-domain cache after tenant-scoped soft-remove — locus: cross-tenant list invalidation; input: admin list on other tenant (monitor).
-- [ ] (candidate) `DapperAuthenticationIdentityRepository.FindAnyByExternalKeyAsync` — SQL parity with in-memory active-first ordering — locus: lookup query; input: relink after disable (monitor; SQL skipped on cloud VM).
-- [ ] (candidate) `SqlTenantIdentityProviderConfigurationRepository.UpsertAsync` — MERGE without row-version guard under parallel admin edits — locus: SQL upsert; input: concurrent IdP config writes (monitor).
 
 2026-11-01 thorough hunt (dry #932): cheap-disproof closed five open `(candidate)` rows from thorough dry **#931** (`EmailOtpHourlyRequestRateLimitSql.Batch` hourly counts bind `@SinceUtc`/`@NowUtc` only — same class as hunt **#931** `Failed_verification_sql_uses_application_now_parameters_not_sysutcdatetime`; `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` serializes on `_completionLock` — resend/replace uses `ReplaceActiveChallengeForEmailAsync` concurrency regression; `CachingTenantSignInEmailDomainRepository.TryGetAsync` keys invalidated on `UpdateAsync` via `HotPathCacheEviction.InvalidateTenantSignInEmailDomainAsync` — same eviction as hunt **#930** `TenantSignInEmailDomain_FindByNormalizedDomainAsync_returns_null_after_soft_remove_update`; `ListByUserIdAsync` orders by `CreatedUtc` only (not active-first) — intentional listing contract; `InMemoryWorkspaceMembershipRepository.UpsertAsync` last-writer semantics — regression `UpsertAsync_last_writer_wins_for_same_user_and_workspace`); reseeded five follow-on `(candidate)` rows; scoped filter **41/43** (Persistence identity/OTP/membership/sign-in-domain suites; 2 SQL integration skipped on cloud VM; `RunAnalyzers=false`). Private beta: n/a.
 
@@ -13165,9 +13173,9 @@
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 933
+- **hunts:** 934
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-21 — hourly OTP request rate limits ignored invalidated challenges
 - **related-pd-tb:** none
