@@ -914,6 +914,43 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_allows_disabling_auto_replenish_with_zero_cap_in_same_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? enabled = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        enabled.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = false,
+                MonthlyCapUsd = 0m,
+                ExpectedRowVersion = enabled!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "disabling auto-replenish in the same PUT must remain allowed when monthly cap is zero");
+        updated!.AutoReplenishEnabled.Should().BeFalse();
+        updated.MonthlyCapUsd.Should().Be(0m);
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_rejects_monthly_cap_above_catalog_max()
     {
         InMemoryLlmTenantWalletRepository repository = new();
