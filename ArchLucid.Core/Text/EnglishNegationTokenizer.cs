@@ -31,6 +31,7 @@ public static class EnglishNegationTokenizer
         "prevented from",
         "disallowed from",
         "denied from",
+        "denied access from",
         "rejected from",
         "refused from",
         "blocked from",

@@ -16579,6 +16579,20 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-findings-advice
 
+2026-11-01 thorough hunt #1127 (hit, rotation): **Zone rotation** after **3 consecutive low-yield** dry outcomes on `knowledge-graph-provenance` (#1124–#1126; run log). Picker applied **`-AvoidZoneId knowledge-graph-provenance`** and returned `core-findings-advice`. Cheap-disproof promoted five header `(candidate)` rows from hunt #1071 reseed with failing repros — ideographic space (`U+3000`) and zero-width space (`U+200B`) Jaccard token splits (`Jaccard_similarity_treats_ideographic_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_zero_width_space_separated_resource_tokens_as_space_separated_peers`), `shall not comply with` / `should not comply with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `denied access from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1704/1704** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Invited operators reviewing LLM findings see fewer false near-duplicate insight pairs when titles use ideographic or zero-width spaces, and shall/should-not compliance conflict titles plus denied-access-from phrasing route through falsifiability and generic-advice filters correctly.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — line separator (`U+2028`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2028sql\u2028db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — paragraph separator (`U+2029`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2029sql\u2029db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `may not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `may not comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `might not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `might not comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `EnglishNegationTokenizer` — `forbidden access from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: `forbidden access from` prohibitive phrasing; wrong outcome: `IsObviousGenericAdvice` true.
+
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — ideographic space (`U+3000`) separated resource tokens — **hit 2026-11-01 thorough hunt #1127:** split on `\u3000`; regressions above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — zero-width space (`U+200B`) between resource tokens — **hit 2026-11-01 thorough hunt #1127:** split on `\u200B`; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `shall not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-11-01 thorough hunt #1127:** `(?:will|would|must|shall|should) not comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `should not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-11-01 thorough hunt #1127:** regression above. [class:fail-open-validation]
+- [x] (proven) `EnglishNegationTokenizer` — `denied access from enable mfa` false-positive demoted obvious generic advice — **hit 2026-11-01 thorough hunt #1127:** added `denied access from` to multi-word negations; regression above. [class:fail-open-validation]
+
 2026-10-31 thorough hunt #1071 (hit): no rotation (`shouldRotate: false`). Cheap-disproof promoted five header `(candidate)` rows with failing repros — en quad space (`U+2000`) and em quad space (`U+2001`) Jaccard token splits (`Jaccard_similarity_treats_en_quad_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_em_quad_space_separated_resource_tokens_as_space_separated_peers`), `(?:will|would|must) not comply with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `banned from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1701** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Quad-space Unicode delimiters and would/must-not compliance conflict titles plus banned-from phrasing route correctly for invited review finding quality.
 
 - [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — ideographic space (`U+3000`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u3000sql\u3000db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
@@ -16638,13 +16652,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 36
-- **bugs-found:** 55
+- **hunts:** 37
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-31 — en/em quad Jaccard spaces, would/must-not comply conflict wording, banned-from negation
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — ideographic/zero-width Jaccard spaces, shall/should-not comply conflict wording, denied-access-from negation
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-13 thorough hunt (hit): reseeded after master merge; proved `InsightDensityTextSimilarity.Tokenize` left `%`/`$`/`?` glued tokens at Jaccard 0.625; split delimiters; proved `non-compliant with the constraint` missed `HasFalsifiabilitySignal`; regex `non[- ]?compliant`; regressions in `DeterministicInsightDensityGateTests` and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; cheap-disproof closed caret/tilde/conflict/noncompliant/forbidden-from candidates; 1727 scoped tests passed.
 
