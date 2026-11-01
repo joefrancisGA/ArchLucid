@@ -2371,3 +2371,4 @@
 {"at":"2026-11-01T05:10:05.6459352Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T05:12:36.1466032Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T05:17:29.1319026Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T05:21:03.9296169Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
