@@ -3124,6 +3124,22 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_fractional_json_number_in_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"semanticSupportBand":2.5}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_boolean_json_classification_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"classification":true}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeFindingId_preserves_trailing_format_character()
     {
         FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");

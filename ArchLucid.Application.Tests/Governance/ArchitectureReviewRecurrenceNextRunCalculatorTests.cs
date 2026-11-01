@@ -516,6 +516,7 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
     [Theory]
     [InlineData("@daily")]
     [InlineData("@weekly")]
+    [InlineData("@hourly")]
     public void ComputeNextRunUtc_interval_alias_at_max_value_throws(string alias)
     {
         DateTime max = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
@@ -523,6 +524,54 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
         Action act = () => _sut.ComputeNextRunUtc(alias, max);
 
         act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_rejects_interior_thin_space_between_cron_fields()
+    {
+        _sut.IsSupportedCronExpression("0\u20098 * * 1").Should().BeFalse();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_returns_null_for_interior_thin_space_cron()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc("0\u20098 * * 1", from);
+
+        next.Should().BeNull();
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_rejects_weekley_typo_alias()
+    {
+        _sut.IsSupportedCronExpression("@weekley").Should().BeFalse();
+        _sut.IsSupportedCronExpression("@weekly").Should().BeTrue();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_from_min_value_with_hourly_alias_returns_future_instant()
+    {
+        DateTime min = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc("@hourly", min);
+
+        next.Should().NotBeNull();
+        next!.Value.Should().BeAfter(min);
+        next.Value.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_stops_when_large_preview_count_hits_null_after_first_occurrence()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+        ThenNullScanScheduleCalculator stub = new(reference.AddHours(1));
+        ArchitectureReviewRecurrenceNextRunCalculator sut = new(stub);
+
+        IReadOnlyList<DateTime> runs = sut.ComputeNextRunsUtc("@hourly", reference, 20);
+
+        runs.Should().ContainSingle();
+        runs[0].Should().Be(reference.AddHours(1));
     }
 
     [Fact]
@@ -567,6 +616,19 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
 
         _sut.ComputeNextRunsUtc("@daily", from, 1).Should().ContainSingle();
         _sut.ComputeNextRunUtc("@daily", from, isScheduleEnabled: false).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("@monthly")]
+    [InlineData("@yearly")]
+    public void ComputeNextRunUtc_cronos_calendar_alias_at_max_value_throws(string alias)
+    {
+        DateTime max = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+
+        Action act = () => _sut.ComputeNextRunUtc(alias, max);
+
+        act.Should().Throw<ArgumentOutOfRangeException>(
+            "Cronos calendar aliases overflow when advancing from DateTime.MaxValue; persisted recurrence never supplies that reference");
     }
 
     private sealed class PastThenUnspecifiedScanScheduleCalculator : IScanScheduleCalculator

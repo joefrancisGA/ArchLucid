@@ -1608,7 +1608,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunsListWorkQueueTable` — compare ids with filtered-out sections — **superseded 2026-11-01 thorough hunt:** see closed row above.
 - [x] (valid-no-repro) `useRunsList` popstate compare listener — inspector param parity — **superseded 2026-11-01 thorough hunt:** see closed row above.
 - [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure writes via committed search — **superseded 2026-11-01 thorough hunt:** see closed row above.
-
 2026-10-31 seed hunt (seed-only): re-read `useRunsList`, `RunsListClient`, the URL/popstate state boundaries, and the focused 69-test Runs List suites; existing regressions cover the reachable inspector, compare, filter, pagination, card-layout, and disclosure branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-31 thorough hunt (dry): cheap-disproof closed the five picker candidates — compare soft navigation, combined inspector/compare popstate, debounced filter clearing, third-compare replacement notices, and the filter-disclosure URL monitor are covered by existing tests or lack a reachable branch; no production change. Private beta: n/a.
@@ -1671,8 +1670,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-11-01
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare
-- **related-pd-tb:** none
+- **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare- **related-pd-tb:** none
 - **code-changed-since:** 0
 
 2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.

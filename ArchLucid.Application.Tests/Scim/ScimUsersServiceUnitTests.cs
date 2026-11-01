@@ -491,6 +491,34 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_null_filter_matches_empty_string_filter_totals()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-a",
+            "a@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> omitted, int totalOmitted) =
+            await sut.ListAsync(tenantId, null, 1, 100, CancellationToken.None);
+        (IReadOnlyList<ScimUserRecord> empty, int totalEmpty) =
+            await sut.ListAsync(tenantId, string.Empty, 1, 100, CancellationToken.None);
+
+        totalOmitted.Should().Be(1);
+        totalEmpty.Should().Be(totalOmitted);
+        empty.Select(static u => u.Id).Should().BeEquivalentTo(omitted.Select(static u => u.Id));
+    }
+
+    [Fact]
     public async Task DeactivateAsync_throws_not_found_when_user_already_directory_removed()
     {
         Guid tenantId = Guid.NewGuid();

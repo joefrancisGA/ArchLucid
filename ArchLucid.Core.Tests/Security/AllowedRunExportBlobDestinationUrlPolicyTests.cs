@@ -10,6 +10,7 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     [Theory]
     [InlineData("https://acct.blob.core.windows.net/container/run.zip?sas=token")]
     [InlineData("https://acct.z13.blob.storage.azure.net/container/run.zip?sas=token")]
+    [InlineData("https://acct.Z13.BLOB.STORAGE.AZURE.NET/container/run.zip?sas=token")]
     public void TryGetRejectionReason_WhenAzureBlobHttps_Allows(string url)
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url).Should().BeNull();
@@ -30,6 +31,15 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
                 "https://127.0.0.1.blob.core.windows.net/container/run.zip?sas=token")
+            .Should()
+            .Contain("private");
+    }
+
+    [Fact]
+    public void TryGetRejectionReason_WhenIpv6LiteralPrefixedBlobAccountLabel_Rejects()
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(
+                "https://[::1].blob.core.windows.net/container/run.zip?sas=token")
             .Should()
             .Contain("private");
     }
