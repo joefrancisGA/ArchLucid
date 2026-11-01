@@ -99,4 +99,45 @@ public sealed class PolicyPackFindingMatcherTests
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue(
             "finding properties may carry canonical N GUIDs while assignments use D tokens");
     }
+
+    [Fact]
+    public void MatchesAssignment_treats_canonical_n_pack_token_in_policy_rule_id_as_pack_attributed()
+    {
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-rule-n",
+            PolicyRuleId = $"policy-pack-{packId:N}-rule-1",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
+
+    [Fact]
+    public void MatchesAssignment_treats_canonical_n_pack_token_in_engine_type_as_pack_attributed()
+    {
+        Guid packId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["listed-only"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-engine-n",
+            PolicyRuleId = "unrelated-rule",
+            EngineType = $"policy-pack:{packId:N}",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
 }

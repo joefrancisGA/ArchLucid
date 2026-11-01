@@ -28,10 +28,8 @@ internal static class PolicyPackFindingMatcher
             }
         }
 
-        string packToken = assignment.PolicyPackId.ToString("D");
-
         if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId)
-            && finding.PolicyRuleId.Contains(packToken, StringComparison.OrdinalIgnoreCase))
+            && PolicyRuleIdReferencesPack(finding.PolicyRuleId, assignment.PolicyPackId))
             return true;
 
         if (finding.Properties is not null
@@ -39,7 +37,28 @@ internal static class PolicyPackFindingMatcher
             && PackIdsEquivalent(propertyPackId, assignment.PolicyPackId))
             return true;
 
-        return string.Equals(finding.EngineType, $"policy-pack:{packToken}", StringComparison.OrdinalIgnoreCase);
+        return EngineTypeReferencesPack(finding.EngineType, assignment.PolicyPackId);
+    }
+
+    private static bool PolicyRuleIdReferencesPack(string policyRuleId, Guid packId)
+    {
+        if (policyRuleId.Contains(packId.ToString("D"), StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return policyRuleId.Contains(packId.ToString("N"), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool EngineTypeReferencesPack(string? engineType, Guid packId)
+    {
+        if (string.IsNullOrWhiteSpace(engineType))
+            return false;
+
+        const string prefix = "policy-pack:";
+
+        if (!engineType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return PackIdsEquivalent(engineType[prefix.Length..], packId);
     }
 
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
