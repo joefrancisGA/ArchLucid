@@ -2,6 +2,66 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** after this run — rotation at **3** on next dry); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — empty JSON `{}` on error uses raw body text (`shows raw response text when register returns an empty JSON object on error`); `"1e-1"` fails whole-number gate (`architectureTeamSize` superRefine; runtime safeParse); whitespace-only organization triggers required-field readiness before any email copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`; runtime with valid email + `"   "` org); team size `10001` keeps submit disabled after paste/blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`; related no-fetch regressions); Other industry specification trims in builder (`includes trimmed industry vertical other in the register payload builder when industry is Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — empty JSON `{}` error toast — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** raw `{}` body; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — `1e-1` team size — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** non-integer reject; runtime check above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — org whitespace vs email — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** required-field branch; regressions + runtime above.
+- [x] (valid-no-repro) `SignupForm` — autofill/paste team size `10001` — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** disabled submit after blur; regressions above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — Other industry trim — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** trim regression above.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — network error message may expose raw `TypeError` in toast — locus: catch path; input: `fetch` throw; wrong outcome: opaque copy; reachability: monitor register fetch throw regressions.
+- [ ] (candidate) `signupFormSchema` — leading-zero below minimum `"00"` team size — locus: Number parse; input: `"00"`; wrong outcome: accepted as zero omitted; reachability: monitor double-zero team-size regressions.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name — locus: TB-2010; input: bad email + `"   "` name; wrong outcome: email before required; reachability: monitor existing required-vs-email regressions.
+- [ ] (candidate) `SignupForm` — selecting Prefer not to say then submit may leave stale companySize in sessionStorage — locus: success handler; input: flip company size then register; wrong outcome: stale session key; reachability: monitor companySize sessionStorage regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — omits architecture team size when value is empty string — locus: falsy guard; input: `""`; wrong outcome: key present; reachability: monitor empty team-size builder tests.
+
+- [x] (superseded) `SignupForm` `onSubmit` — empty JSON — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `1e-1` — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — org whitespace — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `SignupForm` — autofill team size — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — Other trim — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-auth-proxy` low-yield streak **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — numeric JSON `detail` surfaces raw response text, not a coerced string toast (`shows raw response text when register returns numeric JSON detail`); `"-0"` team size rejected and omitted (`signupFormSchema rejects negative zero optional architecture team size`; builder omit regression); invalid email readiness precedes overlong organization (`deriveSignupFormReadinessMessage` runtime: bad email + 201-char org → valid work email copy); fractional `3.5` team size keeps submit disabled (`keeps submit disabled for fractional optional architecture team size`; `canSubmit` gate blocks double-click POST); non-Other industry omits `industryVerticalOther` in builder (`omits industry vertical other from the register payload builder when industry is not Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric JSON `detail` toast — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** raw-body contract; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — `-0` team size — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** schema reject + builder omit; regressions above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs overlong org — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** email wins; runtime check above.
+- [x] (valid-no-repro) `SignupForm` — double-click with `3.5` — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** disabled submit / no POST; fractional regressions above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — non-Other industry other text — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** conditional omit regression above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — empty JSON (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `signupFormSchema` — `1e-1` (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — org whitespace (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `SignupForm` — autofill team size (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — Other trim (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — numeric detail — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `-0` — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — email vs org — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
+- [x] (superseded) `SignupForm` — double-click 3.5 — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — non-Other other key — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `cli-draft-new` low-yield streak **1** after seed-only); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — empty **503** uses synthetic status text (`shows synthetic message when register error response body is empty`); non-JSON HTML errors use raw `text` by contract (same path as `shows raw html error body when register response is not json`); `+5` parses to **5** (`signupFormSchema accepts leading plus optional architecture team size`; builder regression); invalid email readiness precedes unsupported-character full name (`deriveSignupFormReadinessMessage` runtime: bad email + `\u0000` name → valid work email copy); work email input `maxLength` **254** plus schema `.max(254)` block overlong values (`signupFormSchema rejects admin email longer than 254 characters`; maxLength regression); whitespace-only Other specification omitted in builder (`omits whitespace-only industry vertical other from the register payload builder when industry is Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `503` HTML vs synthetic empty body — **cheap-disproof 2026-11-01 thorough hunt (pass 14):** empty-body synthetic; HTML uses raw-text error path.
+- [x] (valid-no-repro) `signupFormSchema` — `+5` team size — **cheap-disproof 2026-11-01 thorough hunt (pass 14):** accepts five; regressions above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs unsupported-char name — **cheap-disproof 2026-11-01 thorough hunt (pass 14):** email wins; runtime check above.
+- [x] (valid-no-repro) `SignupForm` — paste overlong email — **cheap-disproof 2026-11-01 thorough hunt (pass 14):** maxLength + schema gate; regressions above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — whitespace-only Other — **cheap-disproof 2026-11-01 thorough hunt (pass 14):** trim omit regression above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — numeric detail (pass 14 reseed) — **superseded 2026-11-01 thorough hunt (pass 15):** see pass-15 closed row above.
+- [x] (superseded) `signupFormSchema` — `-0` (pass 14 reseed) — **superseded 2026-11-01 thorough hunt (pass 15):** see pass-15 closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — email vs org (pass 14 reseed) — **superseded 2026-11-01 thorough hunt (pass 15):** see pass-15 closed row above.
+- [x] (superseded) `SignupForm` — double-click 3.5 (pass 14 reseed) — **superseded 2026-11-01 thorough hunt (pass 15):** see pass-15 closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — non-Other other (pass 14 reseed) — **superseded 2026-11-01 thorough hunt (pass 15):** see pass-15 closed row above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — `503` HTML — **superseded 2026-11-01 thorough hunt (pass 14):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `+5` team size — **superseded 2026-11-01 thorough hunt (pass 14):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — email vs unsupported char — **superseded 2026-11-01 thorough hunt (pass 14):** see closed row above.
+- [x] (superseded) `SignupForm` — overlong email paste — **superseded 2026-11-01 thorough hunt (pass 14):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — whitespace Other — **superseded 2026-11-01 thorough hunt (pass 14):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-auth-proxy` low-yield streak **1**); picker chose `ui-form-validation` at **12** consecutive dry hunts (this pass **13**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — non-JSON **429** bodies use the same raw-text error path as other non-ok responses (`shows server detail string from HTTP 429 register responses` for JSON `detail`; HTML falls through to `text` like `shows raw html error body when register response is not json`); `"0"` team size rejected and omitted (`signupFormSchema rejects zero optional architecture team size`; `omits zero optional architecture team size from the register payload builder`); invalid email readiness precedes overlong full name (`deriveSignupFormReadinessMessage` runtime: bad email + 201-char name → valid work email copy); keyboard `submit` on invalid email skips fetch (`shows inline validation on keyboard submit without calling fetch`); empty `companySize` string omitted (`omits empty company size string from the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `429` HTML toast — **cheap-disproof 2026-11-01 thorough hunt (pass 13):** JSON detail regression + raw-body contract for non-JSON errors.
@@ -10,11 +70,11 @@
 - [x] (valid-no-repro) `SignupForm` — Enter key invalid submit — **cheap-disproof 2026-11-01 thorough hunt (pass 13):** keyboard submit regression above.
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — empty `companySize` — **cheap-disproof 2026-11-01 thorough hunt (pass 13):** falsy omit regression above.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — `503` HTML body may bypass synthetic empty-body message — locus: non-ok parse; input: `503` HTML; wrong outcome: raw HTML toast; reachability: monitor 503 HTML vs synthetic message regressions.
-- [ ] (candidate) `signupFormSchema` — leading-plus optional team size `+5` — locus: Number parse; input: `"+5"`; wrong outcome: rejected vs accepted five; reachability: monitor plus-prefix team-size regressions.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with unsupported-character full name — locus: issue order; input: bad email + `\u0000` in name; wrong outcome: unsupported-char name wins; reachability: monitor email-vs-unsupported-char readiness.
-- [ ] (candidate) `SignupForm` — paste overlong email may bypass maxLength before zod — locus: input `maxLength` vs schema; input: 255-char paste; wrong outcome: submit enabled; reachability: monitor overlong email UI regressions.
-- [ ] (candidate) `buildSignupRegisterPayload` — whitespace-only optional industry Other omitted — locus: trim guard; input: `"   "` other text; wrong outcome: key sent; reachability: monitor industry Other trim builder tests.
+- [x] (superseded) `SignupForm` `onSubmit` — `503` HTML (pass 13 reseed) — **superseded 2026-11-01 thorough hunt (pass 14):** see pass-14 closed row above.
+- [x] (superseded) `signupFormSchema` — `+5` (pass 13 reseed) — **superseded 2026-11-01 thorough hunt (pass 14):** see pass-14 closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — unsupported char (pass 13 reseed) — **superseded 2026-11-01 thorough hunt (pass 14):** see pass-14 closed row above.
+- [x] (superseded) `SignupForm` — overlong email paste (pass 13 reseed) — **superseded 2026-11-01 thorough hunt (pass 14):** see pass-14 closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — whitespace Other (pass 13 reseed) — **superseded 2026-11-01 thorough hunt (pass 14):** see pass-14 closed row above.
 
 - [x] (superseded) `SignupForm` `onSubmit` — `429` HTML — **superseded 2026-11-01 thorough hunt (pass 13):** see closed row above.
 - [x] (superseded) `signupFormSchema` — zero team size — **superseded 2026-11-01 thorough hunt (pass 13):** see closed row above.
@@ -596,9 +656,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 99
+- **hunts:** 102
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 13
+- **consecutive-dry-hunts:** 16
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
@@ -1021,6 +1081,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **1**); reread `DraftNewCommandIntakeLoop` execute/submit JSON envelopes (`executionStarted`, `execute_failed`), `DraftNewCommandAdmitStage` `Admitted` false and `IsMissingDraftBody` guards, `DraftNewCommandConnectStage` intent trim after connect vs JSON preflight, `DraftNewCommandMustQuestionLoop` skip-all scope validation and whitespace-answer handling, and `DraftNewCommandArgParser` missing flag values. No new mechanism met the hunt-ready bar without duplicating existing regressions (for example `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`). `DraftNewCommandCoreTests` **73/73**. Seeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — JSON mode submit HTTP failure may omit `CliJson.WriteFailureLine` while stderr carries detail — locus: `SubmitDraftAsync` failure branch; input: non-OK submit response in `--json` run; wrong outcome: automation sees stderr-only failure; reachability: monitor JSON submit failure parity (`RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`).
+- [ ] (candidate) `DraftNewCommandAdmitStage` — JSON mode `Admitted=false` may omit structured failure line — locus: `!admission.Value.Admitted` branch; input: semantic redirect admission body; wrong outcome: stderr-only without `ok:false`; reachability: monitor admit-not-admitted JSON envelope (`RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`).
+- [ ] (candidate) `DraftNewCommandConnectStage` — `--text` of only spaces fails after connect without reaching create — locus: intent trim length gate; input: `--text "     "` with `--json`; wrong outcome: create called before length check; reachability: monitor `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — interactive whitespace answer exits without operator hints — locus: whitespace answer branch; input: readline `"   "` on pending MUST; wrong outcome: hints on validation-only path; reachability: monitor `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — auto-execute failure after successful submit may still emit success JSON — locus: execute failure after submit; input: execute endpoint failure with `--json`; wrong outcome: `ok:true` before execute; reachability: monitor execute-failed JSON ordering (`RunCoreAsync_json_output_execute_cancellation_emits_execute_failed_without_ok_true`).
+
 2026-10-31 seed hunt (seed-only): after the rotated `cli-terraform-evidence` seed-only pass, reread `DraftNewCommandMustQuestionLoop` skip-all vs interactive answer paths, whitespace-only answer rejection, and scope validation on skip/answer responses. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread connect-stage API base URL resolution, intent trim vs interactive prompt paths, and connection failure exit mapping before admit. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed. Rotation is now eligible for the next Set 3 invocation.
@@ -1174,10 +1242,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 10
-- **last-hunt:** 2026-10-08
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3117,6 +3185,46 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** — threshold **3**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — null BFF payload on GET with garbage cookie clears via `slideCookieHeaders` only and never calls `slideBffSessionActivity` (`proxy-bff-session-guard.ts` null branch; parity with pass 4 GET slide note); `passThrough` copies only explicit allowlisted headers — no `WWW-Authenticate` (`proxy-passthrough.ts`); dot segments after many safe prefixes still fail `isUnsafeProxyPathSegment` (`rejects dot-segment traversal`); protected routes intentionally attach `ARCHLUCID_PROXY_BEARER_TOKEN` when cookie and browser bearer absent (`still attaches server bearer for protected architecture quick-scan`); declared `Content-Length` above cap returns **413** before body read (`returns 413 when Content-Length declares a body larger than the JSON cap`; `declaredPostBodyExceedsLimit`). Scoped proxy/auth regressions **280/280** (picker `testFilter`). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — unparseable cookie GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** null payload returns clear-only headers; no `slideBffSessionActivity`.
+- [x] (valid-no-repro) `passThrough` — upstream `WWW-Authenticate` — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** header not in allowlist; `proxy-passthrough.ts`.
+- [x] (valid-no-repro) `buildProxyUpstreamPath` — deep path then `..` — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** `rejects dot-segment traversal`; segment guard before join.
+- [x] (invalid) `buildProxyUpstreamHeaders` — server bearer fallback — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** intentional protected-route upstream auth; regression above.
+- [x] (valid-no-repro) `forwardMutatingWithBody` — declared length over cap — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** **413** + `declaredPostBodyExceedsLimit`; route + unit tests.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — idle-expired GET may slide activity before block — locus: idle branch on GET; input: GET with idle-expired cookie; wrong outcome: activity slide without **401**; reachability: monitor idle GET guard regressions.
+- [ ] (candidate) `passThrough` — upstream `Retry-After` may reach browser — locus: response header allowlist; input: upstream **429** with retry hint; wrong outcome: hint forwarded; reachability: monitor Retry-After forwarding policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — backslash in segment may bypass slash guard — locus: `isUnsafeProxyPathSegment`; input: segment containing `\`; wrong outcome: accepted path; reachability: monitor backslash segment rejection tests.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — `X-Api-Key` sent with bearer on protected path — locus: key+bearer branch; input: both configured with cookie bearer; wrong outcome: dual credentials upstream; reachability: monitor upstream header pairing tests.
+- [ ] (candidate) `forwardMutatingWithBody` — `Content-Length: 0` with non-empty body may skip cap — locus: declared zero vs streamed read; input: POST with mismatched length; wrong outcome: unbounded read; reachability: monitor zero-length declared body regressions.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — unparseable GET slide — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `passThrough` — WWW-Authenticate — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — deep `..` bypass — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — server bearer — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — declared length cap — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF `payload.exp` returns **401** before activity slide (`blocks bootstrap status GET when the BFF session cookie is expired`; guard branch precedes `slideBffSessionActivity`); `passThrough` allowlist does not copy upstream `Refresh` (only explicit headers such as `Location`); `%2E%2E` segments rejected via case-insensitive `%2e` detection in `containsPercentEncodedPathSeparator` (`proxy-upstream-path.ts`; encoded-dot route regressions); expired HttpOnly cookie yields empty `resolveBffSessionBearerFromCookieValue` so browser `Authorization` is used when guard allows the call — not stale cookie winning (`bff-session-cookie.test.ts` `rejects expired session cookies`); sandbox GET mocks run only after `enforceProxyRateLimit` in `handleRateLimitedForward`. Scoped proxy/auth regressions **120/120**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** **401** before slide; regression above.
+- [x] (valid-no-repro) `passThrough` — upstream `Refresh` — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** header not in allowlist; `proxy-passthrough.ts`.
+- [x] (valid-no-repro) `buildProxyUpstreamPath` — mixed-case `%2E%2E` — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** lowercase `%2e` scan; path builder tests.
+- [x] (invalid) `buildProxyUpstreamHeaders` — expired cookie bearer precedence — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** expired cookie bearer empty; header fallback when allowed — not stale cookie winning.
+- [x] (valid-no-repro) `handleRateLimitedForward` — sandbox bypasses rate limit — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** rate limit precedes `forward` / mock short-circuit.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — unparseable cookie on GET may slide activity — locus: null payload branch; input: GET with garbage cookie; wrong outcome: activity slide; reachability: monitor unparseable-cookie GET guard regressions.
+- [ ] (candidate) `passThrough` — upstream `WWW-Authenticate` may reach browser — locus: response header allowlist; input: upstream 401 with challenge; wrong outcome: challenge forwarded; reachability: monitor WWW-Authenticate forwarding policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — overlong segment list may bypass traversal guard — locus: join depth; input: many safe segments then `..`; wrong outcome: accepted path; reachability: monitor deep path rejection tests.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — server `ARCHLUCID_PROXY_BEARER_TOKEN` used when cookie and browser bearer absent — locus: bearer fallback chain; input: no cookie/header on protected path; wrong outcome: silent server token upstream; reachability: monitor server bearer fallback tests.
+- [ ] (candidate) `forwardMutatingWithBody` — declared Content-Length over cap may skip streaming guard — locus: declared length pre-check; input: `Content-Length` just above cap; wrong outcome: unbounded read; reachability: monitor `proxy-body-read` declared-length regressions.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired GET slide — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `passThrough` — Refresh — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — `%2E%2E` — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — expired cookie bearer — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — sandbox rate limit — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** — threshold **3**); picker chose `ui-auth-proxy`; attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF payload on blocked mutations returns **401** ProblemDetails (`BFF session expired` / `Sign in again to continue.`) plus session clear via `blockedMutationResponse` (parity with `blocks bootstrap status GET when the BFF session cookie is expired` and `rejects idle-expired Working sessions on mutations`); upstream `Location` forward is intentional for async operation handles (`forwards Location from upstream 202 Accepted on POST`; `passThrough` copies trimmed Location only); `%2e%2e` segments rejected at path build (`rejects percent-encoded dot traversal segments`; proxy-route PATCH regressions); HttpOnly BFF bearer wins over browser `Authorization` (`prefers the HttpOnly BFF session cookie over browser Authorization (LK-06 P2)`); sandbox mocks are GET-only and rate limiting runs in `handleRateLimitedForward` before `forward` (POST bursts never hit mock short-circuit). Scoped proxy/auth regressions **120/120**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired POST silent clear — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** **401** + detail + clear; guard implementation + regressions above.
@@ -3125,11 +3233,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveBffSessionBearerFromRequest` — cookie vs header precedence — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** LK-06 P2 regression above.
 - [x] (valid-no-repro) `trySandboxProxyMock` — POST bypasses rate limit — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** mocks GET-only; rate limit precedes `forward`.
 
-- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on GET may still slide activity cookies — locus: expired `payload.exp` branch; input: GET with expired cookie; wrong outcome: activity slide; reachability: monitor expired GET guard regressions.
-- [ ] (candidate) `passThrough` — upstream `Refresh` header may reach browser — locus: response header allowlist; input: upstream 401 with Refresh; wrong outcome: unsolicited navigation; reachability: monitor Refresh forwarding policy.
-- [ ] (candidate) `buildProxyUpstreamPath` — mixed-case `%2E%2E` traversal segments — locus: segment equality; input: uppercase-encoded dots; wrong outcome: accepted traversal; reachability: monitor encoded-dot case regressions.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — browser Authorization used when BFF cookie expired but present — locus: bearer resolution order; input: expired cookie + header bearer; wrong outcome: stale cookie wins; reachability: monitor expired-cookie bearer regressions.
-- [ ] (candidate) `handleRateLimitedForward` — sandbox GET mock may bypass prod rate-limit matrix — locus: mock return before upstream; input: sandbox GET burst; wrong outcome: unbounded reads; reachability: monitor sandbox + rate-limit interaction tests.
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired GET slide (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `passThrough` — Refresh (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — `%2E%2E` (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — expired cookie (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
+- [x] (superseded) `handleRateLimitedForward` — sandbox (pass 8 reseed) — **superseded 2026-11-01 thorough hunt (pass 9):** see pass-9 closed row above.
 
 - [x] (superseded) `enforceProxyBffSessionGuard` — expired POST silent clear — **superseded 2026-11-01 thorough hunt (pass 8):** see closed row above.
 - [x] (superseded) `passThrough` — Location open redirect — **superseded 2026-11-01 thorough hunt (pass 8):** see closed row above.
@@ -3420,9 +3528,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 77
+- **hunts:** 79
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none

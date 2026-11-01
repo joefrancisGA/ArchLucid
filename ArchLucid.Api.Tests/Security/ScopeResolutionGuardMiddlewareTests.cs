@@ -222,6 +222,7 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [InlineData("/health/./live")]
     [InlineData("//health//ready")]
     [InlineData("/health/live/.")]
+    [InlineData("/health/ready/.")]
     public async Task InvokeAsync_staging_host_does_not_skip_health_probe_with_empty_or_dot_segments(string path)
     {
         DefaultHttpContext context = CreateContext(path);
@@ -505,6 +506,48 @@ public sealed class ScopeResolutionGuardMiddlewareTests
 
         nextCalled.Should().BeTrue(
             "public health ready probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_version_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/VERSION");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health version probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "root health aggregate probe checks use OrdinalIgnoreCase path matching");
     }
 
     [Fact]

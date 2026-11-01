@@ -285,6 +285,12 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseDisposition_returns_null_for_plus_one_point_zero_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("+1.0").Should().BeNull();
+    }
+
+    [Fact]
     public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");
@@ -481,6 +487,14 @@ public sealed class FindingInspectReadModelMapperTests
     public void ParseFindingSeverity_rejects_fractional_numeric_string()
     {
         Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("1.5");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_two_point_zero_numeric_string()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("2.0");
 
         act.Should().Throw<InvalidDataException>();
     }

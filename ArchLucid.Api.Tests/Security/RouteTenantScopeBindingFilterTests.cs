@@ -104,6 +104,32 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_uppercase_internal_path_skips_binding_by_design()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/INTERNAL/platform/tenants/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue(
+            "internal carve-out uses OrdinalIgnoreCase substring match by design for platform routes");
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

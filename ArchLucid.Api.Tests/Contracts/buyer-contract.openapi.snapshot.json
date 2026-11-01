@@ -35239,6 +35239,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "modelOutputRejection": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "pathId": {
             "format": "uuid",
             "type": "string"
