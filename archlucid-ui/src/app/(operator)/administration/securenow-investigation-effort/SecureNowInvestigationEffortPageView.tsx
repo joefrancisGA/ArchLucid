@@ -19,7 +19,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         subtitle={SECURENOW_INVESTIGATION_EFFORT_LEAD}
       />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <div className="mt-6 max-w-3xl space-y-6">
         <section
           aria-labelledby="securenow-investigation-effort-notes-heading"
           className="space-y-2"
@@ -44,7 +44,7 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
         <p className={OPERATOR_TYPOGRAPHY.body}>
           {SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL}
         </p>
-      </main>
+      </div>
     </OperatorPageContainer>
   );
 }
