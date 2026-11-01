@@ -65,7 +65,7 @@ public sealed class MarketingPricingQuoteSalesNotifier(
         string safeCompany = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(companyName));
         string safeTier = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(tierInterest));
         string safeEmail = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(workEmail));
-        string safeMessage = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(message));
+        string safeMessage = WebUtility.HtmlEncode(message.Replace('\f', ' ').Replace('\u000B', ' '));
         string textWorkEmail = EmailHeaderFragmentSanitizer.Sanitize(workEmail);
         string textCompany = EmailHeaderFragmentSanitizer.Sanitize(companyName);
         string textTier = EmailHeaderFragmentSanitizer.Sanitize(tierInterest);
