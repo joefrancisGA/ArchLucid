@@ -2677,6 +2677,14 @@
 
 ## Zone: finding-disposition
 
+2026-11-01 seed hunt (seed-only #48): re-read `FindingDispositionService` (`RecordAsync`/`RecordBulkAsync` concurrency, working-desk remediated attestation, history scope filter) and `FindingDispositionValidation` (enum guard, substantive-text finding ids, optional vs required rationale, deferred revisit window, LP-14 preview attestation); no mechanism-backed row met the hunt-ready promotion bar without relying on non-zone callers or test doubles; seeded five `(candidate)` rows below; scoped **33/33** `FindingDispositionValidationTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — locus: optional branch ~71–88; input: single visible character on `Deferred` (monitor).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository write — locus: `TryDecodeRowVersion`; input: non-base64 padding string (monitor).
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — one `IsWorkingDeskAsync` result governs preview attestation for entire batch — locus: ~86–93; input: hypothetical per-row desk mode (monitor).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — locus: ~235–236; input: mixed review/disposition history (monitor).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — locus: early return when `!isWorkingDesk`; input: client-supplied boolean without server preview artifact (monitor).
+
 2026-10-21 seed hunt (seed→hit, lane C): `ListHistoryAsync` returned empty history when finding id casing differed from stored trail rows; case-insensitive lookup via `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; FindingDisposition filter 65/65.
 
 2026-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
@@ -2708,13 +2716,15 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** no
+
+2026-11-01 seed hunt (seed-only #48): see zone header; **33/33** validation tests; five `(candidate)` rows seeded; no promotion.
 
 2026-10-01 seed hunt (seed-only): re-read `FindingDispositionService` and `FindingDispositionValidation`; no new reachable candidate emerged; the picker’s `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
 
@@ -2932,6 +2942,20 @@
 
 ## Zone: review-recurrence
 
+2026-11-01 thorough hunt (dry #39): cheap-disproof closed five open `(candidate)` monitor rows from dry **#936** reseed — `@monthly` / `@yearly` at `DateTime.MaxValue` use Cronos `GetNextOccurrence` (not `@daily`/`@weekly` `AddDays` throws); no persisted recurrence supplies MaxValue references (parity dry **#935** / **#936** `ComputeNextRunUtc_interval_alias_at_max_value_throws` for interval aliases); interior thin space U+2009 between fields fails parse like U+00A0 nbsp (dry **#936** `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields`); `@weekley` typo rejected while `@weekly` parses via Cronos (dry **#936** `@montly` class — `IsSupportedCronExpression_rejects_montly_typo_alias`); `@hourly` at `DateTime.MinValue` advances via `AddHours(1)` without throw (distinct from five-field cron MinValue probe — `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`); batch preview stops on null after normalization ceiling (dry **#935** stub regressions `ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`, `ComputeNextRunsUtc_stops_when_underlying_returns_null_after_first_occurrence`). Reseeded five follow-on `(candidate)` rows; scoped **54/54** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@monthly` or `@yearly` Cronos alias at `DateTime.MaxValue` may throw instead of returning null — **cheap-disproof 2026-11-01 thorough hunt #39:** Cronos calendar path; unreachable MaxValue reference; dry **#936**.
+- [x] (invalid) `IsSupportedCronExpression` — interior thin space U+2009 between cron fields — **cheap-disproof 2026-11-01 thorough hunt #39:** `Trim()` only; nbsp parity; dry **#936**.
+- [x] (invalid) `IsSupportedCronExpression` — typo alias `@weekley` vs `@weekly` — **cheap-disproof 2026-11-01 thorough hunt #39:** exact alias/Cronos parse; `@montly` regression class; dry **#936**.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` with `@hourly` alias throws on `AddHours` — **cheap-disproof 2026-11-01 thorough hunt #39:** alias `AddHours(1)` succeeds from MinValue; dry **#936** five-field path differs.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — large preview count with invalid cron after first null break — **cheap-disproof 2026-11-01 thorough hunt #39:** intentional preview contract; regressions above; dry **#935**.
+
+- [ ] (candidate) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` throws on alias `AddHours` — locus: interval alias branch; input: UTC MaxValue (monitor dry **#935**).
+- [ ] (candidate) `IsSupportedCronExpression` — interior no-break space U+00A0 between cron fields — locus: `Trim()` only; input: paste variant (monitor dry **#936**).
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@montly` vs `@monthly` — locus: Cronos parse; input: operator typo (monitor dry **#936**).
+- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` with five-field cron — locus: Cronos; input: `"0 0 1 1 *"` (monitor dry **#936**).
+- [ ] (candidate) `ComputeNextRunsUtc` — batch preview omits `isScheduleEnabled` flag — locus: API surface; input: disabled schedule vs preview (monitor dry **#936**).
+
 2026-11-01 thorough hunt (dry #936): cheap-disproof closed five open `(candidate)` rows from thorough dry **#935** (`@daily`/`@weekly` at `DateTime.MaxValue` throw `ArgumentOutOfRangeException` on alias `AddDays` like `@hourly` — regressions `ComputeNextRunUtc_interval_alias_at_max_value_throws`; unreachable MaxValue reference on persisted recurrence per hunt **#935**); interior no-break space U+00A0 fails Cronos parse — regressions `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields` and `ComputeNextRunUtc_returns_null_for_interior_no_break_space_cron`; `@montly` typo rejected while `@monthly` accepted via Cronos — regression `IsSupportedCronExpression_rejects_montly_typo_alias`; `DateTime.MinValue` with `"0 0 1 1 *"` returns future Cronos occurrence without throw — regression `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`; batch preview omits `isScheduleEnabled` by design while single-run honors disable — regression `ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled` plus hunt **#1469** diary); reseeded five follow-on `(candidate)` rows; scoped **54/54** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `@daily` or `@weekly` alias at `DateTime.MaxValue` may throw on `AddDays` instead of returning null — **cheap-disproof 2026-11-01 thorough hunt #936:** throws like `@hourly`; not reachable from production recurrence references; regressions above.
@@ -2939,12 +2963,6 @@
 - [x] (invalid) `IsSupportedCronExpression` — typo alias `@montly` accepted or rejected inconsistently with `@monthly` — **cheap-disproof 2026-11-01 thorough hunt #936:** exact alias list excludes typo; Cronos accepts `@monthly`; regression above.
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` UTC reference with five-field cron returns null or throws from Cronos — **cheap-disproof 2026-11-01 thorough hunt #936:** returns strictly future instant; regression above.
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — batch loop passes `isScheduleEnabled: true` implicitly while persisted path can disable schedule — **cheap-disproof 2026-11-01 thorough hunt #936:** preview batch API has no enabled flag by design; persisted path uses single-run disable; regression above.
-
-- [ ] (candidate) `ComputeNextRunUtc` — `@monthly` or `@yearly` Cronos alias at `DateTime.MaxValue` may throw instead of returning null — locus: Cronos `GetNextOccurrence`; input: UTC MaxValue (monitor).
-- [ ] (candidate) `IsSupportedCronExpression` — interior thin space U+2009 between cron fields — locus: `Trim()` only; input: word-processor paste variant (monitor).
-- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@weekley` vs `@weekly` — locus: `IsIntervalAlias` exact match; input: operator typo (monitor).
-- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` with `@hourly` alias throws on `AddHours` — locus: alias branch; input: MinValue reference (monitor).
-- [ ] (candidate) `ComputeNextRunsUtc` — large preview count with invalid cron after first null break — locus: batch loop; input: stub two-step null (monitor recycle).
 
 2026-11-01 thorough hunt (dry #935): cheap-disproof closed five open `(candidate)` rows from seed hunt #934; runtime probe shows `@hourly` at `DateTime.MaxValue` throws `ArgumentOutOfRangeException` but no reachable recurrence caller supplies that reference; retry cursor uses `candidate` by design (`ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`); interior vertical tab parses identically to spaced `"0 8 * * 1"`; partial batch on null is intentional stub/API contract (`ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`); six-field cron rejected consistently while `@monthly`/`@yearly` use Cronos aliases not seconds fields; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (Release, `RunAnalyzers=false`). Private beta: n/a.
 
@@ -2966,7 +2984,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 38
+- **hunts:** 39
 - **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
@@ -2976,11 +2994,19 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
+
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@monthly` / `@yearly` at `DateTime.MaxValue` — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#936**.
+- [x] (invalid) `IsSupportedCronExpression` — interior thin space U+2009 — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#936**.
+- [x] (invalid) `IsSupportedCronExpression` — `@weekley` typo — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#936**.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@hourly` at `DateTime.MinValue` — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#936**.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — batch null break with large count — **cheap-disproof 2026-11-01 thorough hunt #39:** see zone hunt note; dry **#935**.
+
+2026-11-01 thorough hunt (dry #39): cheap-disproof closed five monitor `(candidate)` rows reseeded after dry **#936**; **54/54** scoped tests (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
@@ -18585,6 +18611,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-11-01 thorough hunt (dry #53): cheap-disproof closed five open `(candidate)` monitor rows from dry **#934** reseed — interior double-space in pack `Name` misses seeded overlay catalog `Contains` by design (`ResolveAsync_classifies_seeded_azure_waf_display_name_as_platform_overlay`, `ResolveAsync_treats_lowercase_overlay_pack_name_as_additional_optional_coverage`, dry **#217**); pre-commit warn-only compares configured labels to the **effective minimum threshold** severity name, not each finding’s severity (`PreCommitGateEvaluator` ~76–77; parity dry **#934** `Evaluate_warn_only_when_warn_only_severities_use_lowercase_critical_label`); empty-string vs null `ExclusionReason` is intentional execute/finalize hash parity (same class as whitespace-only drift — `CoverageAssignmentsMatch_treats_whitespace_exclusion_reason_as_distinct_from_null`); `Generating` + unmuted pack signal uses the same incomplete-snapshot branch as `PartiallyComplete` (`PolicyPackAssignmentOutcomeRecorder` ~61–66; regression `ApplyOutcomes_marks_evaluated_when_partially_complete_with_unmuted_pack_signal`); run `CurrentManifestVersion` padding routes preview to `GetByVersionAsync` when it differs from trimmed request (`PreviewActivationAsync_loads_manifest_by_version_when_run_current_manifest_version_has_trailing_newline`, dry **#933** / **#219**). Reseeded five follow-on `(candidate)` rows; focused regressions **31/31** Application + **18/18** `GovernancePreviewServiceTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — interior double-space in pack display name prevents overlay catalog match — **cheap-disproof 2026-11-01 thorough hunt #53:** ordinal catalog names; regressions above; dry **#934**.
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — warn-only array matches effective blocking severity label only, not per-finding severity mix when minimum threshold below Critical — **cheap-disproof 2026-11-01 thorough hunt #53:** threshold label contract; regressions above; dry **#934**.
+- [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — empty-string `ExclusionReason` vs null treated as drift — **cheap-disproof 2026-11-01 thorough hunt #53:** intentional hash parity; regression above; dry **#934**.
+- [x] (valid-no-repro) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — `Generating` snapshot with unmuted pack signal marks `Evaluated` same as `PartiallyComplete` — **cheap-disproof 2026-11-01 thorough hunt #53:** shared incomplete branch; regression above; dry **#934**.
+- [x] (invalid) `GovernancePreviewService.PreviewActivationAsync` — run `CurrentManifestVersion` with leading/trailing whitespace differs from trimmed request still routes to `GetByVersionAsync` — **cheap-disproof 2026-11-01 thorough hunt #53:** stale-embedded avoidance; regressions above; dry **#933**.
+
+- [ ] (candidate) `PreCommitGateEvaluator.Evaluate` — warn-only severity list keyed to effective threshold label, not per-finding severity names — locus: ~76–77; input: `Error` finding with `warnOnlySeverities=["Error"]` and `blockCommitMinimumSeverity=Medium` (monitor dry **#53**).
+- [ ] (candidate) `PolicyPackCoverageProofEvaluator.Evaluate` — `EvaluationOutcome=Skipped` remains in unproven count — locus: proof contract; input: skipped assignment without findings (monitor dry **#933**).
+- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — run `CurrentManifestVersion` trailing newline vs trimmed request — locus: version reader path; input: `"v1\n"` on run row (monitor dry **#219**).
+- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — user-renamed lowercase overlay display name — locus: catalog `Contains`; input: `"azure waf"` vs seeded `"Azure WAF"` (monitor dry **#217**).
+- [ ] (candidate) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — `EvaluationVersion` omitted from drift hash — locus: hash contract; input: execute vs finalize version bump (monitor dry **#219**).
+
 2026-11-01 thorough hunt (dry #934): cheap-disproof closed five open `(candidate)` rows from dry **#933** — **invalid** `IsWarnOnlySeverity` ordinal casing (`StringComparison.OrdinalIgnoreCase` at ~103; regression `Evaluate_warn_only_when_warn_only_severities_use_lowercase_critical_label`); **valid-no-repro** `PartiallyComplete` + unmuted pack signal → `Evaluated` (intentional incomplete-snapshot branch; regression `ApplyOutcomes_marks_evaluated_when_partially_complete_with_unmuted_pack_signal`; parity dry **#933**); **invalid** preview request trailing space on `ManifestVersion` (`request.ManifestVersion.Trim()` before compare ~55–63; embedded manifest when trimmed request matches run current is correct — same class as `PreviewActivationAsync_WhenManifestVersionHasOuterPadding_TrimsBeforeLookup`); **valid-no-repro** `ExclusionReason` whitespace-only vs `null` drift in `HashCoverageAssignments` (intentional strict execute/finalize parity; regression `CoverageAssignmentsMatch_treats_whitespace_exclusion_reason_as_distinct_from_null`); **valid-no-repro** `NotApplicable` recorded outcome counts as proven (`HasRecordedEvaluationOutcome` contract from dry **#933**; regression `Evaluate_treats_not_applicable_outcome_as_proven_without_findings`); reseeded five follow-on `(candidate)` rows; scoped filter **854/863** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
 
 - [x] (invalid) `PreCommitGateEvaluator.Evaluate` — `IsWarnOnlySeverity` compares severity labels with ordinal casing while findings emit mixed-case `Severity` strings — **cheap-disproof 2026-11-01 thorough hunt #934:** `OrdinalIgnoreCase`; regression `Evaluate_warn_only_when_warn_only_severities_use_lowercase_critical_label`.
@@ -18592,12 +18632,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `GovernancePreviewService.PreviewActivationAsync` — run `CurrentManifestVersion` with trailing ASCII space on request (not run field) still loads embedded manifest — **cheap-disproof 2026-11-01 thorough hunt #934:** request trim + match to run current; not a defect.
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — `ExclusionReason` whitespace-only drift between execute and finalize rows — **cheap-disproof 2026-11-01 thorough hunt #934:** intentional hash parity; regression above.
 - [x] (valid-no-repro) `PolicyPackCoverageProofEvaluator.Evaluate` — `NotApplicable` recorded outcome treated as proven without findings — **cheap-disproof 2026-11-01 thorough hunt #934:** intentional; regression `Evaluate_treats_not_applicable_outcome_as_proven_without_findings`.
-
-- [ ] (candidate) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — interior double-space in pack display name prevents overlay catalog match — locus: ordinal catalog lookup; input: assignment name `"Azure  WAF"`; reachability: execute coverage `CoverageType` misclassification vs operator intent.
-- [ ] (candidate) `PreCommitGateEvaluator.Evaluate` — warn-only array matches effective blocking severity label only, not per-finding severity mix when minimum threshold below Critical — locus: ~76–77; input: warn-only `Error` with `blockCommitMinimumSeverity=Medium`; reachability: gate copy vs per-finding severity (monitor).
-- [ ] (candidate) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — empty-string `ExclusionReason` vs null treated as drift — locus: ~213; input: `""` vs `null` on otherwise identical rows; reachability: finalize drift after execute capture.
-- [ ] (candidate) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — `Generating` snapshot with unmuted pack signal marks `Evaluated` same as `PartiallyComplete` — locus: ~61–66; input: mid-orchestration refresh; reachability: outcome recorder vs coverage proof timing.
-- [ ] (candidate) `GovernancePreviewService.PreviewActivationAsync` — run `CurrentManifestVersion` with leading/trailing whitespace differs from trimmed request still routes to `GetByVersionAsync` — locus: ~62–65; input: run field `" v1"` vs request `"v1"`; reachability: stale embedded manifest avoidance (recycle **#933** / **#219** class).
 
 2026-11-01 thorough hunt (dry #933): cheap-disproof closed five open `(candidate)` rows from thorough dry **#219** (`PolicyPackCoverageProofEvaluator` counts `Skipped` outcomes as unproven by contract — regression `Evaluate_counts_skipped_outcome_as_unproven`; `HasRecordedEvaluationOutcome` honors Evaluated/Failed/NotApplicable only); leading ASCII space on run `CurrentManifestVersion` routes preview to `GetByVersionAsync` like trailing newline **#219** — candidate mis-stated embedded-manifest path (`PreviewActivationAsync_loads_manifest_by_version_when_run_current_manifest_version_has_trailing_newline` class); `HashCoverageAssignments` serializes persisted `QualityDimension.*.ToString()` consistently — no execute/finalize casing drift on typed enum strings; `WaiverExpiryNotificationBoundary.ResolveDaysRemaining` truncates to UTC calendar days by design — regression `ResolveDaysRemaining_ignores_time_of_day_so_repeat_passes_agree`; `PolicyPackAssignmentOutcomeRecorder` treats `PartiallyComplete` like other incomplete snapshots for muted-only matches — parity with `Generating` and ledger **#18296** (`ApplyOutcomes_ignores_muted_findings_when_snapshot_is_incomplete`)); reseeded five follow-on `(candidate)` rows; scoped filter **850/859** Application PolicyPack/Governance (`RunAnalyzers=false`, 9 pre-existing unrelated VM failures). Private beta: n/a.
 
@@ -18689,15 +18723,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 38
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — bulk simulate treated NFC vs NFD opaque run ids as distinct keys
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `EffectiveGovernanceSnapshotBuilder.ResolveCoverageType` — interior double-space overlay catalog match — **cheap-disproof 2026-11-01 thorough hunt #53:** see zone hunt note; dry **#934**.
+- [x] (valid-no-repro) `PreCommitGateEvaluator.Evaluate` — warn-only vs effective threshold label — **cheap-disproof 2026-11-01 thorough hunt #53:** see zone hunt note; dry **#934**.
+- [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator.HashCoverageAssignments` — empty-string `ExclusionReason` vs null — **cheap-disproof 2026-11-01 thorough hunt #53:** see zone hunt note; dry **#934**.
+- [x] (valid-no-repro) `PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes` — `Generating` vs `PartiallyComplete` evaluated branch — **cheap-disproof 2026-11-01 thorough hunt #53:** see zone hunt note; dry **#934**.
+- [x] (invalid) `GovernancePreviewService.PreviewActivationAsync` — padded run `CurrentManifestVersion` — **cheap-disproof 2026-11-01 thorough hunt #53:** see zone hunt note; dry **#933**.
+
+2026-11-01 thorough hunt (dry #53): cheap-disproof closed five monitor `(candidate)` rows reseeded after dry **#934**; focused regressions **49/49** (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `Distinct(StringComparer.OrdinalIgnoreCase)` on trimmed run id strings treats dashed vs canonical-N GUID as two bulk slots — **hit 2026-10-31 thorough hunt #211:** see hunt #211 diary.
 - [x] (valid-no-repro) `PolicyPackGovernanceDryRunService.EvaluateAsync` — non-GUID `targetRunId` returns null at `Guid.TryParse` without opaque-id normalization path — **cheap-disproof 2026-10-31 thorough hunt #211:** see hunt #211 diary.
