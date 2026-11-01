@@ -50,7 +50,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         const int maxPercentDecodePasses = 8;
 
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%'); pass++)
         {
             string decoded = Uri.UnescapeDataString(working);
 
