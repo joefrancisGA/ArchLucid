@@ -2548,6 +2548,75 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
+  it("keeps the applied neighborhood seed when an unrelated URL patch round-trips through the router", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+
+    routerReplaceMock.mockImplementation((href: string) => {
+      const queryStart = href.indexOf("?");
+      searchParams = new URLSearchParams(queryStart >= 0 ? href.slice(queryStart + 1) : "");
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotId,
+        expect.objectContaining({ mode: "dependencyNeighborhood", seedNodeId: seedArm }),
+      );
+    });
+
+    fetchInfraEvidenceMermaidRenderMock.mockClear();
+
+    fireEvent.click(screen.getByTestId("infra-diagrams-show-private-endpoints"));
+
+    await waitFor(() => {
+      expect(searchParams.get("includePrivateEndpoints")).toBe("1");
+      expect(searchParams.get("seedNodeId")).toBe(seedArm);
+    });
+
+    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotId,
+        expect.objectContaining({ mode: "dependencyNeighborhood", seedNodeId: seedArm }),
+      );
+    });
+  });
+
+  it("keeps the applied neighborhood seed when the automatic subscription filter patch round-trips", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+
+    routerReplaceMock.mockImplementation((href: string) => {
+      const queryStart = href.indexOf("?");
+      searchParams = new URLSearchParams(queryStart >= 0 ? href.slice(queryStart + 1) : "");
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(searchParams.get("diagramSubscription")).toBe("sub-1");
+    });
+
+    expect(searchParams.get("seedNodeId")).toBe(seedArm);
+    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotId,
+        expect.objectContaining({ mode: "dependencyNeighborhood", seedNodeId: seedArm }),
+      );
+    });
+  });
+
   it("drops stale in-flight render when URL snapshot id changes before the prior request completes", async () => {
     const snapshotA = "11111111-1111-1111-1111-111111111111";
     const snapshotB = "22222222-2222-2222-2222-222222222222";
@@ -2745,7 +2814,7 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
-  it("drops stale dependency neighborhood render when seed clears before the prior request completes", async () => {
+  it("keeps the applied neighborhood render when a same-snapshot URL patch omits the seed", async () => {
     const snapshotId = "11111111-1111-1111-1111-111111111111";
     const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
     let resolveSlowNeighborhood: (() => void) | undefined;
@@ -2806,11 +2875,14 @@ describe("DiagramsWorkbenchClient", () => {
       );
     });
 
+    // A URL that drops seedNodeId without a snapshot change is a transient
+    // omission (display-option or subscription patches rebuild the query
+    // string), so the applied seed and its in-flight render are preserved.
     searchParams = new URLSearchParams(`snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`);
     rerender(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue("");
+      expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
     });
 
     await act(async () => {
@@ -2818,10 +2890,11 @@ describe("DiagramsWorkbenchClient", () => {
       await Promise.resolve();
     });
 
-    const viewer = screen.queryByTestId("architecture-diagram-viewer-mock");
-    const mermaid = viewer?.getAttribute("data-mermaid") ?? "";
+    await waitFor(() => {
+      const mermaid = screen.getByTestId("architecture-diagram-viewer-mock").getAttribute("data-mermaid") ?? "";
+      expect(mermaid).toContain("stale-neighborhood-seed-marker");
+    });
 
-    expect(mermaid).not.toContain("stale-neighborhood-seed-marker");
-    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue("");
+    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
   });
 });
