@@ -218,4 +218,28 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(namespaceId));
         row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(eventHubId));
     }
+
+    [Fact]
+    public void TryExtractEventHub_does_not_throw_when_ids_contain_malformed_percent_sequences()
+    {
+        const string malformedNamespaceId = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2";
+        const string malformedChildId = malformedNamespaceId + "%2Fproviders%2FMicrosoft.EventHub%2Fnamespaces%2Fns%2Feventhubs%2Forders%";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": "{{malformedChildId}}",
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
+            malformedNamespaceId,
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row.Should().NotBeNull();
+        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(Uri.UnescapeDataString(malformedNamespaceId)));
+        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(Uri.UnescapeDataString(malformedChildId)));
+    }
 }
