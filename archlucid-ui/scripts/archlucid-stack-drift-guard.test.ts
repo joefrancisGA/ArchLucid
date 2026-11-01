@@ -27,11 +27,22 @@ describe("archlucid stack answers drift guard (TB-654)", () => {
     expect(doc).toContain("archlucid.stack");
   });
 
-  it("wires stack commands in ArchLucid.Cli Program.cs", () => {
+  it("wires stack init/diff/doctor through the CLI command registry", () => {
     const program = readRepoFile("ArchLucid.Cli/Program.cs");
+    const registry = readRepoFile("ArchLucid.Cli/CommandRegistry.cs");
+    const scaffold = readRepoFile("ArchLucid.Cli/CommandRegistry.Scaffold.cs");
+    const handlers = readRepoFile("ArchLucid.Cli/CliCommandHandlers.Misc.cs");
 
-    expect(program).toContain('case "stack"');
-    expect(program).toContain("StackInitCommand");
-    expect(program).toContain("StackDiffCommand");
+    // The CLI now uses CommandRegistry instead of a Program.cs switch.
+    // Guard every hop in the actual dispatch chain, not a stale switch.
+    expect(program).toContain("CommandRegistry.Default.DispatchAsync(normalized)");
+    expect(registry).toContain("registry.RegisterScaffoldCommands();");
+    expect(scaffold).toMatch(/new CommandDescriptor\(\s*"stack",[\s\S]*?\),\s*CliCommandHandlers\.HandleStack\)/);
+    expect(handlers).toContain('string.Equals(normalized[1], "init", StringComparison.Ordinal)');
+    expect(handlers).toContain('string.Equals(normalized[1], "diff", StringComparison.Ordinal)');
+    expect(handlers).toContain('string.Equals(normalized[1], "doctor", StringComparison.Ordinal)');
+    expect(handlers).toContain("StackInitCommand.RunAsync");
+    expect(handlers).toContain("StackDiffCommand.RunAsync");
+    expect(handlers).toContain("StackDoctorCommand.RunAsync");
   });
 });

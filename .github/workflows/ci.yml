@@ -2673,6 +2673,19 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
+    # RC41 diagnostic exception: the OpenAPI snapshot remains a separate hard gate,
+    # but contract mismatch must not suppress independent .NET/SQL test evidence.
+    # All other refs retain the existing OpenAPI-success prerequisite.
+    if: >-
+      ${{
+        !cancelled()
+        && needs.gitleaks.result == 'success'
+        && needs.ci-path-lanes.result == 'success'
+        && needs.terraform-validate-private.result == 'success'
+        && needs.terraform-validate-public-stacks.result == 'success'
+        && needs.guards-pre-corset.result == 'success'
+        && (github.ref == 'refs/heads/RC41' || needs.openapi-contract-snapshot.result == 'success')
+      }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:

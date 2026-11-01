@@ -36,6 +36,29 @@ class Rc41CiWiringTests(unittest.TestCase):
         ]
         self.assertEqual(cohorts, list(range(1, 65)))
 
+    def test_rc41_diagnostics_do_not_hide_openapi_failure(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+
+        def job_block(job_name: str) -> str:
+            match = re.search(rf"(?m)^  {re.escape(job_name)}:\s*$", workflow)
+            self.assertIsNotNone(match)
+            return re.split(r"(?m)^  [a-z][a-z0-9-]*:\s*$", workflow[match.end():], maxsplit=1)[0]
+
+        snapshot = job_block("openapi-contract-snapshot")
+        build = job_block("dotnet-fast-core-build")
+        # This is additional diagnostic execution, not an OpenAPI gate bypass.
+        self.assertNotIn("continue-on-error:", snapshot)
+        self.assertIn("bash scripts/ci/check_openapi_contract_snapshot.sh", snapshot)
+        self.assertIn("- openapi-contract-snapshot", build)
+        self.assertIn("!cancelled()", build)
+        self.assertIn("github.ref == 'refs/heads/RC41'", build)
+        self.assertIn("needs.openapi-contract-snapshot.result == 'success'", build)
+        for prerequisite in ("gitleaks", "ci-path-lanes", "terraform-validate-private",
+                             "terraform-validate-public-stacks", "guards-pre-corset"):
+            self.assertIn(f"needs.{prerequisite}.result == 'success'", build)
+        self.assertIn("bash scripts/ci/run_dotnet_fast_core_build.sh", build)
+
+
 
 if __name__ == "__main__":
     unittest.main()
