@@ -3140,6 +3140,22 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveInspectTreatment_ignores_boolean_json_treatment_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"treatment":true}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectSemanticSupportBand_ignores_decimal_string_band_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"semanticSupportBand":"2.0"}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand(null, typed).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeFindingId_preserves_trailing_format_character()
     {
         FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");
