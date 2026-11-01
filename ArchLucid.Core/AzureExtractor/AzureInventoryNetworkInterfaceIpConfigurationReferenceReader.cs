@@ -62,6 +62,14 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             working = decoded;
         }
 
+        // Only normalize strings that resemble an ARM resource id.
+        // If this is not an ARM id, keep the original (decoded) value to preserve tolerance.
+        if (!working.StartsWith('/', StringComparison.Ordinal) ||
+            working.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase) < 0)
+        {
+            return working;
+        }
+
         return ArmResourceIdNormalizer.Normalize(working);
     }
 
