@@ -838,6 +838,48 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_materializes_wallet_row_without_prior_get()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = false,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "first wallet settings PUT must not require a prior GET when the tenant row is not materialized yet");
+        updated!.MonthlyCapUsd.Should().Be(100m);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_allows_monthly_cap_at_catalog_max_step_boundary()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = LlmTenantWalletDefaults.MaxMonthlyAutoReplenishCapUsd,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.MonthlyCapUsd.Should().Be(LlmTenantWalletDefaults.MaxMonthlyAutoReplenishCapUsd);
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_returns_false_when_monthly_cap_would_be_exceeded()
     {
         InMemoryLlmTenantWalletRepository repository = new();
