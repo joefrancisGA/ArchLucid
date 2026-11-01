@@ -93,6 +93,7 @@ public sealed class CostConstraintFindingEngineTests
         payload.BudgetName.Should().Be("Prod");
         payload.MaxMonthlyCost.Should().Be(5000m);
         payload.CostRisk.Should().Be("high");
+        f.ProjectedImpactUsd.Should().Be(5000m, "constraint findings surface declared cap on headline impact; bounds live on payload");
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
         f.Trace.RulesApplied.Should().Contain("cost-constraint-surface");
         f.Trace.Notes.Should().Contain(n => n.Contains("Budget cap:", StringComparison.Ordinal));
