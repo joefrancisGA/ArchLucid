@@ -345,6 +345,11 @@ internal static class TenantScopedSqlExpressionResolver
         if (fromPrimaryConstructor is not null)
             return fromPrimaryConstructor;
 
+        ResolutionResult? fromLocalFunctionParameter = TryResolveFromLocalFunctionParameterCallSites(symbol, semanticModel);
+
+        if (fromLocalFunctionParameter is not null)
+            return fromLocalFunctionParameter;
+
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
              string.Equals(member.Name.Identifier.Text, "RunChildScopeWhereClause", StringComparison.Ordinal)) &&
@@ -409,21 +414,136 @@ internal static class TenantScopedSqlExpressionResolver
             if (parameterList is null)
                 continue;
 
-            foreach (ParameterSyntax parameter in parameterList.Parameters)
+            for (int parameterIndex = 0; parameterIndex < parameterList.Parameters.Count; parameterIndex++)
             {
+                ParameterSyntax parameter = parameterList.Parameters[parameterIndex];
+
                 if (!string.Equals(parameter.Identifier.Text, property.Name, StringComparison.Ordinal))
                     continue;
 
-                if (parameter.Default?.Value is not ExpressionSyntax defaultExpression)
-                    return null;
+                if (parameter.Default?.Value is ExpressionSyntax defaultExpression)
+                {
+                    SemanticModel modelForSyntax = GetSemanticModelForSyntax(parameter, semanticModel);
 
-                SemanticModel modelForSyntax = GetSemanticModelForSyntax(parameter, semanticModel);
+                    return ResolveCore(defaultExpression, modelForSyntax, visitingInterpolatedHole: false);
+                }
 
-                return ResolveCore(defaultExpression, modelForSyntax, visitingInterpolatedHole: false);
+                ResolutionResult? fromThisInitializer = TryResolveFromRecordThisConstructorArgument(
+                    recordDeclaration,
+                    parameterIndex,
+                    semanticModel);
+
+                if (fromThisInitializer is not null)
+                    return fromThisInitializer;
+
+                return null;
             }
         }
 
         return null;
+    }
+
+    private static ResolutionResult? TryResolveFromRecordThisConstructorArgument(
+        RecordDeclarationSyntax recordDeclaration,
+        int parameterIndex,
+        SemanticModel semanticModel)
+    {
+        foreach (MemberDeclarationSyntax member in recordDeclaration.Members)
+        {
+            if (member is not ConstructorDeclarationSyntax constructorDeclaration)
+                continue;
+
+            if (constructorDeclaration.Initializer is not ConstructorInitializerSyntax initializer ||
+                !initializer.IsKind(SyntaxKind.ThisConstructorInitializer))
+            {
+                continue;
+            }
+
+            SeparatedSyntaxList<ArgumentSyntax> arguments = initializer.ArgumentList!.Arguments;
+
+            if (parameterIndex >= arguments.Count)
+                continue;
+
+            ExpressionSyntax argumentExpression = arguments[parameterIndex].Expression;
+            SemanticModel modelForSyntax = GetSemanticModelForSyntax(argumentExpression, semanticModel);
+
+            return ResolveCore(argumentExpression, modelForSyntax, visitingInterpolatedHole: false);
+        }
+
+        return null;
+    }
+
+    private static ResolutionResult? TryResolveFromLocalFunctionParameterCallSites(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not IParameterSymbol parameter)
+            return null;
+
+        SyntaxReference? syntaxReference = parameter.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not ParameterSyntax parameterSyntax)
+            return null;
+
+        LocalFunctionStatementSyntax? localFunction = parameterSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (localFunction is null)
+            return null;
+
+        int parameterIndex = localFunction.ParameterList.Parameters.IndexOf(
+            candidate => string.Equals(candidate.Identifier.Text, parameter.Name, StringComparison.Ordinal));
+
+        if (parameterIndex < 0)
+            return null;
+
+        BlockSyntax? enclosingBlock = localFunction.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (enclosingBlock is null)
+            return null;
+
+        SemanticModel modelForBlock = GetSemanticModelForSyntax(enclosingBlock, semanticModel);
+
+        if (semanticModel.GetDeclaredSymbol(localFunction) is not IMethodSymbol localFunctionSymbol)
+            return null;
+
+        string? resolvedSql = null;
+        int matchingCallSiteCount = 0;
+
+        foreach (InvocationExpressionSyntax invocation in enclosingBlock.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (!SymbolEqualityComparer.Default.Equals(
+                    semanticModel.GetSymbolInfo(invocation).Symbol,
+                    localFunctionSymbol))
+            {
+                continue;
+            }
+
+            if (parameterIndex >= invocation.ArgumentList!.Arguments.Count)
+                continue;
+
+            ExpressionSyntax argumentExpression = invocation.ArgumentList.Arguments[parameterIndex].Expression;
+            ResolutionResult argumentResolution = ResolveCore(
+                argumentExpression,
+                modelForBlock,
+                visitingInterpolatedHole: false);
+
+            if (!argumentResolution.IsStaticallyResolved || argumentResolution.SqlText is null)
+                return null;
+
+            if (resolvedSql is not null &&
+                !string.Equals(resolvedSql, argumentResolution.SqlText, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            resolvedSql = argumentResolution.SqlText;
+            matchingCallSiteCount++;
+        }
+
+        if (matchingCallSiteCount == 0 || resolvedSql is null)
+            return null;
+
+        return new ResolutionResult(resolvedSql, true, false);
     }
 
     /// <summary>
