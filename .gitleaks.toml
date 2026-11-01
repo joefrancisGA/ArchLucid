@@ -180,17 +180,32 @@ paths = [
   '''(?:^|/)scripts/collect-first-pilot-proof\.ps1$''',
 ]
 
-# Scoped to the specific historical generic-api-key false positive: prose "PKCE storage-key
-# isolation, primary/supplemental authorize redirect cleanup" (ledger 3, historical commit
-# 65b95208b96b66d7d396d383374b1ac244242f82). Both the ledger path and the exact non-secret
-# identifier must match, so real tokens/keys added to the ledgers are still scanned.
+
+# Historical-blob exemptions only: gitleaks scans full git history (ci.yml fetch-depth: 0) and
+# flagged two retired ledger phrases that were since rewritten at HEAD. Each entry is rule-scoped
+# (AND-matched: ledger path AND the exact non-secret literal), so every other rule and every other
+# finding keeps scanning all current and future ledger content.
 [[allowlists]]
-description = "Bug hunt ledger 3: OIDC zone diary prose 'primary/supplemental' (PKCE storage-key isolation); generic-api-key false positive in git history"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+description = "AL_BUG_HUNT_LEDGER_3 historical blob: `PKCE storage-key isolation, primary/supplemental` seed-hunt prose (PKCE storage-key is a browser storage slot name, `primary/supplemental` a flow pair — not a credential); generic-api-key false positive on the `storage-key ... primary/supplemental` shape, rewritten at HEAD"
 paths = [
   '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_[0-9]+\.md$''',
 ]
 regexes = [
-  '''primary/supplemental''',
+  '''storage-key isolation, primary/supplemental''',
+]
+
+[[allowlists]]
+targetRules = ["github-pat"]
+condition = "AND"
+description = "AL_BUG_HUNT_LEDGER_4 historical blob: synthetic `ghp_` + alphabet-digits example input in a credential-detector candidate row (documentation placeholder, not a real PAT — never reuse); github-pat false positive, rewritten at HEAD"
+paths = [
+  '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_[0-9]+\.md$''',
+]
+regexes = [
+  '''ghp_abcdefghijklmnopqrstuvwxyz1234567890''',
 ]
 
 [[allowlists]]
