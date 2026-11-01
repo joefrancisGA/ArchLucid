@@ -41,6 +41,7 @@ SN-CE-01 names the path. The model still needs the stored rows, and only those r
 5. Resolve the path with `TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), pathId)`.
    - No path id, `Guid.Empty`, or a null record → return the bundle with no citations.
    - `request.SnapshotId` has a value and it differs from `path.SnapshotId` → return the bundle with no citations.
+   - After resolving an in-scope path and validating any supplied snapshot id, enforce `InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync` on `path.SnapshotId` before emitting evidence, including when `request.SnapshotId` is absent. Reuse the existing guard dependencies and preserve propagation of `ConflictException` to the existing 409 response.
 6. Load hops with `ListHopsByPathInScopeAsync` and emit them in `HopOrdinal` order.
 7. Load the rank with `TryGetRankInScopeAsync`. Include it only when the record exists and `rank.SnapshotId` equals `path.SnapshotId`. A path with hops and no rank row still has evidence.
 8. Load cut points with `ListByPathIdInScopeAsync`. Keep rows whose `SnapshotId` equals `path.SnapshotId`, in `CutOrder`. `ListByPathIdInScopeAsync` is tenant-scoped by default, so this snapshot filter is required. Do not add a new query.
