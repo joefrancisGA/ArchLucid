@@ -129,6 +129,10 @@ export function coerceRunSummaryPaged(
   }
 
   if (isCursorPagedRunEnvelope(data)) {
+    if (data.requestedTake < 1) {
+      return { ok: false, message: "Paged runs response has invalid requestedTake." };
+    }
+
     if (data.nextCursor !== undefined && data.nextCursor !== null && typeof data.nextCursor !== "string") {
       return { ok: false, message: "Paged runs response has invalid nextCursor." };
     }

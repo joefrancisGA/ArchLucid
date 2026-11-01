@@ -106,6 +106,19 @@ describe("coerceRunSummaryPaged", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("rejects keyset envelope when requestedTake is negative", () => {
+    const result = coerceRunSummaryPaged({
+      items: [{ runId: "r1" }],
+      requestedTake: -5,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("requestedTake");
+    }
+  });
 });
 
 describe("coerceGraphViewModel", () => {

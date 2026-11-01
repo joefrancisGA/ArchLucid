@@ -8973,7 +8973,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 125 · **Bugs found:** 114 · **Consecutive dry hunts:** 0
+**Hunts:** 126 · **Bugs found:** 115 · **Consecutive dry hunts:** 0
+
+2026-11-01 thorough hunt (hit): promoted **negative keyset `requestedTake` accepted as page size** — `coerceRunSummaryPaged` cursor branch treated any finite `requestedTake` as `pageSize`, letting malformed keyset envelopes propagate negative sizes into home runs pagination; reject `requestedTake < 1`; regression `rejects keyset envelope when requestedTake is negative`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 132 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer merge corrupted keyset runs pages with negative `pageSize` into home dashboard pagination metadata.
+
+- [x] (proven) `coerceRunSummaryPaged` — negative finite `requestedTake` accepted as keyset page size — **hit 2026-11-01 thorough hunt:** `requestedTake < 1` guard; regression above.
+- [x] (invalid) `coerceRunSummaryList` — array with `null` element fails with generic zod message — **cheap-disproof 2026-11-01 thorough hunt:** unified missing runId copy is intentional for all row parse failures.
+- [x] (valid-no-repro) `coerceGraphViewModel` — `edges` array containing non-object entries — **cheap-disproof 2026-11-01 thorough hunt:** guard validates array presence only (`malformed vs empty graph`); element shape is downstream graph render concern.
+- [x] (invalid) `coerceReplayResponse` — missing `replayedUtc` falls through to generic object message — **cheap-disproof 2026-11-01 thorough hunt:** manual fallback returns `Replay response is missing runId, mode, or replayedUtc.`
+- [x] (valid-no-repro) `resolveOperatorHomeReviewTotalCount` — positive stale total with zero visible non-archived rows but zero on-page archived count — **cheap-disproof 2026-11-01 thorough hunt:** regression `keeps positive totals when the page is empty but pagination metadata is present`.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope with `requestedTake: 0` still accepted after negative guard — locus: cursor branch; input: `{ requestedTake: 0, hasMore: false, items: [] }`.
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts negative finite `pageSize` — locus: `isLegacyOffsetPagedRunEnvelope`; input: `{ pageSize: -1, totalCount: 0, page: 1, hasMore: false, items: [] }`.
+- [ ] (candidate) `coerceGraphViewModel` — `nodes` array containing non-object entries — locus: `coerceGraphViewModel`; input: `{ nodes: [null], edges: [] }`.
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `artifactId` passes zod string checks — locus: artifact descriptor schema; input: `{ artifactId: "  ", artifactType: "Inventory", name: "n", format: "json", createdUtc: "2020-01-01T00:00:00Z", contentHash: "h" }`.
+- [ ] (candidate) `coerceGoldenManifestComparison` — empty string `baseRunId` / `targetRunId` pass zod min checks — locus: comparison schema; input: `{ baseRunId: "", targetRunId: "b", decisionChanges: [] }`.
 
 2026-11-01 thorough hunt (hit): promoted **whitespace-only `createdUtc` accepted in run detail coercion** — consolidated `nonEmptyTrimmedString` for `runId`, `projectId`, and `createdUtc` in `runDetailSchema` (state-machine-gap consolidation after prior id/projectId trim); regression extends `rejects whitespace-only runId or projectId` with whitespace-only `createdUtc`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 131 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer hydrate review detail when the API returns a blank `createdUtc` string — the envelope fails closed with the same non-empty trim guard as malformed ids.
 
