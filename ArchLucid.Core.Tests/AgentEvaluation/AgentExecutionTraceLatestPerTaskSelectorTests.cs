@@ -1103,6 +1103,23 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_empty_mutable_input_list_gains_trace_after_select_still_returns_empty()
+    {
+        var input = new List<AgentExecutionTrace>();
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select(input);
+
+        input.Add(new AgentExecutionTrace
+        {
+            TraceId = "trace-late",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+        });
+
+        latest.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Select_when_higher_attempt_accepted_wins_over_lower_attempt_warned()
     {
         DateTime olderUtc = new(2026, 12, 5, 19, 0, 0, DateTimeKind.Utc);

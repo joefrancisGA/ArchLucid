@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
@@ -10,6 +11,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
@@ -235,6 +237,131 @@ public sealed class CommitOutputIntegrityServiceTests
 
         ExceptionAssertions<ConflictException> thrown = await act.Should().ThrowAsync<ConflictException>();
         thrown.Which.Message.Should().Contain("invalid for architecture version pin verification");
+        thrown.Which.Message.Should().NotContain("agent output quality gate");
+        qualityResolver.Verify(
+            resolver => resolver.Resolve(It.IsAny<CancellationToken>()),
+            Times.Never);
+        traces.Verify(
+            repository => repository.GetByRunIdAsync(
+                TestScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task EnsurePassOrThrowAsync_skips_trace_repository_when_create_time_pin_fails()
+    {
+        Guid runGuid = Guid.Parse("30303030-3030-3030-3030-303030303030");
+        string runId = runGuid.ToString("N");
+        Guid versionId = Guid.Parse("40404040-4040-4040-4040-404040404040");
+        ArchitectureRequest request = new()
+        {
+            RequestId = Guid.NewGuid().ToString("D"),
+            IntakeTransparencyTrail = new TransparencyTrail(),
+        };
+        byte[] versionHash = ArchitectureVersionContentFingerprint.ComputeArtifactHash(request, knowledgeModel: null);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runId,
+            StructuralExecutionMode = StructuralExecutionMode.Real,
+            GoldenManifestId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IAgentExecutionTraceRepository> traces = new(MockBehavior.Strict);
+
+        Mock<IAgentOutputQualityGateOptionsResolver> qualityResolver = new(MockBehavior.Strict);
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(repository => repository.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runGuid,
+                ArchitectureVersionId = versionId,
+                PinnedArchitectureVersionContentHashSha256 = versionHash,
+            });
+
+        Mock<IRunStageOutcomesRepository> stageOutcomes = new();
+        stageOutcomes
+            .Setup(repository => repository.ListByRunIdAsync(runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SucceededAuthorityStages());
+
+        Mock<IArchitectureVersionRepository> architectureVersions = new();
+        architectureVersions
+            .Setup(repository => repository.GetByIdAsync(TestScope, versionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureVersionRecord
+            {
+                ArchitectureVersionId = versionId,
+                ContentHashSha256 = versionHash,
+            });
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModel = new();
+        knowledgeModel
+            .Setup(access => access.GetForRunAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Contracts.ArchitectureIntelligence.ArchitectureKnowledgeModel?)null);
+
+        Mock<IRunPolicyPackPinService> policyPins = new();
+        policyPins
+            .Setup(service => service.VerifyPinIntegrityOrThrowAsync(
+                It.IsAny<RunRecord>(),
+                TestScope,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ConflictException("Commit blocked: policy pack pin drift."));
+
+        Mock<IRunEvidencePackagePinService> evidencePins = new();
+        evidencePins
+            .Setup(service => service.VerifyPinIntegrityOrThrowAsync(
+                It.IsAny<RunRecord>(),
+                TestScope,
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDraftRequestRepository> drafts = new();
+        drafts
+            .Setup(repository => repository.GetBySpawnedRunIdAsync(
+                TestScope.TenantId,
+                TestScope.WorkspaceId,
+                TestScope.ProjectId,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse?)null);
+
+        Mock<IFinalizeQualityGate> finalizeGate = new(MockBehavior.Strict);
+        Mock<IRunAssumptionAcknowledgementService> assumptionAcks = new(MockBehavior.Strict);
+        Mock<IFindingSemanticSupportBandFinalizeJudge> semanticJudge = new(MockBehavior.Strict);
+
+        CommitOutputIntegrityService sut = new(
+            scopeProvider.Object,
+            traces.Object,
+            qualityResolver.Object,
+            runRepository.Object,
+            stageOutcomes.Object,
+            policyPins.Object,
+            evidencePins.Object,
+            knowledgeModel.Object,
+            drafts.Object,
+            architectureVersions.Object,
+            finalizeGate.Object,
+            assumptionAcks.Object,
+            semanticJudge.Object);
+
+        FindingsSnapshot findings = new() { Findings = [], GenerationStatus = FindingsSnapshotGenerationStatus.Complete };
+
+        Func<Task> act = () => sut.EnsurePassOrThrowAsync(
+            run,
+            runId,
+            findings,
+            request,
+            acknowledgedAssumptionIds: null,
+            CancellationToken.None);
+
+        ExceptionAssertions<ConflictException> thrown = await act.Should().ThrowAsync<ConflictException>();
+        thrown.Which.Message.Should().Contain("policy pack pin drift");
         thrown.Which.Message.Should().NotContain("agent output quality gate");
         qualityResolver.Verify(
             resolver => resolver.Resolve(It.IsAny<CancellationToken>()),

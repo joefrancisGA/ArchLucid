@@ -16,7 +16,7 @@ public static class AgentExecutionTraceLatestPerTaskSelector
         ArgumentNullException.ThrowIfNull(traces);
 
         if (traces.Count == 0)
-            return traces;
+            return [];
 
         if (traces.Count == 1)
             return traces[0] is null ? [] : [traces[0]];
