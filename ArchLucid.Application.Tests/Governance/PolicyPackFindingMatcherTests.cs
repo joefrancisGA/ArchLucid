@@ -246,7 +246,7 @@ public sealed class PolicyPackFindingMatcherTests
     }
 
     [Fact]
-    public void MatchesAssignment_treats_outer_whitespace_on_policy_rule_id_as_listed_compliance_key()
+    public void MatchesAssignment_rejects_outer_whitespace_rule_id_that_extends_assigned_key()
     {
         Guid packId = Guid.Parse("44444444-4444-4444-4444-444444444444");
         CommittedGovernancePackAssignmentSnapshot assignment = new()
@@ -256,14 +256,17 @@ public sealed class PolicyPackFindingMatcherTests
             ComplianceRuleKeys = ["cis-azure-1.2"],
         };
 
+        // Outer whitespace, and the key is immediately followed by identifier text so that
+        // after trimming it is neither an exact match nor a wrapper-delimited token. The old
+        // substring Contains on ComplianceRuleKeys still matched the padded, extended id.
         Finding finding = new()
         {
             FindingId = "f-rule-padded",
-            PolicyRuleId = " cis-azure-1.2 ",
+            PolicyRuleId = " cis-azure-1.2x ",
             EngineType = "compliance-engine",
         };
 
-        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue(
-            "execute-time compliance keys must match when PolicyRuleId differs only by outer whitespace");
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "trimmed exact/token matching must not credit a distinct padded rule id that merely contains the assigned key");
     }
 }
