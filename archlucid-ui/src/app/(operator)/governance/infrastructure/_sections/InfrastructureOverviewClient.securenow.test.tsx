@@ -75,6 +75,7 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(sectionTestIds).toEqual([
       "securenow-home-environment-context",
       "securenow-first-hour-home-section",
+      "securenow-first-useful-answer-home-section",
       "securenow-self-service-home-section",
       "securenow-home-work-summary",
       "securenow-return-home-section",
@@ -99,6 +100,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       SECURENOW_POLICY_PACKS_PATH,
     );
+    expect(
+      screen.getByTestId("securenow-compliance-home-link-/administration/securenow-compliance-notes"),
+    ).toHaveAttribute("href", "/administration/securenow-compliance-notes");
     expect(screen.getByTestId("securenow-infrastructure-home-link-/infrastructure/resources")).toHaveAttribute(
       "href",
       "/infrastructure/resources",
@@ -125,8 +129,13 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       screen.getByTestId(`securenow-first-hour-home-link-${SECURENOW_FIRST_HOUR_HOME_ROWS[1]?.href}`),
     ).toHaveAttribute("href", SECURENOW_FIRST_HOUR_HOME_ROWS[1]?.href);
     expect(
-      screen.getByTestId(`securenow-self-service-home-link-${SECURENOW_SELF_SERVICE_OPERATOR_PATH}`),
-    ).toHaveAttribute("href", SECURENOW_SELF_SERVICE_OPERATOR_PATH);
+      screen.getByTestId(
+        "securenow-first-useful-answer-home-link-/administration/securenow-first-hour#first-useful-answer",
+      ),
+    ).toHaveAttribute("href", "/administration/securenow-first-hour#first-useful-answer");
+    expect(
+      screen.getByTestId(`securenow-self-service-home-link-${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection`),
+    ).toHaveAttribute("href", `${SECURENOW_SELF_SERVICE_OPERATOR_PATH}#collection`);
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/teams")).not.toBeInTheDocument();
