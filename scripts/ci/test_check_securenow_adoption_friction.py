@@ -100,6 +100,27 @@ class SecureNowAdoptionFrictionTests(unittest.TestCase):
             errors = validate(root)
             self.assertTrue(any("distinct href values" in error for error in errors))
 
+    def test_commented_out_home_row_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-first-hour-home-copy.ts"
+            text = path.read_text(encoding="utf-8")
+            original_row = (
+                "  {\n"
+                '    href: "/integrations/cloud-connections",\n'
+                '    label: "Scope and freshness",\n'
+                '    summary: "Open cloud connections when Home says no collection yet or the capture needs attention.",\n'
+                "    recommendedFirst: true,\n"
+                "  },"
+            )
+            path.write_text(
+                text.replace(original_row, f"  /*\n{original_row}\n  */"),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("label-to-href assignments" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

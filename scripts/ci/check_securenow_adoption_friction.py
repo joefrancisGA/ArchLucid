@@ -36,6 +36,10 @@ HOME_ROW_PATTERN = re.compile(
     r'\{\s*href:\s*(?P<href>[^,\n]+),\s*label:\s*"(?P<label>[^"]+)"',
     re.MULTILINE,
 )
+HOME_ROWS_ARRAY_PATTERN = re.compile(
+    r"export const SECURENOW_FIRST_HOUR_HOME_ROWS[^=]*=\s*\[",
+    re.MULTILINE,
+)
 
 
 def _read(root: Path, relative: Path, errors: list[str]) -> str:
@@ -45,15 +49,64 @@ def _read(root: Path, relative: Path, errors: list[str]) -> str:
         return ""
     return path.read_text(encoding="utf-8")
 
+def _home_rows_initializer(text: str) -> str:
+    """Return the bracket-balanced body of the SECURENOW_FIRST_HOUR_HOME_ROWS array."""
+    array_match = HOME_ROWS_ARRAY_PATTERN.search(text)
+    if array_match is None:
+        return ""
+    depth = 1
+    index = array_match.end()
+    while index < len(text) and depth > 0:
+        char = text[index]
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+        index += 1
+    return text[array_match.end() : index - 1]
+
+
+def _strip_comments(text: str) -> str:
+    """Remove // and /* */ comments while preserving string literal contents."""
+    pieces: list[str] = []
+    index = 0
+    while index < len(text):
+        char = text[index]
+        following = text[index + 1] if index + 1 < len(text) else ""
+        if char == "/" and following == "/":
+            newline = text.find("\n", index)
+            index = len(text) if newline == -1 else newline
+        elif char == "/" and following == "*":
+            end = text.find("*/", index + 2)
+            index = len(text) if end == -1 else end + 2
+        else:
+            pieces.append(char)
+            if char in "\"`":
+                quote = char
+                index += 1
+                while index < len(text) and text[index] != quote:
+                    pieces.append(text[index])
+                    if text[index] == "\\" and index + 1 < len(text):
+                        pieces.append(text[index + 1])
+                        index += 2
+                    else:
+                        index += 1
+                if index < len(text):
+                    pieces.append(text[index])
+            index += 1
+    return "".join(pieces)
+
+
 def _parse_home_rows(text: str) -> list[tuple[str, str]]:
     operator_path_match = re.search(
         r'export const SECURENOW_FIRST_HOUR_OPERATOR_PATH = "([^"]+)"',
-        text,
+        _strip_comments(text),
     )
     operator_path = operator_path_match.group(1) if operator_path_match else None
     rows: list[tuple[str, str]] = []
 
-    for match in HOME_ROW_PATTERN.finditer(text):
+    initializer = _strip_comments(_home_rows_initializer(text))
+    for match in HOME_ROW_PATTERN.finditer(initializer):
         href_expression = match.group("href").strip()
         if href_expression.startswith('"') and href_expression.endswith('"'):
             href = href_expression[1:-1]
