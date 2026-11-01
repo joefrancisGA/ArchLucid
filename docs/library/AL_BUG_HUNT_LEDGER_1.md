@@ -19461,6 +19461,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: agent-runtime-evaluation
 
+2026-11-01 thorough hunt (hunt 66, hit): no rotation (`shouldRotate: false`). Promoted `AgentOutputTraceFaithfulnessEvaluator.ApplyAgentResultEvidenceFaithfulness` accepting PilotStrict traces when `AgentResultFaithfulnessSupportRatio` was NaN or Infinity because `< floor` comparisons are false for non-finite values; evaluator now rejects non-finite support ratios before the floor check; `AgentOutputTraceRejectionSummaryBuilder` emits `agent_result_faithfulness_below_floor` for non-finite ratios; regression `TryEvaluateTrace_pilot_strict_non_finite_faithfulness_support_ratio_rejects`. Cheap-disproof closed five `(candidate)` rows — **valid-no-repro** citation-only reject with null `evaluationReason` maps to semantic via `ClassifyThresholdFailure` (hunt 22 family); **invalid** missing `findings` skips LP-04 by contract (hunt 58); **valid-no-repro** empty `findings: []` sets `0.0` coverage (intentional LP-04); **valid-no-repro** summary omits `pilot_semantic_score_below_floor` for NaN published semantic while gate rejects via `quality_gate_threshold_reject` (hunt 64); **valid-no-repro** `FindingConfidenceCalculator` adds reference points even when `schemaPassed` false by additive contract (TB-053). Reseeded five `(candidate)` rows; scoped filter **243/243** passed (`RunAnalyzers=false`). Private beta: Working Real PilotStrict runs with corrupt non-finite agent-result faithfulness ratios can no longer pass trace evaluation and reach commit-eligible status.
+
+- [x] (proven) `AgentOutputTraceFaithfulnessEvaluator.ApplyAgentResultEvidenceFaithfulness` — non-finite `AgentResultFaithfulnessSupportRatio` bypasses PilotStrict faithfulness floor — **hit 2026-11-01 thorough hunt (hunt 66):** reject non-finite support ratio before floor; regression above.
+- [x] (valid-no-repro) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict citation reject with null evaluationReason — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** null reason falls through to semantic category; citation token path covered hunt 22.
+- [x] (invalid) `AgentOutputTraceFindingCitationCoverageApplicator` — Real task without `findings` skips LP-04 — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** hunt 58 intentional unevaluated ratio.
+- [x] (valid-no-repro) `AgentOutputTraceFindingCitationCoverageApplicator` — empty findings array vs unset ratio — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** empty array sets `0.0`; missing key leaves null by contract.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — pilot semantic floor ignores non-finite published semantic — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** gate rejects first; summary still adds `quality_gate_threshold_reject`.
+- [x] (valid-no-repro) `FindingConfidenceCalculator.Calculate` — high trace completeness with schemaPassed false — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** additive scoring; schema flag adds 0 points when false.
+
+- [ ] (candidate) `AgentOutputQualityGate.ClassifyThresholdFailure` — PilotStrict citation-only reject with null reason — locus: telemetry category; input: passing published floors with sub-floor citation ratio (monitor).
+- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — non-finite published semantic omits `pilot_semantic_score_below_floor` — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor).
+- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — calibrated confidence in warn band with high published semantic — locus: warn ladder; input: calibrated between warn and reject floors (monitor).
+- [ ] (candidate) `AgentOutputTraceFaithfulnessEvaluator.ApplyLlmFaithfulnessPhaseBEnforcement` — non-finite LLM faithfulness score skipped — locus: Phase B floors; input: NaN `LlmFaithfulnessScore` with EnforcePhaseB (monitor).
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.ComputeFindingConfidence` — referenceMatched true with schemaPassed false — locus: enricher confidence; input: passing reference corpus with failing gate (monitor).
+
 2026-11-01 thorough hunt (hunt 65, hit): no rotation (`shouldRotate: false`; streak zone `agent-runtime-evaluation` at **1/3** low-yield streak). Promoted `AgentOutputQualityGate.Evaluate` accepting PilotStrict traces when `FindingCitationCoverageRatio` was NaN or Infinity because lifted `<` comparisons against the citation floor are false for non-finite values; gate now rejects non-finite citation coverage before the floor check; `AgentOutputTraceRejectionSummaryBuilder` emits `finding_citation_coverage_below_floor` for non-finite ratios; regression `PilotStrict_NonFiniteCitationCoverageRatio_Rejects`. Cheap-disproof closed five `(candidate)` rows — **invalid** calibrated-only `ClassifyThresholdFailure` telemetry (hunt 58 dry); **invalid** disagreement elevation without summary (hunt 58); **invalid** calibration append on unparsed traces (hunt 64); **valid-no-repro** empty `{}` vs missing `claims` both score zero by contract; **valid-no-repro** `referenceMatched` independent of `schemaPassed` by enricher design. Reseeded five `(candidate)` rows; scoped filter **241/241** passed (`RunAnalyzers=false`). Private beta: Working Real PilotStrict runs with corrupt non-finite finding citation coverage can no longer pass the quality gate and reach commit-eligible status.
 
 - [x] (proven) `AgentOutputQualityGate.Evaluate` — non-finite `FindingCitationCoverageRatio` bypasses PilotStrict citation floor — **hit 2026-11-01 thorough hunt (hunt 65):** reject non-finite citation coverage when floor configured; regression above.
@@ -19470,11 +19485,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `HeuristicAgentOutputSemanticEvaluator` — zero semantic when claims missing vs empty JSON — **cheap-disproof 2026-11-01 thorough hunt (hunt 65):** `{}` and absent `claims` both yield zero overall via `ComputeOverallScore`.
 - [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — referenceMatched false does not block schemaPassed — **cheap-disproof 2026-11-01 thorough hunt (hunt 65):** signals computed independently; confidence calculator combines both downstream.
 
-- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict citation reject with null evaluationReason — locus: telemetry category; input: citation floor reject without reason token (monitor).
-- [ ] (candidate) `AgentOutputTraceFindingCitationCoverageApplicator` — zero findings leaves ratio unset vs zero — locus: LP-04 applicator; input: Real task with empty findings array (monitor).
-- [ ] (candidate) `AgentOutputTraceRejectionSummaryBuilder` — pilot semantic floor ignores non-finite published semantic — locus: summary tokens; input: NaN OverallSemanticScore under PilotStrict (monitor).
-- [ ] (candidate) `FindingConfidenceCalculator.Calculate` — high trace completeness with schemaPassed false — locus: confidence ladder; input: referenceMatched true with schema false (monitor).
-- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — calibrated confidence below warn but above reject with Warned outcome — locus: warn band; input: calibrated in warn-only band with high published semantic (monitor).
+- [x] (valid-no-repro) `AgentOutputQualityGate.ResolveRejectReasonCategory` — PilotStrict citation reject with null evaluationReason — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** see zone-header diary row above.
+- [x] (invalid) `AgentOutputTraceFindingCitationCoverageApplicator` — zero findings leaves ratio unset vs zero — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentOutputTraceRejectionSummaryBuilder` — pilot semantic floor ignores non-finite published semantic — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** see zone-header diary row above.
+- [x] (valid-no-repro) `FindingConfidenceCalculator.Calculate` — high trace completeness with schemaPassed false — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** see zone-header diary row above.
+- [x] (valid-no-repro) `AgentOutputQualityGate.Evaluate` — calibrated confidence below warn but above reject with Warned outcome — **cheap-disproof 2026-11-01 thorough hunt (hunt 66):** calibrated ladder drives warn/reject; high published semantic does not override low calibrated warn band by contract.
 
 2026-10-31 thorough hunt (hunt 64, hit): no rotation (`shouldRotate: false`; streak zone `agent-runtime-evaluation` at **1/3** low-yield streak). Promoted `AgentOutputQualityGate.Evaluate` accepting traces when `OverallSemanticScore` was NaN/Infinity while finite `calibratedConfidence` bypassed the non-finite check; gate now rejects non-finite published semantic before applying calibrated override; `ApplyPilotStrictScoreFloors` treats non-finite published semantic as below PilotStrict semantic floor; regression `Evaluate_rejects_when_published_semantic_score_is_non_finite_even_with_finite_calibrated_confidence`. Cheap-disproof closed four sibling `(candidate)` rows — **valid-no-repro** calibrated-only threshold reject already occurs in `Evaluate` before PilotStrict floors (hunt 62 calibrated regressions); **invalid** calibration sample append on unparsed PilotStrict traces (`AppendCalibrationSampleIfEnabledAsync` intentionally records heuristic semantic for calibration training); **invalid** judge/heuristic blend when judge budget exhausted (hunt 60); **valid-no-repro** unresolved snapshot finding leaves `schemaPassed` false (`EvaluateTraceSignalsAsync` with null trace). Reseeded five `(candidate)` rows; scoped filter **238/238** passed (`RunAnalyzers=false`). Private beta: agent output with corrupt non-finite published semantic scores can no longer pass quality gates because a finite calibrated confidence value was present.
 
@@ -19672,12 +19687,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 65
-- **bugs-found:** 39
+- **hunts:** 66
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — non-finite agent-result faithfulness ratio bypassed PilotStrict floor
 - **last-bug:** 2026-11-01 — non-finite finding citation coverage bypassed PilotStrict floor
-- **last-bug:** 2026-10-31 — non-finite published semantic bypassed gate when calibrated was finite
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

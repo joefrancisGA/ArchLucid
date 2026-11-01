@@ -51,7 +51,9 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
 
             if (options.PilotStrictMinAgentResultFaithfulnessSupportRatio is { } faithFloor &&
                 semantic.AgentResultFaithfulnessSupportRatio is { } faithRatio &&
-                faithRatio < faithFloor)
+                (double.IsNaN(faithRatio)
+                 || double.IsInfinity(faithRatio)
+                 || faithRatio < faithFloor))
                 parts.Add("agent_result_faithfulness_below_floor");
 
             if (options.PilotStrictMinCitationCoverageRatio is { } citationFloor &&
