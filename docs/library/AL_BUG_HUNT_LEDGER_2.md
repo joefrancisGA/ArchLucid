@@ -5766,9 +5766,9 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
@@ -5896,12 +5896,6 @@
 ### Hypotheses
 
 2026-11-01 thorough hunt (dry #81): cheap-disproof closed five open `(candidate)` monitor rows from dry **#80** reseed — **invalid** mixed-case `/HEALTH` root aggregate miss (`IsRootHealthAggregateProbe` uses `OrdinalIgnoreCase` — regression `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`; dry **#80** live/ready/version parity); **valid-no-repro** authenticated JwtBearer on `/scim/v2` still rebinds when auth type is not ScimBearer (hit **2026-10-12** — regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation`); **valid-no-repro** `AllowCrossTenantRouteAttribute` skips route binding by contract (regression `OnActionExecutionAsync_allow_cross_tenant_route_metadata_skips_binding`; seed **#216** cross-tenant asymmetry); **invalid** `/health/live/` trailing slash misses live probe skip (regression `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path`; seed **#220**); **invalid** duplicate parseable `x-project-id` bypasses ApiKey duplicate guard (regression `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_project_headers_without_claim_for_api_key`; dry **#80** workspace duplicate class); reseeded five follow-on `(candidate)` rows; scoped filter **169/175** (6 SQL integration unavailable). Private beta: n/a.
-
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — mixed-case `/HEALTH/` trailing slash may miss root aggregate skip — locus: ~92–99; input: `/HEALTH/`; reachability: probe URL (monitor; dry **#81** `/HEALTH` parity).
-- [ ] (candidate) `ScopeIdentityBindingMiddleware.InvokeAsync` — lowercase `/scim/v2/users` path may skip SCIM rebind when casing differs from mapped route — locus: ~23–28; input: Bearer on mixed-case SCIM path; reachability: SCIM clients (monitor; hit **2026-10-12** class).
-- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — `AllowUnscopedRouteAttribute` without cross-tenant marker may skip `{tenantId}` binding while middleware still runs TB-304 — locus: ~50–51; input: unscoped route metadata; reachability: public contract routes (monitor).
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE/` trailing slash may miss anonymous live probe skip — locus: `StartsWithSegments`; input: uppercase live probe with slash; reachability: load-balancer probes (monitor; seed **#220**).
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — duplicate parseable `x-workspace-id` with tenant-bound ApiKey may bypass duplicate guard — locus: ~107–129; input: duplicate workspace headers; reachability: TB-072 steering (monitor; dry **#80** project duplicate class).
 
 - [x] (invalid) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — mixed-case `/HEALTH` aggregate may miss anonymous root health skip — **cheap-disproof 2026-11-01 thorough hunt #81:** regression `InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path`.
 - [x] (valid-no-repro) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated JwtBearer on `/scim/v2` may skip SCIM rebind when auth type is not ScimBearer — **cheap-disproof 2026-11-01 thorough hunt #81:** regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation`.
