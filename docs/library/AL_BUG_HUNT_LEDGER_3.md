@@ -3185,6 +3185,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** — threshold **3**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — null BFF payload on GET with garbage cookie clears via `slideCookieHeaders` only and never calls `slideBffSessionActivity` (`proxy-bff-session-guard.ts` null branch; parity with pass 4 GET slide note); `passThrough` copies only explicit allowlisted headers — no `WWW-Authenticate` (`proxy-passthrough.ts`); dot segments after many safe prefixes still fail `isUnsafeProxyPathSegment` (`rejects dot-segment traversal`); protected routes intentionally attach `ARCHLUCID_PROXY_BEARER_TOKEN` when cookie and browser bearer absent (`still attaches server bearer for protected architecture quick-scan`); declared `Content-Length` above cap returns **413** before body read (`returns 413 when Content-Length declares a body larger than the JSON cap`; `declaredPostBodyExceedsLimit`). Scoped proxy/auth regressions **280/280** (picker `testFilter`). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — unparseable cookie GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** null payload returns clear-only headers; no `slideBffSessionActivity`.
+- [x] (valid-no-repro) `passThrough` — upstream `WWW-Authenticate` — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** header not in allowlist; `proxy-passthrough.ts`.
+- [x] (valid-no-repro) `buildProxyUpstreamPath` — deep path then `..` — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** `rejects dot-segment traversal`; segment guard before join.
+- [x] (invalid) `buildProxyUpstreamHeaders` — server bearer fallback — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** intentional protected-route upstream auth; regression above.
+- [x] (valid-no-repro) `forwardMutatingWithBody` — declared length over cap — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** **413** + `declaredPostBodyExceedsLimit`; route + unit tests.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — idle-expired GET may slide activity before block — locus: idle branch on GET; input: GET with idle-expired cookie; wrong outcome: activity slide without **401**; reachability: monitor idle GET guard regressions.
+- [ ] (candidate) `passThrough` — upstream `Retry-After` may reach browser — locus: response header allowlist; input: upstream **429** with retry hint; wrong outcome: hint forwarded; reachability: monitor Retry-After forwarding policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — backslash in segment may bypass slash guard — locus: `isUnsafeProxyPathSegment`; input: segment containing `\`; wrong outcome: accepted path; reachability: monitor backslash segment rejection tests.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — `X-Api-Key` sent with bearer on protected path — locus: key+bearer branch; input: both configured with cookie bearer; wrong outcome: dual credentials upstream; reachability: monitor upstream header pairing tests.
+- [ ] (candidate) `forwardMutatingWithBody` — `Content-Length: 0` with non-empty body may skip cap — locus: declared zero vs streamed read; input: POST with mismatched length; wrong outcome: unbounded read; reachability: monitor zero-length declared body regressions.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — unparseable GET slide — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `passThrough` — WWW-Authenticate — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — deep `..` bypass — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — server bearer — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — declared length cap — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF `payload.exp` returns **401** before activity slide (`blocks bootstrap status GET when the BFF session cookie is expired`; guard branch precedes `slideBffSessionActivity`); `passThrough` allowlist does not copy upstream `Refresh` (only explicit headers such as `Location`); `%2E%2E` segments rejected via case-insensitive `%2e` detection in `containsPercentEncodedPathSeparator` (`proxy-upstream-path.ts`; encoded-dot route regressions); expired HttpOnly cookie yields empty `resolveBffSessionBearerFromCookieValue` so browser `Authorization` is used when guard allows the call — not stale cookie winning (`bff-session-cookie.test.ts` `rejects expired session cookies`); sandbox GET mocks run only after `enforceProxyRateLimit` in `handleRateLimitedForward`. Scoped proxy/auth regressions **120/120**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** **401** before slide; regression above.
@@ -3508,9 +3528,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 78
+- **hunts:** 79
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
