@@ -2,6 +2,26 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — numeric JSON `tenantId` on `201` intentionally omits registration scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); organization names with control characters map to unsupported-character readiness (`shows unsupported-character readiness when organization name contains control characters`); invalid `companySize` enum values are not reachable from the Select UI (devtools tamper only; regression `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`); keyboard Enter on invalid email does not POST (`shows inline validation on keyboard submit without calling fetch`); `1e2`/`1e3` scientific notation serializes to whole numbers when valid (`serializes scientific notation optional architecture team size when it parses to a whole number`; hypothesis inverted for omit). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric JSON `tenantId` without scope headers — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** intentional omit; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — tab in organization readiness copy — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** unsupported-character readiness regression above.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid `companySize` enum in buyer path — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** Select control; generic readiness is acceptable for impossible enum.
+- [x] (valid-no-repro) `SignupForm` — keyboard Enter bypasses validation — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** keyboard submit regression above.
+- [x] (invalid) `buildSignupRegisterPayload` — `1e2` omitted — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** serializes whole numbers; `1e3` regression above.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `showSuccess` throw after `201` may leave `registerCompletedRef` set without verify navigation — locus: success toast vs `router.push`; input: mocked toast throw; wrong outcome: stuck completed state; reachability: monitor success-handling throw regressions.
+- [ ] (candidate) `signupFormSchema` — overlong work email readiness vs inline error copy mismatch — locus: `.max(254)` message mapping; input: 255-char email; wrong outcome: generic invalid-email readiness; reachability: monitor overlong email readiness regression.
+- [ ] (candidate) `SignupForm` — optional `<details>` collapsed while industry Other invalid may hide inline error — locus: disclosure UX vs readiness id; input: Other selected, empty spec; wrong outcome: silent invalid state; reachability: monitor industry readiness UI tests.
+- [ ] (candidate) `buildSignupRegisterPayload` — interior whitespace in `adminEmail` may POST untrimmed — locus: builder vs schema trim; input: padded email in parsed values; wrong outcome: register JSON not trimmed; reachability: monitor padded email POST regressions.
+- [ ] (candidate) `SignupForm` `onSubmit` — empty JSON `{}` error body may show blank toast detail — locus: non-ok body parse; input: `400` with `{}`; wrong outcome: empty error message; reachability: monitor empty JSON object error regressions.
+
+- [x] (superseded) `SignupForm` `onSubmit` — numeric tenantId scope — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+- [x] (superseded) `signupFormSchema` — tab organization readiness — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — invalid companySize enum — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+- [x] (superseded) `SignupForm` — keyboard Enter bypass — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — `1e2` omit — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; picker chose `ui-form-validation` over cooling `ui-auth-proxy`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `409` returns before any success-path `sessionStorage` write (`shows a toast for duplicate organization conflict without leaving submit stuck`; `still allows register retry after duplicate organization conflict`); full-width digits yield non-finite `Number()` and schema invalid-number issue (not silent omit); invalid email wins readiness over fractional optional team size (`shows email-specific readiness when required fields are filled but email is invalid`; zod field order before `superRefine`); rapid double-click blocked by `registerInFlightRef` before second POST (`does not fire a second register request on rapid double-click before submitting state updates`); `+010` parses to `10` and serializes like other leading-plus values (`serializes leading plus optional architecture team size as five in the register payload builder`; hypothesis inverted for omit). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — stale session after `409` — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** 409 path never writes session; retry regressions above.
@@ -10,16 +30,6 @@
 - [x] (valid-no-repro) `SignupForm` — double-click duplicate POST — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** in-flight guard regression above.
 - [x] (invalid) `buildSignupRegisterPayload` — `+010` omits valid ten — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** `Number("+010")` is 10; leading-plus builder pattern.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — success `201` with numeric JSON `tenantId` may navigate verify without registration scope headers — locus: scope header emission vs session snapshot; input: `201` with `"tenantId": 1`; wrong outcome: downstream proxy calls lack scope; reachability: monitor numeric tenantId scope-header regressions.
-- [ ] (candidate) `signupFormSchema` — tab character in organization name after trim — locus: unsupported-character refine; input: org with `\\t`; wrong outcome: generic max-length readiness; reachability: monitor unsupported-character organization readiness tests.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with invalid `companySize` enum may surface generic default copy — locus: readiness switch default branch; input: devtools-tampered enum; wrong outcome: misleading CTA hint; reachability: monitor invalid company size enum readiness test.
-- [ ] (candidate) `SignupForm` — keyboard Enter submit on invalid email may bypass `canSubmit` guard — locus: form `noValidate` + submit handler; input: Enter in email field; wrong outcome: register POST; reachability: monitor keyboard submit invalid-email regression.
-- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation `1e2` at optional team size — locus: whole-number check; input: paste `1e2`; wrong outcome: omitted despite valid 100; reachability: monitor scientific notation builder regressions.
-
-- [x] (superseded) `SignupForm` `onSubmit` — 409 stale session — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `signupFormSchema` — full-width team size digits — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `deriveSignupFormReadinessMessage` — email vs team size — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-- [x] (superseded) `SignupForm` — double-click duplicate POST — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
 - [x] (superseded) `buildSignupRegisterPayload` — `+010` — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
 
 2026-11-01 thorough hunt (dry): **rotation** avoided `ui-auth-proxy` after three consecutive dry hunts (`shouldRotate` / low-yield streak on auth-proxy); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — session JSON and verify query both use the same schema-validated `values.adminEmail` (`encodes plus-addressed email in the verify redirect query`; no raw DOM read on success path); optional team size uses RHF `register("architectureTeamSize")` string backing, not `valueAsNumber` (`omits architecture team size key when optional field is an empty string`); invalid email with empty Other still surfaces email readiness (`deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry`); whitespace-only `tenantId` on `201` omits scope headers by design while verify still navigates with email query (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); `10000.0` parses to integer `10000` and is included at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`; hypothesis inverted). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
@@ -496,9 +506,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 92
+- **hunts:** 93
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
