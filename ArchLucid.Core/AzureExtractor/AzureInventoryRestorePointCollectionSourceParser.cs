@@ -43,6 +43,11 @@ public static class AzureInventoryRestorePointCollectionSourceParser
 
         string trimmed = value.Trim();
 
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(trimmed);
+        }
+
         const int maxPercentDecodePasses = 8;
 
         string working = trimmed;

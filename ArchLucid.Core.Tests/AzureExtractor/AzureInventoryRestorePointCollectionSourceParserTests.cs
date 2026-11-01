@@ -70,6 +70,21 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_does_not_decode_json_blob_before_parsing_when_other_fields_contain_percent_sequences()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source"] =
+                """{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm%2Dapp","note":"100% coverage"}""",
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app"));
+    }
+
+    [Fact]
     public void Parse_without_source_returns_null()
     {
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
