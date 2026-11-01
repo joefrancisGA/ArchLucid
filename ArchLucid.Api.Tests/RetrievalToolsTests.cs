@@ -252,6 +252,66 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_policy_hits_in_vector_order_after_corpus_filter()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "price-chunk-1",
+                    DocumentId = "price-doc-1",
+                    Title = "Retail row",
+                    Text = "price",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.AzureRetailPrice.ToString(),
+                    SourceType = "AzureRetail",
+                    SourceId = "price-1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Policy 1",
+                    Text = "policy baseline",
+                    Score = 0.98,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-2",
+                    DocumentId = "policy-doc-2",
+                    Title = "Policy 2",
+                    Text = "policy baseline",
+                    Score = 0.97,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p2"
+                },
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 2,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Select(h => h.DocumentId).Should().Equal("policy-doc-1", "policy-doc-2");
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null()
     {
         Mock<IRetrievalQueryService> queryService = new();

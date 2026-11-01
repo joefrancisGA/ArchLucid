@@ -151,6 +151,7 @@ public static class PolicyExpectationCostGraphReader
     return token
         .Replace("\u00A0", string.Empty, StringComparison.Ordinal)
         .Replace("\u2009", string.Empty, StringComparison.Ordinal)
+        .Replace("\u200A", string.Empty, StringComparison.Ordinal)
         .Replace("\u202F", string.Empty, StringComparison.Ordinal)
         .Replace("\u2007", string.Empty, StringComparison.Ordinal);
   }
