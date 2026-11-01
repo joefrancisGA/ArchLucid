@@ -163,6 +163,7 @@ public sealed class GoldenManifestFingerprintTests
     {
         GoldenManifest manifest = BaseContentManifest("Sys");
         CommittedArtifactInventoryFingerprintRow early = CreateInventoryRow(
+            artifactName: "findings-snapshot",
             contentHashSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             capturedUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         CommittedArtifactInventoryFingerprintRow late = early with
@@ -184,20 +185,49 @@ public sealed class GoldenManifestFingerprintTests
     }
 
     [Fact]
-    public void ComputeContentSha256Hex_changes_when_inventory_content_hash_changes()
+    public void ComputeContentSha256Hex_ignores_inventory_content_hash()
     {
         GoldenManifest manifest = BaseContentManifest("Sys");
         DateTime capturedUtc = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
         CommittedArtifactInventoryFingerprintRow left = CreateInventoryRow(
+            artifactName: "findings-snapshot",
             contentHashSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             capturedUtc: capturedUtc);
-        CommittedArtifactInventoryFingerprintRow right = CreateInventoryRow(
-            contentHashSha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            capturedUtc: capturedUtc);
+        CommittedArtifactInventoryFingerprintRow right = left with
+        {
+            ContentHashSha256 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        };
 
-        GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [left])
+        string withLeftHash = GoldenManifestFingerprint.ComputeContentSha256Hex(
+            manifest,
+            createTimePins: null,
+            [left]);
+        string withRightHash = GoldenManifestFingerprint.ComputeContentSha256Hex(
+            manifest,
+            createTimePins: null,
+            [right]);
+
+        withLeftHash.Should().Be(withRightHash);
+        withLeftHash.Length.Should().Be(64);
+    }
+
+    [Fact]
+    public void ComputeContentSha256Hex_changes_when_inventory_artifact_name_changes()
+    {
+        GoldenManifest manifest = BaseContentManifest("Sys");
+        DateTime capturedUtc = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        CommittedArtifactInventoryFingerprintRow findings = CreateInventoryRow(
+            artifactName: "findings-snapshot",
+            contentHashSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            capturedUtc: capturedUtc);
+        CommittedArtifactInventoryFingerprintRow decisionTrace = findings with
+        {
+            ArtifactName = "decision-trace"
+        };
+
+        GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [findings])
             .Should()
-            .NotBe(GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [right]));
+            .NotBe(GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [decisionTrace]));
     }
 
     [Fact]
@@ -252,11 +282,12 @@ public sealed class GoldenManifestFingerprintTests
     }
 
     private static CommittedArtifactInventoryFingerprintRow CreateInventoryRow(
+        string artifactName,
         string contentHashSha256,
         DateTime capturedUtc)
     {
         return new CommittedArtifactInventoryFingerprintRow(
-            "findings-snapshot",
+            artifactName,
             "application/vnd.archlucid.findings-snapshot+json",
             contentHashSha256,
             "ManifestFinalizationService",

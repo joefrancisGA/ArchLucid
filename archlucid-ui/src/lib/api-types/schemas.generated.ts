@@ -5584,6 +5584,8 @@ export interface components {
             question?: string;
             /** Format: uuid */
             runId?: null | string;
+            /** Format: uuid */
+            securityEvidencePathId?: null | string;
             /** Format: date-time */
             sinceUtc?: null | string;
             /** Format: uuid */

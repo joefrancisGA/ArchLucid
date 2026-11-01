@@ -1,11 +1,40 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  hasActionableArchitectureIntelligenceResult,
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
   resolveArchitectureIntelligenceAnalysisSteps,
 } from "@/lib/architecture-intelligence-analysis-checklist";
 
 describe("architecture-intelligence-analysis-checklist", () => {
+  it("does not complete analysis for an empty reasoning payload", () => {
+    expect(
+      hasActionableArchitectureIntelligenceResult({
+        kind: "reasoning",
+        result: {
+          model: { elements: [] },
+          specialistReviews: [],
+          recommendations: [],
+          mustNotFailViolations: [],
+        },
+      }),
+    ).toBe(false);
+  });
+
+  it("completes analysis when the reasoning payload contains actionable output", () => {
+    expect(
+      hasActionableArchitectureIntelligenceResult({
+        kind: "reasoning",
+        result: {
+          model: { elements: [] },
+          specialistReviews: [{ findings: [{ title: "Finding", severity: "High", conclusion: "Act." }] }],
+          recommendations: [],
+          mustNotFailViolations: [],
+        },
+      }),
+    ).toBe(true);
+  });
+
   it("emphasizes the first incomplete step", () => {
     expect(
       resolveArchitectureIntelligenceAnalysisEmphasizedStepId({

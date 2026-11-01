@@ -17,4 +17,14 @@ public sealed class EmailOtpFailedVerificationRateLimitSqlTests
 
         activeProbe.Should().Contain("ExpiresUtc > @NowUtc");
     }
+
+    [Fact]
+    public void Failed_verification_sql_uses_application_now_parameters_not_sysutcdatetime()
+    {
+        string sql = EmailOtpFailedVerificationRateLimitSql.Command;
+
+        sql.Should().Contain("@SinceUtc");
+        sql.Should().Contain("@NowUtc");
+        sql.Should().NotContain("SYSUTCDATETIME", "hourly window is anchored to caller-supplied UTC, not SQL server clock");
+    }
 }

@@ -106,6 +106,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
         return false;
       }
 
+      if (!Number.isFinite(Date.parse(run.createdUtc))) {
+        return false;
+      }
+
       return true;
     });
 

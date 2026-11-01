@@ -204,6 +204,13 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/integrations/cloud-connections/aws", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/cloud-connections/gcp", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/cloud-connections/azure", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-first-hour", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-self-service", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-return-reasons", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-pilot-decision", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-accessibility", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/securenow-first-hour", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/administration/securenow-self-service", "architecture")).toBe(false);
   });
 
   it("lets an override move a destination into Security without editing the catalog file", () => {

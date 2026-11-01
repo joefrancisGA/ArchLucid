@@ -1,7 +1,3 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -9,27 +5,28 @@ import { WhySecureNowDraftView } from "@/app/(marketing)/why-securenow/WhySecure
 import { metadata } from "@/app/(marketing)/why-securenow/page";
 import {
   WHY_SECURENOW_CONVERSATION_LABEL,
-  WHY_SECURENOW_DRAFT_BANNER,
   WHY_SECURENOW_DRAFT_PITCH,
   WHY_SECURENOW_PILOT_DECISION_BODY,
   WHY_SECURENOW_REVIEWER_PACK_BODY,
+  WHY_SECURENOW_STATUS_LINE,
 } from "@/lib/marketing/why-securenow-draft-copy";
 
-const marketingResourcesMenuPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../components/marketing/MarketingResourcesMenu.tsx",
-);
-
-describe("Why SecureNow draft (SN-MKT-02)", () => {
-  it("renders the internal draft banner, pitch, and conversation link", () => {
+describe("Why SecureNow page (SN-MKT-02 / SN-MKT-08)", () => {
+  it("renders the status line, pitch, and conversation link", () => {
     render(<WhySecureNowDraftView />);
 
-    expect(screen.getByTestId("why-securenow-draft-banner")).toHaveTextContent(WHY_SECURENOW_DRAFT_BANNER);
+    expect(screen.getByTestId("why-securenow-draft-banner")).toHaveTextContent(WHY_SECURENOW_STATUS_LINE);
     expect(screen.getByTestId("why-securenow-draft-pitch")).toHaveTextContent(WHY_SECURENOW_DRAFT_PITCH);
     expect(screen.getByRole("link", { name: WHY_SECURENOW_CONVERSATION_LABEL })).toHaveAttribute(
       "href",
       "mailto:support@archlucid.net?subject=SecureNow%20conversation",
     );
+  });
+
+  it("does not show the old internal draft banner", () => {
+    render(<WhySecureNowDraftView />);
+
+    expect(screen.queryByText(/Internal draft\. Not approved buyer communication\./)).not.toBeInTheDocument();
   });
 
   it("avoids forbidden commercial and certification wording in rendered copy", () => {
@@ -43,14 +40,9 @@ describe("Why SecureNow draft (SN-MKT-02)", () => {
     expect(text).not.toMatch(/\bcertified\b/i);
   });
 
-  it("exports noindex metadata", () => {
-    expect(metadata.robots).toEqual({ index: false, follow: false });
-  });
-
-  it("is not linked from MarketingResourcesMenu", () => {
-    const source = readFileSync(marketingResourcesMenuPath, "utf8");
-
-    expect(source).not.toContain('href="/why-securenow"');
+  it("exports indexable metadata", () => {
+    expect(metadata.robots).toEqual({ index: true, follow: true });
+    expect(metadata.description).toBe(WHY_SECURENOW_DRAFT_PITCH);
   });
 
   it("renders the reviewer-pack anchor before the conversation link", () => {

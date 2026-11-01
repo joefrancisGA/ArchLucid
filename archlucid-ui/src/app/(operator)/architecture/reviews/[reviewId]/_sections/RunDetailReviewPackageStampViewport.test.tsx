@@ -62,6 +62,38 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     expect(screen.getByText(/skipped must questions \(1\)/i)).toBeVisible();
   });
 
+  it("keeps the findings next-action link on the sealed stamp", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+        quickDecisionFindings={[
+          {
+            findingId: "finding-1",
+            title: "Open decision-grade finding",
+            recommendation: "Review and record a disposition.",
+            severityValue: 3,
+            findingOrder: 0,
+            aiReasoning: {},
+            isMuted: false,
+            muteReason: null,
+            enforcementTier: "blocking",
+            classification: "DecisionGradeFinding",
+          },
+        ] as never}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-first-review-spine-disposition-findings-link")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-1?reviewTab=findings",
+    );
+  });
+
   it("shows skipped actor engines on the measurement strip for IaC-only graphs", () => {
     workspaceModeMock.isWorkingMode = true;
 

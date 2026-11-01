@@ -1,4 +1,24 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
+import type { RunState } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
+
+export function hasActionableArchitectureIntelligenceResult(runState: RunState | null): boolean {
+  if (runState?.kind !== "reasoning") {
+    return false;
+  }
+
+  const result = runState.result;
+
+  return (
+    result.model.elements.length > 0 ||
+    result.specialistReviews.some((review) => review.findings.length > 0) ||
+    result.recommendations.length > 0 ||
+    result.mustNotFailViolations.length > 0 ||
+    (result.interview?.framingQuestions?.length ?? 0) > 0 ||
+    (result.interview?.evidenceDrivenQuestions?.length ?? 0) > 0 ||
+    (result.adversarial?.substantiatedFindings?.length ?? 0) > 0 ||
+    (result.validationResults?.length ?? 0) > 0
+  );
+}
 
 export function resolveArchitectureIntelligenceAnalysisSteps(input: {
   readonly reviewPicked: boolean;

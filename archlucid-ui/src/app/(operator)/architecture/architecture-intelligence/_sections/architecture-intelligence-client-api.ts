@@ -117,8 +117,7 @@ export function buildRequest(
 }
 
 export function primaryDescriptionFromSources(sources: readonly ClosedLoopReasoningSourceText[]): string {
-  const descriptionSource =
-    sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
+  const descriptionSource = sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME);
 
   return descriptionSource?.content?.trim() ?? "";
 }

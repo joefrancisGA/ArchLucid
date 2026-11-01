@@ -1,5 +1,5 @@
-export const WHY_SECURENOW_DRAFT_BANNER =
-  "Internal draft. Not approved buyer communication. SecureNow beta remains NO_GO." as const;
+export const WHY_SECURENOW_STATUS_LINE =
+  "SecureNow beta remains NO_GO. This page explains the product. It does not publish a price or open a signup." as const;
 
 export const WHY_SECURENOW_DRAFT_HEADING = "Why SecureNow" as const;
 

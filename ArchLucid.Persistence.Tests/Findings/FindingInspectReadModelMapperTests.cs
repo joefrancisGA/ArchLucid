@@ -257,6 +257,20 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseDisposition_returns_null_for_interior_format_character_in_disposition_name()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("Acc\u200Bepted").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");
+
+        actual.Should().Be(FindingHumanReviewStatus.Pending);
+    }
+
+    [Fact]
     public void ParseHumanReview_parses_after_leading_invisible_format_characters()
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("\u200BPending");
@@ -271,6 +285,14 @@ public sealed class FindingInspectReadModelMapperTests
             FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("\u200BHigh");
 
         actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_after_trailing_invisible_format_characters()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("Critical\u200B");
+
+        actual.Should().Be(FindingSeverity.Critical);
     }
 
     [Fact]

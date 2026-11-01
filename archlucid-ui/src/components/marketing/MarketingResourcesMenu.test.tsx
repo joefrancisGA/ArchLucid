@@ -44,4 +44,19 @@ describe("MarketingResourcesMenu", () => {
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     expect(document.activeElement).toBe(trigger);
   });
+
+  it("lists Why SecureNow and SecureNow sample in the resources menu", () => {
+    render(<MarketingResourcesMenu seeItLinked={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /resources/i }));
+
+    expect(screen.getByRole("menuitem", { name: "Why SecureNow" })).toHaveAttribute(
+      "href",
+      "/why-securenow",
+    );
+    expect(screen.getByRole("menuitem", { name: "SecureNow sample" })).toHaveAttribute(
+      "href",
+      "/securenow-sample",
+    );
+  });
 });

@@ -804,6 +804,28 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("omits a review row whose createdUtc is not a valid timestamp", () => {
+    const malformedRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      description: "Malformed timestamp review",
+      createdUtc: "not-a-timestamp",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[malformedRun, sampleRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={2}
+      />,
+    );
+
+    expect(screen.queryByTestId(`runs-row-${malformedRun.runId}`)).toBeNull();
+    expect(screen.getByTestId(`runs-row-${sampleRun.runId}`)).toBeInTheDocument();
+  });
+
   it("re-sorts rows when sort= changes via popstate before useSearchParams catches up", () => {
     const olderRun: RunSummary = {
       ...sampleRun,

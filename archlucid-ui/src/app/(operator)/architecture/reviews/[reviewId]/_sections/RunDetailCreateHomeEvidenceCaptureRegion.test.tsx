@@ -73,6 +73,7 @@ function renderRegion(props: ComponentProps<typeof RunDetailCreateHomeEvidenceCa
 describe("RunDetailCreateHomeEvidenceCaptureRegion", () => {
   beforeEach(() => {
     refreshMock.mockReset();
+    window.sessionStorage.clear();
   });
 
   it("shows captured evidence inventory after mock upload summary (TB-1847)", async () => {
@@ -126,5 +127,27 @@ describe("RunDetailCreateHomeEvidenceCaptureRegion", () => {
 
     expect(screen.queryByText("network-diagram.png")).not.toBeInTheDocument();
     expect(screen.getByText("brief-b.md")).toBeInTheDocument();
+  });
+
+  it("does not restore persisted captured evidence when the loaded catalog is empty", () => {
+    window.sessionStorage.setItem(
+      "archlucid_create_home_captured_evidence_v1_run-stale",
+      JSON.stringify([
+        {
+          key: "ev-stale",
+          fileName: "deleted-evidence.pdf",
+          ingestedUtc: "2026-08-12T10:00:00Z",
+          evidenceItemId: "ev-stale",
+        },
+      ]),
+    );
+
+    renderRegion({
+      runId: "run-stale",
+      buyerPolished: true,
+      artifacts: [],
+    });
+
+    expect(screen.queryByText("deleted-evidence.pdf")).not.toBeInTheDocument();
   });
 });

@@ -228,12 +228,34 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsAdviceStyleNegation(string haystack, int tokenIndex)
     {
-        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+        ReadOnlySpan<char> clause = ClausePrefixGoverningMatch(haystack, tokenIndex);
 
-        if (before.Length < 4)
+        if (clause.Length < 4)
             return false;
 
-        return EnglishNegationTokenizer.ContainsNegation(before);
+        return EnglishNegationTokenizer.ContainsNegation(clause);
+    }
+
+    // A negation only governs a matched control when both live in the same clause; negations in
+    // earlier sentences ("... blocked from the subnet. Use managed identity ...") do not apply.
+    private static ReadOnlySpan<char> ClausePrefixGoverningMatch(string haystack, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+        int start = 0;
+
+        for (int index = 0; index < before.Length; index++)
+        {
+            char character = before[index];
+
+            if (character == '.'
+                || character == '!'
+                || character == '?'
+                || character == ';'
+                || character == ':')
+                start = index + 1;
+        }
+
+        return before.Slice(start).TrimStart();
     }
 
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
@@ -552,7 +574,7 @@ internal static class RequestConstraintTokenMatcher
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '!');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '?');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '*');
-        haystack = NormalizeSpacedAsciiDelimiter(haystack, '.');
+        haystack = CollapseConsecutiveAsciiSpaces(haystack.Replace(" . ", " ", StringComparison.Ordinal));
 
         return haystack;
     }

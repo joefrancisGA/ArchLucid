@@ -133,8 +133,11 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Scenario accelerators | [securenow-scenario-00-index.md](../../.cursor/prompts/securenow-scenario-00-index.md) | **SN-ACCEL-01–03** + hold | [`SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SCENARIO_ACCELERATOR_COMPOSER_PROMPTS.md) |
 | Compliance readiness | [securenow-compliance-00-index.md](../../.cursor/prompts/securenow-compliance-00-index.md) | **SN-COMP-01–04** + hold | [`SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_COMPLIANCE_COMPOSER_PROMPTS.md) |
 | Proof-of-ROI | [securenow-roi-00-index.md](../../.cursor/prompts/securenow-roi-00-index.md) | **SN-ROI-01–04** + hold | [`SECURENOW_ROI_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ROI_COMPOSER_PROMPTS.md) |
-| Marketability | [securenow-marketability-00-index.md](../../.cursor/prompts/securenow-marketability-00-index.md) | **SN-MKT-01–07** shipped + hold | [`SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) |
+| Marketability | [securenow-marketability-00-index.md](../../.cursor/prompts/securenow-marketability-00-index.md) | **SN-MKT-01–11** shipped + hold | [`SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) |
 | Accessibility | [securenow-accessibility-00-index.md](../../.cursor/prompts/securenow-accessibility-00-index.md) | **SN-A11Y-01–04** + hold | [`SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md) |
+| Customer self-sufficiency | [securenow-self-00-index.md](../../.cursor/prompts/securenow-self-00-index.md) | **SN-SELF-01–04** not started + hold | [`SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md) |
+| Cutting-edge AI | [securenow-cutting-edge-00-index.md](../../.cursor/prompts/securenow-cutting-edge-00-index.md) | **SN-CE-01–04** not started + hold | [`SECURENOW_CUTTING_EDGE_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_CUTTING_EDGE_COMPOSER_PROMPTS.md) |
+| Decision velocity | [securenow-decision-velocity-00-index.md](../../.cursor/prompts/securenow-decision-velocity-00-index.md) | **SN-DV-01–04** not started + hold | [`SECURENOW_DECISION_VELOCITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_DECISION_VELOCITY_COMPOSER_PROMPTS.md) |
 
 ---
 

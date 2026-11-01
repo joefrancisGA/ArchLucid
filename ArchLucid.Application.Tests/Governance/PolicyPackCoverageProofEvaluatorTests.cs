@@ -149,4 +149,101 @@ public sealed class PolicyPackCoverageProofEvaluatorTests
 
         proof.UnprovenAssignmentCount.Should().Be(0);
     }
+
+    [Fact]
+    public void Evaluate_counts_assignment_unproven_when_only_muted_findings_match()
+    {
+        Guid packId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = "f-muted",
+                IsMuted = true,
+                PolicyRuleId = $"policy-pack-{packId:D}-rule-1",
+            },
+        ];
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(scopeJson, findings);
+
+        proof.UnprovenAssignmentCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void Evaluate_treats_unmuted_finding_as_proven_when_muted_findings_also_match()
+    {
+        Guid packId = Guid.Parse("10101010-1010-1010-1010-101010101010");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = "f-muted",
+                IsMuted = true,
+                PolicyRuleId = $"policy-pack-{packId:D}-rule-1",
+            },
+            new()
+            {
+                FindingId = "f-live",
+                IsMuted = false,
+                PolicyRuleId = $"policy-pack-{packId:D}-rule-1",
+            },
+        ];
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(scopeJson, findings);
+
+        proof.UnprovenAssignmentCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void Evaluate_treats_not_applicable_outcome_as_proven_without_findings()
+    {
+        Guid packId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                    EvaluationOutcome = PolicyPackEvaluationOutcomes.NotApplicable,
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(scopeJson, []);
+
+        proof.AssignmentCount.Should().Be(1);
+        proof.UnprovenAssignmentCount.Should().Be(0);
+    }
 }

@@ -66,7 +66,7 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
   const router = useRouter();
   const queryClient = useQueryClient();
   const { catalog, isLoading: catalogLoading } = useRunStoredEvidenceCatalogQuery(props.runId);
-  const catalogAuthoritative = !catalogLoading && catalog.length > 0;
+  const catalogAuthoritative = !catalogLoading && (catalog.length > 0 || props.artifacts.length === 0);
   const artifactsInventoryKey = runDetailCreateHomeArtifactsInventoryKey(props.artifacts);
   const catalogInventoryKey = runDetailCreateHomeCatalogInventoryKey(catalog);
   const catalogItems = useMemo(

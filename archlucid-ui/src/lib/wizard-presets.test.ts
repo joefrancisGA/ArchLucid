@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyWizardPreset,
   isWizardFormFieldDirty,
+  isWizardFormFieldTouched,
   resolveWizardPresetLabel,
   wizardFormFieldMatchesPreset,
   wizardPresets,
@@ -81,5 +82,14 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
         systemName: "TypedByOperator",
       }),
     ).toBe(false);
+  });
+
+  it("treats scalar and array React Hook Form flags as dirty or touched", () => {
+    expect(isWizardFormFieldDirty(true)).toBe(true);
+    expect(isWizardFormFieldDirty([undefined, true])).toBe(true);
+    expect(isWizardFormFieldDirty([false, undefined])).toBe(false);
+    expect(isWizardFormFieldTouched(true)).toBe(true);
+    expect(isWizardFormFieldTouched([undefined, true])).toBe(true);
+    expect(isWizardFormFieldTouched(undefined)).toBe(false);
   });
 });

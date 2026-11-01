@@ -186,11 +186,11 @@ export function reconcileCapturedEvidenceInventory(
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
   const catalogAuthoritative = options?.catalogAuthoritative ?? false;
 
-  if (catalogAuthoritative && serverItems.length > 0) {
+  if (catalogAuthoritative) {
     const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
 
     for (const item of sessionItems) {
-      if ((item.evidenceItemId ?? "").length === 0) {
+      if (item.contentTypeCatalogPending !== true) {
         continue;
       }
 

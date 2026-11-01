@@ -17,6 +17,16 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     private const string RunId = "aaaaaaaa-1111-1111-1111-111111111111";
 
     [Fact]
+    public void Parse_RejectsValueOptionWithoutValue()
+    {
+        Action parse = () => TenantIsolationNegativeTestOptions.Parse(["--run-id", "--json"]);
+
+        parse.Should()
+            .Throw<ArgumentException>()
+            .WithMessage("*--run-id*requires a value*");
+    }
+
+    [Fact]
     public void EvaluateDenyStatus_Treats404And403AsPass()
     {
         TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(404).Should().Be(TenantIsolationNegativeTestVerdict.Pass);
