@@ -10,15 +10,14 @@ describe("SecureNow sponsor home copy", () => {
   it("defines internal sponsor readout destinations", () => {
     expect(SECURENOW_SPONSOR_HOME_SECTION_HEADING).toBe("For sponsors");
     expect(SECURENOW_SPONSOR_HOME_SECTION_LEAD).toMatch(/NO_GO/);
-    expect(SECURENOW_SPONSOR_HOME_ROWS).toHaveLength(4);
-    expect(SECURENOW_SPONSOR_HOME_ROWS[0]?.href).toBe(
-      "/why-securenow#reviewer-pack",
-    );
+    expect(SECURENOW_SPONSOR_HOME_ROWS).toHaveLength(5);
+    expect(SECURENOW_SPONSOR_HOME_ROWS[0]?.href).toBe("/why-securenow#reviewer-pack");
     expect(SECURENOW_SPONSOR_HOME_ROWS[1]?.href).toBe("/why-securenow");
-    expect(SECURENOW_SPONSOR_HOME_ROWS[2]?.href).toBe(
-      "/administration/securenow-pilot-decision",
-    );
+    expect(SECURENOW_SPONSOR_HOME_ROWS[2]?.href).toBe("/administration/securenow-pilot-decision");
     expect(SECURENOW_SPONSOR_HOME_ROWS[3]?.href).toBe(
+      "/administration/securenow-pilot-decision#decision-cycle",
+    );
+    expect(SECURENOW_SPONSOR_HOME_ROWS[4]?.href).toBe(
       "/administration/securenow-investigation-effort",
     );
   });

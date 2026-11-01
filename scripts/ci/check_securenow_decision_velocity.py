@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 RECORD = Path("docs/securenow/PILOT_DECISION_RECORD.md")
+DECISION_CYCLE_LOG = Path("docs/securenow/DECISION_CYCLE_LOG.md")
 ONE_PAGER = Path("docs/securenow/DECISION_PATH_ONE_PAGER.md")
 WHY_COPY = Path("archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts")
 WHY_PAGE = Path("archlucid-ui/src/app/(marketing)/why-securenow/WhySecureNowDraftView.tsx")
@@ -38,6 +39,7 @@ def _read(root: Path, relative: Path, errors: list[str]) -> str:
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     record = _read(root, RECORD, errors)
+    decision_cycle_log = _read(root, DECISION_CYCLE_LOG, errors)
     one_pager = _read(root, ONE_PAGER, errors)
     why_copy = _read(root, WHY_COPY, errors)
     why_page = _read(root, WHY_PAGE, errors)
@@ -50,6 +52,29 @@ def validate(root: Path = ROOT) -> list[str]:
         for token in ("Proceed to commercial discussion", "Extend with bounded scope", "Stop", "NOT COLLECTED", "NO_GO"):
             if token not in record:
                 errors.append(f"{RECORD}: missing {token!r}")
+    if decision_cycle_log:
+        for token in (
+            "NO_GO",
+            "SYNTHETIC FIXTURE",
+            "BLANK",
+            "Qualify started (UTC)",
+            "Stall step",
+            "Qualify",
+            "Scope",
+            "Review",
+            "Decide change",
+            "Verify",
+            "Close",
+            "Proceed to commercial discussion",
+            "Extend with bounded scope",
+            "Stop",
+        ):
+            if token not in decision_cycle_log:
+                errors.append(f"{DECISION_CYCLE_LOG}: missing {token!r}")
+        if "$" in decision_cycle_log:
+            errors.append(f"{DECISION_CYCLE_LOG}: contains '$'")
+        if "- [x]" in decision_cycle_log.lower():
+            errors.append(f"{DECISION_CYCLE_LOG}: contains a selected outcome")
     if one_pager:
         for token in (
             "Qualify",
@@ -73,17 +98,26 @@ def validate(root: Path = ROOT) -> list[str]:
         errors.append(f"{WHY_PAGE}: missing pilot-decision anchor")
     if sponsor_copy and "/administration/securenow-pilot-decision" not in sponsor_copy:
         errors.append(f"{SPONSOR_COPY}: missing operator decision-prep link")
+    if sponsor_copy and (
+        "Decision cycle" not in sponsor_copy
+        or "/administration/securenow-pilot-decision#decision-cycle" not in sponsor_copy
+    ):
+        errors.append(f"{SPONSOR_COPY}: missing decision-cycle destination")
     if operator_copy:
         for token in ("NO_GO", "Proceed to commercial discussion", "Extend with bounded scope", "Stop"):
             if token not in operator_copy:
                 errors.append(f"{OPERATOR_COPY}: missing {token!r}")
-    if operator_page and "securenow-pilot-decision-page" not in operator_page:
-        errors.append(f"{OPERATOR_PAGE}: missing page test id")
+    if operator_page:
+        if "securenow-pilot-decision-page" not in operator_page:
+            errors.append(f"{OPERATOR_PAGE}: missing page test id")
+        if 'id="decision-cycle"' not in operator_page or "securenow-decision-cycle" not in operator_page:
+            errors.append(f"{OPERATOR_PAGE}: missing decision-cycle section")
     if pack_index and "PILOT_DECISION_RECORD.md" not in pack_index:
         errors.append(f"{PACK_INDEX}: missing decision record index entry")
 
     for relative, text in (
         (RECORD, record),
+        (DECISION_CYCLE_LOG, decision_cycle_log),
         (ONE_PAGER, one_pager),
         (WHY_COPY, why_copy),
         (OPERATOR_COPY, operator_copy),
