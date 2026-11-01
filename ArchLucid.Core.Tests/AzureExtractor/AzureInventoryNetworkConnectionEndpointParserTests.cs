@@ -98,4 +98,26 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
         result.Endpoint2ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(properties["localNetworkGateway2.id"]));
         result.HasBothEndpoints.Should().BeTrue();
     }
+
+    [Fact]
+    public void Parse_reads_remote_virtual_network_endpoint_when_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string plainRemoteVnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-remote";
+        string encodedRemoteVnetId = Uri.EscapeDataString(plainRemoteVnetId);
+
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["connectionType"] = "Vnet2Vnet",
+            ["virtualNetworkGateway1.id"] =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a",
+            ["remoteVirtualNetwork.id"] = encodedRemoteVnetId,
+        };
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint2ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(plainRemoteVnetId));
+        result.HasBothEndpoints.Should().BeTrue();
+    }
 }

@@ -10196,6 +10196,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-11-01 seed hunt #857 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded NIC ipConfiguration `id` on load balancer backend pool JSON (`AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId` split on `/` before bounded percent-decode, so encoded `%2Fsubscriptions%2F.../ipConfigurations/...` yielded no parent NIC and dropped LB backend edges); bounded percent-decode before segment split (parity with **#856** connection endpoints); regressions `ResolveFromBackendAddressPoolsJson_reads_parent_when_ip_configuration_id_is_percent_encoded_plain_arm_scalar` and `Resolves_parent_when_configuration_id_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed open `(candidate)` connection `remoteVirtualNetwork.id` from seed **#856** as **valid-no-repro** (**#856** `NormalizeArmId` plus regression `Parse_reads_remote_virtual_network_endpoint_when_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **PaasChild** and **FederatedCredential** monitor rows deferred (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2640/2640** (Release). Private beta: invited operators keep load balancer backend-to-NIC attachment edges on inventory diagrams when backend pool JSON stores percent-encoded ipConfiguration ARM references.
+
+- [x] (proven) `AzureInventoryPublicIpConfigurationParentResolver` — percent-encoded ipConfiguration ARM id before parent split — **hit 2026-11-01 seed hunt #857:** bounded percent-decode in `TryResolveParentArmId`; regressions above. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — percent-encoded NIC ipConfiguration `id` on backend pool flattened reference — **cheap-disproof 2026-11-01 seed hunt #857:** same resolver path as proven row; LB regression above.
+- [x] (valid-no-repro) `AzureInventoryNetworkConnectionEndpointParser` — percent-encoded `remoteVirtualNetwork.id` on connection endpoint2 — **cheap-disproof 2026-11-01 seed hunt #857:** **#856** `NormalizeArmId`; regression `Parse_reads_remote_virtual_network_endpoint_when_id_is_percent_encoded_plain_arm_scalar`.
+- [x] (valid-no-repro) `AzureInventoryPaasChildAssociationParser` — percent-encoded `childResourceId` on flattened association row — **cheap-disproof 2026-11-01 seed hunt #857:** deferred; raw read path remains monitor (reseed below).
+- [x] (valid-no-repro) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL on federated credential row — **cheap-disproof 2026-11-01 seed hunt #857:** deferred (reseed below).
+
+- [ ] (candidate) `AzureInventoryPaasChildAssociationParser` — percent-encoded `childResourceId` on companion JSON row — locus: `TryReadBoundedString`; input: encoded child ARM scalar; wrong outcome: dropped PaaS child edge (monitor seed **#857**).
+- [ ] (candidate) `AzureInventoryPaasChildAssociationParser` — percent-encoded `parentResourceId` on companion JSON row — locus: `TryReadBoundedString`; input: encoded parent ARM scalar; wrong outcome: orphan child edge (monitor seed **#857**).
+- [ ] (candidate) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL on federated credential row — locus: issuer field reader; input: encoded `https` issuer; wrong outcome: null issuer metadata (monitor seed **#857**).
+- [ ] (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — percent-encoded ipConfiguration reference in traffic resolver path — locus: shared `NetworkInterfaceIpConfigurationReferenceReader`; input: encoded configuration id; wrong outcome: missing traffic edge (monitor seed **#857**).
+- [ ] (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — percent-encoded backend address resource id — locus: `TryReadArmId`; input: encoded ARM scalar; wrong outcome: missing App Gateway backend parent (monitor seed **#857**).
+
 2026-11-01 seed hunt #856 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded plain ARM scalar on flattened `Microsoft.Network/connections` gateway endpoint (`AzureInventoryNetworkConnectionEndpointParser.NormalizeArmId` required leading `/` before bounded percent-decode, so `%2Fsubscriptions%2F.../virtualNetworkGateways/...` dropped `Endpoint1ArmId` and broke connection hydration joins); bounded percent-decode before normalize (parity with **#655** peering and **#855** NSG associations); regression `Parse_reads_gateway_endpoint_when_virtual_network_gateway_id_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed open `(candidate)` NSG NIC encoded target from hunt **#855** reseed as **valid-no-repro** (`NormalizeAssociationTargetArmId` already decodes NIC paths); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2637/2637** (Release). Private beta: invited operators keep VPN/ExpressRoute connection endpoint edges on inventory diagrams when flattened connection properties store percent-encoded gateway or local network gateway ARM paths.
 
 - [x] (proven) `AzureInventoryNetworkConnectionEndpointParser` — percent-encoded gateway endpoint ARM scalar on flattened connection properties — **hit 2026-11-01 seed hunt #856:** bounded percent-decode in `NormalizeArmId`; regression `Parse_reads_gateway_endpoint_when_virtual_network_gateway_id_is_percent_encoded_plain_arm_scalar`. [class:fail-open-validation]
@@ -10203,12 +10217,6 @@
 - [x] (valid-no-repro) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — percent-encoded backend pool reference on flattened properties — **cheap-disproof 2026-11-01 seed hunt #856:** deferred; distinct `NetworkInterfaceIpConfigurationReferenceReader` path remains monitor (reseed below).
 - [x] (valid-no-repro) `AzureInventoryPaasChildAssociationParser` — percent-encoded child resource id on association row — **cheap-disproof 2026-11-01 seed hunt #856:** deferred; raw `GetString()` path remains monitor (reseed below).
 - [x] (valid-no-repro) `AzureInventoryMessagingAssociationParser` — percent-encoded `forwardTo` target on Service Bus row — **cheap-disproof 2026-11-01 seed hunt #856:** `forwardTo` is entity name not ARM; monitor row retired (reseed below).
-
-- [ ] (candidate) `AzureInventoryNetworkConnectionEndpointParser` — percent-encoded `remoteVirtualNetwork.id` on connection endpoint2 flattened property — locus: `NormalizeArmId`; input: encoded remote VNet ARM scalar; wrong outcome: missing Vnet2Vnet endpoint join (monitor seed **#856**).
-- [ ] (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — percent-encoded NIC ipConfiguration `id` on backend pool flattened reference — locus: `NetworkInterfaceIpConfigurationReferenceReader`; input: encoded `/ipConfigurations/` path; wrong outcome: missing LB backend parent edge (monitor seed **#856**).
-- [ ] (candidate) `AzureInventoryPaasChildAssociationParser` — percent-encoded `childResourceId` on flattened association row — locus: raw property read; input: encoded child ARM scalar; wrong outcome: dropped PaaS child edge (monitor seed **#856**).
-- [ ] (candidate) `AzureInventoryPublicIpConfigurationParentResolver` — percent-encoded ipConfiguration reference on load balancer frontend — locus: parent resolver split; input: encoded configuration id; wrong outcome: orphan public IP attachment (monitor seed **#856**).
-- [ ] (candidate) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL on federated credential row — locus: issuer field reader; input: encoded `https` issuer; wrong outcome: null issuer metadata (monitor seed **#856**).
 
 2026-11-01 seed hunt #855 (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt` and 206 commits since **2026-10-30**; promoted NSG association target percent-encoded plain ARM scalar (`AzureInventoryNsgAssociationParser` passed encoded subnet ids through `ArmResourceIdNormalizer` only, so `InferTargetKind` missed `/subnets/` and data-flow NSG attachment keys stayed wrong); bounded percent-decode before normalize (parity with **#655** VNet peering); regression `Parse_normalizes_percent_encoded_subnet_target_arm_id`; cheap-disproof closed five stale open `(candidate)` rows from hunt **#854** reseed as **invalid** duplicate hypotheses (already closed **#853**); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2636/2636** (Release). Private beta: invited operators keep NSG-to-subnet/NIC attachment edges on inventory diagrams when flattened NSG association targets store percent-encoded ARM paths.
 
@@ -10646,11 +10654,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 63
-- **bugs-found:** 39
+- **hunts:** 64
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — Network connection endpoint percent-encoded gateway ARM ids
+- **last-bug:** 2026-11-01 — Load balancer ipConfiguration parent resolver percent-encoded ARM ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
