@@ -20,8 +20,10 @@ internal static class PolicyPackFindingMatcher
                 if (string.IsNullOrWhiteSpace(ruleKey))
                     continue;
 
-                if (string.Equals(finding.PolicyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase)
-                    || finding.PolicyRuleId.Contains(ruleKey, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(finding.PolicyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (RuleKeyAppearsAsToken(finding.PolicyRuleId, ruleKey))
                     return true;
             }
         }
@@ -38,5 +40,35 @@ internal static class PolicyPackFindingMatcher
             return true;
 
         return string.Equals(finding.EngineType, $"policy-pack:{packToken}", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
+    {
+        int index = 0;
+
+        while (index <= policyRuleId.Length - ruleKey.Length)
+        {
+            index = policyRuleId.IndexOf(ruleKey, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (IsRuleKeyTokenBoundary(policyRuleId, index, ruleKey.Length))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
+    {
+        if (index > 0 && char.IsLetterOrDigit(policyRuleId[index - 1]))
+            return false;
+
+        int after = index + ruleKeyLength;
+
+        return after >= policyRuleId.Length || !char.IsLetterOrDigit(policyRuleId[after]);
     }
 }

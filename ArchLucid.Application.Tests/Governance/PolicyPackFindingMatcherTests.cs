@@ -30,4 +30,47 @@ public sealed class PolicyPackFindingMatcherTests
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue(
             "pack-attributed findings should still match when ComplianceRuleKeys is populated but PolicyRuleId is not a listed key");
     }
+
+    [Fact]
+    public void MatchesAssignment_does_not_treat_prefix_rule_key_as_match_for_longer_sibling_rule_id()
+    {
+        Guid packId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-sibling-rule",
+            PolicyRuleId = "cis-azure-1.20",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "execute-time compliance keys like cis-azure-1.2 must not match findings for cis-azure-1.20 via substring");
+    }
+
+    [Fact]
+    public void MatchesAssignment_matches_rule_key_embedded_in_longer_policy_rule_id_with_token_boundary()
+    {
+        Guid packId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-embedded",
+            PolicyRuleId = $"policy-pack-{packId:D}-cis-azure-1.2",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
 }
