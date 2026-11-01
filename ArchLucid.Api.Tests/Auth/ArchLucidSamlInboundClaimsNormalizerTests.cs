@@ -43,6 +43,20 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_when_cookie_authentication_type_is_noop()
+    {
+        ClaimsIdentity identity = new(
+            [new Claim("http://idp/role", ArchLucidRoles.Admin)],
+            "Cookies");
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true, RoleClaimSources = ["http://idp/role"] });
+
+        identity.HasClaim("roles", ArchLucidRoles.Admin).Should().BeFalse();
+    }
+
+    [Fact]
     public void Apply_promotes_scope_claims_when_source_claim_type_differs_by_case()
     {
         Guid tenantId = ScopeIds.DefaultTenant;

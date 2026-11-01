@@ -5355,6 +5355,26 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-01 seed hunt (seed→hit #50): promoted comma-folded `Authorization` with lower half block (`U+2584`) and lower five eighths block (`U+2585`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2584` and `U+2585`; regressions `HandleAuthenticateAsync_succeeds_when_lower_half_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_lower_five_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #49 (`maxAgeMinutes` above sixty — regression `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty`; non-local issuer auth-version skip — regression `ValidateAsync_skips_non_local_issuer_tokens`; cookie auth type — regression `Apply_when_cookie_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped filter **228/230** (`RunAnalyzers=false`; 2 SQL integration tests blocked — no SQL Server on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a lower half block or lower five-eighths block placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower half block (`U+2584`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #50:** regression `HandleAuthenticateAsync_succeeds_when_lower_half_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower five eighths block (`U+2585`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #50:** regression `HandleAuthenticateAsync_succeeds_when_lower_five_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above sixty clamped — **cheap-disproof 2026-11-01 seed hunt #50:** regression `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — skips non-local issuer tokens — **cheap-disproof 2026-11-01 seed hunt #50:** regression `ValidateAsync_skips_non_local_issuer_tokens`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — cookie authentication type no-op — **cheap-disproof 2026-11-01 seed hunt #50:** regression `Apply_when_cookie_authentication_type_is_noop`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower three quarters block (`U+2586`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower seven eighths block (`U+2587`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
+- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` below one clamped — locus: `Math.Clamp`; reachability: step-up monitor (existing regression).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version — locus: validator; reachability: pilot JWT monitor (existing regression).
+- [ ] (candidate) `LocalTrialJwtIssuer` — twenty-four-hour upper lifetime clamp — locus: `Math.Clamp`; reachability: hunt #13 monitor (existing regression).
+
+- [x] (proven) `ScimBearerAuthenticationHandler` — lower one quarter block (`U+2582`) glued after `Bearer` — **hit 2026-11-01 seed hunt #49:** regression `HandleAuthenticateAsync_succeeds_when_lower_one_quarter_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler` — lower three eighths block (`U+2583`) glued after `Bearer` — **hit 2026-11-01 seed hunt #49:** regression `HandleAuthenticateAsync_succeeds_when_lower_three_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — future `iat` without `auth_time` rejected — **cheap-disproof 2026-11-01 seed hunt #49:** regression `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — accepts current auth-version stamp — **cheap-disproof 2026-11-01 seed hunt #49:** regression `ValidateAsync_accepts_current_auth_version`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op — **cheap-disproof 2026-11-01 seed hunt #49:** regression `Apply_when_not_saml_authentication_type_is_noop`.
+
 2026-11-01 seed hunt (seed→hit #49): promoted comma-folded `Authorization` with lower one quarter block (`U+2582`) and lower three eighths block (`U+2583`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2582` and `U+2583`; regressions `HandleAuthenticateAsync_succeeds_when_lower_one_quarter_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_lower_three_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed hunt #48 (future `iat` without `auth_time` — regression `HasRecentAuthentication_returns_false_when_only_future_iat_is_present_without_auth_time`; current auth-version stamp — regression `ValidateAsync_accepts_current_auth_version`; non-SAML auth type — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped filter **226/228** (`RunAnalyzers=false`; 2 SQL integration tests blocked — no SQL Server on cloud VM). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a lower one-quarter block or lower three-eighths block placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower one quarter block (`U+2582`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #49:** regression `HandleAuthenticateAsync_succeeds_when_lower_one_quarter_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5363,11 +5383,11 @@
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — accepts current auth-version stamp — **cheap-disproof 2026-11-01 seed hunt #49:** regression `ValidateAsync_accepts_current_auth_version`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op — **cheap-disproof 2026-11-01 seed hunt #49:** regression `Apply_when_not_saml_authentication_type_is_noop`.
 
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower half block (`U+2584`) glued after `Bearer` — locus: placeholder set; reachability: proxy monitor.
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower five eighths block (`U+2585`) glued after `Bearer` — locus: dash normalization; reachability: proxy monitor.
-- [ ] (candidate) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above sixty clamped — locus: `Math.Clamp`; reachability: step-up monitor (existing regression).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — skips non-local issuer tokens — locus: issuer filter; reachability: pilot JWT monitor (existing regression).
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — cookie authentication type no-op — locus: `IsSaml2AuthenticatedIdentity`; reachability: SAML monitor (existing regression).
+- [x] (proven) `ScimBearerAuthenticationHandler` — lower half block (`U+2584`) glued after `Bearer` — **hit 2026-11-01 seed hunt #50:** regression `HandleAuthenticateAsync_succeeds_when_lower_half_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler` — lower five eighths block (`U+2585`) glued after `Bearer` — **hit 2026-11-01 seed hunt #50:** regression `HandleAuthenticateAsync_succeeds_when_lower_five_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `maxAgeMinutes` above sixty clamped — **cheap-disproof 2026-11-01 seed hunt #50:** regression `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — skips non-local issuer tokens — **cheap-disproof 2026-11-01 seed hunt #50:** regression `ValidateAsync_skips_non_local_issuer_tokens`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — cookie authentication type no-op — **cheap-disproof 2026-11-01 seed hunt #50:** regression `Apply_when_cookie_authentication_type_is_noop`.
 
 - [x] (proven) `ScimBearerAuthenticationHandler` — upper half block (`U+257F`) glued after `Bearer` — **hit 2026-11-01 seed hunt #48:** regression `HandleAuthenticateAsync_succeeds_when_upper_half_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
 - [x] (proven) `ScimBearerAuthenticationHandler` — lower one eighth block (`U+2580`) glued after `Bearer` — **hit 2026-11-01 seed hunt #48:** regression `HandleAuthenticateAsync_succeeds_when_lower_one_eighth_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -5936,11 +5956,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 76
-- **bugs-found:** 70
+- **hunts:** 77
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — SCIM Bearer mix guard rejected lower one-quarter block and lower three-eighths block placeholders before valid comma-folded token
+- **last-bug:** 2026-11-01 — SCIM Bearer mix guard rejected lower half block and lower five-eighths block placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
