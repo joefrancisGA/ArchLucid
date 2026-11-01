@@ -10223,6 +10223,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-11-01 seed hunt #862 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded namespace and child `id` on live Event Hub extraction JSON (`AzureInventoryMessagingAssociationExtractor.TryExtractEventHub` stored trimmed encoded `%2Fsubscriptions%2F...` parent/child scalars without bounded percent-decode before `ArmResourceIdNormalizer`, so messaging child rows missed inventory keys during collector write); bounded percent-decode before normalize on parent parameter and child `id` (parity with **#860** PaaS live extraction and **#861** restore point source); regression `TryExtractEventHub_reads_parent_and_child_when_namespace_and_child_ids_are_percent_encoded_plain_arm_scalars`; same normalize path applied to `TryExtractServiceBusChild`; cheap-disproof closed open `(candidate)` **RestorePointCollectionSourceParser** encoded `source` JSON blob from seed **#861** as **valid-no-repro** (**#861** recursive resolver — regression `Parse_reads_source_from_json_blob_when_id_inside_is_percent_encoded_plain_arm_scalar`); cheap-disproof **ApplicationGatewayBackendAddressReader** as **valid-no-repro** (**#859** regression `TryReadBackendResourceArmId_reads_resource_when_backend_resource_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **VnetPeeringParser** remote NIC reference as **valid-no-repro** (**#859** reader plus peering `NormalizeArmId`); cheap-disproof **FederatedCredentialParser** issuer identity monitor as **valid-no-repro** (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2651/2651** (Release). Private beta: invited operators keep Event Hub and Service Bus child containment edges on inventory diagrams when live ARM payloads store percent-encoded namespace or child resource ids.
+
+- [x] (proven) `AzureInventoryMessagingAssociationExtractor` — percent-encoded namespace id on live Event Hub extraction — **hit 2026-11-01 seed hunt #862:** `NormalizeArmId` on parent and child; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryRestorePointCollectionSourceParser` — percent-encoded `source` JSON blob with encoded `id` inside — **cheap-disproof 2026-11-01 seed hunt #862:** **#861** `TryResolveArmReferenceValue`; regression `Parse_reads_source_from_json_blob_when_id_inside_is_percent_encoded_plain_arm_scalar`.
+- [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — percent-encoded remote NIC reference on peering property bag — **cheap-disproof 2026-11-01 seed hunt #862:** **#859** reader path; monitor seed **#860** retired.
+- [x] (valid-no-repro) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL changes row identity on re-import — **cheap-disproof 2026-11-01 seed hunt #862:** monitor reseed below.
+- [x] (valid-no-repro) `AzureInventoryApplicationGatewayBackendAddressReader` — percent-encoded backend resource id on flat address row — **cheap-disproof 2026-11-01 seed hunt #862:** regression `TryReadBackendResourceArmId_reads_resource_when_backend_resource_id_is_percent_encoded_plain_arm_scalar`.
+
+- [ ] (candidate) `AzureInventoryMessagingAssociationExtractor` — percent-encoded child `id` only on Service Bus live extraction — locus: `TryExtractServiceBusChild`; input: encoded child ARM scalar with plain namespace parameter; wrong outcome: orphan queue/topic row (monitor seed **#862**).
+- [ ] (candidate) `AzureInventoryRestorePointCollectionSourceParser` — percent-encoded hydrated `RestorePointSourceArmId` property — locus: top-level hydrated key path; input: encoded scalar on alternate property key; wrong outcome: missing lineage (monitor seed **#862**).
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — percent-encoded remote virtual network id on flattened peering property — locus: duplicate monitor retirement check; input: encoded vnet scalar; wrong outcome: missing peering edge (regression `TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar`).
+- [ ] (candidate) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL changes row identity on re-import — locus: evidence hash vs normalized issuer; input: encoded vs decoded issuer; wrong outcome: duplicate credential rows (monitor seed **#862**).
+- [ ] (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — percent-encoded ipConfiguration on backend pool member — locus: resolver reader path; input: encoded NIC ipConfiguration scalar; wrong outcome: missing LB backend edge (regression `ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_is_percent_encoded_plain_arm_scalar`).
+
 2026-11-01 seed hunt #861 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded restore point `source.id` on flattened property bags (`AzureInventoryRestorePointCollectionSourceParser.TryResolveArmReferenceValue` required a leading `/` before bounded percent-decode, so `%2Fsubscriptions%2F...` VM source ids dropped backup lineage attachment keys); bounded percent-decode before ARM shape gate (parity with **#860** PaaS child live extraction); regression `Parse_reads_source_id_when_value_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed open `(candidate)` **MessagingAssociationParser** parent row from seed **#860** as **valid-no-repro** (`TryReadBoundedString` uses `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString`, which already percent-decodes companion scalars); cheap-disproof **VnetPeeringParser** remote vnet dotted property as **valid-no-repro** (**#853** regression `TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar`); cheap-disproof **PaasChildAssociationExtractor** encoded parent parameter as **valid-no-repro** (**#860** `NormalizeCompanionArmId` on parent — regression `TryExtractChild_reads_parent_when_parent_resource_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **FederatedCredentialParser** issuer identity monitor as **valid-no-repro** (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2649/2649** (Release). Private beta: invited operators keep VM/VMSS backup lineage edges on inventory diagrams when restore point collection property bags store percent-encoded source ARM ids.
 
 - [x] (proven) `AzureInventoryRestorePointCollectionSourceParser` — percent-encoded source ARM id on restore point row — **hit 2026-11-01 seed hunt #861:** bounded percent-decode in `TryResolveArmReferenceValue`; regression above. [class:fail-open-validation]
@@ -10737,11 +10751,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 65
-- **bugs-found:** 41
+- **hunts:** 66
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — Restore point collection source.id percent-encoded ARM ids
+- **last-bug:** 2026-11-01 — Messaging live extraction percent-encoded namespace and child ARM ids
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

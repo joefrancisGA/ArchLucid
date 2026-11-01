@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -45,8 +47,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = NormalizeArmId(namespaceResourceId),
+            ChildResourceId = NormalizeArmId(childResourceId),
             ChildName = childName.Trim(),
             ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -93,8 +95,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = namespaceResourceId.Trim(),
-            ChildResourceId = childResourceId.Trim(),
+            ParentResourceId = NormalizeArmId(namespaceResourceId),
+            ChildResourceId = NormalizeArmId(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -116,6 +118,32 @@ public static class AzureInventoryMessagingAssociationExtractor
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+    }
+
+    private static string NormalizeArmId(string armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return string.Empty;
+        }
+
+        string working = armId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
 }
