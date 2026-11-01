@@ -2446,3 +2446,4 @@
 {"at":"2026-11-01T18:57:14.4222277Z","zoneId":"scope-binding-middleware","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T19:03:17.0847985Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T19:09:05.4503491Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T19:13:00.5341137Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
