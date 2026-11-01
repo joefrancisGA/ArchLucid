@@ -9,19 +9,19 @@ export const SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL =
 
 export const SECURENOW_INVESTIGATION_EFFORT_NOTES = [
   {
-    href: "docs/securenow/PILOT_MEASUREMENT_LOG.md",
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
     label: "Pilot measurement log",
   },
   {
-    href: "docs/securenow/ROI_COST_INPUT.md",
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
     label: "Cost input",
   },
   {
-    href: "docs/securenow/ROI_FIXTURE_WORKSHEET.md",
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
     label: "Fixture worksheet",
   },
   {
-    href: "docs/securenow/ROI_SEND_RULE.md",
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
     label: "Send rule",
   },
 ] as const;

@@ -154,10 +154,10 @@ def validate(root: Path = ROOT) -> list[str]:
         text = (operator.read_text(encoding="utf-8") + "\n" + operator_copy.read_text(encoding="utf-8"))
         for token in (
             "securenow-investigation-effort-page",
-            "docs/securenow/PILOT_MEASUREMENT_LOG.md",
-            "docs/securenow/ROI_COST_INPUT.md",
-            "docs/securenow/ROI_FIXTURE_WORKSHEET.md",
-            "docs/securenow/ROI_SEND_RULE.md",
+            "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/PILOT_MEASUREMENT_LOG.md",
+            "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_COST_INPUT.md",
+            "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_FIXTURE_WORKSHEET.md",
+            "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/ROI_SEND_RULE.md",
         ):
             if token not in text:
                 errors.append(f"{OPERATOR_PAGE}: missing {token!r}")
