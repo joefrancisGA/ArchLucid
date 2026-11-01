@@ -8973,7 +8973,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 127 · **Bugs found:** 116 · **Consecutive dry hunts:** 0
+**Hunts:** 128 · **Bugs found:** 117 · **Consecutive dry hunts:** 0
+
+2026-11-01 thorough hunt (hit): extended **`operatorNonEmptyTrimmedString` to legacy compare, manifest summary, and replay coercion** — `coerceRunComparison`, `coerceManifestSummary`, and `coerceReplayResponse` still accepted empty or whitespace-only primary run/manifest ids; wired shared trim guard on compare `leftRunId`/`rightRunId`, summary `manifestId`/`runId`, and replay `runId`; regressions `rejects empty leftRunId`, `rejects whitespace-only manifestId`, and `rejects whitespace-only runId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 137 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer render run compare, review header manifest summaries, or replay panels from API payloads whose primary ids are blank or whitespace-only.
+
+- [x] (proven) `coerceRunComparison` — empty string `leftRunId` / `rightRunId` pass zod checks — **hit 2026-11-01 thorough hunt:** shared trim guard on compare run ids; regression `rejects empty leftRunId`.
+- [x] (proven) `coerceManifestSummary` — whitespace-only `manifestId` passes zod string checks — **hit 2026-11-01 thorough hunt:** shared trim guard on `manifestId`/`runId`; regression above.
+- [x] (valid-no-repro) `coerceArtifactDescriptorList` — whitespace-only list row `artifactId` — **cheap-disproof 2026-11-01 thorough hunt:** list rows already use `operatorNonEmptyTrimmedString` from prior hunt (`One or more artifacts are missing artifactId or name.`).
+- [x] (invalid) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — **cheap-disproof 2026-11-01 thorough hunt:** offset pages are 1-indexed on pilot API paths; zero page is not a reachable OpenAPI contract input.
+- [x] (proven) `coerceReplayResponse` — whitespace-only `runId` passes zod string checks — **hit 2026-11-01 thorough hunt:** shared trim guard on replay `runId`; regression above.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts `pageSize: 0` — locus: `isLegacyOffsetPagedRunEnvelope`; input: `{ page: 1, pageSize: 0, totalCount: 0, hasMore: false, items: [] }`.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `manifestHash` passes zod string checks — locus: `manifestSummarySchema`; input: `{ manifestHash: "  ", …required fields }`.
+- [ ] (candidate) `coerceReplayResponse` — whitespace-only `replayedUtc` passes zod string checks — locus: `replayResponseSchema`; input: `{ replayedUtc: " ", …required fields }`.
+- [ ] (candidate) `coerceRunComparison` — whitespace-only `leftRunId` passes after empty guard — locus: `runComparisonSchema`; input: `{ leftRunId: "  ", rightRunId: "r", runLevelDiffs: [] }`.
+- [ ] (candidate) `coerceComparisonExplanation` — missing required narrative fields fail with generic object message — locus: explanation schema; input: partial envelope.
 
 2026-11-01 thorough hunt (hit): promoted **whitespace-only artifact ids and empty compare run ids in operator coercion** — artifact and golden-manifest guards used plain `z.string()` while run detail already trimmed required ids; extracted shared `operatorNonEmptyTrimmedString` and wired `coerceArtifactDescriptor` / list rows plus `coerceGoldenManifestComparison` `baseRunId` / `targetRunId`; regressions `rejects whitespace-only artifactId` and `rejects empty baseRunId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 134 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer hydrate artifact panels or golden-manifest compare chrome from API payloads whose primary ids are blank whitespace or empty strings.
 

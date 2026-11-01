@@ -91,8 +91,8 @@ export function coerceArtifactDescriptor(
 
 const runComparisonSchema = z
   .object({
-    leftRunId: z.string(),
-    rightRunId: z.string(),
+    leftRunId: operatorNonEmptyTrimmedString,
+    rightRunId: operatorNonEmptyTrimmedString,
     runLevelDiffs: z.array(z.unknown()),
     manifestComparison: z
       .object({

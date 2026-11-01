@@ -157,6 +157,16 @@ describe("coerceRunComparison", () => {
       }).ok,
     ).toBe(false);
   });
+
+  it("rejects empty leftRunId", () => {
+    expect(
+      coerceRunComparison({
+        leftRunId: "",
+        rightRunId: "R",
+        runLevelDiffs: [],
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe("coerceGoldenManifestComparison", () => {
@@ -223,6 +233,21 @@ describe("coerceReplayResponse", () => {
       mode: "m",
       replayedUtc: "2020-01-01T00:00:00Z",
       validation: {},
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects whitespace-only runId", () => {
+    const result = coerceReplayResponse({
+      runId: "   ",
+      mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
     });
 
     expect(result.ok).toBe(false);
@@ -309,6 +334,23 @@ describe("coerceManifestSummary", () => {
       warningCount: 0,
       unresolvedIssueCount: 0,
       status: 1,
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects whitespace-only manifestId", () => {
+    const result = coerceManifestSummary({
+      manifestId: "   ",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
     });
 
     expect(result.ok).toBe(false);

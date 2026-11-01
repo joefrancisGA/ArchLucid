@@ -103,7 +103,7 @@ const replayValidationSchema = z
 
 const replayResponseSchema = z
   .object({
-    runId: z.string(),
+    runId: operatorNonEmptyTrimmedString,
     mode: z.string(),
     replayedUtc: z.string(),
     validation: replayValidationSchema,
@@ -168,8 +168,8 @@ export function coerceReplayResponse(
 
 const manifestSummarySchema = z
   .object({
-    manifestId: z.string(),
-    runId: z.string(),
+    manifestId: operatorNonEmptyTrimmedString,
+    runId: operatorNonEmptyTrimmedString,
     createdUtc: z.string(),
     manifestHash: z.string(),
     ruleSetId: z.string(),
