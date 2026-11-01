@@ -36,4 +36,5 @@ export const SECURENOW_DECISION_CYCLE_STALL_STEPS: readonly string[] = [
 export const SECURENOW_DECISION_CYCLE_GUARDRAIL =
   "Leave the outcome blank until a person selects proceed to commercial discussion, extend with bounded scope, or stop on the pilot decision record." as const;
 
-export const SECURENOW_DECISION_CYCLE_LOG_PATH = "docs/securenow/DECISION_CYCLE_LOG.md" as const;
+export const SECURENOW_DECISION_CYCLE_LOG_PATH =
+  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md" as const;

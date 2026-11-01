@@ -19,7 +19,7 @@ describe("SecureNow pilot decision preparation page", () => {
     }
     expect(screen.getByRole("link", { name: "Decision cycle log" })).toHaveAttribute(
       "href",
-      "docs/securenow/DECISION_CYCLE_LOG.md",
+      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
     );
     expect(screen.getByRole("link", { name: "Read the sponsor-facing decision path" })).toHaveAttribute(
       "href",
