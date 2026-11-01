@@ -123,34 +123,7 @@ public static class AzureInventoryFederatedCredentialParser
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded;
-
-            try
-            {
-                decoded = Uri.UnescapeDataString(working);
-            }
-            catch (UriFormatException)
-            {
-                break;
-            }
-            catch (ArgumentException)
-            {
-                break;
-            }
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
+        string working = ArmResourceIdNormalizer.DecodePercentEscapes(armId.Trim());
 
         if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {

@@ -24,6 +24,34 @@ public sealed class ArmResourceIdNormalizerTests
     }
 
     [Fact]
+    public void DecodePercentEscapes_decodes_repeatedly_encoded_arm_ids()
+    {
+        const string encodedTwice =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns%252Feventhubs%252Forders";
+
+        ArmResourceIdNormalizer.DecodePercentEscapes(encodedTwice)
+            .Should()
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns/eventhubs/orders");
+    }
+
+    [Fact]
+    public void DecodePercentEscapes_leaves_plain_ids_unchanged()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        ArmResourceIdNormalizer.DecodePercentEscapes(armId).Should().Be(armId);
+    }
+
+    [Fact]
+    public void DecodePercentEscapes_keeps_last_known_good_value_when_encoding_is_malformed()
+    {
+        ArmResourceIdNormalizer.DecodePercentEscapes("%ZZ%2Fsubscriptions%2Fsub")
+            .Should()
+            .Be("%ZZ/subscriptions/sub");
+    }
+
+    [Fact]
     public void IsDescendantOf_detects_nested_arm_child_resources()
     {
         const string parent =

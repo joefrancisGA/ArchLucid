@@ -17,6 +17,47 @@ public static class ArmResourceIdNormalizer
         return trimmed.ToString().ToLowerInvariant();
     }
 
+    /// <summary>
+    ///     Repeatedly percent-decodes <paramref name="value"/> until it is stable (bounded passes) so
+    ///     double-encoded ARM ids normalize onto the same canonical form before downstream checks.
+    ///     Malformed escape sequences keep the last-known-good value instead of throwing.
+    /// </summary>
+    public static string DecodePercentEscapes(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        string working = value;
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                break;
+            }
+            catch (ArgumentException)
+            {
+                break;
+            }
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
+    }
+
     /// <summary>Returns the resource group segment from a top-level ARM resource id.</summary>
     public static bool TryGetResourceGroupName(string? azureResourceId, out string resourceGroupName)
     {
