@@ -17,6 +17,13 @@ export function normalizeOidcConfigurationString(value: string): string {
   return stripOAuthInvisibleFormatChars(value.trim()).trim();
 }
 
+/** OAuth authorize query and token-endpoint form values copied from IdP portals (redirect URI, client id). */
+export function normalizeOidcOAuthFormString(value: string): string {
+  return stripOAuthInvisibleFormatChars(
+    value.replace(/[\u00AD\uFE00-\uFE0F\uFFFC\uFFFD]/gu, "").trim(),
+  ).trim();
+}
+
 /** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
 export function normalizeOidcDisplayString(value: string): string {
   return value

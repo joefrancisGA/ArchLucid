@@ -3143,6 +3143,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-01 seed hunt #100 (hit): no rotation (`shouldRotate: false`; **cooldown fallback** kept **`ui-oidc`** selected). Promoted dual-path **`redirect_uri` / `client_id` normalization** — `buildAuthorizeUrl` used `normalizeOidcConfigurationString` while `exchangeAuthorizationCode` token form used stricter `normalizeTokenString`, so soft hyphens (U+00AD) or variation selectors in portal-copied redirect URIs reached the IdP authorize step but were stripped on code exchange (`redirect_uri_mismatch` / failed callback). Shared `normalizeOidcOAuthFormString` for authorize OAuth form query values and token form fields; regression `strips soft hyphens from redirect_uri and client_id to match token exchange form normalization`; scoped OIDC tests **1035/1035** (`src/lib/oidc` + `oidc-authority-host`). Private beta: sign-in completes when fixed redirect URI env values contain copy/paste soft hyphens or variation selectors that previously broke only at token exchange.
+
+- [x] (proven) `buildAuthorizeUrl` + `exchangeAuthorizationCode` — authorize `redirect_uri` / `client_id` query values disagreed with token-endpoint form normalization on soft hyphen and variation-selector copy/paste artifacts — **hit 2026-11-01 seed hunt #100:** `normalizeOidcOAuthFormString`; regression above.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-review-detail-workspace` after prior hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread token-endpoint response parsing, mixed JSON error/success classification, normalized OAuth error codes, and `resolveExpiresInSeconds` coercion. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **1/3** before this hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread `initiateOidcRedirect` authority/client selection, abandoned post-sign-in return URL clearing vs idle-desk restore, and authorize retry snapshot consumption before PKCE storage. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
@@ -6243,11 +6247,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 99
-- **bugs-found:** 71
+- **hunts:** 100
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-16 — hex/octal/binary epoch-ms hint literals in session and BFF refresh
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — authorize vs token redirect_uri normalization mismatch on soft hyphens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
