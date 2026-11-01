@@ -1244,13 +1244,26 @@
 
 ## Zone: tenant-scoped-analyzer
 
-2026-11-01 thorough hunt (dry #355): cheap-disproof closed five header `(candidate)` rows from hunt #354 reseed (regression family hunts **#353** / **#352** / **#351**) — **valid-no-repro** `QueryAsync` string overload with `commandType: CommandType.StoredProcedure` (`IsStoredProcedureDapperInvocation`; parity `ARCH006_does_not_analyze_execute_async_string_when_command_type_is_stored_procedure` and `#353` diary), **valid-no-repro** non-constant `commandType` on stored-proc skip (`TryGetConstantCommandType` constant-only by design; `#353` diary), **valid-no-repro** `StringBuilder` / `string.Create` SQL (`TenantScopedSqlExpressionResolver` has no builder fold; `#353` diary), **invalid** `global using Dapper` breaks `IsDapperSqlMapperMethod` (`#353` diary), **invalid** `[TenantScopeExempt]` on `file-local` repository (`ClassDeclaration` registration; `#353` diary). Reseeded five `(candidate)` monitor rows below; scoped stored-proc / CommandDefinition regressions **5/5** passed (`RunAnalyzers=false`). Private beta: n/a.
+2026-11-01 thorough hunt (dry #356): cheap-disproof closed five open monitor `(candidate)` rows from hunt #355 reseed (duplicate of **#354** diary: CommandDefinition local defer + object-creation analysis, `(CommandType)1` via `TryGetConstantCommandType`, span/stackalloc invalid, partial class, nested exempt) — added isolated parity probes in `TenantScopedQueryScopeBindingAnalyzerParityProbeTests` confirming **valid-no-repro** `QueryAsync` local stored-proc `CommandDefinition` (same gate as **#353** `ExecuteAsync`) and **valid-no-repro** unscoped `QueryAsync` local still reports ARCH006 at `CommandDefinition` creation; scoped stored-proc + parity regressions **7/7** passed. Reseeded five `(candidate)` rows below. Private beta: n/a.
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — locus: defer path + object creation; input: local `CommandDefinition` passed to `QueryAsync` overload (monitor; hunt #355).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — locus: `TryGetConstantCommandType`; input: numeric enum constant (monitor; hunt #355).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — locus: resolver coverage; input: span-based SQL assembly (monitor; hunt #355).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — locus: symbol containment; input: partial declaration split (monitor; hunt #355).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on nested private repository class — locus: type declaration registration; input: nested class exemption (monitor; hunt #355).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryMultipleAsync` with local `CommandDefinition` and `CommandType.StoredProcedure` — locus: defer + object creation; input: streaming batch read shape (monitor; hunt #356).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `QueryFirstAsync` / `QuerySingleAsync` string overload with `commandType: StoredProcedure` — locus: `IsStoredProcedureDapperInvocation`; input: parity with **#352** `ExecuteAsync` (monitor; hunt #356).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — primary-constructor parameter default or field promoted from `record` repository — locus: symbol/init coverage; input: C# 12 primary constructor SQL holder (monitor; hunt #356).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandDefinition` passed through instance method parameter before Dapper call — locus: `UnwrapCommandDefinitionSqlExpression`; input: helper wraps `CommandDefinition` local (monitor; hunt #356).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `interface` default interface method with SQL — locus: `MethodDeclaration` vs interface member; input: DIM repository (monitor; hunt #356).
+
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary + parity probe `ARCH006_reports_unscoped_sql_for_query_async_local_command_definition_when_not_stored_procedure`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local + `CommandType.StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #356:** parity probe `ARCH006_does_not_analyze_query_async_local_command_definition_when_command_type_is_stored_procedure`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` / `#352` diary.
+- [x] (invalid) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on nested private repository class — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary.
+
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — **cheap-disproof 2026-11-01 thorough hunt #356:** see hunt #356 diary.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — **cheap-disproof 2026-11-01 thorough hunt #356:** see hunt #356 diary.
+- [x] (invalid) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — **cheap-disproof 2026-11-01 thorough hunt #356:** see hunt #356 diary.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — **cheap-disproof 2026-11-01 thorough hunt #356:** see hunt #356 diary.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on nested private repository class — **cheap-disproof 2026-11-01 thorough hunt #356:** see hunt #356 diary.
 
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: CommandType.StoredProcedure` on string overload — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — non-constant `commandType` variable on stored-proc skip — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
@@ -1352,9 +1365,9 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — ARCH006 false-positive on stored-procedure CommandDefinition passed via ExecuteAsync local
 - **related-pd-tb:** none
