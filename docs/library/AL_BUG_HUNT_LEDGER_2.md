@@ -1244,13 +1244,27 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-11-01 thorough hunt (dry #355): cheap-disproof closed five header `(candidate)` rows from hunt #354 reseed (regression family hunts **#353** / **#352** / **#351**) — **valid-no-repro** `QueryAsync` string overload with `commandType: CommandType.StoredProcedure` (`IsStoredProcedureDapperInvocation`; parity `ARCH006_does_not_analyze_execute_async_string_when_command_type_is_stored_procedure` and `#353` diary), **valid-no-repro** non-constant `commandType` on stored-proc skip (`TryGetConstantCommandType` constant-only by design; `#353` diary), **valid-no-repro** `StringBuilder` / `string.Create` SQL (`TenantScopedSqlExpressionResolver` has no builder fold; `#353` diary), **invalid** `global using Dapper` breaks `IsDapperSqlMapperMethod` (`#353` diary), **invalid** `[TenantScopeExempt]` on `file-local` repository (`ClassDeclaration` registration; `#353` diary). Reseeded five `(candidate)` monitor rows below; scoped stored-proc / CommandDefinition regressions **5/5** passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — locus: defer path + object creation; input: local `CommandDefinition` passed to `QueryAsync` overload (monitor; hunt #355).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — locus: `TryGetConstantCommandType`; input: numeric enum constant (monitor; hunt #355).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — locus: resolver coverage; input: span-based SQL assembly (monitor; hunt #355).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — locus: symbol containment; input: partial declaration split (monitor; hunt #355).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on nested private repository class — locus: type declaration registration; input: nested class exemption (monitor; hunt #355).
+
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: CommandType.StoredProcedure` on string overload — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — non-constant `commandType` variable on stored-proc skip — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — `StringBuilder` / `string.Create` appended SQL — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `global using Dapper` breaks `IsDapperSqlMapperMethod` — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
+- [x] (invalid) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository type — **cheap-disproof 2026-11-01 thorough hunt #355:** hunt #354 reseed queue.
+
 2026-11-01 thorough hunt (dry #354): cheap-disproof closed five header `(candidate)` rows from hunt #353 reseed — **valid-no-repro** `QueryAsync<T>` with `CommandDefinition` local (`IsCommandDefinitionSqlArgument` defers invocation analysis to object creation, same `#353`/`ExecuteAsync` mechanism; inline `QueryAsync` + `new CommandDefinition(...)` in Persistence is analyzed at object creation), **valid-no-repro** `(CommandType)1` stored-proc skip (`TryGetConstantCommandType` maps `int` constants to `CommandType`; regression family `#352`/`#353`), **invalid** `ReadOnlySpan<char>` / `stackalloc` SQL buffers (no span folding in `TenantScopedSqlExpressionResolver`), **valid-no-repro** partial-class SQL split (`ARCH006_does_not_crash_when_sql_field_lives_in_partial_class_sibling_file`), **valid-no-repro** nested private repository `[TenantScopeExempt]` (`TryGetExemption` walks containing symbols; nested types register on `ClassDeclaration`). Reseeded five follow-on `(candidate)` rows; scoped regressions **5/5** stored-proc / CommandDefinition / partial regressions passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: CommandType.StoredProcedure` on string overload — locus: `IsStoredProcedureDapperInvocation`; input: proc-name or SQL-shaped text with stored-proc command type (monitor; hunt #354).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — non-constant `commandType` variable on stored-proc skip — locus: `TryGetConstantCommandType`; input: runtime `CommandType` local (monitor; hunt #354).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `StringBuilder` / `string.Create` appended SQL — locus: resolver coverage; input: builder-assembled SQL (monitor; hunt #354).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `global using Dapper` breaks `IsDapperSqlMapperMethod` — locus: containing-type check; input: extension call after global using (monitor; hunt #354).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository type — locus: `ClassDeclaration` registration; input: file-local scoped repository (monitor; hunt #354).
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync` with `commandType: CommandType.StoredProcedure` on string overload — **cheap-disproof 2026-11-01 thorough hunt #355:** see diary row above.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — non-constant `commandType` variable on stored-proc skip — **cheap-disproof 2026-11-01 thorough hunt #355:** see diary row above.
+- [x] (valid-no-repro) `TenantScopedSqlExpressionResolver` — `StringBuilder` / `string.Create` appended SQL — **cheap-disproof 2026-11-01 thorough hunt #355:** see diary row above.
+- [x] (invalid) `TenantScopedQueryScopeBindingAnalyzer` — `global using Dapper` breaks `IsDapperSqlMapperMethod` — **cheap-disproof 2026-11-01 thorough hunt #355:** see diary row above.
+- [x] (invalid) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `file-local` repository type — **cheap-disproof 2026-11-01 thorough hunt #355:** see diary row above.
 
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — **cheap-disproof 2026-11-01 thorough hunt #354:** hunt #353 reseed queue.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — **cheap-disproof 2026-11-01 thorough hunt #354:** hunt #353 reseed queue.
@@ -1338,9 +1352,9 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — ARCH006 false-positive on stored-procedure CommandDefinition passed via ExecuteAsync local
 - **related-pd-tb:** none
