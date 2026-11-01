@@ -1421,6 +1421,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-11-01 thorough hunt (hit): promoted `clearFilterText` — Escape/immediate filter clear rebuilt hrefs from lagging `routerSearchString` only and dropped committed `compareRuns` after compare-then-filter; clear path now uses `runsListNavigationSearchFromSearch` before deleting `q=`, matching debounce and pagination overlay behavior. Regression `preserves compareRuns when Escape clears the filter before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — debounced sync already overlays committed compare/inspector (`preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`; third-compare race reads committed window at timer fire); inspector debounce covered by `preserves inspectorRunId in debounced q= sync when filter text is typed` plus overlay; Previous href uses same overlay as popstate-narrowed committed compare; scope chips use `navigationSearch` not debounce write path. Focused `RunsListClient` vitest passed **73/73**. Reseeded five follow-on `(candidate)` rows below. Private beta: clearing the reviews list text filter with Escape no longer drops an active two-review compare selection when the router has not caught up.
+
+- [x] (proven) `useRunsList` `clearFilterText` — Escape clear dropped committed `compareRuns` when router lagged — **hit 2026-11-01 thorough hunt:** overlay base on clear href; regression above.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` vs third-compare toggle race — **cheap-disproof 2026-11-01 thorough hunt:** debounce commit reads fresh committed overlay at fire time after compare URL sync.
+- [x] (valid-no-repro) `RunsListClient` inspector + debounced `q=` with lagging router — **cheap-disproof 2026-11-01 thorough hunt:** debounce overlay preserves `inspectorRunId`; regression `preserves inspectorRunId in debounced q= sync when filter text is typed`.
+- [x] (valid-no-repro) `RunsListClient` pagination Previous after popstate-narrowed compare — **cheap-disproof 2026-11-01 thorough hunt:** `navigationSearch` reflects committed compare ids post-popstate.
+- [x] (valid-no-repro) `useRunsList` buyer scope chip vs pending debounce — **cheap-disproof 2026-11-01 thorough hunt:** scope navigation uses `navigationSearch`; debounce does not mutate scope chip hrefs.
+
+- [ ] (candidate) `useRunsList` `syncCompareInspectorToUrl` — compare toggle base still uses `runsListEffectiveSearchFromSearch(routerSearchString)` without committed overlay — locus: compare write path; input: soft navigation updates router while committed window retains stale keys; wrong outcome: compare commit merges wrong keys; reachability: monitor `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
+- [ ] (candidate) `RunsListClient` filter backspace-to-empty debounce — empty filter debounce may drop overlay compare when router lags — locus: debounced clear via timer not Escape; input: compare select then backspace filter empty; wrong outcome: committed compare cleared after debounce; reachability: extend backspace empty debounce test with lagging router harness.
+- [ ] (candidate) `useRunsList` `listContextFilter` orphan banner — popstate clears `filter=` while committed compare overlay pending — locus: orphan banner vs compare overlay; input: orphan deep link then compare select before router refresh; wrong outcome: banner/compare URL disagree; reachability: monitor orphan popstate regression.
+- [ ] (candidate) `RunsListClient` inspector Escape — clears committed `inspectorRunId` then debounced pending `q=` may restore stale inspector from router — locus: Escape close vs debounce overlay; input: open inspector, type filter, Escape inspector then filter; wrong outcome: inspector param returns on debounce; reachability: combine inspector Escape regressions with debounce overlay tests.
+- [ ] (candidate) `RunsListWorkQueueTable` — compare selection bar visible while filtered rows hide checkboxes and debounced `q=` clears compare — locus: filter narrowing vs selection bar; input: compare two rows then narrow filter hiding one id; wrong outcome: debounced sync drops compare despite bar; reachability: monitor `keeps compareRuns selection when text filter hides one selected row`.
+
 2026-11-01 thorough hunt (hit): promoted debounced `q=` sync — after compare toggles committed `compareRuns` before `useSearchParams` caught up, the 250ms filter effect rebuilt hrefs from `routerSearchString` only and wiped compare ids from committed search; debounce now uses the same `runsListNavigationSearchFromSearch` committed overlay as pagination/sort chips before applying `q=`. Regression `preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — sort/scope hrefs already use `navigationSearch` overlay; popstate-narrowed compare stays in committed window so pagination overlay does not resurrect ids; zero-match Next keeps cursor via existing regression plus overlay; buyer card layout effect clears compare notice when compare UI hides. Focused `RunsListClient` vitest passed **72/72**. Reseeded five follow-on `(candidate)` rows below. Private beta: typing a text filter on the reviews list no longer drops an active two-review compare selection when the debounced `q=` sync runs before the router catches up.
 
 - [x] (proven) `useRunsList` debounced `q=` sync — compare dropped when typing filter before router refresh — **hit 2026-11-01 thorough hunt:** debounce base uses `runsListNavigationSearchFromSearch`; regression above.
@@ -1549,11 +1563,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 53
+- **hunts:** 54
 - **last-hunt:** 2026-11-01
-- **bugs-found:** 25
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-11-01 — debounced q= sync dropped compareRuns when useSearchParams lagged committed compare
+- **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
