@@ -33,7 +33,16 @@ public sealed class LlmTenantWalletService(
 
         // Materialize the wallet row before settings merge so PUT succeeds without a prior GET
         // (InMemory repository returns null from UpdateSettings when the row is missing; SQL creates lazily).
-        await _consumeStage.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        LlmTenantWalletStateReadModel existing = await _consumeStage
+            .GetOrCreateAsync(tenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (command.MonthlyCapUsd is <= 0m
+            && command.AutoReplenishEnabled != false
+            && existing.AutoReplenishEnabled)
+        {
+            return null;
+        }
 
         LlmTenantWalletStateReadModel? updated = await _consumeStage
             .UpdateWalletAsync(tenantId, command, cancellationToken)
