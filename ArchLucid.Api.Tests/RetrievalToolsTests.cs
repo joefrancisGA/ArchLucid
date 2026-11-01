@@ -252,6 +252,43 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PriceRowLookupAsync_returns_empty_when_vector_hits_exclude_retail_corpus()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Budget policy",
+                    Text = "monthly cap guidance",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "PolicyPack",
+                    SourceId = "policy-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_returns_policy_hits_in_vector_order_after_corpus_filter()
     {
         Mock<IRetrievalQueryService> queryService = new();

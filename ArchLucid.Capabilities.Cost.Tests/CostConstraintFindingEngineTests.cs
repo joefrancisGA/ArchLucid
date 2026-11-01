@@ -112,6 +112,31 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_high_cost_risk_with_leading_hair_space_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-lead-hair",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "\u200Ahigh",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_treats_uppercase_high_cost_risk_with_trailing_tab_as_warning_severity()
     {
         GraphSnapshot graph = new()

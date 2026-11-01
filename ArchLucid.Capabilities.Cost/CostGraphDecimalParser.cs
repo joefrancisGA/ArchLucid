@@ -81,13 +81,28 @@ internal static class CostGraphDecimalParser
 
     private static string RemoveExportFormattingSpacesFromNumericToken(string token)
     {
-        return token
-            .Replace("\u00A0", string.Empty, StringComparison.Ordinal)
-            .Replace("\u2009", string.Empty, StringComparison.Ordinal)
-            .Replace("\u200A", string.Empty, StringComparison.Ordinal)
-            .Replace("\u202F", string.Empty, StringComparison.Ordinal)
-            .Replace("\u2007", string.Empty, StringComparison.Ordinal);
+        ReadOnlySpan<char> input = token;
+        Span<char> buffer = stackalloc char[input.Length];
+        int length = 0;
+
+        foreach (char c in input)
+        {
+            if (IsExportFormattingSpace(c))
+                continue;
+
+            buffer[length++] = c;
+        }
+
+        return length == input.Length ? token : new string(buffer[..length]);
     }
+
+    private static bool IsExportFormattingSpace(char c) =>
+        c == '\u00A0'
+        || c == '\u2007'
+        || c == '\u2008'
+        || c == '\u2009'
+        || c == '\u200A'
+        || c == '\u202F';
 
     private static string StripUtf8ByteOrderMark(string value)
     {
