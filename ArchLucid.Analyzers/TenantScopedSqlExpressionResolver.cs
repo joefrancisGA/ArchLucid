@@ -467,6 +467,19 @@ internal static class TenantScopedSqlExpressionResolver
             ExpressionSyntax argumentExpression = arguments[parameterIndex].Expression;
             SemanticModel modelForSyntax = GetSemanticModelForSyntax(argumentExpression, semanticModel);
 
+            if (argumentExpression is InvocationExpressionSyntax constructorArgumentInvocation &&
+                TryResolveFromMethodInvocation(
+                    constructorArgumentInvocation,
+                    modelForSyntax,
+                    out ResolutionResult methodResolution,
+                    allowParameterizedCallee: true) &&
+                (methodResolution.IsStaticallyResolved ||
+                 methodResolution.BranchSqlTexts.Count > 0 ||
+                 methodResolution.HasScopeHelperInvocation))
+            {
+                return methodResolution;
+            }
+
             return ResolveCore(argumentExpression, modelForSyntax, visitingInterpolatedHole: false);
         }
 
@@ -858,14 +871,16 @@ internal static class TenantScopedSqlExpressionResolver
     private static bool TryResolveFromMethodInvocation(
         InvocationExpressionSyntax invocation,
         SemanticModel semanticModel,
-        out ResolutionResult result)
+        out ResolutionResult result,
+        bool allowParameterizedCallee = false)
     {
         result = null!;
 
         if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
             return false;
 
-        if (method.Parameters.Length > 0 || invocation.ArgumentList.Arguments.Count > 0)
+        if (!allowParameterizedCallee &&
+            (method.Parameters.Length > 0 || invocation.ArgumentList.Arguments.Count > 0))
             return false;
 
         SyntaxReference? syntaxReference = method.DeclaringSyntaxReferences.FirstOrDefault();
