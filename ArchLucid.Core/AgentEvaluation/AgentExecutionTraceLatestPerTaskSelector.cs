@@ -19,7 +19,7 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             return traces;
 
         if (traces.Count == 1)
-            return traces[0] is null ? [] : traces;
+            return traces[0] is null ? [] : [traces[0]];
 
         List<AgentExecutionTrace> latest = traces
             .Where(static trace => trace is not null)

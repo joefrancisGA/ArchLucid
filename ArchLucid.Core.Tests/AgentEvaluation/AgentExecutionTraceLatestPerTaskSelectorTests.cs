@@ -1042,6 +1042,27 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_single_trace_mutable_input_list_cleared_after_select_still_returns_trace()
+    {
+        AgentExecutionTrace onlyTrace = new()
+        {
+            TraceId = "trace-only",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        var input = new List<AgentExecutionTrace> { onlyTrace };
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select(input);
+
+        input.Clear();
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-only");
+    }
+
+    [Fact]
     public void Select_when_higher_attempt_warned_wins_over_lower_attempt_accepted()
     {
         DateTime olderUtc = new(2026, 12, 5, 18, 0, 0, DateTimeKind.Utc);
