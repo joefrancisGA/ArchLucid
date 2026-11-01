@@ -578,7 +578,21 @@
 
 ## Zone: auth-return-path
 
-**Hunts:** 55 · **Bugs found:** 22 · **Consecutive dry hunts:** 8
+2026-11-01 seed hunt (seed-only #56): re-read `AuthSignInReturnPathGuard` after trunk churn (`code-changed-since: 1`); diary header had no open `(candidate)` rows for picker (`openCandidateCount: 0`); cheap-disproof closed five stale `[ ]` rows misplaced below zone metadata (paragraph separator, soft hyphen, query `//`, vertical tab, fragment `://` — same valid-no-repro class as seed **#54** / thorough dry lane B regressions); no hunt-ready promotion; seeded five follow-on `(candidate)` rows below; scoped **201/201** `AuthSignInReturnPathGuardTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; seed **#54** / lane B regressions.
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; seed **#54** / `#55` regressions.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — query-only `//` after decode — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; conservative full-string scan by design.
+- [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; post-decode control rejection.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-11-01 seed hunt #56:** stale misplaced row; whole-string scheme delimiter rejection.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded NEL `%C2%85` in path segment — locus: post-decode `ContainsControlCharacter`; input: `/reviews/%C2%85/1` (monitor seed **#56**).
+- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%252F` double-encoded slash in path before decode cap — locus: nested `%25` residual scan; input: `/reviews/%252Fadmin` (monitor seed **#56**).
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — empty interior segment `/workspace//reviews` — locus: conservative `Contains("//")`; input: pasted empty segment (monitor seed **#56**).
+- [ ] (candidate) `ContainsDotHomoglyph` — two-dot leader U+2025 pair mimicking `..` in one segment — locus: homoglyph list vs ASCII `ContainsDotDotSegment`; input: `/reviews/‥‥/detail` (monitor seed **#56**).
+- [ ] (candidate) `ContainsPercentEncodedPathSeparator` — mixed `%2F` path segment with `%2E` dot escape in same string — locus: residual `%2e` trip after partial decode; input: `/Reviews%2F1%2E` (monitor seed **#56**).
+
+**Hunts:** 56 · **Bugs found:** 22 · **Consecutive dry hunts:** 8
 
 2026-10-21 thorough hunt (dry, lane B): repro-first on five open `(candidate)` rows; BMP NFKC scan; five regressions; scoped 201/201.
 
@@ -602,22 +616,16 @@
 - [x] (valid-no-repro) `TryNormalize` — LINE SEPARATOR U+2028 — **cheap-disproof 2026-10-08 seed hunt #56:** not control/homoglyph open-redirect class; regression `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`.
 - [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — interior `//` — **cheap-disproof 2026-10-08 seed hunt #56:** conservative `path.Contains("//")` rejects pasted empty segments; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
 
-- [ ] (candidate) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — locus: separator vs control; input: `/reviews\u2029/1`.
-- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%C2%AD/1`.
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only `//` after decode (`/reviews?x=%2F%2F`) without scheme — locus: post-decode `//` substring; input: `/reviews?next=%2F%2Fevil.example`.
-- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment — locus: post-decode control scan; input: `/reviews/%0Bsegment`.
-- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string `://` check; input: `/reviews#note=http%3A%2F%2Fevil.example`.
-
 - **id:** auth-return-path
 - **status:** open
 - **impact:** high
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
