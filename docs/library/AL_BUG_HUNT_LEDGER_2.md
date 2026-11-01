@@ -2677,6 +2677,14 @@
 
 ## Zone: finding-disposition
 
+2026-11-01 seed hunt (seed-only #48): re-read `FindingDispositionService` (`RecordAsync`/`RecordBulkAsync` concurrency, working-desk remediated attestation, history scope filter) and `FindingDispositionValidation` (enum guard, substantive-text finding ids, optional vs required rationale, deferred revisit window, LP-14 preview attestation); no mechanism-backed row met the hunt-ready promotion bar without relying on non-zone callers or test doubles; seeded five `(candidate)` rows below; scoped **33/33** `FindingDispositionValidationTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `FindingDispositionValidation.Validate` — optional rationale on non-Accepted dispositions has maximum length only, no 10-character minimum — locus: optional branch ~71–88; input: single visible character on `Deferred` (monitor).
+- [ ] (candidate) `FindingDispositionService.RecordAsync` — invalid `ExpectedCurrentDispositionRowVersionBase64` rejected before repository write — locus: `TryDecodeRowVersion`; input: non-base64 padding string (monitor).
+- [ ] (candidate) `FindingDispositionService.RecordBulkAsync` — one `IsWorkingDeskAsync` result governs preview attestation for entire batch — locus: ~86–93; input: hypothetical per-row desk mode (monitor).
+- [ ] (candidate) `FindingDispositionService.ListHistoryAsync` — non-disposition review trail events omitted when `Disposition` is null — locus: ~235–236; input: mixed review/disposition history (monitor).
+- [ ] (candidate) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — `ImpactPreviewCompleted=true` on guided-desk `Remediated` is no-op — locus: early return when `!isWorkingDesk`; input: client-supplied boolean without server preview artifact (monitor).
+
 2026-10-21 seed hunt (seed→hit, lane C): `ListHistoryAsync` returned empty history when finding id casing differed from stored trail rows; case-insensitive lookup via `ListForFindingIdsSinceUtcAsync`; regression `ListHistoryAsync_returns_history_when_finding_id_differs_only_by_casing`; FindingDisposition filter 65/65.
 
 2026-09-12 seed hunt #2014 (seed-only): reseeded finding-disposition; no new hunt-ready rows.
@@ -2708,13 +2716,15 @@
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-09-13
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-09-12 — bulk disposition duplicate guard used Ordinal so case-variant finding ids double-appended via direct service callers
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** no
+
+2026-11-01 seed hunt (seed-only #48): see zone header; **33/33** validation tests; five `(candidate)` rows seeded; no promotion.
 
 2026-10-01 seed hunt (seed-only): re-read `FindingDispositionService` and `FindingDispositionValidation`; no new reachable candidate emerged; the picker’s `FindingDispositionValidationTests` passed (33); no hypothesis was promoted.
 
