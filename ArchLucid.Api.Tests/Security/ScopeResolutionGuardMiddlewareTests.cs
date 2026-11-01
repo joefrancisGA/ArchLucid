@@ -530,6 +530,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_root_health_aggregate_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "root health aggregate probe checks use OrdinalIgnoreCase path matching");
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments()
     {
         DefaultHttpContext context = CreateContext("/health/ready/../live");

@@ -79,6 +79,40 @@ public sealed class WalletControllerUnitTests
     }
 
     [Fact]
+    public async Task PutAsync_propagates_operation_canceled_from_update_wallet()
+    {
+        using CancellationTokenSource canceled = new();
+        await canceled.CancelAsync();
+
+        Mock<ILlmTenantWalletService> wallet = new();
+        wallet
+            .Setup(w => w.UpdateWalletAsync(
+                Scope.TenantId,
+                It.IsAny<LlmTenantWalletUpdateCommand>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(canceled.Token));
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+
+        WalletController controller = CreateController(wallet.Object, scopeProvider.Object, audit.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        Func<Task> act = () => controller.PutAsync(
+            new LlmTenantWalletPutRequest { AutoReplenishEnabled = false },
+            canceled.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_treats_whitespace_only_row_version_base64_as_optional_occ_empty_expected_version()
     {
         Mock<ILlmTenantWalletService> wallet = new();

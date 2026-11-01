@@ -383,6 +383,21 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_remediated_accepts_two_character_optional_rationale()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            Rationale = "ok",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Validate_remediated_without_rationale_passes()
     {
         RecordFindingDispositionRequest request = new()
