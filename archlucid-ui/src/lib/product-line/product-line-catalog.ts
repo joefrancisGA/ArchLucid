@@ -21,7 +21,9 @@ import type { ProductLineAssignment } from "@/lib/product-line/product-line-assi
  * ARC-AMPE compliance posture under `operate-policy` and related Approval rows, inventory intake
  * (cloud connections / extract-upload), and OpSec factory pages that already sit under Approval nav.
  */
-export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<
+  Record<string, ProductLineAssignment>
+> = {
   "/": "both",
 
   // Compliance posture — ARC-AMPE pack assignment, effective rules, and cloud-evidence findings.
@@ -95,7 +97,9 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
  * Destinations that are not sidebar rows but must remain reachable in the Security shell
  * (settings hub leaves, OAuth returns).
  */
-export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLineAssignment>> = {
+export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<
+  Record<string, ProductLineAssignment>
+> = {
   "/architecture": "architecture",
   "/insights": "architecture",
   "/why-archlucid": "architecture",
@@ -129,6 +133,7 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<Record<string, ProductLine
   "/administration/securenow-self-service": "security",
   "/administration/securenow-return-reasons": "security",
   "/administration/securenow-pilot-decision": "security",
+  "/administration/securenow-investigation-effort": "security",
   "/administration/securenow-accessibility": "security",
 };
 
