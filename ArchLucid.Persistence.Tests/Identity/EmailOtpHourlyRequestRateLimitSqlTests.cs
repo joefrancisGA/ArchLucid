@@ -19,4 +19,14 @@ public sealed class EmailOtpHourlyRequestRateLimitSqlTests
         emailQuery.Should().Contain("CompletedUtc IS NULL");
         emailQuery.Should().Contain("ExpiresUtc > @NowUtc");
     }
+
+    [Fact]
+    public void Batch_uses_application_now_parameters_not_sysutcdatetime()
+    {
+        string batch = EmailOtpHourlyRequestRateLimitSql.Batch;
+
+        batch.Should().Contain("@SinceUtc");
+        batch.Should().Contain("@NowUtc");
+        batch.Should().NotContain("SYSUTCDATETIME()", "hourly OTP request rate limits use application clock parameters");
+    }
 }
