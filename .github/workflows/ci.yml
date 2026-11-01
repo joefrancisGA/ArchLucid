@@ -668,6 +668,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_adoption_friction
 
+      - name: SecureNow self-service
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_self_service.py
+
+      - name: SecureNow self-service unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_self_service
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py
