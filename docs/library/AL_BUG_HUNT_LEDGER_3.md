@@ -3143,6 +3143,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-01 seed hunt #101 (hit): no rotation (`shouldRotate: false`; **cooldown fallback** kept **`ui-oidc`** selected). Promoted **`persistTokenResponse` / BFF session sync** bearer normalization — token exchange already used `normalizeOidcOAuthFormString` via `token-client`, but `persistTokenResponse` and `syncBffSessionCookieFromTokenResponse` still trimmed with `normalizeOidcConfigurationString`, so soft hyphens in `access_token` (and optional refresh/id fields) could reach the HttpOnly BFF cookie after sign-in; aligned persist + BFF sync with OAuth form normalization; regression `strips soft hyphens from access_token before syncing to the BFF session cookie`; scoped OIDC tests **1036/1036**. Private beta: BFF session cookies mirror token-endpoint normalization so copy/paste artifacts in bearer material no longer desync proxy auth from the token client.
+
+- [x] (proven) `persistTokenResponse` + `syncBffSessionCookieFromTokenResponse` — bearer tokens used configuration trimming while `token-client` used OAuth form trimming — **hit 2026-11-01 seed hunt #101:** `normalizeOidcOAuthFormString` on persist and BFF sync; regression above.
+
 2026-11-01 seed hunt #100 (hit): no rotation (`shouldRotate: false`; **cooldown fallback** kept **`ui-oidc`** selected). Promoted dual-path **`redirect_uri` / `client_id` normalization** — `buildAuthorizeUrl` used `normalizeOidcConfigurationString` while `exchangeAuthorizationCode` token form used stricter `normalizeTokenString`, so soft hyphens (U+00AD) or variation selectors in portal-copied redirect URIs reached the IdP authorize step but were stripped on code exchange (`redirect_uri_mismatch` / failed callback). Shared `normalizeOidcOAuthFormString` for authorize OAuth form query values and token form fields; regression `strips soft hyphens from redirect_uri and client_id to match token exchange form normalization`; scoped OIDC tests **1035/1035** (`src/lib/oidc` + `oidc-authority-host`). Private beta: sign-in completes when fixed redirect URI env values contain copy/paste soft hyphens or variation selectors that previously broke only at token exchange.
 
 - [x] (proven) `buildAuthorizeUrl` + `exchangeAuthorizationCode` — authorize `redirect_uri` / `client_id` query values disagreed with token-endpoint form normalization on soft hyphen and variation-selector copy/paste artifacts — **hit 2026-11-01 seed hunt #100:** `normalizeOidcOAuthFormString`; regression above.
@@ -6247,11 +6251,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 100
-- **bugs-found:** 72
+- **hunts:** 101
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — authorize vs token redirect_uri normalization mismatch on soft hyphens
+- **last-bug:** 2026-11-01 — persist/BFF bearer normalization lagged token-client OAuth form trimming
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

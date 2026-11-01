@@ -2,6 +2,7 @@ import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   coerceAcceptedOidcEpochMsHint,
   normalizeOidcConfigurationString,
+  normalizeOidcOAuthFormString,
   parseOidcEpochMsHint,
 } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
@@ -50,7 +51,7 @@ function normalizeOptionalBffTokenField(value: string | undefined): string | und
     return undefined;
   }
 
-  const normalized = normalizeOidcConfigurationString(value);
+  const normalized = normalizeOidcOAuthFormString(value);
 
   if (normalized.length === 0) {
     return undefined;
@@ -66,7 +67,7 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
   }
 
   const accessToken =
-    tokens.access_token === undefined ? "" : normalizeOidcConfigurationString(tokens.access_token);
+    tokens.access_token === undefined ? "" : normalizeOidcOAuthFormString(tokens.access_token);
 
   if (accessToken.length === 0) {
     return;
