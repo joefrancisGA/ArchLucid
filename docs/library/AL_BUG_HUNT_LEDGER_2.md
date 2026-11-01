@@ -1031,6 +1031,20 @@
 
 ## Zone: tenant-erasure
 
+2026-11-01 thorough hunt (dry #276): cheap-disproof closed five open `(candidate)` rows from dry **#939** reseed (same monitor class as **#939** — regressions unchanged): non-deterministic approve `EventId` mitigated by idempotent retry + CAS (`TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`, `TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`); null tenant cache pass-through is ghost-tenant contract (`Erasure_quarantine_passes_through_when_tenant_record_missing`); inverted offboard/eligible span clamps audit `quarantineDays` to minimum `1` (`TryOffboardTenantAsync_offboard_audit_quarantine_days_matches_eligibility_window`); percent-encoded register dot segments conservative **403** (`Erasure_quarantine_blocks_offboarded_tenant_when_register_path_uses_percent_encoded_dot_segments`); concurrent offboard during set-legal-hold suppresses hold-set audit by design (parity `TryClearLegalHoldAsync` dry **#274** / **#939**). Reseeded five follow-on `(candidate)` rows; **84/84** scoped Application + Api `TenantErasure` tests (`RunAnalyzers=false`; +4 Core eligibility tests green). Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — first-time approve audit non-deterministic `EventId` — **cheap-disproof 2026-11-01 thorough hunt #276:** CAS + idempotent retry; regressions above; dry **#939**.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` — null tenant cache pass-through — **cheap-disproof 2026-11-01 thorough hunt #276:** ghost tenant contract; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.QuarantineDaysBetween` — inverted timestamp span reports minimum `1` — **cheap-disproof 2026-11-01 thorough hunt #276:** defensive audit metadata; regression above.
+- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded register dot segments — **cheap-disproof 2026-11-01 thorough hunt #276:** conservative **403**; regression above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — concurrent offboard suppresses set-hold audit — **cheap-disproof 2026-11-01 thorough hunt #276:** intentional race guard; dry **#939** / clear-hold parity.
+
+- [ ] (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — idempotent restore retry must not duplicate platform audit — locus: post-restore `OffboardedUtc` null check; input: operator safe-retry after successful restore (monitor `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — `Guid.Empty` scope tenant id bypasses quarantine — locus: early pass-through; input: platform/unscoped authenticated route (monitor dry **#274**).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — offboard side-effects re-read suppresses audit when quarantine restored mid-flight — locus: `CompleteOffboardSideEffectsAsync`; input: concurrent restore during offboard (monitor lane C hit family).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — legal hold without offboard does not block tenant APIs — locus: `IsTenantLoginBlocked` gate only; input: hold-only tenant row (monitor `Erasure_quarantine_allows_tenant_apis_when_only_legal_hold_is_active_without_offboard`).
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — concurrent first-time approve races lose CAS without duplicate audit append — locus: atomic transition; input: parallel approve on eligible tenant (monitor dry **#274** concurrent regression family).
+
 2026-11-01 thorough hunt (dry #939): cheap-disproof closed five open `(candidate)` rows from dry **#274** reseed — approve audit uses `Guid.NewGuid()` when `eventId` omitted but operator safe-retry returns success without re-append when `TenantErasureApprovedUtc` already set (`TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`; concurrent CAS regressions dry **#274**); missing tenant row pass-through before downstream **404** is intentional ghost-tenant contract (`Erasure_quarantine_passes_through_when_tenant_record_missing`, proven **#855**); `QuarantineDaysBetween` minimum `1` when span `< 1` day is defensive for audit metadata when stored timestamps invert (`TryOffboardTenantAsync_offboard_audit_quarantine_days_matches_eligibility_window`; production offboard always sets eligible after offboard); percent-encoded dot register URLs conservative **403** not bypass (`Erasure_quarantine_blocks_offboarded_tenant_when_register_path_uses_percent_encoded_dot_segments`; parity dry **#274** raw-prefix monitor); legal-hold set skips audit when pre-append re-read observes concurrent offboard (`OffboardedUtc` cleared) by design (`TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_*` family; parity `TryClearLegalHoldAsync_returns_success_without_audit_when_offboard_completes_after_pre_audit_read_before_audit`). Reseeded five follow-on `(candidate)` rows; scoped filter **84/84** (50 Application + 34 Api, `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approve audit append uses non-deterministic `EventId` unlike offboard `CreateOffboardAuditEventId` — **cheap-disproof 2026-11-01 thorough hunt #939:** idempotent approved retry skips re-append; regressions above.
@@ -1038,12 +1052,6 @@
 - [x] (valid-no-repro) `TenantErasureCommandService.QuarantineDaysBetween` — clamps sub-one-day spans to `1` when clock skew inverts eligible vs offboard ordering — **cheap-disproof 2026-11-01 thorough hunt #939:** defensive audit metadata; production offboard ordering; regression above.
 - [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded dot segments on register URLs fail raw `/v1/register` prefix — **cheap-disproof 2026-11-01 thorough hunt #939:** conservative over-block; regression above.
 - [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — concurrent offboard during legal-hold set pre-audit re-read suppresses hold-set audit — **cheap-disproof 2026-11-01 thorough hunt #939:** intentional race guard; regressions above.
-
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — first-time approve audit lacks deterministic `EventId` while repository CAS prevents concurrent duplicate append — locus: `AppendPlatformAuditAsync` default `Guid.NewGuid()`; input: monitor failed-audit store replay (monitor).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.InvokeAsync` — quarantine skipped when `ITenantGetByIdRequestCache` returns null for scoped tenant id — locus: `tenant is null` pass-through; input: stale jwt tenant id (monitor intentional).
-- [ ] (candidate) `TenantErasureCommandService.QuarantineDaysBetween` — negative `(eligible - offboard)` span reports `quarantineDays: 1` in offboard audit — locus: ~592-597; input: corrupt inverted timestamps in catalog row (monitor defensive).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — register lifecycle skip vs encoded `%2e` dot segments on offboarded tenant — locus: raw prefix guard; input: percent-encoded register path (monitor conservative 403).
-- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — concurrent offboard clears quarantine before set-hold audit append — locus: pre-audit `OffboardedUtc` guards; input: interleaved offboard during hold set (monitor parity with clear-hold).
 
 2026-10-31 thorough hunt (dry #274): cheap-disproof closed five open `(candidate)` rows — empty `ScopeContext.TenantId` bypasses quarantine before tenant lookup by design for platform/unscoped authenticated routes (`Erasure_quarantine_passes_through_when_scope_tenant_id_is_empty`); concurrent first-time approve duplicate audit prevented by repository CAS plus idempotent re-read (`TryApproveErasureAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`, `TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry`); offboard audit `quarantineDays` matches configured `AddDays` eligibility window (`TryOffboardTenantAsync_offboard_audit_quarantine_days_matches_eligibility_window`; `QuarantineDaysBetween` documents stored span); register raw-prefix vs normalized lifecycle skip is conservative over-block not bypass (`Erasure_quarantine_blocks_offboarded_tenant_on_register_dot_segment_urls_that_fail_raw_prefix_guard`, duplicate of 2026-10-21 lane C); legal-hold clear skips audit when concurrent offboard observed on pre-append re-read by design (`TryClearLegalHoldAsync_returns_success_without_audit_when_offboard_completes_after_pre_audit_read_before_audit`). Seeded five follow-on `(candidate)` rows; scoped filter **84/84** (50 Application + 34 Api, `RunAnalyzers=false`). Private beta: n/a.
 
@@ -1071,6 +1079,12 @@
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects appends audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-reads tenant before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — non-deterministic approve audit `EventId` monitor — **cheap-disproof 2026-11-01 thorough hunt #276:** see zone hunt note above.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` — null tenant cache pass-through monitor — **cheap-disproof 2026-11-01 thorough hunt #276:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantErasureCommandService.QuarantineDaysBetween` — inverted timestamp clamp monitor — **cheap-disproof 2026-11-01 thorough hunt #276:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded register path monitor — **cheap-disproof 2026-11-01 thorough hunt #276:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` — offboard race suppresses set-hold audit monitor — **cheap-disproof 2026-11-01 thorough hunt #276:** see zone hunt note above.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — non-deterministic approve audit `EventId` — **cheap-disproof 2026-11-01 thorough hunt #939:** see zone hunt note above.
 - [x] (invalid) `TenantErasureQuarantineMiddleware.InvokeAsync` — null tenant cache pass-through — **cheap-disproof 2026-11-01 thorough hunt #939:** see zone hunt note above.
@@ -1161,9 +1175,9 @@
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 275
+- **hunts:** 276
 - **bugs-found:** 493
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
 - **related-pd-tb:** none
