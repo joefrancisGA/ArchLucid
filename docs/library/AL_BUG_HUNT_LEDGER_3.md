@@ -2,6 +2,20 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, `buildSignupRegisterPayload`, and attribution/session paths; cheap-disproof closed all five (fractional team size blocked by schema/readiness without needing `step={1}`; `+010`/`010` leading-zero parsing covered by builder regressions; `409` returns before success session writes; first-touch serialization failure is non-blocking per existing non-Latin1 cookie test; unsupported-character readiness for full name precedes generic max-length copy in `deriveSignupFormReadinessMessage`). No row met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` — optional team size omits `step={1}` — **cheap-disproof 2026-11-01 seed hunt (pass 3):** fractional values fail schema and TB-2010 readiness (`shows whole-number readiness when optional architecture team size is fractional`); native spinner UX does not bypass submit gating.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — plus-prefixed `+010` team size — **cheap-disproof 2026-11-01 seed hunt (pass 3):** `Number` parsing matches `+5`/`010` builder regressions.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` leaves stale optional session keys — **cheap-disproof 2026-11-01 seed hunt (pass 3):** conflict returns before `registerSucceeded` and session writes; duplicate-org toasts covered by `409` tests.
+- [x] (valid-no-repro) `SignupForm` — first-touch header throws on every submit — **cheap-disproof 2026-11-01 seed hunt (pass 3):** catch omits header only; registration proceeds (`still posts register when first-touch cookie contains non-Latin1 UTM values`).
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — bidi vs max-length ordering on full name — **cheap-disproof 2026-11-01 seed hunt (pass 3):** unsupported-character branch wins when message matches; regression `deriveSignupFormReadinessMessage surfaces unsupported-character guidance for full name`.
+
+- [ ] (candidate) `SignupForm` — optional team size `Input` sets `min={1}` while schema treats blank as omitted — locus: `#signup-architecture-team-size` number input; input: browser clears field to empty string after a valid integer; wrong outcome: native constraint fights optional empty value before schema runs; reachability: clear optional team size via keyboard after entering `12`.
+- [ ] (candidate) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — locus: `Number(teamTrim)` guard; input: paste `.` into optional team size; wrong outcome: payload omits field but readiness/error copy disagrees with visible input state; reachability: paste into optional number input.
+- [ ] (candidate) `SignupForm` `onSubmit` — verify navigation uses raw `values.adminEmail` while register payload used trimmed email — locus: `router.push` query vs POST body; input: leading/trailing whitespace in work email that passes trim on submit; wrong outcome: verify page query does not match registered address; reachability: paste padded email (monitor trim regressions).
+- [ ] (candidate) `SignupForm` industry `Select` — switching away from `Other` leaves `industryVerticalOther` in form state until blur — locus: `onValueChange` clearing; input: fill Other specification then pick a catalog industry; wrong outcome: hidden Other value still in resolver state and payload if submit fires before revalidation; reachability: rapid industry Select change then submit.
+- [ ] (candidate) `SignupForm` — `registerInFlightRef` stays true when `registerSucceeded` but `router.push` never resolves — locus: success path skips `finally` reset; input: hung navigation promise after `201`; wrong outcome: buyer cannot retry without refresh; reachability: monitor `keeps Creating label on the submit button after successful register until navigation` boundary tests.
+
 2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, and existing in-flight/readiness regressions; cheap-disproof closed all five (hex/scientific `Number()` parsing, raw non-ok proxy bodies, devtools-only enum tampering, collapsed optional `<details>` with TB-2010 readiness copy, and duplicate submit while in flight). No row met the hunt-ready bar for promotion; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
 
 2026-11-01 seed hunt (seed-only): reread `buildSignupRegisterPayload`, `signupFormSchema` superRefine paths, register in-flight/completed refs, success session writes, and first-touch header attachment against the five open `(candidate)` rows; cheap-disproof closed all five (leading-zero/scientific team-size behavior, Other-industry whitespace gating, non-string provisioning ids, and whitespace-only `201` bodies are covered by existing regressions or unreachable API contracts). No new mechanism met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
@@ -36,11 +50,11 @@
 - [x] (valid-no-repro) `SignupForm` — collapsed optional `<details>` keeps architecture team size `role="alert"` errors off-screen until expanded — **cheap-disproof 2026-11-01 seed hunt (second pass):** TB-2010 readiness copy surfaces via `signup-form-readiness`; regression `shows whole-number readiness when optional architecture team size is fractional`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — slow register responses allow duplicate clicks before `registerInFlightRef` latches — **cheap-disproof 2026-11-01 seed hunt (second pass):** in-flight guard is synchronous; regression `does not fire a second register request when the form is submitted again while in flight`.
 
-- [ ] (candidate) `SignupForm` — optional architecture team size input omits `step={1}` so browser spin controls may suggest fractional values the schema rejects — locus: `#signup-team-size` number input; input: spinner increment on `.5`; wrong outcome: buyer sees native step behavior that always fails submit; reachability: mouse/touch on number input spin buttons.
-- [ ] (candidate) `buildSignupRegisterPayload` — plus-prefixed team-size strings (`+010`) serialize differently from unprefixed decimals — locus: `Number(teamTrim)`; input: `+010`; wrong outcome: payload integer disagrees with visible input after browser normalization; reachability: pasted signed decimal strings (existing builder test covers `+5` only).
-- [ ] (candidate) `SignupForm` `onSubmit` — `409` duplicate organization returns before `registerSucceeded` without clearing optional session keys from a prior attempt — locus: success session writes vs early `409` return; input: prior successful signup in same tab then rename conflict; wrong outcome: stale `archlucid_signup_company_size` misleads downstream onboarding; reachability: repeat evaluation signup in one browser tab.
-- [ ] (candidate) `SignupForm` — `readFirstTouchCookie` present but `serializeFirstTouchHeader` throws on every submit attempt — locus: attribution catch block; input: cookie with non-Latin1 field values on repeated submits; wrong outcome: buyer believes attribution failed when registration still succeeds silently; reachability: marketing first-touch cookie with emoji campaign names.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — unsupported-character failures on required names map to generic max-length copy when message ordering shifts — locus: `switch (issuePath)` for `adminDisplayName`; input: bidi control in full name after max-length boundary; wrong outcome: readiness misstates the correction; reachability: pasted Unicode bidi controls in full name (schema rejects; readiness copy must match).
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size input omits `step={1}` — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — plus-prefixed team-size strings (`+010`) — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` duplicate organization and stale session keys — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `SignupForm` — `readFirstTouchCookie` / `serializeFirstTouchHeader` throws — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — bidi vs max-length on full name — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
 
 2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
 
@@ -394,7 +408,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 85
+- **hunts:** 86
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
