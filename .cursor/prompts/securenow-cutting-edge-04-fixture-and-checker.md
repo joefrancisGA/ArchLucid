@@ -41,8 +41,8 @@ SN-CE-01 through SN-CE-03 are easy to regress into a keyword topic, a second ran
    - `InfraEvidenceAskPromptBuilder.cs` contains `"probability"`, `"likelihood"`, or `"sortScore"` (a JSON field). The refusal sentences use the words without those quoted field names, so they must not trip this check. Match the quoted spellings.
    - `InfraEvidenceAskEvidenceCollector.cs` lacks `ISecurityEvidencePathRepository`, `ISecurityEvidencePathRankRepository`, or `ISecurityEvidenceCutPointRepository`.
    - `InfraEvidenceAskEvidenceCollector.cs` contains `PathRankingEngine` or `CutPointAnalysisEngine`.
-   - `InfraEvidenceAskPromptBuilder.cs` lacks `AskEvidenceRowCap = 50`.
-7. Add `scripts/ci/test_check_securenow_cutting_edge.py`. The real tree passes. A temp copy that deletes `RankedPath = "RankedPath"` fails.
+   - Either `InfraEvidenceAskPromptBuilder.cs` or `InfraEvidenceAskEvidenceCollector.cs` lacks `AskEvidenceRowCap = 50`.
+7. Add `scripts/ci/test_check_securenow_cutting_edge.py`. The real tree passes. A temp copy that deletes `RankedPath = "RankedPath"` fails. A separate temp copy that changes the collector's `AskEvidenceRowCap = 50` to `AskEvidenceRowCap = 51` also fails.
 8. In `.github/workflows/ci.yml`, add two steps after `SecureNow self-service unit tests`, both `continue-on-error: true`:
    - `SecureNow cutting edge` runs `python scripts/ci/check_securenow_cutting_edge.py`.
    - `SecureNow cutting edge unit tests` runs `python -m unittest scripts.ci.test_check_securenow_cutting_edge`.
