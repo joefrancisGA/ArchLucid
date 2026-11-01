@@ -1860,6 +1860,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **4** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1** — hunt remained **`ui-help-docs`**). Reread `mergeDocIndex` duplicate normalized-path suppression vs `mergedIncludesDeepLinkVariantForKey`, and static row `seenKeys` vs fetched merge order. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
 2026-11-01 seed hunt (seed-only): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on `ui-help-docs`: seed-only ×3; picker applied `-AvoidZoneId ui-help-docs` but **`eligibleCount` 1** — no alternate open zone, so **`ui-help-docs`** remained the hunt target). Reread `docIndexMergeDedupeKey` scheme-relative URL normalization and `/help` path exemption from `claimedUrls`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-help-docs` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread `normalizeDocIndexUrlForDedupe` for absolute vs relative URLs, `helpDocLinkHref` trim-only contract, and Escape-to-clear on the search input. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId ui-help-docs` when another eligible zone exists.
@@ -1944,7 +1946,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
