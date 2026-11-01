@@ -67,4 +67,41 @@ describe("useGovernanceFindingTriageWithCursor", () => {
       scroll: false,
     });
   });
+
+  it("strips a whitespace-only focusedFinding param when triage is closed", async () => {
+    searchQuery.value = "focusedFinding=%20%20";
+
+    renderHook(() => useGovernanceFindingTriageWithCursor([], new URLSearchParams(searchQuery.value)));
+
+    await waitFor(() => {
+      expect(routerReplaceMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(routerReplaceMock).toHaveBeenCalledWith("/governance/findings", { scroll: false });
+  });
+
+  it("closes triage and strips a whitespace-only focusedFinding param when the URL changes", async () => {
+    searchQuery.value = "focusedFinding=finding-a";
+    const rows = [findingRow("finding-a")];
+
+    const { result, rerender } = renderHook(
+      ({ query }: { query: string }) =>
+        useGovernanceFindingTriageWithCursor(rows, new URLSearchParams(query)),
+      { initialProps: { query: searchQuery.value } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(true);
+    });
+
+    routerReplaceMock.mockReset();
+    searchQuery.value = "focusedFinding=%20%20";
+    rerender({ query: searchQuery.value });
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(false);
+    });
+
+    expect(routerReplaceMock).toHaveBeenCalledWith("/governance/findings", { scroll: false });
+  });
 });

@@ -8,6 +8,7 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
 import { governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 import {
+  governanceFindingTriageFocusedFindingParamIsBlankToken,
   governanceFindingTriagePanelsHrefFromSearch,
   parseGovernanceFindingTriageFocusedFindingIdFromSearch,
 } from "@/lib/governance/governance-finding-triage-panels-url";
@@ -21,7 +22,7 @@ export function useGovernanceFindingTriageWithCursor(
   const pathname = usePathname() ?? "/governance/findings";
   const focusedFindingParam = searchParams.get("focusedFinding");
   const triage = useGovernanceFindingTriage(displayedRows);
-  const { openForRow, activeRow, open } = triage;
+  const { openForRow, activeRow, open, close } = triage;
   const hydratedFromUrlRef = useRef(false);
   const urlCursorHydratingRef = useRef(
     parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam).length > 0,
@@ -66,6 +67,19 @@ export function useGovernanceFindingTriageWithCursor(
     const currentFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
     const normalizedNext = parseGovernanceFindingTriageFocusedFindingIdFromSearch(nextFindingId);
 
+    if (governanceFindingTriageFocusedFindingParamIsBlankToken(focusedFindingParam)) {
+      if (open) {
+        close();
+      }
+
+      router.replace(
+        governanceFindingTriagePanelsHrefFromSearch(searchParams.toString(), null, pathname),
+        { scroll: false },
+      );
+
+      return;
+    }
+
     if (currentFindingId === normalizedNext) {
       return;
     }
@@ -74,7 +88,7 @@ export function useGovernanceFindingTriageWithCursor(
       governanceFindingTriagePanelsHrefFromSearch(searchParams.toString(), nextFindingId, pathname),
       { scroll: false },
     );
-  }, [activeRow?.findingId, focusedFindingParam, open, pathname, router, searchParams]);
+  }, [activeRow?.findingId, close, focusedFindingParam, open, pathname, router, searchParams]);
 
   return triage;
 }
