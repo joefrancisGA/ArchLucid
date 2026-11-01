@@ -9548,6 +9548,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-01 seed hunt (seed-only, rotation): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on `ui-oidc`: seed-only ×3; `-AvoidZoneId ui-oidc` applied; **cooldown fallback** selected **`ui-review-detail-workspace`**). Reread `ReviewDetailWorkspaceTabShell` deferred panel mounting, in-pipeline banner injection on non-activity tabs, vocabulary rails on package tabs, and workbench selection coordinator wiring. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, tab-strip, tab-mapping, and pipeline-banner tests passed **70/70**. No production code changed.
+
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive low-yield outcomes on `ui-oidc` (`seed-only`, `seed-only`, `seed-only`); cooldown fallback selected saturated `ui-review-detail-workspace`. Reread tab-shell deferred panel mounting with in-pipeline banner injection, workbench selection sync bridges, vocabulary rails on package tabs, and presenter navigation hooks on the tab strip. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, tab-strip, and tab-mapping tests passed **70/70**. No production code changed.
 
 2026-10-31 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId ui-oidc` after three consecutive low-yield outcomes on `ui-oidc` (`seed-only`, `seed-only`, `seed-only`); cooldown fallback selected saturated `ui-review-detail-workspace`. Reread `useIncrementalReviewFindingsRefresh` cross-run summary guard, workbench selection URL writers, presenter mode commits, tab-shell deferred imports, and chain-of-custody disclosure default-open contract when no section key is in the URL. No new reachable mechanism-backed candidate met the hunt-ready bar; focused presenter, selection, tabs, room URL-sync, workspace, tab-strip, and tab-mapping tests passed **70/70**. No production code changed.
@@ -10186,10 +10188,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — deferred review section hash scroll stopped before a slow client chunk mounted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
