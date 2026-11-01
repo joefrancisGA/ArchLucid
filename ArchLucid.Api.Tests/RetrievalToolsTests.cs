@@ -144,6 +144,77 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_only_requested_topk_after_corpus_filter()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "policy-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Policy 1",
+                    Text = "policy baseline",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-2",
+                    DocumentId = "policy-doc-2",
+                    Title = "Policy 2",
+                    Text = "policy baseline",
+                    Score = 0.98,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p2"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-3",
+                    DocumentId = "policy-doc-3",
+                    Title = "Policy 3",
+                    Text = "policy baseline",
+                    Score = 0.97,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p3"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-4",
+                    DocumentId = "policy-doc-4",
+                    Title = "Policy 4",
+                    Text = "policy baseline",
+                    Score = 0.96,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p4"
+                },
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().HaveCount(3);
+        hits.Select(h => h.DocumentId).Should().Equal("policy-doc-1", "policy-doc-2", "policy-doc-3");
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null()
     {
         Mock<IRetrievalQueryService> queryService = new();

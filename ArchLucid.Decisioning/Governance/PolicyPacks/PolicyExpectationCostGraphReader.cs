@@ -95,7 +95,7 @@ public static class PolicyExpectationCostGraphReader
       return true;
     }
 
-    int suffixSeparator = trimmed.IndexOf(' ', StringComparison.Ordinal);
+    int suffixSeparator = IndexOfSuffixSeparator(trimmed);
 
     if (suffixSeparator <= 0)
       return false;
@@ -105,8 +105,21 @@ public static class PolicyExpectationCostGraphReader
     return TryParseInvariantAmount(numericPrefix, out value);
   }
 
+  private static int IndexOfSuffixSeparator(string value)
+  {
+    for (int i = 0; i < value.Length; i++)
+    {
+      if (char.IsWhiteSpace(value[i]))
+        return i;
+    }
+
+    return -1;
+  }
+
   private static bool TryParseInvariantAmount(string token, out decimal value)
   {
+    token = RemoveExportNbspFromNumericToken(token);
+
     if (decimal.TryParse(
             token,
             NumberStyles.Number,
@@ -132,6 +145,9 @@ public static class PolicyExpectationCostGraphReader
 
     return false;
   }
+
+  private static string RemoveExportNbspFromNumericToken(string token) =>
+      token.Replace("\u00A0", string.Empty, StringComparison.Ordinal);
 
   private static string StripUtf8ByteOrderMark(string value)
   {
