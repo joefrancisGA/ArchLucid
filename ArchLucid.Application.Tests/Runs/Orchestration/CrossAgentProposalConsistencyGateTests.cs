@@ -1240,4 +1240,121 @@ public sealed class CrossAgentProposalConsistencyGateTests
         conflictingTopology.ProposedChanges!.AddedServices.Should().BeEmpty();
         conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyToResults_preserves_relationship_only_defer_edge_referencing_unindexed_terraform_root()
+    {
+        const string rootAddress = "azurerm_linux_virtual_machine.app";
+        const string indexedId = $"{rootAddress}[\"primary\"]";
+
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = indexedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = rootAddress,
+                        TargetId = "external-db",
+                        RelationshipType = RelationshipType.Calls,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        cost.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        cost.ProposedChanges.AddedRelationships![0].SourceId.Should().Be(rootAddress);
+    }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_datastore_synthetic_id()
+    {
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-1",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-2",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "ds-2",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedDatastores.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
 }
