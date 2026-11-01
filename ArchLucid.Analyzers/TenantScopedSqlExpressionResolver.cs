@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -566,10 +567,33 @@ internal static class TenantScopedSqlExpressionResolver
         if (localFunction is null)
             return null;
 
-        int parameterIndex = localFunction.ParameterList.Parameters.IndexOf(
-            candidate => string.Equals(candidate.Identifier.Text, parameter.Name, StringComparison.Ordinal));
+        if (semanticModel.GetDeclaredSymbol(localFunction) is not IMethodSymbol localFunctionSymbol)
+            return null;
 
-        if (parameterIndex < 0)
+        HashSet<ParameterInLocalFunction> resolvingParameters = new()
+        {
+            new ParameterInLocalFunction(parameterSyntax, localFunctionSymbol),
+        };
+
+        return TryResolveFromLocalFunctionParameterCallSitesCore(
+            parameter,
+            semanticModel,
+            resolvingParameters);
+    }
+
+    private static ResolutionResult? TryResolveFromLocalFunctionParameterCallSitesCore(
+        IParameterSymbol parameter,
+        SemanticModel semanticModel,
+        HashSet<ParameterInLocalFunction> resolvingParameters)
+    {
+        SyntaxReference? syntaxReference = parameter.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not ParameterSyntax parameterSyntax)
+            return null;
+
+        LocalFunctionStatementSyntax? localFunction = parameterSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (localFunction is null)
             return null;
 
         BlockSyntax? enclosingBlock = localFunction.FirstAncestorOrSelf<BlockSyntax>();
@@ -600,12 +624,13 @@ internal static class TenantScopedSqlExpressionResolver
 
             if (boundArgument is null || boundArgument.IsImplicit || boundArgument.Value.Syntax is not ExpressionSyntax argumentExpression)
                 return null;
-            ResolutionResult argumentResolution = ResolveCore(
+
+            ResolutionResult? argumentResolution = ResolveCallSiteArgument(
                 argumentExpression,
                 modelForBlock,
-                visitingInterpolatedHole: false);
+                resolvingParameters);
 
-            if (!argumentResolution.IsStaticallyResolved || argumentResolution.SqlText is null)
+            if (argumentResolution is null || !argumentResolution.IsStaticallyResolved || argumentResolution.SqlText is null)
                 return null;
 
             if (resolvedSql is not null &&
@@ -622,6 +647,87 @@ internal static class TenantScopedSqlExpressionResolver
             return null;
 
         return new ResolutionResult(resolvedSql, true, false);
+    }
+
+    private static ResolutionResult? ResolveCallSiteArgument(
+        ExpressionSyntax argumentExpression,
+        SemanticModel semanticModel,
+        HashSet<ParameterInLocalFunction> resolvingParameters)
+    {
+        if (argumentExpression is not IdentifierNameSyntax and not MemberAccessExpressionSyntax)
+            return ResolveCore(argumentExpression, semanticModel, visitingInterpolatedHole: false);
+
+        ISymbol? argumentSymbol = semanticModel.GetSymbolInfo(argumentExpression).Symbol;
+
+        if (argumentSymbol is not IParameterSymbol argumentParameter)
+            return ResolveCore(argumentExpression, semanticModel, visitingInterpolatedHole: false);
+
+        SyntaxReference? argumentParameterReference = argumentParameter.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (argumentParameterReference?.GetSyntax() is not ParameterSyntax argumentParameterSyntax)
+            return ResolveCore(argumentExpression, semanticModel, visitingInterpolatedHole: false);
+
+        LocalFunctionStatementSyntax? argumentLocalFunction =
+            argumentParameterSyntax.FirstAncestorOrSelf<LocalFunctionStatementSyntax>();
+
+        if (argumentLocalFunction is null)
+            return ResolveCore(argumentExpression, semanticModel, visitingInterpolatedHole: false);
+
+        IMethodSymbol? argumentLocalFunctionSymbol = semanticModel.GetDeclaredSymbol(argumentLocalFunction);
+
+        if (argumentLocalFunctionSymbol is null)
+            return ResolveCore(argumentExpression, semanticModel, visitingInterpolatedHole: false);
+
+        // A recursive local function that forwards this parameter (e.g. Build(sql, retries - 1))
+        // re-enters this scan for the same (parameter, local function) pair indefinitely and
+        // would overflow the analyzer host stack; treat cycles as unresolved.
+        ParameterInLocalFunction key = new(argumentParameterSyntax, argumentLocalFunctionSymbol);
+
+        if (!resolvingParameters.Add(key))
+            return null;
+
+        try
+        {
+            return TryResolveFromLocalFunctionParameterCallSitesCore(
+                argumentParameter,
+                semanticModel,
+                resolvingParameters);
+        }
+        finally
+        {
+            resolvingParameters.Remove(key);
+        }
+    }
+
+    private sealed class ParameterInLocalFunction : IEquatable<ParameterInLocalFunction>
+    {
+        internal ParameterInLocalFunction(SyntaxNode parameterSyntax, IMethodSymbol localFunction)
+        {
+            ParameterSyntax = parameterSyntax;
+            LocalFunction = localFunction;
+        }
+
+        // Roslyn parameter symbols obtained from different call sites do not compare equal even
+        // for the same declaration, so key on the parameter declaration syntax node instead.
+        internal SyntaxNode ParameterSyntax { get; }
+
+        internal IMethodSymbol LocalFunction { get; }
+
+        public bool Equals(ParameterInLocalFunction? other) =>
+            other is not null &&
+            ReferenceEquals(ParameterSyntax, other.ParameterSyntax) &&
+            SymbolEqualityComparer.Default.Equals(LocalFunction, other.LocalFunction);
+
+        public override bool Equals(object? obj) => Equals(obj as ParameterInLocalFunction);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (RuntimeHelpers.GetHashCode(ParameterSyntax) * 397) ^
+                       SymbolEqualityComparer.Default.GetHashCode(LocalFunction);
+            }
+        }
     }
 
     /// <summary>

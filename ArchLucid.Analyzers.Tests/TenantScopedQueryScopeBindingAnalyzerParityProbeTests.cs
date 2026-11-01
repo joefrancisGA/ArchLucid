@@ -650,6 +650,60 @@ public sealed class ConflictingLocalFunctionCommandDefinitionRepository
     }
 
     [Fact]
+    public async Task ARCH006_does_not_hang_when_local_function_command_definition_builder_is_directly_recursive()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class RecursiveLocalFunctionCommandDefinitionRepository
+{
+    public async System.Threading.Tasks.Task LoadAsync(System.Data.IDbConnection connection)
+    {
+        CommandDefinition Build(string sql, int retries) =>
+            retries > 0 ? Build(sql, retries - 1) : new CommandDefinition(sql);
+        await connection.ExecuteAsync(Build("SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL", 1));
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
+    [Fact]
+    public async Task ARCH006_does_not_hang_when_local_function_command_definition_builders_are_mutually_recursive()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class MutuallyRecursiveLocalFunctionCommandDefinitionRepository
+{
+    public async System.Threading.Tasks.Task LoadAsync(System.Data.IDbConnection connection)
+    {
+        CommandDefinition BuildPrimary(string sql, int retries) =>
+            retries > 0 ? BuildFallback(sql, retries - 1) : new CommandDefinition(sql);
+        CommandDefinition BuildFallback(string sql, int retries) =>
+            retries > 0 ? BuildPrimary(sql, retries - 1) : new CommandDefinition(sql);
+        await connection.ExecuteAsync(BuildPrimary("SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL", 1));
+    }
+}
+}
+""";
+
+        await RunPersistenceAnalyzerTestAsync(testCode);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_partial_record_primary_constructor_default_on_sibling_partial()
     {
         const string testCode = MinimalStubs +
