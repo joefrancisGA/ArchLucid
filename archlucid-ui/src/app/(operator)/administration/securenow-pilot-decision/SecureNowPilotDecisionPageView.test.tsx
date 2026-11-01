@@ -13,6 +13,14 @@ describe("SecureNow pilot decision preparation page", () => {
     expect(screen.getByText(/Proceed to commercial discussion is a human decision/)).toBeInTheDocument();
     expect(screen.getByText(/Extend with bounded scope names/)).toBeInTheDocument();
     expect(screen.getByText(/Stop preserves the evidence/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-decision-cycle")).toBeInTheDocument();
+    for (const step of ["Qualify", "Scope", "Review", "Decide change", "Verify", "Close"]) {
+      expect(screen.getByText(step, { selector: "li" })).toBeInTheDocument();
+    }
+    expect(screen.getByRole("link", { name: "Decision cycle log" })).toHaveAttribute(
+      "href",
+      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
+    );
     expect(screen.getByRole("link", { name: "Read the sponsor-facing decision path" })).toHaveAttribute(
       "href",
       "/why-securenow#pilot-decision",

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
@@ -45,33 +46,50 @@ public sealed partial class GovernanceController
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
+        Dictionary<string, Application.Governance.GovernanceBatchReviewItemResult> sealedPreflightFailures =
+            new(StringComparer.OrdinalIgnoreCase);
+        List<string> approvalRequestIdsForFacade = [];
         HashSet<string> checkedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
             if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+            {
+                approvalRequestIdsForFacade.Add(rawApprovalRequestId);
                 continue;
+            }
 
             string approvalRequestId =
                 GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
 
-            if (!checkedApprovalRequestIds.Add(approvalRequestId))
-                continue;
+            if (checkedApprovalRequestIds.Add(approvalRequestId))
+            {
+                IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+                    approvalRequestId,
+                    approvalRepository,
+                    cancellationToken);
 
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
-                approvalRequestId,
-                approvalRepository,
-                cancellationToken);
+                if (sealedGuardResult is ObjectResult { StatusCode: StatusCodes.Status409Conflict } conflictResult)
+                {
+                    sealedPreflightFailures[approvalRequestId] = MapSealedManifestBatchPreflightFailure(
+                        approvalRequestId,
+                        conflictResult);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+                    continue;
+                }
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            approvalRequestIdsForFacade.Add(rawApprovalRequestId);
         }
 
         try
         {
             Application.Governance.GovernanceBatchReviewResponse batchResult =
                 await _approvalRequestsFacade.BatchReviewAsync(
-                    body.ApprovalRequestIds,
+                    approvalRequestIdsForFacade,
                     approve,
                     body.ReviewComment,
                     reviewedBy,
@@ -79,11 +97,70 @@ public sealed partial class GovernanceController
                     reviewedByMailbox,
                     cancellationToken);
 
-            return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(batchResult));
+            if (sealedPreflightFailures.Count == 0)
+                return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(batchResult));
+
+            Application.Governance.GovernanceBatchReviewResponse merged =
+                MergeBatchReviewWithSealedPreflightFailures(
+                    body.ApprovalRequestIds,
+                    batchResult,
+                    sealedPreflightFailures);
+
+            return Ok(GovernanceApprovalRequestsHttpMapper.MapBatchReviewResponse(merged));
         }
         catch (ConflictException ex)
         {
             return MapGovernanceSealedManifestConflict(ex);
         }
+    }
+
+    private static Application.Governance.GovernanceBatchReviewItemResult MapSealedManifestBatchPreflightFailure(
+        string approvalRequestId,
+        ObjectResult conflictResult)
+    {
+        string message = conflictResult.Value switch
+        {
+            Microsoft.AspNetCore.Mvc.ProblemDetails problem => problem.Detail ?? problem.Title ?? "Conflict.",
+            _ => "Conflict.",
+        };
+
+        return new Application.Governance.GovernanceBatchReviewItemResult
+        {
+            ApprovalRequestId = approvalRequestId,
+            Succeeded = false,
+            ErrorCode = ProblemTypes.Conflict,
+            Message = message,
+        };
+    }
+
+    private static Application.Governance.GovernanceBatchReviewResponse MergeBatchReviewWithSealedPreflightFailures(
+        IReadOnlyList<string> requestedApprovalRequestIds,
+        Application.Governance.GovernanceBatchReviewResponse facadeResult,
+        IReadOnlyDictionary<string, Application.Governance.GovernanceBatchReviewItemResult> sealedPreflightFailures)
+    {
+        List<Application.Governance.GovernanceBatchReviewItemResult> merged = [];
+        int facadeIndex = 0;
+
+        foreach (string rawApprovalRequestId in requestedApprovalRequestIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
+            {
+                merged.Add(facadeResult.Results[facadeIndex++]);
+                continue;
+            }
+
+            string approvalRequestId =
+                GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
+
+            if (sealedPreflightFailures.TryGetValue(approvalRequestId, out Application.Governance.GovernanceBatchReviewItemResult? blocked))
+            {
+                merged.Add(blocked);
+                continue;
+            }
+
+            merged.Add(facadeResult.Results[facadeIndex++]);
+        }
+
+        return new Application.Governance.GovernanceBatchReviewResponse { Results = merged };
     }
 }

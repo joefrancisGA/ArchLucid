@@ -16296,6 +16296,21 @@
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-11-01 thorough hunt (hit #337): promoted batch partial-success parity gap while cheap-disproofing reseed **#336** monitors — after hit **#336** preflight returned whole-request **409** on first sealed-manifest drift even though batch review documents independent per-id evaluation and the facade maps other failures to **HTTP 200** with per-item `ErrorCode`; map sealed preflight **409** to per-item `ProblemTypes.Conflict` rows, call facade only for eligible ids, merge results in request order; regressions `BatchReviewApprovalRequests_returns_ok_with_per_item_conflict_when_sealed_manifest_hash_drift` and `BatchReviewApprovalRequests_returns_ok_with_per_item_conflict_when_mixed_batch_contains_sealed_manifest_hash_drift`. Cheap-disproof closed five open `(candidate)` rows (plus duplicate hypothesis text) — **valid-no-repro** `GetPromotions` null golden-manifest skip then **404** (`GetPromotions_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** mutation correction missing approval subject **404** ordering (service trail lookup contract; dry **#937**); **valid-no-repro** checklist padded in-scope run id (`GetChecklist_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; dry **#335**); **valid-no-repro** `GetScopeCoverage` exempt under scope-posture drift (`GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict`; dry **#937**); **valid-no-repro** recycle-bin null coalesce (`ListRecycleBinAsync_returns_ok_with_empty_deleted_projects_when_soft_deleted_list_is_null`; application-tenancy hit class). Reseeded five follow-on `(candidate)` rows; scoped picker filter **155/170** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: mixed batch approval review returns partial results instead of failing the entire request when only some ids hit sealed-manifest hash drift.
+
+- [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — whole-request **409** on sealed-manifest drift broke partial-success batch contract — **hit 2026-11-01 thorough hunt #337:** per-item conflict rows + merge; regressions above.
+- [x] (valid-no-repro) `GovernanceController.GetPromotions` — null golden manifest before list **404** — **cheap-disproof 2026-11-01 thorough hunt #337:** run-scoped guard skip; monitor dry **#335**.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — missing approval subject **404** ordering — **cheap-disproof 2026-11-01 thorough hunt #337:** trail lookup contract; monitor dry **#937**.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded in-scope run id trim — **cheap-disproof 2026-11-01 thorough hunt #337:** regression above; monitor dry **#335**.
+- [x] (valid-no-repro) `GovernanceCoverageController.GetScopeCoverage` — exempt read under hash drift — **cheap-disproof 2026-11-01 thorough hunt #337:** Wave-60 catalog; monitor dry **#937**.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — null soft-deleted list coalesce — **cheap-disproof 2026-11-01 thorough hunt #337:** regression above; monitor application-tenancy.
+
+- [ ] (candidate) `GovernanceController.GetActivations` — run-scoped sealed guard null golden manifest skip before **404** — locus: `EnsureSealedManifestReadAllowedAsync`; input: unknown run id (monitor dry **#335**).
+- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — sealed guard when approval row missing returns **404** not **409** — locus: `EnsureSealedManifestReadAllowedForApprovalRequestAsync` (monitor dry **#937**).
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — out-of-scope padded run id **404** before sealed guard — locus: run repository preflight (monitor dry **#335**).
+- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — minimum rationale length **400** before tenant lookup — locus: HTTP mapper ordering (monitor dry **#678**).
+- [ ] (candidate) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug **409** vs validation **400** when workspace list null — locus: create path vs list coalesce (monitor dry **#333**).
+
 2026-11-01 thorough hunt (hit #336): promoted sealed-manifest parity gap while cheap-disproofing reseed **#335** monitors — `BatchReviewApprovalRequests` invoked `_approvalRequestsFacade.BatchReviewAsync` without per-approval `EnsureSealedManifestReadAllowedForApprovalRequestAsync`, so hash drift that returned **409** on single `Approve`/`Reject` could succeed in batch review; preflight each normalized id before facade; regression `BatchReviewApprovalRequests_returns_conflict_when_approval_run_id_has_sealed_manifest_hash_drift`; Wave-67 architecture probe requires guard symbol on batch route; aligned three padded run-id list tests to N-format repository lookup (`AnalysisRunIdCanonicalization`). Cheap-disproof closed five open `(candidate)` rows — **valid-no-repro** `GetApprovalRequests` null golden-manifest skip then **404** (`GetApprovalRequests_returns_not_found_when_run_is_out_of_scope`; dry **#335**); **valid-no-repro** padded out-of-scope mutation correction **404** (`RecordGovernanceMutationCorrection_returns_conflict_when_padded_run_id_has_sealed_manifest_hash_drift` covers drift when run resolves; dry **#937**); **valid-no-repro** simulate **404** before sealed guard (`Simulate_returns_not_found_for_out_of_scope_run_id`; dry **#333**); **valid-no-repro** preview empty committed-run catalog (`PreviewCoverage_reaches_preview_service_when_committed_run_catalog_is_empty`; dry **#333**); **valid-no-repro** `ListAsync` null active catalog coalesce vs delete fail-closed (`ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; dry **#333**). Reseeded five follow-on `(candidate)` rows; scoped picker filter **154/169** (`RunAnalyzers=false`; 15 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM). Private beta: batch approve/reject no longer bypasses sealed-manifest hash drift checks that already block single-item approval review on the pilot governance API.
 
 - [x] (proven) `GovernanceController.BatchReviewApprovalRequests` — missing per-approval sealed-manifest guard before batch facade — **hit 2026-11-01 thorough hunt #336:** preflight `EnsureSealedManifestReadAllowedForApprovalRequestAsync`; regression above.
@@ -16305,11 +16320,11 @@
 - [x] (valid-no-repro) `GovernanceCoverageController.PreviewCoverage` — empty committed-run catalog — **cheap-disproof 2026-11-01 thorough hunt #336:** guard early return; monitor dry **#333**.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — null active catalog coalesce vs delete — **cheap-disproof 2026-11-01 thorough hunt #336:** intentional asymmetry; monitor dry **#333**.
 
-- [ ] (candidate) `GovernanceController.GetPromotions` — run-scoped sealed guard skips when golden manifest null before list facade **404** — locus: `EnsureSealedManifestReadAllowedAsync`; input: unknown run id (monitor dry **#335**).
-- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — out-of-scope run returns **404** without service when approval subject missing — locus: correction trail lookup ordering (monitor dry **#937**).
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded in-scope run id reaches checklist after trim — locus: scoped preflight trim (monitor dry **#335**).
-- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — scope posture guard exempt read when latest committed hash drift — locus: Wave-60 catalog (monitor dry **#937**).
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — null soft-deleted list coalesce parity with `ListAsync` — locus: list GET branches (monitor application-tenancy hit class).
+- [x] (valid-no-repro) `GovernanceController.GetPromotions` — run-scoped sealed guard skips when golden manifest null before list facade **404** — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary; monitor dry **#335**.
+- [x] (valid-no-repro) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — out-of-scope run returns **404** without service when approval subject missing — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary; monitor dry **#937**.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded in-scope run id reaches checklist after trim — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary; monitor dry **#335**.
+- [x] (valid-no-repro) `GovernanceCoverageController.GetScopeCoverage` — scope posture guard exempt read when latest committed hash drift — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary; monitor dry **#937**.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — null soft-deleted list coalesce parity with `ListAsync` — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary; monitor application-tenancy.
 
 2026-11-01 thorough hunt (dry #335): cheap-disproof closed five open `(candidate)` rows from dry **#937** reseed — run-history list GET routes (`GetApprovalRequests` / `GetPromotions`) use run-scoped `EnsureSealedManifestReadAllowedAsync` with null golden-manifest skip so missing runs reach **404** (`GetApprovalRequests_returns_not_found_when_run_is_out_of_scope`; scope-posture empty catalog is insights/batch class — `EnsureLatestCommittedRunSealedOrThrowAsync_skips_guard_when_run_summaries_are_null`); mutation-correction missing run **404** after null-detail sealed skip is documented **#937** parity (conflict tests cover hash drift only when run resolves); pre-commit `GetReadinessAsync` returns run-repository **404** before sealed guard like checklist (`GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope`; mirrors checklist padded out-of-scope test); coverage preview POST fail-closed vs exempt `GetScopeCoverage` read is Wave-60 intentional asymmetry (`GetScopeCoverage_reaches_query_service_when_scope_posture_sealed_manifest_would_conflict` vs preview guard); bulk disposition all in-scope findings with sealed-hash drift **409** before service (`RecordBulkDisposition_maps_sealed_manifest_ConflictException_to_409`). Reseeded five follow-on `(candidate)` rows; scoped picker filter **150/168** (`RunAnalyzers=false`; 18 SQL integration tests fail without `ARCHLUCID_SQL_TEST` on Linux VM); added regression `GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope` (**24/24** `GovernancePreCommitSimulationControllerTests` unit). Private beta: n/a.
 
@@ -16347,22 +16362,22 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 336
+- **hunts:** 337
 - **last-hunt:** 2026-11-01
-- **bugs-found:** 527
+- **bugs-found:** 528
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-11-01 — batch approval review skipped per-approval sealed-manifest guard
+- **last-bug:** 2026-11-01 — batch approval review returned whole-request 409 on sealed-manifest drift
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
-- [ ] (candidate) `GovernanceController.GetPromotions` — null golden manifest skip before **404** — monitor dry **#335**; see hit **#336** reseed.
-- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — missing approval subject **404** ordering — monitor dry **#937**; see hit **#336** reseed.
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — padded in-scope run id trim — monitor dry **#335**; see hit **#336** reseed.
-- [ ] (candidate) `GovernanceCoverageController.GetScopeCoverage` — exempt read under hash drift — monitor dry **#937**; see hit **#336** reseed.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — null soft-deleted list coalesce — monitor application-tenancy; see hit **#336** reseed.
+- [ ] (candidate) `GovernanceController.GetActivations` — null golden manifest skip before **404** — monitor dry **#335**; see hit **#337** reseed.
+- [ ] (candidate) `GovernanceController.GetApprovalRequestLineage` — missing approval **404** vs sealed **409** — monitor dry **#937**; see hit **#337** reseed.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetReadinessAsync` — padded out-of-scope **404** — monitor dry **#335**; see hit **#337** reseed.
+- [ ] (candidate) `GovernanceMutationCorrectionsController.RecordGovernanceMutationCorrection` — rationale min length before tenant lookup — monitor dry **#678**; see hit **#337** reseed.
+- [ ] (candidate) `TenantWorkspacesController.CreateProjectAsync` — duplicate slug when workspace list null — monitor dry **#333**; see hit **#337** reseed.
 
-- [x] (valid-no-repro) `GovernanceController` run-history list GET routes — empty committed-run catalog vs scope posture guard — **cheap-disproof 2026-11-01 thorough hunt #335:** see zone hunt note above.
+- [x] (valid-no-repro) `GovernanceController.GetPromotions` — null golden manifest skip before **404** — **cheap-disproof 2026-11-01 thorough hunt #337:** see hit #337 diary.
 - [x] (valid-no-repro) `GovernanceController.RecordGovernanceMutationCorrection` — missing run **404** after sealed skip — **cheap-disproof 2026-11-01 thorough hunt #335:** see zone hunt note above.
 - [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetReadinessAsync` — **404** before sealed guard — **cheap-disproof 2026-11-01 thorough hunt #335:** see zone hunt note above.
 - [x] (valid-no-repro) `GovernanceCoverageController` preview vs scope coverage read asymmetry — **cheap-disproof 2026-11-01 thorough hunt #335:** see zone hunt note above.
