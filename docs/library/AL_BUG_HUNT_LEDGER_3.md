@@ -2,6 +2,26 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** in run log — threshold **3**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — non-`Error` reject still calls `showError("Signup", "Request failed.")` (not silent; catch `unknown` branch in `SignupForm.tsx`); full-width `"１２"` fails finite-number gate (`Enter a valid number for architecture team size.`); invalid email wins readiness over whitespace-only Other spec (runtime: bad email + Other + `"   "` → valid work email copy); `registerInFlightRef` set before `fetch` blocks second click (`does not fire a second register request on rapid double-click before submitting state updates`); `"00001"` normalizes to **1** in builder (same leading-zero class as `"010"` → **10**). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-Error throw — **cheap-disproof 2026-11-01 thorough hunt (pass 18):** toast with `"Request failed."`; not silent.
+- [x] (valid-no-repro) `signupFormSchema` — full-width team size — **cheap-disproof 2026-11-01 thorough hunt (pass 18):** non-finite reject; runtime check above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs whitespace Other — **cheap-disproof 2026-11-01 thorough hunt (pass 18):** email issue wins; runtime above.
+- [x] (valid-no-repro) `SignupForm` — double-click duplicate POST — **cheap-disproof 2026-11-01 thorough hunt (pass 18):** in-flight ref + regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — `"00001"` padded zeros — **cheap-disproof 2026-11-01 thorough hunt (pass 18):** normalizes to **1**; leading-zero builder class.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — JSON parse failure on **201** may show empty success path — locus: success body parse; input: **201** non-JSON; wrong outcome: navigate without tenant id; reachability: monitor non-JSON **201** regressions.
+- [ ] (candidate) `signupFormSchema` — scientific notation below minimum `"1e-1"` may omit without field error — locus: superRefine integer gate; input: `"1e-1"`; wrong outcome: silent omit; reachability: monitor fractional team-size regressions.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — overlong organization with invalid email — locus: TB-2010 ordering; input: bad email + 201-char org; wrong outcome: org before email; reachability: monitor email-vs-org readiness regressions.
+- [ ] (candidate) `SignupForm` — keyboard submit on invalid form may call fetch — locus: keyboard submit handler; input: Enter with invalid email; wrong outcome: POST; reachability: monitor keyboard submit no-fetch regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — may include `industryVerticalOther` when industry is not Other — locus: conditional omit; input: non-Other with other text set; wrong outcome: key present; reachability: monitor non-Other other-key regressions.
+
+- [x] (superseded) `SignupForm` `onSubmit` — non-Error throw — **superseded 2026-11-01 thorough hunt (pass 18):** see closed row above.
+- [x] (superseded) `signupFormSchema` — full-width digits — **superseded 2026-11-01 thorough hunt (pass 18):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — Other whitespace — **superseded 2026-11-01 thorough hunt (pass 18):** see closed row above.
+- [x] (superseded) `SignupForm` — double-click timing — **superseded 2026-11-01 thorough hunt (pass 18):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — `"00001"` — **superseded 2026-11-01 thorough hunt (pass 18):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **3** after this run — rotation on next consecutive dry on this zone); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — fetch throw catch uses `Error.message` or generic `"Request failed."` (`shows a toast when register fetch throws`; not raw `String(e)`); `"00"` parses to zero and fails the same `n <= 0` superRefine gate as `"0"` (runtime safeParse); whitespace-only full name triggers TB-2010 required-field copy before invalid-email (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); Prefer-not-to-say omits POST `companySize` and success `setItem` only runs when size is selected at submit (`omits company size from register POST after switching to Prefer not to say`; prior `(invalid)` row — no app consumer for stale optional key); empty-string optional team size omits key (`omits architecture team size key when optional field is an empty string`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — network throw toast — **cheap-disproof 2026-11-01 thorough hunt (pass 17):** Error.message path; regression above.
@@ -676,9 +696,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 103
+- **hunts:** 104
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
