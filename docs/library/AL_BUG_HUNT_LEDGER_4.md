@@ -17357,6 +17357,14 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-tenancy-commercial
 
+2026-11-01 seed hunt #1209 (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `knowledge-graph-provenance` is **2/3** after hunts #1207–#1208 dry — below `minLowYieldStreak` 3; picker returned **seed hunt** on `core-tenancy-commercial` with zero parsed header `(candidate)` rows). Re-read `ArchLucid.Core/Identity/`, `Billing/`, and `Budgeting/` commercial paths; relocated five buried `(candidate)` rows from hunt #1076 into the header queue below this note (parity hunt #1053 header-queue repair); no hunt-ready promotion in this run. Scoped **4** Core + **12** Api `CommercialTenant` filter tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — locus: gate vs automation split; input: suspended checkout (monitor; hunt #1209).
+- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Pending` on Standard tier passes weekly sponsor while Active trial blocked — locus: non-Active lifecycle; input: pending checkout (monitor; hunt #1209).
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null commercial label with 5-seat subscription returns null spend plan — locus: label required; input: null label + 5 seats (monitor; hunt #1209).
+- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — unknown partner plan id defaults Standard without map entry — locus: map-only resolver; input: unmapped plan id (monitor; hunt #1209).
+- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — JSON `"quantity":10.0` whole double accepted at Team seat boundary — locus: whole-number coercion; input: `10.0` quantity (monitor; hunt #1209).
+
 2026-10-31 thorough hunt #1080 (hit): no rotation (`shouldRotate: false`; `core-tenancy-commercial` low-yield streak reset). Promoted `CommercialPackagingTierResolver.ResolveCommercialTierLabel` returning **Enterprise** before the active-trial guard so `TenantTier.Enterprise` + `TrialStatus=Active` surfaced a marketplace label while Free/Standard active trials correctly returned null (ordering regression after #600–#642 `TrialLifecycleStatus.EqualsStatus` family); moved active-trial null ahead of Enterprise branch; regression `ResolveCommercialTierLabel_returns_null_for_active_trial_on_enterprise_tier`; cheap-disproof closed five picker `(candidate)` rows — **valid-no-repro** offboarded Standard passes HTTP tier gate while weekly sponsor rejects `OffboardedUtc` (intentional split — hunt #971), **valid-no-repro** `TrialStatus=Converted` on Standard tier eligible for weekly sponsor while only **Active** trials blocked (`IsEligibleForWeeklySponsorReport` — hunt #1072), **invalid** Team label with 1-seat subscription mapping Architect (`FromCommercialPackaging` shortcut — hunt #972), **invalid** sales-led `(seatsUsed=8, workspacesUsed=1)` returning Team label (8 seats within Team max — hunt #1056), **valid-no-repro** JSON `"planId":null` (`ValueKind.Null` returns false — hunt #970). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **73** Core commercial-filter tests passed (`RunAnalyzers=false`). Private beta: Mis-provisioned Enterprise rows that still carry an active self-service trial no longer resolve an Enterprise marketplace packaging label for usage and budget surfaces that call the resolver directly.
 
 - [x] (proven) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — Enterprise tier bypassed active-trial null — **hit 2026-10-31 thorough hunt #1080:** active-trial guard before Enterprise; regression above. [class:state-machine-gap]
@@ -17374,11 +17382,11 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-31 thorough hunt #1076 (dry): no rotation (`shouldRotate: false`; `notifications-pipeline` low-yield streak **2/3** in run log — below `minLowYieldStreak` 3; `core-tenancy-commercial` low-yield streak **3/3** in run log after this hunt — next `/4` should `-AvoidZoneId` rotate). Cheap-disproof closed five header `(candidate)` rows from hunt #1074 reseed — **valid-no-repro** offboarded Standard passes HTTP tier gate while weekly sponsor rejects `OffboardedUtc` (intentional split — hunt #971), **valid-no-repro** `TrialStatus=Converted` on Standard tier eligible for weekly sponsor while only **Active** trials blocked (`IsEligibleForWeeklySponsorReport` — hunt #1072), **invalid** Team label with 1-seat subscription mapping Architect (`FromCommercialPackaging` Architect shortcut — hunt #972), **invalid** sales-led `(seatsUsed=8, workspacesUsed=1)` returning Team label (8 seats within Team max — hunt #1056), **valid-no-repro** JSON `"planId":null` (`ValueKind.Null` returns false from `TryGetPlanId`; no empty-string coercion — hunt #970). Reseeded five `(candidate)` rows; scoped **6** Application + **12** Api + **46** Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — locus: gate vs automation split; input: suspended checkout (monitor; hunt #970).
-- [ ] (candidate) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Pending` on Standard tier passes weekly sponsor while Active trial blocked — locus: non-Active lifecycle; input: pending checkout (monitor; hunt #1063).
-- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null commercial label with 5-seat subscription returns null spend plan — locus: label required; input: null label + 5 seats (monitor; hunt #1063).
-- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — unknown partner plan id defaults Standard without map entry — locus: map-only resolver; input: unmapped plan id (monitor; hunt #1056).
-- [ ] (candidate) `MarketplaceQuantityReader.TryReadQuantity` — JSON `"quantity":10.0` whole double accepted at Team seat boundary — locus: whole-number coercion; input: `10.0` quantity (monitor; hunt #1054).
+- [x] (valid-no-repro) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — suspended Standard tenant passes HTTP tier gate while weekly sponsor rejects `SuspendedUtc` — **relocated 2026-11-01 seed hunt #1209:** header queue repair; see hunt #1076.
+- [x] (valid-no-repro) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Pending` on Standard tier passes weekly sponsor while Active trial blocked — **relocated 2026-11-01 seed hunt #1209:** header queue repair.
+- [x] (valid-no-repro) `LlmMonthlySpendPlanId.FromCommercialPackaging` — null commercial label with 5-seat subscription returns null spend plan — **relocated 2026-11-01 seed hunt #1209:** header queue repair.
+- [x] (valid-no-repro) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — unknown partner plan id defaults Standard without map entry — **relocated 2026-11-01 seed hunt #1209:** header queue repair.
+- [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — JSON `"quantity":10.0` whole double accepted at Team seat boundary — **relocated 2026-11-01 seed hunt #1209:** header queue repair.
 
 - [x] (valid-no-repro) `CommercialTenantEligibility.MeetsCommercialTenantTierGate` — offboarded Standard tenant passes HTTP tier gate while weekly sponsor rejects `OffboardedUtc` — **cheap-disproof 2026-10-31 thorough hunt #1076:** regression above.
 - [x] (valid-no-repro) `CommercialTenantEligibility.IsEligibleForWeeklySponsorReport` — `TrialStatus=Converted` on Standard tier eligible while Active trial blocked — **cheap-disproof 2026-10-31 thorough hunt #1076:** regression above.
@@ -17561,10 +17569,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-31
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
 - **code-changed-since:** no
