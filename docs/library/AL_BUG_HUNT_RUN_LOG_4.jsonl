@@ -3250,3 +3250,10 @@
 {"at":"2026-11-01T16:46:52.1513038Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T16:50:04.6069773Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T17:20:47.4364349Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:40:19.4090389Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:44:05.7271238Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:46:54.5739678Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:49:55.4812131Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T17:52:45.2608506Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:17:01.8306417Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:23:19.3425152Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared"}
