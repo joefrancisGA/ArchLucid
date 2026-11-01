@@ -68,6 +68,38 @@ class SecureNowAdoptionFrictionTests(unittest.TestCase):
             errors = validate(root)
             self.assertTrue(any("No collection yet" in error for error in errors))
 
+    def test_swapped_home_row_hrefs_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-first-hour-home-copy.ts"
+            text = path.read_text(encoding="utf-8")
+            text = text.replace(
+                'href: "/integrations/cloud-connections"',
+                'href: "__SCOPE_HREF__"',
+            ).replace(
+                'href: "/security/remediation-factory"',
+                'href: "/integrations/cloud-connections"',
+            ).replace('href: "__SCOPE_HREF__"', 'href: "/security/remediation-factory"')
+            path.write_text(text, encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("label-to-href assignments" in error for error in errors))
+
+    def test_duplicate_home_row_href_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-first-hour-home-copy.ts"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    'href: "/administration/securenow-first-hour#path-inspect"',
+                    'href: "/security/remediation-factory"',
+                ),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("distinct href values" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

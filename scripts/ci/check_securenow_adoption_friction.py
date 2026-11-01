@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -24,6 +25,18 @@ FORBIDDEN = (
     "guaranteed savings",
 )
 
+EXPECTED_HOME_ROWS = (
+    ("Scope and freshness", "/integrations/cloud-connections"),
+    ("One ranked path", "/security/remediation-factory"),
+    ("Path inspect", "/administration/securenow-first-hour#path-inspect"),
+    ("Stop", "/administration/securenow-first-hour#stop"),
+    ("First hour page", "/administration/securenow-first-hour"),
+)
+HOME_ROW_PATTERN = re.compile(
+    r'\{\s*href:\s*(?P<href>[^,\n]+),\s*label:\s*"(?P<label>[^"]+)"',
+    re.MULTILINE,
+)
+
 
 def _read(root: Path, relative: Path, errors: list[str]) -> str:
     path = root / relative
@@ -31,6 +44,26 @@ def _read(root: Path, relative: Path, errors: list[str]) -> str:
         errors.append(f"missing {relative}")
         return ""
     return path.read_text(encoding="utf-8")
+
+def _parse_home_rows(text: str) -> list[tuple[str, str]]:
+    operator_path_match = re.search(
+        r'export const SECURENOW_FIRST_HOUR_OPERATOR_PATH = "([^"]+)"',
+        text,
+    )
+    operator_path = operator_path_match.group(1) if operator_path_match else None
+    rows: list[tuple[str, str]] = []
+
+    for match in HOME_ROW_PATTERN.finditer(text):
+        href_expression = match.group("href").strip()
+        if href_expression.startswith('"') and href_expression.endswith('"'):
+            href = href_expression[1:-1]
+        elif href_expression == "SECURENOW_FIRST_HOUR_OPERATOR_PATH" and operator_path is not None:
+            href = operator_path
+        else:
+            href = href_expression
+        rows.append((match.group("label"), href))
+
+    return rows
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -77,6 +110,11 @@ def validate(root: Path = ROOT) -> list[str]:
         ):
             if token not in home_copy:
                 errors.append(f"{HOME_COPY}: missing {token!r}")
+        home_rows = _parse_home_rows(home_copy)
+        if home_rows != list(EXPECTED_HOME_ROWS):
+            errors.append(f"{HOME_COPY}: Home row label-to-href assignments are out of order or incorrect")
+        if len({href for _, href in home_rows}) != len(home_rows):
+            errors.append(f"{HOME_COPY}: Home rows must have distinct href values")
 
     if operator_copy:
         for token in ("NO_GO", "NOT VERIFIED", "does not change Azure", "Advisory cut point"):
