@@ -17547,7 +17547,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **test-filter:** FullyQualifiedName~PrivateNetwork
 - **hunts:** 30
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
@@ -19802,7 +19802,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-bug:** 2026-10-23 — structured confidence array rejected all multi-entry arrays
 - **last-hunt:** 2026-11-01
 - **related-pd-tb:** none
@@ -20114,13 +20114,27 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` with trailing sole zero numeric array `[0]` — **cheap-disproof 2026-11-01 thorough hunt #1135:** regression above.
 - [x] (valid-no-repro) `TryReadStructuredConfidenceFromArrayItems` — confidence array with three entries `[null, 0, 0.75]` — **cheap-disproof 2026-11-01 thorough hunt #1135:** regression above.
 
+2026-11-01 thorough hunt #1143 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#1140–#1142 dry), picker rotated with **`-AvoidZoneId`** to `core-explanation-json`. Cheap-disproof closed five open `(candidate)` rows from hunt #1139 reseed — **valid-no-repro** structured `"75\u205F%"` medium-mathematical-space percent trim (`char.IsWhiteSpace`; parity `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent`), **valid-no-repro** faithfulness `[true, null, 0.55]` boolean/null skip then ratio parse (aggregate array reader; parity hunt #1135 `[true, 0.55]`), **valid-no-repro** duplicate `CONFIDENCE:false` trailing boolean scalar (regression `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar` — boolean alias empty; keeps `0.8`), **valid-no-repro** confidence `[true, 0.75]` structured boolean skip (regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry`), **valid-no-repro** confidence `[0.75, 0.9]` first-finite policy (hunt #694/#967); reseeded five `(candidate)` rows; scoped RunExplanation filter **233** passed (Core, `RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `TryReadStructuredConfidenceFromArrayItems` — confidence array with leading empty string then finite value — locus: empty-string skip; input: `["", 0.75]`; wrong outcome: second entry ignored (monitor).
+- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — faithfulness array with leading `true` then ratio — locus: boolean coercion vs skip; input: `[true, 0.55]`; wrong outcome: ratio ignored (monitor).
+- [ ] (candidate) `TryReadFiniteDouble` — hair space (`U+200A`) before `%` on structured `confidence` — locus: percent suffix trim; input: `"75\u200A%"`; wrong outcome: null vs scaled `0.75` (monitor).
+- [ ] (candidate) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` with trailing sole zero numeric array `[0]` — locus: zero-array duplicate-alias poison; input: `0.8` then `CONFIDENCE:[0]`; wrong outcome: earlier confidence kept (monitor).
+- [ ] (candidate) `TryReadStructuredConfidenceFromArrayItems` — confidence array with three entries `[null, 0, 0.75]` — locus: explicit zero first-win; input: third finite ignored; wrong outcome: last finite used (monitor).
+
+- [x] (valid-no-repro) `TryReadFiniteDouble` — medium mathematical space (`U+205F`) before `%` on structured `confidence` — **cheap-disproof 2026-11-01 thorough hunt #1143:** regression above.
+- [x] (valid-no-repro) `TryReadAggregateRatioFromArrayItems` — faithfulness array `[true, null, 0.55]` — **cheap-disproof 2026-11-01 thorough hunt #1143:** regression above.
+- [x] (valid-no-repro) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` with trailing sole boolean `false` scalar — **cheap-disproof 2026-11-01 thorough hunt #1143:** regression above.
+- [x] (valid-no-repro) `TryReadStructuredConfidenceFromArrayItems` — confidence array with leading `true` then finite value — **cheap-disproof 2026-11-01 thorough hunt #1143:** regression above.
+- [x] (valid-no-repro) `TryReadStructuredConfidenceFromArrayItems` — confidence array `[0.75, 0.9]` two finite entries — **cheap-disproof 2026-11-01 thorough hunt #1143:** regression above.
+
 2026-11-01 thorough hunt #1139 (dry, rotation): after **3 consecutive low-yield** outcomes on `knowledge-graph-provenance` (#1136–#1138 dry), picker rotated with **`-AvoidZoneId`** to `core-explanation-json`. Cheap-disproof closed five open `(candidate)` rows from hunt #1135 reseed — **valid-no-repro** structured `"75\u2008%"` punctuation-space percent trim (`char.IsWhiteSpace`; parity `TryNormalizeStructuredJson_coerces_percent_suffixed_confidence_with_interior_space_before_percent` and hunt #1135 hair-space closure), **valid-no-repro** faithfulness `["", 0.55]` empty-string skip then ratio parse (parity hunt #1135 confidence `["", 0.75]` empty-string skip), **valid-no-repro** duplicate `CONFIDENCE:true` trailing boolean scalar (regression `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar` — boolean alias empty; keeps `0.8`), **valid-no-repro** confidence `[0.75, null, 0.9]` first-finite-after-null-skip policy (hunt #694/#967 multi-entry first-win), **valid-no-repro** confidence `[false, 0.75]` structured boolean skip (regression `TryNormalizeStructuredJson_uses_finite_confidence_when_array_leads_with_boolean_entry` / hunt #967); reseeded five `(candidate)` rows; scoped RunExplanation filter **233** passed (Core, `RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TryReadFiniteDouble` — medium mathematical space (`U+205F`) before `%` on structured `confidence` — locus: percent suffix trim; input: `"75\u205F%"`; wrong outcome: null vs scaled `0.75` (monitor).
-- [ ] (candidate) `TryReadAggregateRatioFromArrayItems` — faithfulness array `[true, null, 0.55]` — locus: boolean/null skip then ratio; input: third entry ignored; wrong outcome: ratio null when middle null should be skipped (monitor).
-- [ ] (candidate) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` with trailing sole boolean `false` scalar — locus: boolean duplicate-alias poison; input: `0.8` then `CONFIDENCE:false`; wrong outcome: earlier confidence kept when boolean alias should poison (monitor).
-- [ ] (candidate) `TryReadStructuredConfidenceFromArrayItems` — confidence array with leading `true` then finite value — locus: boolean skip in structured array reader; input: `[true, 0.75]`; wrong outcome: confidence null when boolean should be skipped (monitor).
-- [ ] (candidate) `TryReadStructuredConfidenceFromArrayItems` — confidence array `[0.75, 0.9]` two finite entries — locus: first finite wins; input: second entry ignored by design; wrong outcome: last finite used (monitor).
+- [x] (valid-no-repro) `TryReadFiniteDouble` — medium mathematical space (`U+205F`) before `%` on structured `confidence` — **cheap-disproof 2026-11-01 thorough hunt #1143:** hunt #1139 reseed queue.
+- [x] (valid-no-repro) `TryReadAggregateRatioFromArrayItems` — faithfulness array `[true, null, 0.55]` — **cheap-disproof 2026-11-01 thorough hunt #1143:** hunt #1139 reseed queue.
+- [x] (valid-no-repro) `TryNormalizeStructuredJson` — duplicate `CONFIDENCE` with trailing sole boolean `false` scalar — **cheap-disproof 2026-11-01 thorough hunt #1143:** hunt #1139 reseed queue.
+- [x] (valid-no-repro) `TryReadStructuredConfidenceFromArrayItems` — confidence array with leading `true` then finite value — **cheap-disproof 2026-11-01 thorough hunt #1143:** hunt #1139 reseed queue.
+- [x] (valid-no-repro) `TryReadStructuredConfidenceFromArrayItems` — confidence array `[0.75, 0.9]` two finite entries — **cheap-disproof 2026-11-01 thorough hunt #1143:** hunt #1139 reseed queue.
 
 - [x] (valid-no-repro) `TryReadFiniteDouble` — punctuation space (`U+2008`) before `%` on structured `confidence` — **cheap-disproof 2026-11-01 thorough hunt #1139:** regression above.
 - [x] (valid-no-repro) `TryReadAggregateRatioFromArrayItems` — faithfulness array with leading empty string then ratio — **cheap-disproof 2026-11-01 thorough hunt #1139:** regression above.
