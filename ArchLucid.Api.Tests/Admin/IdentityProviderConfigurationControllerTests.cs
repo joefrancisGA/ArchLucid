@@ -321,6 +321,37 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_returns_canonical_issuer_uri_for_inactive_stored_row_with_explicit_port_443()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example:443/oidc",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = false,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.IsActive.Should().BeFalse();
+        body.IssuerUri.Should().Be("https://idp.example/oidc");
+    }
+
+    [Fact]
     public async Task GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -714,6 +745,62 @@ public sealed class IdentityProviderConfigurationControllerTests
 
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().Contain("IssuerUri");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_leaves_stored_configuration_unchanged_when_successful_discovery_issuer_exceeds_persisted_column()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        const string persistedIssuer = "https://persisted-idp.example/oidc";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = persistedIssuer,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                KeyVaultSecretName = "tenant-idp-client-secret",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                DiscoverySucceeded = true,
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(
+            configurationRepository: repository,
+            discoveryService: discovery.Object);
+
+        IActionResult result = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        TenantIdentityProviderConfigurationRecord? stored =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+        stored!.IssuerUri.Should().Be(persistedIssuer);
+        stored.KeyVaultSecretName.Should().Be("tenant-idp-client-secret");
     }
 
     [Fact]

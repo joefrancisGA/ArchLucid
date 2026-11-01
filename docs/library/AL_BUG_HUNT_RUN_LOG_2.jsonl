@@ -2435,3 +2435,4 @@
 {"at":"2026-11-01T17:59:36.6964221Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:02:12.2961291Z","zoneId":"finding-disposition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:04:06.9970081Z","zoneId":"finding-inspect-sql","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:11:30.8082001Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
