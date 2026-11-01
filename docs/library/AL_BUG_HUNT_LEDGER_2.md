@@ -2537,14 +2537,22 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
+
+2026-11-01 seed hunt (seed-only #42): re-read `WalletController`, `LlmTenantWalletService`, and `SqlLlmTenantWalletRepository.UpdateSettingsAsync` after `scim-users` dry **#49** churn; no open rows met hunt-ready bar for a failing repro in zone paths (beta wallet PUT still omits Stripe ids per prior dry hunts; SQL settings update calls `GetOrCreateAsync` before merge; optional empty row version OCC documented); seeded five `(candidate)` rows; scoped filter **43/43** `LlmTenantWalletServiceTests` passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `WalletController.PutAsync` — wallet settings persist before audit `LogAsync`, so audit failure can return HTTP 500 after mutation — locus: ~71–109; input: audit sink throws after successful `UpdateWalletAsync`; reachability: `PUT /v1/billing/wallet` AdminAuthority save.
+- [ ] (candidate) `LlmTenantWalletService.MapView` — `HasPaymentMethod` reflects non-whitespace persisted PM id only, not live Stripe attachment — locus: ~94; input: detached PM id left in `LlmTenantWalletState`; reachability: Billing GET before auto-refill/charge (`OperatorBillingWalletPanel` hasPaymentMethod).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — parallel enable/disable PUTs without row version can interleave cap and auto-replenish flags — locus: partial PUT + optional `ExpectedRowVersion`; input: concurrent admin saves with blank `RowVersionBase64`; reachability: Billing wallet save without ETag (optional OCC hunt **#7** class).
+- [ ] (candidate) `WalletController.GetAsync` — cooperative cancel during `GetWalletAsync`/`GetOrCreateAsync` propagates without controller catch — locus: ~48–51; input: canceled token mid-read; reachability: Billing GET under load (monitor; parity SCIM list cancel hunts).
+- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop uses fixed `Task.Delay` without surfacing conflict to caller until retries exhaust — locus: ~51–90; input: hot concurrent wallet debits during PUT; reachability: LLM spend + admin settings overlap.
 
 2026-10-21 thorough hunt (dry): cheap-disproved the open Stripe ownership candidate as not hunt-ready in this zone. Beta Billing & plans wallet PUT sends only auto-replenish, monthly cap, and row version — not Stripe customer or payment-method identifiers (OperatorBillingWalletPanel.tsx). Persisting identifiers on PUT is partial-update forwarding; ownership and Stripe attach/charge enforcement live in Persistence billing/Stripe integration outside the selected controller, service, and SQL repository paths. No failing repro; 27 scoped LlmTenantWalletServiceTests passed (discovery no longer blocked). No production or regression code changed.
 
