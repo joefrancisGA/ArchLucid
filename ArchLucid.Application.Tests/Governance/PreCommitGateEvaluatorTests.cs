@@ -146,4 +146,34 @@ public sealed class PreCommitGateEvaluatorTests
         result.Blocked.Should().BeFalse();
         result.BlockingFindingIds.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Evaluate_warn_only_when_warn_only_severities_use_lowercase_critical_label()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-blocking-critical",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Critical,
+                Title = "Policy breach",
+                Rationale = "Policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: true,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Critical,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: ["critical"]);
+
+        result.Blocked.Should().BeFalse();
+        result.WarnOnly.Should().BeTrue();
+        result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-blocking-critical");
+    }
 }

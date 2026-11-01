@@ -221,4 +221,29 @@ public sealed class PolicyPackCoverageProofEvaluatorTests
 
         proof.UnprovenAssignmentCount.Should().Be(0);
     }
+
+    [Fact]
+    public void Evaluate_treats_not_applicable_outcome_as_proven_without_findings()
+    {
+        Guid packId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                    EvaluationOutcome = PolicyPackEvaluationOutcomes.NotApplicable,
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(scopeJson, []);
+
+        proof.AssignmentCount.Should().Be(1);
+        proof.UnprovenAssignmentCount.Should().Be(0);
+    }
 }

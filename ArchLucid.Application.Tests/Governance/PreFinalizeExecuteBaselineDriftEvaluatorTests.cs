@@ -449,6 +449,30 @@ public sealed class PreFinalizeExecuteBaselineDriftEvaluatorTests
     }
 
     [Fact]
+    public void CoverageAssignmentsMatch_treats_whitespace_exclusion_reason_as_distinct_from_null()
+    {
+        CommittedCoverageAssignmentSnapshot withWhitespace = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+            ExclusionReason = " ",
+        };
+
+        CommittedCoverageAssignmentSnapshot withNull = new()
+        {
+            PolicyPackId = PackId,
+            PolicyPackVersion = "2.0.0",
+            CoverageType = CoverageType.ProviderNeutralBaseline.ToString(),
+            SelectionState = CoverageSelectionState.AlwaysActive.ToString(),
+            ExclusionReason = null,
+        };
+
+        PreFinalizeExecuteBaselineDriftEvaluator.CoverageAssignmentsMatch([withWhitespace], [withNull]).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions()
     {
         ArchitectureRequest request = CreateRequest();
