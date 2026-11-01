@@ -80,6 +80,7 @@
 - [Stickiness prompt index](../architecture/SECURENOW_STICKINESS_COMPOSER_PROMPTS.md) is the paste set for four reopen reasons. It is not a reminder product and not a usage claim.
 - [Return reasons](RETURN_REASONS.md) names four reopen reasons, not a reminder product.
 - [Adoption friction prompt index](../architecture/SECURENOW_ADOPTION_FRICTION_COMPOSER_PROMPTS.md) is the paste set for the shipped four-step first hour, and for **SN-ADOPT-05–08**, which name Path inspect, split Start here into unique rows, and lock the empty-collection link. It is not a timed SLA and not autonomous remediation.
+- [Score-64 follow-up prompt index](../architecture/SECURENOW_SCORE64_COMPOSER_PROMPTS.md) packages the ready Accessibility, Stickiness, Scenario Accelerator, and Cognitive Load Composer sessions. It is not human validation, a WCAG certification, a retention claim, or customer evidence.
 - [First hour path](FIRST_HOUR.md) names four steps before verification or sponsor packaging. It is not customer evidence.
 - [Commercial order template](ORDER_FORM_TEMPLATE.md) is a SecureNow quote and sign-off shell with SKU meters by reference. It is not an approved customer offer.
 - [Quote-to-pilot checklist](QUOTE_TO_PILOT_CHECKLIST.md) sequences owner, legal, security, and buyer attachments without authorizing commerce.
