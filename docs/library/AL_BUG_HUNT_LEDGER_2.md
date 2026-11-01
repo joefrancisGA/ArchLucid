@@ -1772,7 +1772,7 @@
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
 - **hunts:** 69
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none
@@ -3802,6 +3802,8 @@
 
 ## Zone: identity-provider-config
 
+2026-11-01 thorough hunt (dry #87): cheap-disproof closed five open `(candidate)` monitor rows from dry **#86** reseed — discover `:443` canonicalization shortens issuer before `EnsureIssuerUriFits` so raw-at-width-but-canonical-fits is intentional wizard preview (`DiscoverAsync_returns_canonical_issuer_and_jwks_uris`, `DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`, hit **#79**); same-protocol SAML reactivate with omitted `MetadataXml` on inactive row preserves stored XML by design (`ActivateAsync_reactivate_preserves_metadata_xml_when_omitted`, dry **#936** / **#348**); GET skips read-time `EnsureIssuerUriFits` when stored issuer is not canonical HTTP(S) so legacy rows stay readable (`GetConfigurationAsync` guard after `TryGetCanonicalAbsoluteHttpOrHttps`, dry **#346**); test-login applies the same post-canonical `EnsureIssuerUriFits` boundary as activate/discover (`TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column`, `TestLogin_passes_canonical_issuer_uri_to_sandbox_service`; exact-width after `:443` strip is the canonical string under test); whitespace-only `MetadataXml` on OIDC reactivate is not a reachable wizard vector — SAML fail-closed clear guard is protocol-specific (`ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace`, dry **#84**). Reseeded five follow-on `(candidate)` rows; **92/92** scoped activation + configuration controller tests (`RunAnalyzers=false`). Private beta: n/a.
+
 2026-11-01 thorough hunt (dry #86): cheap-disproof closed five open `(candidate)` monitor rows from dry **#85** reseed — GET `PrepareConfigurationResponse` canonicalizes persisted `:443` issuer for active and inactive reload rows (`GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`, `GetConfigurationAsync_returns_canonical_issuer_uri_for_inactive_stored_row_with_explicit_port_443`); same-protocol reactivate with omitted `KeyVaultSecretName` preserves stored secret on inactive row (`ActivateAsync_reactivate_preserves_key_vault_secret_when_omitted_and_stored_row_is_inactive`; dry **#936**); successful discover with post-canonical issuer over NVARCHAR budget returns HTTP 400 without mutating repository (`DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`, `DiscoverAsync_leaves_stored_configuration_unchanged_when_successful_discovery_issuer_exceeds_persisted_column`); preserved legacy oversize secret rejected on reactivate (`ActivateAsync_rejects_preserved_legacy_key_vault_secret_longer_than_persisted_column_on_reactivate`); test-login and GET share canonical issuer length guard (`TestLogin_rejects_canonical_issuer_uri_longer_than_persisted_column`, `GetConfigurationAsync_rejects_stored_canonical_issuer_uri_longer_than_persisted_column`); reseeded five follow-on `(candidate)` rows; **92/92** scoped activation + configuration controller tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET canonicalizes persisted issuer with explicit `:443` — **cheap-disproof 2026-11-01 thorough hunt #86:** intentional wizard reload projection; regressions above.
@@ -3810,11 +3812,18 @@
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — preserved legacy oversize `KeyVaultSecretName` on reactivate — **cheap-disproof 2026-11-01 thorough hunt #86:** `EnsureKeyVaultSecretNameFits`; regression above.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — sandbox issuer length guard vs GET canonicalization — **cheap-disproof 2026-11-01 thorough hunt #86:** shared `EnsureIssuerUriFits`; regressions above.
 
-- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — `:443` canonicalization on discover response can change issuer length relative to raw discovery output — locus: `WithCanonicalWizardUris`; input: discover returns issuer at NVARCHAR width before port strip; reachability: wizard preview length guard after canonicalization.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol reactivate with omitted `MetadataXml` on inactive SAML row — locus: `ResolveOptionalPersistedField` + `sameProtocol`; input: omitted metadata when `IsActive=false`; reachability: disable-then-re-enable SAML wizard (monitor dry **#936** SAML parity).
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — non-HTTP(S) stored issuer skips read-time length guard — locus: `TryGetCanonicalAbsoluteHttpOrHttps` guard; input: legacy non-canonical issuer row; reachability: operator reload of legacy configuration (dry **#346** class).
-- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — sandbox accepts issuer at exact NVARCHAR width after `:443` strip — locus: canonicalization before `EnsureIssuerUriFits`; input: `https://idp.example:443/` + padding to column width; reachability: wizard test-login at stored-width boundary.
-- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — whitespace-only `MetadataXml` on OIDC reactivate — locus: `ResolveOptionalPersistedField`; input: `"   "` metadata on inactive OIDC row; reachability: mistaken wizard resubmit (monitor SAML whitespace class).
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.DiscoverAsync` — `:443` canonicalization changes issuer length before length guard — **cheap-disproof 2026-11-01 thorough hunt #87:** guard runs on canonical URI; regressions above.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — same-protocol reactivate omitted `MetadataXml` on inactive SAML row — **cheap-disproof 2026-11-01 thorough hunt #87:** `ResolveOptionalPersistedField` preservation; regression above.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — non-HTTP(S) stored issuer skips read-time length guard — **cheap-disproof 2026-11-01 thorough hunt #87:** legacy readability by design; dry **#346** diary.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.TestLogin` — sandbox issuer at NVARCHAR width after `:443` strip — **cheap-disproof 2026-11-01 thorough hunt #87:** shared canonical `EnsureIssuerUriFits`; regressions above.
+- [x] (invalid) `IdentityProviderActivationService.ActivateAsync` — whitespace-only `MetadataXml` on OIDC reactivate — **cheap-disproof 2026-11-01 thorough hunt #87:** SAML-specific clear guard; OIDC wizard does not resubmit metadata whitespace.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET canonicalizes persisted issuer with explicit `:443` for wizard reload — locus: `PrepareConfigurationResponse`; input: stored `https://idp.example:443/oidc`; reachability: inactive-row reload (monitor dry **#86** rotation).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — same-protocol reactivate with null `KeyVaultSecretName` preserves stored secret when row `IsActive=false` — locus: `ResolveOptionalPersistedField`; input: omitted secret on inactive OIDC row (monitor dry **#86** / **#936**).
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discover with invalid post-canonical issuer length returns HTTP 400 without touching repository — locus: `EnsureIssuerUriFits` after `WithCanonicalWizardUris`; input: discovery issuer over NVARCHAR budget (monitor hit **#79**).
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — preserved legacy oversize `KeyVaultSecretName` on same-protocol reactivate when secret omitted — locus: `EnsureKeyVaultSecretNameFits`; input: inactive row with legacy secret at column width (monitor dry **#86**).
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — sandbox rejects issuer longer than persisted column while GET returns canonical stored issuer — locus: shared `EnsureIssuerUriFits`; input: canonical issuer one char over limit (monitor dry **#86** / hit **#78**).
+
 
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — GET canonicalizes persisted issuer with explicit `:443` for wizard reload — **cheap-disproof 2026-11-01 thorough hunt #86:** see dry #86 diary.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — same-protocol reactivate with null `KeyVaultSecretName` preserves stored secret when row `IsActive=false` — **cheap-disproof 2026-11-01 thorough hunt #86:** see dry #86 diary.
@@ -3931,7 +3940,7 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-01
