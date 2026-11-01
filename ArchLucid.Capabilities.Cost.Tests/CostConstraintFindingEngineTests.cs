@@ -87,6 +87,31 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_uppercase_high_cost_risk_with_trailing_tab_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-tab",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "HIGH\t",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_treats_interior_nbsp_in_cost_risk_token_as_info_severity()
     {
         GraphSnapshot graph = new()

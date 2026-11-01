@@ -118,7 +118,7 @@ public static class PolicyExpectationCostGraphReader
 
   private static bool TryParseInvariantAmount(string token, out decimal value)
   {
-    token = RemoveExportNbspFromNumericToken(token);
+    token = RemoveExportFormattingSpacesFromNumericToken(token);
 
     if (decimal.TryParse(
             token,
@@ -146,8 +146,14 @@ public static class PolicyExpectationCostGraphReader
     return false;
   }
 
-  private static string RemoveExportNbspFromNumericToken(string token) =>
-      token.Replace("\u00A0", string.Empty, StringComparison.Ordinal);
+  private static string RemoveExportFormattingSpacesFromNumericToken(string token)
+  {
+    return token
+        .Replace("\u00A0", string.Empty, StringComparison.Ordinal)
+        .Replace("\u2009", string.Empty, StringComparison.Ordinal)
+        .Replace("\u202F", string.Empty, StringComparison.Ordinal)
+        .Replace("\u2007", string.Empty, StringComparison.Ordinal);
+  }
 
   private static string StripUtf8ByteOrderMark(string value)
   {
