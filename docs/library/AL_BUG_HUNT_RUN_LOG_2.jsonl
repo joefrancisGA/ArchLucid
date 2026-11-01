@@ -2414,3 +2414,5 @@
 {"at":"2026-11-01T16:01:11.8577690Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T16:09:26.0000000Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T16:09:27.2897731Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:21:09.0000000Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T16:21:09.8726181Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}

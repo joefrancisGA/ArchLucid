@@ -698,6 +698,49 @@ public sealed class ScopeResolutionGuardMiddlewareTests
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_robots_trailing_slash_path()
+    {
+        DefaultHttpContext context = CreateContext("/robots.txt%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded trailing slash is not normalized into a crawler hint skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_document_path_with_literal_encoded_trailing_slash_segment()
+    {
+        DefaultHttpContext context = CreateContext("/openapi/v1.json%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "StartsWithSegments(\"/openapi\") still matches when the trailing slash is percent-encoded inside the final segment");
+    }
+
     [Theory]
     [InlineData("/ROBOTS.TXT")]
     [InlineData("/Sitemap.xml")]

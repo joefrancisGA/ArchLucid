@@ -5502,6 +5502,8 @@
 - **last-bug:** 2026-10-30 — combining grapheme joiner paste broke API key auth while admin snapshot showed configured
 ## Zone: scope-binding-middleware
 
+2026-11-01 seed hunt #76 (seed-only): cheap-disproof closed five stale `(candidate)` rows that lived outside the hypotheses section from reseed **#223** (`ValidateHeaderOnlyScopeEscalation` still rejects hostile `x-tenant-id` for lowercase `apikey` when only workspace claim is present and braced `B`-format `tenant_id` claims still disagree via `Validate`; literal `/robots.txt%2F` does not decode into crawler hint skip — regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_robots_trailing_slash_path`; `Guid?` route values with value still enforce binding — regression `OnActionExecutionAsync_nullable_guid_route_tenant_enforces_binding`; `Negotiate` authentication type is not a registered production TB-072 scheme — regression `ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_negotiate_auth_type`; `/openapi/v1.json%2F` still matches `StartsWithSegments("/openapi")` — regression `InvokeAsync_staging_host_skips_openapi_document_path_with_literal_encoded_trailing_slash_segment`); regressions `Validate_rejects_conflicting_tenant_header_when_lowercase_apikey_claim_uses_braced_guid_format` and `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_apikey_auth_type`; scoped filter **153/159** (6 SQL integration unavailable); seeded five new `(candidate)` rows in the zone hypotheses list; no production code change. Private beta: n/a.
+
 2026-10-31 seed hunt #223 (seed-only): cheap-disproof closed five open `(candidate)` rows (`RequiresBoundScopeClaimsForHeaders` matches lowercase `bearer` for workspace-header TB-072; `IsRootOrCrawlerHintPath` `TrimEnd('/')` plus `OrdinalIgnoreCase` skips `/SITEMAP.XML/`; `Guid.TryParse` on boxed `Guid` route values normalizes `N`-format hex before equality; `JWT` authentication type is not a registered production scheme for TB-072 header-only escalation — regression `ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_jwt_auth_type`; literal `/health/live%2F` does not decode into anonymous live probe skip — regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_live_trailing_slash_path`); regressions `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_lowercase_bearer_auth_type`, extended `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths` (`/SITEMAP.XML/`), `OnActionExecutionAsync_n_format_guid_object_route_tenant_enforces_binding`, and `InvokeAsync_lowercase_bearer_with_tenant_claim_rejects_x_workspace_id_header`; scoped filter **147/153** (6 SQL integration unavailable); reseeded five follow-on `(candidate)` rows; no production code change. Private beta: n/a.
 
 2026-10-31 seed hunt #222 (seed-only): cheap-disproof closed five open `(candidate)` rows (`RequiresBoundScopeClaimsForHeaders` matches lowercase `scimbearer` for workspace-header TB-072; `IsRootOrCrawlerHintPath` `TrimEnd('/')` plus `OrdinalIgnoreCase` skips `/ROBOTS.TXT/`; `Guid.TryParse` accepts uppercase `X`-format route `tenantId` strings against dashed ambient scope; lowercase `saml2` auth type still rejects hostile `x-workspace-id` via validator and middleware; literal `/openapi%2Fv1.json` does not match decoded `/openapi` segment skip — regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_openapi_prefix_path` from hunt #219); regressions `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_lowercase_scim_bearer_auth_type`, extended `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths` (`/ROBOTS.TXT/`), `OnActionExecutionAsync_uppercase_x_format_route_tenant_string_enforces_binding`, `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_lowercase_saml2_auth_type`, and `InvokeAsync_lowercase_saml2_with_tenant_claim_rejects_x_workspace_id_header`; scoped filter **141/147** (6 SQL integration unavailable); reseeded five follow-on `(candidate)` rows; no production code change. Private beta: n/a.
@@ -5562,13 +5564,13 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
@@ -5645,13 +5647,11 @@
 - [x] (invalid) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated Bearer principals with bound `tenant_id` but hostile `x-workspace-id` may bypass header-only escalation when authentication type is spelled `JWT` instead of `Bearer` — **cheap-disproof 2026-10-31 seed hunt #223:** JwtBearer registers `AuthenticationType` `Bearer`; `JWT` is outside registered TB-072 schemes; regression `ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_jwt_auth_type`.
 - [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/health/live%2F` with encoded trailing slash may inherit anonymous live probe skip without decoding on staging-like hosts — **cheap-disproof 2026-10-31 seed hunt #223:** encoded path does not match live probe skip; TB-304 fail-closes; regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_live_trailing_slash_path`.
 
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — lowercase `apikey` authentication type may skip TB-072 tenant-header escalation when `tenant_id` claim uses braced `B`-format text.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootOrCrawlerHintPath` — `/robots.txt%2F` with percent-encoded trailing slash may miss crawler hint skip on staging-like hosts.
-- [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — route `tenantId` boxed as nullable `Guid?` with value may skip binding when `TryGetValue` returns null struct.
-- [ ] (candidate) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated principals whose `AuthenticationType` is `Negotiate` may skip TB-072 while scope headers disagree with claims on pilot JwtBearer hosts.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/openapi/v1.json%2F` with encoded trailing slash may miss OpenAPI prefix skip on staging-like hosts.
-
-2026-10-06 seed hunt (seed→hit): promoted double-leading-slash health probe TB-304 gap; proved and fixed; cheap-disproof closed duplicate `tenant_id` and comma-joined policy candidates; reseeded three follow-on candidates; 91 scoped scope-binding unit tests passed.
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — lowercase `apikey` authentication type may skip TB-072 tenant-header escalation when `tenant_id` claim uses braced `B`-format text — **cheap-disproof 2026-11-01 seed hunt #76:** braced claims parse via `Guid.TryParse`; `Validate` rejects steering headers; regressions `Validate_rejects_conflicting_tenant_header_when_lowercase_apikey_claim_uses_braced_guid_format` and `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_apikey_auth_type`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.IsRootOrCrawlerHintPath` — `/robots.txt%2F` with percent-encoded trailing slash may miss crawler hint skip on staging-like hosts — **cheap-disproof 2026-11-01 seed hunt #76:** encoded path does not match crawler skip; TB-304 fail-closes default scope; regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_robots_trailing_slash_path`.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — route `tenantId` boxed as nullable `Guid?` with value may skip binding when `TryGetValue` returns null struct — **cheap-disproof 2026-11-01 seed hunt #76:** non-null `Guid?` route values parse via `ToString()`; regression `OnActionExecutionAsync_nullable_guid_route_tenant_enforces_binding`.
+- [x] (invalid) `ScopeIdentityBindingMiddleware.InvokeAsync` — authenticated principals whose `AuthenticationType` is `Negotiate` may skip TB-072 while scope headers disagree with claims on pilot JwtBearer hosts — **cheap-disproof 2026-11-01 seed hunt #76:** Negotiate is not a registered production auth scheme for header-only escalation; regression `ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_negotiate_auth_type`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/openapi/v1.json%2F` with encoded trailing slash may miss OpenAPI prefix skip on staging-like hosts — **cheap-disproof 2026-11-01 seed hunt #76:** `StartsWithSegments("/openapi")` matches the path even when the final segment contains `%2F`; regression `InvokeAsync_staging_host_skips_openapi_document_path_with_literal_encoded_trailing_slash_segment`.
 
 2026-10-06 seed hunt (seed→hit): promoted lowercase Bearer auth-type TB-072 bypass; proved and fixed; reseeded three follow-on candidates; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
@@ -5692,6 +5692,15 @@
 2026-09-12 seed hunt #2008 (seed-only): reseeded scope-binding-middleware; 72 scoped unit tests passed (6 integration tests skipped — no SQL Server in cloud VM); no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — literal `/health%2F` may inherit anonymous root health skip without decoding to `/health`.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — `/health/version/` with trailing slash may miss the version probe skip while `/health/live/` matches.
+- [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — routes that bind `{tenantGuid}` instead of `{tenantId}` may bypass ambient scope comparison when only `tenantId` is inspected.
+- [ ] (candidate) `ScopeIdentityBindingValidator.Validate` — multiple `tenant_id` claims where `FindFirst` is parseable but a hostile header matches a later duplicate claim may pass validation.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — literal `/health%2Fversion` may bypass TB-304 without matching `/health/version` probe semantics.
+
+2026-11-01 seed hunt #76 (seed-only): seeded five mechanism-backed `(candidate)` rows above after closing stale outside-section rows from reseed **#223**.
+
 2026-09-12 seed hunt #1945 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1943 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1940 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
