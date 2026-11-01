@@ -23,11 +23,7 @@ internal static class CostGraphDecimalParser
 
         string trimmed = raw.Trim();
 
-        if (decimal.TryParse(
-                trimmed,
-                NumberStyles.Number,
-                CultureInfo.InvariantCulture,
-                out value))
+        if (TryParseInvariantAmount(trimmed, out value))
         {
             return true;
         }
@@ -39,10 +35,29 @@ internal static class CostGraphDecimalParser
 
         string numericPrefix = trimmed[..suffixSeparator].Trim();
 
-        return decimal.TryParse(
-            numericPrefix,
-            NumberStyles.Number,
-            CultureInfo.InvariantCulture,
-            out value);
+        return TryParseInvariantAmount(numericPrefix, out value);
+    }
+
+    private static bool TryParseInvariantAmount(string token, out decimal value)
+    {
+        if (decimal.TryParse(
+                token,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out value))
+        {
+            return true;
+        }
+
+        if (token.Length > 1 && token[0] == '$')
+        {
+            return decimal.TryParse(
+                token[1..].Trim(),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out value);
+        }
+
+        return false;
     }
 }

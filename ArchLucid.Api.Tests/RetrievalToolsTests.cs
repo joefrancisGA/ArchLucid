@@ -220,6 +220,32 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_clamps_topk_below_one_when_calling_retrieval_service()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        int? observedTopK = null;
+
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, CancellationToken>((query, _) => observedTopK = query.TopK)
+            .ReturnsAsync([]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 0,
+        };
+
+        await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        observedTopK.Should().Be(25, "corpus-filtered MCP searches prefetch 25 hits before filtering");
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_throws_when_query_text_is_whitespace_only()
     {
         Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);
