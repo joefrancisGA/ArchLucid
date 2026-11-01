@@ -11,7 +11,13 @@ ROOT = Path(__file__).resolve().parents[2]
 MEASUREMENT_LOG = Path("docs/securenow/PILOT_MEASUREMENT_LOG.md")
 COST_INPUT = Path("docs/securenow/ROI_COST_INPUT.md")
 FIXTURE_WORKSHEET = Path("docs/securenow/ROI_FIXTURE_WORKSHEET.md")
+SEND_RULE = Path("docs/securenow/ROI_SEND_RULE.md")
 EXECUTIVE_TEMPLATE = Path("docs/securenow/EXECUTIVE_PROOF_PACKET_TEMPLATE.md")
+SPONSOR_COPY = Path("archlucid-ui/src/lib/product-line/securenow-sponsor-home-copy.ts")
+OPERATOR_COPY = Path("archlucid-ui/src/lib/product-line/securenow-investigation-effort-copy.ts")
+OPERATOR_PAGE = Path(
+    "archlucid-ui/src/app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView.tsx"
+)
 FORBIDDEN_PHRASES = ("975%", "guaranteed ROI")
 
 
@@ -55,6 +61,9 @@ def validate(root: Path = ROOT) -> list[str]:
         text = measurement.read_text(encoding="utf-8")
         if "NOT MEASURED" not in text:
             errors.append("measurement log: missing 'NOT MEASURED'")
+        for token in ("Hours for the formula", "Sample size", "Limitation", "Selection note"):
+            if token not in text:
+                errors.append(f"measurement log: missing {token!r}")
         blank_rows = _blank_data_rows(text)
         if len(blank_rows) < 3:
             errors.append(
@@ -63,6 +72,8 @@ def validate(root: Path = ROOT) -> list[str]:
         for phrase in FORBIDDEN_PHRASES:
             if phrase in text:
                 errors.append(f"measurement log: forbidden phrase {phrase!r}")
+        if "$" in text:
+            errors.append("measurement log: contains '$'")
 
     cost = root / COST_INPUT
     if not cost.is_file():
@@ -108,6 +119,48 @@ def validate(root: Path = ROOT) -> list[str]:
             errors.append(
                 f"executive template: expected at least 5 NOT COLLECTED, found {collected}"
             )
+
+    send_rule = root / SEND_RULE
+    if not send_rule.is_file():
+        errors.append(f"missing {SEND_RULE}")
+    else:
+        text = send_rule.read_text(encoding="utf-8")
+        for token in ("NO_GO", "NOT COLLECTED", "FIXTURE", "ROI not calculated", "sponsor approved"):
+            if token not in text:
+                errors.append(f"send rule: missing {token!r}")
+        if "$" in text:
+            errors.append("send rule: contains '$'")
+        for phrase in FORBIDDEN_PHRASES:
+            if phrase in text:
+                errors.append(f"send rule: forbidden phrase {phrase!r}")
+
+    sponsor = root / SPONSOR_COPY
+    if not sponsor.is_file():
+        errors.append(f"missing {SPONSOR_COPY}")
+    else:
+        text = sponsor.read_text(encoding="utf-8")
+        if "Investigation effort" not in text:
+            errors.append("sponsor Home: missing 'Investigation effort'")
+        if "/administration/securenow-investigation-effort" not in text:
+            errors.append("sponsor Home: missing investigation-effort destination")
+
+    operator = root / OPERATOR_PAGE
+    operator_copy = root / OPERATOR_COPY
+    if not operator.is_file():
+        errors.append(f"missing {OPERATOR_PAGE}")
+    if not operator_copy.is_file():
+        errors.append(f"missing {OPERATOR_COPY}")
+    if operator.is_file() and operator_copy.is_file():
+        text = (operator.read_text(encoding="utf-8") + "\n" + operator_copy.read_text(encoding="utf-8"))
+        for token in (
+            "securenow-investigation-effort-page",
+            "docs/securenow/PILOT_MEASUREMENT_LOG.md",
+            "docs/securenow/ROI_COST_INPUT.md",
+            "docs/securenow/ROI_FIXTURE_WORKSHEET.md",
+            "docs/securenow/ROI_SEND_RULE.md",
+        ):
+            if token not in text:
+                errors.append(f"{OPERATOR_PAGE}: missing {token!r}")
 
     return errors
 
