@@ -14,7 +14,10 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
     IAzureInventoryDriftClassificationService driftClassificationService,
     IDiagramInfrastructureReconciliationService diagramReconciliationService,
     IAzureInventorySnapshotRepository snapshotRepository,
-    IAuditEvidenceLineageService auditLineageService) : IInfraEvidenceAskEvidenceCollector
+    IAuditEvidenceLineageService auditLineageService,
+    ISecurityEvidencePathRepository pathRepository,
+    ISecurityEvidencePathRankRepository pathRankRepository,
+    ISecurityEvidenceCutPointRepository cutPointRepository) : IInfraEvidenceAskEvidenceCollector
 {
     private const int AskEvidenceRowCap = 50;
 
@@ -25,6 +28,9 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         CancellationToken cancellationToken)
     {
         InfraEvidenceAskEvidenceBundle bundle = new() { TopicKind = topicKind };
+
+        if (topicKind == InfraEvidenceAskTopicKinds.RankedPath)
+            return await CollectRankedPathEvidenceAsync(scope, request, bundle, cancellationToken);
 
         if (topicKind == InfraEvidenceAskTopicKinds.AuditControlEvidence)
             return await CollectAuditControlEvidenceAsync(scope, request, bundle, cancellationToken);
@@ -47,6 +53,112 @@ internal sealed class InfraEvidenceAskEvidenceCollector(
         if (request.DiffId.HasValue && request.DiffId.Value != Guid.Empty)
             return await CollectDriftEvidenceAsync(scope, request.DiffId.Value, bundle, cancellationToken);
 
+        return bundle;
+    }
+
+    private async Task<InfraEvidenceAskEvidenceBundle> CollectRankedPathEvidenceAsync(
+        ScopeContext scope,
+        InfraEvidenceAskRequest request,
+        InfraEvidenceAskEvidenceBundle bundle,
+        CancellationToken cancellationToken)
+    {
+        if (!request.SecurityEvidencePathId.HasValue
+            || request.SecurityEvidencePathId.Value == Guid.Empty)
+        {
+            return bundle;
+        }
+
+        SecurityEvidencePathRecord? path = await pathRepository.TryGetByIdAsync(
+            scope.TenantId,
+            request.SecurityEvidencePathId.Value,
+            cancellationToken);
+
+        if (path is null
+            || !scope.ToProjectScopeKey().Matches(path.TenantId, path.WorkspaceId, path.ProjectId)
+            || request.SnapshotId.HasValue
+            && request.SnapshotId.Value != Guid.Empty
+            && request.SnapshotId.Value != path.SnapshotId)
+        {
+            return bundle;
+        }
+
+        TryAddCitation(
+            bundle,
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            path.PathId.ToString("D"),
+            path.PathKind.ToString(),
+            $"pathId={path.PathId:D} snapshotId={path.SnapshotId:D} pathKind={path.PathKind} pathConfidenceBand={path.PathConfidenceBand}");
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+            await pathRepository.ListHopsByPathAsync(
+                scope.TenantId,
+                path.PathId,
+                cancellationToken);
+
+        int omittedHops = 0;
+        foreach (SecurityEvidencePathHopRecord hop in hops.OrderBy(row => row.HopOrdinal))
+        {
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.SecurityEvidencePathHopId,
+                    hop.HopRowId.ToString("D"),
+                    hop.EdgeType,
+                    $"hopRowId={hop.HopRowId:D} pathId={hop.PathId:D} hopOrdinal={hop.HopOrdinal} fromNodeId={hop.FromNodeId} toNodeId={hop.ToNodeId} edgeType={hop.EdgeType} hopConfidenceBand={hop.HopConfidenceBand}"))
+            {
+                omittedHops++;
+            }
+        }
+
+        AppendOmittedRowLine(bundle, omittedHops, "ranked path hop row(s)");
+
+        SecurityEvidencePathRankRecord? rank = await pathRankRepository.TryGetRankAsync(
+            scope.TenantId,
+            path.PathId,
+            cancellationToken);
+
+        if (rank is not null
+            && rank.TenantId == scope.TenantId
+            && rank.SnapshotId == path.SnapshotId)
+        {
+            string businessConsequence = rank.BusinessConsequenceScore.HasValue
+                ? rank.BusinessConsequenceScore.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : "not-stored";
+
+            TryAddCitation(
+                bundle,
+                InfraEvidenceAskCitationKinds.SecurityEvidencePathRankId,
+                rank.PathId.ToString("D"),
+                rank.ExplanationSummary,
+                $"rankPathId={rank.PathId:D} snapshotId={rank.SnapshotId:D} ruleVersion={rank.RuleVersion} technicalExposureScore={rank.TechnicalExposureScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} privilegeDepthScore={rank.PrivilegeDepthScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} blastRadiusScore={rank.BlastRadiusScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} businessConsequenceScore={businessConsequence} confidenceBandScore={rank.ConfidenceBandScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} compositeSortScore={rank.CompositeSortScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} rankOrder={rank.RankOrder} explanationSummary={rank.ExplanationSummary}");
+        }
+
+        IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints =
+            await cutPointRepository.ListByPathIdAsync(
+                scope.TenantId,
+                path.PathId,
+                cancellationToken);
+
+        int omittedCutPoints = 0;
+        foreach (SecurityEvidenceCutPointRecord cutPoint in cutPoints
+                     .Where(row => row.SnapshotId == path.SnapshotId)
+                     .OrderBy(row => row.CutOrder))
+        {
+            string cloudResource = cutPoint.CloudResourceId.HasValue
+                ? $" cloudResourceId={cutPoint.CloudResourceId.Value:D}"
+                : string.Empty;
+
+            if (!TryAddCitation(
+                    bundle,
+                    InfraEvidenceAskCitationKinds.SecurityEvidenceCutPointId,
+                    cutPoint.CutPointId.ToString("D"),
+                    cutPoint.SuggestedPatternKey,
+                    $"cutPointId={cutPoint.CutPointId:D} snapshotId={cutPoint.SnapshotId:D} cutKind={cutPoint.CutKind} cutKey={cutPoint.CutKey} fromNodeId={cutPoint.FromNodeId} toNodeId={cutPoint.ToNodeId} edgeType={cutPoint.EdgeType} cutOrder={cutPoint.CutOrder} leverageScore={cutPoint.LeverageScore.ToString(System.Globalization.CultureInfo.InvariantCulture)} pathsCollapsedCount={cutPoint.PathsCollapsedCount} suggestedPatternKey={cutPoint.SuggestedPatternKey}{cloudResource}"))
+            {
+                omittedCutPoints++;
+            }
+        }
+
+        AppendOmittedRowLine(bundle, omittedCutPoints, "ranked path cut-point row(s)");
         return bundle;
     }
 

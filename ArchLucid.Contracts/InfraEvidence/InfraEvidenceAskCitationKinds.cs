@@ -21,4 +21,12 @@ public static class InfraEvidenceAskCitationKinds
     public const string DiagramViewPlan = "DiagramViewPlan";
 
     public const string AuditLineageControlId = "AuditLineageControlId";
+
+    public const string SecurityEvidencePathId = "SecurityEvidencePathId";
+
+    public const string SecurityEvidencePathHopId = "SecurityEvidencePathHopId";
+
+    public const string SecurityEvidencePathRankId = "SecurityEvidencePathRankId";
+
+    public const string SecurityEvidenceCutPointId = "SecurityEvidenceCutPointId";
 }

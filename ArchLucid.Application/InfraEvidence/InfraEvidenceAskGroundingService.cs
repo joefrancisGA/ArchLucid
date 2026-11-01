@@ -114,7 +114,7 @@ public sealed class InfraEvidenceAskGroundingService(
             PromptRedactionOutcome redactedPrompt = promptRedactor.Redact(userPrompt);
 
             string llmJson = await llm.CompleteJsonAsync(
-                InfraEvidenceAskPromptBuilder.BuildSystemPrompt(),
+                InfraEvidenceAskPromptBuilder.BuildSystemPrompt(topicKind),
                 redactedPrompt.Text,
                 maxTokens: null,
                 cancellationToken: cancellationToken);

@@ -676,6 +676,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_self_service
 
+      - name: SecureNow cutting edge
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_cutting_edge.py
+
+      - name: SecureNow cutting edge unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_cutting_edge
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py

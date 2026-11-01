@@ -49,4 +49,78 @@ public sealed class InfraEvidenceAskPromptBuilderTests
             .Should()
             .Be(InfraEvidenceAskCitationHonestyCopy.RemediationPatternKeyNotStored);
     }
+
+    [Fact]
+    public void RankedPath_prompt_forbids_new_sort_and_numeric_likelihood()
+    {
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.RankedPath,
+        };
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            Guid.NewGuid().ToString("D"),
+            "path",
+            "path row");
+
+        string userPrompt = InfraEvidenceAskPromptBuilder.BuildUserPrompt(
+            "Explain this ranked path.",
+            InfraEvidenceAskTopicKinds.RankedPath,
+            bundle);
+
+        userPrompt.Should().Contain("Do not return a new composite sort.");
+        userPrompt.Should().Contain("Do not return a numeric likelihood or probability.");
+        InfraEvidenceAskPromptBuilder
+            .BuildSystemPrompt(InfraEvidenceAskTopicKinds.RankedPath)
+            .Should()
+            .Contain("Do not return a new composite sort.");
+    }
+
+    [Fact]
+    public void Non_ranked_path_prompt_does_not_add_likelihood_refusal()
+    {
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.ResourceOverview,
+        };
+
+        InfraEvidenceAskPromptBuilder
+            .BuildUserPrompt("What is this?", InfraEvidenceAskTopicKinds.ResourceOverview, bundle)
+            .Should()
+            .NotContain("Do not return a numeric likelihood or probability.");
+    }
+
+    [Fact]
+    public void RankedPath_completion_rejects_unknown_or_missing_citations()
+    {
+        Guid pathId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.RankedPath,
+        };
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            pathId.ToString("D"),
+            "path",
+            "path row");
+
+        InfraEvidenceAskPromptBuilder.TryParseLlmResponse(
+                "{\"answer\":\"because\",\"citationIds\":[\"SecurityEvidencePathId:not-in-bundle\"]}",
+                bundle,
+                out _,
+                out _,
+                out _)
+            .Should()
+            .BeFalse();
+
+        InfraEvidenceAskPromptBuilder.TryParseLlmResponse(
+                "{\"answer\":\"because\",\"citationIds\":[]}",
+                bundle,
+                out _,
+                out _,
+                out _)
+            .Should()
+            .BeFalse();
+    }
 }

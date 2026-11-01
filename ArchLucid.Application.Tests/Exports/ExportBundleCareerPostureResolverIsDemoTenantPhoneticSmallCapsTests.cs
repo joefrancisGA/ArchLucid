@@ -25,7 +25,7 @@ public sealed class ExportBundleCareerPostureResolverIsDemoTenantPhoneticSmallCa
     public void ResolveFromDeltasJson_does_not_block_when_is_demo_tenant_string_uses_phonetic_small_caps_false()
     {
         const string deltasJson = """
-            {"is_demo_tenant":"\u1D08\u1D00\u1D0B\u1D18\u1D07","structuralExecutionMode":"Real","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true}}
+            {"is_demo_tenant":"\uA730\u1D00\u029F\uA731\u1D07","structuralExecutionMode":"Real","workingCareerRehearsalDoor":"career","proofPackageCompleteness":{"runInCommittedStatus":true}}
             """;
 
         ExportBundleCareerPostureResult result = ExportBundleCareerPostureResolver.ResolveFromDeltasJson(deltasJson);
