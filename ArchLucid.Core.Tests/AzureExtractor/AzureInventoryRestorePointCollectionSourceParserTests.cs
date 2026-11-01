@@ -57,6 +57,20 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_hydrated_restore_point_source_when_value_is_percent_encoded_plain_arm_scalar()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId] =
+                Uri.EscapeDataString(VirtualMachineArmId),
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_reads_source_id_when_value_is_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
