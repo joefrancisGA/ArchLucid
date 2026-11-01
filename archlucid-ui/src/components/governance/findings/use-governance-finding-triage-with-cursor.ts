@@ -71,6 +71,7 @@ export function useGovernanceFindingTriageWithCursor(
     const focusedFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
 
     if (focusedFindingId.length === 0) {
+      triageWasOpenRef.current = false;
       return;
     }
 
