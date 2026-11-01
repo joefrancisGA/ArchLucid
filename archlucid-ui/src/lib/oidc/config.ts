@@ -1,5 +1,8 @@
 import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
-import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeOidcConfigurationString,
+  normalizeOidcOAuthFormString,
+} from "@/lib/oidc/oauth-callback-messages";
 
 /**
  * Public OIDC settings (Entra ID / any OIDC provider with PKCE + SPA CORS on the token endpoint).
@@ -29,14 +32,14 @@ export function getOidcClientId(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(clientId);
+  return normalizeOidcOAuthFormString(clientId);
 }
 
 export function getOidcScopes(): string {
   const scopes = process.env.NEXT_PUBLIC_OIDC_SCOPES;
 
   if (scopes !== undefined) {
-    const normalized = normalizeOidcConfigurationString(scopes);
+    const normalized = normalizeOidcOAuthFormString(scopes);
 
     if (normalized.length > 0) {
       return normalized;
@@ -53,7 +56,7 @@ export function getOidcRedirectUri(): string {
   const fixed = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI;
 
   if (fixed !== undefined) {
-    const normalized = normalizeOidcConfigurationString(fixed);
+    const normalized = normalizeOidcOAuthFormString(fixed);
 
     if (normalized.length > 0) {
       return normalized;
@@ -71,7 +74,7 @@ export function getOidcPostLogoutRedirectUri(): string {
   const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI;
 
   if (fixed !== undefined) {
-    const normalized = normalizeOidcConfigurationString(fixed);
+    const normalized = normalizeOidcOAuthFormString(fixed);
 
     if (normalized.length > 0) {
       return normalized;
@@ -102,14 +105,14 @@ export function getGoogleOidcClientId(): string {
     return "";
   }
 
-  return normalizeOidcConfigurationString(clientId);
+  return normalizeOidcOAuthFormString(clientId);
 }
 
 export function getGoogleOidcScopes(): string {
   const scopes = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES;
 
   if (scopes !== undefined) {
-    const normalized = normalizeOidcConfigurationString(scopes);
+    const normalized = normalizeOidcOAuthFormString(scopes);
 
     if (normalized.length > 0) {
       return normalized;

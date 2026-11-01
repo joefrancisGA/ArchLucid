@@ -263,6 +263,28 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseHumanReview_rejects_interior_format_character_in_review_status_name()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseHumanReview("Pend\u200Bing");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_rejects_interior_format_character_in_severity_name()
+    {
+        Action act = () => FindingInspectReadModelMapper.ParseFindingSeverity("Erro\u200Br");
+
+        act.Should().Throw<InvalidDataException>();
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_one_point_zero_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("1.0").Should().BeNull();
+    }
+
+    [Fact]
     public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");

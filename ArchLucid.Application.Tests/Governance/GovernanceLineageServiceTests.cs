@@ -157,6 +157,79 @@ public sealed class GovernanceLineageServiceTests
     }
 
     [SkippableFact]
+    public async Task GetApprovalRequestLineageAsync_includes_manifest_summary_when_approval_run_id_has_zero_width_prefix()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runN = runGuid.ToString("N");
+        string prefixedRunId = $"\u200B{runN}";
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+
+        ManifestDocument sealedManifest = PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateSealedGoldenManifest(
+            scope,
+            runGuid);
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        Mock<IRunDetailQueryService> runQuery = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        GovernanceApprovalRequest approval = new() { RunId = prefixedRunId };
+        approvals
+            .Setup(r => r.GetByIdAsync("req-zwsp-run", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        runQuery
+            .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
+
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new()
+                {
+                    Category = "c",
+                    EngineType = "e",
+                    FindingId = "f-zwsp",
+                    FindingType = "t",
+                    Rationale = "r",
+                    Severity = FindingSeverity.Warning,
+                    Title = "ZWSP run lineage",
+                    Trace = new ExplainabilityTrace(),
+                },
+            ],
+        };
+
+        IAuthorityQueryService authority = CreateAuthorityWithManifestAndFindings(
+            scope,
+            runGuid,
+            sealedManifest,
+            snapshot);
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(
+                PolicyPackGovernanceDryRunSealedManifestTestSupport.SealedManifestHash));
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-zwsp-run");
+
+        result.Should().NotBeNull();
+        result!.Manifest.Should().NotBeNull();
+        result.RiskPosture.Should().NotBeNull();
+        result.TopFindings.Should().ContainSingle(f => f.Title == "ZWSP run lineage");
+    }
+
+    [SkippableFact]
     public async Task GetApprovalRequestLineageAsync_Orders_equal_severity_by_title_then_maps_top_findings()
     {
         Guid runGuid = Guid.NewGuid();

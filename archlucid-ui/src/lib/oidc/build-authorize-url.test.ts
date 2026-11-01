@@ -120,4 +120,38 @@ describe("buildAuthorizeUrl", () => {
     expect(url.searchParams.get("code_challenge")).toBe("challenge-1");
     expect(url.searchParams.get("nonce")).toBe("nonce-1");
   });
+
+  it("strips soft hyphens from redirect_uri and client_id to match token exchange form normalization", () => {
+    const redirectUri = "https://app.example/call\u00ADback";
+    const url = new URL(
+      buildAuthorizeUrl({
+        doc: discoveryDoc,
+        clientId: "client\u00AD1",
+        redirectUri,
+        scope: "openid profile",
+        state: "state-1",
+        codeChallenge: "challenge-1",
+        nonce: "nonce-1",
+      }),
+    );
+
+    expect(url.searchParams.get("redirect_uri")).toBe("https://app.example/callback");
+    expect(url.searchParams.get("client_id")).toBe("client1");
+  });
+
+  it("strips soft hyphens from scope before encoding the authorize query", () => {
+    const url = new URL(
+      buildAuthorizeUrl({
+        doc: discoveryDoc,
+        clientId: "client-1",
+        redirectUri: "https://app.example/callback",
+        scope: "openid\u00AD profile offline_access",
+        state: "state-1",
+        codeChallenge: "challenge-1",
+        nonce: "nonce-1",
+      }),
+    );
+
+    expect(url.searchParams.get("scope")).toBe("openid profile offline_access");
+  });
 });

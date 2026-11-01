@@ -142,6 +142,39 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 0m,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull("explicit zero cap in enable PUT must fail before persist");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -290,6 +323,56 @@ public sealed class LlmTenantWalletServiceTests
         LlmTenantWalletStateReadModel afterNull = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
         afterNull.StripeCustomerId.Should().Be("cus_keep");
         afterNull.StripePaymentMethodId.Should().Be("pm_keep");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                StripeCustomerId = "cus_keep",
+                StripePaymentMethodId = "pm_keep",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                StripePaymentMethodId = "   ",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        guard.Verify(
+            g => g.AllowsWalletUpdateAsync(tenantId, null, null, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        state.StripePaymentMethodId.Should().Be("pm_keep");
     }
 
     [SkippableFact]
@@ -675,6 +758,7 @@ public sealed class LlmTenantWalletServiceTests
 
         updated.Should().NotBeNull();
         updated!.AutoReplenishEnabled.Should().BeFalse();
+        updated.MonthlyCapUsd.Should().Be(100m);
 
         LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
         state.StripeCustomerId.Should().Be("cus_keep");

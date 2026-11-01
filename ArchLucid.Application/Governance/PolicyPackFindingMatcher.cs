@@ -27,6 +27,9 @@ internal static class PolicyPackFindingMatcher
                 if (string.Equals(policyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
+                if (RuleIdentifierMatchesKey(policyRuleId, ruleKey))
+                    return true;
+
                 if (RuleKeyAppearsAsToken(policyRuleId, ruleKey))
                     return true;
             }
@@ -66,8 +69,38 @@ internal static class PolicyPackFindingMatcher
         return PackIdsEquivalent(normalizedEngineType[prefix.Length..], packId);
     }
 
+    private static bool RuleIdentifierMatchesKey(string policyRuleId, string ruleKey)
+    {
+        string unwrapped = ExtractRuleIdentifier(policyRuleId);
+
+        return string.Equals(unwrapped, ruleKey, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ExtractRuleIdentifier(string policyRuleId)
+    {
+        const string wrapperPrefix = "policy-pack-";
+
+        if (!policyRuleId.StartsWith(wrapperPrefix, StringComparison.OrdinalIgnoreCase))
+            return policyRuleId;
+
+        int guidStart = wrapperPrefix.Length;
+
+        if (policyRuleId.Length > guidStart + 36
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 36), "D", out _)
+            && policyRuleId[guidStart + 36] == '-')
+            return policyRuleId[(guidStart + 37)..];
+
+        if (policyRuleId.Length > guidStart + 32
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 32), "N", out _)
+            && policyRuleId[guidStart + 32] == '-')
+            return policyRuleId[(guidStart + 33)..];
+
+        return policyRuleId;
+    }
+
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
     {
+        policyRuleId = policyRuleId.Trim();
         int index = 0;
 
         while (index <= policyRuleId.Length - ruleKey.Length)
@@ -88,17 +121,15 @@ internal static class PolicyPackFindingMatcher
 
     private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
     {
-        if (index > 0 && !IsWrapperDelimiter(policyRuleId[index - 1]))
+        // Only supported wrappers may surround a contained key: string start/end, engine prefix ':' and
+        // evidence-style '|'. Everything else ('.', '-', letters, digits, ...) is part of the rule key
+        // itself, so cis-azure-1.2.1 / cis-azure-1.2-extra never match the distinct key cis-azure-1.2.
+        if (index > 0 && policyRuleId[index - 1] is not (':' or '|'))
             return false;
 
         int after = index + ruleKeyLength;
 
-        return after >= policyRuleId.Length || IsWrapperDelimiter(policyRuleId[after]);
-    }
-
-    private static bool IsWrapperDelimiter(char value)
-    {
-        return char.IsWhiteSpace(value) || value is ':' or '/' or '-';
+        return after >= policyRuleId.Length || policyRuleId[after] is ':' or '|';
     }
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
