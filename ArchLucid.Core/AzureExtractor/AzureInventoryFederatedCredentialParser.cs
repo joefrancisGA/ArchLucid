@@ -19,17 +19,21 @@ public static class AzureInventoryFederatedCredentialParser
             return false;
         }
 
-        string? issuer = TryReadString(element, "issuer");
+        string? issuerRaw = TryReadString(element, "issuer");
         string? subject = TryReadString(element, "subject");
         string? principalId = TryReadString(element, "principalId");
 
-        if (string.IsNullOrWhiteSpace(issuer)
+        if (string.IsNullOrWhiteSpace(issuerRaw)
             || string.IsNullOrWhiteSpace(subject)
             || string.IsNullOrWhiteSpace(principalId))
         {
             errorMessage = "issuer, subject, and principalId are required.";
             return false;
         }
+
+        string issuer = NormalizePercentEncodedTrimmedScalar(issuerRaw);
+        string trimmedSubject = subject.Trim();
+        string trimmedPrincipalId = principalId.Trim();
 
         ProvenanceKind provenanceKind = TryReadProvenanceKind(element) ?? ProvenanceKind.HumanAssertion;
 
@@ -41,15 +45,15 @@ public static class AzureInventoryFederatedCredentialParser
 
         row = new AzureInventoryFederatedCredentialRow
         {
-            Issuer = issuer.Trim(),
-            Subject = subject.Trim(),
-            PrincipalId = principalId.Trim(),
+            Issuer = issuer,
+            Subject = trimmedSubject,
+            PrincipalId = trimmedPrincipalId,
             AppId = TryReadString(element, "appId"),
             ParentResourceId = NormalizeOptionalArmId(TryReadString(element, "parentResourceId")),
             CredentialName = TryReadString(element, "credentialName"),
             ProvenanceKind = provenanceKind,
             EvidenceHashSha256 = TryReadEvidenceHash(element)
-                ?? ComputeDefaultEvidenceHash(issuer, subject, principalId, TryReadString(element, "appId")),
+                ?? ComputeDefaultEvidenceHash(issuer, trimmedSubject, trimmedPrincipalId, TryReadString(element, "appId")),
         };
 
         return true;
@@ -145,5 +149,26 @@ public static class AzureInventoryFederatedCredentialParser
         }
 
         return ArmResourceIdNormalizer.Normalize(working);
+    }
+
+    private static string NormalizePercentEncodedTrimmedScalar(string value)
+    {
+        string working = value.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
     }
 }
