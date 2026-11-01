@@ -528,6 +528,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-form-validation` is **1/3** after prior seed-only — below `minLowYieldStreak` 3). Reread live runner exclude-run-id list scan pagination caps, deny-status evaluation vs list-exclusion verdicts, and probe correlation metadata passed into markdown/console summaries. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestOptions.Parse` value-option validation, live-mode `--run-id` gating vs offline fixture replay, and artifact key/output path resolution before `WriteArtifactsAsync`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed. Rotation should apply `-AvoidZoneId cli-tenant-isolation` on the next default Set 3 pick after this third consecutive seed-only is recorded.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **1/3** after prior seed-only — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestCommand.RunAsync` live/offline mode selection, alternate-scope header application on the secondary client, UTF-8 no-BOM artifact writes, and non-Pass overall verdict exit mapping. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
@@ -660,7 +662,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
