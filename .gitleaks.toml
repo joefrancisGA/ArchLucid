@@ -180,10 +180,17 @@ paths = [
   '''(?:^|/)scripts/collect-first-pilot-proof\.ps1$''',
 ]
 
+# Scoped to the specific historical generic-api-key false positive: prose "PKCE storage-key
+# isolation, primary/supplemental authorize redirect cleanup" (ledger 3, historical commit
+# 65b95208b96b66d7d396d383374b1ac244242f82). Both the ledger path and the exact non-secret
+# identifier must match, so real tokens/keys added to the ledgers are still scanned.
 [[allowlists]]
-description = "Bug hunt ledgers: zone diary prose (PKCE storage-key, OAuth/control identifiers); generic-api-key false positives in git history"
+description = "Bug hunt ledger 3: OIDC zone diary prose 'primary/supplemental' (PKCE storage-key isolation); generic-api-key false positive in git history"
 paths = [
   '''(?:^|/)docs/library/AL_BUG_HUNT_LEDGER_[0-9]+\.md$''',
+]
+regexes = [
+  '''primary/supplemental''',
 ]
 
 [[allowlists]]
