@@ -23,8 +23,24 @@ internal static class CostGraphDecimalParser
 
         string trimmed = raw.Trim();
 
+        if (decimal.TryParse(
+                trimmed,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out value))
+        {
+            return true;
+        }
+
+        int suffixSeparator = trimmed.IndexOf(' ', StringComparison.Ordinal);
+
+        if (suffixSeparator <= 0)
+            return false;
+
+        string numericPrefix = trimmed[..suffixSeparator].Trim();
+
         return decimal.TryParse(
-            trimmed,
+            numericPrefix,
             NumberStyles.Number,
             CultureInfo.InvariantCulture,
             out value);

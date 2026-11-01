@@ -199,6 +199,64 @@ public sealed class CostBreachFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_trailing_currency_suffix()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000 USD",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        CostBreachFindingPayload payload = finding.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.ProjectedMonthlySpendUsd.Should().Be(6200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_prefers_upper_bound_over_higher_lower_bound_when_point_estimate_absent()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                        ["projectedImpactUsdLowerBound"] = "7000",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>()
+            .Which.ProjectedMonthlySpendUsd.Should().Be(6200m);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_parses_max_monthly_cost_with_leading_nbsp()
     {
         GraphSnapshot graph = new()

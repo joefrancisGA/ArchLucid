@@ -101,6 +101,38 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_high_cost_risk_without_cap_leaves_headline_projected_impact_null_while_bounds_stay_on_payload()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-bounds",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "high",
+                        ["projectedImpactUsdLowerBound"] = "4800",
+                        ["projectedImpactUsdUpperBound"] = "5200",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.ProjectedImpactUsd.Should().BeNull();
+        CostConstraintFindingPayload payload = finding.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().BeNull();
+        payload.ProjectedImpactUsdLowerBound.Should().Be(4800m);
+        payload.ProjectedImpactUsdUpperBound.Should().Be(5200m);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_NonHighRisk_UsesInfoSeverity_And_RightSizeAlternatives()
     {
         GraphSnapshot graph = new()

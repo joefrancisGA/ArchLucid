@@ -199,6 +199,27 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_throws_when_query_text_is_null()
+    {
+        Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = null!,
+        };
+
+        Func<Task> act = async () =>
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ArgumentException>())
+            .Which.ParamName.Should().Be(nameof(RetrievalMcpToolRequest.QueryText));
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_throws_when_query_text_is_whitespace_only()
     {
         Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);

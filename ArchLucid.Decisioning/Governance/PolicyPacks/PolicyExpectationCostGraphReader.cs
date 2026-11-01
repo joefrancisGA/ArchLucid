@@ -70,18 +70,47 @@ public static class PolicyExpectationCostGraphReader
         continue;
 
       if (node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostRaw)
-          && !string.IsNullOrWhiteSpace(maxCostRaw)
-          && decimal.TryParse(
-              maxCostRaw.Trim(),
-              NumberStyles.Number,
-              CultureInfo.InvariantCulture,
-              out _))
+          && TryParseBudgetCapAmount(maxCostRaw, out _))
       {
         return true;
       }
     }
 
     return false;
+  }
+
+  private static bool TryParseBudgetCapAmount(string? raw, out decimal value)
+  {
+    if (string.IsNullOrWhiteSpace(raw))
+    {
+      value = default;
+
+      return false;
+    }
+
+    string trimmed = raw.Trim();
+
+    if (decimal.TryParse(
+            trimmed,
+            NumberStyles.Number,
+            CultureInfo.InvariantCulture,
+            out value))
+    {
+      return true;
+    }
+
+    int suffixSeparator = trimmed.IndexOf(' ', StringComparison.Ordinal);
+
+    if (suffixSeparator <= 0)
+      return false;
+
+    string numericPrefix = trimmed[..suffixSeparator].Trim();
+
+    return decimal.TryParse(
+        numericPrefix,
+        NumberStyles.Number,
+        CultureInfo.InvariantCulture,
+        out value);
   }
 
   private static GraphNode? FindContextNode(GraphSnapshot graphSnapshot) =>
