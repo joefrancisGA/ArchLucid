@@ -25,7 +25,19 @@ public sealed partial class AzureMarketplaceBillingProvider
         if (validated is null)
             return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
 
-        using JsonDocument doc = JsonDocument.Parse(inbound.RawBody);
+        JsonDocument doc;
+
+        try
+        {
+            doc = JsonDocument.Parse(inbound.RawBody);
+        }
+        catch (JsonException)
+        {
+            return BillingWebhookHandleResult.Rejected("Marketplace webhook body is not valid JSON.");
+        }
+
+        using (doc)
+        {
         JsonElement root = doc.RootElement;
 
         string action = root.TryGetProperty("action", out JsonElement actionEl)
@@ -113,6 +125,7 @@ public sealed partial class AzureMarketplaceBillingProvider
             await _ledger.MarkWebhookProcessedAsync(dedupeKey, "Failed", cancellationToken);
 
             throw;
+        }
         }
     }
 

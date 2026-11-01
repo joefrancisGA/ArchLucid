@@ -246,6 +246,31 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
+    public async Task GetReadiness_returns_not_found_with_trimmed_run_id_when_padded_valid_guid_out_of_scope()
+    {
+        Guid foreignRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string paddedRunId = $"  {foreignRunId:D}  ";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, foreignRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IFinalizeReadinessService> readiness = new(MockBehavior.Strict);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            finalizeReadinessService: readiness.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetReadinessAsync(paddedRunId, null, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        readiness.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GetChecklist_returns_not_found_when_workspace_missing()
     {
         Guid foreignWorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

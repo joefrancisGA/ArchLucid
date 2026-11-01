@@ -43,6 +43,20 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_when_cookie_authentication_type_is_noop()
+    {
+        ClaimsIdentity identity = new(
+            [new Claim("http://idp/role", ArchLucidRoles.Admin)],
+            "Cookies");
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true, RoleClaimSources = ["http://idp/role"] });
+
+        identity.HasClaim("roles", ArchLucidRoles.Admin).Should().BeFalse();
+    }
+
+    [Fact]
     public void Apply_promotes_scope_claims_when_source_claim_type_differs_by_case()
     {
         Guid tenantId = ScopeIds.DefaultTenant;
@@ -70,6 +84,42 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
         identity.FindFirst("workspace_id")?.Value.Should().Be(workspaceId.ToString());
         identity.FindFirst("project_id")?.Value.Should().Be(projectId.ToString());
         identity.FindFirst("oid")?.Value.Should().Be("00000000-0000-0000-0000-0000000000ad");
+    }
+
+    [Fact]
+    public void Apply_skips_whitespace_only_inbound_role_values()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/role", "   "),
+            new Claim("http://idp.example/role", ArchLucidRoles.Operator));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", ArchLucidRoles.Operator).Should().BeTrue();
+        identity.Claims.Should().NotContain(c => c.Type == "roles" && string.IsNullOrWhiteSpace(c.Value));
+    }
+
+    [Fact]
+    public void Apply_adds_role_surface_when_inbound_role_is_only_zero_width_space()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(new Claim("http://idp.example/role", "\u200B"));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                RoleClaimSources = ["http://idp.example/role"],
+            });
+
+        identity.HasClaim("roles", "\u200B").Should().BeTrue(
+            because: "U+200B is not whitespace under IsNullOrWhiteSpace; downstream policy extractors collapse decorative values");
     }
 
     [Fact]

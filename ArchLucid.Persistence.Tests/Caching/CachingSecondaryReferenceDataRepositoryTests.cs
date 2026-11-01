@@ -307,6 +307,49 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSignInEmailDomain_ListByTenantIdAsync_excludes_soft_removed_after_update()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSignInEmailDomainRepository inner = new();
+        CachingTenantSignInEmailDomainRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+        const string normalized = "LIST-REMOVED.COM";
+
+        await repo.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "List-Removed.com",
+                NormalizedDomain = normalized,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.ListByTenantIdAsync(tenantId, CancellationToken.None)).Should().ContainSingle();
+
+        TenantSignInEmailDomainRecord? loaded = await inner.TryGetAsync(tenantId, normalized, CancellationToken.None);
+        loaded.Should().NotBeNull();
+
+        await repo.UpdateAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = loaded!.TenantId,
+                DisplayDomain = loaded.DisplayDomain,
+                NormalizedDomain = loaded.NormalizedDomain,
+                CreatedUtc = loaded.CreatedUtc,
+                RemovedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<TenantSignInEmailDomainRecord> listed =
+            await repo.ListByTenantIdAsync(tenantId, CancellationToken.None);
+
+        listed.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task TenantSignInEmailDomain_insert_rejects_duplicate_normalized_domain_across_tenants()
     {
         InMemoryTenantSignInEmailDomainRepository inner = new();

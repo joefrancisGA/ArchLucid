@@ -174,6 +174,29 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void TryGetAuthenticationInstant_returns_null_when_principal_has_no_time_claims()
+    {
+        ClaimsIdentity identity = new("Bearer");
+
+        DateTimeOffset? instant = RecentAuthenticationEvaluator.TryGetAuthenticationInstant(new ClaimsPrincipal(identity));
+
+        Assert.Null(instant);
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_single_iat_claim_contains_comma_separator_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [new Claim(JwtRegisteredClaimNames.Iat, "1700000000,999")],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty()
     {
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -426,6 +449,53 @@ public sealed class RecentAuthenticationEvaluatorTests
         ClaimsIdentity identity = new(
             [
                 new Claim(JwtRegisteredClaimNames.Iat, "0x5f5e100"),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_scientific_notation_iat_is_present_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, "1.7E9"),
+            ],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        long iat = now.AddMinutes(-1).ToUnixTimeSeconds();
+        string iatText = string.Create(System.Globalization.CultureInfo.InvariantCulture, $"+{iat}");
+
+        ClaimsIdentity identity = new(
+            [new Claim(JwtRegisteredClaimNames.Iat, iatText)],
+            "Bearer");
+
+        Assert.True(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_only_octal_notation_iat_is_present_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [
+                new Claim(JwtRegisteredClaimNames.Iat, "0o1700000000"),
             ],
             "Bearer");
 

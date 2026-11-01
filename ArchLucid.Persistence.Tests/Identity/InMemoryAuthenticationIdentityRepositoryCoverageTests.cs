@@ -258,6 +258,46 @@ public sealed class InMemoryAuthenticationIdentityRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task FindAnyByExternalKeyAsync_prefers_active_identity_over_disabled_with_same_external_key()
+    {
+        InMemoryAuthenticationIdentityRepository sut = new();
+        ExternalIdentityKey key = new()
+        {
+            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+            NormalizedIssuer = "issuer",
+            Subject = "subject",
+        };
+
+        AuthenticationIdentityRecord disabled = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = key.ProviderType,
+                NormalizedIssuer = key.NormalizedIssuer,
+                Subject = key.Subject,
+            },
+            CancellationToken.None);
+
+        await sut.DisableAsync(disabled.Id, DateTimeOffset.UtcNow.AddMinutes(-10), CancellationToken.None);
+
+        AuthenticationIdentityRecord active = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = key.ProviderType,
+                NormalizedIssuer = key.NormalizedIssuer,
+                Subject = key.Subject,
+            },
+            CancellationToken.None);
+
+        AuthenticationIdentityRecord? any = await sut.FindAnyByExternalKeyAsync(key, CancellationToken.None);
+
+        any.Should().NotBeNull();
+        any!.Id.Should().Be(active.Id);
+        any.DisabledUtc.Should().BeNull();
+    }
+
+    [Fact]
     public async Task FindAnyByExternalKeyAsync_returns_disabled_row_when_no_active_match()
     {
         InMemoryAuthenticationIdentityRepository sut = new();
