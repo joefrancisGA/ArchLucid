@@ -88,28 +88,7 @@ public static class AzureInventoryPaasChildAssociationParser
 
     private static string NormalizeCompanionArmId(string armId)
     {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
-
-        return ArmResourceIdNormalizer.Normalize(working);
+        return ArmResourceIdNormalizer.NormalizePercentEncoded(armId);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

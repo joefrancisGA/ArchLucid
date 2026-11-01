@@ -24,6 +24,34 @@ public sealed class ArmResourceIdNormalizerTests
     }
 
     [Fact]
+    public void NormalizePercentEncoded_decodes_nested_percent_encoded_ids()
+    {
+        const string armId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa";
+        string encoded = Uri.EscapeDataString(Uri.EscapeDataString(armId));
+
+        ArmResourceIdNormalizer.NormalizePercentEncoded(encoded)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(armId));
+    }
+
+    [Fact]
+    public void NormalizePercentEncoded_keeps_last_good_value_when_percent_encoding_is_malformed()
+    {
+        const string malformed = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2";
+
+        ArmResourceIdNormalizer.NormalizePercentEncoded(malformed)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(Uri.UnescapeDataString(malformed)));
+    }
+
+    [Fact]
+    public void NormalizePercentEncoded_returns_empty_for_blank_input()
+    {
+        ArmResourceIdNormalizer.NormalizePercentEncoded(null).Should().BeEmpty();
+        ArmResourceIdNormalizer.NormalizePercentEncoded("   ").Should().BeEmpty();
+    }
+
+    [Fact]
     public void IsDescendantOf_detects_nested_arm_child_resources()
     {
         const string parent =

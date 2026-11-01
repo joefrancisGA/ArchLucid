@@ -17,6 +17,56 @@ public static class ArmResourceIdNormalizer
         return trimmed.ToString().ToLowerInvariant();
     }
 
+    /// <summary>Bounds the percent-decode passes applied before normalizing an ARM id.</summary>
+    public const int MaxPercentDecodePasses = 8;
+
+    /// <summary>
+    ///     Percent-decodes an external ARM id up to <see cref="MaxPercentDecodePasses"/> times, then applies
+    ///     <see cref="Normalize(string?)"/>. A malformed percent sequence stops decoding and keeps the last
+    ///     known good value so a single bad payload cannot fail the extraction path.
+    /// </summary>
+    public static string NormalizePercentEncoded(string? externalResourceId)
+    {
+        if (string.IsNullOrWhiteSpace(externalResourceId))
+            return string.Empty;
+
+        return Normalize(PercentDecodeBounded(externalResourceId));
+    }
+
+    /// <summary>
+    ///     Percent-decodes <paramref name="value"/> up to <see cref="MaxPercentDecodePasses"/> times. A malformed
+    ///     percent sequence stops decoding and keeps the last known good value.
+    /// </summary>
+    public static string PercentDecodeBounded(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        string working = value.Trim();
+
+        for (int pass = 0; pass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                break;
+            }
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
+    }
+
     /// <summary>Returns the resource group segment from a top-level ARM resource id.</summary>
     public static bool TryGetResourceGroupName(string? azureResourceId, out string resourceGroupName)
     {
