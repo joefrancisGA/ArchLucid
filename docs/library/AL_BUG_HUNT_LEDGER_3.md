@@ -3057,9 +3057,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `proxyRateLimitClientKey` — shared `unknown` bucket — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** documented fallback; conservative abuse posture.
 - [x] (invalid) `handleRateLimitedForward` — Server-Timing leaks path segments — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** 429 timing is proxy duration only; path normalization is log-only.
 
-- [x] (superseded) `passThrough` — Content-Encoding (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
-
-2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not copy upstream `Set-Cookie`
+- [x] (superseded) `appendProxyBffSlideCookieHeaders` — 502 slide — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
 - [x] (superseded) `readProxyScopeFromAuthorizationHeader` — malformed JWT anonymous — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
 - [x] (superseded) `verifyEmailOtpCode` — OIDC consume ordering — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
 - [x] (superseded) `proxyRateLimitClientKey` — unknown bucket — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
