@@ -1022,4 +1022,38 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
         target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
         target.RulePort.Should().BeNull();
     }
+
+    [Fact]
+    public void ResolveApplicationGatewayBackends_reads_ip_configuration_when_id_is_percent_encoded_plain_arm_scalar()
+    {
+        string encodedConfigurationId = Uri.EscapeDataString(NicIpConfigurationId);
+
+        GraphNode applicationGateway = new()
+        {
+            NodeId = "agw1",
+            NodeType = "resource",
+            Label = "agw1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "properties": {
+                          "backendIPConfigurations": [
+                            { "id": "{{encodedConfigurationId}}" }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends(applicationGateway);
+
+        targets.Should().ContainSingle();
+        targets[0].TargetArmId.Should().Be(NicId.ToLowerInvariant());
+    }
 }

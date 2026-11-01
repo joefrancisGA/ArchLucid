@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -16,7 +18,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         if (reference.ValueKind is JsonValueKind.String)
         {
-            return reference.GetString();
+            return NormalizeReferenceArmId(reference.GetString());
         }
 
         return TryReadDirectId(reference);
@@ -26,7 +28,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
     {
         if (configuration.ValueKind is JsonValueKind.String)
         {
-            return TryReadArmId(configuration);
+            return NormalizeReferenceArmId(configuration.GetString());
         }
 
         if (TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement))
@@ -35,6 +37,32 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         }
 
         return null;
+    }
+
+    private static string? NormalizeReferenceArmId(string? armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return null;
+        }
+
+        string working = armId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static bool TryGetPropertyIgnoreCase(
