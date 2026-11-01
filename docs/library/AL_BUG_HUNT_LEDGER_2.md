@@ -2895,6 +2895,20 @@
 
 ## Zone: scim-users
 
+2026-11-01 seed hunt (seed-only #46): re-read `ScimUsersController` and `ScimUserService` CRUD/patch/seat paths after thorough dry **#45**; no row met hunt-ready bar for a failing repro; cheap-disproof closed five open `(candidate)` monitors from dry **#45** (PATCH-inactive DELETE skips redundant seat decrement; role-override audit uses `LogRequiredAsync` by design; list default `count=100` with service clamp; missing `active` on PUT/POST defaults true per `ScimUserResourceParser.ReadActive`); seeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — DELETE on PATCH-inactive user skips seat decrement when `existing.Active` is already false — **cheap-disproof 2026-11-01 seed hunt #46:** `DeactivateAsync` only decrements when `existing.Active`; symmetric to `PatchAsync_active_false_on_already_inactive_user_does_not_decrement_seats_again`.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — `EmitRoleOverriddenAuditAsync` uses `LogRequiredAsync` so audit persistence failure fails the PATCH — **cheap-disproof 2026-11-01 seed hunt #46:** intentional durable audit posture for `RoleOverriddenByScim`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted `count` query binds default 100 while service allows up to 200 — **cheap-disproof 2026-11-01 seed hunt #46:** controller default page size; `Math.Clamp(count, 0, 200)` in service; not a defect without client harm repro.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT body omitting `active` preserves stored active flag via parser fallback — **cheap-disproof 2026-11-01 seed hunt #46:** `ParseUser`/`ReadActive` defaults missing `active` to `true` (full replace contract); Entra sends explicit `active`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST without explicit `active` defaults new user to active true and reserves seat — **cheap-disproof 2026-11-01 seed hunt #46:** same `ReadActive` default ~38–39; standard Entra provision path.
+
+- [ ] (candidate) `ScimUserResourceParser.ParseUser` — omitted `externalId` falls back to trimmed `userName` — locus: ~14–16; input: POST/PUT without `externalId`; reachability: Entra attribute mapping vs uniqueness (monitor).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — non-SCIM faults after successful patch propagate as HTTP 500 — locus: no generic catch ~185–209; input: unexpected fault on post-patch `GetAsync`; reachability: host error envelope (monitor).
+- [ ] (candidate) `ScimUsersController.ListAsync` — cancellation from service/repository propagates without controller catch — locus: ~44–48; input: client abort during filtered list; reachability: connector timeout (monitor; hunt #351 valid-no-repro class).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — JSON array or primitive POST body returns `invalidSyntax` before service — locus: deserialize + `ParseUser` object guard; input: malformed non-object body; reachability: misconfigured proxy (monitor).
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — success returns `NoContent()` without SCIM error factory on `ScimNotFoundException` only — locus: ~218–227; input: DELETE unknown id; reachability: SCIM error shape parity with GET (monitor).
+
 2026-10-31 seed hunt (seed-only #44): re-read `ScimUsersController` and `ScimUserService` CRUD/patch/seat paths after two consecutive thorough dry hunts; cheap-disproof closed five open `(candidate)` rows — PUT reactivate from `active:false` calls `TransitionSeatAsync` (`ReplaceAsync_does_not_compensate_seat_when_audit_log_fails_after_successful_replace`); list pagination beyond total returns empty page (`ListAsync_start_index_above_total_returns_empty_page`); duplicate `userName` with distinct `externalId` returns 409 (`CreateAsync_duplicate_user_name_throws_conflict`); Users PATCH filtered `members[...]` paths map to `notImplemented` via parser (`ParseForUser_filtered_members_throws_ScimPatchException_not_implemented`, `FromParseException_returns_501_for_notImplemented_scim_type`); directory-removed rows excluded from list filters (`ListAsync_external_id_filter_excludes_directory_removed_users`). Seeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT on PATCH-deactivated user reactivated in same body skips seat reservation — **cheap-disproof 2026-10-31 seed hunt #44:** `TransitionSeatAsync` on inactive→active; regression above.
@@ -2911,11 +2925,11 @@
 
 2026-11-01 thorough hunt (dry #45): cheap-disproof closed five open `(candidate)` rows seeded after seed hunt #44 (empty POST, patch/GET tombstone race, negative list `count`, group manual-role audit override, repeat DELETE vs soft-deactivate); reseeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — DELETE on PATCH-inactive user skips seat decrement when `existing.Active` is already false — locus: `DeactivateAsync` ~144–148; input: PATCH `active:false` then connector DELETE; reachability: Entra deactivate-after-inactivate (monitor).
-- [ ] (candidate) `ScimUserService.PatchAsync` — `EmitRoleOverriddenAuditAsync` uses `LogRequiredAsync` so audit persistence failure fails the PATCH — locus: `ScimUserService.PatchAndSeats.cs` ~107–115; input: audit sink fault after group role override; reachability: durable audit posture vs SCIM success (monitor).
-- [ ] (candidate) `ScimUsersController.ListAsync` — omitted `count` query binds default 100 while service allows up to 200 — locus: action default ~36 vs `Math.Clamp(..., 0, 200)`; input: Entra list probe without `count`; reachability: pagination defaults (monitor).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — PUT body omitting `active` preserves stored active flag via parser fallback — locus: `ScimUserResourceParser.ParseUser` / replace path; input: partial PUT without `active`; reachability: Entra attribute omission (monitor).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST without explicit `active` defaults new user to active true and reserves seat — locus: `ParseUser` default; input: create payload missing `active`; reachability: Entra default provisioning (monitor).
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — DELETE on PATCH-inactive user skips seat decrement when `existing.Active` is already false — **cheap-disproof 2026-11-01 seed hunt #46:** see seed hunt #46 diary.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — `EmitRoleOverriddenAuditAsync` uses `LogRequiredAsync` so audit persistence failure fails the PATCH — **cheap-disproof 2026-11-01 seed hunt #46:** see seed hunt #46 diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted `count` query binds default 100 while service allows up to 200 — **cheap-disproof 2026-11-01 seed hunt #46:** see seed hunt #46 diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT body omitting `active` preserves stored active flag via parser fallback — **cheap-disproof 2026-11-01 seed hunt #46:** see seed hunt #46 diary.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST without explicit `active` defaults new user to active true and reserves seat — **cheap-disproof 2026-11-01 seed hunt #46:** see seed hunt #46 diary.
 
 2026-10-31 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows from prior thorough dry (directory-removed `externalId` reprovision reactivates by design — regression `CreateAsync_after_directory_remove_reactivates_same_external_id`; list `count=10000` clamped in service — regression `ListAsync_count_above_max_clamped_to_200_items`; DELETE success `NoContent()` without SCIM body matches RFC 7644 and hunt #348; PATCH `notImplemented` maps to HTTP 501 — regression `FromParseException_returns_501_for_notImplemented_scim_type`; PATCH-deactivated users remain readable with `active:false` until directory-removed — regression `GetAsync_returns_inactive_user_after_patch_deactivates_without_directory_remove`); seeded five follow-on `(candidate)` rows; scoped filter **49** tests passed (42 `ScimUsersServiceUnitTests` + 7 Api SCIM unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -3066,7 +3080,7 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
