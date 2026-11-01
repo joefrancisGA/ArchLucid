@@ -51,12 +51,15 @@ public static class ProvenanceSnapshotRevisionHasher
 
     private static string ComputeGraphFingerprint(GraphSnapshot graph)
     {
-        if (graph.Nodes.Count == 0 && graph.Edges.Count == 0)
+        IReadOnlyList<GraphNode> nodes = (graph.Nodes ?? []).OfType<GraphNode>().ToArray();
+        IReadOnlyList<GraphEdge> edges = (graph.Edges ?? []).OfType<GraphEdge>().ToArray();
+
+        if (nodes.Count == 0 && edges.Count == 0)
             return string.Empty;
 
         string nodeParts = string.Join(
             ",",
-            graph.Nodes
+            nodes
                 .Where(static node => !string.IsNullOrWhiteSpace(node.NodeId))
                 .GroupBy(
                     static node => node.NodeId.Trim(),
@@ -71,23 +74,26 @@ public static class ProvenanceSnapshotRevisionHasher
                     return $"{group.Key}|{label}|{nodeType}|{category}";
                 }));
 
-        IEnumerable<string> edgeParts = graph.Edges
+        IEnumerable<string> edgeParts = edges
             .Select(static edge =>
                 $"{edge.FromNodeId.Trim()}|{edge.ToNodeId.Trim()}|{(edge.EdgeType ?? string.Empty).Trim()}")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static part => part, StringComparer.OrdinalIgnoreCase);
 
-        string edges = string.Join(";", edgeParts);
+        string edgesJoined = string.Join(";", edgeParts);
 
-        return $"{nodeParts}|{edges}";
+        return $"{nodeParts}|{edgesJoined}";
     }
 
     private static string ComputeManifestDecisionsFingerprint(ManifestDocument manifest)
     {
-        if (manifest.Decisions.Count == 0)
+        IReadOnlyList<ResolvedArchitectureDecision> decisions =
+            (manifest.Decisions ?? []).OfType<ResolvedArchitectureDecision>().ToArray();
+
+        if (decisions.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = manifest.Decisions
+        IEnumerable<string> parts = decisions
             .GroupBy(
                 decision => (decision.DecisionId ?? string.Empty).Trim(),
                 StringComparer.OrdinalIgnoreCase)
@@ -114,10 +120,12 @@ public static class ProvenanceSnapshotRevisionHasher
 
     private static string ComputeFindingsFingerprint(FindingsSnapshot findings)
     {
-        if (findings.Findings.Count == 0)
+        IReadOnlyList<Finding> findingRows = (findings.Findings ?? []).OfType<Finding>().ToArray();
+
+        if (findingRows.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = findings.Findings
+        IEnumerable<string> parts = findingRows
             .GroupBy(
                 finding => (finding.FindingId ?? string.Empty).Trim(),
                 StringComparer.OrdinalIgnoreCase)
@@ -197,10 +205,12 @@ public static class ProvenanceSnapshotRevisionHasher
 
     private static string ComputeArtifactsFingerprint(IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        if (artifacts.Count == 0)
+        IReadOnlyList<SynthesizedArtifact> artifactRows = (artifacts ?? []).OfType<SynthesizedArtifact>().ToArray();
+
+        if (artifactRows.Count == 0)
             return string.Empty;
 
-        IEnumerable<string> parts = artifacts
+        IEnumerable<string> parts = artifactRows
             .GroupBy(static artifact => artifact.ArtifactId)
             .OrderBy(static group => group.Key)
             .Select(group =>

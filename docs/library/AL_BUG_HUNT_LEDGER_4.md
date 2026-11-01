@@ -22733,6 +22733,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: knowledge-graph-provenance
 
+2026-11-01 seed hunt #1137 (hit): picker `seedHunt` true (diary-header open rows hidden because hunt #1134 preceded #1136 in the zone header); re-read `ProvenanceSnapshotRevisionHasher` vs `ProvenanceBuilder` after Oct 2026 null-placeholder skips on nested id lists; promoted sparse JSON **null collection elements** on graph edges and findings rows — `Compute` threw in `ComputeGraphFingerprint` / `ComputeFindingsFingerprint` while `Build` already projected with `OfType`; aligned graph/findings/manifest/artifact fingerprint paths with builder collection projection; regressions `Compute_does_not_throw_when_graph_edges_contain_null_element_from_deserialized_snapshot`, `Compute_does_not_throw_when_findings_contain_null_element_from_deserialized_snapshot`; scoped **725/725** KnowledgeGraph + **211/211** Provenance tests passed (`RunAnalyzers=false`). Private beta: runs whose persisted graph or findings JSON retains null array placeholders no longer fail provenance revision fingerprinting before cache refresh.
+
+- [x] (proven) `ProvenanceSnapshotRevisionHasher.Compute` — null `GraphEdge` / `Finding` elements in deserialized snapshot collections caused `NullReferenceException` during revision fingerprinting while `ProvenanceBuilder.Build` skipped them — **hit 2026-11-01 seed hunt #1137:** `OfType` projection in fingerprint helpers; regressions above.
+
 2026-11-01 thorough hunt #1140 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `core-explanation-json` is **1/3** after hunt #1139 dry — below `minLowYieldStreak` 3; **this dry starts 1/3** on `knowledge-graph-provenance` after rotation cleared the prior KG streak). Cheap-disproof closed five header `(candidate)` rows from hunt #1138 reseed (regression family hunts **#1134** / **#1132** / **#1129** / **#1126** / **#1097** / **#1121**) — **valid-no-repro** base-graph overlay duplicate **node** `SourceId` casing when base source id is whitespace-only (`Merge_coalesces_base_graph_overlay_duplicate_node_source_ids_when_base_source_id_is_whitespace_only_and_overlay_rows_differ_only_by_casing`), **valid-no-repro** `ContainedInManifest` edges with padded duplicate manifest decision rows (`Build_deduplicates_contained_in_manifest_when_manifest_lists_padded_duplicate_decision_ids`), **valid-no-repro** duplicate ARM `arm.resourceGroup` backfill when resource group differs only by casing (`BuildOverlay_backfills_resource_group_from_duplicate_row_when_first_row_omits_resource_group_with_case_variant`), **invalid** artifact fingerprint churn on duplicate-row `ArtifactType` casing alone (`Compute_changes_when_duplicate_artifact_rows_differ_only_by_artifact_type_casing_with_same_content_hash` — intentional ordinal fingerprint), **valid-no-repro** duplicate directed edges whose endpoints differ only by surrounding whitespace (`Validate_DuplicateDirectedEdgesDifferingOnlyByEdgeTypePadding_ThrowsInvalidOperationException`). Reseeded five `(candidate)` monitor rows below this note; scoped **725/725** KnowledgeGraph + **209/209** Provenance tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 - [ ] (candidate) `ArchitectureInventoryObservedFactGraphOverlayMerger.Merge` — overlay duplicate **nodes** on a base-graph normalized id may disagree on `ReasoningTrace` casing when the sealed base node reasoning trace is whitespace-only — locus: duplicate-node scalar fallback; input: Azure inventory overlay with case-variant reasoning traces; wrong outcome: merged graph drops reasoning trace metadata; reachability: sealed base graph overlay merge (monitor; hunt #1140).
@@ -26366,11 +26370,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 62
-- **bugs-found:** 46
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-31
-- **last-bug:** 2026-10-20 — equal CreatedUtc graph snapshots lacked stable latest tie-breaker
+- **hunts:** 66
+- **bugs-found:** 47
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-01
+- **last-bug:** 2026-11-01 — revision hasher threw on null collection elements in graph/findings JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
