@@ -17720,6 +17720,20 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-costing
 
+2026-11-01 thorough hunt #1131 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** dry outcomes on `knowledge-graph-provenance` (#1128–#1130; run log). Picker applied **`-AvoidZoneId knowledge-graph-provenance`** and returned `core-costing`. Cheap-disproof closed five header `(candidate)` rows from hunt #1107 reseed — **valid-no-repro** numeric JSON `usageUnit` token (`IsHourlyUsageUnit` requires `JsonValueKind.String`; parity boolean rejection hunt #1107), **valid-no-repro** AWS-only partial retail blend copy (`ComposeRetailBlendNote` sole-family `CloudProvider.Aws` branch — not Azure headline; parity hunt #1096), **invalid** negative manifest quantity floored to one unit-month on Azure consumption path (`Math.Max(1, node.Quantity)` — intentional hunt #951/#1107), **invalid** fractional `InstanceCount` on manifest nodes (`NormalizeQuantity(int raw)` — manifest quantity is integral; not reachable), **invalid** GCP `"on"` hourly synonym rejected (`TryGetComputeEngineMonthlyUsdAsync_rejects_string_encoded_on_synonym_hourly_usage_unit` — explicit allow-list omits `"on"` by design). Reseeded five `(candidate)` monitor rows; scoped Costing filter **291/297** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `GcpSkuPricingParser.IsHourlyUsageUnit` — JSON null `usageUnit` treated as hourly — locus: null/missing token handling; input: null `usageUnit` in catalog JSON; wrong outcome: hourly SKU misclassified; reachability: GCP Billing Catalog null unit tokens.
+- [ ] (candidate) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — GCP-only partial retail blend still uses generic multi-cloud headline — locus: sole-family resolution when every line is `RetailApi` but not all clouds; input: GCP retail + GCP estimated mix; wrong outcome: Azure Retail API wording; reachability: partial retail blend copy.
+- [ ] (candidate) `AwsPublicPricingClient.TryGetOnDemandMonthlyUsdAsync` — negative manifest quantity after normalize still floors to one instance-month — locus: quantity floor before on-demand math; input: topology quantity -1 normalized to 0 then Max(1); wrong outcome: surprise non-zero retail line; reachability: AWS Price List sizing path.
+- [ ] (candidate) `IllustrativeInfrastructureCostFallback.ScaleByQuantity` — fractional quantity passed as double truncates differently than manifest int normalization — locus: quantity scaling; input: fractional count after cast; wrong outcome: under-billed illustrative row; reachability: illustrative fallback path (monitor; manifest uses int quantities).
+- [ ] (candidate) `GcpCloudBillingCatalogClient.TryGetComputeEngineMonthlyUsdAsync` — `"hrs"` string hourly synonym rejected while `"hour"` accepted — locus: `IsHourlyUsageUnit` allow-list; input: `usageUnit` `"hrs"` vs `"Hrs"` casing; wrong outcome: valid hourly SKU skipped; reachability: GCP catalog synonym tokens.
+
+- [x] (valid-no-repro) `GcpSkuPricingParser.IsHourlyUsageUnit` — JSON number `usageUnit` token (non-string) skipped without treating as hourly — **cheap-disproof 2026-11-01 thorough hunt #1131:** non-string rejection; hunt #1107 boolean parity.
+- [x] (valid-no-repro) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — AWS-only partial retail blend still uses generic multi-cloud headline — **cheap-disproof 2026-11-01 thorough hunt #1131:** sole-family AWS branch; hunt #1096.
+- [x] (invalid) `AzureRetailPricesCatalogClient.TryGetConsumptionMonthlyUsdAsync` — negative manifest quantity after normalize still floors to one unit-month — **cheap-disproof 2026-11-01 thorough hunt #1131:** intentional `Math.Max(1, quantity)`; hunt #1107/#951.
+- [x] (invalid) `ManifestInfrastructureCostNodes.NormalizeQuantity` — fractional instance counts truncate toward zero vs round — **cheap-disproof 2026-11-01 thorough hunt #1131:** manifest `InstanceCount` is `int`; not reachable.
+- [x] (invalid) `GcpCloudBillingCatalogClient.TryGetComputeEngineMonthlyUsdAsync` — `"on"` string hourly synonym rejected while `"hour"` accepted — **cheap-disproof 2026-11-01 thorough hunt #1131:** regression rejects `"on"` by design.
+
 2026-10-31 thorough hunt #1107 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `notifications-pipeline` is **0** after hunt #1106 hit — below `minLowYieldStreak` 3; default picker returned `core-costing` with five header candidates from hunt #1096 reseed). Cheap-disproof closed five header `(candidate)` rows — **invalid** AWS retail `Quantity` 0 sized at one instance-month (`Math.Max(1, node.Quantity)` and `TryGetOnDemandMonthlyUsdAsync` quantity floor — intentional parity with illustrative `ScaleByQuantity` hunt #951/#1096), **invalid** Azure retail zero quantity probes at quantity 1 (`Math.Max(1, node.Quantity)` on consumption path — same intentional floor), **invalid** illustrative Unknown + Azure sole-family headline (`RuntimePlatformCloudFamily` maps Unknown-class platforms to Azure — hunt #951), **valid-no-repro** GCP boolean `usageUnit` (`TryGetComputeEngineMonthlyUsdAsync_rejects_boolean_hourly_usage_unit_token`; non-string tokens rejected by design), **valid-no-repro** spaced plural week UOM `10 / weeks` (`ContainsWeekWordToken` bounded `" weeks"`; added to `AzureRetailPricesSkuMatchersWeekMeterTests` keep-list). Reseeded five `(candidate)` rows; scoped Costing filter **291/297** passed with **6** expected week-UOM baseline failures per ABQ-47 keep-list (`RunAnalyzers=false`). No production change. Private beta: n/a.
 
 - [ ] (candidate) `GcpSkuPricingParser.IsHourlyUsageUnit` — JSON number `usageUnit` token (non-string) skipped without treating as hourly — locus: `JsonValueKind` guard; input: numeric `usageUnit` in catalog JSON; wrong outcome: hourly SKU misclassified; reachability: GCP Billing Catalog numeric unit tokens.
@@ -19607,10 +19621,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 957
+- **hunts:** 958
 - **bugs-found:** 227
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-31
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-10 — live pricing cancellation was swallowed as illustrative fallback
 - **related-pd-tb:** none
 - **code-changed-since:** no
