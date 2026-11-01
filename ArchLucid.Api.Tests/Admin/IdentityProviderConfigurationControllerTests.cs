@@ -460,6 +460,119 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_returns_persisted_issuer_after_successful_discover_preview_without_activate()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        const string persistedIssuer = "https://persisted-idp.example/oidc";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = persistedIssuer,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://discovered-idp.example:443/oidc",
+                JwksUri = "https://discovered-idp.example:443/oidc/jwks",
+                DiscoverySucceeded = true,
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(
+            discoveryService: discovery.Object,
+            configurationRepository: repository);
+
+        IActionResult discoverResult = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://discovered-idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        OkObjectResult discoverOk = discoverResult.Should().BeOfType<OkObjectResult>().Subject;
+        IdentityProviderDiscoverResponse discoverBody =
+            discoverOk.Value.Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+        discoverBody.IssuerUri.Should().Be("https://discovered-idp.example/oidc");
+
+        IActionResult getResult = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult getOk = getResult.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord getBody =
+            getOk.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        getBody.IssuerUri.Should().Be(persistedIssuer);
+
+        TenantIdentityProviderConfigurationRecord? stored =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+        stored!.IssuerUri.Should().Be(persistedIssuer);
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_leaves_stored_configuration_unchanged_when_discovery_fails()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        const string persistedIssuer = "https://persisted-idp.example/oidc";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = persistedIssuer,
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                KeyVaultSecretName = "tenant-idp-client-secret",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://evil.example:443/oidc",
+                DiscoverySucceeded = false,
+                DiagnosticSummary = "metadata fetch failed",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(
+            discoveryService: discovery.Object,
+            configurationRepository: repository);
+
+        await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://evil.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord? stored =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        stored!.IssuerUri.Should().Be(persistedIssuer);
+        stored.KeyVaultSecretName.Should().Be("tenant-idp-client-secret");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_skips_uri_canonicalization_when_discovery_failed()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();

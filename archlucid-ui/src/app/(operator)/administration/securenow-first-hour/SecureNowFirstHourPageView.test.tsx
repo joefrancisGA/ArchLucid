@@ -13,13 +13,19 @@ describe("SecureNowFirstHourPageView", () => {
     expect(screen.getByText(/NOT VERIFIED/)).toBeInTheDocument();
     expect(screen.getByText(/does not change Azure/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to Home" })).toHaveAttribute("href", "/");
-    expect(screen.getAllByRole("link", { name: "Open in product" })[0]).toHaveAttribute(
+    const productLinks = screen.getAllByRole("link", { name: "Open in product" });
+    expect(productLinks).toHaveLength(2);
+    expect(productLinks[0]).toHaveAttribute(
       "href",
       "/integrations/cloud-connections",
     );
-    expect(screen.getAllByRole("link", { name: "Open in product" })[1]).toHaveAttribute(
+    expect(productLinks[1]).toHaveAttribute(
       "href",
       "/security/remediation-factory",
     );
+    expect(screen.getByText(/Path inspect/)).toBeInTheDocument();
+    expect(screen.getByText(/Select a priority row/)).toBeInTheDocument();
+    expect(document.getElementById("path-inspect")).toHaveTextContent("3 — Advisory cut point");
+    expect(document.getElementById("stop")).toHaveTextContent("4 — Stop");
   });
 });
