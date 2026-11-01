@@ -163,6 +163,84 @@ public sealed class CommitOutputIntegrityServiceTests
         thrown.Which.Message.Should().Contain("ArchitectureVersionId");
     }
 
+    [Fact]
+    public async Task EnsurePassOrThrowAsync_throws_architecture_version_pin_failure_for_non_guid_run_id_before_quality_resolver()
+    {
+        const string runId = "opaque-legacy-run-id";
+
+        ArchitectureRun run = new()
+        {
+            RunId = runId,
+            StructuralExecutionMode = StructuralExecutionMode.Real,
+            GoldenManifestId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetByRunIdAsync(
+                TestScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTrace
+                {
+                    TraceId = "trace-accepted",
+                    AgentType = AgentType.Topology,
+                    RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+                },
+            ]);
+
+        Mock<IAgentOutputQualityGateOptionsResolver> qualityResolver = new(MockBehavior.Strict);
+
+        Mock<IRunRepository> runRepository = new(MockBehavior.Strict);
+        Mock<IRunStageOutcomesRepository> stageOutcomes = new(MockBehavior.Strict);
+        Mock<IRunPolicyPackPinService> policyPins = new();
+        Mock<IRunEvidencePackagePinService> evidencePins = new();
+        Mock<IDraftRequestRepository> drafts = new();
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModel = new(MockBehavior.Strict);
+        Mock<IArchitectureVersionRepository> architectureVersions = new(MockBehavior.Strict);
+        Mock<IFinalizeQualityGate> finalizeGate = new(MockBehavior.Strict);
+        Mock<IRunAssumptionAcknowledgementService> assumptionAcks = new(MockBehavior.Strict);
+        Mock<IFindingSemanticSupportBandFinalizeJudge> semanticJudge = new(MockBehavior.Strict);
+
+        CommitOutputIntegrityService sut = new(
+            scopeProvider.Object,
+            traces.Object,
+            qualityResolver.Object,
+            runRepository.Object,
+            stageOutcomes.Object,
+            policyPins.Object,
+            evidencePins.Object,
+            knowledgeModel.Object,
+            drafts.Object,
+            architectureVersions.Object,
+            finalizeGate.Object,
+            assumptionAcks.Object,
+            semanticJudge.Object);
+
+        FindingsSnapshot findings = new() { Findings = [], GenerationStatus = FindingsSnapshotGenerationStatus.Complete };
+        ArchitectureRequest request = new() { RequestId = Guid.NewGuid().ToString("D") };
+
+        Func<Task> act = () => sut.EnsurePassOrThrowAsync(
+            run,
+            runId,
+            findings,
+            request,
+            acknowledgedAssumptionIds: null,
+            CancellationToken.None);
+
+        ExceptionAssertions<ConflictException> thrown = await act.Should().ThrowAsync<ConflictException>();
+        thrown.Which.Message.Should().Contain("invalid for architecture version pin verification");
+        thrown.Which.Message.Should().NotContain("agent output quality gate");
+        qualityResolver.Verify(
+            resolver => resolver.Resolve(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static IReadOnlyList<StageTimelineSummary> SucceededAuthorityStages()
     {
         DateTime started = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
