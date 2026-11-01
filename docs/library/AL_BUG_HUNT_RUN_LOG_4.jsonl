@@ -3186,3 +3186,4 @@
 {"at":"2026-11-01T02:31:44.2443972Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T02:56:56.0578862Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T03:07:54.9209692Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T03:30:39.6211624Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
