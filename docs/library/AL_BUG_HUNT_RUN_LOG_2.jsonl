@@ -2376,3 +2376,9 @@
 {"at":"2026-11-01T13:27:17.1623449Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T13:29:44.6396239Z","zoneId":"finding-disposition","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-01T13:32:11.3153169Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:33:31.2570942Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:38:22.0676451Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:43:14.1575210Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:45:03.0929077Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:52:30.4284175Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T13:55:29.3263889Z","zoneId":"persistence-identity","outcome":"dry","productLine":"archlucid-shared"}
