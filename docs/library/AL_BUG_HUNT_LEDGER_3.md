@@ -3225,6 +3225,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** in run log — threshold **3**; picker chose `ui-auth-proxy`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — idle-expired BFF on protected paths returns **401** before `slideBffSessionActivity` (same branch as `rejects idle-expired Working sessions on mutations`; anonymous GET idle forwards are allowlisted pre-auth paths only); `passThrough` does not copy upstream `Retry-After` (explicit allowlist only; parity with `WWW-Authenticate` / `Refresh` pass 10); backslash segments fail `isUnsafeProxyPathSegment` (runtime `buildProxyUpstreamPath(['v1','foo\\bar','x'])` → `{ ok: false }`); `X-Api-Key` omitted when bearer resolves (`key && !hasBearer` in `buildProxyUpstreamHeaders`); declared `Content-Length: 0` skips header pre-check but streaming read still caps bytes (`body_too_large_streaming`; `readRequestBodyBytesWithLimit`). Scoped proxy/auth regressions **280/280** (picker `testFilter`). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — idle GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** **401** before slide; idle branch precedes slide.
+- [x] (valid-no-repro) `passThrough` — upstream `Retry-After` — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** not in allowlist; `proxy-passthrough.ts`.
+- [x] (valid-no-repro) `buildProxyUpstreamPath` — backslash segment — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** segment guard rejects `\`; runtime above.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — dual `X-Api-Key` + bearer — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** key only when `!hasBearer`.
+- [x] (valid-no-repro) `forwardMutatingWithBody` — `Content-Length: 0` mismatch — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** streaming cap; `proxy-forward-mutating-body.ts`.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — expired payload on anonymous GET may block forward — locus: exp branch + public path; input: GET marketing path with expired cookie; wrong outcome: **401** on anonymous read; reachability: monitor anonymous GET exp guard regressions.
+- [ ] (candidate) `passThrough` — upstream `Content-Encoding` on error responses may reach browser — locus: JSON decompress path; input: upstream **500** gzip JSON; wrong outcome: double-encoded body; reachability: monitor Content-Encoding pass-through policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — `.` segment alone may bypass empty-segment guard — locus: `isUnsafeProxyPathSegment`; input: `["v1",".","sample"]`; wrong outcome: accepted path; reachability: monitor dot-segment rejection tests.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — browser bearer on anonymous path may attach cookie bearer — locus: anonymous bearer chain; input: public path with both cookie and header; wrong outcome: cookie wins; reachability: monitor anonymous Authorization regressions.
+- [ ] (candidate) `forwardMutatingWithBody` — missing Content-Length on large JSON POST may bypass declared check only — locus: header absent path; input: POST without length header; wrong outcome: unbounded read; reachability: monitor streaming body cap regressions.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — idle GET slide — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `passThrough` — Retry-After — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — backslash — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — X-Api-Key + bearer — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — Content-Length zero — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** — threshold **3**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — null BFF payload on GET with garbage cookie clears via `slideCookieHeaders` only and never calls `slideBffSessionActivity` (`proxy-bff-session-guard.ts` null branch; parity with pass 4 GET slide note); `passThrough` copies only explicit allowlisted headers — no `WWW-Authenticate` (`proxy-passthrough.ts`); dot segments after many safe prefixes still fail `isUnsafeProxyPathSegment` (`rejects dot-segment traversal`); protected routes intentionally attach `ARCHLUCID_PROXY_BEARER_TOKEN` when cookie and browser bearer absent (`still attaches server bearer for protected architecture quick-scan`); declared `Content-Length` above cap returns **413** before body read (`returns 413 when Content-Length declares a body larger than the JSON cap`; `declaredPostBodyExceedsLimit`). Scoped proxy/auth regressions **280/280** (picker `testFilter`). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` — unparseable cookie GET activity slide — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** null payload returns clear-only headers; no `slideBffSessionActivity`.
@@ -3568,9 +3588,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 79
+- **hunts:** 80
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
