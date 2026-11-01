@@ -125,6 +125,11 @@ public static class PolicyExpectationCostGraphReader
           out value);
     }
 
+    if (token.Length >= 2 && token[0] == '(' && token[^1] == ')')
+    {
+      return TryParseInvariantAmount(token[1..^1].Trim(), out value);
+    }
+
     return false;
   }
 

@@ -257,6 +257,119 @@ public sealed class CostBreachFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_uses_accounting_parentheses()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "($5000)",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        CostBreachFindingPayload payload = finding.Payload.Should().BeOfType<CostBreachFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().Be(5000m);
+        payload.ProjectedMonthlySpendUsd.Should().Be(6200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_leading_plus_sign()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "+5000",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>()
+            .Which.MaxMonthlyCost.Should().Be(5000m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_projected_monthly_spend_has_leading_dollar_sign()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000",
+                        ["projectedMonthlySpendUsd"] = "$6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>()
+            .Which.ProjectedMonthlySpendUsd.Should().Be(6200m);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_breach_when_max_monthly_cost_has_non_usd_currency_suffix()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c1",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["maxMonthlyCost"] = "5000 EUR",
+                        ["projectedImpactUsdUpperBound"] = "6200",
+                    }
+                }
+            ]
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle()
+            .Which.Payload.Should().BeOfType<CostBreachFindingPayload>()
+            .Which.MaxMonthlyCost.Should().Be(5000m);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_breach_when_upper_bound_has_trailing_currency_suffix()
     {
         GraphSnapshot graph = new()

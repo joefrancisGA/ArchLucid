@@ -246,6 +246,32 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PriceRowLookupAsync_clamps_negative_topk_when_calling_retrieval_service()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        int? observedTopK = null;
+
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, CancellationToken>((query, _) => observedTopK = query.TopK)
+            .ReturnsAsync([]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "D4s v3",
+            TopK = -3,
+        };
+
+        await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        observedTopK.Should().Be(25);
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_throws_when_query_text_is_whitespace_only()
     {
         Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);
