@@ -319,9 +319,13 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const clearFilterText = useCallback(() => {
     filterTextRef.current = "";
     setFilterTextState("");
-    commitHrefIfChanged(runsListClearSearchHrefFromSearch(routerSearchString, pathname), {
-      notify: false,
-    });
+    commitHrefIfChanged(
+      runsListClearSearchHrefFromSearch(
+        runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+        pathname,
+      ),
+      { notify: false },
+    );
   }, [pathname, routerSearchString]);
 
   const setSortOrder = useCallback((_order: SortOrder): void => {
