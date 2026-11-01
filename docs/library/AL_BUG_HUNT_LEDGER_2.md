@@ -2886,19 +2886,27 @@
 
 ## Zone: review-recurrence
 
-2026-11-01 seed hunt (seed-only #934): re-read `ArchitectureReviewRecurrenceNextRunCalculator` after the Application-layer extraction (delegates to `SimpleScanScheduleCalculator` for Cronos/alias semantics, `NormalizeReferenceUtc`/`NormalizeNextRunUtc` strict-advance wrapper, batch preview via repeated `ComputeNextRunUtc`); no mechanism-backed row met the hunt-ready promotion bar; seeded five `(candidate)` rows below; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+2026-11-01 thorough hunt (dry #935): cheap-disproof closed five open `(candidate)` rows from seed hunt #934; runtime probe shows `@hourly` at `DateTime.MaxValue` throws `ArgumentOutOfRangeException` but no reachable recurrence caller supplies that reference; retry cursor uses `candidate` by design (`ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`); interior vertical tab parses identically to spaced `"0 8 * * 1"`; partial batch on null is intentional stub/API contract (`ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`); six-field cron rejected consistently while `@monthly`/`@yearly` use Cronos aliases not seconds fields; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (Release, `RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `ComputeNextRunUtc` — `@hourly` reference at `DateTime.MaxValue` may throw on `AddHours(1)` instead of returning null — locus: `SimpleScanScheduleCalculator` alias branch; input: UTC `DateTime.MaxValue`; reachability: corrupted persisted `NextRunUtc` or preview with extreme clock.
-- [ ] (candidate) `NormalizeNextRunUtc` — single retry invokes underlying calculator with `candidate` cursor rather than original `fromUtc` — locus: ~60; input: cron whose next slot depends on whether reference is last fire vs wall clock; reachability: hosted recurrence wake after missed interval.
-- [ ] (candidate) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior vertical tab between fields survives end-trim and parses differently from space-separated fields — locus: `Trim()` only; input: `"0\t8 * * 1"`; reachability: pasted schedule expression in stickiness preview.
-- [ ] (candidate) `ComputeNextRunsUtc` — partial result list when loop breaks on null does not distinguish invalid cron from one-retry normalization ceiling — locus: break ~41–42; input: invalid cron after first valid occurrence vs `TwoStepPastScanScheduleCalculator`; reachability: preview `count` > 1 API response interpretation.
-- [ ] (candidate) `ComputeNextRunUtc` — five-field cron with seconds field rejected by `CronFormat.Standard` while alias `@monthly`/`@yearly` still supported — locus: `TryParseCronExpression`; input: six-field cron string; reachability: schedule create vs preview validation parity.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` throws on alias `AddHours(1)` — **cheap-disproof 2026-11-01 thorough hunt #935:** runtime probe throws `ArgumentOutOfRangeException`; persisted architecture-review recurrence computes bounded future `NextRunUtc` values, not `DateTime.MaxValue`.
+- [x] (invalid) `NormalizeNextRunUtc` — single retry uses `candidate` cursor not original `fromUtc` — **cheap-disproof 2026-11-01 thorough hunt #935:** intentional strict-advance semantics; regression `ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`.
+- [x] (valid-no-repro) interior vertical tab in cron shifts cadence vs spaces — **cheap-disproof 2026-11-01 thorough hunt #935:** `"0\t8 * * 1"` and `"0 8 * * 1"` yield the same next instant from the same reference (2026-03-30T08:00:00Z probe).
+- [x] (invalid) `ComputeNextRunsUtc` — partial list on null break conflates invalid cron vs one-retry ceiling — **cheap-disproof 2026-11-01 thorough hunt #935:** preview API returns instants only; normalization ceiling returns empty via stub regressions, not a calculator ambiguity defect.
+- [x] (invalid) six-field cron rejected while `@monthly`/`@yearly` supported — **cheap-disproof 2026-11-01 thorough hunt #935:** `CronFormat.Standard` rejects seconds field; monthly/yearly are named Cronos aliases, not six-field expressions; `IsSupportedCronExpression("0 0 8 * * 1")` false and `"0 8 * * 1"` true.
+
+- [ ] (candidate) `ComputeNextRunUtc` — `@daily` or `@weekly` alias at `DateTime.MaxValue` may throw on `AddDays` instead of returning null — locus: `SimpleScanScheduleCalculator` alias branch; input: UTC `DateTime.MaxValue`; reachability: distinct overflow path from `@hourly` MaxValue probe.
+- [ ] (candidate) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior no-break space (U+00A0) between fields parses differently from ASCII space — locus: `Trim()` only strips ends; input: `"0\u00a08 * * 1"`; reachability: word-processor pasted schedule in stickiness UI.
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@montly` accepted or rejected inconsistently with `@monthly` — locus: `IsIntervalAlias` exact match; input: `@montly`; reachability: operator typo on schedule create vs preview validation.
+- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` UTC reference with five-field cron returns null or throws from Cronos — locus: `GetNextOccurrence`; input: `0 0 1 1 *` at MinValue; reachability: backfill job with empty historical cursor.
+- [ ] (candidate) `ComputeNextRunsUtc` — batch loop passes `isScheduleEnabled: true` implicitly while persisted path can disable schedule — locus: batch API has no enabled flag; input: paused schedule preview vs wake — reachability: distinct from prior enabled-flag valid-no-repro if preview route ever binds enabled state.
+
+2026-11-01 seed hunt (seed-only #934): re-read `ArchitectureReviewRecurrenceNextRunCalculator` after the Application-layer extraction (delegates to `SimpleScanScheduleCalculator` for Cronos/alias semantics, `NormalizeReferenceUtc`/`NormalizeNextRunUtc` strict-advance wrapper, batch preview via repeated `ComputeNextRunUtc`); no mechanism-backed row met the hunt-ready promotion bar; seeded five `(candidate)` rows below; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
 2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock verified on origin; facade preview count 1–20; calculator paths unchanged; 47/47 scoped tests; no production change.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 36
+- **hunts:** 37
 - **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
@@ -2908,17 +2916,17 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 ### Hypotheses
 
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 36
+- **hunts:** 37
 - **last-hunt:** 2026-11-01
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
