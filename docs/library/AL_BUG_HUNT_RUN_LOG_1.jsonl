@@ -3083,3 +3083,4 @@
 {"at":"2026-11-01T00:36:02.0189585Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:39:08.4571712Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:42:59.9671412Z","zoneId":"quick-scan-distributed-concurrency","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T00:49:34.5498585Z","zoneId":"storage-vs-data-category","outcome":"hit","productLine":"archlucid-shared"}

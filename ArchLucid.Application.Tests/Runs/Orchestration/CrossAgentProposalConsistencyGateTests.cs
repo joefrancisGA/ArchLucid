@@ -988,4 +988,72 @@ public sealed class CrossAgentProposalConsistencyGateTests
         topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
         topology.ProposedChanges.AddedRelationships![0].SourceId.Should().Be("svc-api");
     }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_service_id()
+    {
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "sql",
+                        DatastoreId = "ds-sql",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-2",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-2",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedServices.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
 }

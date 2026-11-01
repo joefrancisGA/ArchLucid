@@ -22,6 +22,7 @@ public static class CrossAgentProposalConsistencyGate
         HashSet<string> declaredBatchEndpointKeys = CollectDeclaredBatchEndpointKeys(ordered);
         HashSet<string> claimedServiceEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedDatastoreEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> rejectedBatchEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> claimedRequiredControls = new(StringComparer.OrdinalIgnoreCase);
         List<ManifestService> acceptedBatchServices = [];
         List<ManifestDatastore> acceptedBatchDatastores = [];
@@ -36,16 +37,21 @@ public static class CrossAgentProposalConsistencyGate
             proposal.AddedServices = ClaimServices(
                 proposal.AddedServices,
                 claimedServiceEndpointKeys,
-                acceptedBatchServices);
+                acceptedBatchServices,
+                rejectedBatchEndpointKeys);
             proposal.AddedDatastores = ClaimDatastores(
                 proposal.AddedDatastores,
                 claimedDatastoreEndpointKeys,
-                acceptedBatchDatastores);
+                acceptedBatchDatastores,
+                rejectedBatchEndpointKeys);
             proposal.RequiredControls = ClaimRequiredControls(proposal.RequiredControls, claimedRequiredControls);
             proposal.AddedRelationships = FilterRelationships(
                 declaredBatchEndpointKeys,
+                rejectedBatchEndpointKeys,
                 claimedServiceEndpointKeys,
                 claimedDatastoreEndpointKeys,
+                acceptedBatchServices,
+                acceptedBatchDatastores,
                 proposal);
         }
     }
@@ -107,7 +113,8 @@ public static class CrossAgentProposalConsistencyGate
     private static List<ManifestService> ClaimServices(
         IReadOnlyList<ManifestService>? services,
         HashSet<string> claimedServiceEndpointKeys,
-        List<ManifestService> acceptedBatchServices)
+        List<ManifestService> acceptedBatchServices,
+        HashSet<string> rejectedBatchEndpointKeys)
     {
         if (services is null || services.Count == 0)
             return [];
@@ -128,6 +135,8 @@ public static class CrossAgentProposalConsistencyGate
 
             if (TryAcceptRenameAliasService(service, accepted, acceptedBatchServices, claimedServiceEndpointKeys))
                 continue;
+
+            RegisterRejectedManifestServiceEndpointKeys(rejectedBatchEndpointKeys, service);
         }
 
         return accepted;
@@ -136,7 +145,8 @@ public static class CrossAgentProposalConsistencyGate
     private static List<ManifestDatastore> ClaimDatastores(
         IReadOnlyList<ManifestDatastore>? datastores,
         HashSet<string> claimedDatastoreEndpointKeys,
-        List<ManifestDatastore> acceptedBatchDatastores)
+        List<ManifestDatastore> acceptedBatchDatastores,
+        HashSet<string> rejectedBatchEndpointKeys)
     {
         if (datastores is null || datastores.Count == 0)
             return [];
@@ -157,6 +167,8 @@ public static class CrossAgentProposalConsistencyGate
 
             if (TryAcceptRenameAliasDatastore(datastore, accepted, acceptedBatchDatastores, claimedDatastoreEndpointKeys))
                 continue;
+
+            RegisterRejectedManifestDatastoreEndpointKeys(rejectedBatchEndpointKeys, datastore);
         }
 
         return accepted;
@@ -200,8 +212,11 @@ public static class CrossAgentProposalConsistencyGate
 
     private static List<ManifestRelationship> FilterRelationships(
         HashSet<string> declaredBatchEndpointKeys,
+        HashSet<string> rejectedBatchEndpointKeys,
         HashSet<string> claimedServiceEndpointKeys,
         HashSet<string> claimedDatastoreEndpointKeys,
+        IReadOnlyList<ManifestService> acceptedBatchServices,
+        IReadOnlyList<ManifestDatastore> acceptedBatchDatastores,
         AgentTopologyProposal proposal)
     {
         IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
@@ -209,13 +224,13 @@ public static class CrossAgentProposalConsistencyGate
         if (relationships is null || relationships.Count == 0)
             return [];
 
-        HashSet<string> validationEndpointKeys = new(declaredBatchEndpointKeys, StringComparer.OrdinalIgnoreCase);
-
-        foreach (string endpointKey in claimedServiceEndpointKeys.Concat(claimedDatastoreEndpointKeys))
-        {
-            if (!string.IsNullOrWhiteSpace(endpointKey))
-                validationEndpointKeys.Add(endpointKey);
-        }
+        HashSet<string> validationEndpointKeys = BuildRelationshipValidationEndpointKeys(
+            declaredBatchEndpointKeys,
+            rejectedBatchEndpointKeys,
+            claimedServiceEndpointKeys,
+            claimedDatastoreEndpointKeys,
+            acceptedBatchServices,
+            acceptedBatchDatastores);
 
         if (!ProposalDeclaresEndpoints(proposal))
             return FilterRelationshipOnlyProposals(declaredBatchEndpointKeys, validationEndpointKeys, relationships);
@@ -344,5 +359,72 @@ public static class CrossAgentProposalConsistencyGate
         }
 
         return copy;
+    }
+
+    private static void RegisterRejectedManifestServiceEndpointKeys(
+        HashSet<string> rejectedBatchEndpointKeys,
+        ManifestService service)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(rejectedKeys, service);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedBatchEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    private static void RegisterRejectedManifestDatastoreEndpointKeys(
+        HashSet<string> rejectedBatchEndpointKeys,
+        ManifestDatastore datastore)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(rejectedKeys, datastore);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedBatchEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    private static HashSet<string> BuildRelationshipValidationEndpointKeys(
+        HashSet<string> declaredBatchEndpointKeys,
+        HashSet<string> rejectedBatchEndpointKeys,
+        HashSet<string> claimedServiceEndpointKeys,
+        HashSet<string> claimedDatastoreEndpointKeys,
+        IReadOnlyList<ManifestService> acceptedBatchServices,
+        IReadOnlyList<ManifestDatastore> acceptedBatchDatastores)
+    {
+        HashSet<string> validationEndpointKeys = new(declaredBatchEndpointKeys, StringComparer.OrdinalIgnoreCase);
+
+        foreach (string endpointKey in claimedServiceEndpointKeys.Concat(claimedDatastoreEndpointKeys))
+        {
+            if (!string.IsNullOrWhiteSpace(endpointKey))
+                validationEndpointKeys.Add(endpointKey);
+        }
+
+        if (rejectedBatchEndpointKeys.Count == 0)
+            return validationEndpointKeys;
+
+        HashSet<string> acceptedBatchEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            acceptedBatchServices,
+            acceptedBatchDatastores);
+
+        foreach (string rejectedKey in rejectedBatchEndpointKeys)
+        {
+            if (string.IsNullOrWhiteSpace(rejectedKey))
+                continue;
+
+            if (TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains(acceptedBatchEndpointKeys, rejectedKey))
+                continue;
+
+            validationEndpointKeys.Remove(rejectedKey);
+        }
+
+        return validationEndpointKeys;
     }
 }
