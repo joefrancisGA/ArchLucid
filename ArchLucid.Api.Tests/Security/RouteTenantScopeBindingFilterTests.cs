@@ -131,6 +131,33 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_mixed_case_internal_parent_escape_does_not_skip_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/Internal/../v1/tenants/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/runs");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_platform_deletion_policy_case_mismatch_does_not_skip_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
