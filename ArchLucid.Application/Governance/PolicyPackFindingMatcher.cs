@@ -36,7 +36,7 @@ internal static class PolicyPackFindingMatcher
 
         if (finding.Properties is not null
             && finding.Properties.TryGetValue("policyPackId", out string? propertyPackId)
-            && string.Equals(propertyPackId, packToken, StringComparison.OrdinalIgnoreCase))
+            && PackIdsEquivalent(propertyPackId, assignment.PolicyPackId))
             return true;
 
         return string.Equals(finding.EngineType, $"policy-pack:{packToken}", StringComparison.OrdinalIgnoreCase);
@@ -70,5 +70,18 @@ internal static class PolicyPackFindingMatcher
         int after = index + ruleKeyLength;
 
         return after >= policyRuleId.Length || !char.IsLetterOrDigit(policyRuleId[after]);
+    }
+
+    private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
+    {
+        if (string.IsNullOrWhiteSpace(propertyPackId))
+            return false;
+
+        string trimmed = propertyPackId.Trim();
+
+        if (Guid.TryParse(trimmed, out Guid parsed))
+            return parsed == assignmentPackId;
+
+        return string.Equals(trimmed, assignmentPackId.ToString("D"), StringComparison.OrdinalIgnoreCase);
     }
 }

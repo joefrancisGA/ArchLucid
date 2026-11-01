@@ -73,4 +73,30 @@ public sealed class PolicyPackFindingMatcherTests
 
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
     }
+
+    [Fact]
+    public void MatchesAssignment_treats_canonical_n_policy_pack_id_property_as_equivalent_to_assignment()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["listed-only"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-property-n",
+            PolicyRuleId = "unrelated-rule",
+            EngineType = "compliance-engine",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["policyPackId"] = packId.ToString("N"),
+            },
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue(
+            "finding properties may carry canonical N GUIDs while assignments use D tokens");
+    }
 }

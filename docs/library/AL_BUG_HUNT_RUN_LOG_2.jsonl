@@ -2384,3 +2384,4 @@
 {"at":"2026-11-01T13:55:29.3263889Z","zoneId":"persistence-identity","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T13:57:49.2081388Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T14:02:01.1118347Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T14:05:36.8061814Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
