@@ -612,6 +612,45 @@ public sealed class RouteTenantScopeBindingFilterTests
             .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        DefaultHttpContext httpContext = new() { Request = { Path = "/v1/example/" + TenantA } };
+        RouteData routeData = new();
+        routeData.Values["tenantGuid"] = TenantA;
+
+        ActionDescriptor descriptor = new();
+        ActionContext actionContext = new(
+            httpContext,
+            routeData,
+            descriptor,
+            new ModelStateDictionary());
+        ActionExecutingContext executing = new(
+            actionContext,
+            [],
+            new Dictionary<string, object?>(),
+            new object());
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue(
+            "the filter binds only the tenantId route key; tenantGuid is not a production route contract in this API");
+        executing.Result.Should().BeNull();
+    }
+
     private static ActionExecutingContext BuildExecutingContextWithRawTenantId(
         object routeTenantId,
         string path,

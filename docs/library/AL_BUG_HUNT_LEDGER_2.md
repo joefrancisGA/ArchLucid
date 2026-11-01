@@ -5590,9 +5590,9 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 76
+- **hunts:** 77
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
@@ -5719,11 +5719,19 @@
 
 ### Hypotheses
 
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — literal `/health%2F` may inherit anonymous root health skip without decoding to `/health`.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — `/health/version/` with trailing slash may miss the version probe skip while `/health/live/` matches.
-- [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — routes that bind `{tenantGuid}` instead of `{tenantId}` may bypass ambient scope comparison when only `tenantId` is inspected.
-- [ ] (candidate) `ScopeIdentityBindingValidator.Validate` — multiple `tenant_id` claims where `FindFirst` is parseable but a hostile header matches a later duplicate claim may pass validation.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — literal `/health%2Fversion` may bypass TB-304 without matching `/health/version` probe semantics.
+2026-11-01 thorough hunt (dry #77): cheap-disproof closed five open `(candidate)` rows from seed **#76** — **invalid** literal `/health%2F` and `/health%2Fversion` do not decode into aggregate or version probe skips (fail-closed TB-304 — regressions `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path` and `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path`); **invalid** `/health/version/` miss (`NormalizeProbePath` collapses trailing slash — regression `InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path`); **invalid** `{tenantGuid}` bypass (no `{tenantGuid}` API routes — regression `OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid` documents `tenantId`-only contract); **valid-no-repro** duplicate `tenant_id` claims with hostile header matching later claim (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`); seeded five follow-on `(candidate)` rows; scoped filter **156/162** (6 SQL integration unavailable). Private beta: n/a.
+
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE` may miss anonymous live probe skip when only lowercase segments are documented — locus: ~86–90; input: uppercase health prefix; reachability: load-balancer probe paths (monitor; `StartsWithSegments` case sensitivity).
+- [ ] (candidate) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — `/SCIM/v2/Users` mixed-case prefix may skip SCIM reauthentication before TB-072 validation — locus: ~62–63; input: uppercase SCIM prefix; reachability: SCIM path (monitor; `SafeStartsWithSegments` contract).
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — `/health/ready/../live` parent-segment escape after normalization — locus: ~118–140; input: dot-dot between probe segments; reachability: forged probe URL (monitor; parity `health/live/../v1/runs` rejection).
+- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — `/internal/../v1/admin` traversal may skip binding via substring `/internal/` match — locus: ~62–68; input: parent escape after internal prefix; reachability: forged admin URL (monitor; `ApiPathSkipSafety` blocks `//`).
+- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateDimension` — duplicate parseable `x-tenant-id` values where first segment disagrees with claim but second matches may pass — locus: ~157–175 vs `TryParseHeaderGuid`; input: two GUID segments in one header; reachability: TB-072 header steering (monitor; first-parseable segment semantics).
+
+- [x] (invalid) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — literal `/health%2F` may inherit anonymous root health skip without decoding to `/health` — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path`.
+- [x] (invalid) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — `/health/version/` with trailing slash may miss the version probe skip while `/health/live/` matches — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path`.
+- [x] (invalid) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — routes that bind `{tenantGuid}` instead of `{tenantId}` may bypass ambient scope comparison when only `tenantId` is inspected — **cheap-disproof 2026-11-01 thorough hunt #77:** no `{tenantGuid}` API routes; regression `OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid`.
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` — multiple `tenant_id` claims where `FindFirst` is parseable but a hostile header matches a later duplicate claim may pass validation — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`.
+- [x] (invalid) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — literal `/health%2Fversion` may bypass TB-304 without matching `/health/version` probe semantics — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path`.
 
 2026-11-01 seed hunt #76 (seed-only): seeded five mechanism-backed `(candidate)` rows above after closing stale outside-section rows from reseed **#223**.
 
