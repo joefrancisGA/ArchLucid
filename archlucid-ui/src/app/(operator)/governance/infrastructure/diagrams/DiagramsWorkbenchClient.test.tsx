@@ -62,12 +62,17 @@ vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
 
-vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", () => ({
-  fetchInfraEvidenceMermaidPreview: fetchInfraEvidenceMermaidPreviewMock,
-  fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
-  downloadInfraEvidenceMermaidPng: downloadInfraEvidenceMermaidPngMock,
-  formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
-}));
+vi.mock("@/lib/infra-evidence/infra-evidence-mermaid-api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/infra-evidence/infra-evidence-mermaid-api")>();
+
+  return {
+    ...actual,
+    fetchInfraEvidenceMermaidPreview: fetchInfraEvidenceMermaidPreviewMock,
+    fetchInfraEvidenceMermaidRender: fetchInfraEvidenceMermaidRenderMock,
+    downloadInfraEvidenceMermaidPng: downloadInfraEvidenceMermaidPngMock,
+    formatInfraEvidenceMermaidApiError: (error: unknown) => String(error),
+  };
+});
 
 vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({
   ArchitectureDiagramViewer: (props: { scopeContextLine?: string | null; mermaidSource?: string }) => (
@@ -2578,5 +2583,175 @@ describe("DiagramsWorkbenchClient", () => {
       expect(mermaid).toContain("snapshot-b-marker");
       expect(mermaid).not.toContain("stale-snapshot-a-marker");
     });
+  });
+
+  it("drops stale resource group picker rows when URL snapshot id changes before preview fetch completes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    let resolveSlowSnapshotA: (() => void) | undefined;
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    const buildPreviewWithResourceGroup = (snapshotId: string, resourceGroupName: string) => ({
+      snapshotId,
+      modes: [
+        {
+          mode: "full",
+          status: "Partitioned",
+          nodeCount: 10,
+          edgeCount: 5,
+          mermaid: null,
+          fallbackArtifacts: [
+            {
+              key: `resourceGroup:${resourceGroupName}`,
+              label: resourceGroupName,
+              status: "Succeeded",
+              nodeCount: 3,
+              edgeCount: 1,
+            },
+          ],
+        },
+      ],
+      completenessWarnings: [],
+    });
+
+    fetchInfraEvidenceMermaidPreviewMock.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === snapshotA) {
+        await new Promise<void>((resolve) => {
+          resolveSlowSnapshotA = resolve;
+        });
+      }
+
+      return buildPreviewWithResourceGroup(
+        snapshotId,
+        snapshotId === snapshotA ? "rg-snapshot-a-only" : "rg-snapshot-b-only",
+      );
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}`);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await selectDiagramsSubscription("sub-1");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-resource-group-picker")).toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&diagramSubscription=sub-1`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-resource-group-picker");
+      expect(within(picker).getByRole("option", { name: "rg-snapshot-b-only" })).toBeInTheDocument();
+      expect(within(picker).queryByRole("option", { name: "rg-snapshot-a-only" })).not.toBeInTheDocument();
+    });
+
+    await act(async () => {
+      resolveSlowSnapshotA?.();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-resource-group-picker");
+      expect(within(picker).queryByRole("option", { name: "rg-snapshot-a-only" })).not.toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "rg-snapshot-b-only" })).toBeInTheDocument();
+    });
+  });
+
+  it("drops stale dependency neighborhood render when seed clears before the prior request completes", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+    let resolveSlowNeighborhood: (() => void) | undefined;
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId: string, query) => {
+      if (query.mode === "dependencyNeighborhood" && query.seedNodeId === seedArm) {
+        await new Promise<void>((resolve) => {
+          resolveSlowNeighborhood = resolve;
+        });
+
+        return {
+          snapshotId,
+          mode: "dependencyNeighborhood",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: 'flowchart TD\n    n_stale["stale-neighborhood-seed-marker"]',
+          metrics: {
+            nodeCount: 2,
+            edgeCount: 1,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 200,
+            layoutEstimate: 100,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_catalog["catalog-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotId,
+        expect.objectContaining({ mode: "dependencyNeighborhood", seedNodeId: seedArm }),
+      );
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue("");
+    });
+
+    await act(async () => {
+      resolveSlowNeighborhood?.();
+      await Promise.resolve();
+    });
+
+    const viewer = screen.queryByTestId("architecture-diagram-viewer-mock");
+    const mermaid = viewer?.getAttribute("data-mermaid") ?? "";
+
+    expect(mermaid).not.toContain("stale-neighborhood-seed-marker");
+    expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue("");
   });
 });

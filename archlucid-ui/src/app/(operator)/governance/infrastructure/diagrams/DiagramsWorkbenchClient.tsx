@@ -47,6 +47,7 @@ import {
   fetchInfraEvidenceMermaidPreview,
   fetchInfraEvidenceMermaidRender,
   formatInfraEvidenceMermaidApiError,
+  infraEvidenceMermaidRenderQueriesEqual,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
 import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
@@ -518,6 +519,7 @@ export function DiagramsWorkbenchClient() {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const selectedSnapshotIdRef = useRef(selectedSnapshotId);
   selectedSnapshotIdRef.current = selectedSnapshotId;
+  const renderQueryRef = useRef<InfraEvidenceMermaidRenderQuery | null>(null);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -1333,6 +1335,8 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setRenderResult(null);
     setLoadError(null);
+    setSubscriptionResourceGroupArtifacts([]);
+    setModePreviews([]);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
@@ -1831,20 +1835,21 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadPreview() {
       setLoadingPreview(true);
       setLoadError(null);
 
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(selectedSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setModePreviews(preview.modes ?? []);
           setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
           setSnapshotCompletenessWarnings([]);
@@ -1874,18 +1879,19 @@ export function DiagramsWorkbenchClient() {
     }
 
     let cancelled = false;
+    const requestSnapshotId = resourceGroupSnapshotId;
 
     async function loadSubscriptionResourceGroups() {
       try {
-        const preview = await fetchInfraEvidenceMermaidPreview(resourceGroupSnapshotId, mermaidPreviewQuery);
+        const preview = await fetchInfraEvidenceMermaidPreview(requestSnapshotId, mermaidPreviewQuery);
         const previewArtifacts = (preview.modes ?? []).flatMap((modePreview) => modePreview.fallbackArtifacts ?? []);
         const artifacts = resolveInfraDiagramsResourceGroupFallbackArtifacts(previewArtifacts);
 
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts(artifacts);
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setSubscriptionResourceGroupArtifacts([]);
         }
       }
@@ -1905,6 +1911,8 @@ export function DiagramsWorkbenchClient() {
   ]);
 
   useEffect(() => {
+    renderQueryRef.current = renderQuery;
+
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setRenderResult(null);
       return;
@@ -1928,7 +1936,11 @@ export function DiagramsWorkbenchClient() {
       try {
         const response = await fetchInfraEvidenceMermaidRender(requestSnapshotId, activeRenderQuery);
 
-        if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setRenderResult(response);
 
           if (
@@ -1942,7 +1954,11 @@ export function DiagramsWorkbenchClient() {
           }
         }
       } catch (error: unknown) {
-        if (!cancelled) {
+        if (
+          !cancelled
+          && requestSnapshotId === selectedSnapshotIdRef.current
+          && infraEvidenceMermaidRenderQueriesEqual(activeRenderQuery, renderQueryRef.current)
+        ) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setRenderResult(null);
         }
