@@ -34,6 +34,7 @@ import { toMockBuyerRunDetailSummary } from "./fixtures/buyer-run-detail-summary
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import type { RunDetail } from "@/types/authority";
+import type { CoveragePreviewResponse } from "@/lib/api/coverage-preview-api";
 
 import {
   getEmptyGraphViewModelJson,
@@ -432,6 +433,24 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           referencedFindings: [] as string[],
           referencedArtifacts: [] as string[],
         });
+        return;
+      }
+
+      // Production exposes a read-only POST 200. The offline mock has no
+      // evaluated coverage, so return an explicitly empty, schema-complete
+      // disclosure instead of fabricating assignments or returning HTTP 405.
+      if (req.method === "POST" && pathname === "/v1/governance/coverage/preview") {
+        const preview: CoveragePreviewResponse = {
+          focusedPilotModeEnabled: false,
+          summaryLine: "Mock workspace: policy-pack coverage was not evaluated.",
+          providerNeutralBaselineCount: 0,
+          organizationRequiredCount: 0,
+          platformOverlayCount: 0,
+          contextualRecommendedCount: 0,
+          additionalOptionalCount: 0,
+          assignments: [],
+        };
+        sendJson(res, 200, preview);
         return;
       }
 
