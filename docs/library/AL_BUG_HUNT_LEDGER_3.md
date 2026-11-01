@@ -2588,6 +2588,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-11-01 seed hunt (seed-only): zone cooled but hypothesis list empty (cooldown waived). Reread `decideHostGateRedirect`, `normalizeHostGatePathname`, marketing/operator prefix matrices, trailing-dot host parity, `/api/proxy` marketing stay-put contract, and legacy bookmark coverage against traffic workbook exports. No new reachable mechanism-backed row met the hunt-ready bar; existing regressions cover duplicate-slash, dot-segment, percent-decode, casing, trailing-slash marketing handoff, and query preservation. Host-gate vitest passed **25/25**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments.
+- [ ] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments.
+- [ ] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions.
+- [ ] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair.
+- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process).
+
 2026-10-31 seed hunt (seed-only): reviewed the complete host-gate decision matrix again, including configured-origin precedence, `www` equivalence, non-default ports, invalid Host fallback, decoded path normalization, API proxy exclusions, and legacy operator handoff. All reachable branches are covered by the existing contract tests or conservatively return `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
 
 2026-10-31 seed hunt (seed-only): reread the host-gate classifier and redirect decision with emphasis on malformed Host parsing, www equivalence, port preservation, delimiter decoding, and operator/marketing prefix boundaries. Existing tests cover the reachable normalization paths and malformed inputs conservatively fall through to `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
@@ -2706,10 +2714,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
