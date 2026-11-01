@@ -37,6 +37,7 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     [Theory]
     [InlineData("https://[::1]/container/run.zip?sas=token")]
     [InlineData("https://[fd00::1]/container/run.zip?sas=token")]
+    [InlineData("https://[::ffff:127.0.0.1]/container/run.zip?sas=token")]
     public void TryGetRejectionReason_WhenIpv6LiteralHost_RejectsPrivateOrLoopback(string url)
     {
         AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)

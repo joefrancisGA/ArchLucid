@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 
 using ArchLucid.Api.Controllers.Authority;
@@ -174,6 +175,24 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
         linked.AddLast((string)null!);
 
         ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(linked).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_bag_without_body_parameter()
+    {
+        ConcurrentBag<string> bag = new();
+        bag.Add(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(bag).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_queue_without_body_parameter()
+    {
+        ConcurrentQueue<string> queue = new();
+        queue.Enqueue(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(queue).Should().BeTrue();
     }
 
     [Fact]
