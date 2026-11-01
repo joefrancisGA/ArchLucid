@@ -2442,3 +2442,4 @@
 {"at":"2026-11-01T18:39:08.1224949Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:42:28.0257362Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:47:07.6861880Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:51:46.8718492Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
