@@ -2866,7 +2866,7 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams(
       `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
     );
-    render(<DiagramsWorkbenchClient />);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {
       expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
@@ -2875,13 +2875,16 @@ describe("DiagramsWorkbenchClient", () => {
       );
     });
 
-    // While the neighborhood fetch is in flight, a self-generated display
-    // option patch rebuilds the query string without seedNodeId; until the
-    // router catches up the observed URL matches the pending self-generated
-    // patch, so the applied seed and its in-flight render are preserved.
+    routerReplaceMock.mockImplementation((href: string) => {
+      const queryStart = href.indexOf("?");
+      searchParams = new URLSearchParams(queryStart >= 0 ? href.slice(queryStart + 1) : "");
+    });
+
     fireEvent.click(screen.getByTestId("infra-diagrams-show-private-endpoints"));
+    rerender(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {
+      expect(searchParams.get("seedNodeId")).toBe(seedArm);
       expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
     });
 
