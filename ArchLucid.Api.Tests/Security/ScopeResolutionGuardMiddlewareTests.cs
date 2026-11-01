@@ -221,6 +221,7 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [InlineData("/health//live")]
     [InlineData("/health/./live")]
     [InlineData("//health//ready")]
+    [InlineData("/health/live/.")]
     public async Task InvokeAsync_staging_host_does_not_skip_health_probe_with_empty_or_dot_segments(string path)
     {
         DefaultHttpContext context = CreateContext(path);
@@ -486,6 +487,27 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_ready_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/READY");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health ready probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments()
     {
         DefaultHttpContext context = CreateContext("/health/ready/../live");
@@ -587,6 +609,28 @@ public sealed class ScopeResolutionGuardMiddlewareTests
 
         nextCalled.Should().BeFalse(
             "encoded slash segments do not match the /health/ready probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_scim_v2_prefix_path()
+    {
+        DefaultHttpContext context = CreateContext("/scim%2Fv2/Users");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded slash segments do not match the /scim prefix skip used for SCIM reauthentication");
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
