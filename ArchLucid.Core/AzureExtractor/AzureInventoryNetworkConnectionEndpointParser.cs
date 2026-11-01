@@ -80,21 +80,17 @@ public static class AzureInventoryNetworkConnectionEndpointParser
             return null;
         }
 
-        string working = armId.Trim();
+        string trimmed = armId.Trim();
 
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
         {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
+            return TryReadArmIdFromJson(trimmed);
         }
+
+        string working = trimmed.StartsWith("%7B", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("%2F", StringComparison.OrdinalIgnoreCase)
+            ? PercentDecodeBounded(trimmed)
+            : trimmed;
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
@@ -108,6 +104,27 @@ public static class AzureInventoryNetworkConnectionEndpointParser
         }
 
         return ArmResourceIdNormalizer.Normalize(working);
+    }
+
+    private static string PercentDecodeBounded(string value)
+    {
+        const int maxPercentDecodePasses = 8;
+
+        string working = value;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
     }
 
     private static string? TryReadArmIdFromJson(string json)
