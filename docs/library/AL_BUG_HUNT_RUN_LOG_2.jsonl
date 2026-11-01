@@ -2438,3 +2438,5 @@
 {"at":"2026-11-01T18:11:30.8082001Z","zoneId":"identity-provider-config","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:17:57.5086382Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T18:29:54.5553181Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:39:08.1224949Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T18:42:28.0257362Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
