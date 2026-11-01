@@ -6201,7 +6201,7 @@
 
 - [ ] (candidate) `ScimBearerAuthenticationHandler` — left three quarters block (`U+259A`) glued after `Bearer` — locus: placeholder set; reachability: proxy comma-fold monitor (seed **#61**).
 - [ ] (candidate) `ScimBearerAuthenticationHandler` — right three quarters block (`U+259B`) glued after `Bearer` — locus: dash normalization; reachability: proxy comma-fold monitor (seed **#61**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — fresh `auth_time` within window accepted — locus: primary clock path; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_auth_time_is_within_window`).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — fresh `auth_time` within window accepted — locus: primary clock path; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
 - [ ] (candidate) `PlatformUserAuthVersionValidator` — non-Guid local `sub` without auth-version allowed — locus: subject shape gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
 - [ ] (candidate) `LocalTrialJwtIssuer` — five-minute floor honored when exactly five minutes requested — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_honors_five_minute_floor_when_exactly_five_minutes_requested`).
 
