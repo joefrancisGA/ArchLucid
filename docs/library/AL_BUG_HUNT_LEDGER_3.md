@@ -2,6 +2,20 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — optional team size `min={1}` does not block empty optional values (`omits architecture team size key when optional field is an empty string`; schema skips bounds when trim empty); lone `"."` fails schema/`canSubmit` with valid-number readiness while builder omits key (`Enter a valid number for architecture team size`); verify navigation uses zod-trimmed `values.adminEmail` same as POST (`signupFormSchema trims padded required email on parse`; `trims padded work email in register POST JSON on UI submit`); industry Select clears `industryVerticalOther` on change (`re-enables submit after switching away from Other with an overlong specification`); success path intentionally keeps `registerInFlightRef` until navigation (`keeps Creating label on the submit button after successful register until navigation`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` — optional team size `Input` `min={1}` vs blank optional — **cheap-disproof 2026-11-01 thorough hunt:** empty string passes schema; builder omits key; no native constraint blocks submit.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — **cheap-disproof 2026-11-01 thorough hunt:** `Number(".")` non-finite; schema/readiness block submit before POST.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — verify query vs trimmed register email — **cheap-disproof 2026-11-01 thorough hunt:** `handleSubmit` values are schema-trimmed; POST trim regression covers same snapshot.
+- [x] (valid-no-repro) `SignupForm` industry `Select` — `industryVerticalOther` after leaving Other — **cheap-disproof 2026-11-01 thorough hunt:** `onValueChange` clears hidden field; regression `re-enables submit after switching away from Other with an overlong specification`.
+- [x] (valid-no-repro) `SignupForm` — `registerInFlightRef` after success when navigation hangs — **cheap-disproof 2026-11-01 thorough hunt:** intentional in-flight guard until route change; regression `keeps Creating label on the submit button after successful register until navigation`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `sessionStorage` last-registration JSON may store untrimmed `adminEmail` while POST used trimmed body — locus: success session write vs `buildSignupRegisterPayload`; input: padded work email that passes schema trim; wrong outcome: resume/verify helpers read mismatched email; reachability: compare session write to POST trim regression.
+- [ ] (candidate) `SignupForm` — optional `architectureTeamSize` `type="number"` may serialize browser empty as `null` in DOM while form state stays `""` — locus: controlled input vs RHF register; input: clear optional field via browser clear control; wrong outcome: schema sees non-empty sentinel; reachability: monitor empty-string builder regression.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid team size with collapsed optional `<details>` may hide field-level error while readiness mentions team size — locus: disclosure closed + readiness id; input: enter invalid team size without opening details; wrong outcome: operator only sees generic readiness; reachability: monitor TB-2010 readiness tests with details collapsed.
+- [ ] (candidate) `SignupForm` `onSubmit` — `showSuccess` toast failure after `201` may skip verify navigation while `registerCompletedRef` is set — locus: success ordering before `router.push`; input: toast throws after register succeeds; wrong outcome: tenant created but no verify route; reachability: monitor success-path navigation tests.
+- [ ] (candidate) `buildSignupRegisterPayload` — interior Unicode line separator in optional team size — locus: trim vs `Number()`; input: paste `\u2028` padded digits; wrong outcome: divergent schema vs payload bounds; reachability: monitor Unicode whitespace trim regressions for required fields.
+
 2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, `buildSignupRegisterPayload`, and attribution/session paths; cheap-disproof closed all five (fractional team size blocked by schema/readiness without needing `step={1}`; `+010`/`010` leading-zero parsing covered by builder regressions; `409` returns before success session writes; first-touch serialization failure is non-blocking per existing non-Latin1 cookie test; unsupported-character readiness for full name precedes generic max-length copy in `deriveSignupFormReadinessMessage`). No row met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` — optional team size omits `step={1}` — **cheap-disproof 2026-11-01 seed hunt (pass 3):** fractional values fail schema and TB-2010 readiness (`shows whole-number readiness when optional architecture team size is fractional`); native spinner UX does not bypass submit gating.
@@ -10,11 +24,11 @@
 - [x] (valid-no-repro) `SignupForm` — first-touch header throws on every submit — **cheap-disproof 2026-11-01 seed hunt (pass 3):** catch omits header only; registration proceeds (`still posts register when first-touch cookie contains non-Latin1 UTM values`).
 - [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — bidi vs max-length ordering on full name — **cheap-disproof 2026-11-01 seed hunt (pass 3):** unsupported-character branch wins when message matches; regression `deriveSignupFormReadinessMessage surfaces unsupported-character guidance for full name`.
 
-- [ ] (candidate) `SignupForm` — optional team size `Input` sets `min={1}` while schema treats blank as omitted — locus: `#signup-architecture-team-size` number input; input: browser clears field to empty string after a valid integer; wrong outcome: native constraint fights optional empty value before schema runs; reachability: clear optional team size via keyboard after entering `12`.
-- [ ] (candidate) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — locus: `Number(teamTrim)` guard; input: paste `.` into optional team size; wrong outcome: payload omits field but readiness/error copy disagrees with visible input state; reachability: paste into optional number input.
-- [ ] (candidate) `SignupForm` `onSubmit` — verify navigation uses raw `values.adminEmail` while register payload used trimmed email — locus: `router.push` query vs POST body; input: leading/trailing whitespace in work email that passes trim on submit; wrong outcome: verify page query does not match registered address; reachability: paste padded email (monitor trim regressions).
-- [ ] (candidate) `SignupForm` industry `Select` — switching away from `Other` leaves `industryVerticalOther` in form state until blur — locus: `onValueChange` clearing; input: fill Other specification then pick a catalog industry; wrong outcome: hidden Other value still in resolver state and payload if submit fires before revalidation; reachability: rapid industry Select change then submit.
-- [ ] (candidate) `SignupForm` — `registerInFlightRef` stays true when `registerSucceeded` but `router.push` never resolves — locus: success path skips `finally` reset; input: hung navigation promise after `201`; wrong outcome: buyer cannot retry without refresh; reachability: monitor `keeps Creating label on the submit button after successful register until navigation` boundary tests.
+- [x] (superseded) `SignupForm` — optional team size `Input` sets `min={1}` while schema treats blank as omitted — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — verify navigation uses raw `values.adminEmail` while register payload used trimmed email — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` industry `Select` — switching away from `Other` leaves `industryVerticalOther` in form state until blur — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` — `registerInFlightRef` stays true when `registerSucceeded` but `router.push` never resolves — **superseded 2026-11-01 thorough hunt:** see closed row above.
 
 2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, and existing in-flight/readiness regressions; cheap-disproof closed all five (hex/scientific `Number()` parsing, raw non-ok proxy bodies, devtools-only enum tampering, collapsed optional `<details>` with TB-2010 readiness copy, and duplicate submit while in flight). No row met the hunt-ready bar for promotion; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
 
@@ -408,9 +422,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
