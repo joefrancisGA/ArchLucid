@@ -136,6 +136,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Marketability | [securenow-marketability-00-index.md](../../.cursor/prompts/securenow-marketability-00-index.md) | **SN-MKT-01–11** shipped + hold | [`SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_MARKETABILITY_COMPOSER_PROMPTS.md) |
 | Accessibility | [securenow-accessibility-00-index.md](../../.cursor/prompts/securenow-accessibility-00-index.md) | **SN-A11Y-01–04** + hold | [`SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ACCESSIBILITY_COMPOSER_PROMPTS.md) |
 | Customer self-sufficiency | [securenow-self-00-index.md](../../.cursor/prompts/securenow-self-00-index.md) | **SN-SELF-01–04** not started + hold | [`SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_SELF_SUFFICIENCY_COMPOSER_PROMPTS.md) |
+| Cutting-edge AI | [securenow-cutting-edge-00-index.md](../../.cursor/prompts/securenow-cutting-edge-00-index.md) | **SN-CE-01–04** not started + hold | [`SECURENOW_CUTTING_EDGE_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_CUTTING_EDGE_COMPOSER_PROMPTS.md) |
 
 ---
 
