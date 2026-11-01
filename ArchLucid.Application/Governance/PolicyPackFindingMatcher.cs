@@ -68,6 +68,7 @@ internal static class PolicyPackFindingMatcher
 
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
     {
+        policyRuleId = policyRuleId.Trim();
         int index = 0;
 
         while (index <= policyRuleId.Length - ruleKey.Length)
@@ -88,18 +89,16 @@ internal static class PolicyPackFindingMatcher
 
     private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
     {
-        if (index > 0 && IsRuleIdContinuation(policyRuleId[index - 1]))
+        // Only supported wrappers may surround a contained key: string start/end, engine prefix ':' and
+        // evidence-style '|'. Everything else ('.', '-', letters, digits, ...) is part of the rule key
+        // itself, so cis-azure-1.2.1 / cis-azure-1.2-extra never match the distinct key cis-azure-1.2.
+        if (index > 0 && policyRuleId[index - 1] is not (':' or '|'))
             return false;
 
         int after = index + ruleKeyLength;
 
-        return after >= policyRuleId.Length || !IsRuleIdContinuation(policyRuleId[after]);
+        return after >= policyRuleId.Length || policyRuleId[after] is ':' or '|';
     }
-
-    // Periods and underscores separate sub-rule suffixes (cis-azure-1.2 vs cis-azure-1.2.1 /
-    // cis-azure-1.2_extra), so they continue the rule id instead of delimiting the assigned key.
-    private static bool IsRuleIdContinuation(char value) =>
-        char.IsLetterOrDigit(value) || value is '.' or '_';
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
     {
