@@ -75,6 +75,50 @@ public sealed class PolicyPackFindingMatcherTests
     }
 
     [Fact]
+    public void MatchesAssignment_does_not_match_dot_extension_rule_id_for_assignment_key()
+    {
+        Guid packId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-dot-extension",
+            PolicyRuleId = "cis-azure-1.2.1",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "distinct rule ids that extend the assignment key with identifier punctuation must not match");
+    }
+
+    [Fact]
+    public void MatchesAssignment_does_not_match_underscore_extension_rule_id_for_assignment_key()
+    {
+        Guid packId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-underscore-extension",
+            PolicyRuleId = "cis-azure-1.2_extra",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "distinct rule ids that extend the assignment key with identifier punctuation must not match");
+    }
+
+    [Fact]
     public void MatchesAssignment_treats_canonical_n_policy_pack_id_property_as_equivalent_to_assignment()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

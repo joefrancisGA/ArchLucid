@@ -88,12 +88,17 @@ internal static class PolicyPackFindingMatcher
 
     private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
     {
-        if (index > 0 && char.IsLetterOrDigit(policyRuleId[index - 1]))
+        if (index > 0 && !IsWrapperDelimiter(policyRuleId[index - 1]))
             return false;
 
         int after = index + ruleKeyLength;
 
-        return after >= policyRuleId.Length || !char.IsLetterOrDigit(policyRuleId[after]);
+        return after >= policyRuleId.Length || IsWrapperDelimiter(policyRuleId[after]);
+    }
+
+    private static bool IsWrapperDelimiter(char value)
+    {
+        return char.IsWhiteSpace(value) || value is ':' or '/' or '-';
     }
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
