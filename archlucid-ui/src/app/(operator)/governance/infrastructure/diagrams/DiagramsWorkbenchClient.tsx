@@ -609,6 +609,8 @@ export function DiagramsWorkbenchClient() {
     setSelectedSubscriptionFilter(urlSubscriptionFilter);
   }, [urlSubscriptionFilter]);
 
+  const lastSelfGeneratedUrlRef = useRef<string | null>(null);
+
   const syncUrl = useCallback(
     (patch: {
       snapshotId?: string;
@@ -623,7 +625,10 @@ export function DiagramsWorkbenchClient() {
       includeAvdAssets?: boolean;
       evidenceFamily?: string;
     }) => {
-      router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
+      const href = infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname);
+
+      lastSelfGeneratedUrlRef.current = href;
+      router.replace(href, {
         scroll: false,
       });
     },
@@ -641,6 +646,10 @@ export function DiagramsWorkbenchClient() {
   appliedSeedNodeIdRef.current = appliedSeedNodeId;
   const selectedSnapshotIdForSeedRef = useRef(selectedSnapshotId);
   selectedSnapshotIdForSeedRef.current = selectedSnapshotId;
+  const currentUrlRef = useRef("");
+  currentUrlRef.current = `${pathname}?${searchParams.toString()}`;
+  const lastConsumedUrlRef = useRef("");
+  const selfGeneratedPatchPendingRef = useRef(false);
 
   useEffect(() => {
     const priorSnapshotId = priorUrlSnapshotIdRef.current;
@@ -686,17 +695,26 @@ export function DiagramsWorkbenchClient() {
     const trimmedUrlSeed = urlSeedNodeId.trim();
 
     if (trimmedUrlSeed.length === 0) {
-      // Unrelated URL patches (display options, automatic subscription
-      // filter) rebuild the query string and can briefly omit seedNodeId.
-      // Preserve the applied seed only when the URL previously carried that
-      // same seed (a transient omission); a URL that switched seeds or an
-      // explicit snapshot/subscription reset still clears it. Restore the
-      // param so the neighborhood render survives the router round trip.
+      // Self-generated URL patches (display options, automatic subscription
+      // filter) rebuild the query string and can briefly omit seedNodeId
+      // while the router catches up. Only treat an empty URL seed as that
+      // transient omission when the current URL still matches the pending
+      // self-generated patch; back/soft navigation to the same snapshot
+      // without seedNodeId is an intentional seed removal that returns to
+      // the seed-required state.
+      const currentUrl = currentUrlRef.current;
+
+      if (currentUrl !== lastConsumedUrlRef.current) {
+        lastConsumedUrlRef.current = currentUrl;
+        selfGeneratedPatchPendingRef.current = currentUrl === lastSelfGeneratedUrlRef.current;
+      }
+
       const trimmedAppliedSeed = appliedSeedNodeIdRef.current.trim();
       const renderedSnapshotId = selectedSnapshotIdForSeedRef.current;
 
       if (
-        trimmedAppliedSeed.length > 0
+        selfGeneratedPatchPendingRef.current
+        && trimmedAppliedSeed.length > 0
         && priorUrlSeedNodeId.trim() === trimmedAppliedSeed
         && renderedSnapshotId.length > 0
         && urlSnapshotId === renderedSnapshotId

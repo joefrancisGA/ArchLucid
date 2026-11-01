@@ -2866,7 +2866,7 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams(
       `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
     );
-    const { rerender } = render(<DiagramsWorkbenchClient />);
+    render(<DiagramsWorkbenchClient />);
 
     await waitFor(() => {
       expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
@@ -2875,11 +2875,11 @@ describe("DiagramsWorkbenchClient", () => {
       );
     });
 
-    // A URL that drops seedNodeId without a snapshot change is a transient
-    // omission (display-option or subscription patches rebuild the query
-    // string), so the applied seed and its in-flight render are preserved.
-    searchParams = new URLSearchParams(`snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`);
-    rerender(<DiagramsWorkbenchClient />);
+    // While the neighborhood fetch is in flight, a self-generated display
+    // option patch rebuilds the query string without seedNodeId; until the
+    // router catches up the observed URL matches the pending self-generated
+    // patch, so the applied seed and its in-flight render are preserved.
+    fireEvent.click(screen.getByTestId("infra-diagrams-show-private-endpoints"));
 
     await waitFor(() => {
       expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
@@ -2896,5 +2896,44 @@ describe("DiagramsWorkbenchClient", () => {
     });
 
     expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedArm);
+  });
+
+  it("returns to the seed-required state when same-snapshot navigation removes the seed", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const seedArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(seedArm)}`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(fetchInfraEvidenceMermaidRenderMock).toHaveBeenCalledWith(
+        snapshotId,
+        expect.objectContaining({ mode: "dependencyNeighborhood", seedNodeId: seedArm }),
+      );
+    });
+
+    routerReplaceMock.mockClear();
+
+    // History/soft navigation to the same snapshot and mode without
+    // seedNodeId is an intentional seed removal, not a transient omission,
+    // so the applied seed clears instead of being written back to the URL.
+    searchParams = new URLSearchParams(`snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue("");
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-diagrams-seed-node-picker")).toBeInTheDocument();
+    });
+
+    const restoredSeedHref = routerReplaceMock.mock.calls
+      .map((call) => String(call[0] ?? ""))
+      .filter((href) => href.includes("seedNodeId="));
+
+    expect(restoredSeedHref).toEqual([]);
   });
 });
