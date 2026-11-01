@@ -12,24 +12,31 @@ internal static class PolicyPackFindingMatcher
         ArgumentNullException.ThrowIfNull(finding);
         ArgumentNullException.ThrowIfNull(assignment);
 
+        string? policyRuleId = string.IsNullOrWhiteSpace(finding.PolicyRuleId)
+            ? null
+            : finding.PolicyRuleId.Trim();
+
         if (assignment.ComplianceRuleKeys is { Count: > 0 } ruleKeys
-            && !string.IsNullOrWhiteSpace(finding.PolicyRuleId))
+            && policyRuleId is not null)
         {
             foreach (string ruleKey in ruleKeys)
             {
                 if (string.IsNullOrWhiteSpace(ruleKey))
                     continue;
 
-                if (string.Equals(finding.PolicyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(policyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
-                if (RuleIdentifierMatchesKey(finding.PolicyRuleId, ruleKey))
+                if (RuleIdentifierMatchesKey(policyRuleId, ruleKey))
+                    return true;
+
+                if (RuleKeyAppearsAsToken(policyRuleId, ruleKey))
                     return true;
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId)
-            && PolicyRuleIdReferencesPack(finding.PolicyRuleId, assignment.PolicyPackId))
+        if (policyRuleId is not null
+            && PolicyRuleIdReferencesPack(policyRuleId, assignment.PolicyPackId))
             return true;
 
         if (finding.Properties is not null
@@ -54,11 +61,12 @@ internal static class PolicyPackFindingMatcher
             return false;
 
         const string prefix = "policy-pack:";
+        string normalizedEngineType = engineType.Trim();
 
-        if (!engineType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        if (!normalizedEngineType.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return PackIdsEquivalent(engineType[prefix.Length..], packId);
+        return PackIdsEquivalent(normalizedEngineType[prefix.Length..], packId);
     }
 
     private static bool RuleIdentifierMatchesKey(string policyRuleId, string ruleKey)
@@ -88,6 +96,40 @@ internal static class PolicyPackFindingMatcher
             return policyRuleId[(guidStart + 33)..];
 
         return policyRuleId;
+    }
+
+    private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
+    {
+        policyRuleId = policyRuleId.Trim();
+        int index = 0;
+
+        while (index <= policyRuleId.Length - ruleKey.Length)
+        {
+            index = policyRuleId.IndexOf(ruleKey, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (IsRuleKeyTokenBoundary(policyRuleId, index, ruleKey.Length))
+                return true;
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
+    {
+        // Only supported wrappers may surround a contained key: string start/end, engine prefix ':' and
+        // evidence-style '|'. Everything else ('.', '-', letters, digits, ...) is part of the rule key
+        // itself, so cis-azure-1.2.1 / cis-azure-1.2-extra never match the distinct key cis-azure-1.2.
+        if (index > 0 && policyRuleId[index - 1] is not (':' or '|'))
+            return false;
+
+        int after = index + ruleKeyLength;
+
+        return after >= policyRuleId.Length || policyRuleId[after] is ':' or '|';
     }
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)

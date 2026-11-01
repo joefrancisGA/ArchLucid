@@ -6,7 +6,9 @@ import {
   getGoogleOidcScopes,
   getOidcAuthority,
   getOidcClientId,
+  getOidcPostLogoutRedirectUri,
   getOidcRedirectUri,
+  getOidcScopes,
 } from "@/lib/oidc/config";
 
 describe("oidc config env normalization", () => {
@@ -20,6 +22,14 @@ describe("oidc config env normalization", () => {
 
     expect(getOidcAuthority()).toBe("https://login.example.com/tenant");
     expect(getOidcClientId()).toBe("client-1");
+  });
+
+  it("strips soft hyphens from OIDC client id and redirect URI env overrides", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_CLIENT_ID", "client\u00AD1");
+    vi.stubEnv("NEXT_PUBLIC_OIDC_REDIRECT_URI", "https://app.example/call\u00ADback");
+
+    expect(getOidcClientId()).toBe("client1");
+    expect(getOidcRedirectUri()).toBe("https://app.example/callback");
   });
 
   it("strips zero-width padding from Google OIDC env values", () => {
@@ -36,5 +46,19 @@ describe("oidc config env normalization", () => {
     vi.stubEnv("NEXT_PUBLIC_OIDC_REDIRECT_URI", "   \u200b  ");
 
     expect(getOidcRedirectUri()).toBe("http://localhost:3000/auth/callback");
+  });
+
+  it("strips soft hyphens from configured post-logout redirect URIs to match RP-initiated logout query values", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI", "https://app.example/\u00AD");
+
+    expect(getOidcPostLogoutRedirectUri()).toBe("https://app.example/");
+  });
+
+  it("strips soft hyphens from OIDC and Google scope env overrides before authorize", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_SCOPES", "openid\u00AD profile offline_access");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_SCOPES", "openid\u00AD email");
+
+    expect(getOidcScopes()).toBe("openid profile offline_access");
+    expect(getGoogleOidcScopes()).toBe("openid email");
   });
 });
