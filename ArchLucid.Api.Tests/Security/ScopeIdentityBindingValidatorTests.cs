@@ -361,6 +361,28 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void Validate_rejects_tenant_header_when_first_parseable_segment_disagrees_even_when_later_segment_matches_claim()
+    {
+        Guid claimTenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid hostileTenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", claimTenantId.ToString("D"))],
+                "Bearer"))
+        };
+        http.Request.Headers.Append("x-tenant-id", hostileTenantId.ToString("D"));
+        http.Request.Headers.Append("x-tenant-id", claimTenantId.ToString("D"));
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeFalse(
+            "TryParseHeaderGuid uses the first parseable header segment, not a later matching segment");
+    }
+
+    [SkippableFact]
     public void Validate_allows_matching_tenant_header_when_claim_uses_braced_guid_format()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
