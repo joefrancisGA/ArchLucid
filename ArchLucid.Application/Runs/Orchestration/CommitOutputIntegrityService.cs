@@ -119,13 +119,6 @@ public sealed class CommitOutputIntegrityService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
-                _agentExecutionTraceRepository,
-                scope,
-                canonicalRunId,
-                cancellationToken);
 
         IReadOnlyList<string> architectureVersionPinReasons =
             await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(
@@ -140,6 +133,14 @@ public sealed class CommitOutputIntegrityService(
 
         if (architectureVersionPinReasons.Count > 0)
             throw new ConflictException(architectureVersionPinReasons[0]);
+
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                _agentExecutionTraceRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken);
 
         if (Guid.TryParseExact(runId, "N", out Guid runGuidForCreateTimePins) || Guid.TryParse(runId, out runGuidForCreateTimePins))
         {

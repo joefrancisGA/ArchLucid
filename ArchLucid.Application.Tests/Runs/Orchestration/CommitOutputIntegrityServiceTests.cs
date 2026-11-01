@@ -239,6 +239,12 @@ public sealed class CommitOutputIntegrityServiceTests
         qualityResolver.Verify(
             resolver => resolver.Resolve(It.IsAny<CancellationToken>()),
             Times.Never);
+        traces.Verify(
+            repository => repository.GetByRunIdAsync(
+                TestScope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private static IReadOnlyList<StageTimelineSummary> SucceededAuthorityStages()
