@@ -2620,22 +2620,36 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — cap-only zero PUT persisted while auto-replenish stayed enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
 
+2026-11-01 thorough hunt (dry #50): cheap-disproof closed five open `(candidate)` monitor rows from dry **#49** reseed — **valid-no-repro** post-update audit cancel after durable settings update (SCIM seat / api-key rotate audit class; dry **#45**–**#48**); **valid-no-repro** null PUT body returns **400** before service (`PutAsync_returns_bad_request_when_body_is_null`); **valid-no-repro** invalid monthly cap step rejected at consume stage (`UpdateWalletAsync_rejects_invalid_monthly_cap_step`); **valid-no-repro** stale non-empty `ExpectedRowVersion` immediate **409** without server retry (intentional client refresh; dry **#46**–**#49**); **valid-no-repro** Reader **403** on PUT / Admin **200** on GET by design (hit **2026-10-09** — `PutAsync_returns_403_for_reader_role`, `GetAsync_returns_wallet_for_reader_role`); reseeded five follow-on `(candidate)` rows; scoped **52/52** `LlmTenantWalletServiceTests`, **2/2** `WalletControllerUnitTests`. Private beta: n/a.
+
+- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — locus: ~76–88; input: canceled token mid-service; reachability: Billing PUT under load (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — malformed `RowVersionBase64` returns validation problem before `UpdateWalletAsync` — locus: ~73–74; input: invalid base64; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — `MonthlyCapUsd` above catalog max rejected at consume stage — locus: `IsValidMonthlyCap`; input: cap over max; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `WalletController.PutAsync` — omitted `RowVersionBase64` uses empty expected version and last-write-wins under concurrent admin saves — locus: ~139–144; input: parallel PUTs without row version; reachability: Billing wallet save (monitor).
+- [ ] (candidate) `WalletController.GetAsync` — cooperative cancel during `GetWalletAsync` propagates without controller catch — locus: GET path; input: canceled token; reachability: Billing GET under load (monitor).
+
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — **cheap-disproof 2026-11-01 thorough hunt #50:** SCIM seat audit class; dry **#45**–**#48** diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `PutAsync_returns_bad_request_when_body_is_null`.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — **cheap-disproof 2026-11-01 thorough hunt #50:** regression `UpdateWalletAsync_rejects_invalid_monthly_cap_step`.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional stale-version **409**; client refresh contract.
+- [x] (valid-no-repro) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional authz split (hit **2026-10-09**); `PutAsync_returns_403_for_reader_role` / `GetAsync_returns_wallet_for_reader_role`.
+
 2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` monitor rows from dry **#48** reseed — **valid-no-repro** cooperative cancel during pre-audit `UpdateWalletAsync` (intentional host cancel; parity GET / scim-users **#50**); **valid-no-repro** optimistic retry exhaustion returns null → HTTP **409** (dry **#43** / settlement re-queue class); **valid-no-repro** explicit enable with `MonthlyCapUsd = 0` on fresh wallet rejected at consume enable pre-check (`UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings`, sibling `UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`); **invalid** undifferentiated `ConflictProblem` copy for validation vs stale row version (single operator retry message by design); **valid-no-repro** GET cancel during `GetWalletAsync` (dry **#48**, hit **#44**); reseeded five follow-on `(candidate)` rows; scoped **52/52** `LlmTenantWalletServiceTests`. Private beta: n/a.
 
-- [ ] (candidate) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — locus: ~97–117; input: aborted connection during audit; reachability: Billing PUT under load (monitor).
-- [ ] (candidate) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — locus: ~68–69; input: empty PUT body; reachability: Billing wallet save (monitor).
-- [ ] (candidate) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — locus: consume `IsValidMonthlyCap`; input: cap not on `$50` step; reachability: Billing wallet save (monitor).
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — locus: ~55–56; input: client row version drift; reachability: Billing PUT **409** (monitor).
-- [ ] (candidate) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — locus: class `AuthenticatedUserOnly` + action `AdminAuthority`; input: Reader role save attempt; reachability: Billing authz (monitor; hit **2026-10-09**).
+- [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during post-update `IAuditService.LogAsync` after successful settings persist — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — null request body returns validation problem before `UpdateWalletAsync` — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `LlmTenantWalletService.UpdateWalletAsync` — cap-only PUT with invalid monthly cap step rejected at consume stage — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — stale non-empty `ExpectedRowVersion` returns null on first loop iteration without retry — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
+- [x] (valid-no-repro) `WalletController.PutAsync` — reader JWT receives **403** on wallet settings PUT while GET remains **200** — **cheap-disproof 2026-11-01 thorough hunt #50:** see dry #50 diary.
 
 - [x] (valid-no-repro) `WalletController.PutAsync` — cooperative cancel during pre-audit `UpdateWalletAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #49:** intentional cooperative cancel; dry **#48** GET/PUT cancel class.
 - [x] (valid-no-repro) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — optimistic retry loop returns null after `MaxOptimisticRetries` under rowversion churn — **cheap-disproof 2026-11-01 thorough hunt #49:** exhausted retries → service null → HTTP **409**; dry **#43** diary.
@@ -5628,13 +5642,13 @@
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 77
+- **hunts:** 78
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 - [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
@@ -5757,21 +5771,33 @@
 
 ### Hypotheses
 
+2026-11-01 thorough hunt (dry #78): cheap-disproof closed five open `(candidate)` monitor rows from dry **#77** reseed — **invalid** mixed-case `/HEALTH/LIVE` miss (`StartsWithSegments` uses `OrdinalIgnoreCase` — regression `InvokeAsync_staging_host_skips_mixed_case_health_live_path`; seed **#220** openapi parity); **valid-no-repro** uppercase `/SCIM/v2` prefix skip (`SafeStartsWithSegments` ordinal-ignore-case — regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`, seed **#216**); **valid-no-repro** `/health/ready/../live` parent segment (`ApiPathSkipSafety` blocks `..` before probe skip — regressions `InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments` and `InvokeAsync_staging_host_does_not_skip_health_live_parent_segment_escape`); **valid-no-repro** `/internal/../` traversal inherits internal skip (`BlocksPathBasedSkip` fail-closes `..` — regression `OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding`, seed **#216**); **invalid** second matching `x-tenant-id` segment steers when first parseable disagrees (`TryParseHeaderGuid` first-parseable wins — regression `Validate_rejects_tenant_header_when_first_parseable_segment_disagrees_even_when_later_segment_matches_claim`; seed **#216** first-unparseable allow path is distinct); reseeded five follow-on `(candidate)` rows; scoped filter **160/166** (6 SQL integration unavailable). Private beta: n/a.
+
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/READY` may miss anonymous ready probe skip — locus: ~86–90; input: uppercase ready prefix; reachability: load-balancer probe paths (monitor).
+- [ ] (candidate) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — literal `/scim%2Fv2` may skip SCIM reauthentication without decoding — locus: `SafeStartsWithSegments` on raw path; input: encoded slash in SCIM prefix; reachability: SCIM path (monitor).
+- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — mixed-case `/Internal/` prefix with parent-segment escape may still skip binding — locus: ~62–68; input: `/Internal/../v1/...`; reachability: forged admin URL (monitor; `ApiPathSkipSafety`).
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — `/health/live/.` trailing dot segment may classify as anonymous live probe — locus: ~118–140; input: dot suffix segment; reachability: forged probe URL (monitor; empty/dot segment hunts **#5156** class).
+- [ ] (candidate) `ScopeIdentityBindingValidator.HeaderHasDuplicateParseableGuids` — duplicate parseable `x-tenant-id` where only the second segment matches claim may pass `Validate` when duplicates are comma-joined in one header value — locus: ~204–225; input: `StringValues` comma join; reachability: TB-072 steering (monitor).
+
+- [x] (invalid) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE` may miss anonymous live probe skip when only lowercase segments are documented — **cheap-disproof 2026-11-01 thorough hunt #78:** regression `InvokeAsync_staging_host_skips_mixed_case_health_live_path`.
+- [x] (valid-no-repro) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — `/SCIM/v2/Users` mixed-case prefix may skip SCIM reauthentication before TB-072 validation — **cheap-disproof 2026-11-01 thorough hunt #78:** regression `InvokeAsync_unauthenticated_scim_path_with_uppercase_prefix_authenticates_scim_bearer`.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — `/health/ready/../live` parent-segment escape after normalization — **cheap-disproof 2026-11-01 thorough hunt #78:** regressions `InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments` and parent-escape class.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter.ShouldSkip` — `/internal/../v1/admin` traversal may skip binding via substring `/internal/` match — **cheap-disproof 2026-11-01 thorough hunt #78:** regression `OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding`.
+- [x] (invalid) `ScopeIdentityBindingValidator.ValidateDimension` — duplicate parseable `x-tenant-id` values where first segment disagrees with claim but second matches may pass — **cheap-disproof 2026-11-01 thorough hunt #78:** regression `Validate_rejects_tenant_header_when_first_parseable_segment_disagrees_even_when_later_segment_matches_claim`.
+
 2026-11-01 thorough hunt (dry #77): cheap-disproof closed five open `(candidate)` rows from seed **#76** — **invalid** literal `/health%2F` and `/health%2Fversion` do not decode into aggregate or version probe skips (fail-closed TB-304 — regressions `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path` and `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path`); **invalid** `/health/version/` miss (`NormalizeProbePath` collapses trailing slash — regression `InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path`); **invalid** `{tenantGuid}` bypass (no `{tenantGuid}` API routes — regression `OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid` documents `tenantId`-only contract); **valid-no-repro** duplicate `tenant_id` claims with hostile header matching later claim (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`); seeded five follow-on `(candidate)` rows; scoped filter **157/163** (6 SQL integration unavailable). Private beta: n/a.
 
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE` may miss anonymous live probe skip when only lowercase segments are documented — locus: ~86–90; input: uppercase health prefix; reachability: load-balancer probe paths (monitor; `StartsWithSegments` case sensitivity).
-- [ ] (candidate) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — `/SCIM/v2/Users` mixed-case prefix may skip SCIM reauthentication before TB-072 validation — locus: ~62–63; input: uppercase SCIM prefix; reachability: SCIM path (monitor; `SafeStartsWithSegments` contract).
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — `/health/ready/../live` parent-segment escape after normalization — locus: ~118–140; input: dot-dot between probe segments; reachability: forged probe URL (monitor; parity `health/live/../v1/runs` rejection).
-- [ ] (candidate) `RouteTenantScopeBindingFilter.ShouldSkip` — `/internal/../v1/admin` traversal may skip binding via substring `/internal/` match — locus: ~62–68; input: parent escape after internal prefix; reachability: forged admin URL (monitor; `ApiPathSkipSafety` blocks `//`).
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateDimension` — duplicate parseable `x-tenant-id` values where first segment disagrees with claim but second matches may pass — locus: ~157–175 vs `TryParseHeaderGuid`; input: two GUID segments in one header; reachability: TB-072 header steering (monitor; first-parseable segment semantics).
+- [x] (invalid) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — mixed-case `/HEALTH/LIVE` may miss anonymous live probe skip when only lowercase segments are documented — **cheap-disproof 2026-11-01 thorough hunt #78:** see dry #78 diary.
+- [x] (valid-no-repro) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — `/SCIM/v2/Users` mixed-case prefix may skip SCIM reauthentication before TB-072 validation — **cheap-disproof 2026-11-01 thorough hunt #78:** see dry #78 diary.
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — `/health/ready/../live` parent-segment escape after normalization — **cheap-disproof 2026-11-01 thorough hunt #78:** see dry #78 diary.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter.ShouldSkip` — `/internal/../v1/admin` traversal may skip binding via substring `/internal/` match — **cheap-disproof 2026-11-01 thorough hunt #78:** see dry #78 diary.
+- [x] (invalid) `ScopeIdentityBindingValidator.ValidateDimension` — duplicate parseable `x-tenant-id` values where first segment disagrees with claim but second matches may pass — **cheap-disproof 2026-11-01 thorough hunt #78:** see dry #78 diary.
 
-- [x] (invalid) `ScopeResolutionGuardMiddleware.IsRootHealthAggregateProbe` — literal `/health%2F` may inherit anonymous root health skip without decoding to `/health` — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_root_health_path`.
+2026-11-01 seed hunt #76 (seed-only): seeded five mechanism-backed `(candidate)` rows above after closing stale outside-section rows from reseed **#223**.
 - [x] (invalid) `ScopeResolutionGuardMiddleware.IsPublicHealthProbePath` — `/health/version/` with trailing slash may miss the version probe skip while `/health/live/` matches — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_skips_trailing_slash_on_health_version_path`.
 - [x] (invalid) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — routes that bind `{tenantGuid}` instead of `{tenantId}` may bypass ambient scope comparison when only `tenantId` is inspected — **cheap-disproof 2026-11-01 thorough hunt #77:** no `{tenantGuid}` API routes; regression `OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid`.
 - [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` — multiple `tenant_id` claims where `FindFirst` is parseable but a hostile header matches a later duplicate claim may pass validation — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`.
 - [x] (invalid) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — literal `/health%2Fversion` may bypass TB-304 without matching `/health/version` probe semantics — **cheap-disproof 2026-11-01 thorough hunt #77:** regression `InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_version_path`.
-
-2026-11-01 seed hunt #76 (seed-only): seeded five mechanism-backed `(candidate)` rows above after closing stale outside-section rows from reseed **#223**.
 
 2026-09-12 seed hunt #1945 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
 2026-09-12 seed hunt #1943 (seed-only): reseeded scope-binding-middleware; scoped tests passed; no new hunt-ready defect proven this pass.
