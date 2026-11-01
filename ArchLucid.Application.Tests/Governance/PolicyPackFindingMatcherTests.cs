@@ -144,7 +144,7 @@ public sealed class PolicyPackFindingMatcherTests
     [Fact]
     public void MatchesAssignment_treats_uppercase_hex_n_pack_token_in_engine_type_as_pack_attributed()
     {
-        Guid packId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid packId = Guid.Parse("abcdefab-cdef-abcd-efab-cdefabcdefab");
         CommittedGovernancePackAssignmentSnapshot assignment = new()
         {
             PolicyPackId = packId,
