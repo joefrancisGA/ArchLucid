@@ -46,25 +46,11 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
+        string working = PercentDecodeBounded.Decode(armId.Trim());
 
         // Only normalize strings that resemble an ARM resource id.
         // If this is not an ARM id, keep the original (decoded) value to preserve tolerance.
-        if (!working.StartsWith('/', StringComparison.Ordinal) ||
+        if (!working.StartsWith("/", StringComparison.Ordinal) ||
             working.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase) < 0)
         {
             return working;
