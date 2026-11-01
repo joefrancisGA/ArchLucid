@@ -2985,6 +2985,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF on anonymous marketing mutations is intentional with cookie clear (`allows anonymous marketing mutations when the BFF session cookie is expired`; `allows anonymous marketing mutations when the BFF session cookie is idle-expired`); `authMePrivateCacheSeconds` keys off `path.toLowerCase()` and canonical clients call lowercase `api/auth/me`; mutating forwards copy client `Content-Type` before empty-body upstream fetch (`copyMutatingRequestContentType`); `mergeRegistrationScopeForProxy` uppercases method before CSRF attachment (`method?.toUpperCase() ?? "GET"`); marketing-host `/runs` handoff preserves query before app-side alias rewrite (`hands off marketing-host legacy /runs alias bookmarks to the app origin before demo alias canonicalization`; `preserves query string when rewriting /runs alias paths`). Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired session + anonymous marketing POST — **cheap-disproof 2026-11-01 thorough hunt:** regressions above.
+- [x] (valid-no-repro) `forward` / `authMePrivateCacheSeconds` — mixed-case tail path — **cheap-disproof 2026-11-01 thorough hunt:** full-path lowercasing; no in-zone caller uses mixed-case `api/auth/me`.
+- [x] (valid-no-repro) `forwardMutatingWithBody` — zero-byte JSON POST Content-Type — **cheap-disproof 2026-11-01 thorough hunt:** content-type copied from incoming request before body read.
+- [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — lowercase PATCH method — **cheap-disproof 2026-11-01 thorough hunt:** `toUpperCase()` normalization; no PATCH bootstrap client in zone today.
+- [x] (valid-no-repro) `proxy.ts` / host gate — alias query loss on marketing host — **cheap-disproof 2026-11-01 thorough hunt:** host-gate handoff + alias redirect preserve `search`.
+
+- [ ] (candidate) `passThrough` — upstream `Cache-Control` on authenticated GET may override proxy private hint for `/api/auth/me` — locus: `proxy-passthrough.ts`; input: upstream public cache headers on auth/me; wrong outcome: shared cache of identity; reachability: monitor auth/me pass-through cache tests.
+- [ ] (candidate) `buildProxyUpstreamPath` — overlong proxy segment list may pass segment checks but fail resolved URL join — locus: segment vs resolved traversal; input: deeply nested safe segments at size limit; wrong outcome: 400 vs upstream 404; reachability: monitor traversal rejection tests.
+- [ ] (candidate) `enforceProxyRateLimit` — pre-auth anonymous POST may share bucket with authenticated operator traffic — locus: rate limit key selection; input: register burst from marketing host; wrong outcome: false 429 on operator session; reachability: monitor proxy rate-limit tests.
+- [ ] (candidate) `resolveEmailOtpPostAuthPath` — consumed OIDC return may override explicit safe bootstrap path when both present — locus: path precedence after idle restore hit; input: desk path in OIDC storage plus explicit safe arg; wrong outcome: wrong post-verify landing; reachability: monitor bootstrap complete path regressions.
+- [ ] (candidate) `trySandboxProxyMock` — sandbox mock short-circuit may skip BFF slide cookies on allowed GET — locus: mock branch before upstream fetch; input: sandbox-enabled GET with active session; wrong outcome: idle session not slid; reachability: monitor sandbox mock + session slide tests.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — zero-byte body Content-Type — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `mergeRegistrationScopeForProxy` — PATCH method casing — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `proxy.ts` host gate — demo-run alias query — **superseded 2026-11-01 thorough hunt:** see closed row above.
+
 2026-11-01 seed hunt (hit): rotation fired after three low-yield `ui-form-validation` thorough outcomes (`avoidZoneId` `ui-form-validation`). Promoted return-only idle desk restore dropping registered livelihood form snapshots when `readOperatorScopeFromStorage()` is null — `persistIdleDeskRestoreBeforeSessionClear` returned before `collectRegisteredLivelihoodIdleFormSnapshots()`; `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` no-op'd without scope. Fixed both paths to persist/merge snapshots with `scope: null`. Regressions `persists livelihood form snapshots before session clear when operator scope is missing (WS-18)` and `merges one livelihood snapshot when operator scope is missing (LW-095)`. Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures outside this fix). Reseeded five follow-on `(candidate)` rows below. Private beta: invited operators who idle out on a desk path without a localStorage scope row keep in-progress livelihood draft fields through re-auth instead of losing them while the return URL still restores.
 
 - [x] (proven) `persistIdleDeskRestoreBeforeSessionClear` / `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` — scope-less idle clear dropped WS-18 livelihood snapshots — **hit 2026-11-01 seed hunt:** regressions above.
@@ -3129,9 +3149,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 69
+- **hunts:** 70
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
