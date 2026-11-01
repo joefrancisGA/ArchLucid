@@ -2,6 +2,168 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; picker chose `ui-form-validation` while `ui-auth-proxy` low-yield streak is **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — non-JSON HTML error bodies use raw response text by contract (`shows raw html error body when register response is not json`); `1e4` accepted at optional team-size upper bound (`signupFormSchema accepts 1e4 optional architecture team size at the upper bound`; builder regression); whitespace-only full name triggers required-field readiness before invalid-email copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when full name is whitespace-only`); rapid double-click with invalid email skips fetch (`does not call register fetch on rapid double-click when work email is invalid`); padded organization/display names trim on UI POST (`trims padded organization and display names in register POST JSON on UI submit`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTML error body toast — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** raw-body contract; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — `1e4` upper bound — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** schema + builder regressions above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only full name vs email — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** TB-2010 required-field branch; regression above.
+- [x] (valid-no-repro) `SignupForm` — double-click invalid email — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — padded organization POST — **cheap-disproof 2026-11-01 thorough hunt (pass 11):** UI submit trim regression above.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `409` HTML body may show raw markup in toast — locus: conflict error parse; input: `409` HTML; wrong outcome: HTML in toast; reachability: monitor 409 HTML regression.
+- [ ] (candidate) `signupFormSchema` — overlong organization inline error vs readiness — locus: `.max(200)` mapping; input: 201-char org; wrong outcome: generic 200-char readiness; reachability: monitor overlong organization readiness tests.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with invalid optional team size — locus: zod issue order; input: bad email + `3.5`; wrong outcome: team-size readiness wins; reachability: monitor email-vs-team-size readiness pattern.
+- [ ] (candidate) `SignupForm` — autofill may submit before RHF validation settles — locus: `canSubmit` timing; input: autofill burst; wrong outcome: early POST; reachability: monitor submit guard regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — omits `companySize` when enum value missing — locus: optional enum guard; input: undefined companySize; wrong outcome: key present empty; reachability: monitor companySize payload builder tests.
+
+- [x] (superseded) `SignupForm` `onSubmit` — HTML 502 error — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `1e4` bound — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — full name whitespace — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `SignupForm` — invalid email double-click — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — padded org — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; low-yield streak **2** on `ui-form-validation` — rotation at **3** on next dry); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — whitespace-only `201` body navigates on `res.ok` with session missing tenant ids by design (`still navigates after 201 when register response body is whitespace only`); plus-address and `.max(254)` bounded by schema + input `maxLength` (`signupFormSchema rejects admin email longer than 254 characters`; `encodes plus-addressed email in the verify redirect query`); invalid email readiness precedes optional org max-length issues (`shows email-specific readiness when required fields are filled but email is invalid`; zod field order); `Creating` disabled state blocks second submit including keyboard (`disables submit and shows Creating while register request is in flight`; in-flight throw regressions); negative optional team size rejected by schema and omitted in builder (`signupFormSchema rejects negative optional architecture team size`; `omits non-integer optional architecture team size from the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — whitespace-only `201` verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** intentional navigate-on-ok; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — plus-address at 254 boundary — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** schema max + UI maxLength; plus-address verify regression.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs overlong org — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** email issue/readiness wins; regression above.
+- [x] (valid-no-repro) `SignupForm` — keyboard submit during `Creating` — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** disabled Creating button; in-flight regressions above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — negative team size — **cheap-disproof 2026-11-01 thorough hunt (pass 10):** schema reject + builder omit; regressions above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — HTML 502 ProblemDetails bypass — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `1e4` false invalid — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — whitespace full name vs email (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `SignupForm` — rapid double-click invalid email (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — interior whitespace org (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 11):** see closed row above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — whitespace 201 — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `signupFormSchema` — plus-address 254 — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — email vs overlong org — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `SignupForm` — keyboard during Creating — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — negative team size — **superseded 2026-11-01 thorough hunt (pass 10):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` at **9** consecutive dry hunts in zone stats); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — malformed JSON `201` still navigates on `res.ok` while session snapshot retains trimmed `adminEmail` (`still navigates after 201 when register response body is malformed JSON`; intentional navigate-on-commit); unicode local-part emails fail zod before submit (`signupFormSchema rejects unicode local-part email before verify redirect`); TB-2010 required-field branch precedes invalid-email copy for whitespace-only required values (existing required-vs-email readiness regressions); funnel telemetry throw routes to `showError` without verify navigation (`surfaces signup error when first-tenant funnel telemetry throws unexpectedly`); fractional team size omitted in builder and blocked in UI (`omits non-integer optional architecture team size from the register payload builder`; `does not send fractional optional architecture team size in the register payload`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON `201` without session fields — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** navigate-on-ok; session still stores adminEmail/org from form values.
+- [x] (valid-no-repro) `signupFormSchema` — IDN / unicode local-part email — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** intentional zod reject; regressions above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — whitespace-only vs invalid email — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** TB-2010 required-field branch first; existing regressions.
+- [x] (valid-no-repro) `SignupForm` — funnel telemetry throw skips verify — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** error surfaced; no navigation; regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — fractional team size silent omit — **cheap-disproof 2026-11-01 thorough hunt (pass 9):** builder omit + UI/schema block; regressions above.
+
+- [x] (superseded) `buildSignupRegisterPayload` — fractional team size — **superseded 2026-11-01 thorough hunt (pass 9):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `showSuccess` throw after `201` is a documented boundary (`does not allow another register POST when success handling throws after a 201`; `registerCompletedRef` intentionally blocks retry); overlong work email readiness maps `.max(254)` copy (`deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email`; prior hit); collapsed optional `<details>` still surfaces industry readiness id (`shows industry readiness when Other is selected without a specification`); UI submit trims padded work email in POST JSON (`trims padded work email in register POST JSON on UI submit`); empty JSON `{}` on error uses raw body text (`shows raw response text when register returns an empty JSON object on error`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `showSuccess` throw after `201` — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** intentional in-flight/completed lock; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — overlong email readiness mismatch — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** max-length readiness regression; prior proven hit.
+- [x] (valid-no-repro) `SignupForm` — collapsed Other hides invalid state — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** readiness id + industry UI regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — untrimmed padded email — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** zod-trimmed submit path; UI POST trim regression above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — empty `{}` error detail — **cheap-disproof 2026-11-01 thorough hunt (pass 8):** raw-body contract regression above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — empty `{}` error — **superseded 2026-11-01 thorough hunt (pass 8):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — numeric JSON `tenantId` on `201` intentionally omits registration scope headers (`does not emit registration scope headers when tenantId is stored as a JSON number`); organization names with control characters map to unsupported-character readiness (`shows unsupported-character readiness when organization name contains control characters`); invalid `companySize` enum values are not reachable from the Select UI (devtools tamper only; regression `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`); keyboard Enter on invalid email does not POST (`shows inline validation on keyboard submit without calling fetch`); `1e2`/`1e3` scientific notation serializes to whole numbers when valid (`serializes scientific notation optional architecture team size when it parses to a whole number`; hypothesis inverted for omit). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric JSON `tenantId` without scope headers — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** intentional omit; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — tab in organization readiness copy — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** unsupported-character readiness regression above.
+- [x] (invalid) `deriveSignupFormReadinessMessage` — invalid `companySize` enum in buyer path — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** Select control; generic readiness is acceptable for impossible enum.
+- [x] (valid-no-repro) `SignupForm` — keyboard Enter bypasses validation — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** keyboard submit regression above.
+- [x] (invalid) `buildSignupRegisterPayload` — `1e2` omitted — **cheap-disproof 2026-11-01 thorough hunt (pass 7):** serializes whole numbers; `1e3` regression above.
+
+- [x] (superseded) `buildSignupRegisterPayload` — `1e2` omit — **superseded 2026-11-01 thorough hunt (pass 7):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; picker chose `ui-form-validation` over cooling `ui-auth-proxy`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `409` returns before any success-path `sessionStorage` write (`shows a toast for duplicate organization conflict without leaving submit stuck`; `still allows register retry after duplicate organization conflict`); full-width digits yield non-finite `Number()` and schema invalid-number issue (not silent omit); invalid email wins readiness over fractional optional team size (`shows email-specific readiness when required fields are filled but email is invalid`; zod field order before `superRefine`); rapid double-click blocked by `registerInFlightRef` before second POST (`does not fire a second register request on rapid double-click before submitting state updates`); `+010` parses to `10` and serializes like other leading-plus values (`serializes leading plus optional architecture team size as five in the register payload builder`; hypothesis inverted for omit). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — stale session after `409` — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** 409 path never writes session; retry regressions above.
+- [x] (valid-no-repro) `signupFormSchema` — full-width digits in team size — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** `Number()` not finite → schema custom issue; builder omits without silent accept.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs fractional team size — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** email readiness regression; zod issue ordering.
+- [x] (valid-no-repro) `SignupForm` — double-click duplicate POST — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** in-flight guard regression above.
+- [x] (invalid) `buildSignupRegisterPayload` — `+010` omits valid ten — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** `Number("+010")` is 10; leading-plus builder pattern.
+
+- [x] (superseded) `buildSignupRegisterPayload` — `+010` — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
+
+2026-11-01 thorough hunt (dry): **rotation** avoided `ui-auth-proxy` after three consecutive dry hunts (`shouldRotate` / low-yield streak on auth-proxy); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — session JSON and verify query both use the same schema-validated `values.adminEmail` (`encodes plus-addressed email in the verify redirect query`; no raw DOM read on success path); optional team size uses RHF `register("architectureTeamSize")` string backing, not `valueAsNumber` (`omits architecture team size key when optional field is an empty string`); invalid email with empty Other still surfaces email readiness (`deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry`); whitespace-only `tenantId` on `201` omits scope headers by design while verify still navigates with email query (`does not emit registration scope headers when tenantId is whitespace-only in session storage`); `10000.0` parses to integer `10000` and is included at upper bound (`includes optional architecture team size 10000 in register POST body from the UI`; hypothesis inverted). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — plus-address session JSON vs verify query — **cheap-disproof 2026-11-01 thorough hunt (pass 5, post-rotation):** same `values.adminEmail` for session and `router.push`.
+- [x] (invalid) `SignupForm` — `valueAsNumber` NaN after spinner clear — **cheap-disproof 2026-11-01 thorough hunt (pass 5, post-rotation):** optional field is string-registered; empty omits key.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs Other industry priority — **cheap-disproof 2026-11-01 thorough hunt (pass 5, post-rotation):** regression above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — whitespace-only `tenantId` with verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 5, post-rotation):** scope omission intentional; verify uses email param.
+- [x] (invalid) `buildSignupRegisterPayload` — `10000.0` upper bound omitted — **cheap-disproof 2026-11-01 thorough hunt (pass 5, post-rotation):** `Number.isInteger` accepts `10000.0`; UI POST regression above.
+
+- [x] (superseded) `buildSignupRegisterPayload` — `10000.0` — **superseded 2026-11-01 thorough hunt (pass 5, post-rotation):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — plus-address verify query uses single `encodeURIComponent` on schema-valid email (`encodes plus-addressed email in the verify redirect query`; session JSON stores the same literal address); optional team size stays string-backed through RHF with schema/`canSubmit` before POST (existing UI POST team-size regressions); zod lists `adminEmail` before optional team size so readiness prefers email copy (`shows email-specific readiness when required fields are filled but email is invalid`; `issues[0]` path `adminEmail` when both invalid); malformed JSON `201` still navigates on `res.ok` by design (`still navigates after 201 when register response body is malformed JSON`); `-0` rejected by schema and omitted in builder (`signupFormSchema rejects negative zero optional architecture team size`; `omits negative zero optional architecture team size from the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` verify query encoding for plus-address emails — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** regression `encodes plus-addressed email in the verify redirect query`.
+- [x] (valid-no-repro) `SignupForm` autofill/coerced optional team size — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** RHF optional string; invalid values block submit before POST.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — email vs optional team-size priority — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** zod issue order puts `adminEmail` first; email readiness regression above.
+- [x] (valid-no-repro) `SignupForm` malformed JSON `201` verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** intentional navigate-on-ok; regression above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — negative zero `-0` — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** schema reject + builder omit regressions above.
+
+- [x] (superseded) `buildSignupRegisterPayload` — negative zero `-0` optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — verify `router.push` and session JSON both use schema-trimmed `values.adminEmail` for padded submit (tightened regression `persists trimmed required fields in archlucid_last_registration after successful register` asserts `/signup/verify?email=ops%40example.com`); optional team size spinner/empty paths remain gated by schema/`canSubmit` without stale POST (`omits architecture team size key when optional field is an empty string`); TB-2010 readiness copy is the intentional affordance when optional `<details>` is collapsed; toast throw before `router.push` is covered by `does not allow another register POST when success handling throws after a 201`; `1e4` upper-bound team size ships in builder (`serializes 1e4 optional architecture team size at the upper bound in the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `router.push` verify query vs session JSON — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** same trimmed `values.adminEmail`; regression assertion above.
+- [x] (valid-no-repro) `SignupForm` number input spinner vs optional empty — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** invalid/empty optional values block submit before POST.
+- [x] (valid-no-repro) `SignupForm` readiness without opening optional details — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** TB-2010 readiness id; inline errors inside disclosure by design.
+- [x] (valid-no-repro) `SignupForm` toast throw skips verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** documented boundary in toast-throw regression; not a hunt-ready defect.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — `1e4` upper bound — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** builder regression above.
+
+- [x] (superseded) `SignupForm` `onSubmit` — `encodeURIComponent` plus-address verify query — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `SignupForm` — browser autofill optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — invalid email with invalid optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — malformed JSON `201` with `registerCompletedRef` — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — negative zero `-0` optional team size — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — session JSON uses schema-trimmed `values.adminEmail` matching POST (`persists trimmed required fields in archlucid_last_registration after successful register`; `trims padded work email in register POST JSON on UI submit`); optional team size empty string omits payload key (`omits architecture team size key when optional field is an empty string`); TB-2010 readiness surfaces whole-number copy with details opened (`shows whole-number readiness when optional architecture team size is fractional`; field errors remain on open optional section); `showSuccess` throw routes to `showError` without second POST while in-flight guard holds (`does not allow another register POST when success handling throws after a 201`); interior whitespace team size trim aligns schema and builder (`serializes interior-whitespace optional architecture team size in the register payload builder`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `sessionStorage` adminEmail trim parity — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** regression `persists trimmed required fields in archlucid_last_registration after successful register`.
+- [x] (valid-no-repro) `SignupForm` optional team size empty DOM sentinel — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** RHF optional string empty; builder regression above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — collapsed details vs team-size readiness — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** readiness id shows team-size copy; invalid optional values require opening details to enter value in practice.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `showSuccess` throw before verify navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** regression `does not allow another register POST when success handling throws after a 201`; intentional in-flight lock after success flag.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — Unicode line separator in optional team size — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** trim/`Number()` path covered by interior-whitespace builder regression; no divergent schema/payload repro.
+
+- [x] (superseded) `SignupForm` `router.push` verify query — padded email verify URL may diverge from session JSON — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` — native `type=number` spin-button decrement below `min={1}` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` readiness — invalid optional team size without opening `<details>` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — success toast throw after `registerCompletedRef` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — scientific notation team size at schema upper bound edge — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — optional team size `min={1}` does not block empty optional values (`omits architecture team size key when optional field is an empty string`; schema skips bounds when trim empty); lone `"."` fails schema/`canSubmit` with valid-number readiness while builder omits key (`Enter a valid number for architecture team size`); verify navigation uses zod-trimmed `values.adminEmail` same as POST (`signupFormSchema trims padded required email on parse`; `trims padded work email in register POST JSON on UI submit`); industry Select clears `industryVerticalOther` on change (`re-enables submit after switching away from Other with an overlong specification`); success path intentionally keeps `registerInFlightRef` until navigation (`keeps Creating label on the submit button after successful register until navigation`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` — optional team size `Input` `min={1}` vs blank optional — **cheap-disproof 2026-11-01 thorough hunt:** empty string passes schema; builder omits key; no native constraint blocks submit.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — **cheap-disproof 2026-11-01 thorough hunt:** `Number(".")` non-finite; schema/readiness block submit before POST.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — verify query vs trimmed register email — **cheap-disproof 2026-11-01 thorough hunt:** `handleSubmit` values are schema-trimmed; POST trim regression covers same snapshot.
+- [x] (valid-no-repro) `SignupForm` industry `Select` — `industryVerticalOther` after leaving Other — **cheap-disproof 2026-11-01 thorough hunt:** `onValueChange` clears hidden field; regression `re-enables submit after switching away from Other with an overlong specification`.
+- [x] (valid-no-repro) `SignupForm` — `registerInFlightRef` after success when navigation hangs — **cheap-disproof 2026-11-01 thorough hunt:** intentional in-flight guard until route change; regression `keeps Creating label on the submit button after successful register until navigation`.
+
+- [x] (superseded) `SignupForm` `onSubmit` — `sessionStorage` last-registration JSON may store untrimmed `adminEmail` — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `SignupForm` — optional `architectureTeamSize` `type="number"` may serialize browser empty as `null` — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — invalid team size with collapsed optional `<details>` — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — `showSuccess` toast failure after `201` — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — interior Unicode line separator in optional team size — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
+- [x] (superseded) `SignupForm` `router.push` verify query — padded email verify URL may diverge from session JSON — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` — native `type=number` spin-button decrement below `min={1}` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` readiness — invalid optional team size without opening `<details>` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — success toast throw after `registerCompletedRef` — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — scientific notation team size at schema upper bound edge — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
+2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, `buildSignupRegisterPayload`, and attribution/session paths; cheap-disproof closed all five (fractional team size blocked by schema/readiness without needing `step={1}`; `+010`/`010` leading-zero parsing covered by builder regressions; `409` returns before success session writes; first-touch serialization failure is non-blocking per existing non-Latin1 cookie test; unsupported-character readiness for full name precedes generic max-length copy in `deriveSignupFormReadinessMessage`). No row met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` — optional team size omits `step={1}` — **cheap-disproof 2026-11-01 seed hunt (pass 3):** fractional values fail schema and TB-2010 readiness (`shows whole-number readiness when optional architecture team size is fractional`); native spinner UX does not bypass submit gating.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — plus-prefixed `+010` team size — **cheap-disproof 2026-11-01 seed hunt (pass 3):** `Number` parsing matches `+5`/`010` builder regressions.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` leaves stale optional session keys — **cheap-disproof 2026-11-01 seed hunt (pass 3):** conflict returns before `registerSucceeded` and session writes; duplicate-org toasts covered by `409` tests.
+- [x] (valid-no-repro) `SignupForm` — first-touch header throws on every submit — **cheap-disproof 2026-11-01 seed hunt (pass 3):** catch omits header only; registration proceeds (`still posts register when first-touch cookie contains non-Latin1 UTM values`).
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — bidi vs max-length ordering on full name — **cheap-disproof 2026-11-01 seed hunt (pass 3):** unsupported-character branch wins when message matches; regression `deriveSignupFormReadinessMessage surfaces unsupported-character guidance for full name`.
+
+- [x] (superseded) `SignupForm` — optional team size `Input` sets `min={1}` while schema treats blank as omitted — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — lone decimal point `"."` for team size — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` `onSubmit` — verify navigation uses raw `values.adminEmail` while register payload used trimmed email — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` industry `Select` — switching away from `Other` leaves `industryVerticalOther` in form state until blur — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `SignupForm` — `registerInFlightRef` stays true when `registerSucceeded` but `router.push` never resolves — **superseded 2026-11-01 thorough hunt:** see closed row above.
+
 2026-11-01 seed hunt (seed-only): reread the five queued `(candidate)` rows against `SignupForm.tsx`, `signupFormSchema`, and existing in-flight/readiness regressions; cheap-disproof closed all five (hex/scientific `Number()` parsing, raw non-ok proxy bodies, devtools-only enum tampering, collapsed optional `<details>` with TB-2010 readiness copy, and duplicate submit while in flight). No row met the hunt-ready bar for promotion; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
 
 2026-11-01 seed hunt (seed-only): reread `buildSignupRegisterPayload`, `signupFormSchema` superRefine paths, register in-flight/completed refs, success session writes, and first-touch header attachment against the five open `(candidate)` rows; cheap-disproof closed all five (leading-zero/scientific team-size behavior, Other-industry whitespace gating, non-string provisioning ids, and whitespace-only `201` bodies are covered by existing regressions or unreachable API contracts). No new mechanism met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
@@ -36,11 +198,11 @@
 - [x] (valid-no-repro) `SignupForm` — collapsed optional `<details>` keeps architecture team size `role="alert"` errors off-screen until expanded — **cheap-disproof 2026-11-01 seed hunt (second pass):** TB-2010 readiness copy surfaces via `signup-form-readiness`; regression `shows whole-number readiness when optional architecture team size is fractional`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — slow register responses allow duplicate clicks before `registerInFlightRef` latches — **cheap-disproof 2026-11-01 seed hunt (second pass):** in-flight guard is synchronous; regression `does not fire a second register request when the form is submitted again while in flight`.
 
-- [ ] (candidate) `SignupForm` — optional architecture team size input omits `step={1}` so browser spin controls may suggest fractional values the schema rejects — locus: `#signup-team-size` number input; input: spinner increment on `.5`; wrong outcome: buyer sees native step behavior that always fails submit; reachability: mouse/touch on number input spin buttons.
-- [ ] (candidate) `buildSignupRegisterPayload` — plus-prefixed team-size strings (`+010`) serialize differently from unprefixed decimals — locus: `Number(teamTrim)`; input: `+010`; wrong outcome: payload integer disagrees with visible input after browser normalization; reachability: pasted signed decimal strings (existing builder test covers `+5` only).
-- [ ] (candidate) `SignupForm` `onSubmit` — `409` duplicate organization returns before `registerSucceeded` without clearing optional session keys from a prior attempt — locus: success session writes vs early `409` return; input: prior successful signup in same tab then rename conflict; wrong outcome: stale `archlucid_signup_company_size` misleads downstream onboarding; reachability: repeat evaluation signup in one browser tab.
-- [ ] (candidate) `SignupForm` — `readFirstTouchCookie` present but `serializeFirstTouchHeader` throws on every submit attempt — locus: attribution catch block; input: cookie with non-Latin1 field values on repeated submits; wrong outcome: buyer believes attribution failed when registration still succeeds silently; reachability: marketing first-touch cookie with emoji campaign names.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — unsupported-character failures on required names map to generic max-length copy when message ordering shifts — locus: `switch (issuePath)` for `adminDisplayName`; input: bidi control in full name after max-length boundary; wrong outcome: readiness misstates the correction; reachability: pasted Unicode bidi controls in full name (schema rejects; readiness copy must match).
+- [x] (valid-no-repro) `SignupForm` — optional architecture team size input omits `step={1}` — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — plus-prefixed team-size strings (`+010`) — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` duplicate organization and stale session keys — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `SignupForm` — `readFirstTouchCookie` / `serializeFirstTouchHeader` throws — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — bidi vs max-length on full name — **superseded 2026-11-01 seed hunt (pass 3):** see closed row above.
 
 2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
 
@@ -394,9 +556,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 85
+- **hunts:** 97
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
@@ -1393,14 +1555,89 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-11-01 thorough hunt (hit): promoted `clearFilterText` — Escape/immediate filter clear rebuilt hrefs from lagging `routerSearchString` only and dropped committed `compareRuns` after compare-then-filter; clear path now uses `runsListNavigationSearchFromSearch` before deleting `q=`, matching debounce and pagination overlay behavior. Regression `preserves compareRuns when Escape clears the filter before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — debounced sync already overlays committed compare/inspector (`preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`; third-compare race reads committed window at timer fire); inspector debounce covered by `preserves inspectorRunId in debounced q= sync when filter text is typed` plus overlay; Previous href uses same overlay as popstate-narrowed committed compare; scope chips use `navigationSearch` not debounce write path. Focused `RunsListClient` vitest passed **73/73**. Reseeded five follow-on `(candidate)` rows below. Private beta: clearing the reviews list text filter with Escape no longer drops an active two-review compare selection when the router has not caught up.
+
+- [x] (proven) `useRunsList` `clearFilterText` — Escape clear dropped committed `compareRuns` when router lagged — **hit 2026-11-01 thorough hunt:** overlay base on clear href; regression above.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` vs third-compare toggle race — **cheap-disproof 2026-11-01 thorough hunt:** debounce commit reads fresh committed overlay at fire time after compare URL sync.
+- [x] (valid-no-repro) `RunsListClient` inspector + debounced `q=` with lagging router — **cheap-disproof 2026-11-01 thorough hunt:** debounce overlay preserves `inspectorRunId`; regression `preserves inspectorRunId in debounced q= sync when filter text is typed`.
+- [x] (valid-no-repro) `RunsListClient` pagination Previous after popstate-narrowed compare — **cheap-disproof 2026-11-01 thorough hunt:** `navigationSearch` reflects committed compare ids post-popstate.
+- [x] (valid-no-repro) `useRunsList` buyer scope chip vs pending debounce — **cheap-disproof 2026-11-01 thorough hunt:** scope navigation uses `navigationSearch`; debounce does not mutate scope chip hrefs.
+
+- [ ] (candidate) `useRunsList` `syncCompareInspectorToUrl` — compare toggle base still uses `runsListEffectiveSearchFromSearch(routerSearchString)` without committed overlay — locus: compare write path; input: soft navigation updates router while committed window retains stale keys; wrong outcome: compare commit merges wrong keys; reachability: monitor `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
+- [ ] (candidate) `RunsListClient` filter backspace-to-empty debounce — empty filter debounce may drop overlay compare when router lags — locus: debounced clear via timer not Escape; input: compare select then backspace filter empty; wrong outcome: committed compare cleared after debounce; reachability: extend backspace empty debounce test with lagging router harness.
+- [ ] (candidate) `useRunsList` `listContextFilter` orphan banner — popstate clears `filter=` while committed compare overlay pending — locus: orphan banner vs compare overlay; input: orphan deep link then compare select before router refresh; wrong outcome: banner/compare URL disagree; reachability: monitor orphan popstate regression.
+- [ ] (candidate) `RunsListClient` inspector Escape — clears committed `inspectorRunId` then debounced pending `q=` may restore stale inspector from router — locus: Escape close vs debounce overlay; input: open inspector, type filter, Escape inspector then filter; wrong outcome: inspector param returns on debounce; reachability: combine inspector Escape regressions with debounce overlay tests.
+- [ ] (candidate) `RunsListWorkQueueTable` — compare selection bar visible while filtered rows hide checkboxes and debounced `q=` clears compare — locus: filter narrowing vs selection bar; input: compare two rows then narrow filter hiding one id; wrong outcome: debounced sync drops compare despite bar; reachability: monitor `keeps compareRuns selection when text filter hides one selected row`.
+
+2026-11-01 thorough hunt (hit): promoted debounced `q=` sync — after compare toggles committed `compareRuns` before `useSearchParams` caught up, the 250ms filter effect rebuilt hrefs from `routerSearchString` only and wiped compare ids from committed search; debounce now uses the same `runsListNavigationSearchFromSearch` committed overlay as pagination/sort chips before applying `q=`. Regression `preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — sort/scope hrefs already use `navigationSearch` overlay; popstate-narrowed compare stays in committed window so pagination overlay does not resurrect ids; zero-match Next keeps cursor via existing regression plus overlay; buyer card layout effect clears compare notice when compare UI hides. Focused `RunsListClient` vitest passed **72/72**. Reseeded five follow-on `(candidate)` rows below. Private beta: typing a text filter on the reviews list no longer drops an active two-review compare selection when the debounced `q=` sync runs before the router catches up.
+
+- [x] (proven) `useRunsList` debounced `q=` sync — compare dropped when typing filter before router refresh — **hit 2026-11-01 thorough hunt:** debounce base uses `runsListNavigationSearchFromSearch`; regression above.
+- [x] (valid-no-repro) `RunsListClient` sort chip hrefs — `inspectorRunId` when committed leads router — **cheap-disproof 2026-11-01 thorough hunt:** sort chips use shared `navigationSearch` merge from pagination hit.
+- [x] (valid-no-repro) `useRunsList` popstate compare vs pagination overlay — **cheap-disproof 2026-11-01 thorough hunt:** overlay reads committed compare after popstate; no resurrection beyond committed ids.
+- [x] (valid-no-repro) `RunsListWorkQueueTable` pagination — zero-match filter with compare selection — **cheap-disproof 2026-11-01 thorough hunt:** `navigationSearch` overlay plus regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+- [x] (valid-no-repro) `RunsListClient` buyer polished search — stale compare replacement notice — **cheap-disproof 2026-11-01 thorough hunt:** `showCompareSelection` effect clears notice when compare UI hides.
+
+- [x] (superseded) `useRunsList` `clearFilterText` — immediate filter clear may drop committed `compareRuns` — **superseded 2026-11-01 thorough hunt (hit):** promoted; see proven row at zone top.
+- [x] (superseded) `useRunsList` `syncCompareInspectorToUrl` — debounced `q=` may race compare toggle — **superseded 2026-11-01 thorough hunt (hit):** see closed row at zone top.
+- [x] (superseded) `RunsListClient` inspector open — debounced `q=` overlay preserves `inspectorRunId` — **superseded 2026-11-01 thorough hunt (hit):** see closed row at zone top.
+- [x] (superseded) `RunsListClient` pagination Previous — popstate-narrowed compare — **superseded 2026-11-01 thorough hunt (hit):** see closed row at zone top.
+- [x] (superseded) `useRunsList` buyer scope chip navigation — pending debounce vs scope — **superseded 2026-11-01 thorough hunt (hit):** see closed row at zone top.
+
+2026-11-01 thorough hunt (hit): promoted pagination/sort/filter-chip `navigationSearch` — hrefs used `useSearchParams` only while compare toggles commit `compareRuns` via `commitHrefIfChanged` before App Router catches up, so Next/Previous dropped active compare selection; `runsListNavigationSearchFromSearch` overlays committed `compareRuns` and `inspectorRunId` when they disagree with the router snapshot. Regression `preserves compareRuns in the Next pagination link when useSearchParams lags committed compareRuns`. Cheap-disproof closed four other open `(candidate)` rows — empty-filter Escape closing the inspector matches `closes inspector on Escape after selection`; invalid inspector on page 2 is the same empty-shell contract as page 1; scope chip hrefs share the fixed navigation merge path; compare notice clears when card layout hides compare UI via existing effect. Focused `RunsListClient` vitest passed **71/71**. Reseeded five follow-on `(candidate)` rows below. Private beta: paging the architecture reviews list while two runs are selected for compare keeps `compareRuns` on Next/Previous links instead of silently dropping compare on navigation.
+
+- [x] (proven) `RunsListClient` pagination — `Next`/`Previous` hrefs omit `compareRuns` when selection updated but `useSearchParams` still lags committed window location — **hit 2026-11-01 thorough hunt:** `runsListNavigationSearchFromSearch`; regression `preserves compareRuns in the Next pagination link when useSearchParams lags committed compareRuns`.
+- [x] (valid-no-repro) `RunsListClient` filter input — Escape with empty query while inspector open — **cheap-disproof 2026-11-01 thorough hunt:** global Escape closes inspector by design; regression `closes inspector on Escape after selection`.
+- [x] (valid-no-repro) `useRunsList` inspector url effect — invalid `inspectorRunId` on page 2 — **cheap-disproof 2026-11-01 thorough hunt:** same empty inspector shell as page 1; no distinct wrong outcome.
+- [x] (valid-no-repro) `BuyerPackageScopeFilterChips` — scope chip href vs pending filter and `inspectorRunId` — **cheap-disproof 2026-11-01 thorough hunt:** chips use shared `navigationSearch` merge fixed by this hit.
+- [x] (valid-no-repro) `useRunsList` compare notice vs buyer card layout flip — **cheap-disproof 2026-11-01 thorough hunt:** `showCompareSelection` effect clears selection and notice when compare UI hides.
+
+- [x] (superseded) `useRunsList` debounced `q=` sync — typing filter after compare toggle may rewrite URL from lagging `routerSearchString` — **superseded 2026-11-01 thorough hunt (hit):** promoted; see proven row above.
+- [x] (superseded) `RunsListClient` sort chip hrefs — `runsListSortHrefFromSearch(navigationSearch)` may still omit `inspectorRunId` — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (superseded) `useRunsList` popstate compare listener — overlay merge on pagination may fight popstate-narrowed committed compare — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (superseded) `RunsListWorkQueueTable` — pagination with compare selection and zero-match client filter — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (superseded) `RunsListClient` buyer polished search — card layout filter transition may leave `compareSelectionNotice` — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — filter Escape uses `stopPropagation` when clearing non-empty query (proven #1355; regression `Escape in the filter field clears the query without closing an open inspector`); `runsListEffectiveSearchFromSearch` merges pending `q=` without deleting other params so Previous pending-filter regression covers compare preservation path; unknown `inspectorRunId` intentionally leaves address bar param while panel shows empty state (`keeps the inspector empty when inspectorRunId does not match a row on the page`); `partitionRunsIntoWorkQueueSections` omits empty sections by contract; popstate compare listener clears replacement notice (`clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`). Focused `RunsListClient` vitest passed **70/70**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `useRunsList` `closeInspector` — Escape handler vs filter-field Escape — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** filter `onKeyDown` stops propagation when Escape clears typed query; regression above; empty-filter Escape closing inspector via window listener is intentional.
+- [x] (valid-no-repro) `RunsListClient` pagination Previous — pending filter vs `compareRuns` — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** `navigationSearch` only adjusts `q=`; committed `compareRuns` stays in href; regression `preserves pending text filter in the Previous pagination link on page 2 before q= debounce completes`.
+- [x] (valid-no-repro) `useRunsList` url-driven inspector — unknown `inspectorRunId` in URL — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** selection clears without stripping deep-link param by design; regression `keeps the inspector empty when inspectorRunId does not match a row on the page`.
+- [x] (invalid) `RunsListWorkQueueTable` — empty partition headings after client filter — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** `partitionRunsIntoWorkQueueSections` documents empty sections omitted; no heading-without-rows path.
+- [x] (valid-no-repro) `useRunsList` `toggleCompareSelection` — third-compare notice vs popstate — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** popstate handler and url compare effect both clear notice when selection narrows; regression `clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`.
+
+- [x] (superseded) `RunsListClient` filter input — Escape with empty query while inspector open closes panel via window listener — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (proven) `RunsListClient` pagination — `Next`/`Previous` hrefs may omit `compareRuns` when selection updated but `useSearchParams` still lags committed window location — **superseded 2026-11-01 thorough hunt (hit):** promoted; see proven row above.
+- [x] (superseded) `useRunsList` inspector url effect — invalid `inspectorRunId` on page 2 leaves param without explanatory empty copy — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (superseded) `BuyerPackageScopeFilterChips` — scope chip href built from `navigationSearch` may drop `inspectorRunId` when pending text filter not yet in `q=` — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+- [x] (superseded) `useRunsList` — switching to buyer package cards while a compare replacement notice is visible may leave stale notice after `showCompareSelection` clears ids — **superseded 2026-11-01 thorough hunt (hit):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — compare-then-row-open uses current `compareSelection` in `setSelectedRun` deps and toggle sync writes URL inside functional updater; orphan banner popstate covered by `hides orphan-candidates banner when filter= clears via popstate before useSearchParams catches up`; duplicate `runId` props dedupe in `safeRuns` before render; buyer card Space-on-CTA covered by `buyer-polished: Space on the featured card CTA does not open the inspector`; pagination/inspector merge covered by `preserves pending text filter in inspectorRunId URL sync before q= debounce completes` and Next-link pending-`q=` tests. Focused `RunsListClient` vitest passed **70/70**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `useRunsList` `setSelectedRun` — stale `compareSelection` on row open after toggle — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** toggle updates URL in `setCompareSelection` functional updater; separate click sees updated deps.
+- [x] (valid-no-repro) `useRunsList` `listContextFilter` popstate — orphan banner vs lagging `filter=` — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** regression `hides orphan-candidates banner when filter= clears via popstate before useSearchParams catches up`.
+- [x] (valid-no-repro) `useRunsList` `safeRuns` dedupe — duplicate `runId` props — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** `dedupeRunSummariesByRunId` collapses duplicates before table/compare render; malformed duplicate payload is not a supported API contract.
+- [x] (valid-no-repro) `RunsListClient` buyer featured card keyboard — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** regression `buyer-polished: Space on the featured card CTA does not open the inspector`.
+- [x] (valid-no-repro) `useRunsList` pagination `nextHref` vs pending filter and inspector — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** regressions `preserves pending text filter in inspectorRunId URL sync before q= debounce completes` and `preserves pending text filter in the Next pagination link before q= debounce completes`.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — backspace-to-empty clears committed `q=` after debounce
+- [x] (valid-no-repro) `useRunsList` `showCompareSelection` effect — lagging router `compareRuns` on card layout — **cheap-disproof 2026-11-01 thorough hunt:** `setCompareSelection([])` syncs URL via `resolveInspectorRunIdForUrlSync`; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListWorkQueueTable` — compare ids with filtered-out sections — **cheap-disproof 2026-11-01 thorough hunt:** selection bar may show ids without visible checkboxes by design; regression `keeps compareRuns selection when text filter hides one selected row`.
+- [x] (valid-no-repro) `useRunsList` popstate compare listener — inspector param parity — **cheap-disproof 2026-11-01 thorough hunt:** separate inspector popstate handler; regressions `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids` and inspector popstate coverage.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure writes via committed search — **cheap-disproof 2026-11-01 thorough hunt:** disclosure branch unreachable (ledger #1355).
+
+- [x] (valid-no-repro) `useRunsList` `setSelectedRun` — URL sync uses render-snapshot `compareSelection` — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (valid-no-repro) `useRunsList` `listContextFilter` popstate handler — orphan banner lag — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (valid-no-repro) `useRunsList` `safeRuns` dedupe — duplicate runId props — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (valid-no-repro) `RunsListClient` buyer featured card keyboard — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (valid-no-repro) `useRunsList` pagination `nextHref` vs inspector and pending q= — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
 2026-11-01 seed hunt (seed-only): reread `use-runs-list.ts`, `RunsListClient.tsx`, URL/popstate/compare/inspector boundaries, and the five open `(candidate)` rows; cheap-disproof closed all five (popstate compare does not rewrite inspector independently — existing inspector popstate handler; disclosure URL write branch remains unreachable per ledger #1355; Escape/clearFilterText immediate clear vs debounce covered by `does not restore q= after Escape clears the filter before the debounce completes`; buyer card compare deep link covered by `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`; zero-match pagination covered by `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). No row met the hunt-ready bar; focused `RunsListClient` vitest passed **69/69**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `useRunsList` debounced `q=` sync — clearing the filter by backspacing to empty waits for the 250ms debounce instead of the immediate `clearFilterText` path used by Escape — locus: `setFilterText("")` vs `clearFilterText`; input: type a query then delete all characters without pressing Escape; wrong outcome: committed `q=` and shareable URL keep the old filter until debounce fires; reachability: keyboard-only filter clear in the search input.
-- [ ] (candidate) `useRunsList` `showCompareSelection` effect — switching into buyer package card layout clears compare state but may leave lagging `compareRuns` in router params until the next URL write — locus: effect at ~619 when `showCompareSelection` flips false; input: deep-linked two-compare URL then scope/filter preconditions flip to card layout; wrong outcome: checkbox state empty while router still lists two ids briefly; reachability: buyer-polished single-page card shell (monitor existing buyer compare clear regressions).
-- [ ] (candidate) `RunsListWorkQueueTable` — partitioned work-queue rows share `onRowActivate` with the main table but compare checkboxes may reference run ids absent from the filtered section — locus: work-queue sections vs `compareSelection`; input: select compare on a row then client filter hides that section; wrong outcome: compare bar shows ids with no visible checkbox target; reachability: working-mode work queue with active text filter (monitor `keeps compareRuns selection when text filter hides one selected row`).
-- [ ] (candidate) `useRunsList` popstate compare listener — updates selection state without calling `syncCompareInspectorToUrl`, so inspector param parity relies on a separate popstate handler — locus: `syncCompareSelectionFromUrl`; input: browser back removes `compareRuns` while `inspectorRunId` remains; wrong outcome: inspector docked state disagrees with compare chrome until a soft navigation rerender; reachability: back navigation with both params set (monitor combined popstate tests).
-- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure open state writes via `readWindowLocationSearch()` instead of `searchParams.toString()` — locus: client ~115–121; input: soft in-app navigation leaves stale committed search keys before toggling filter disclosure (if branch becomes reachable); wrong outcome: `runsListFilterOpen` merge reintroduces stale toolbar params; reachability: design monitor until disclosure UX is exposed (ledger #1355).
-
+- [x] (valid-no-repro) `useRunsList` debounced `q=` sync — backspace-to-empty vs Escape immediate clear — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (valid-no-repro) `useRunsList` `showCompareSelection` effect — lagging router `compareRuns` on card layout — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (valid-no-repro) `RunsListWorkQueueTable` — compare ids with filtered-out sections — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (valid-no-repro) `useRunsList` popstate compare listener — inspector param parity — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure writes via committed search — **superseded 2026-11-01 thorough hunt:** see closed row above.
 2026-10-31 seed hunt (seed-only): re-read `useRunsList`, `RunsListClient`, the URL/popstate state boundaries, and the focused 69-test Runs List suites; existing regressions cover the reachable inspector, compare, filter, pagination, card-layout, and disclosure branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-31 thorough hunt (dry): cheap-disproof closed the five picker candidates — compare soft navigation, combined inspector/compare popstate, debounced filter clearing, third-compare replacement notices, and the filter-disclosure URL monitor are covered by existing tests or lack a reachable branch; no production change. Private beta: n/a.
@@ -1459,12 +1696,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 48
+- **hunts:** 54
 - **last-hunt:** 2026-11-01
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
-- **related-pd-tb:** none
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-11-01 — Escape filter clear dropped compareRuns when useSearchParams lagged committed compare- **related-pd-tb:** none
 - **code-changed-since:** 0
 
 2026-10-31 seed hunt (seed-only): re-read the Runs List URL/popstate state boundaries and reran the focused 69-test suites after rotation; no source churn or new reachable mechanism-backed candidate emerged. No production change. Private beta: n/a.
@@ -2436,6 +2672,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-11-01 seed hunt (seed-only): zone cooled but hypothesis list empty (cooldown waived). Reread `decideHostGateRedirect`, `normalizeHostGatePathname`, marketing/operator prefix matrices, trailing-dot host parity, `/api/proxy` marketing stay-put contract, and legacy bookmark coverage against traffic workbook exports. No new reachable mechanism-backed row met the hunt-ready bar; existing regressions cover duplicate-slash, dot-segment, percent-decode, casing, trailing-slash marketing handoff, and query preservation. Host-gate vitest passed **25/25**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments.
+- [ ] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments.
+- [ ] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions.
+- [ ] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair.
+- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process).
+
 2026-10-31 seed hunt (seed-only): reviewed the complete host-gate decision matrix again, including configured-origin precedence, `www` equivalence, non-default ports, invalid Host fallback, decoded path normalization, API proxy exclusions, and legacy operator handoff. All reachable branches are covered by the existing contract tests or conservatively return `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
 
 2026-10-31 seed hunt (seed-only): reread the host-gate classifier and redirect decision with emphasis on malformed Host parsing, www equivalence, port preservation, delimiter decoding, and operator/marketing prefix boundaries. Existing tests cover the reachable normalization paths and malformed inputs conservatively fall through to `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
@@ -2554,10 +2798,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2833,6 +3077,155 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): **rotation** avoided `ui-form-validation` after **3** consecutive dry hunts (`shouldRotate`; outcomes dry/dry/dry); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — transport failures on mutating POST still return through `appendProxyBffSlideCookieHeaders` after `forwardMutatingWithBody` (same keep-alive pattern as local **413**/**502**; DELETE fetch failures omit slide in-branch); demo-workspace scope from proxy path is intentional pin merge (`demo-workspace-scope.test.ts`); unsafe OIDC return URLs are rejected and not consumed (`storePostSignInReturnUrl` / `consumePostSignInReturnUrl` session tests); bounded client `Idempotency-Key` forward is intentional for mutating proxy calls (`proxy-upstream-headers.ts`); warmup retry runs only on GET in `proxy-forward.ts` (`does not retry POST upstream 502`). Targeted regressions **116/116** across upstream errors, demo scope, OIDC session, warmup retry, and body-limit tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `respondWithUpstreamFetchFailure` — BFF slide on transport failure POST — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** intentional slide after guard-approved mutating attempt; parity with 413/502 pattern.
+- [x] (valid-no-repro) `resolveProxyUpstreamScopeHeaders` — demo path overrides bearer scope — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** intentional demo pin; demo-workspace-scope tests.
+- [x] (invalid) `consumePostSignInReturnUrl` — unsafe URL consumed without navigation — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** unsafe values return null; not consumed.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — Idempotency-Key on anonymous register — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** bounded forward by design for client retries.
+- [x] (invalid) `fetchWithWarmupRetry` — GET retry on mutating paths — **cheap-disproof 2026-11-01 thorough hunt (pass 7, post-rotation):** warmup retry wired only for GET; POST does not retry.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on mutating POST may clear cookie without 401 body detail — locus: expired payload branch; input: POST with expired BFF cookie; wrong outcome: silent clear; reachability: monitor expired session guard regressions.
+- [ ] (candidate) `passThrough` — upstream `Location` on proxied auth redirect may reach browser — locus: Location allowlist; input: upstream 302 with off-origin Location; wrong outcome: open redirect; reachability: monitor Location header pass-through policy.
+- [ ] (candidate) `buildProxyUpstreamPath` — percent-encoded traversal segments — locus: path normalization; input: `%2e%2e` segments; wrong outcome: upstream traversal; reachability: monitor proxy upstream path rejection tests.
+- [ ] (candidate) `resolveBffSessionBearerFromRequest` — split cookie vs header bearer precedence — locus: bearer selection in `buildProxyUpstreamHeaders`; input: conflicting cookie and Authorization; wrong outcome: wrong bearer upstream; reachability: monitor BFF vs browser bearer precedence tests.
+- [ ] (candidate) `trySandboxProxyMock` — sandbox mock short-circuit may skip rate limit accounting — locus: mock before upstream; input: sandbox-enabled POST burst; wrong outcome: unbounded mock traffic; reachability: monitor sandbox mock + rate limit ordering tests.
+
+- [x] (superseded) `respondWithUpstreamFetchFailure` — transport slide — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `resolveProxyUpstreamScopeHeaders` — demo scope override — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — unsafe consume — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register Idempotency-Key — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — GET side-effect retry — **superseded 2026-11-01 thorough hunt (pass 7, post-rotation):** see closed row above.
+
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; picker returned `ui-auth-proxy`); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — local proxy **413** responses still append BFF activity slide after `forwardMutatingWithBody` returns (same intentional keep-alive pattern as upstream **502**; `proxy-route-post-body.test.ts`); production-like posture ignores stale browser scope when BFF bearer resolves scope (`proxy-scope-resolution.test.ts` `ignores client scope in production unless explicitly allowed`); `resolveBootstrapCompletePath` prefers explicit safe `returnUrl` before consumed OIDC storage (`prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`); dev `enforceProxyRateLimit` no-op is documented with prod matrix tests (`proxy-rate-limit.test.ts`); `passThrough` does not forward upstream `Content-Encoding` and JSON auth/me reads decompress via `res.text()` before re-encoding (`proxy-passthrough.ts`). Targeted regressions **36/36** across OTP post-auth, scope resolution, rate limit, and proxy body-limit tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `forwardMutatingWithBody` — BFF slide on local 413 — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** intentional slide after guard-approved mutating attempt; body-limit tests above.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — stale browser scope with BFF cookie — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** production posture ignores client scope; scope resolution regression above.
+- [x] (invalid) `resolveEmailOtpPostAuthPath` — bootstrap complete ignores explicit returnUrl — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** explicit safe arg wins; bootstrap complete regression above.
+- [x] (valid-no-repro) `enforceProxyRateLimit` — dev no-op hides prod bucket behavior — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** prod env matrix tests; dev no-op intentional.
+- [x] (valid-no-repro) `passThrough` — upstream Content-Encoding on JSON — **cheap-disproof 2026-11-01 thorough hunt (pass 6):** encoding header not forwarded; fetch decompresses JSON text path.
+
+- [x] (superseded) `passThrough` — Content-Encoding — **superseded 2026-11-01 thorough hunt (pass 6):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — mutating upstream responses including **502** still append BFF activity slide when the guard allowed the call (`proxy-forward.ts` always calls `appendProxyBffSlideCookieHeaders` after `forwardMutatingWithBody`; intentional keep-alive on attempted writes); public anonymous routes resolve scope via `resolveAnonymousPublicProxyScopeHeaders` without JWT claim extraction (`readProxyScopeFromAuthorizationHeader` returns null for `Bearer not-a-jwt`; `proxy-bearer-scope.test.ts`); OTP verify navigates via `resolveEmailOtpPostAuthPath` in `use-sign-in-flow-state` without consuming OIDC storage in `verifyEmailOtpCode` (`email-otp-post-auth.test.ts`); missing forwarded-for maps to shared `unknown` rate-limit key by design (`proxy-rate-limit.test.ts`); **429** responses only add `Server-Timing: proxy;dur=…` before forward runs — no upstream path in the header (`handleRateLimitedForward`; normalized paths used only in structured logs). Targeted regressions **28/28** across bearer scope, rate limit, telemetry normalize, OTP post-auth, and proxy warmup/502 POST tests. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `appendProxyBffSlideCookieHeaders` — slide on upstream 502 POST — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** intentional activity slide after completed upstream round-trip; `does not retry POST upstream 502`.
+- [x] (valid-no-repro) `readProxyScopeFromAuthorizationHeader` — junk bearer scope on anonymous route — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** anonymous scope resolver ignores JWT parse; bearer fail-closed test above.
+- [x] (invalid) `verifyEmailOtpCode` — consumes OIDC return before bootstrap — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** verify API client only; navigation uses `resolveEmailOtpPostAuthPath` with explicit safe returnUrl.
+- [x] (valid-no-repro) `proxyRateLimitClientKey` — shared `unknown` bucket — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** documented fallback; conservative abuse posture.
+- [x] (invalid) `handleRateLimitedForward` — Server-Timing leaks path segments — **cheap-disproof 2026-11-01 thorough hunt (pass 5):** 429 timing is proxy duration only; path normalization is log-only.
+
+- [x] (superseded) `appendProxyBffSlideCookieHeaders` — 502 slide — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
+- [x] (superseded) `readProxyScopeFromAuthorizationHeader` — malformed JWT anonymous — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
+- [x] (superseded) `verifyEmailOtpCode` — OIDC consume ordering — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
+- [x] (superseded) `proxyRateLimitClientKey` — unknown bucket — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — Server-Timing path leak — **superseded 2026-11-01 thorough hunt (pass 5):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not copy upstream `Set-Cookie` (header allowlist only); null BFF payload on GET returns empty slide headers unless clearing an unparseable cookie (`slideCookieHeaders` only for unparseable clear, not activity slide); `resolveBootstrapCompletePath` falls back to consumed safe desk path when explicit returnUrl is unsafe (`falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`); anonymous routes use `resolveAnonymousPublicProxyScopeHeaders` which never applies trusted server scope fallback (`forwards tenant self-registration POST when BFF session is enabled`; scope resolution comment at `proxy-scope-resolution.ts`); auth/me warmup retry + client cache coupling is monitor-only with no failing repro in-zone. Targeted regressions **41/41** across `email-otp-post-auth.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-upstream-headers.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `Set-Cookie` — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** Set-Cookie not forwarded from upstream responses.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — GET without session slides cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** null payload branch does not slide activity; optional unparseable clear only.
+- [x] (invalid) `resolveBootstrapCompletePath` — unsafe returnUrl drops desk path — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** consumed safe desk path wins; regression above.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — trusted scope on anonymous register — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** anonymous resolver forwards browser scope only, not trusted server fallback.
+- [x] (valid-no-repro) `fetchWithWarmupRetry` — stale auth/me after retry — **cheap-disproof 2026-11-01 thorough hunt (pass 4):** no failing repro; monitor-only lens.
+
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` allowlists response headers and does not forward upstream `ETag`/`Vary` (only sets opt-in `Cache-Control` on auth/me); `enforceProxyRateLimit` runs before `forward` so 429 responses never reach BFF slide (intentional abuse fail-fast); OTP `Complete` and bootstrap complete are separate navigation entry points so paired `consumePostSignInReturnUrl` calls are not one buyer flow (`use-sign-in-flow-state` vs `PostAuthBootstrapClient`); anonymous public paths forward browser `Authorization` when present (`still forwards browser Authorization on public anonymous paths when present`); missing/`chunked` Content-Length skips declared-length 413 but streaming read still enforces cap (`body_too_large_streaming`; `declaredPostBodyExceedsLimit` returns false for non-numeric header). Targeted regressions **37/37** across `proxy-body-read.test.ts`, `proxy-upstream-headers.test.ts`, and `email-otp-post-auth.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide without session — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl consume ordering — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — trusted scope on register — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me stale retry — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` allowlists response headers and does not forward upstream `ETag`/`Vary` (only sets opt-in `Cache-Control` on auth/me); `enforceProxyRateLimit` runs before `forward` so 429 responses never reach BFF slide (intentional abuse fail-fast); OTP `Complete` and bootstrap complete are separate navigation entry points so paired `consumePostSignInReturnUrl` calls are not one buyer flow (`use-sign-in-flow-state` vs `PostAuthBootstrapClient`); anonymous public paths forward browser `Authorization` when present (`still forwards browser Authorization on public anonymous paths when present`); missing/`chunked` Content-Length skips declared-length 413 but streaming read still enforces cap (`body_too_large_streaming`; `declaredPostBodyExceedsLimit` returns false for non-numeric header). Targeted regressions **37/37** across `proxy-body-read.test.ts`, `proxy-upstream-headers.test.ts`, and `email-otp-post-auth.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `ETag`/`Vary` on auth/me — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** validators not forwarded; private cache hint only when opted in.
+- [x] (valid-no-repro) `handleRateLimitedForward` — 429 omits BFF slide cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** rate limit short-circuits before `enforceProxyBffSessionGuard`; intentional.
+- [x] (invalid) `consumePostSignInReturnUrl` — double consume OTP + bootstrap complete — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** separate client entry points; not a single verify-then-complete chain consuming twice for one desk landing.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — anonymous path omits browser bearer — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** regression forwards browser Authorization on public anonymous paths.
+- [x] (invalid) `forwardMutatingWithBody` — chunked POST bypasses body cap — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** streaming read limit returns 413 via `body_too_large_streaming`.
+
+- [x] (superseded) `passThrough` — Set-Cookie (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register trusted scope (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+- [x] (superseded) `passThrough` — Set-Cookie (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `enforceProxyBffSessionGuard` — GET slide (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `resolveBootstrapCompletePath` — unsafe returnUrl (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — register scope (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+- [x] (superseded) `fetchWithWarmupRetry` — auth/me retry (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 4):** see closed row above.
+
+- [x] (superseded) `passThrough` — ETag/Vary cache validators — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 BFF slide — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous browser bearer — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked body cap bypass — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not forward upstream `Cache-Control` and sets `private, max-age=60` only for successful `/api/auth/me` GETs (no shared-cache override); `buildProxyUpstreamPath` rejects traversal but has no depth cap so long safe paths forward upstream rather than 400 (hypothesis inverted); `enforceProxyRateLimit` keys only on client IP (`proxyRateLimitClientKey`) by design so colocated traffic shares a bucket conservatively; `resolveEmailOtpPostAuthPath` prefers explicit safe `returnUrl` over consumed OIDC storage (`prefers explicit safe returnUrl over consumed OIDC return for Complete`; `prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`); sandbox mock short-circuit skips BFF slide cookies only when `ARCHLUCID_UI_SANDBOX_MOCKS` is enabled (local exploration, not production posture). Targeted regressions `email-otp-post-auth.test.ts` and `proxy-upstream-path.test.ts` passed **21/21**. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `Cache-Control` vs auth/me private hint — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** upstream cache headers not copied; opt-in private hint overwrites on auth/me only.
+- [x] (invalid) `buildProxyUpstreamPath` — overlong safe segment list — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** no depth limit; safe joins forward upstream; traversal tests cover rejection paths.
+- [x] (valid-no-repro) `enforceProxyRateLimit` — anonymous vs operator bucket sharing — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** IP-keyed fixed window; intentional conservative abuse posture.
+- [x] (invalid) `resolveEmailOtpPostAuthPath` — consumed OIDC overrides explicit safe path — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** explicit safe arg wins; regressions above.
+- [x] (valid-no-repro) `trySandboxProxyMock` — sandbox GET skips BFF slide cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** dev-only env gate; not a production / private-beta path.
+
+- [x] (superseded) `passThrough` — ETag/Vary (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 slide (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous bearer (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked bypass (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
+- [x] (superseded) `passThrough` — ETag/Vary (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 slide (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous bearer (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked bypass (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
+- [x] (superseded) `passThrough` — upstream Cache-Control override — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong segment list — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — shared bucket — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — OIDC precedence — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `trySandboxProxyMock` — BFF slide skip — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — expired BFF on anonymous marketing mutations is intentional with cookie clear (`allows anonymous marketing mutations when the BFF session cookie is expired`; `allows anonymous marketing mutations when the BFF session cookie is idle-expired`); `authMePrivateCacheSeconds` keys off `path.toLowerCase()` and canonical clients call lowercase `api/auth/me`; mutating forwards copy client `Content-Type` before empty-body upstream fetch (`copyMutatingRequestContentType`); `mergeRegistrationScopeForProxy` uppercases method before CSRF attachment (`method?.toUpperCase() ?? "GET"`); marketing-host `/runs` handoff preserves query before app-side alias rewrite (`hands off marketing-host legacy /runs alias bookmarks to the app origin before demo alias canonicalization`; `preserves query string when rewriting /runs alias paths`). Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures). Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` — expired session + anonymous marketing POST — **cheap-disproof 2026-11-01 thorough hunt:** regressions above.
+- [x] (valid-no-repro) `forward` / `authMePrivateCacheSeconds` — mixed-case tail path — **cheap-disproof 2026-11-01 thorough hunt:** full-path lowercasing; no in-zone caller uses mixed-case `api/auth/me`.
+- [x] (valid-no-repro) `forwardMutatingWithBody` — zero-byte JSON POST Content-Type — **cheap-disproof 2026-11-01 thorough hunt:** content-type copied from incoming request before body read.
+- [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — lowercase PATCH method — **cheap-disproof 2026-11-01 thorough hunt:** `toUpperCase()` normalization; no PATCH bootstrap client in zone today.
+- [x] (valid-no-repro) `proxy.ts` / host gate — alias query loss on marketing host — **cheap-disproof 2026-11-01 thorough hunt:** host-gate handoff + alias redirect preserve `search`.
+
+- [x] (superseded) `trySandboxProxyMock` — sandbox mock short-circuit may skip BFF slide cookies — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — consumed OIDC return may override explicit safe bootstrap path — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — pre-auth anonymous POST may share bucket — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong proxy segment list — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `passThrough` — upstream Cache-Control on auth/me — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
+- [x] (superseded) `passThrough` — upstream Cache-Control on auth/me (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamPath` — overlong proxy segment list (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `enforceProxyRateLimit` — shared bucket (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `resolveEmailOtpPostAuthPath` — OIDC precedence (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+- [x] (superseded) `trySandboxProxyMock` — BFF slide skip (duplicate reseed) — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — zero-byte body Content-Type — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `mergeRegistrationScopeForProxy` — PATCH method casing — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `proxy.ts` host gate — demo-run alias query — **superseded 2026-11-01 thorough hunt:** see closed row above.
+
+2026-11-01 seed hunt (hit): rotation fired after three low-yield `ui-form-validation` thorough outcomes (`avoidZoneId` `ui-form-validation`). Promoted return-only idle desk restore dropping registered livelihood form snapshots when `readOperatorScopeFromStorage()` is null — `persistIdleDeskRestoreBeforeSessionClear` returned before `collectRegisteredLivelihoodIdleFormSnapshots()`; `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` no-op'd without scope. Fixed both paths to persist/merge snapshots with `scope: null`. Regressions `persists livelihood form snapshots before session clear when operator scope is missing (WS-18)` and `merges one livelihood snapshot when operator scope is missing (LW-095)`. Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures outside this fix). Reseeded five follow-on `(candidate)` rows below. Private beta: invited operators who idle out on a desk path without a localStorage scope row keep in-progress livelihood draft fields through re-auth instead of losing them while the return URL still restores.
+
+- [x] (proven) `persistIdleDeskRestoreBeforeSessionClear` / `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` — scope-less idle clear dropped WS-18 livelihood snapshots — **hit 2026-11-01 seed hunt:** regressions above.
+
+- [x] (superseded) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — zero-byte body Content-Type (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `mergeRegistrationScopeForProxy` — PATCH method casing (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+- [x] (superseded) `proxy.ts` host gate — demo-run alias query (reseed) — **superseded 2026-11-01 thorough hunt:** see closed row above.
+
 2026-10-31 seed hunt (seed-only): after syncing `bugsmash-3` with latest `master`, reread idle-desk return canonicalization, BFF session idle/CSRF enforcement, proxy forwarding and host-gate ordering, bootstrap/OTP client boundaries, and scope-header precedence. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped auth/proxy vitest passed 60 files and 278/278 tests. No production code changed.
 
 2026-10-31 seed hunt (seed-only): reread idle-desk restore parsing/consumption, sign-in destination safety, proxy forwarding timeout and method branches, and BFF session idle/CSRF/public-anonymous handling after the prior auth/proxy pass. Existing regressions cover the reachable state transitions and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
@@ -2967,10 +3360,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 68
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-10-08
+- **hunts:** 76
+- **bugs-found:** 37
+- **consecutive-dry-hunts:** 7
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
