@@ -2894,6 +2894,20 @@
 
 ## Zone: review-recurrence
 
+2026-11-01 thorough hunt (dry #936): cheap-disproof closed five open `(candidate)` rows from thorough dry **#935** (`@daily`/`@weekly` at `DateTime.MaxValue` throw `ArgumentOutOfRangeException` on alias `AddDays` like `@hourly` — regressions `ComputeNextRunUtc_interval_alias_at_max_value_throws`; unreachable MaxValue reference on persisted recurrence per hunt **#935**); interior no-break space U+00A0 fails Cronos parse — regressions `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields` and `ComputeNextRunUtc_returns_null_for_interior_no_break_space_cron`; `@montly` typo rejected while `@monthly` accepted via Cronos — regression `IsSupportedCronExpression_rejects_montly_typo_alias`; `DateTime.MinValue` with `"0 0 1 1 *"` returns future Cronos occurrence without throw — regression `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`; batch preview omits `isScheduleEnabled` by design while single-run honors disable — regression `ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled` plus hunt **#1469** diary); reseeded five follow-on `(candidate)` rows; scoped **54/54** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@daily` or `@weekly` alias at `DateTime.MaxValue` may throw on `AddDays` instead of returning null — **cheap-disproof 2026-11-01 thorough hunt #936:** throws like `@hourly`; not reachable from production recurrence references; regressions above.
+- [x] (invalid) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior no-break space (U+00A0) between fields parses differently from ASCII space — **cheap-disproof 2026-11-01 thorough hunt #936:** rejected consistently; regressions above.
+- [x] (invalid) `IsSupportedCronExpression` — typo alias `@montly` accepted or rejected inconsistently with `@monthly` — **cheap-disproof 2026-11-01 thorough hunt #936:** exact alias list excludes typo; Cronos accepts `@monthly`; regression above.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` UTC reference with five-field cron returns null or throws from Cronos — **cheap-disproof 2026-11-01 thorough hunt #936:** returns strictly future instant; regression above.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — batch loop passes `isScheduleEnabled: true` implicitly while persisted path can disable schedule — **cheap-disproof 2026-11-01 thorough hunt #936:** preview batch API has no enabled flag by design; persisted path uses single-run disable; regression above.
+
+- [ ] (candidate) `ComputeNextRunUtc` — `@monthly` or `@yearly` Cronos alias at `DateTime.MaxValue` may throw instead of returning null — locus: Cronos `GetNextOccurrence`; input: UTC MaxValue (monitor).
+- [ ] (candidate) `IsSupportedCronExpression` — interior thin space U+2009 between cron fields — locus: `Trim()` only; input: word-processor paste variant (monitor).
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@weekley` vs `@weekly` — locus: `IsIntervalAlias` exact match; input: operator typo (monitor).
+- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` with `@hourly` alias throws on `AddHours` — locus: alias branch; input: MinValue reference (monitor).
+- [ ] (candidate) `ComputeNextRunsUtc` — large preview count with invalid cron after first null break — locus: batch loop; input: stub two-step null (monitor recycle).
+
 2026-11-01 thorough hunt (dry #935): cheap-disproof closed five open `(candidate)` rows from seed hunt #934; runtime probe shows `@hourly` at `DateTime.MaxValue` throws `ArgumentOutOfRangeException` but no reachable recurrence caller supplies that reference; retry cursor uses `candidate` by design (`ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`); interior vertical tab parses identically to spaced `"0 8 * * 1"`; partial batch on null is intentional stub/API contract (`ComputeNextRunsUtc_returns_empty_when_underlying_needs_more_than_one_advance_past_reference`); six-field cron rejected consistently while `@monthly`/`@yearly` use Cronos aliases not seconds fields; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (Release, `RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `ComputeNextRunUtc` — `@hourly` at `DateTime.MaxValue` throws on alias `AddHours(1)` — **cheap-disproof 2026-11-01 thorough hunt #935:** runtime probe throws `ArgumentOutOfRangeException`; persisted architecture-review recurrence computes bounded future `NextRunUtc` values, not `DateTime.MaxValue`.
@@ -2902,11 +2916,11 @@
 - [x] (invalid) `ComputeNextRunsUtc` — partial list on null break conflates invalid cron vs one-retry ceiling — **cheap-disproof 2026-11-01 thorough hunt #935:** preview API returns instants only; normalization ceiling returns empty via stub regressions, not a calculator ambiguity defect.
 - [x] (invalid) six-field cron rejected while `@monthly`/`@yearly` supported — **cheap-disproof 2026-11-01 thorough hunt #935:** `CronFormat.Standard` rejects seconds field; monthly/yearly are named Cronos aliases, not six-field expressions; `IsSupportedCronExpression("0 0 8 * * 1")` false and `"0 8 * * 1"` true.
 
-- [ ] (candidate) `ComputeNextRunUtc` — `@daily` or `@weekly` alias at `DateTime.MaxValue` may throw on `AddDays` instead of returning null — locus: `SimpleScanScheduleCalculator` alias branch; input: UTC `DateTime.MaxValue`; reachability: distinct overflow path from `@hourly` MaxValue probe.
-- [ ] (candidate) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior no-break space (U+00A0) between fields parses differently from ASCII space — locus: `Trim()` only strips ends; input: `"0\u00a08 * * 1"`; reachability: word-processor pasted schedule in stickiness UI.
-- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@montly` accepted or rejected inconsistently with `@monthly` — locus: `IsIntervalAlias` exact match; input: `@montly`; reachability: operator typo on schedule create vs preview validation.
-- [ ] (candidate) `ComputeNextRunUtc` — `DateTime.MinValue` UTC reference with five-field cron returns null or throws from Cronos — locus: `GetNextOccurrence`; input: `0 0 1 1 *` at MinValue; reachability: backfill job with empty historical cursor.
-- [ ] (candidate) `ComputeNextRunsUtc` — batch loop passes `isScheduleEnabled: true` implicitly while persisted path can disable schedule — locus: batch API has no enabled flag; input: paused schedule preview vs wake — reachability: distinct from prior enabled-flag valid-no-repro if preview route ever binds enabled state.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `@daily` or `@weekly` alias at `DateTime.MaxValue` may throw on `AddDays` instead of returning null — **cheap-disproof 2026-11-01 thorough hunt #936:** see dry #936 diary.
+- [x] (invalid) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior no-break space (U+00A0) between fields parses differently from ASCII space — **cheap-disproof 2026-11-01 thorough hunt #936:** see dry #936 diary.
+- [x] (invalid) `IsSupportedCronExpression` — typo alias `@montly` accepted or rejected inconsistently with `@monthly` — **cheap-disproof 2026-11-01 thorough hunt #936:** see dry #936 diary.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — `DateTime.MinValue` UTC reference with five-field cron returns null or throws from Cronos — **cheap-disproof 2026-11-01 thorough hunt #936:** see dry #936 diary.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — batch loop passes `isScheduleEnabled: true` implicitly while persisted path can disable schedule — **cheap-disproof 2026-11-01 thorough hunt #936:** see dry #936 diary.
 
 2026-11-01 seed hunt (seed-only #934): re-read `ArchitectureReviewRecurrenceNextRunCalculator` after the Application-layer extraction (delegates to `SimpleScanScheduleCalculator` for Cronos/alias semantics, `NormalizeReferenceUtc`/`NormalizeNextRunUtc` strict-advance wrapper, batch preview via repeated `ComputeNextRunUtc`); no mechanism-backed row met the hunt-ready promotion bar; seeded five `(candidate)` rows below; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -2914,7 +2928,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
@@ -2924,7 +2938,7 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -2934,7 +2948,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-11-01
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
@@ -18300,7 +18314,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
