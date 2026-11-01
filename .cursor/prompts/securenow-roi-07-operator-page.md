@@ -54,7 +54,7 @@ The ROI notes are easy to miss. Sponsors already have a Home section. One more r
 
 From `archlucid-ui`:
 
-`npx vitest run src/lib/product-line/securenow-sponsor-home-copy.test.ts src/app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView.test.tsx src/lib/product-line/product-line-catalog.test.ts`
+`npx vitest run src/lib/product-line/securenow-sponsor-home-copy.test.ts 'src/app/(operator)/administration/securenow-investigation-effort/SecureNowInvestigationEffortPageView.test.tsx' src/lib/product-line/product-line-catalog.test.ts`
 
 The page test finds `securenow-investigation-effort-page`, the four link labels, and those four hrefs. The rendered text contains `NO_GO` and does not contain `$`.
 
