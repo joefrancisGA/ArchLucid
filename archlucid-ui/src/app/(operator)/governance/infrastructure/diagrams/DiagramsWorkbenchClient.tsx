@@ -636,6 +636,11 @@ export function DiagramsWorkbenchClient() {
 
   const priorUrlSnapshotIdRef = useRef(urlSnapshotId);
   const suppressUrlSeedApplyRef = useRef(false);
+  const lastUrlSeedNodeIdRef = useRef(urlSeedNodeId);
+  const appliedSeedNodeIdRef = useRef(appliedSeedNodeId);
+  appliedSeedNodeIdRef.current = appliedSeedNodeId;
+  const selectedSnapshotIdForSeedRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdForSeedRef.current = selectedSnapshotId;
 
   useEffect(() => {
     const priorSnapshotId = priorUrlSnapshotIdRef.current;
@@ -656,6 +661,9 @@ export function DiagramsWorkbenchClient() {
   }, [urlMermaidMode, urlSnapshotId]);
 
   useEffect(() => {
+    const priorUrlSeedNodeId = lastUrlSeedNodeIdRef.current;
+    lastUrlSeedNodeIdRef.current = urlSeedNodeId;
+
     setSeedNodeDraft(urlSeedNodeId);
 
     if (urlMermaidMode !== "dependencyNeighborhood") {
@@ -676,6 +684,29 @@ export function DiagramsWorkbenchClient() {
     }
 
     const trimmedUrlSeed = urlSeedNodeId.trim();
+
+    if (trimmedUrlSeed.length === 0) {
+      // Unrelated URL patches (display options, automatic subscription
+      // filter) rebuild the query string and can briefly omit seedNodeId.
+      // Preserve the applied seed only when the URL previously carried that
+      // same seed (a transient omission); a URL that switched seeds or an
+      // explicit snapshot/subscription reset still clears it. Restore the
+      // param so the neighborhood render survives the router round trip.
+      const trimmedAppliedSeed = appliedSeedNodeIdRef.current.trim();
+      const renderedSnapshotId = selectedSnapshotIdForSeedRef.current;
+
+      if (
+        trimmedAppliedSeed.length > 0
+        && priorUrlSeedNodeId.trim() === trimmedAppliedSeed
+        && renderedSnapshotId.length > 0
+        && urlSnapshotId === renderedSnapshotId
+      ) {
+        setSeedNodeDraft(trimmedAppliedSeed);
+        syncUrlRef.current({ seedNodeId: trimmedAppliedSeed });
+        return;
+      }
+    }
+
     setAppliedSeedNodeId(trimmedUrlSeed.length > 0 ? trimmedUrlSeed : "");
   }, [urlMermaidMode, urlSeedNodeId, urlSnapshotId]);
 
