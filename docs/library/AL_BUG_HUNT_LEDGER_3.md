@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId cli-tenant-isolation` after three consecutive low-yield outcomes (`seed-only`, `seed-only`, `seed-only`). Reread `buildSignupRegisterPayload` optional numeric bounds, industry `Other` detail trimming, register in-flight/completed refs, first-touch header attachment, and post-success session persistence guards. No new reachable mechanism-backed candidate met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. No production code changed.
+
 2026-10-31 seed hunt (seed-only): fresh reread covered `SignupForm` schema-backed submit gating, required-field and optional-field rendering, numeric payload shaping, “Other” industry transitions, response parsing, session persistence, first-touch attribution, and retry/navigation guards. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed.
 
 2026-10-31 seed hunt (seed-only): completed the third consecutive SignupForm seed reread; rendered limits, schema refinements, optional-field transitions, payload shaping, response handling, and retry/navigation guards remained aligned. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed. Rotation is now eligible for the next Set 3 invocation.
@@ -376,10 +378,10 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 82
+- **hunts:** 83
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-31
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -526,6 +528,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **1/3** before this hunt — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestCommand` markdown/console report assembly, artifact path resolution, and overall verdict → process exit mapping for live vs offline runs. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-help-docs` after prior rotation hunt — below `minLowYieldStreak` 3; default picker returned **`cli-tenant-isolation`**). Reread `TenantIsolationNegativeTestRunner` live/offline orchestration, primary sanity gate before cross-tenant catalog probes, and unexpected-success counting for markdown summaries. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread live `ScanRunListForForeignRunIdAsync` pagination cap and `hasMore` without `nextCursor` → scan-incomplete SKIP, `EvaluateExcludeRunIdProbeVerdict` vs deny-status probes, and `DeriveOverallVerdict` live-mode overall SKIP when any cross-tenant probe SKIPs. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId cli-tenant-isolation`.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **1/3** after prior seed-only — below `minLowYieldStreak` 3). Reread offline manifest replay verdict merging for exclude-run-id and deny-status probes, embedded list JSON hasMore scanning, and `DeriveOverallVerdict` offline PASS when cross-tenant probes SKIP. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-form-validation` is **1/3** after prior seed-only — below `minLowYieldStreak` 3). Reread live runner exclude-run-id list scan pagination caps, deny-status evaluation vs list-exclusion verdicts, and probe correlation metadata passed into markdown/console summaries. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestOptions.Parse` value-option validation, live-mode `--run-id` gating vs offline fixture replay, and artifact key/output path resolution before `WriteArtifactsAsync`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed. Rotation should apply `-AvoidZoneId cli-tenant-isolation` on the next default Set 3 pick after this third consecutive seed-only is recorded.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **1/3** after prior seed-only — below `minLowYieldStreak` 3). Reread `TenantIsolationNegativeTestCommand.RunAsync` live/offline mode selection, alternate-scope header application on the secondary client, UTF-8 no-BOM artifact writes, and non-Pass overall verdict exit mapping. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **2/3** — below `minLowYieldStreak` 3); picker selected `cli-tenant-isolation` (not cooldown-fallback OIDC). Reread `TenantIsolationNegativeTestRunner` offline/live report assembly, `DeriveOverallVerdict` live cross-tenant SKIP vs offline fixture PASS contract, `ResolveAlternateScope` delegation, and unexpected-success counting. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
 2026-10-30 seed hunt #68 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #67 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
@@ -652,10 +670,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 68
+- **hunts:** 76
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1842,6 +1860,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **6** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `useHelpDocsIndexQuery` fetch contract, `HELP_DOCS_STATIC_ENTRIES` fallback when fetch pending/fails, and `helpDocCategoriesForDisplay` known-vs-extra category ordering. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **5** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `parseHelpHubSearchQuery`, `helpHubSearchHrefFromSearch` / clear-search href builders, and URL `q` param sync vs debounced `router.replace`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **4** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1** — hunt remained **`ui-help-docs`**). Reread `mergeDocIndex` duplicate normalized-path suppression vs `mergedIncludesDeepLinkVariantForKey`, and static row `seenKeys` vs fetched merge order. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on `ui-help-docs`: seed-only ×3; picker applied `-AvoidZoneId ui-help-docs` but **`eligibleCount` 1** — no alternate open zone, so **`ui-help-docs`** remained the hunt target). Reread `docIndexMergeDedupeKey` scheme-relative URL normalization and `/help` path exemption from `claimedUrls`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-help-docs` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread `normalizeDocIndexUrlForDedupe` for absolute vs relative URLs, `helpDocLinkHref` trim-only contract, and Escape-to-clear on the search input. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId ui-help-docs` when another eligible zone exists.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-help-docs` is **1/3** before this hunt — below `minLowYieldStreak` 3). Reread external link `rel`/`target` handling, index fetch error vs empty-index warnings, and pending-state static fallback before merge completes. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** — below `minLowYieldStreak` 3; picker selected **`ui-help-docs`**). Reread client-side filter matching against merged static+fetched index rows, category grouping order for unknown categories, and TOC anchor ids from `slugifyHelpHeading`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
+2026-11-01 seed hunt (seed-only): **rotation fired** (`shouldRotate: true`; **3** consecutive low-yield hunts on `cli-tenant-isolation`: seed-only ×3; picker applied `-AvoidZoneId cli-tenant-isolation` and selected **`ui-help-docs`**). Reread `mergeDocIndex` normalized-path dedupe vs deep-link suffix retention, debounced `helpHubSearchHrefFromSearch` URL sync, and `normalizeHelpHubFilterQuery` trailing-slash trimming. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
+
 2026-10-30 seed hunt #48 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #47 (seed-only): re-read `HelpDocsClient`, its URL/merge helpers, and the current 61-test focused suite; rotation remained requested with no alternate eligible zone, and no new mechanism-backed candidate was supported. No production code changed.
@@ -1916,10 +1950,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 49
+- **hunts:** 57
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
 - **code-changed-since:** 0
