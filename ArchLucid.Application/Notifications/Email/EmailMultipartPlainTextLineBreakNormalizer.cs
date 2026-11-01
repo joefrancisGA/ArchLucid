@@ -11,6 +11,8 @@ public static class EmailMultipartPlainTextLineBreakNormalizer
         return value
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Replace('\r', '\n')
+            .Replace('\f', '\n')
+            .Replace('\u000B', '\n')
             .Replace('\u0085', '\n')
             .Replace('\u2028', '\n')
             .Replace('\u2029', '\n');

@@ -48,7 +48,8 @@ public interface IBackgroundJobRepository
         int retryCount,
         CancellationToken cancellationToken = default);
 
-    Task MarkPendingRetryAsync(
+    /// <returns><see langword="true" /> when a <c>Running</c> row was moved to <c>Pending</c>; otherwise <see langword="false" />.</returns>
+    Task<bool> MarkPendingRetryAsync(
         string jobId,
         int retryCount,
         string error,

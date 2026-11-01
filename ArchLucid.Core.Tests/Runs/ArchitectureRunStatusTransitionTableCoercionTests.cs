@@ -139,6 +139,15 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_coerces_horizontal_tab_only_legacy_status_to_created()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("\t", out ArchitectureRunStatus status);
+
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Created);
+    }
+
+    [Fact]
     public void TryParseStatus_coerces_unicode_nbsp_whitespace_only_legacy_status_to_created()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("\u00A0", out ArchitectureRunStatus status);
