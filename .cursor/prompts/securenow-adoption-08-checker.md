@@ -32,8 +32,8 @@ SN-ADOPT-05 through SN-ADOPT-07 are easy to regress into two factory links, a sh
    - `securenow-first-hour-copy.ts` lacks `Path inspect` or `Select a priority row`.
    - That operator copy gives step 3 the same factory href as step 2. Treat `SECURENOW_REMEDIATION_FACTORY_PATH` or `"/security/remediation-factory"` on the step 3 object as a failure.
    - `SecureNowFirstHourPageView.tsx` lacks `id="path-inspect"` or `id="stop"`.
-   - `securenow-first-hour-home-copy.ts` lacks `A missing or stale capture is the current step`, `A blank ranking is not a clean result`, `Scope and freshness`, `One ranked path`, `Path inspect`, `Stop`, and `First hour page`.
-   - That home copy lacks `/integrations/cloud-connections`, `/security/remediation-factory`, `/administration/securenow-first-hour#path-inspect`, `/administration/securenow-first-hour#stop`, or `/administration/securenow-first-hour`.
+   - `securenow-first-hour-home-copy.ts` lacks `A missing or stale capture is the current step` or `A blank ranking is not a clean result`.
+   - Its row data does not contain exactly these five label-to-href pairs in order: `Scope and freshness` → `/integrations/cloud-connections`; `One ranked path` → `/security/remediation-factory`; `Path inspect` → `/administration/securenow-first-hour#path-inspect`; `Stop` → `/administration/securenow-first-hour#stop`; `First hour page` → `/administration/securenow-first-hour`. Validate the actual row assignments and five distinct href values, not independent source-token presence or URL substrings. Add mutation tests that swap two row hrefs and duplicate a row href while leaving URL constants intact; both must fail.
    - `SecureNowHomeEnvironmentContext.tsx` lacks `No collection yet` or `/integrations/cloud-connections`.
 3. Extend `scripts/ci/test_check_securenow_adoption_friction.py`. The real tree passes. A temp copy that deletes `Path inspect` from `FIRST_HOUR.md` fails. A temp copy that deletes `No collection yet` from the environment component fails.
 4. Leave the existing CI steps in place. Do not add a second workflow job. Both steps stay `continue-on-error: true`.
