@@ -2295,3 +2295,4 @@
 {"at":"2026-11-01T14:58:40.2304531Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-11-01T15:04:41.6176177Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-11-01T15:08:11.3071066Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
+{"at":"2026-11-01T15:12:05.5167637Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}

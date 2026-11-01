@@ -2,6 +2,8 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 seed hunt (seed-only): reread `buildSignupRegisterPayload`, `signupFormSchema` superRefine paths, register in-flight/completed refs, success session writes, and first-touch header attachment against the five open `(candidate)` rows; cheap-disproof closed all five (leading-zero/scientific team-size behavior, Other-industry whitespace gating, non-string provisioning ids, and whitespace-only `201` bodies are covered by existing regressions or unreachable API contracts). No new mechanism met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed.
+
 2026-11-01 seed hunt (seed-only, rotation): rotation applied `-AvoidZoneId cli-tenant-isolation` after three consecutive low-yield outcomes (`seed-only`, `seed-only`, `seed-only`). Reread `buildSignupRegisterPayload` optional numeric bounds, industry `Other` detail trimming, register in-flight/completed refs, first-touch header attachment, and post-success session persistence guards. No new reachable mechanism-backed candidate met the hunt-ready bar; focused `SignupForm` suite passed **144/144**. No production code changed.
 
 2026-10-31 seed hunt (seed-only): fresh reread covered `SignupForm` schema-backed submit gating, required-field and optional-field rendering, numeric payload shaping, “Other” industry transitions, response parsing, session persistence, first-touch attribution, and retry/navigation guards. No new reachable mechanism-backed candidate met the hunt-ready bar; the focused SignupForm suite passed 144/144. No production code changed.
@@ -20,11 +22,17 @@
 
 2026-10-31 seed hunt (seed-only): reread `SignupForm` submit/payload shaping and optional-field transitions; no candidate was promoted in this pass, and five bounded response/payload candidates were seeded below. No production change. Private beta: n/a.
 
-- [ ] (candidate) `buildSignupRegisterPayload` — a very long leading-zero `architectureTeamSize` string may normalize to a different accepted integer than the browser’s displayed number — locus: `Number(teamTrim)` and integer bounds; input: `000000000000000000001`; wrong outcome: displayed optional team size and registered payload diverge; reachability: browser number input values can preserve leading zeros through form state.
-- [ ] (candidate) `buildSignupRegisterPayload` — scientific notation at the upper bound may be serialized as `10000` while the user sees exponent text — locus: `Number(teamTrim)`; input: `1e4`; wrong outcome: payload semantics differ from visible input; reachability: HTML number inputs accept exponent notation in supported browsers.
-- [ ] (candidate) `SignupForm` optional industry handling — selecting `Other` with whitespace-only detail may leave readiness and payload gates inconsistent — locus: `industryVerticalOther` clearing and schema-backed `canSubmit`; input: `industryVertical=Other`, `industryVerticalOther="   "`; wrong outcome: submit state disagrees with the visible optional-field error; reachability: operator selects the Other industry option and leaves the detail blank.
-- [ ] (candidate) `SignupForm` success handling — a successful response with non-string provisioning identifiers may persist unusable registration metadata — locus: unchecked `TenantProvisioningResult` spread into `sessionStorage`; input: `{"tenantId":123,"defaultWorkspaceId":false}`; wrong outcome: later scope hydration receives malformed identifiers; reachability: a compromised or drifted registration proxy response.
-- [ ] (candidate) `SignupForm` success handling — a whitespace-only successful response body may be treated as committed registration without a provisioning payload — locus: empty/invalid JSON fallback after `res.ok`; input: HTTP 201 with body `"   "`; wrong outcome: verify navigation proceeds without persisted provisioning data; reachability: registration API can return a successful empty body.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — very long leading-zero `architectureTeamSize` normalizes differently than visible input — **cheap-disproof 2026-11-01 seed hunt:** `Number` decimal parsing is intentional; regressions `signupFormSchema accepts leading-zero optional architecture team size as decimal ten` and `serializes leading-zero optional architecture team size as ten in the register payload builder`.
+- [x] (invalid) `buildSignupRegisterPayload` — scientific notation at upper bound serializes as `10000` while user sees exponent text — **cheap-disproof 2026-11-01 seed hunt:** inclusive bound by design; regression `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`.
+- [x] (valid-no-repro) `SignupForm` optional industry handling — `Other` with whitespace-only detail leaves readiness and payload inconsistent — **cheap-disproof 2026-11-01 seed hunt:** schema blocks submit; regression `keeps submit disabled when industry Other has whitespace-only specification`.
+- [x] (invalid) `SignupForm` success handling — non-string provisioning identifiers in session storage — **cheap-disproof 2026-11-01 seed hunt:** success contract is typed `TenantProvisioningResult`; scope headers fail closed (`does not emit registration scope headers when tenantId is stored as a JSON number`).
+- [x] (valid-no-repro) `SignupForm` success handling — whitespace-only `201` body treated as committed registration — **cheap-disproof 2026-11-01 seed hunt:** intentional `res.ok` verify path; regression `still navigates after 201 when register response body is whitespace only`.
+
+- [ ] (candidate) `buildSignupRegisterPayload` — hexadecimal optional team-size strings (`0x2710`) serialize via `Number()` while the number input may show decimal text — locus: `Number(teamTrim)`; input: `0x2710`; wrong outcome: payload value disagrees with the operator-visible team size; reachability: pasted hex literals in supported browsers.
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `402`/`418` non-envelope responses fall through to raw-body toast without signup-specific copy — locus: non-ok detail branch; input: `402` with plain text body; wrong outcome: buyer sees generic infrastructure text without retry guidance; reachability: proxy/WAF responses on `/api/proxy/v1/register`.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — optional-only validation failures after required fields pass may surface generic default copy — locus: `default` switch branch; input: invalid `companySize` injected via devtools; wrong outcome: readiness hides the specific optional-field issue; reachability: manipulated form state outside the Select control.
+- [ ] (candidate) `SignupForm` — collapsed optional `<details>` keeps architecture team size `role="alert"` errors off-screen until expanded — locus: optional details default closed; input: invalid team size with valid required fields; wrong outcome: submit disabled without visible inline error; reachability: buyer leaves optional section collapsed.
+- [ ] (candidate) `SignupForm` `onSubmit` — slow register responses allow duplicate clicks before `registerInFlightRef` latches — locus: in-flight ref set synchronously but network delay; input: double-click before fetch resolves; wrong outcome: duplicate POST; reachability: high-latency evaluation signup on slow networks.
 
 2026-10-30 seed hunt #92 (seed-only): re-read `signupFormSchema`, SignupForm field wiring, payload shaping, and the current boundary/control-character tests; focused SignupForm vitest passed 144/144 and no new mechanism-backed candidate was supported. No production code changed.
 
@@ -378,7 +386,7 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 83
+- **hunts:** 84
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
