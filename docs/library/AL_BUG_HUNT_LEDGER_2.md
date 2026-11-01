@@ -3207,6 +3207,20 @@
 
 ## Zone: scim-users
 
+2026-11-01 thorough hunt (dry #51): cheap-disproof closed five open `(candidate)` rows recycled from dry **#50** — **valid-no-repro** PUT/PATCH/POST cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (intentional host cancel contract; regressions `ReplaceAsync_propagates_operation_canceled_from_service_replace`, `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`, `PatchAsync_propagates_operation_canceled_from_service_patch`, `CreateAsync_propagates_operation_canceled_from_service_create`, parity `GetAsync_propagates_operation_canceled_from_service` / `DeleteAsync_propagates_operation_canceled_during_deactivate`); **valid-no-repro** omitted `filter` vs empty `filter=` yield identical totals (`ListAsync_null_filter_matches_empty_string_filter_totals`, `ScimFilterParser.Parse` whitespace class hunt **#49**/**#50**); seeded five follow-on `(candidate)` rows; scoped filter **57/57** (45 Application + 12 Api unit; SQL integration skipped on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during service `ReplaceAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ReplaceAsync_propagates_operation_canceled_from_service_replace`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `OperationCanceledException` during service `PatchAsync` propagates without controller catch — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `PatchAsync_propagates_operation_canceled_from_service_patch`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — cooperative cancel during service `CreateAsync` propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `CreateAsync_propagates_operation_canceled_from_service_create`; deserialize cancel remains `CreateAsync_propagates_operation_canceled_during_json_deserialize`.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` cancel propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ReplaceAsync_propagates_operation_canceled_from_post_replace_get`; dry **#50** diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `filter=` empty query and omitted filter both return identical first page totals — **cheap-disproof 2026-11-01 thorough hunt #51:** regression `ListAsync_null_filter_matches_empty_string_filter_totals`; dry **#50** diary.
+
+- [ ] (candidate) `ScimUsersController.PatchAsync` — post-patch `GetAsync` cancel propagates without SCIM envelope — locus: ~188; input: cancel between persist and reload (monitor dry **#51**).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `ScimSeatLimitExceededException` maps to SCIM 403 but cancel during seat reservation propagates — locus: ~97–108; input: cancel after parse before seat check completes (monitor).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `ScimConflictException` on external id uniqueness vs cooperative cancel ordering — locus: ~137–161; input: concurrent PUT with same external id (monitor).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `count` above service clamp still returns `totalResults` for full tenant cardinality — locus: ~36–47; input: `count=10000` list probe (monitor dry **#48** recycle).
+- [ ] (candidate) `ScimUsersController.PatchAsync` — non-SCIM fault after successful patch propagates as HTTP 500 — locus: ~185–209; input: faulting post-patch `GetAsync` (monitor hunt **#352**).
+
 2026-11-01 thorough hunt (dry #50): cheap-disproof closed five open `(candidate)` rows from dry **#49** — **valid-no-repro** PUT/PATCH cooperative cancel during service or post-mutation `GetAsync` propagates without SCIM envelope (controller has no cancel catch; parity `GetAsync_propagates_operation_canceled_from_service`, `DeleteAsync_propagates_operation_canceled_during_deactivate`, hunt **#348** deserialize-only rethrow vs service cancel); **valid-no-repro** PUT on directory-removed id throws `ScimNotFoundException` at tombstone guard before uniqueness (`ScimUserService.Crud.cs` ~99–100; PATCH parity `PatchAsync_directory_removed_user_rejects_active_true_patch`); **valid-no-repro** omitted `filter` vs empty `filter=` both yield unfiltered list (`ScimFilterParser.Parse` `IsNullOrWhiteSpace` → null; `Parse_null_or_whitespace_returns_null`, hunt **#49** whitespace diary); **invalid** unknown id vs directory-removed share identical `notFound` copy by design (RFC 7644 non-enumeration; `GetAsync` maps both to null ~28–29; hunt **#350** static copy diary); seeded five follow-on `(candidate)` rows; scoped filter **52/52** (44 Application + 8 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — cooperative cancel during service `ReplaceAsync` or post-replace `GetAsync` propagates without SCIM envelope — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional host cancel contract; parity `GetAsync_propagates_operation_canceled_from_service` / hunt **#49** DELETE diary.
@@ -3214,12 +3228,6 @@
 - [x] (valid-no-repro) `ScimUserService.ReplaceAsync` — PUT on directory-removed user id throws `ScimNotFoundException` before body uniqueness — **cheap-disproof 2026-11-01 thorough hunt #50:** tombstone guard ~99–100 before `EnsureExternalIdNotUsedByAnotherUserAsync`; POST reprovision remains separate path.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — omitted `filter` query vs empty string both yield unfiltered first page — **cheap-disproof 2026-11-01 thorough hunt #50:** `string.IsNullOrWhiteSpace` in `ScimFilterParser.Parse`; empty `filter=` binds `""` → null AST; hunt **#49** whitespace class.
 - [x] (invalid) `ScimUsersController.GetAsync` — unknown id vs directory-removed both map to identical `notFound` SCIM copy — **cheap-disproof 2026-11-01 thorough hunt #50:** intentional non-enumeration; service hides tombstones via null `GetAsync`; hunt **#350** static `"User not found."` diary.
-
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during service `ReplaceAsync` propagates without controller catch — locus: ~137–140; input: canceled token after PUT body deserialize; reachability: Entra connector mid-PUT (monitor).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `OperationCanceledException` during service `PatchAsync` propagates without controller catch — locus: ~185–188; input: canceled token after PATCH body deserialize (monitor).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — cooperative cancel during service `CreateAsync` propagates without SCIM envelope — locus: ~97–98; input: cancel after JSON deserialize succeeds (monitor).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` cancel propagates without SCIM envelope — locus: ~140; input: cancel between persist and reload (monitor).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `filter=` empty query and omitted filter both return identical first page totals — locus: ~34–47; input: Entra list probe without filter param vs empty filter (monitor).
 
 2026-11-01 thorough hunt (dry #49): cheap-disproof closed five open `(candidate)` rows from thorough dry **#48** (DELETE/GET cooperative cancel during service calls intentionally propagates without SCIM envelope — regressions `DeleteAsync_propagates_operation_canceled_during_deactivate` / `GetAsync_propagates_operation_canceled_from_service`, parity list cancel hunt **#351** and deserialize cancel hunt **#348**/**#48**; PATCH `active:true` on directory-removed id throws `ScimNotFoundException` before seat work — regression `PatchAsync_directory_removed_user_rejects_active_true_patch`, POST reprovision path hunt **#47**/**#348**; POST cancel during JSON deserialize rethrows before `invalidSyntax` — regression `CreateAsync_propagates_operation_canceled_during_json_deserialize`; whitespace-only list `filter` treated as no filter — regression `ListAsync_whitespace_only_filter_returns_unfiltered_page` and `ScimFilterParserTests.Parse_null_or_whitespace_returns_null`, hunt **#347**); reseeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -3448,13 +3456,13 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-10-21 seed hunt (seed->hit) #79: DiscoverAsync returned HTTP 200 with canonical issuer URIs longer than migration 183 NVARCHAR(2048) while test-login and activate already reject them; DiscoverAsync now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after WithCanonicalWizardUris; regression DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column; 99 scoped activation/controller/matrix tests passed.
