@@ -3143,6 +3143,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-review-detail-workspace` after prior hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread token-endpoint response parsing, mixed JSON error/success classification, normalized OAuth error codes, and `resolveExpiresInSeconds` coercion. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **1/3** before this hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread `initiateOidcRedirect` authority/client selection, abandoned post-sign-in return URL clearing vs idle-desk restore, and authorize retry snapshot consumption before PKCE storage. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-review-detail-workspace` after prior rotation hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread BFF session cookie sync optional token field trimming, working-mode gating on refresh/activity posts, and bounded token-sync sequencing after token response persistence. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
@@ -6241,7 +6243,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 98
+- **hunts:** 99
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
