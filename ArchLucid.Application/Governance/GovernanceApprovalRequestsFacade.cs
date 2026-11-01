@@ -128,7 +128,7 @@ public sealed class GovernanceApprovalRequestsFacade(
                 continue;
             }
 
-            string approvalRequestId = rawApprovalRequestId.Trim();
+            string approvalRequestId = GovernanceApprovalRequestIdNormalizer.Normalize(rawApprovalRequestId);
 
             if (!processedApprovalRequestIds.Add(approvalRequestId))
             {

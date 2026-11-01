@@ -62,7 +62,7 @@ public sealed class GovernancePromotionsActivationsFacade(
 
         if (approvalRequestId is not null)
         {
-            normalizedApprovalRequestId = approvalRequestId.Trim();
+            normalizedApprovalRequestId = GovernanceApprovalRequestIdNormalizer.Normalize(approvalRequestId);
 
             if (string.IsNullOrWhiteSpace(normalizedApprovalRequestId))
                 throw new ArgumentException("approvalRequestId is required.");
