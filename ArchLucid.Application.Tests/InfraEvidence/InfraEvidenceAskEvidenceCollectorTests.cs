@@ -16,6 +16,127 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 public sealed class InfraEvidenceAskEvidenceCollectorTests
 {
     [Fact]
+    public async Task CollectRankedPathEvidenceAsync_loads_stored_path_hops_rank_and_cut_point()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid pathId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        Guid hopId = Guid.NewGuid();
+        Guid cutPointId = Guid.NewGuid();
+
+        SecurityEvidencePathRecord path = new()
+        {
+            PathId = pathId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            SnapshotId = snapshotId,
+        };
+
+        Mock<ISecurityEvidencePathRepository> paths = new();
+        paths
+            .Setup(repository => repository.TryGetByIdAsync(
+                tenantId,
+                pathId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(path);
+        paths
+            .Setup(repository => repository.ListHopsByPathAsync(
+                tenantId,
+                pathId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new SecurityEvidencePathHopRecord
+                {
+                    HopRowId = hopId,
+                    PathId = pathId,
+                    HopOrdinal = 1,
+                    FromNodeId = "source",
+                    ToNodeId = "target",
+                    EdgeType = "PrivateLink",
+                },
+            ]);
+
+        Mock<ISecurityEvidencePathRankRepository> ranks = new();
+        ranks
+            .Setup(repository => repository.TryGetRankAsync(
+                tenantId,
+                pathId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SecurityEvidencePathRankRecord
+            {
+                PathId = pathId,
+                TenantId = tenantId,
+                SnapshotId = snapshotId,
+                RuleVersion = "rank-v1",
+                TechnicalExposureScore = 8,
+                PrivilegeDepthScore = 7,
+                BlastRadiusScore = 6,
+                ConfidenceBandScore = 5,
+                CompositeSortScore = 4,
+                RankOrder = 1,
+                ExplanationSummary = "stored rank",
+            });
+
+        Mock<ISecurityEvidenceCutPointRepository> cutPoints = new();
+        cutPoints
+            .Setup(repository => repository.ListByPathIdAsync(
+                tenantId,
+                pathId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new SecurityEvidenceCutPointRecord
+                {
+                    CutPointId = cutPointId,
+                    TenantId = tenantId,
+                    SnapshotId = snapshotId,
+                    CutOrder = 1,
+                    CutKey = "source->target",
+                    LeverageScore = 3,
+                    PathsCollapsedCount = 2,
+                },
+            ]);
+
+        InfraEvidenceAskEvidenceCollector collector = new(
+            Mock.Of<ICloudResourceEvidenceHubService>(),
+            Mock.Of<IAzureInventoryDriftClassificationService>(),
+            Mock.Of<IDiagramInfrastructureReconciliationService>(),
+            Mock.Of<IAzureInventorySnapshotRepository>(),
+            Mock.Of<IAuditEvidenceLineageService>(),
+            paths.Object,
+            ranks.Object,
+            cutPoints.Object);
+
+        InfraEvidenceAskEvidenceBundle bundle = await collector.CollectAsync(
+            new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            },
+            new InfraEvidenceAskRequest
+            {
+                Question = "Explain this ranked path.",
+                SecurityEvidencePathId = pathId,
+                SnapshotId = snapshotId,
+            },
+            InfraEvidenceAskTopicKinds.RankedPath,
+            CancellationToken.None);
+
+        bundle.Citations.Select(citation => citation.Kind).Should().Equal(
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathHopId,
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathRankId,
+            InfraEvidenceAskCitationKinds.SecurityEvidenceCutPointId);
+        bundle.EvidenceLines.Should().Contain(line => line.Contains("compositeSortScore=4", StringComparison.Ordinal));
+        bundle.EvidenceLines.Should().Contain(line => line.Contains("cutPointId=", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectHubEvidenceAsync_caps_operational_findings_and_records_omission()
     {
         Guid cloudResourceId = Guid.NewGuid();
@@ -58,7 +179,10 @@ public sealed class InfraEvidenceAskEvidenceCollectorTests
             Mock.Of<IAzureInventoryDriftClassificationService>(),
             Mock.Of<IDiagramInfrastructureReconciliationService>(),
             Mock.Of<IAzureInventorySnapshotRepository>(),
-            Mock.Of<IAuditEvidenceLineageService>());
+            Mock.Of<IAuditEvidenceLineageService>(),
+            Mock.Of<ISecurityEvidencePathRepository>(),
+            Mock.Of<ISecurityEvidencePathRankRepository>(),
+            Mock.Of<ISecurityEvidenceCutPointRepository>());
 
         InfraEvidenceAskEvidenceBundle bundle = await collector.CollectAsync(
             new ScopeContext(),

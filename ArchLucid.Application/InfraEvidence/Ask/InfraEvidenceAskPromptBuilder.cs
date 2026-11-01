@@ -21,6 +21,17 @@ internal static class InfraEvidenceAskPromptBuilder
 
     public static string BuildSystemPrompt() => SystemPrompt;
 
+    public static string BuildSystemPrompt(string topicKind)
+    {
+        if (!string.Equals(topicKind, InfraEvidenceAskTopicKinds.RankedPath, StringComparison.Ordinal))
+            return SystemPrompt;
+
+        return SystemPrompt + " For RankedPath topics, use only the provided evidence lines. "
+            + "Choose citationIds only from allowedCitationIds. "
+            + "Do not return a new composite sort. "
+            + "Do not return a numeric likelihood or probability.";
+    }
+
     public static string BuildUserPrompt(string question, string topicKind, InfraEvidenceAskEvidenceBundle bundle)
     {
         StringBuilder builder = new();
@@ -45,6 +56,14 @@ internal static class InfraEvidenceAskPromptBuilder
 
         if (bundleCapLine.Length > 0)
             builder.AppendLine(bundleCapLine);
+
+        if (string.Equals(topicKind, InfraEvidenceAskTopicKinds.RankedPath, StringComparison.Ordinal))
+        {
+            builder.AppendLine("For this RankedPath answer, use only the provided evidence lines.");
+            builder.AppendLine("Choose citationIds only from allowedCitationIds.");
+            builder.AppendLine("Do not return a new composite sort.");
+            builder.AppendLine("Do not return a numeric likelihood or probability.");
+        }
 
         return builder.ToString();
     }
@@ -167,9 +186,22 @@ internal static class InfraEvidenceAskPromptBuilder
 
             answer = parsed.Answer.Trim();
             HashSet<string> allowed = bundle.Citations.Select(FormatCitationKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            bool isRankedPath = string.Equals(
+                bundle.TopicKind,
+                InfraEvidenceAskTopicKinds.RankedPath,
+                StringComparison.Ordinal);
+
+            if (isRankedPath
+                && (parsed.CitationIds is null
+                    || parsed.CitationIds.Count == 0
+                    || parsed.CitationIds.Any(citationId => !allowed.Contains(citationId))))
+            {
+                return false;
+            }
+
             List<InfraEvidenceAskCitation> selected = [];
 
-            foreach (string citationId in parsed.CitationIds)
+            foreach (string citationId in parsed.CitationIds ?? [])
             {
                 if (!allowed.Contains(citationId))
                     continue;
@@ -183,7 +215,7 @@ internal static class InfraEvidenceAskPromptBuilder
 
             citations = selected;
 
-            if (parsed.ViewPlan is not null)
+            if (parsed.ViewPlan is not null && !isRankedPath)
             {
                 viewPlan = new DiagramViewPlan
                 {
@@ -306,7 +338,7 @@ internal static class InfraEvidenceAskPromptBuilder
             set;
         } = string.Empty;
 
-        public List<string> CitationIds
+        public List<string>? CitationIds
         {
             get;
             set;

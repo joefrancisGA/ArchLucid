@@ -10,6 +10,12 @@ internal static class InfraEvidenceAskIntentResolver
 
         string question = request.Question.Trim();
 
+        if (request.SecurityEvidencePathId.HasValue
+            && request.SecurityEvidencePathId.Value != Guid.Empty)
+        {
+            return InfraEvidenceAskTopicKinds.RankedPath;
+        }
+
         if (request.AssessmentId.HasValue
             && request.AuditEvidenceSnapshotId.HasValue
             && request.ControlId.HasValue
