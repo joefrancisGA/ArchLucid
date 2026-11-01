@@ -63,6 +63,7 @@ internal static class PolicyPackFindingMatcher
 
     private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
     {
+        policyRuleId = policyRuleId.Trim();
         int index = 0;
 
         while (index <= policyRuleId.Length - ruleKey.Length)
