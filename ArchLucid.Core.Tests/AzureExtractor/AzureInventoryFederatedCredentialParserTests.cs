@@ -84,4 +84,27 @@ public sealed class AzureInventoryFederatedCredentialParserTests
         parsed.Should().BeTrue(error);
         row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(parentId));
     }
+
+    [Fact]
+    public void TryParse_keeps_last_known_good_parent_resource_id_when_percent_encoding_is_malformed()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "issuer": "https://token.actions.githubusercontent.com",
+              "subject": "repo:org/repo:environment:prod",
+              "principalId": "11111111-1111-1111-1111-111111111111",
+              "parentResourceId": "%ZZ%2Fsubscriptions%2Fsub",
+              "provenanceKind": "ObservedFact"
+            }
+            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.ParentResourceId.Should().Be("%zz/subscriptions/sub");
+    }
 }

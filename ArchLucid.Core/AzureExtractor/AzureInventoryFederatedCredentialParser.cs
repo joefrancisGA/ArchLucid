@@ -129,7 +129,20 @@ public static class AzureInventoryFederatedCredentialParser
 
         for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
         {
-            string decoded = Uri.UnescapeDataString(working);
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                break;
+            }
+            catch (ArgumentException)
+            {
+                break;
+            }
 
             if (string.Equals(decoded, working, StringComparison.Ordinal))
             {
