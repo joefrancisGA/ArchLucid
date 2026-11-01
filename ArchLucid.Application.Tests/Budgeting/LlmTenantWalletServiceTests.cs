@@ -801,6 +801,43 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_allows_monthly_cap_only_put_while_auto_replenish_remains_enabled()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? enabled = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        enabled.Should().NotBeNull();
+        byte[] rowVersion = enabled!.RowVersion;
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = 150m,
+                ExpectedRowVersion = rowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "cap-only PUT while auto-replenish stays enabled must not require re-enabling or resubmitting Stripe ids");
+        updated!.AutoReplenishEnabled.Should().BeTrue();
+        updated.MonthlyCapUsd.Should().Be(150m);
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_returns_false_when_monthly_cap_would_be_exceeded()
     {
         InMemoryLlmTenantWalletRepository repository = new();
