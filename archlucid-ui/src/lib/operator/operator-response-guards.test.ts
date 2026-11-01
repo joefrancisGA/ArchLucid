@@ -167,6 +167,30 @@ describe("coerceRunComparison", () => {
       }).ok,
     ).toBe(false);
   });
+
+  it("reports missing run identifiers when leftRunId or rightRunId is whitespace-only", () => {
+    const blankLeft = coerceRunComparison({
+      leftRunId: "   ",
+      rightRunId: "R",
+      runLevelDiffs: [],
+    });
+
+    expect(blankLeft.ok).toBe(false);
+    if (!blankLeft.ok) {
+      expect(blankLeft.message).toBe("Run comparison is missing leftRunId or rightRunId.");
+    }
+
+    const blankRight = coerceRunComparison({
+      leftRunId: "L",
+      rightRunId: " \t ",
+      runLevelDiffs: [],
+    });
+
+    expect(blankRight.ok).toBe(false);
+    if (!blankRight.ok) {
+      expect(blankRight.message).toBe("Run comparison is missing leftRunId or rightRunId.");
+    }
+  });
 });
 
 describe("coerceGoldenManifestComparison", () => {
@@ -208,6 +232,40 @@ describe("coerceGoldenManifestComparison", () => {
     });
 
     expect(result.ok).toBe(false);
+  });
+
+  it("reports missing baseRunId or targetRunId when either is whitespace-only", () => {
+    const blankBase = coerceGoldenManifestComparison({
+      baseRunId: "   ",
+      targetRunId: "b",
+      decisionChanges: [],
+      requirementChanges: [],
+      securityChanges: [],
+      topologyChanges: [],
+      costChanges: [],
+      summaryHighlights: [],
+    });
+
+    expect(blankBase.ok).toBe(false);
+    if (!blankBase.ok) {
+      expect(blankBase.message).toBe("Comparison response is missing baseRunId or targetRunId.");
+    }
+
+    const blankTarget = coerceGoldenManifestComparison({
+      baseRunId: "a",
+      targetRunId: " \n ",
+      decisionChanges: [],
+      requirementChanges: [],
+      securityChanges: [],
+      topologyChanges: [],
+      costChanges: [],
+      summaryHighlights: [],
+    });
+
+    expect(blankTarget.ok).toBe(false);
+    if (!blankTarget.ok) {
+      expect(blankTarget.message).toBe("Comparison response is missing baseRunId or targetRunId.");
+    }
   });
 });
 
@@ -251,6 +309,24 @@ describe("coerceReplayResponse", () => {
     });
 
     expect(result.ok).toBe(false);
+  });
+
+  it("reports missing runId when runId is whitespace-only", () => {
+    const result = coerceReplayResponse({
+      runId: "   ",
+      mode: "m",
+      replayedUtc: "2020-01-01T00:00:00Z",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
+    }
   });
 });
 
@@ -355,6 +431,44 @@ describe("coerceManifestSummary", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("reports invalid manifestId or runId when either is whitespace-only", () => {
+    const blankManifestId = coerceManifestSummary({
+      manifestId: "   ",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(blankManifestId.ok).toBe(false);
+    if (!blankManifestId.ok) {
+      expect(blankManifestId.message).toBe('Review record summary is missing or invalid "manifestId".');
+    }
+
+    const blankRunId = coerceManifestSummary({
+      manifestId: "m",
+      runId: " \t ",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(blankRunId.ok).toBe(false);
+    if (!blankRunId.ok) {
+      expect(blankRunId.message).toBe('Review record summary is missing or invalid "runId".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptor", () => {
@@ -394,6 +508,22 @@ describe("coerceArtifactDescriptor", () => {
         contentHash: "h",
       }).ok,
     ).toBe(false);
+  });
+
+  it("reports invalid artifactId when artifactId is whitespace-only", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "   ",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "artifactId".');
+    }
   });
 });
 

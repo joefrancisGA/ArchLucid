@@ -60,8 +60,11 @@ export function coerceArtifactDescriptor(
       return { ok: false, message: "Artifact descriptor was not a JSON object." };
     }
 
+    if (!operatorNonEmptyTrimmedString.safeParse(data.artifactId).success) {
+      return { ok: false, message: 'Artifact descriptor is missing or invalid "artifactId".' };
+    }
+
     const stringKeys = [
-      "artifactId",
       "artifactType",
       "name",
       "format",
@@ -117,7 +120,10 @@ export function coerceRunComparison(
       return { ok: false, message: "Run comparison response was not a JSON object." };
     }
 
-    if (typeof data.leftRunId !== "string" || typeof data.rightRunId !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.leftRunId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.rightRunId).success
+    ) {
       return { ok: false, message: "Run comparison is missing leftRunId or rightRunId." };
     }
 

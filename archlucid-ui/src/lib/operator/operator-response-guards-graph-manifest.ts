@@ -82,7 +82,10 @@ export function coerceGoldenManifestComparison(
       }
     }
 
-    if (typeof data.baseRunId !== "string" || typeof data.targetRunId !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.baseRunId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.targetRunId).success
+    ) {
       return { ok: false, message: "Comparison response is missing baseRunId or targetRunId." };
     }
 
@@ -123,7 +126,11 @@ export function coerceReplayResponse(
       return { ok: false, message: "Replay response was not a JSON object." };
     }
 
-    if (typeof data.runId !== "string" || typeof data.mode !== "string" || typeof data.replayedUtc !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.runId).success ||
+      typeof data.mode !== "string" ||
+      typeof data.replayedUtc !== "string"
+    ) {
       return {
         ok: false,
         message: "Replay response is missing runId, mode, or replayedUtc.",
@@ -195,9 +202,15 @@ export function coerceManifestSummary(
       return { ok: false, message: "Review record summary was not a JSON object." };
     }
 
+    const identifierKeys = ["manifestId", "runId"] as const;
+
+    for (const key of identifierKeys) {
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
+        return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
+      }
+    }
+
     const stringKeys = [
-      "manifestId",
-      "runId",
       "createdUtc",
       "manifestHash",
       "ruleSetId",
