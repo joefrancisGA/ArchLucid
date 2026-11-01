@@ -2895,6 +2895,20 @@
 
 ## Zone: scim-users
 
+2026-11-01 thorough hunt (dry #48): cheap-disproof closed five open `(candidate)` rows from thorough dry **#47** (PUT/PATCH `OperationCanceledException` during JSON deserialize intentionally rethrown ~128–130 / ~176–178 — same cooperative-cancel contract as POST regression `CreateAsync_propagates_operation_canceled_during_json_deserialize` and hunt **#348**; directory-removed reactivation reserves seat before `ReactivateAsync` by design — regression `CreateAsync_after_directory_remove_reactivates_same_external_id`; `startIndex` below 1 clamped at controller ~39–40 — RFC 1-based pagination hunts **#349**/**#345**; post-replace GET null → 404 is tombstone race class hunts **#346**/**#350**/**#45**); reseeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during PUT JSON deserialize propagates without SCIM 400 — **cheap-disproof 2026-11-01 thorough hunt #48:** intentional rethrow ~128–130; cooperative cancel is not invalid JSON; hunt **#348** diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `OperationCanceledException` during PATCH JSON deserialize propagates without SCIM 400 — **cheap-disproof 2026-11-01 thorough hunt #48:** intentional rethrow ~176–178; parity with POST cancel test above.
+- [x] (valid-no-repro) `ScimUserService.CreateAsync` — directory-removed reactivation with `active:true` reserves enterprise seat before `ReactivateAsync` — **cheap-disproof 2026-11-01 thorough hunt #48:** Entra reprovision contract; regression `CreateAsync_after_directory_remove_reactivates_same_external_id`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` below 1 clamped at controller before service normalization — **cheap-disproof 2026-11-01 thorough hunt #48:** intentional RFC 1-based clamp ~39–40; hunts **#349**/**#345** diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 after successful persist — **cheap-disproof 2026-11-01 thorough hunt #48:** tombstone visibility race; no failing repro; hunts **#346**/**#350**/**#45** diary.
+
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — cooperative cancel during `DeactivateAsync` propagates without SCIM error envelope — locus: ~218–220; input: canceled token mid-delete; reachability: connector disconnect during DELETE (monitor).
+- [ ] (candidate) `ScimUsersController.GetAsync` — `OperationCanceledException` from service `GetAsync` propagates without controller catch — locus: ~66; input: list/filter load cancel during GET by id; reachability: parity with list cancel hunt **#351**.
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH `active` true on directory-removed row rejected at service before seat transition — locus: tombstone guard vs `ReactivateRemovedUserAsync` POST-only path; input: PATCH reactivate on tombstoned id; reachability: Entra patch vs reprovision POST.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — malformed JSON maps to SCIM 400 but cooperative cancel during deserialize rethrows — locus: ~86–92; input: cancel vs syntax error distinction; reachability: host middleware vs SCIM envelope (monitor; extends cancellation tests).
+- [ ] (candidate) `ScimUsersController.ListAsync` — whitespace-only `filter` query treated as null/empty filter — locus: ~34–47; input: `filter=%20`; reachability: Entra filter probes vs `invalidFilter`.
+
 2026-11-01 thorough hunt (dry #47): cheap-disproof closed five open `(candidate)` rows from seed hunt **#46** (`ParseUser` `externalId`→`userName` fallback is Entra contract — `ScimUsersPostEntraProvisioningIntegrationTests`; PATCH/Replace unmapped faults return HTTP 500 by design — hunt **#352**; list cancel propagates — hunt **#351**/`ScimUsersControllerCancellationTests`; non-object POST fails `ParseUser`/`invalidSyntax` — `CreateAsync_empty_user_object_throws_parse_exception` class; DELETE 404 uses `ScimErrorResultFactory`, success 204 RFC-aligned — hunt **#348**); reseeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
 - [x] (valid-no-repro) `ScimUserResourceParser.ParseUser` — omitted `externalId` falls back to trimmed `userName` — **cheap-disproof 2026-11-01 thorough hunt #47:** intentional Entra provisioning; integration `ScimUsersPostEntraProvisioningIntegrationTests`; trim regression in `CreateAsync_trimmed_external_id` family.
@@ -2903,11 +2917,11 @@
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — JSON array or primitive POST body returns `invalidSyntax` before service — **cheap-disproof 2026-11-01 thorough hunt #47:** `ParseUser` requires object; malformed bodies fail closed before insert.
 - [x] (invalid) `ScimUsersController.DeleteAsync` — success returns `NoContent()` without SCIM error factory on `ScimNotFoundException` only — **cheap-disproof 2026-11-01 thorough hunt #47:** unknown id returns SCIM 404 via factory; success 204 without body is RFC 7644 §3.6 (hunt **#348**).
 
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during PUT JSON deserialize propagates without SCIM 400 — locus: ~128–130; input: aborted replace body read; reachability: connector timeout during PUT (monitor; parity `ScimUsersControllerCancellationTests`).
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `OperationCanceledException` during PATCH JSON deserialize propagates without SCIM 400 — locus: ~176–178; input: aborted patch body read; reachability: connector timeout during PATCH (monitor).
-- [ ] (candidate) `ScimUserService.CreateAsync` — directory-removed reactivation with `active:true` reserves enterprise seat before `ReactivateAsync` — locus: `ReactivateRemovedUserAsync`; input: POST same `externalId` after connector delete; reachability: seat accounting on reprovision (monitor; regression `CreateAsync_after_directory_remove_reactivates_same_external_id`).
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` below 1 clamped at controller before service normalization — locus: ~39–40; input: `startIndex=0`; reachability: Entra pagination probes (monitor; regression `ListAsync_start_index_above_total_returns_empty_page` family).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 after successful persist — locus: ~139–144; input: directory-removed between write and reload; reachability: tombstone race class hunts **#346**/**#350** (monitor).
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — `OperationCanceledException` during PUT JSON deserialize propagates without SCIM 400 — **cheap-disproof 2026-11-01 thorough hunt #48:** see dry #48 diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `OperationCanceledException` during PATCH JSON deserialize propagates without SCIM 400 — **cheap-disproof 2026-11-01 thorough hunt #48:** see dry #48 diary.
+- [x] (valid-no-repro) `ScimUserService.CreateAsync` — directory-removed reactivation with `active:true` reserves enterprise seat before `ReactivateAsync` — **cheap-disproof 2026-11-01 thorough hunt #48:** see dry #48 diary.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` below 1 clamped at controller before service normalization — **cheap-disproof 2026-11-01 thorough hunt #48:** see dry #48 diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 after successful persist — **cheap-disproof 2026-11-01 thorough hunt #48:** see dry #48 diary.
 
 2026-11-01 seed hunt (seed-only #46): re-read `ScimUsersController` and `ScimUserService` CRUD/patch/seat paths after thorough dry **#45**; no row met hunt-ready bar for a failing repro; cheap-disproof closed five open `(candidate)` monitors from dry **#45** (PATCH-inactive DELETE skips redundant seat decrement; role-override audit uses `LogRequiredAsync` by design; list default `count=100` with service clamp; missing `active` on PUT/POST defaults true per `ScimUserResourceParser.ReadActive`); seeded five follow-on `(candidate)` rows; scoped filter **48/48** (42 Application + 6 Api unit tests; SQL integration skipped on cloud VM). Private beta: n/a.
 
@@ -3094,9 +3108,9 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
