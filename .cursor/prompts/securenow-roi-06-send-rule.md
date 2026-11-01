@@ -30,7 +30,7 @@ The fixture worksheet shows arithmetic on made-up inputs. The executive packet s
 4. Heading: `SecureNow investigation-effort send rule`.
 5. One lead sentence: a person may share a quantified effort figure only when every gate below is true. Otherwise the figure stays internal.
 6. A numbered list of these gates, as sentences, with no markdown checkboxes:
-   - **B** and **A** were written by a person from comparable tasks. The tasks share the same question, the same Azure scope, and the same definition of done. Minutes were divided by 60 only after the minutes existed.
+   - **B** and **A** were written by a person from real, non-synthetic comparable investigations. The tasks share the same question, the same Azure scope, and the same definition of done. Minutes were divided by 60 only after the minutes existed. Synthetic fixture rehearsal timings, including those recorded in the measurement log, remain internal and do not satisfy this gate.
    - **N** is the sponsor’s count of those investigations for a year. **N** is not a path count.
    - **R** is the sponsor’s fully loaded hourly rate. SecureNow does not supply a default rate.
    - **C** includes the owner-approved private quote and a collected customer operating cost. When operating cost is **NOT COLLECTED**, or the sponsor declined to give it, **C** is not ready and the figure stays internal.
