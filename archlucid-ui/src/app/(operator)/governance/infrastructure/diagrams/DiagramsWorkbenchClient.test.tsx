@@ -1803,6 +1803,76 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getAllByText(/App setting hostnames not collected on hosted pull/).length).toBeGreaterThan(0);
   });
 
+  it("clears completeness warnings when URL snapshot id changes before a slow preview for the prior snapshot completes", async () => {
+    const snapshotA = "11111111-1111-1111-1111-111111111111";
+    const snapshotB = "22222222-2222-2222-2222-222222222222";
+    const warningA = "app-settings-not-collected-hosted-get-only";
+    let resolveSlowSnapshotA: (() => void) | undefined;
+
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        defaultSnapshotsResponse.items[0]!,
+        {
+          snapshotId: snapshotB,
+          subscriptionId: "sub-1",
+          subscriptionName: "Prod",
+          capturedUtc: "2026-09-02T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 12,
+          relationshipCount: 3,
+        },
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    const buildPreview = (snapshotId: string, warnings: string[]) => ({
+      snapshotId,
+      modes: [
+        {
+          mode: "executive",
+          status: "Succeeded",
+          nodeCount: 2,
+          edgeCount: 1,
+          mermaid: null,
+          fallbackArtifacts: [],
+        },
+      ],
+      completenessWarnings: warnings,
+    });
+
+    fetchInfraEvidenceMermaidPreviewMock.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === snapshotA) {
+        await new Promise<void>((resolve) => {
+          resolveSlowSnapshotA = resolve;
+        });
+      }
+
+      return buildPreview(snapshotId, snapshotId === snapshotA ? [warningA] : []);
+    });
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
+
+    searchParams = new URLSearchParams(`snapshotId=${snapshotB}&mermaidMode=executive`);
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
+    });
+
+    await act(async () => {
+      resolveSlowSnapshotA?.();
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByTestId("infra-evidence-completeness-warnings-banner")).not.toBeInTheDocument();
+  });
+
   it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
     pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
     searchParams = new URLSearchParams();

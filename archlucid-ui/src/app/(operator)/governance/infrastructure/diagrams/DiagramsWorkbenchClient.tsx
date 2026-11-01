@@ -1337,6 +1337,7 @@ export function DiagramsWorkbenchClient() {
     setLoadError(null);
     setSubscriptionResourceGroupArtifacts([]);
     setModePreviews([]);
+    setSnapshotCompletenessWarnings(undefined);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
