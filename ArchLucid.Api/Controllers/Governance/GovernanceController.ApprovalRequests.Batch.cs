@@ -62,6 +62,9 @@ public sealed partial class GovernanceController
             string approvalRequestId =
                 GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
 
+            if (sealedPreflightFailures.ContainsKey(approvalRequestId))
+                continue;
+
             if (checkedApprovalRequestIds.Add(approvalRequestId))
             {
                 IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
