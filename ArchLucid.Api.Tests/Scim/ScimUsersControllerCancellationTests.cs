@@ -36,4 +36,46 @@ public sealed class ScimUsersControllerCancellationTests
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
+
+    [SkippableFact]
+    public async Task GetAsync_propagates_operation_canceled_from_service()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.GetAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object);
+
+        Func<Task> act = () => sut.GetAsync(userId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [SkippableFact]
+    public async Task DeleteAsync_propagates_operation_canceled_during_deactivate()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
+
+        Mock<IScimUserService> users = new();
+        users
+            .Setup(s => s.DeactivateAsync(tenantId, userId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        ScimUsersController sut = new(users.Object, scopeProvider.Object);
+
+        Func<Task> act = () => sut.DeleteAsync(userId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
 }
