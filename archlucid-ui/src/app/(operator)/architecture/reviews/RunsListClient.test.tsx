@@ -1345,6 +1345,36 @@ describe("RunsListClient inspector", () => {
     vi.useRealTimers();
   });
 
+  it("clears q= after backspacing the filter empty once the debounce completes", async () => {
+    vi.useFakeTimers();
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Demo" } });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+
+    fireEvent.change(filterInput, { target: { value: "" } });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(filterInput).toHaveValue("");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
+
+    vi.useRealTimers();
+  });
+
   it("clears compare replacement notice when compareRuns URL changes without a popstate event", () => {
     const runB: RunSummary = {
       ...sampleRun,
