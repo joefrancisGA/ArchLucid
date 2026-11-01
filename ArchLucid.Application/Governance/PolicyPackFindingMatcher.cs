@@ -12,24 +12,28 @@ internal static class PolicyPackFindingMatcher
         ArgumentNullException.ThrowIfNull(finding);
         ArgumentNullException.ThrowIfNull(assignment);
 
+        string? policyRuleId = string.IsNullOrWhiteSpace(finding.PolicyRuleId)
+            ? null
+            : finding.PolicyRuleId.Trim();
+
         if (assignment.ComplianceRuleKeys is { Count: > 0 } ruleKeys
-            && !string.IsNullOrWhiteSpace(finding.PolicyRuleId))
+            && policyRuleId is not null)
         {
             foreach (string ruleKey in ruleKeys)
             {
                 if (string.IsNullOrWhiteSpace(ruleKey))
                     continue;
 
-                if (string.Equals(finding.PolicyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(policyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
-                if (RuleKeyAppearsAsToken(finding.PolicyRuleId, ruleKey))
+                if (RuleKeyAppearsAsToken(policyRuleId, ruleKey))
                     return true;
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(finding.PolicyRuleId)
-            && PolicyRuleIdReferencesPack(finding.PolicyRuleId, assignment.PolicyPackId))
+        if (policyRuleId is not null
+            && PolicyRuleIdReferencesPack(policyRuleId, assignment.PolicyPackId))
             return true;
 
         if (finding.Properties is not null
