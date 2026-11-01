@@ -21,4 +21,6 @@ The existing prompt sets for Accessibility, Stickiness, and Template and Acceler
 
 Owner-led tasks are tracked in `docs/go-to-market/GTM_BACKLOG.md` as **M-308–M-312**. Do not convert those observations into product claims or score increases without the recorded evidence.
 
+AI/Agent Readiness is not one of those five scores. Its paste set is [`SECURENOW_AGENT_READINESS_COMPOSER_PROMPTS.md`](SECURENOW_AGENT_READINESS_COMPOSER_PROMPTS.md). The path-explanation owner walk is **M-313**.
+
 These prompts do not certify WCAG, claim assistive-technology user testing, claim customer retention, fill the executive proof packet, add a timed SLA, or hide review workspace tabs.

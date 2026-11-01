@@ -27,6 +27,29 @@ public sealed class WalletControllerUnitTests
     };
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_body_is_null()
+    {
+        Mock<ILlmTenantWalletService> wallet = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+
+        WalletController controller = CreateController(wallet.Object, scopeProvider.Object, audit.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        IActionResult result = await controller.PutAsync(null, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        wallet.Verify(
+            w => w.UpdateWalletAsync(It.IsAny<Guid>(), It.IsAny<LlmTenantWalletUpdateCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
     {
         Mock<ILlmTenantWalletService> wallet = new();

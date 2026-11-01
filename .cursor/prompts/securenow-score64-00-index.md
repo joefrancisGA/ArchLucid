@@ -8,6 +8,8 @@ Paste **one** numbered file per session. Run each on Composer 2.5 slow (`compose
 
 The owner-led validation tasks are in [`docs/go-to-market/GTM_BACKLOG.md`](../../docs/go-to-market/GTM_BACKLOG.md), rows **M-308–M-312**. These prompts cover only work Cursor can ship now.
 
+AI/Agent Readiness is a separate score. Its prompts are [`securenow-agent-readiness-00-index.md`](securenow-agent-readiness-00-index.md). The owner walk is **M-313**.
+
 | Attribute | Existing prompt set | Status |
 |---|---|---|
 | Adoption Friction | `securenow-adoption-05-path-inspect.md` through `securenow-adoption-08-checker.md` | Implemented in PR #5879; human walk remains M-308 |

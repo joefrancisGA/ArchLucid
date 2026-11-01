@@ -465,6 +465,48 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_mixed_case_health_live_path()
+    {
+        DefaultHttpContext context = CreateContext("/HEALTH/LIVE");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue(
+            "public health probe checks use OrdinalIgnoreCase segment matching");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_health_ready_parent_segment_between_probe_segments()
+    {
+        DefaultHttpContext context = CreateContext("/health/ready/../live");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_mixed_case_openapi_document_path()
     {
         DefaultHttpContext context = CreateContext("/OpenAPI/v1.json");
