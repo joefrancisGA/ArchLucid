@@ -21,4 +21,9 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
     label: "Pilot decision path",
     summary: "Prepare the human proceed, extend, or stop disposition with owners and follow-ups.",
   },
+  {
+    href: "/administration/securenow-pilot-decision#decision-cycle",
+    label: "Decision cycle",
+    summary: "Record qualify start, close, and the step that stalled. Leave the outcome blank until a person selects it.",
+  },
 ];

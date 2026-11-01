@@ -18,3 +18,22 @@ export const SECURENOW_PILOT_DECISION_OUTCOMES: readonly string[] = [
 
 export const SECURENOW_PILOT_DECISION_GUARDRAIL =
   "This page does not authorize billing, clear beta GO, calculate ROI, claim verified remediation, or replace the owner-approved quote and release gates." as const;
+
+export const SECURENOW_DECISION_CYCLE_HEADING = "Decision cycle" as const;
+
+export const SECURENOW_DECISION_CYCLE_LEAD =
+  "A person writes the qualify start, the close, and one stall step in the decision cycle log. SecureNow beta remains NO_GO." as const;
+
+export const SECURENOW_DECISION_CYCLE_STALL_STEPS: readonly string[] = [
+  "Qualify",
+  "Scope",
+  "Review",
+  "Decide change",
+  "Verify",
+  "Close",
+] as const;
+
+export const SECURENOW_DECISION_CYCLE_GUARDRAIL =
+  "Leave the outcome blank until a person selects proceed to commercial discussion, extend with bounded scope, or stop on the pilot decision record." as const;
+
+export const SECURENOW_DECISION_CYCLE_LOG_PATH = "docs/securenow/DECISION_CYCLE_LOG.md" as const;
