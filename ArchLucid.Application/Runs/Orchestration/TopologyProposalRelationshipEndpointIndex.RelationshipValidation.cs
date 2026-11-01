@@ -82,6 +82,65 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         return TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys);
     }
 
+    public static void RegisterRejectedManifestServiceEndpointKeys(
+        HashSet<string> rejectedEndpointKeys,
+        ManifestService service)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        AddManifestServiceEndpointKeys(rejectedKeys, service);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    public static void RegisterRejectedManifestDatastoreEndpointKeys(
+        HashSet<string> rejectedEndpointKeys,
+        ManifestDatastore datastore)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        AddManifestDatastoreEndpointKeys(rejectedKeys, datastore);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    public static bool RelationshipReferencesExclusiveRejectedEndpoint(
+        ManifestRelationship relationship,
+        HashSet<string> rejectedEndpointKeys,
+        IReadOnlyList<ManifestService> acceptedServices,
+        IReadOnlyList<ManifestDatastore> acceptedDatastores)
+    {
+        if (rejectedEndpointKeys.Count == 0)
+            return false;
+
+        HashSet<string> acceptedEndpointKeys = CollectKnownEndpointKeys(acceptedServices, acceptedDatastores);
+
+        return EndpointIsExclusiveRejectedEndpoint(relationship.SourceId, rejectedEndpointKeys, acceptedEndpointKeys)
+               || EndpointIsExclusiveRejectedEndpoint(relationship.TargetId, rejectedEndpointKeys, acceptedEndpointKeys);
+    }
+
+    public static bool EndpointIsExclusiveRejectedEndpoint(
+        string? endpoint,
+        HashSet<string> rejectedEndpointKeys,
+        HashSet<string> acceptedEndpointKeys)
+    {
+        if (string.IsNullOrWhiteSpace(endpoint))
+            return false;
+
+        if (!EndpointKeyIsKnown(endpoint, rejectedEndpointKeys))
+            return false;
+
+        return !EndpointKeyIsKnown(endpoint, acceptedEndpointKeys);
+    }
+
     private static bool EndpointKeyIsKnownViaStrippedTerraformInstanceKey(
         string trimmed,
         HashSet<string> knownEndpointKeys)

@@ -136,7 +136,9 @@ public static class CrossAgentProposalConsistencyGate
             if (TryAcceptRenameAliasService(service, accepted, acceptedBatchServices, claimedServiceEndpointKeys))
                 continue;
 
-            RegisterRejectedManifestServiceEndpointKeys(rejectedBatchEndpointKeys, service);
+            TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestServiceEndpointKeys(
+                rejectedBatchEndpointKeys,
+                service);
         }
 
         return accepted;
@@ -168,7 +170,9 @@ public static class CrossAgentProposalConsistencyGate
             if (TryAcceptRenameAliasDatastore(datastore, accepted, acceptedBatchDatastores, claimedDatastoreEndpointKeys))
                 continue;
 
-            RegisterRejectedManifestDatastoreEndpointKeys(rejectedBatchEndpointKeys, datastore);
+            TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestDatastoreEndpointKeys(
+                rejectedBatchEndpointKeys,
+                datastore);
         }
 
         return accepted;
@@ -306,8 +310,7 @@ public static class CrossAgentProposalConsistencyGate
                         relationship,
                         rejectedBatchEndpointKeys,
                         acceptedBatchServices,
-                        acceptedBatchDatastores,
-                        validationEndpointKeys))
+                        acceptedBatchDatastores))
                 {
                     retained.Add(relationship);
                 }
@@ -338,8 +341,7 @@ public static class CrossAgentProposalConsistencyGate
                 relationship,
                 rejectedBatchEndpointKeys,
                 acceptedBatchServices,
-                acceptedBatchDatastores,
-                validationEndpointKeys))
+                acceptedBatchDatastores))
         {
             return false;
         }
@@ -400,36 +402,6 @@ public static class CrossAgentProposalConsistencyGate
         return copy;
     }
 
-    private static void RegisterRejectedManifestServiceEndpointKeys(
-        HashSet<string> rejectedBatchEndpointKeys,
-        ManifestService service)
-    {
-        HashSet<string> rejectedKeys = [];
-
-        TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(rejectedKeys, service);
-
-        foreach (string rejectedKey in rejectedKeys)
-        {
-            if (!string.IsNullOrWhiteSpace(rejectedKey))
-                rejectedBatchEndpointKeys.Add(rejectedKey);
-        }
-    }
-
-    private static void RegisterRejectedManifestDatastoreEndpointKeys(
-        HashSet<string> rejectedBatchEndpointKeys,
-        ManifestDatastore datastore)
-    {
-        HashSet<string> rejectedKeys = [];
-
-        TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(rejectedKeys, datastore);
-
-        foreach (string rejectedKey in rejectedKeys)
-        {
-            if (!string.IsNullOrWhiteSpace(rejectedKey))
-                rejectedBatchEndpointKeys.Add(rejectedKey);
-        }
-    }
-
     private static HashSet<string> BuildRelationshipValidationEndpointKeys(
         HashSet<string> declaredBatchEndpointKeys,
         HashSet<string> rejectedBatchEndpointKeys,
@@ -471,46 +443,10 @@ public static class CrossAgentProposalConsistencyGate
         ManifestRelationship relationship,
         HashSet<string> rejectedBatchEndpointKeys,
         IReadOnlyList<ManifestService> acceptedBatchServices,
-        IReadOnlyList<ManifestDatastore> acceptedBatchDatastores,
-        HashSet<string> validationEndpointKeys)
-    {
-        if (rejectedBatchEndpointKeys.Count == 0)
-            return false;
-
-        HashSet<string> acceptedBatchEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+        IReadOnlyList<ManifestDatastore> acceptedBatchDatastores) =>
+        TopologyProposalRelationshipEndpointIndex.RelationshipReferencesExclusiveRejectedEndpoint(
+            relationship,
+            rejectedBatchEndpointKeys,
             acceptedBatchServices,
             acceptedBatchDatastores);
-
-        return EndpointIsExclusiveRejected(
-                   relationship.SourceId,
-                   rejectedBatchEndpointKeys,
-                   acceptedBatchEndpointKeys,
-                   validationEndpointKeys)
-               || EndpointIsExclusiveRejected(
-                   relationship.TargetId,
-                   rejectedBatchEndpointKeys,
-                   acceptedBatchEndpointKeys,
-                   validationEndpointKeys);
-    }
-
-    private static bool EndpointIsExclusiveRejected(
-        string? endpoint,
-        HashSet<string> rejectedBatchEndpointKeys,
-        HashSet<string> acceptedBatchEndpointKeys,
-        HashSet<string> validationEndpointKeys)
-    {
-        if (string.IsNullOrWhiteSpace(endpoint))
-            return false;
-
-        if (!TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(endpoint, rejectedBatchEndpointKeys))
-            return false;
-
-        if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(endpoint, acceptedBatchEndpointKeys))
-            return false;
-
-        if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(endpoint, validationEndpointKeys))
-            return false;
-
-        return true;
-    }
 }
