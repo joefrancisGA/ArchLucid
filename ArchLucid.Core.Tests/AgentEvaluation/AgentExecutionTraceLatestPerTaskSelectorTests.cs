@@ -1181,6 +1181,12 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_all_trace_elements_null_returns_empty_list()
+    {
+        AgentExecutionTraceLatestPerTaskSelector.Select([null!, null!, null!]).Should().BeEmpty();
+    }
+
+    [Fact]
     public void Select_when_same_attempt_accepted_newer_and_rejected_older_prefers_accepted_trace()
     {
         DateTime olderUtc = new(2026, 12, 5, 21, 0, 0, DateTimeKind.Utc);

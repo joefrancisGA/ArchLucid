@@ -2112,4 +2112,30 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .Should().BeEmpty();
     }
 
+    [Fact]
+    public void GetBlockingReasons_when_null_and_rejected_trace_blocks_on_rejected_not_empty_trace_proof()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            TaskId = "task-1",
+            QualityRejected = true,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [null!, rejected]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected");
+        reasons[0].Should().NotContain("no agent execution traces");
+    }
+
 }
