@@ -47,7 +47,7 @@ public static class AzureInventoryRestorePointCollectionSourceParser
 
         string working = trimmed;
 
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%'); pass++)
         {
             string decoded = Uri.UnescapeDataString(working);
 
