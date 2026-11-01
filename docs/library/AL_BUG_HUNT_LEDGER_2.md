@@ -17930,19 +17930,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-tenancy-workspaces
 
+2026-11-01 thorough hunt (dry #938): cheap-disproof closed five open `(candidate)` rows from dry **#36** reseed — null `ListWorkspacesAsync` coalesces to empty inventory then **404** workspace-not-found, not **200** empty list (`TenantWorkspaceInventoryCoalesce.CoalesceWorkspaces`; proven 2026-10-20 regression `ListAsync_returns_not_found_when_workspace_list_is_null`); restore does not re-write default metadata after `TryRestoreAsync` by design while recycle-bin purge suppression stays on GET via `ForeignWorkspaceMetadataProtectsFromRetentionPurge` (`RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`, `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`); delete idempotent path skips foreign retention block when caller catalog row inactive but recycle-bin still schedules purge when resolved default moved (`DeleteProjectAsync_returns_no_content_when_foreign_workspace_stale_row_pins_caller_project_but_foreign_default_moved`, `ListRecycleBinAsync_schedules_purge_when_foreign_workspace_stale_row_pins_deleted_project_but_active_default_moved`); recycle-bin display name from `preferInactiveScopedInventoryRow` vs purge schedule from resolved `defaultProjectId` is intentional cosmetic/retention split (`ListRecycleBinAsync_uses_scope_metadata_row_name_when_scoped_project_is_soft_deleted_with_active_sibling_default`, purge regressions above); catalog migration status is tenant-scoped maintenance read without workspace inventory preflight (`GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory`, `GetCatalogMigrationStatusAsync_returns_snapshot_when_tenant_exists`). Reseeded five follow-on `(candidate)` rows; scoped filter **75/75** TenantWorkspaces + catalog migration (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — `ListWorkspacesAsync` null before coalesce throws or returns empty workspace list — **cheap-disproof 2026-11-01 thorough hunt #938:** coalesce then **404**; regression above; proven **2026-10-20**.
+- [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — active sibling default metadata unchanged after restore leaves recycle-bin purge suppression on GET only — **cheap-disproof 2026-11-01 thorough hunt #938:** restore does not mutate inventory; purge guard on GET by design; regressions above.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign retention guard skipped when duplicate caller rows pin deleted project but resolved default moved — **cheap-disproof 2026-11-01 thorough hunt #938:** delete vs recycle asymmetry documented; regressions above.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — `preferInactiveScopedInventoryRow` surfaces stale name while purge schedule uses resolved default from active catalog — **cheap-disproof 2026-11-01 thorough hunt #938:** intentional display vs retention split; regression above.
+- [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — migration snapshot returned when tenant exists but scope workspace id missing from inventory — **cheap-disproof 2026-11-01 thorough hunt #938:** tenant maintenance banner by design; regressions above.
+
+- [ ] (candidate) `TenantWorkspacesController.ListAsync` — coalesced empty workspace inventory returns **404** not **200** with empty projects shell — locus: `FindWorkspace` after coalesce; input: tenant exists, zero workspace rows (monitor).
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign retention pin on recycle GET vs idempotent delete when caller row inactive — locus: `ForeignWorkspaceMetadataProtectsFromRetentionPurge` vs delete branch; input: stale foreign pin after default migration (monitor).
+- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — restore succeeds without clearing sibling-workspace default metadata pin — locus: restore path; input: cross-workspace pin still suppresses purge on recycle GET (monitor intentional).
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — scoped inactive inventory row display name vs list GET default resolution — locus: `preferInactiveScopedInventoryRow`; input: JWT targets soft-deleted project with active sibling default (monitor cosmetic contract).
+- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — JWT workspace absent from coalesced inventory still returns snapshot — locus: tenant-only GET; input: workspace provisioning banner (monitor intentional).
+
 2026-10-31 thorough hunt (dry #36): cheap-disproof closed five open `(candidate)` rows — restore does not re-validate default metadata after `TryRestoreAsync` by design (`RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`, `RestoreProjectAsync_returns_no_content_when_duplicate_inventory_rows_disagree_on_default_metadata`, `RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`); recycle-bin purge guard requires resolved default or empty active catalog before stale caller pin suppresses purge (`ListRecycleBinAsync_schedules_purge_when_stale_inventory_row_pins_deleted_project_but_active_default_moved`, `ListRecycleBinAsync_schedules_purge_when_stale_default_pin_remains_but_active_project_has_no_inventory_default`); delete caller-default vs foreign-branch null coalesce asymmetry is intentional idempotent retry vs fail-closed (`DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`, `DeleteProjectAsync_returns_bad_request_when_deleting_caller_default_and_active_list_is_null`); list GET uses inactive scoped inventory row when active catalog empty (`ListAsync_uses_inactive_scope_pin_inventory_row_when_active_catalog_empty_and_jwt_targets_soft_deleted_project`, `ListAsync_uses_active_default_metadata_row_when_stale_scope_pin_is_not_active`); catalog migration banner is tenant-scoped maintenance read (`GetCatalogMigrationStatusAsync_does_not_preflight_workspace_inventory`, `GetCatalogMigrationStatusAsync_returns_snapshot_when_tenant_exists`). Seeded five follow-on `(candidate)` rows; scoped filter **75/75** TenantWorkspaces + catalog migration (`RunAnalyzers=false`). Private beta: n/a.
-
-- [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — restore with duplicate default metadata disagreement — **cheap-disproof 2026-10-31 thorough hunt #36:** restore validates repository outcome only; regressions above.
-- [x] (invalid) `TenantWorkspacesController.ListRecycleBinAsync` — stale caller default pin suppresses purge when resolved default empty but active projects remain — **cheap-disproof 2026-10-31 thorough hunt #36:** purge still scheduled; regressions above.
-- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — nullable active list on caller-default branch vs foreign `?? Array.Empty` — **cheap-disproof 2026-10-31 thorough hunt #36:** intentional fail-closed vs idempotent delete; regressions above.
-- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — inactive scoped inventory row when JWT project soft-deleted and active catalog empty — **cheap-disproof 2026-10-31 thorough hunt #36:** documented stale-JWT display path; regression above.
-- [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — workspace inventory preflight — **cheap-disproof 2026-10-31 thorough hunt #36:** tenant maintenance status by design; regression above.
-
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ListWorkspacesAsync` null before coalesce throws or returns empty workspace list — locus: `CoalesceWorkspaces` input ~28; input: null inventory from repository; reachability: tenant bootstrap before workspace seed (monitor).
-- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — active sibling default metadata unchanged after restore leaves recycle-bin purge suppression on GET only — locus: restore path ~175; input: foreign pin protects purge badge but restore allowed; reachability: cross-workspace default metadata drift (monitor).
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — foreign retention guard skipped when duplicate caller rows pin deleted project but resolved default moved — locus: `ForeignWorkspaceMetadataProtectsFromRetentionPurge` ~69; input: inactive project in caller catalog with stale foreign pin; reachability: delete retry after default migration (monitor).
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `preferInactiveScopedInventoryRow` surfaces stale name while purge schedule uses resolved default from active catalog — locus: display row vs `defaultProjectId` ~53–106; input: scoped soft-delete with active sibling default; reachability: recycle-bin label vs retention badge parity (monitor).
-- [ ] (candidate) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — migration snapshot returned when tenant exists but scope workspace id missing from inventory — locus: tenant-only GET ~40; input: JWT workspace not yet in coalesced list; reachability: banner during workspace provisioning (monitor).
 
 2026-10-31 thorough hunt (dry):
 
@@ -17974,14 +17976,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-31
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
+
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — null `ListWorkspacesAsync` before coalesce — **cheap-disproof 2026-11-01 thorough hunt #938:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — restore vs recycle-bin purge suppression — **cheap-disproof 2026-11-01 thorough hunt #938:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — foreign retention guard vs stale caller pin — **cheap-disproof 2026-11-01 thorough hunt #938:** see zone hunt note above.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — display row vs purge schedule — **cheap-disproof 2026-11-01 thorough hunt #938:** see zone hunt note above.
+- [x] (invalid) `TenantCatalogMigrationStatusController.GetCatalogMigrationStatusAsync` — workspace missing from inventory — **cheap-disproof 2026-11-01 thorough hunt #938:** see zone hunt note above.
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` conflicting duplicate-row defaults choosing sibling over JWT-scoped project; `ResolveScopedWorkspaceDefaultProjectId` prefers scoped project when valid; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`.
 
