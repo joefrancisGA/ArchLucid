@@ -9,11 +9,14 @@ import {
 describe("SecureNow sample copy (SN-MKT-09)", () => {
   it("defines the fixture line, path id, beats, and shared mailto", () => {
     expect(SECURENOW_SAMPLE_FIXTURE_LINE).toMatch(/Synthetic fixture/i);
-    expect(SECURENOW_SAMPLE_BEATS).toHaveLength(3);
+    expect(SECURENOW_SAMPLE_BEATS).toHaveLength(6);
     expect(SECURENOW_SAMPLE_BEATS.map((beat) => beat.title)).toEqual([
       "Scope and freshness",
       "One ranked path",
       "Advisory cut point",
+      "Engineer action",
+      "Not verified",
+      "Audit link",
     ]);
 
     const joined = [
@@ -29,5 +32,6 @@ describe("SecureNow sample copy (SN-MKT-09)", () => {
     expect(joined).not.toMatch(/Start trial/i);
     expect(joined).not.toMatch(/\bguaranteed\b/i);
     expect(joined).not.toMatch(/\bautonomous\b/i);
+    expect(joined).not.toMatch(/SOC 2/i);
   });
 });
