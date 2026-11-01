@@ -45,6 +45,8 @@ public sealed partial class GovernanceController
         string reviewedByActorKey = actorContext.GetActorId();
         string? reviewedByMailbox = actorContext.TryGetSubmitterMailbox();
 
+        HashSet<string> checkedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
             if (string.IsNullOrWhiteSpace(rawApprovalRequestId))
@@ -52,6 +54,9 @@ public sealed partial class GovernanceController
 
             string approvalRequestId =
                 GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
+
+            if (!checkedApprovalRequestIds.Add(approvalRequestId))
+                continue;
 
             IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
                 approvalRequestId,
