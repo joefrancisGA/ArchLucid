@@ -1860,6 +1860,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-help-docs` is **2/3** before this hunt — below `minLowYieldStreak` 3). Reread `normalizeDocIndexUrlForDedupe` for absolute vs relative URLs, `helpDocLinkHref` trim-only contract, and Escape-to-clear on the search input. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId ui-help-docs` when another eligible zone exists.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-help-docs` is **1/3** before this hunt — below `minLowYieldStreak` 3). Reread external link `rel`/`target` handling, index fetch error vs empty-index warnings, and pending-state static fallback before merge completes. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `cli-tenant-isolation` is **2/3** — below `minLowYieldStreak` 3; picker selected **`ui-help-docs`**). Reread client-side filter matching against merged static+fetched index rows, category grouping order for unknown categories, and TOC anchor ids from `slugifyHelpHeading`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
@@ -1940,7 +1942,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
