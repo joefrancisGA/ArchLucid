@@ -174,6 +174,29 @@ public sealed class RecentAuthenticationEvaluatorTests
     }
 
     [Fact]
+    public void TryGetAuthenticationInstant_returns_null_when_principal_has_no_time_claims()
+    {
+        ClaimsIdentity identity = new("Bearer");
+
+        DateTimeOffset? instant = RecentAuthenticationEvaluator.TryGetAuthenticationInstant(new ClaimsPrincipal(identity));
+
+        Assert.Null(instant);
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_when_single_iat_claim_contains_comma_separator_without_auth_time()
+    {
+        ClaimsIdentity identity = new(
+            [new Claim(JwtRegisteredClaimNames.Iat, "1700000000,999")],
+            "Bearer");
+
+        Assert.False(
+            RecentAuthenticationEvaluator.HasRecentAuthentication(
+                new ClaimsPrincipal(identity),
+                TimeProvider.System));
+    }
+
+    [Fact]
     public void HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty()
     {
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
