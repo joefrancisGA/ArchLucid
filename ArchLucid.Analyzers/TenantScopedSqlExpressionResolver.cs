@@ -428,12 +428,10 @@ internal static class TenantScopedSqlExpressionResolver
                     return ResolveCore(defaultExpression, modelForSyntax, visitingInterpolatedHole: false);
                 }
 
-                ResolutionResult? fromThisInitializer = TryResolveFromRecordThisConstructorArgument(
-                    recordDeclaration,
-                    parameterIndex,
-                    semanticModel);
-
-                if (fromThisInitializer is not null)
+                if (TryResolveFromRecordThisConstructorArgument(
+                        recordDeclaration,
+                        property,
+                        semanticModel) is ResolutionResult fromThisInitializer)
                     return fromThisInitializer;
 
                 return null;
@@ -443,9 +441,16 @@ internal static class TenantScopedSqlExpressionResolver
         return null;
     }
 
+    /// <summary>
+    /// A <c>this(...)</c> initializer binds its arguments to whichever constructor overload it targets,
+    /// so the primary parameter index cannot be used positionally: named arguments may be reordered, and
+    /// the chain may pass through another overload before reaching the primary constructor. Bind each
+    /// argument to its target parameter symbol, then follow <c>this(...)</c> chains until the primary
+    /// constructor parameter backing <paramref name="property"/> is reached.
+    /// </summary>
     private static ResolutionResult? TryResolveFromRecordThisConstructorArgument(
         RecordDeclarationSyntax recordDeclaration,
-        int parameterIndex,
+        IPropertySymbol property,
         SemanticModel semanticModel)
     {
         foreach (MemberDeclarationSyntax member in recordDeclaration.Members)
@@ -459,31 +464,89 @@ internal static class TenantScopedSqlExpressionResolver
                 continue;
             }
 
-            SeparatedSyntaxList<ArgumentSyntax> arguments = initializer.ArgumentList!.Arguments;
+            SemanticModel modelForConstructor = GetSemanticModelForSyntax(constructorDeclaration, semanticModel);
 
-            if (parameterIndex >= arguments.Count)
+            if (modelForConstructor.GetSymbolInfo(initializer).Symbol is not IMethodSymbol chainedConstructor)
                 continue;
 
-            ExpressionSyntax argumentExpression = arguments[parameterIndex].Expression;
-            SemanticModel modelForSyntax = GetSemanticModelForSyntax(argumentExpression, semanticModel);
+            IOperation? invocationOperation = modelForConstructor.GetOperation(initializer);
 
-            if (argumentExpression is InvocationExpressionSyntax constructorArgumentInvocation &&
-                TryResolveFromMethodInvocation(
-                    constructorArgumentInvocation,
-                    modelForSyntax,
-                    out ResolutionResult methodResolution,
-                    allowParameterizedCallee: true) &&
-                (methodResolution.IsStaticallyResolved ||
-                 methodResolution.BranchSqlTexts.Count > 0 ||
-                 methodResolution.HasScopeHelperInvocation))
+            System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.Operations.IArgumentOperation> boundArguments =
+                (invocationOperation as Microsoft.CodeAnalysis.Operations.IInvocationOperation)?.Arguments ??
+                (invocationOperation as Microsoft.CodeAnalysis.Operations.IObjectCreationOperation)?.Arguments ??
+                System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.Operations.IArgumentOperation>.Empty;
+
+            IMethodSymbol? currentConstructor = chainedConstructor;
+
+            for (int depth = 0; depth < 8 && currentConstructor is not null; depth++)
             {
-                return methodResolution;
-            }
+                ExpressionSyntax? argumentForProperty = null;
 
-            return ResolveCore(argumentExpression, modelForSyntax, visitingInterpolatedHole: false);
+                foreach (Microsoft.CodeAnalysis.Operations.IArgumentOperation argument in boundArguments)
+                {
+                    if (argument.Parameter is not IParameterSymbol argumentParameter)
+                        continue;
+
+                    if (!string.Equals(argumentParameter.Name, property.Name, StringComparison.Ordinal))
+                        continue;
+
+                    if (argument.IsImplicit || argument.Value.Syntax is not ExpressionSyntax argumentSyntax)
+                        continue;
+
+                    argumentForProperty = argumentSyntax;
+                    break;
+                }
+
+                if (argumentForProperty is not null)
+                    return ResolveChainedConstructorArgument(argumentForProperty, modelForConstructor);
+
+                currentConstructor = TryGetNextThisChainedConstructor(currentConstructor, modelForConstructor);
+            }
         }
 
         return null;
+    }
+
+    private static IMethodSymbol? TryGetNextThisChainedConstructor(
+        IMethodSymbol constructor,
+        SemanticModel semanticModel)
+    {
+        SyntaxReference? syntaxReference = constructor.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not ConstructorDeclarationSyntax constructorDeclaration)
+            return null;
+
+        if (constructorDeclaration.Initializer is not ConstructorInitializerSyntax initializer ||
+            !initializer.IsKind(SyntaxKind.ThisConstructorInitializer))
+        {
+            return null;
+        }
+
+        SemanticModel modelForInitializer = GetSemanticModelForSyntax(initializer, semanticModel);
+
+        return modelForInitializer.GetSymbolInfo(initializer).Symbol as IMethodSymbol;
+    }
+
+    private static ResolutionResult ResolveChainedConstructorArgument(
+        ExpressionSyntax argumentExpression,
+        SemanticModel semanticModel)
+    {
+        SemanticModel modelForSyntax = GetSemanticModelForSyntax(argumentExpression, semanticModel);
+
+        if (argumentExpression is InvocationExpressionSyntax constructorArgumentInvocation &&
+            TryResolveFromMethodInvocation(
+                constructorArgumentInvocation,
+                modelForSyntax,
+                out ResolutionResult methodResolution,
+                allowParameterizedCallee: true) &&
+            (methodResolution.IsStaticallyResolved ||
+             methodResolution.BranchSqlTexts.Count > 0 ||
+             methodResolution.HasScopeHelperInvocation))
+        {
+            return methodResolution;
+        }
+
+        return ResolveCore(argumentExpression, modelForSyntax, visitingInterpolatedHole: false);
     }
 
     private static ResolutionResult? TryResolveFromLocalFunctionParameterCallSites(

@@ -433,6 +433,79 @@ public sealed record ParameterlessCtorChainedSqlRepository(string Sql)
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_record_this_chain_with_named_reordered_arguments()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed record NamedArgumentChainedSqlRepository(string Sql, string Label)
+{
+    public NamedArgumentChainedSqlRepository()
+        : this(Label: "SELECT 1", Sql: "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL")
+    {
+    }
+
+    public void Load(System.Data.IDbConnection connection)
+    {
+        _ = connection.Query<int>(Sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(154, 13, 154, 39)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_record_this_chain_through_overload_before_primary()
+    {
+        const string testCode = MinimalStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed record OverloadChainedSqlRepository(string Sql, string Label)
+{
+    public OverloadChainedSqlRepository()
+        : this(42)
+    {
+    }
+
+    private OverloadChainedSqlRepository(int marker)
+        : this("SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL", marker.ToString())
+    {
+    }
+
+    public void Load(System.Data.IDbConnection connection)
+    {
+        _ = connection.Query<int>(Sql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(159, 13, 159, 39)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_does_not_analyze_query_single_async_string_when_command_type_is_stored_procedure()
     {
         const string testCode = MinimalStubs +
