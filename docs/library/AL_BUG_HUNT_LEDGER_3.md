@@ -1021,6 +1021,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **1**); reread `DraftNewCommandIntakeLoop` execute/submit JSON envelopes (`executionStarted`, `execute_failed`), `DraftNewCommandAdmitStage` `Admitted` false and `IsMissingDraftBody` guards, `DraftNewCommandConnectStage` intent trim after connect vs JSON preflight, `DraftNewCommandMustQuestionLoop` skip-all scope validation and whitespace-answer handling, and `DraftNewCommandArgParser` missing flag values. No new mechanism met the hunt-ready bar without duplicating existing regressions (for example `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`). `DraftNewCommandCoreTests` **73/73**. Seeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — JSON mode submit HTTP failure may omit `CliJson.WriteFailureLine` while stderr carries detail — locus: `SubmitDraftAsync` failure branch; input: non-OK submit response in `--json` run; wrong outcome: automation sees stderr-only failure; reachability: monitor JSON submit failure parity (`RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`).
+- [ ] (candidate) `DraftNewCommandAdmitStage` — JSON mode `Admitted=false` may omit structured failure line — locus: `!admission.Value.Admitted` branch; input: semantic redirect admission body; wrong outcome: stderr-only without `ok:false`; reachability: monitor admit-not-admitted JSON envelope (`RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`).
+- [ ] (candidate) `DraftNewCommandConnectStage` — `--text` of only spaces fails after connect without reaching create — locus: intent trim length gate; input: `--text "     "` with `--json`; wrong outcome: create called before length check; reachability: monitor `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — interactive whitespace answer exits without operator hints — locus: whitespace answer branch; input: readline `"   "` on pending MUST; wrong outcome: hints on validation-only path; reachability: monitor `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — auto-execute failure after successful submit may still emit success JSON — locus: execute failure after submit; input: execute endpoint failure with `--json`; wrong outcome: `ok:true` before execute; reachability: monitor execute-failed JSON ordering (`RunCoreAsync_json_output_execute_cancellation_emits_execute_failed_without_ok_true`).
+
 2026-10-31 seed hunt (seed-only): after the rotated `cli-terraform-evidence` seed-only pass, reread `DraftNewCommandMustQuestionLoop` skip-all vs interactive answer paths, whitespace-only answer rejection, and scope validation on skip/answer responses. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed.
 
 2026-10-31 seed hunt (seed-only): third consecutive low-yield pass on this zone; reread connect-stage API base URL resolution, intent trim vs interactive prompt paths, and connection failure exit mapping before admit. No new reachable mechanism-backed candidate met the hunt-ready bar; `DraftNewCommandCoreTests` passed 73/73. No production code changed. Rotation is now eligible for the next Set 3 invocation.
@@ -1174,10 +1182,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 10
-- **last-hunt:** 2026-10-08
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
