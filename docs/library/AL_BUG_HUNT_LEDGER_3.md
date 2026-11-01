@@ -2985,6 +2985,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 seed hunt (hit): rotation fired after three low-yield `ui-form-validation` thorough outcomes (`avoidZoneId` `ui-form-validation`). Promoted return-only idle desk restore dropping registered livelihood form snapshots when `readOperatorScopeFromStorage()` is null — `persistIdleDeskRestoreBeforeSessionClear` returned before `collectRegisteredLivelihoodIdleFormSnapshots()`; `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` no-op'd without scope. Fixed both paths to persist/merge snapshots with `scope: null`. Regressions `persists livelihood form snapshots before session clear when operator scope is missing (WS-18)` and `merges one livelihood snapshot when operator scope is missing (LW-095)`. Scoped auth/proxy vitest **604/613** (7 unrelated baseline seam failures outside this fix). Reseeded five follow-on `(candidate)` rows below. Private beta: invited operators who idle out on a desk path without a localStorage scope row keep in-progress livelihood draft fields through re-auth instead of losing them while the return URL still restores.
+
+- [x] (proven) `persistIdleDeskRestoreBeforeSessionClear` / `mergeLivelihoodIdleFormSnapshotIntoDeskRestore` — scope-less idle clear dropped WS-18 livelihood snapshots — **hit 2026-11-01 seed hunt:** regressions above.
+
+- [ ] (candidate) `enforceProxyBffSessionGuard` — expired session on anonymous marketing POST clears cookie but still forwards GET with stale bearer — locus: expired payload branch on `skipPublicAnonymousMutationGuard`; input: marketing register POST after idle expiry; wrong outcome: unexpected upstream auth; reachability: monitor anonymous marketing + expired BFF regressions.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — lowercase `api/auth/me` cache header vs mixed-case upstream path — locus: `normalizedTailPath` in `proxy-forward.ts`; input: proxy GET with mixed-case tail segments; wrong outcome: missing private cache directive; reachability: monitor auth/me cache regressions.
+- [ ] (candidate) `forwardMutatingWithBody` — zero-byte body omits Content-Type on upstream when client sent empty JSON — locus: `fetchBody` undefined branch; input: POST with `Content-Length: 0` and application/json; wrong outcome: upstream rejects; reachability: monitor empty-body POST proxy tests.
+- [ ] (candidate) `mergeRegistrationScopeForProxy` — PATCH omits CSRF when method casing is lowercase in RequestInit — locus: method normalization; input: `{ method: 'patch' }`; wrong outcome: 403 on bootstrap PATCH; reachability: monitor CSRF attachment tests.
+- [ ] (candidate) `proxy.ts` host gate — demo-run alias 308 may run before marketing redirect drops operator query on alias paths — locus: ordering hostGate vs alias; input: marketing-host `/runs/alias?returnUrl=`; wrong outcome: query stripped; reachability: monitor alias redirect query preservation tests.
+
 2026-10-31 seed hunt (seed-only): after syncing `bugsmash-3` with latest `master`, reread idle-desk return canonicalization, BFF session idle/CSRF enforcement, proxy forwarding and host-gate ordering, bootstrap/OTP client boundaries, and scope-header precedence. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped auth/proxy vitest passed 60 files and 278/278 tests. No production code changed.
 
 2026-10-31 seed hunt (seed-only): reread idle-desk restore parsing/consumption, sign-in destination safety, proxy forwarding timeout and method branches, and BFF session idle/CSRF/public-anonymous handling after the prior auth/proxy pass. Existing regressions cover the reachable state transitions and no new mechanism-backed candidate met the hunt-ready bar; the scoped auth/proxy suite passed 61 files and 285/285 tests. No production code changed.
@@ -3119,9 +3129,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 68
-- **bugs-found:** 36
-- **consecutive-dry-hunts:** 6
+- **hunts:** 69
+- **bugs-found:** 37
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
