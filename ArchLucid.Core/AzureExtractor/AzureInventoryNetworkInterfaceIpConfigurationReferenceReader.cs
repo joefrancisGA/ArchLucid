@@ -46,20 +46,9 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(armId, out string working))
         {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
+            return null;
         }
 
         // Gate normalization to strings that look like ARM resource IDs.

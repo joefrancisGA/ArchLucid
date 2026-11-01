@@ -3,6 +3,54 @@ namespace ArchLucid.Core.InfraEvidence;
 /// <summary>Normalizes ARM resource identifiers for stable cross-snapshot joins.</summary>
 public static class ArmResourceIdNormalizer
 {
+    /// <summary>
+    ///     Maximum bounded passes applied when decoding percent-encoded ARM ids.
+    /// </summary>
+    public const int MaxPercentDecodePasses = 8;
+
+    /// <summary>
+    ///     Performs a bounded percent-decode of <paramref name="value"/>. Returns <see langword="true"/>
+    ///     when decoding completed (or no decoding was needed) without throwing; returns
+    ///     <see langword="false"/> and leaves <paramref name="decoded"/> as the last safe value when
+    ///     <see cref="Uri.UnescapeDataString"/> fails on malformed input.
+    /// </summary>
+    public static bool TryDecodePercentEncoded(string? value, out string decoded)
+    {
+        decoded = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        string working = value.Trim();
+
+        for (int pass = 0; pass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string next;
+
+            try
+            {
+                next = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                decoded = working;
+                return false;
+            }
+
+            if (string.Equals(next, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = next;
+        }
+
+        decoded = working;
+        return true;
+    }
+
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
     public static string Normalize(string? externalResourceId)
     {

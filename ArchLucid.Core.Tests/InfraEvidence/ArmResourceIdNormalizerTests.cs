@@ -137,4 +137,54 @@ public sealed class ArmResourceIdNormalizerTests
             .BeFalse();
         ancestor.Should().BeEmpty();
     }
+
+    [Fact]
+    public void TryDecodePercentEncoded_decodes_percent_encoded_arm_id()
+    {
+        const string encoded =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm%2D1";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(encoded, out string decoded);
+
+        succeeded.Should().BeTrue();
+        decoded.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1");
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_returns_input_when_no_percent_sign()
+    {
+        const string plain =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(plain, out string decoded);
+
+        succeeded.Should().BeTrue();
+        decoded.Should().Be(plain);
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_leaves_malformed_percent_sequences_undecoded()
+    {
+        // Uri.UnescapeDataString is lenient: invalid escapes like %ZZ and bare % pass through unchanged.
+        // The loop terminates because the decoded output equals the input.
+        const string malformed = "50%ZZ";
+
+        bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(malformed, out string decoded);
+
+        succeeded.Should().BeTrue();
+        decoded.Should().Be(malformed);
+    }
+
+    [Fact]
+    public void TryDecodePercentEncoded_handles_null_and_whitespace()
+    {
+        ArmResourceIdNormalizer.TryDecodePercentEncoded(null, out string nullDecoded)
+            .Should().BeTrue();
+        nullDecoded.Should().BeEmpty();
+
+        ArmResourceIdNormalizer.TryDecodePercentEncoded("   ", out string whitespaceDecoded)
+            .Should().BeTrue();
+        whitespaceDecoded.Should().BeEmpty();
+    }
 }
