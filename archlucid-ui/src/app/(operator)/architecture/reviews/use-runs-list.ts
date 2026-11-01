@@ -297,7 +297,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useEffect(() => {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
-        runsListSearchHrefFromSearch(routerSearchString, filterText, pathname),
+        runsListSearchHrefFromSearch(
+          runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+          filterText,
+          pathname,
+        ),
         { notify: false },
       );
     }, 250);
