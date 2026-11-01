@@ -6,6 +6,8 @@ import {
   SECURENOW_SAMPLE_BEATS,
   SECURENOW_SAMPLE_FIXTURE_LINE,
   SECURENOW_SAMPLE_HEADING,
+  SECURENOW_SAMPLE_WHY_LINK_LABEL,
+  SECURENOW_SAMPLE_WHY_LINK_LEAD,
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_CONVERSATION_MAILTO,
   WHY_SECURENOW_DRAFT_PITCH,
@@ -50,6 +52,13 @@ export function SecureNowSampleView(): React.JSX.Element {
             );
           })}
         </div>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          {SECURENOW_SAMPLE_WHY_LINK_LEAD}{" "}
+          <Link href="/why-securenow" className="text-al-link underline-offset-2 hover:underline">
+            {SECURENOW_SAMPLE_WHY_LINK_LABEL}
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link href={WHY_SECURENOW_CONVERSATION_MAILTO} className="text-al-link underline-offset-2 hover:underline">

@@ -5,6 +5,7 @@ import { SecureNowSampleView } from "@/app/(marketing)/securenow-sample/SecureNo
 import { metadata } from "@/app/(marketing)/securenow-sample/page";
 import {
   SECURENOW_SAMPLE_FIXTURE_LINE,
+  SECURENOW_SAMPLE_WHY_LINK_LABEL,
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_DRAFT_PITCH,
 } from "@/lib/marketing/securenow-sample-copy";
@@ -26,5 +27,21 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
 
   it("exports indexable metadata", () => {
     expect(metadata.robots).toEqual({ index: true, follow: true });
+  });
+
+  it("links back to Why SecureNow", () => {
+    render(<SecureNowSampleView />);
+
+    expect(screen.getByRole("link", { name: SECURENOW_SAMPLE_WHY_LINK_LABEL })).toHaveAttribute(
+      "href",
+      "/why-securenow",
+    );
+  });
+
+  it("renders the remaining fixture beats with honest boundaries", () => {
+    render(<SecureNowSampleView />);
+
+    expect(screen.getAllByText(/not verified/i)).not.toHaveLength(0);
+    expect(screen.getAllByText(/does not change Azure/i)).not.toHaveLength(0);
   });
 });
