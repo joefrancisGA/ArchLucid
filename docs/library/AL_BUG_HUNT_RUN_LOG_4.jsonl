@@ -3130,3 +3130,4 @@
 {"at":"2026-11-01T00:34:31.1077892Z","zoneId":"host-composition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:37:13.9123361Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:39:44.0787617Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T00:41:53.1411948Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
