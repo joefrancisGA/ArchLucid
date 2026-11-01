@@ -526,6 +526,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **2/3** — below `minLowYieldStreak` 3); picker selected `cli-tenant-isolation` (not cooldown-fallback OIDC). Reread `TenantIsolationNegativeTestRunner` offline/live report assembly, `DeriveOverallVerdict` live cross-tenant SKIP vs offline fixture PASS contract, `ResolveAlternateScope` delegation, and unexpected-success counting. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped `TenantIsolationNegativeTestRunnerTests` passed **60/60**. No production code changed.
+
 2026-10-30 seed hunt #68 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
 
 2026-10-30 seed hunt #67 (seed-only): reran the focused tenant-isolation command/runner suite after the option-value validation fix; all 60 tests passed and no additional mechanism-backed candidate was supported. No production code changed.
@@ -652,10 +654,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-29
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — missing CLI option value fell back to offline mode
 - **related-pd-tb:** none
 - **code-changed-since:** 0
