@@ -281,6 +281,46 @@ public sealed class CachingSecondaryReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSignInEmailDomain_TryGetAsync_returns_null_after_soft_remove_update()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSignInEmailDomainRepository inner = new();
+        CachingTenantSignInEmailDomainRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+        const string normalized = "TRYGET-REMOVED.COM";
+
+        await repo.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                DisplayDomain = "TryGet-Removed.com",
+                NormalizedDomain = normalized,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, normalized, CancellationToken.None)).Should().NotBeNull();
+
+        TenantSignInEmailDomainRecord? loaded = await inner.TryGetAsync(tenantId, normalized, CancellationToken.None);
+        loaded.Should().NotBeNull();
+
+        await repo.UpdateAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = loaded!.TenantId,
+                DisplayDomain = loaded.DisplayDomain,
+                NormalizedDomain = loaded.NormalizedDomain,
+                CreatedUtc = loaded.CreatedUtc,
+                RemovedUtc = TimeProvider.System.GetUtcNow(),
+            },
+            CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, normalized, CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task TenantSignInEmailDomain_ListByTenantIdAsync_refreshes_after_insert()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

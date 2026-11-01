@@ -50,6 +50,112 @@ public sealed class WalletControllerUnitTests
     }
 
     [Fact]
+    public async Task PutAsync_returns_bad_request_when_row_version_base64_is_malformed()
+    {
+        Mock<ILlmTenantWalletService> wallet = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+
+        WalletController controller = CreateController(wallet.Object, scopeProvider.Object, audit.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        IActionResult result = await controller.PutAsync(
+            new LlmTenantWalletPutRequest
+            {
+                AutoReplenishEnabled = false,
+                RowVersionBase64 = "!!!not-base64!!!",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        wallet.Verify(
+            w => w.UpdateWalletAsync(It.IsAny<Guid>(), It.IsAny<LlmTenantWalletUpdateCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_propagates_operation_canceled_from_update_wallet()
+    {
+        using CancellationTokenSource canceled = new();
+        await canceled.CancelAsync();
+
+        Mock<ILlmTenantWalletService> wallet = new();
+        wallet
+            .Setup(w => w.UpdateWalletAsync(
+                Scope.TenantId,
+                It.IsAny<LlmTenantWalletUpdateCommand>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException(canceled.Token));
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+
+        WalletController controller = CreateController(wallet.Object, scopeProvider.Object, audit.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        Func<Task> act = () => controller.PutAsync(
+            new LlmTenantWalletPutRequest { AutoReplenishEnabled = false },
+            canceled.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PutAsync_treats_whitespace_only_row_version_base64_as_optional_occ_empty_expected_version()
+    {
+        Mock<ILlmTenantWalletService> wallet = new();
+        LlmTenantWalletUpdateCommand? captured = null;
+        wallet
+            .Setup(w => w.UpdateWalletAsync(
+                Scope.TenantId,
+                It.IsAny<LlmTenantWalletUpdateCommand>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, LlmTenantWalletUpdateCommand, CancellationToken>((_, command, _) => captured = command)
+            .ReturnsAsync(new LlmTenantWalletView
+            {
+                AutoReplenishEnabled = false,
+                MonthlyCapUsd = 50m,
+                RowVersion = [1],
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        WalletController controller = CreateController(wallet.Object, scopeProvider.Object, audit.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        await controller.PutAsync(
+            new LlmTenantWalletPutRequest
+            {
+                AutoReplenishEnabled = false,
+                RowVersionBase64 = "   ",
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExpectedRowVersion.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
     {
         Mock<ILlmTenantWalletService> wallet = new();

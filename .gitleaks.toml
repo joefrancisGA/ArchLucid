@@ -181,7 +181,6 @@ paths = [
 ]
 
 
-
 # Historical-blob exemptions only: gitleaks scans full git history (ci.yml fetch-depth: 0) and
 # flagged two retired ledger phrases that were since rewritten at HEAD. Each entry is rule-scoped
 # (AND-matched: ledger path AND the exact non-secret literal), so every other rule and every other

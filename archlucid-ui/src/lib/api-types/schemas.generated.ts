@@ -10304,6 +10304,7 @@ export interface components {
             executiveSummary?: string;
             /** Format: uuid */
             explanationId?: string;
+            modelOutputRejection?: null | string;
             /** Format: uuid */
             pathId?: string;
             proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];
