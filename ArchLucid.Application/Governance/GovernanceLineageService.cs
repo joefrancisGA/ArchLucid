@@ -36,7 +36,9 @@ public sealed class GovernanceLineageService(
         GovernanceApprovalRequest? approval = await _approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
         if (approval is null)
             return null;
-        ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery.GetRunDetailAsync(approval.RunId, cancellationToken);
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(approval.RunId);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(normalizedRunId);
+        ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery.GetRunDetailAsync(lookupRunId, cancellationToken);
         GovernanceLineageRunSummary? runSummary = coordinatorDetail is null
             ? null
             : new GovernanceLineageRunSummary
@@ -47,7 +49,7 @@ public sealed class GovernanceLineageService(
                 CompletedUtc = coordinatorDetail.Run.CompletedUtc,
                 CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
             };
-        string promotionLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(approval.RunId);
+        string promotionLookupRunId = lookupRunId;
         IReadOnlyList<GovernancePromotionRecord> promotions =
             await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
                 _promotionRepo,
@@ -56,7 +58,7 @@ public sealed class GovernanceLineageService(
         GovernanceLineageManifestSummary? manifestSummary = null;
         List<GovernanceLineageFindingSummary> topFindings = [];
         string? riskPosture = null;
-        if (!Guid.TryParse(approval.RunId, out Guid authorityRunId))
+        if (!Guid.TryParse(normalizedRunId, out Guid authorityRunId))
             return new GovernanceLineageResult
             {
                 ApprovalRequest = approval,
