@@ -196,6 +196,15 @@ public sealed class ApiRequestNullCollectionElementsGuardTests
     }
 
     [Fact]
+    public void ContainsNullCollectionElement_returns_true_for_null_element_in_root_blocking_collection_without_body_parameter()
+    {
+        BlockingCollection<string> blocking = new();
+        blocking.Add(null!);
+
+        ApiRequestNullCollectionElementsGuard.ContainsNullCollectionElement(blocking).Should().BeTrue();
+    }
+
+    [Fact]
     public void ContainsNullCollectionElement_returns_true_for_null_element_in_observable_collection_property()
     {
         ObservableCollectionRequest request = new()

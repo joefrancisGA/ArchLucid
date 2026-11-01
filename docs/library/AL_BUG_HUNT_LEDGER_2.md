@@ -19329,6 +19329,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-11-01 thorough hunt (hit #352): promoted `(candidate)` `BlockingCollection<T>` root without `ParameterInfo` (#351 concurrent parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to `BlockingCollection<>`; regression `ContainsNullCollectionElement_returns_true_for_null_element_in_root_blocking_collection_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows (`ImmutableArray<T>` property slots are struct-backed — no null reference elements in array struct per #348; filter requires `ControllerActionDescriptor` — no minimal-API body endpoints in catalog today; no cataloged `ConcurrentDictionary<,>` request properties; `ChannelReader<T>` / async stream roots are not non-generic `IEnumerable` batch bodies — monitor closed); reseeded five follow-on `(candidate)` rows; scoped filter **37/37** passed (`RunAnalyzers=false`). Private beta: blocking-collection batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `BlockingCollection<T>` root without `ParameterInfo` — **hit 2026-11-01 thorough hunt #352:** `BlockingCollection<>` root recognition; regression above.
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `ImmutableArray<T>` property with explicit null reference slots — **cheap-disproof 2026-11-01 thorough hunt #352:** `ImmutableArray<>` is a struct collection; no cataloged property; #348 default empty struct.
+- [x] (invalid) `ApiRequestNullCollectionElementsFilter` — `[FromBody]` on minimal API endpoint — **cheap-disproof 2026-11-01 thorough hunt #352:** filter early-outs unless `ControllerActionDescriptor`; host uses MVC controllers for cataloged bodies.
+- [x] (invalid) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ConcurrentDictionary<,>` values — **cheap-disproof 2026-11-01 thorough hunt #352:** no cataloged request model exposes `ConcurrentDictionary<,>` (#348 parity).
+- [x] (invalid) `ApiRequestNullCollectionElementsGuard` — root `ChannelReader<T>` / async enumerable batch — **cheap-disproof 2026-11-01 thorough hunt #352:** not a JSON-deserializable `[FromBody]` batch root in catalog; non-generic enumeration unlike `PriorityQueue` monitor.
+
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentStack<T>` root without `ParameterInfo` — locus: `IsRootLevelCollectionType`; input: future concurrent stack batch root (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitCollection` — `FrozenSet<T>` property on request DTOs — locus: property walk; input: if catalog adds frozen set property (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter` — body argument present but `BindingInfo` null on `[FromBody]` parameter — locus: filter binding source check; input: misconfigured parameter metadata (monitor).
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — `ImmutableDictionary<,>` nested values — locus: dictionary value walk; input: if catalog adds immutable map property (monitor).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard` — root `IAsyncEnumerable<T>` batch when binder adds support — locus: non-`IEnumerable` synchronous root walk; input: future async batch binding (monitor).
+
 2026-11-01 thorough hunt (hit #351): promoted `(candidate)` `ConcurrentBag<T>` / `ConcurrentQueue<T>` root without `ParameterInfo` (#350 LinkedList parity); extended `IsRootLevelCollectionType` / `TryGetEnumerableElementType` to concurrent bag/queue roots; regressions `ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_bag_without_body_parameter` and `ContainsNullCollectionElement_returns_true_for_null_element_in_root_concurrent_queue_without_body_parameter`; cheap-disproof closed four sibling `(candidate)` rows (`IImmutableList<T>` property walk uses `VisitCollection` when catalog adds immutable lists — same enumerable path as `ReadOnlyCollection`; filter `foreach` already validates every `[FromBody]` parameter — no cataloged action exposes dual body parameters; no cataloged `SortedDictionary<,>` request properties; `PriorityQueue<,>` still lacks non-generic `IEnumerable` — monitor closed per #350); reseeded five follow-on `(candidate)` rows; scoped filter **36/36** passed (`RunAnalyzers=false`). Private beta: concurrent collection batch roots and single-arg guard callers reject null elements with HTTP 400 validation instead of passing null slots downstream.
 
 - [x] (proven) `ApiRequestNullCollectionElementsGuard.TryVisitRootCollectionWithoutBodyParameter` — `ConcurrentBag<T>` / `ConcurrentQueue<T>` root without `ParameterInfo` — **hit 2026-11-01 thorough hunt #351:** concurrent bag/queue root recognition; regressions above.
@@ -19420,11 +19434,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 12
-- **bugs-found:** 9
+- **hunts:** 13
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — single-arg guard skipped ConcurrentBag/ConcurrentQueue root null slots
+- **last-bug:** 2026-11-01 — single-arg guard skipped BlockingCollection root null slots
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
