@@ -2,6 +2,26 @@
 
 ## Zone: ui-form-validation
 
+2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-form-validation` low-yield streak **2** after this run — rotation at **3** on next dry); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — empty JSON `{}` on error uses raw body text (`shows raw response text when register returns an empty JSON object on error`); `"1e-1"` fails whole-number gate (`architectureTeamSize` superRefine; runtime safeParse); whitespace-only organization triggers required-field readiness before any email copy (`deriveSignupFormReadinessMessage prefers required-field guidance over invalid email when organization is whitespace-only`; runtime with valid email + `"   "` org); team size `10001` keeps submit disabled after paste/blur (`keeps submit disabled after pasting team size 10001 over a valid value and blurring the field`; related no-fetch regressions); Other industry specification trims in builder (`includes trimmed industry vertical other in the register payload builder when industry is Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — empty JSON `{}` error toast — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** raw `{}` body; regression above.
+- [x] (valid-no-repro) `signupFormSchema` — `1e-1` team size — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** non-integer reject; runtime check above.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — org whitespace vs email — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** required-field branch; regressions + runtime above.
+- [x] (valid-no-repro) `SignupForm` — autofill/paste team size `10001` — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** disabled submit after blur; regressions above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — Other industry trim — **cheap-disproof 2026-11-01 thorough hunt (pass 16):** trim regression above.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — network error message may expose raw `TypeError` in toast — locus: catch path; input: `fetch` throw; wrong outcome: opaque copy; reachability: monitor register fetch throw regressions.
+- [ ] (candidate) `signupFormSchema` — leading-zero below minimum `"00"` team size — locus: Number parse; input: `"00"`; wrong outcome: accepted as zero omitted; reachability: monitor double-zero team-size regressions.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — invalid email with whitespace-only full name — locus: TB-2010; input: bad email + `"   "` name; wrong outcome: email before required; reachability: monitor existing required-vs-email regressions.
+- [ ] (candidate) `SignupForm` — selecting Prefer not to say then submit may leave stale companySize in sessionStorage — locus: success handler; input: flip company size then register; wrong outcome: stale session key; reachability: monitor companySize sessionStorage regressions.
+- [ ] (candidate) `buildSignupRegisterPayload` — omits architecture team size when value is empty string — locus: falsy guard; input: `""`; wrong outcome: key present; reachability: monitor empty team-size builder tests.
+
+- [x] (superseded) `SignupForm` `onSubmit` — empty JSON — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `signupFormSchema` — `1e-1` — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — org whitespace — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `SignupForm` — autofill team size — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — Other trim — **superseded 2026-11-01 thorough hunt (pass 16):** see closed row above.
+
 2026-11-01 thorough hunt (dry): no rotation (`shouldRotate: false`; `ui-auth-proxy` low-yield streak **1**); attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — numeric JSON `detail` surfaces raw response text, not a coerced string toast (`shows raw response text when register returns numeric JSON detail`); `"-0"` team size rejected and omitted (`signupFormSchema rejects negative zero optional architecture team size`; builder omit regression); invalid email readiness precedes overlong organization (`deriveSignupFormReadinessMessage` runtime: bad email + 201-char org → valid work email copy); fractional `3.5` team size keeps submit disabled (`keeps submit disabled for fractional optional architecture team size`; `canSubmit` gate blocks double-click POST); non-Other industry omits `industryVerticalOther` in builder (`omits industry vertical other from the register payload builder when industry is not Other`). Focused `SignupForm` suite passed **144/144**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric JSON `detail` toast — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** raw-body contract; regression above.
@@ -10,11 +30,11 @@
 - [x] (valid-no-repro) `SignupForm` — double-click with `3.5` — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** disabled submit / no POST; fractional regressions above.
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — non-Other industry other text — **cheap-disproof 2026-11-01 thorough hunt (pass 15):** conditional omit regression above.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — empty JSON `{}` on error may omit synthetic fallback — locus: non-ok parse; input: `{}` body; wrong outcome: blank toast; reachability: monitor empty JSON object error regressions.
-- [ ] (candidate) `signupFormSchema` — scientific notation below lower bound `1e-1` — locus: Number parse; input: `"1e-1"`; wrong outcome: accepted; reachability: monitor sub-one team-size regressions.
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — required-field branch vs invalid email when org whitespace-only — locus: TB-2010 trim; input: valid email + `"   "` org; wrong outcome: email copy before required; reachability: monitor required-vs-email when org blank.
-- [ ] (candidate) `SignupForm` — browser autofill on optional team size may bypass blur validation — locus: RHF mode; input: autofill `10001`; wrong outcome: enabled submit; reachability: monitor team-size blur/submit regressions.
-- [ ] (candidate) `buildSignupRegisterPayload` — includes trimmed `industryVerticalOther` when industry is Other — locus: trim + guard; input: Other + padded spec; wrong outcome: untrimmed POST; reachability: monitor Other industry trim builder tests.
+- [x] (superseded) `SignupForm` `onSubmit` — empty JSON (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `signupFormSchema` — `1e-1` (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `deriveSignupFormReadinessMessage` — org whitespace (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `SignupForm` — autofill team size (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
+- [x] (superseded) `buildSignupRegisterPayload` — Other trim (pass 15 reseed) — **superseded 2026-11-01 thorough hunt (pass 16):** see pass-16 closed row above.
 
 - [x] (superseded) `SignupForm` `onSubmit` — numeric detail — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
 - [x] (superseded) `signupFormSchema` — `-0` — **superseded 2026-11-01 thorough hunt (pass 15):** see closed row above.
@@ -636,9 +656,9 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 101
+- **hunts:** 102
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 15
+- **consecutive-dry-hunts:** 16
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-30 — Organization input length contract
 - **related-pd-tb:** TB-2005
