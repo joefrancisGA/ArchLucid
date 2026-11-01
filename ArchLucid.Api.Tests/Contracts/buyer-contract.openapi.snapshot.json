@@ -19296,6 +19296,13 @@
               "string"
             ]
           },
+          "securityEvidencePathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "sinceUtc": {
             "format": "date-time",
             "type": [
