@@ -184,6 +184,21 @@ describe("coerceGoldenManifestComparison", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("rejects empty baseRunId", () => {
+    const result = coerceGoldenManifestComparison({
+      baseRunId: "",
+      targetRunId: "b",
+      decisionChanges: [],
+      requirementChanges: [],
+      securityChanges: [],
+      topologyChanges: [],
+      costChanges: [],
+      summaryHighlights: [],
+    });
+
+    expect(result.ok).toBe(false);
+  });
 });
 
 describe("coerceReplayResponse", () => {
@@ -320,6 +335,19 @@ describe("coerceArtifactDescriptor", () => {
         artifactId: "a",
         artifactType: "Inventory",
         name: "n",
+        createdUtc: "2020-01-01T00:00:00Z",
+        contentHash: "h",
+      }).ok,
+    ).toBe(false);
+  });
+
+  it("rejects whitespace-only artifactId", () => {
+    expect(
+      coerceArtifactDescriptor({
+        artifactId: "   ",
+        artifactType: "Inventory",
+        name: "n",
+        format: "json",
         createdUtc: "2020-01-01T00:00:00Z",
         contentHash: "h",
       }).ok,

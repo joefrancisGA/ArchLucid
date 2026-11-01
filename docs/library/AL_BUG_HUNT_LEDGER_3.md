@@ -8973,7 +8973,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 126 · **Bugs found:** 115 · **Consecutive dry hunts:** 0
+**Hunts:** 127 · **Bugs found:** 116 · **Consecutive dry hunts:** 0
+
+2026-11-01 thorough hunt (hit): promoted **whitespace-only artifact ids and empty compare run ids in operator coercion** — artifact and golden-manifest guards used plain `z.string()` while run detail already trimmed required ids; extracted shared `operatorNonEmptyTrimmedString` and wired `coerceArtifactDescriptor` / list rows plus `coerceGoldenManifestComparison` `baseRunId` / `targetRunId`; regressions `rejects whitespace-only artifactId` and `rejects empty baseRunId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 134 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer hydrate artifact panels or golden-manifest compare chrome from API payloads whose primary ids are blank whitespace or empty strings.
+
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — keyset envelope with `requestedTake: 0` still accepted after negative guard — **cheap-disproof 2026-11-01 thorough hunt:** prior `requestedTake < 1` guard already rejects zero (`Paged runs response has invalid requestedTake.`).
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset envelope accepts negative finite `pageSize` — **cheap-disproof 2026-11-01 thorough hunt:** legacy passthrough matches negative `totalCount` policy; consumers clamp via runs-panel normalization.
+- [x] (valid-no-repro) `coerceGraphViewModel` — `nodes` array containing non-object entries — **cheap-disproof 2026-11-01 thorough hunt:** array-shell validation only; same as prior edges candidate.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `artifactId` passes zod string checks — **hit 2026-11-01 thorough hunt:** shared trim guard on `artifactId`; regression above.
+- [x] (proven) `coerceGoldenManifestComparison` — empty string `baseRunId` / `targetRunId` pass zod min checks — **hit 2026-11-01 thorough hunt:** shared trim guard on compare run ids; regression above.
+
+- [ ] (candidate) `coerceRunComparison` — empty string `leftRunId` / `rightRunId` pass zod checks — locus: `runComparisonSchema`; input: `{ leftRunId: "", rightRunId: "r", runLevelDiffs: [] }`.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `manifestId` passes zod string checks — locus: `manifestSummarySchema`; input: `{ manifestId: "  ", …required fields }`.
+- [ ] (candidate) `coerceArtifactDescriptorList` — whitespace-only list row `artifactId` — locus: `artifactListRowSchema`; input: `[{ artifactId: " ", name: "n" }]`.
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — locus: `isLegacyOffsetPagedRunEnvelope`; input: `{ page: 0, pageSize: 20, totalCount: 0, hasMore: false, items: [] }`.
+- [ ] (candidate) `coerceReplayResponse` — whitespace-only `runId` passes zod string checks — locus: `replayResponseSchema`; input: `{ runId: " ", mode: "m", replayedUtc: "2020-01-01T00:00:00Z", validation: { notes: [], manifestHashMatches: true, artifactBundlePresentAfterReplay: false } }`.
 
 2026-11-01 thorough hunt (hit): promoted **negative keyset `requestedTake` accepted as page size** — `coerceRunSummaryPaged` cursor branch treated any finite `requestedTake` as `pageSize`, letting malformed keyset envelopes propagate negative sizes into home runs pagination; reject `requestedTake < 1`; regression `rejects keyset envelope when requestedTake is negative`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 132 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer merge corrupted keyset runs pages with negative `pageSize` into home dashboard pagination metadata.
 

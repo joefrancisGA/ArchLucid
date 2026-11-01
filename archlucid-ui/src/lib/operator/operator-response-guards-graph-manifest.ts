@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { GraphViewModel } from "@/types/graph";
 import type { ManifestSummary, ReplayResponse } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -45,8 +46,8 @@ const goldenManifestComparisonSchema = z
     topologyChanges: z.array(z.unknown()),
     costChanges: z.array(z.unknown()),
     summaryHighlights: z.array(z.unknown()),
-    baseRunId: z.string(),
-    targetRunId: z.string(),
+    baseRunId: operatorNonEmptyTrimmedString,
+    targetRunId: operatorNonEmptyTrimmedString,
   })
   .passthrough();
 

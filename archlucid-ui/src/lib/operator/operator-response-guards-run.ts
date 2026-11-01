@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { PagedResponse } from "@/types/pagination";
 import type { RunDetail, RunSummary } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -166,7 +167,7 @@ export function coerceRunSummaryPaged(
   };
 }
 
-const nonEmptyTrimmedString = z.string().trim().min(1);
+const nonEmptyTrimmedString = operatorNonEmptyTrimmedString;
 
 const runDetailSchema = z
   .object({

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { ArtifactDescriptor, RunComparison } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -9,7 +10,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const artifactDescriptorSchema = z
   .object({
-    artifactId: z.string(),
+    artifactId: operatorNonEmptyTrimmedString,
     artifactType: z.string(),
     name: z.string(),
     format: z.string(),
@@ -20,7 +21,9 @@ const artifactDescriptorSchema = z
   })
   .passthrough();
 
-const artifactListRowSchema = z.object({ artifactId: z.string(), name: z.string() }).passthrough();
+const artifactListRowSchema = z
+  .object({ artifactId: operatorNonEmptyTrimmedString, name: z.string() })
+  .passthrough();
 
 /**
  * Ensures artifact list is an array of descriptors with stable ids.
