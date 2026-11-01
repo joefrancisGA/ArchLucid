@@ -429,6 +429,71 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_returns_persisted_claim_mapping_json_verbatim_on_read()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        const string claimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"legacy-saml-group","archLucidRole":"Reader"}]}""";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                ClaimMappingJson = claimMappingJson,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.ClaimMappingJson.Should().Be(claimMappingJson);
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_skips_uri_canonicalization_when_discovery_failed()
+    {
+        Mock<IIdentityProviderDiscoveryService> discovery = new();
+        discovery
+            .Setup(d => d.DiscoverAsync(It.IsAny<IdentityProviderDiscoverRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IdentityProviderDiscoverResponse
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example:443/oidc",
+                JwksUri = "https://idp.example:443/oidc/jwks",
+                DiscoverySucceeded = false,
+                DiagnosticSummary = "metadata fetch failed",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(discoveryService: discovery.Object);
+
+        IActionResult result = await controller.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/.well-known/openid-configuration",
+            },
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        IdentityProviderDiscoverResponse body =
+            ok.Value.Should().BeOfType<IdentityProviderDiscoverResponse>().Subject;
+
+        body.DiscoverySucceeded.Should().BeFalse();
+        body.IssuerUri.Should().Be("https://idp.example:443/oidc");
+        body.JwksUri.Should().Be("https://idp.example:443/oidc/jwks");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();

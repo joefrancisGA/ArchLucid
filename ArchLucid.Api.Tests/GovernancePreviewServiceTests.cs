@@ -627,4 +627,42 @@ public sealed class GovernancePreviewServiceTests
 
         await act.Should().ThrowAsync<GoldenManifestVersionNotFoundException>();
     }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_loads_manifest_by_version_when_run_current_manifest_version_has_trailing_newline()
+    {
+        GoldenManifest embedded = Manifest(RunA, "v1", g => g.RequiredControls.Add("embedded"));
+        GoldenManifest byVersion = Manifest(RunA, "v1", g => g.RequiredControls.Add("by-version"));
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun
+                {
+                    RunId = RunA,
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    CurrentManifestVersion = "v1\n",
+                },
+                Manifest = embedded,
+            });
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(byVersion);
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = RunA,
+            ManifestVersion = "v1",
+            Environment = "dev",
+        });
+
+        result.Differences.Should().Contain(d =>
+            d.Key == "RequiredControls"
+            && d.ChangeType == GovernanceDiffChangeType.Added
+            && d.PreviewValue == "by-version");
+        _unifiedManifestReader.Verify(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

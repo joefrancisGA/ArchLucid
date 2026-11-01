@@ -10,6 +10,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Text.Json;
+
 namespace ArchLucid.Application.Tests.Tenancy;
 
 [Trait("Category", "Unit")]
@@ -1914,6 +1916,52 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             Times.Exactly(2));
         auditEventIds.Should().HaveCount(2);
         auditEventIds[1].Should().Be(auditEventIds[0]);
+    }
+
+    [Fact]
+    public async Task TryOffboardTenantAsync_offboard_audit_quarantine_days_matches_eligibility_window()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 31, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Audit Quarantine Org",
+            "audit-q-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        string? capturedDataJson = null;
+        Mock<IPlatformAuditRepository> audit = new();
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => capturedDataJson = auditEvent.DataJson)
+            .Returns(Task.CompletedTask);
+
+        const int configuredQuarantineDays = 14;
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { QuarantineDays = configuredQuarantineDays });
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        TenantErasureOffboardResult? result = await sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ErasureEligibleUtc.Should().Be(now.AddDays(configuredQuarantineDays));
+        capturedDataJson.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(capturedDataJson!);
+        document.RootElement.GetProperty("quarantineDays").GetInt32().Should().Be(configuredQuarantineDays);
     }
 
     [Fact]
