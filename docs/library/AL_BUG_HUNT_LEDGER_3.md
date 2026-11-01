@@ -2993,6 +2993,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` allowlists response headers and does not forward upstream `ETag`/`Vary` (only sets opt-in `Cache-Control` on auth/me); `enforceProxyRateLimit` runs before `forward` so 429 responses never reach BFF slide (intentional abuse fail-fast); OTP `Complete` and bootstrap complete are separate navigation entry points so paired `consumePostSignInReturnUrl` calls are not one buyer flow (`use-sign-in-flow-state` vs `PostAuthBootstrapClient`); anonymous public paths forward browser `Authorization` when present (`still forwards browser Authorization on public anonymous paths when present`); missing/`chunked` Content-Length skips declared-length 413 but streaming read still enforces cap (`body_too_large_streaming`; `declaredPostBodyExceedsLimit` returns false for non-numeric header). Targeted regressions **37/37** across `proxy-body-read.test.ts`, `proxy-upstream-headers.test.ts`, and `email-otp-post-auth.test.ts`. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `passThrough` — upstream `ETag`/`Vary` on auth/me — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** validators not forwarded; private cache hint only when opted in.
+- [x] (valid-no-repro) `handleRateLimitedForward` — 429 omits BFF slide cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** rate limit short-circuits before `enforceProxyBffSessionGuard`; intentional.
+- [x] (invalid) `consumePostSignInReturnUrl` — double consume OTP + bootstrap complete — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** separate client entry points; not a single verify-then-complete chain consuming twice for one desk landing.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — anonymous path omits browser bearer — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** regression forwards browser Authorization on public anonymous paths.
+- [x] (invalid) `forwardMutatingWithBody` — chunked POST bypasses body cap — **cheap-disproof 2026-11-01 thorough hunt (pass 3):** streaming read limit returns 413 via `body_too_large_streaming`.
+
+- [ ] (candidate) `passThrough` — upstream `Set-Cookie` on proxied auth responses may reach the browser — locus: header allowlist vs upstream auth cookies; input: upstream `Set-Cookie` on auth/me; wrong outcome: unintended cookie mutation; reachability: monitor pass-through header forwarding policy.
+- [ ] (candidate) `enforceProxyBffSessionGuard` — GET on protected bootstrap paths without session may still slide cookies when payload null — locus: allowed GET with null payload branch; input: bootstrap status GET without cookie; wrong outcome: unexpected Set-Cookie; reachability: monitor bootstrap GET guard regressions.
+- [ ] (candidate) `resolveBootstrapCompletePath` — unsafe explicit returnUrl consumes OIDC desk path before fallback — locus: consume ordering in bootstrap complete; input: unsafe arg with valid consumed desk path; wrong outcome: `/` instead of desk; reachability: monitor `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`.
+- [ ] (candidate) `buildProxyUpstreamHeaders` — production posture may attach trusted proxy scope on anonymous register POST — locus: `resolveAnonymousPublicProxyScopeHeaders`; input: register POST with registration session headers; wrong outcome: wrong tenant on anonymous route; reachability: monitor anonymous scope resolution tests.
+- [ ] (candidate) `fetchWithWarmupRetry` — auth/me GET retry may return stale body while BFF session slides twice — locus: warmup retry on interactive read; input: 503 then 200 on auth/me; wrong outcome: stale principal; reachability: monitor warmup retry + auth/me client cache contract.
+
+- [x] (superseded) `passThrough` — ETag/Vary cache validators — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 BFF slide — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous browser bearer — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked body cap bypass — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+
 2026-11-01 thorough hunt (dry): attempted failing repro on the five open `(candidate)` rows; cheap-disproof closed all five — `passThrough` does not forward upstream `Cache-Control` and sets `private, max-age=60` only for successful `/api/auth/me` GETs (no shared-cache override); `buildProxyUpstreamPath` rejects traversal but has no depth cap so long safe paths forward upstream rather than 400 (hypothesis inverted); `enforceProxyRateLimit` keys only on client IP (`proxyRateLimitClientKey`) by design so colocated traffic shares a bucket conservatively; `resolveEmailOtpPostAuthPath` prefers explicit safe `returnUrl` over consumed OIDC storage (`prefers explicit safe returnUrl over consumed OIDC return for Complete`; `prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`); sandbox mock short-circuit skips BFF slide cookies only when `ARCHLUCID_UI_SANDBOX_MOCKS` is enabled (local exploration, not production posture). Targeted regressions `email-otp-post-auth.test.ts` and `proxy-upstream-path.test.ts` passed **21/21**. No production code changed. Private beta: n/a.
 
 - [x] (valid-no-repro) `passThrough` — upstream `Cache-Control` vs auth/me private hint — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** upstream cache headers not copied; opt-in private hint overwrites on auth/me only.
@@ -3000,6 +3020,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `enforceProxyRateLimit` — anonymous vs operator bucket sharing — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** IP-keyed fixed window; intentional conservative abuse posture.
 - [x] (invalid) `resolveEmailOtpPostAuthPath` — consumed OIDC overrides explicit safe path — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** explicit safe arg wins; regressions above.
 - [x] (valid-no-repro) `trySandboxProxyMock` — sandbox GET skips BFF slide cookies — **cheap-disproof 2026-11-01 thorough hunt (pass 2):** dev-only env gate; not a production / private-beta path.
+
+- [x] (superseded) `passThrough` — ETag/Vary (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 slide (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous bearer (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked bypass (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
 
 - [ ] (candidate) `passThrough` — upstream `ETag` / `Vary` on auth/me may leak cache validators without matching `Cache-Control` policy — locus: selective header forwarding; input: upstream auth/me with validators; wrong outcome: stale identity in intermediate caches; reachability: monitor pass-through header allowlist tests.
 - [ ] (candidate) `handleRateLimitedForward` — 429 response may omit BFF slide cookies on allowed requests that hit rate limit after guard — locus: rate limit before `forward`; input: burst GET with active session; wrong outcome: session not slid before 429; reachability: monitor rate-limit + session slide ordering tests.
@@ -3183,9 +3209,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
