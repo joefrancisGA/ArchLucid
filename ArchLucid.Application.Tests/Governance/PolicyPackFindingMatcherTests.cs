@@ -67,11 +67,36 @@ public sealed class PolicyPackFindingMatcherTests
         Finding finding = new()
         {
             FindingId = "f-embedded",
-            PolicyRuleId = $"policy-pack-{packId:D}-cis-azure-1.2",
+            PolicyRuleId = "compliance-engine:cis-azure-1.2",
             EngineType = "compliance-engine",
         };
 
         PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("cis-azure-1.2.1")]
+    [InlineData("cis-azure-1.2-extra")]
+    public void MatchesAssignment_does_not_match_rule_key_followed_by_punctuation_continuation(string policyRuleId)
+    {
+        Guid packId = Guid.Parse("12121212-3434-5656-7878-909090909090");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "f-punctuation-continuation",
+            PolicyRuleId = policyRuleId,
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "distinct rule keys like {0} must not satisfy coverage for the contained key cis-azure-1.2",
+            policyRuleId);
     }
 
     [Fact]
@@ -144,7 +169,7 @@ public sealed class PolicyPackFindingMatcherTests
     [Fact]
     public void MatchesAssignment_treats_uppercase_hex_n_pack_token_in_engine_type_as_pack_attributed()
     {
-        Guid packId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid packId = Guid.Parse("abcdefab-cdef-abcd-efab-cdefabcdefab");
         CommittedGovernancePackAssignmentSnapshot assignment = new()
         {
             PolicyPackId = packId,
