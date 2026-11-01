@@ -531,10 +531,12 @@ internal static class TenantScopedSqlExpressionResolver
                 continue;
             }
 
-            if (parameterIndex >= invocation.ArgumentList!.Arguments.Count)
-                continue;
+            Microsoft.CodeAnalysis.Operations.IArgumentOperation? boundArgument =
+                (modelForBlock.GetOperation(invocation) as Microsoft.CodeAnalysis.Operations.IInvocationOperation)?.Arguments
+                    .FirstOrDefault(argument => SymbolEqualityComparer.Default.Equals(argument.Parameter, parameter));
 
-            ExpressionSyntax argumentExpression = invocation.ArgumentList.Arguments[parameterIndex].Expression;
+            if (boundArgument is null || boundArgument.IsImplicit || boundArgument.Value.Syntax is not ExpressionSyntax argumentExpression)
+                return null;
             ResolutionResult argumentResolution = ResolveCore(
                 argumentExpression,
                 modelForBlock,
