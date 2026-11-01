@@ -3348,3 +3348,4 @@
 {"at":"2026-11-01T21:06:59.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:07:08.3896706Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:07:55.9923574Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T21:08:48.9957028Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
