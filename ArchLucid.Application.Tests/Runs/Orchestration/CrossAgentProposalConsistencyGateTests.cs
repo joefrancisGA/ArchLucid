@@ -1179,4 +1179,65 @@ public sealed class CrossAgentProposalConsistencyGateTests
             .Which.ServiceId.Should().Be("svc-1");
         topology.ProposedChanges.AddedRelationships.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyToResults_drops_relationship_only_edge_referencing_rejected_duplicate_terraform_service_id()
+    {
+        const string acceptedId = "azurerm_linux_virtual_machine.app[\"primary\"]";
+        const string rejectedId = "azurerm_linux_virtual_machine.app[\"secondary\"]";
+
+        AgentResult firstTopology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = acceptedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult conflictingTopology = new()
+        {
+            ResultId = "topology-2",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "app",
+                        ServiceId = rejectedId,
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+                AddedRelationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = rejectedId,
+                        TargetId = "external",
+                        RelationshipType = RelationshipType.Calls,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([firstTopology, conflictingTopology]);
+
+        conflictingTopology.ProposedChanges!.AddedServices.Should().BeEmpty();
+        conflictingTopology.ProposedChanges.AddedRelationships.Should().BeEmpty();
+    }
 }

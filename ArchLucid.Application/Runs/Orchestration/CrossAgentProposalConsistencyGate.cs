@@ -421,7 +421,7 @@ public static class CrossAgentProposalConsistencyGate
         if (rejectedBatchEndpointKeys.Count == 0)
             return validationEndpointKeys;
 
-        HashSet<string> acceptedBatchEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+        HashSet<string> acceptedBatchEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectStrictManifestEndpointIdentityKeys(
             acceptedBatchServices,
             acceptedBatchDatastores);
 
@@ -434,6 +434,19 @@ public static class CrossAgentProposalConsistencyGate
                 continue;
 
             validationEndpointKeys.Remove(rejectedKey);
+        }
+
+        List<string> validationKeysSnapshot = validationEndpointKeys.ToList();
+
+        foreach (string validationKey in validationKeysSnapshot)
+        {
+            if (TopologyProposalRelationshipEndpointIndex.EndpointIsExclusiveRejectedEndpoint(
+                    validationKey,
+                    rejectedBatchEndpointKeys,
+                    acceptedBatchEndpointKeys))
+            {
+                validationEndpointKeys.Remove(validationKey);
+            }
         }
 
         return validationEndpointKeys;

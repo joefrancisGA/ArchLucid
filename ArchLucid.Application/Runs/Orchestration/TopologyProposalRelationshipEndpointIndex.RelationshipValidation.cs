@@ -121,16 +121,18 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (rejectedEndpointKeys.Count == 0)
             return false;
 
-        HashSet<string> acceptedEndpointKeys = CollectKnownEndpointKeys(acceptedServices, acceptedDatastores);
+        HashSet<string> acceptedIdentityKeys = CollectStrictManifestEndpointIdentityKeys(
+            acceptedServices,
+            acceptedDatastores);
 
-        return EndpointIsExclusiveRejectedEndpoint(relationship.SourceId, rejectedEndpointKeys, acceptedEndpointKeys)
-               || EndpointIsExclusiveRejectedEndpoint(relationship.TargetId, rejectedEndpointKeys, acceptedEndpointKeys);
+        return EndpointIsExclusiveRejectedEndpoint(relationship.SourceId, rejectedEndpointKeys, acceptedIdentityKeys)
+               || EndpointIsExclusiveRejectedEndpoint(relationship.TargetId, rejectedEndpointKeys, acceptedIdentityKeys);
     }
 
     public static bool EndpointIsExclusiveRejectedEndpoint(
         string? endpoint,
         HashSet<string> rejectedEndpointKeys,
-        HashSet<string> acceptedEndpointKeys)
+        HashSet<string> acceptedIdentityKeys)
     {
         if (string.IsNullOrWhiteSpace(endpoint))
             return false;
@@ -138,7 +140,40 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (!EndpointKeyIsKnown(endpoint, rejectedEndpointKeys))
             return false;
 
-        return !EndpointKeyIsKnown(endpoint, acceptedEndpointKeys);
+        return !EndpointKeyIsKnown(endpoint, acceptedIdentityKeys);
+    }
+
+    public static HashSet<string> CollectStrictManifestEndpointIdentityKeys(
+        IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores)
+    {
+        HashSet<string> identityKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in services)
+        {
+            AddStrictManifestServiceIdentityKeys(identityKeys, service);
+        }
+
+        foreach (ManifestDatastore datastore in datastores)
+        {
+            AddStrictManifestDatastoreIdentityKeys(identityKeys, datastore);
+        }
+
+        return identityKeys;
+    }
+
+    internal static void AddStrictManifestServiceIdentityKeys(HashSet<string> identityKeys, ManifestService service)
+    {
+        AddEndpointKey(identityKeys, service.ServiceName);
+        AddEndpointKey(identityKeys, service.ServiceId);
+        AddSyntheticServiceEndpointKey(identityKeys, service.ServiceName);
+    }
+
+    internal static void AddStrictManifestDatastoreIdentityKeys(HashSet<string> identityKeys, ManifestDatastore datastore)
+    {
+        AddEndpointKey(identityKeys, datastore.DatastoreName);
+        AddEndpointKey(identityKeys, datastore.DatastoreId);
+        AddSyntheticDatastoreEndpointKey(identityKeys, datastore.DatastoreName);
     }
 
     private static bool EndpointKeyIsKnownViaStrippedTerraformInstanceKey(
