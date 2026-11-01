@@ -1,5 +1,8 @@
 import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
-import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeOidcConfigurationString,
+  normalizeOidcOAuthFormString,
+} from "@/lib/oidc/oauth-callback-messages";
 
 /**
  * Public OIDC settings (Entra ID / any OIDC provider with PKCE + SPA CORS on the token endpoint).
@@ -71,7 +74,7 @@ export function getOidcPostLogoutRedirectUri(): string {
   const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI;
 
   if (fixed !== undefined) {
-    const normalized = normalizeOidcConfigurationString(fixed);
+    const normalized = normalizeOidcOAuthFormString(fixed);
 
     if (normalized.length > 0) {
       return normalized;

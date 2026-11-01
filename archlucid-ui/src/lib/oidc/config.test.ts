@@ -6,6 +6,7 @@ import {
   getGoogleOidcScopes,
   getOidcAuthority,
   getOidcClientId,
+  getOidcPostLogoutRedirectUri,
   getOidcRedirectUri,
 } from "@/lib/oidc/config";
 
@@ -36,5 +37,11 @@ describe("oidc config env normalization", () => {
     vi.stubEnv("NEXT_PUBLIC_OIDC_REDIRECT_URI", "   \u200b  ");
 
     expect(getOidcRedirectUri()).toBe("http://localhost:3000/auth/callback");
+  });
+
+  it("strips soft hyphens from configured post-logout redirect URIs to match RP-initiated logout query values", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI", "https://app.example/\u00AD");
+
+    expect(getOidcPostLogoutRedirectUri()).toBe("https://app.example/");
   });
 });
