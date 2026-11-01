@@ -58,6 +58,32 @@ describe("POST /api/auth/bff-session", () => {
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
+  it("strips OAuth form artifacts from token fields before issuing the BFF cookie", async () => {
+    const issueSpy = vi.spyOn(bffSessionCookie, "createBffSessionCookieValue");
+
+    const response = await POST(
+      buildPostRequest({
+        body: {
+          access_token: "access\u00AD-token",
+          refresh_token: "refresh\u00AD-1",
+          id_token: "id\u00AD-token",
+          expires_in: 3600,
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(issueSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accessToken: "access-token",
+        refreshToken: "refresh-1",
+        idToken: "id-token",
+      }),
+    );
+
+    issueSpy.mockRestore();
+  });
+
   it("honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)", async () => {
     const before = Date.now();
     const issueSpy = vi.spyOn(bffSessionCookie, "createBffSessionCookieValue");

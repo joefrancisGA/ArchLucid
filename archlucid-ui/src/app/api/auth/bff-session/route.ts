@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import {
   buildBffSessionClearCookieHeaders,
@@ -19,6 +20,24 @@ type BffSessionPostBody = {
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
   return Date.now() + resolveExpiresInSeconds(expiresIn) * 1000;
+}
+
+function normalizeRequiredBffTokenField(value: string | undefined): string {
+  if (value === undefined) {
+    return "";
+  }
+
+  return normalizeOidcOAuthFormString(value);
+}
+
+function normalizeOptionalBffTokenField(value: string | undefined): string | null {
+  if (value === undefined) {
+    return null;
+  }
+
+  const normalized = normalizeOidcOAuthFormString(value);
+
+  return normalized.length === 0 ? null : normalized;
 }
 
 /** Issues the HttpOnly BFF session cookie after browser sign-in (ADR 0059 P1 / LK-05). */
@@ -42,7 +61,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ title: "Invalid JSON body" }, { status: 400 });
   }
 
-  const accessToken = body.access_token?.trim() ?? "";
+  const accessToken = normalizeRequiredBffTokenField(body.access_token);
 
   if (accessToken.length === 0) {
     return NextResponse.json({ title: "access_token is required" }, { status: 400 });
@@ -52,8 +71,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const issueResult = createBffSessionCookieValue({
     accessToken,
     expiresAtMs,
-    refreshToken: body.refresh_token ?? null,
-    idToken: body.id_token ?? null,
+    refreshToken: normalizeOptionalBffTokenField(body.refresh_token),
+    idToken: normalizeOptionalBffTokenField(body.id_token),
     workingMode: body.working_mode === true,
   });
 

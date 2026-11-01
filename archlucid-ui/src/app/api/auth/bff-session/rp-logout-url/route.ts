@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getOidcAuthority } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
+import { normalizeOidcOAuthFormString } from "@/lib/oidc/oauth-callback-messages";
 import {
   isBffSessionCookieEnabled,
   parseBffSessionPayloadFromRequest,
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const payload = parseBffSessionPayloadFromRequest(request);
-  const idToken = payload?.it?.trim() ?? "";
+  const idToken = normalizeOidcOAuthFormString(payload?.it ?? "");
   const authority = getOidcAuthority();
 
   if (payload === null || idToken.length === 0 || authority.length === 0) {
