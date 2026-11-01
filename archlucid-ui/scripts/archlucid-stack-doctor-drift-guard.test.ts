@@ -10,12 +10,19 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe("archlucid stack doctor drift guard (TB-658)", () => {
-  it("wires stack doctor in ArchLucid.Cli Program.cs", () => {
+  it("wires stack doctor through the CLI registry and stack handler", () => {
     const program = readRepoFile("ArchLucid.Cli/Program.cs");
+    const registry = readRepoFile("ArchLucid.Cli/CommandRegistry.cs");
+    const scaffold = readRepoFile("ArchLucid.Cli/CommandRegistry.Scaffold.cs");
+    const handlers = readRepoFile("ArchLucid.Cli/CliCommandHandlers.Misc.cs");
 
-    expect(program).toContain('case "stack"');
-    expect(program).toContain("StackDoctorCommand");
-    expect(program).toContain("stack doctor");
+    // Guard the actual registry-to-handler dispatch path, not the retired Program.cs switch.
+    expect(program).toContain("CommandRegistry.Default.DispatchAsync(normalized)");
+    expect(registry).toContain("registry.RegisterScaffoldCommands();");
+    expect(scaffold).toMatch(/new CommandDescriptor\(\s*"stack",[\s\S]*?\),\s*CliCommandHandlers\.HandleStack\)/);
+    expect(scaffold).toContain("stack doctor");
+    expect(handlers).toContain('string.Equals(normalized[1], "doctor", StringComparison.Ordinal)');
+    expect(handlers).toContain("StackDoctorCommand.RunAsync");
   });
 
   it("ships StackDoctor orchestration under ArchLucid.Cli/Stack/Doctor", () => {
