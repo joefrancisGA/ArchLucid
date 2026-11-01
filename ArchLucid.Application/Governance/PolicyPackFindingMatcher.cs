@@ -88,13 +88,18 @@ internal static class PolicyPackFindingMatcher
 
     private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
     {
-        if (index > 0 && char.IsLetterOrDigit(policyRuleId[index - 1]))
+        if (index > 0 && IsRuleIdContinuation(policyRuleId[index - 1]))
             return false;
 
         int after = index + ruleKeyLength;
 
-        return after >= policyRuleId.Length || !char.IsLetterOrDigit(policyRuleId[after]);
+        return after >= policyRuleId.Length || !IsRuleIdContinuation(policyRuleId[after]);
     }
+
+    // Periods and underscores separate sub-rule suffixes (cis-azure-1.2 vs cis-azure-1.2.1 /
+    // cis-azure-1.2_extra), so they continue the rule id instead of delimiting the assigned key.
+    private static bool IsRuleIdContinuation(char value) =>
+        char.IsLetterOrDigit(value) || value is '.' or '_';
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
     {
