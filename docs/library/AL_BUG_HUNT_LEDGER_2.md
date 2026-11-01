@@ -2764,12 +2764,20 @@
 
 ## Zone: review-recurrence
 
+2026-11-01 seed hunt (seed-only #934): re-read `ArchitectureReviewRecurrenceNextRunCalculator` after the Application-layer extraction (delegates to `SimpleScanScheduleCalculator` for Cronos/alias semantics, `NormalizeReferenceUtc`/`NormalizeNextRunUtc` strict-advance wrapper, batch preview via repeated `ComputeNextRunUtc`); no mechanism-backed row met the hunt-ready promotion bar; seeded five `(candidate)` rows below; scoped **47/47** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `ComputeNextRunUtc` — `@hourly` reference at `DateTime.MaxValue` may throw on `AddHours(1)` instead of returning null — locus: `SimpleScanScheduleCalculator` alias branch; input: UTC `DateTime.MaxValue`; reachability: corrupted persisted `NextRunUtc` or preview with extreme clock.
+- [ ] (candidate) `NormalizeNextRunUtc` — single retry invokes underlying calculator with `candidate` cursor rather than original `fromUtc` — locus: ~60; input: cron whose next slot depends on whether reference is last fire vs wall clock; reachability: hosted recurrence wake after missed interval.
+- [ ] (candidate) `IsSupportedCronExpression` / `ComputeNextRunUtc` — cron with interior vertical tab between fields survives end-trim and parses differently from space-separated fields — locus: `Trim()` only; input: `"0\t8 * * 1"`; reachability: pasted schedule expression in stickiness preview.
+- [ ] (candidate) `ComputeNextRunsUtc` — partial result list when loop breaks on null does not distinguish invalid cron from one-retry normalization ceiling — locus: break ~41–42; input: invalid cron after first valid occurrence vs `TwoStepPastScanScheduleCalculator`; reachability: preview `count` > 1 API response interpretation.
+- [ ] (candidate) `ComputeNextRunUtc` — five-field cron with seconds field rejected by `CronFormat.Standard` while alias `@monthly`/`@yearly` still supported — locus: `TryParseCronExpression`; input: six-field cron string; reachability: schedule create vs preview validation parity.
+
 2026-10-21 thorough hunt (dry, lane C): `review-recurrence` — lock verified on origin; facade preview count 1–20; calculator paths unchanged; 47/47 scoped tests; no production change.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
 - **hunts:** 36
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
 - **status:** open
@@ -2781,15 +2789,15 @@
 - **consecutive-dry-hunts:** 3
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ### Hypotheses
 
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 35
-- **last-hunt:** 2026-10-10
+- **hunts:** 36
+- **last-hunt:** 2026-11-01
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
 
