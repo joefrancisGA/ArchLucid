@@ -23,7 +23,7 @@ internal static class PolicyPackFindingMatcher
                 if (string.Equals(finding.PolicyRuleId, ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
 
-                if (RuleKeyAppearsAsToken(finding.PolicyRuleId, ruleKey))
+                if (RuleIdentifierMatchesKey(finding.PolicyRuleId, ruleKey))
                     return true;
             }
         }
@@ -61,34 +61,33 @@ internal static class PolicyPackFindingMatcher
         return PackIdsEquivalent(engineType[prefix.Length..], packId);
     }
 
-    private static bool RuleKeyAppearsAsToken(string policyRuleId, string ruleKey)
+    private static bool RuleIdentifierMatchesKey(string policyRuleId, string ruleKey)
     {
-        int index = 0;
+        string unwrapped = ExtractRuleIdentifier(policyRuleId);
 
-        while (index <= policyRuleId.Length - ruleKey.Length)
-        {
-            index = policyRuleId.IndexOf(ruleKey, index, StringComparison.OrdinalIgnoreCase);
-
-            if (index < 0)
-                return false;
-
-            if (IsRuleKeyTokenBoundary(policyRuleId, index, ruleKey.Length))
-                return true;
-
-            index++;
-        }
-
-        return false;
+        return string.Equals(unwrapped, ruleKey, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsRuleKeyTokenBoundary(string policyRuleId, int index, int ruleKeyLength)
+    private static string ExtractRuleIdentifier(string policyRuleId)
     {
-        if (index > 0 && char.IsLetterOrDigit(policyRuleId[index - 1]))
-            return false;
+        const string wrapperPrefix = "policy-pack-";
 
-        int after = index + ruleKeyLength;
+        if (!policyRuleId.StartsWith(wrapperPrefix, StringComparison.OrdinalIgnoreCase))
+            return policyRuleId;
 
-        return after >= policyRuleId.Length || !char.IsLetterOrDigit(policyRuleId[after]);
+        int guidStart = wrapperPrefix.Length;
+
+        if (policyRuleId.Length > guidStart + 36
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 36), "D", out _)
+            && policyRuleId[guidStart + 36] == '-')
+            return policyRuleId[(guidStart + 37)..];
+
+        if (policyRuleId.Length > guidStart + 32
+            && Guid.TryParseExact(policyRuleId.Substring(guidStart, 32), "N", out _)
+            && policyRuleId[guidStart + 32] == '-')
+            return policyRuleId[(guidStart + 33)..];
+
+        return policyRuleId;
     }
 
     private static bool PackIdsEquivalent(string propertyPackId, Guid assignmentPackId)
