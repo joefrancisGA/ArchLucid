@@ -3169,6 +3169,14 @@
 
 ## Zone: review-recurrence
 
+2026-11-01 thorough hunt (dry #43): cheap-disproof closed five open `(candidate)` monitor rows from dry **#42** reseed — **valid-no-repro** `@annually` typo alias accepted as Cronos calendar synonym alongside `@yearly` (runtime probe; not inconsistent with `@yearly` support — `IsSupportedCronExpression_accepts_yearly_alias`); **valid-no-repro** mixed-case `@Monthly` accepted via Cronos parse after `Trim()` (same mechanism as lowercase `@monthly` — `IsSupportedCronExpression_accepts_monthly_alias`); **valid-no-repro** five-field `"0 0 1 1 *"` at `DateTime.MaxValue` throws `ArgumentOutOfRangeException` from Cronos `GetNextOccurrence` (runtime probe; unreachable MaxValue reference; parity `ComputeNextRunUtc_cronos_calendar_alias_at_max_value_throws`); **valid-no-repro** `@hourly ` with trailing ASCII space accepted after `Trim()` (interval alias path — same as `@hourly`); **valid-no-repro** `@yearly` batch preview at `DateTime.MaxValue` throws on first `ComputeNextRunUtc` iteration (runtime probe; parity calendar-alias MaxValue theory). Reseeded five follow-on `(candidate)` rows in hypotheses section; scoped **62/62** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — typo alias `@annually` vs `@yearly` Cronos acceptance — **cheap-disproof 2026-11-01 thorough hunt #43:** dry **#42** reseed queue; Cronos synonym; not a defect surface.
+- [x] (valid-no-repro) `IsSupportedCronExpression` — mixed-case `@Monthly` calendar alias — **cheap-disproof 2026-11-01 thorough hunt #43:** dry **#42** reseed queue; Cronos parse after `Trim()`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — five-field cron at `DateTime.MaxValue` reference — **cheap-disproof 2026-11-01 thorough hunt #43:** dry **#42** reseed queue; throws; unreachable reference.
+- [x] (valid-no-repro) `IsSupportedCronExpression` — interval alias with trailing interior space after token (`@hourly `) — **cheap-disproof 2026-11-01 thorough hunt #43:** dry **#42** reseed queue; `Trim()` boundary.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@yearly` batch preview at `DateTime.MaxValue` throws on first iteration — **cheap-disproof 2026-11-01 thorough hunt #43:** dry **#42** reseed queue; parity MaxValue calendar path.
+
 2026-11-01 thorough hunt (dry #42): cheap-disproof closed five open `(candidate)` monitor rows from dry **#41** reseed — `@monthly` at `DateTime.MaxValue` throws via Cronos calendar path like interval `@hourly`/`@daily`/`@weekly` Add* overflow (unreachable MaxValue reference; regression `ComputeNextRunUtc_cronos_calendar_alias_at_max_value_throws`); interior no-break space U+00A0 fails parse (regressions `IsSupportedCronExpression_rejects_interior_no_break_space_between_cron_fields`, `ComputeNextRunUtc_returns_null_for_interior_no_break_space_cron`, dry **#40**); `@montly` typo rejected (regression `IsSupportedCronExpression_rejects_montly_typo_alias`); `DateTime.MinValue` with five-field cron returns future instant (regression `ComputeNextRunUtc_from_min_value_with_five_field_cron_returns_future_instant`); batch preview omits `isScheduleEnabled` by design (regression `ComputeNextRunsUtc_has_no_disabled_flag_while_single_run_honors_schedule_enabled`, hunt **#1469**); reseeded five follow-on `(candidate)` rows in the hypotheses section; scoped **62/62** `ArchitectureReviewRecurrenceNextRunCalculatorTests`. Private beta: n/a.
 
 2026-11-01 thorough hunt (dry #41): cheap-disproof closed five open `(candidate)` monitor rows from dry **#40** reseed — `@hourly` included in interval-alias MaxValue throw theory (`ComputeNextRunUtc_interval_alias_at_max_value_throws`); interior thin space U+2009 fails parse like U+00A0 nbsp (`IsSupportedCronExpression_rejects_interior_thin_space_between_cron_fields`, `ComputeNextRunUtc_returns_null_for_interior_thin_space_cron`); `@weekley` typo rejected while `@weekly` accepted (`IsSupportedCronExpression_rejects_weekley_typo_alias`); `@hourly` at `DateTime.MinValue` advances without throw (`ComputeNextRunUtc_from_min_value_with_hourly_alias_returns_future_instant`); large preview count stops on null after first normalized occurrence (`ComputeNextRunsUtc_stops_when_large_preview_count_hits_null_after_first_occurrence`, dry **#935** stub family). Reseeded five follow-on `(candidate)` rows; scoped **60/60** `ArchitectureReviewRecurrenceNextRunCalculatorTests` (`RunAnalyzers=false`). Private beta: n/a.
@@ -3237,7 +3245,7 @@
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 42
+- **hunts:** 43
 - **last-hunt:** 2026-11-01
 
 - **id:** review-recurrence
@@ -3247,17 +3255,19 @@
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
 
-- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@annually` vs `@yearly` Cronos acceptance — locus: alias parse; input: operator typo (monitor dry **#42**).
-- [ ] (candidate) `IsSupportedCronExpression` — mixed-case `@Monthly` calendar alias — locus: Cronos parse; input: pasted casing variant (monitor dry **#42**).
-- [ ] (candidate) `ComputeNextRunUtc` — five-field cron at `DateTime.MaxValue` reference — locus: Cronos `GetNextOccurrence`; input: MaxValue probe (monitor dry **#42**).
-- [ ] (candidate) `IsSupportedCronExpression` — interval alias with trailing interior space after token (`@hourly `) — locus: `Trim()` boundary; input: paste variant (monitor dry **#42**).
-- [ ] (candidate) `ComputeNextRunsUtc` — `@yearly` batch preview at `DateTime.MaxValue` throws on first iteration — locus: batch loop; input: unreachable MaxValue cursor (monitor dry **#42**).
+2026-11-01 thorough hunt (dry #43): reseeded five follow-on monitor rows below after closing dry **#42** reseed set.
+
+- [ ] (candidate) `IsSupportedCronExpression` — typo alias `@annual` vs `@yearly` Cronos acceptance — locus: alias parse; input: operator typo (monitor dry **#43**).
+- [ ] (candidate) `IsSupportedCronExpression` — mixed-case `@Yearly` calendar alias — locus: Cronos parse; input: pasted casing variant (monitor dry **#43**).
+- [ ] (candidate) `ComputeNextRunUtc` — `@monthly` batch preview at `DateTime.MaxValue` throws on first iteration — locus: batch loop; input: unreachable MaxValue cursor (monitor dry **#43**).
+- [ ] (candidate) `IsSupportedCronExpression` — leading ASCII space before interval alias (` @hourly`) — locus: `Trim()` boundary; input: paste variant (monitor dry **#43**).
+- [ ] (candidate) `ComputeNextRunUtc` — six-field cron with seconds rejected while `@monthly` accepted — locus: `CronFormat.Standard`; input: `"0 0 8 * * 1"` vs `@monthly` (monitor dry **#935** family; dry **#43**).
 
 2026-11-01 thorough hunt (dry #42): seeded five follow-on monitor rows above after closing dry **#41** reseed set.
 
@@ -4101,6 +4111,20 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-11-01 thorough hunt (dry #14): cheap-disproof closed five open `(candidate)` monitor rows from dry **#13** reseed (duplicate dry **#12** monitor queue) — padded persisted Stripe ids trim before guard/charge by design (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`, dry **#12**); UTC month cap bucket rollover documented with regressions (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); concurrent enable/disable without `ExpectedRowVersion` is optional OCC (dry **#7** / seed **#6**); `SqlLlmTenantWalletRepository` empty-string bind is internal-only — wallet PUT normalizes via `NormalizeOptionalStripeId` in consume stage (~210-211); `ChargeRefillAsync` creates fresh PaymentIntent per attempt — no Stripe idempotency-key reuse (invalid). Reseeded five follow-on `(candidate)` monitor rows from dry **#13** closed themes; scoped filter **7/7** Persistence guard + **36/36** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded Stripe customer/payment method ids trimmed before guard and persist — **cheap-disproof 2026-11-01 thorough hunt #14:** regressions above; dry **#12** diary.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month rollover resets auto-refill count while cap dollars unchanged — **cheap-disproof 2026-11-01 thorough hunt #14:** regressions above; dry **#12** diary.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable/disable race without `ExpectedRowVersion` — **cheap-disproof 2026-11-01 thorough hunt #14:** optional OCC; dry **#7** diary.
+- [x] (invalid) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — **cheap-disproof 2026-11-01 thorough hunt #14:** public wallet path normalizes; dry **#12** diary.
+- [x] (invalid) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — **cheap-disproof 2026-11-01 thorough hunt #14:** no idempotency key on PaymentIntent create; dry **#12** diary.
+
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — locus: enable pre-check ~48-49; input: same PUT enables auto-replenish with zero cap (monitor dry **#14** / dry **#13**).
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.AllowsWalletUpdateAsync` — whitespace payment method id treated as omitted partial PUT — locus: `NormalizeOptionalStripeId`; input: `"   "` PM on PUT (monitor dry **#14**).
+- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook-settled credits omit monthly auto-refill counter increment — locus: `incrementMonthlyAutoRefillCount: false`; input: cap headroom after webhook top-up (monitor dry **#14**).
+- [ ] (candidate) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — locus: partial PUT / COALESCE; input: disable-only JSON without cap field (monitor dry **#14**).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — locus: resolver backfill before enable guard; input: PM-only enable with stale `StripeCustomerId` row (monitor dry **#14**).
+
 2026-11-01 thorough hunt (dry #13): cheap-disproof closed five open `(candidate)` monitor rows from dry **#12** reseed (dry **#11** theme recycle) — explicit enable with `MonthlyCapUsd=0` fails at consume-stage enable pre-check before persist (`UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put`, same class as persisted zero cap regression); whitespace payment method id normalizes to omitted partial PUT before guard (`UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put`, dry **#11** diary); webhook-settled credits omit auto-refill counter by design (`TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`); disable-only PUT preserves persisted cap (`UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields` asserts cap); enable with payment method merges linked customer before enable guard (`UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer`, dry **#10**). Reseeded five follow-on `(candidate)` rows from dry **#12** closed themes; scoped filter **7/7** Persistence guard + **28/28** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — explicit enable PUT with `MonthlyCapUsd=0` rejected before persist — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
@@ -4108,12 +4132,6 @@
 - [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — webhook credits omit monthly auto-refill counter increment — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
 - [x] (valid-no-repro) `WalletController.PutAsync` — disable auto-replenish with omitted cap preserves persisted `MonthlyCapUsd` — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#11** diary.
 - [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable with payment method uses linked customer not stale persisted customer — **cheap-disproof 2026-11-01 thorough hunt #13:** regression above; dry **#10**.
-
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — padded Stripe customer/payment method ids trimmed before guard and persist — locus: `NormalizeOptionalStripeId` ~210-211; input: leading/trailing spaces on PUT (monitor dry **#12**).
-- [ ] (candidate) `LlmTenantWalletRefillStage.CanAutoRefill` — UTC month rollover resets auto-refill count while cap dollars unchanged — locus: month bucket; input: operator timezone copy vs UTC cap math (monitor dry **#12**).
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — enable/disable race without `ExpectedRowVersion` — locus: optional OCC; input: concurrent PUT (monitor dry **#12** / dry **#7**).
-- [ ] (candidate) `SqlLlmTenantWalletRepository.UpdateSettingsAsync` — empty-string Stripe id bind bypasses Application normalize — locus: repository bind; input: direct repository caller (monitor dry **#12**, **invalid** class).
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — retried failed charge reuses Stripe idempotency key — locus: PaymentIntent create; input: PM rotation after decline (monitor dry **#12**, **invalid** class).
 
 2026-11-01 thorough hunt (dry #12): cheap-disproof closed five open `(candidate)` rows from dry **#11** reseed — `NormalizeOptionalStripeId` trims before guard/charge by design (`TryAutoRefillAsync_passes_trimmed_stripe_identifiers_to_charge_when_persisted_values_have_padding`; whitespace maps to omitted per dry **#11**); UTC month cap bucket is documented contract with rollover regressions (`GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`, `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`); concurrent enable/disable without `ExpectedRowVersion` is optional OCC by design (dry **#7** / seed **#6**); `SqlLlmTenantWalletRepository` empty-string bind is internal-only — wallet PUT enters through consume stage normalize (comment ~208-211); `ChargeRefillAsync` creates a fresh PaymentIntent per call with `correlationId` metadata only — no Stripe idempotency-key reuse path (invalid monitor). Reseeded five follow-on `(candidate)` rows; scoped filter **7/7** Persistence guard + **26/26** Application wallet update/auto-refill tests (`RunAnalyzers=false`). Private beta: n/a.
 
@@ -4199,9 +4217,9 @@
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-31 — wallet PUT could enable auto-replenish with Stripe customer id only (no payment method)
 - **related-pd-tb:** none
