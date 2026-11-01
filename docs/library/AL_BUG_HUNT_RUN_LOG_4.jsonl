@@ -3270,3 +3270,5 @@
 {"at":"2026-11-01T19:23:34.5067711Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T19:23:45.3759162Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T19:30:24.8256535Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T19:34:33.5461024Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T19:39:06.0054383Z","zoneId":"weekly-digest-email","outcome":"dry","productLine":"archlucid-shared"}
