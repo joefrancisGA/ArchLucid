@@ -104,4 +104,58 @@ describe("useGovernanceFindingTriageWithCursor", () => {
 
     expect(routerReplaceMock).toHaveBeenCalledWith("/governance/findings", { scroll: false });
   });
+
+  it("opens triage when focusedFinding changes to another finding without remounting", async () => {
+    searchQuery.value = "focusedFinding=finding-a";
+    const rows = [findingRow("finding-a"), findingRow("finding-b")];
+
+    const { result, rerender } = renderHook(
+      ({ query }: { query: string }) =>
+        useGovernanceFindingTriageWithCursor(rows, new URLSearchParams(query)),
+      { initialProps: { query: searchQuery.value } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(true);
+      expect(result.current.activeRow?.findingId).toBe("finding-a");
+    });
+
+    searchQuery.value = "focusedFinding=finding-b";
+    rerender({ query: searchQuery.value });
+
+    await waitFor(() => {
+      expect(result.current.activeRow?.findingId).toBe("finding-b");
+    });
+  });
+
+  it("opens triage from a focusedFinding deep link after the panel was closed", async () => {
+    searchQuery.value = "focusedFinding=finding-a";
+    const rows = [findingRow("finding-a"), findingRow("finding-b")];
+
+    const { result, rerender } = renderHook(
+      ({ query }: { query: string }) =>
+        useGovernanceFindingTriageWithCursor(rows, new URLSearchParams(query)),
+      { initialProps: { query: searchQuery.value } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(true);
+    });
+
+    act(() => {
+      result.current.close();
+    });
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(false);
+    });
+
+    searchQuery.value = "focusedFinding=finding-b";
+    rerender({ query: searchQuery.value });
+
+    await waitFor(() => {
+      expect(result.current.open).toBe(true);
+      expect(result.current.activeRow?.findingId).toBe("finding-b");
+    });
+  });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -13,6 +13,16 @@ import {
   parseGovernanceFindingTriageFocusedFindingIdFromSearch,
 } from "@/lib/governance/governance-finding-triage-panels-url";
 
+function governanceFindingTriageActiveRowMatchesFocusedFinding(
+  activeRow: GovernanceFindingQueueRow | null,
+  focusedFindingId: string,
+): boolean {
+  return (
+    activeRow !== null
+    && governanceQueueRowFindingIdEquals(activeRow.findingId, focusedFindingId)
+  );
+}
+
 /** Triage panel state with durable `focusedFinding` URL cursor for Working-mode queue navigation. */
 export function useGovernanceFindingTriageWithCursor(
   displayedRows: readonly GovernanceFindingQueueRow[],
@@ -23,49 +33,17 @@ export function useGovernanceFindingTriageWithCursor(
   const focusedFindingParam = searchParams.get("focusedFinding");
   const triage = useGovernanceFindingTriage(displayedRows);
   const { openForRow, activeRow, open, close } = triage;
-  const hydratedFromUrlRef = useRef(false);
   const urlCursorHydratingRef = useRef(
     parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam).length > 0,
   );
+  const triageWasOpenRef = useRef(false);
 
-  useEffect(() => {
-    if (hydratedFromUrlRef.current) {
-      return;
-    }
-
-    const focusedFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
-
-    if (focusedFindingId.length === 0) {
-      hydratedFromUrlRef.current = true;
-
-      return;
-    }
-
-    const row = displayedRows.find(
-      (candidate) =>
-        candidate.recordKind === "finding"
-        && governanceQueueRowFindingIdEquals(candidate.findingId, focusedFindingId),
-    );
-
-    if (row !== undefined) {
-      openForRow(row);
-    }
-
-    hydratedFromUrlRef.current = true;
-  }, [displayedRows, focusedFindingParam, openForRow]);
-
-  useEffect(() => {
-    if (urlCursorHydratingRef.current && !open) {
-      return;
-    }
-
+  useLayoutEffect(() => {
     if (open) {
-      urlCursorHydratingRef.current = false;
-    }
+      triageWasOpenRef.current = true;
 
-    const nextFindingId = open && activeRow !== null ? activeRow.findingId : null;
-    const currentFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
-    const normalizedNext = parseGovernanceFindingTriageFocusedFindingIdFromSearch(nextFindingId);
+      return;
+    }
 
     if (governanceFindingTriageFocusedFindingParamIsBlankToken(focusedFindingParam)) {
       if (open) {
@@ -80,6 +58,95 @@ export function useGovernanceFindingTriageWithCursor(
       return;
     }
 
+    if (!triageWasOpenRef.current) {
+      return;
+    }
+
+    const focusedFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
+
+    if (focusedFindingId.length === 0) {
+      return;
+    }
+
+    if (governanceFindingTriageActiveRowMatchesFocusedFinding(activeRow, focusedFindingId)) {
+      router.replace(
+        governanceFindingTriagePanelsHrefFromSearch(searchParams.toString(), null, pathname),
+        { scroll: false },
+      );
+    }
+  }, [activeRow, close, focusedFindingParam, open, pathname, router, searchParams]);
+
+  useEffect(() => {
+    const focusedFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
+
+    if (focusedFindingId.length === 0) {
+      return;
+    }
+
+    if (
+      open
+      && governanceFindingTriageActiveRowMatchesFocusedFinding(activeRow, focusedFindingId)
+    ) {
+      return;
+    }
+
+    if (
+      !open
+      && triageWasOpenRef.current
+      && governanceFindingTriageActiveRowMatchesFocusedFinding(activeRow, focusedFindingId)
+    ) {
+      return;
+    }
+
+    const row = displayedRows.find(
+      (candidate) =>
+        candidate.recordKind === "finding"
+        && governanceQueueRowFindingIdEquals(candidate.findingId, focusedFindingId),
+    );
+
+    if (row === undefined) {
+      return;
+    }
+
+    openForRow(row);
+  }, [activeRow, displayedRows, focusedFindingParam, open, openForRow]);
+
+  useEffect(() => {
+    if (governanceFindingTriageFocusedFindingParamIsBlankToken(focusedFindingParam)) {
+      if (open) {
+        close();
+      }
+
+      return;
+    }
+
+    if (urlCursorHydratingRef.current && !open) {
+      return;
+    }
+
+    if (open) {
+      urlCursorHydratingRef.current = false;
+    }
+
+    const focusedFindingIdFromUrl =
+      parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
+
+    if (!open) {
+      return;
+    }
+
+    if (
+      focusedFindingIdFromUrl.length > 0
+      && activeRow !== null
+      && !governanceFindingTriageActiveRowMatchesFocusedFinding(activeRow, focusedFindingIdFromUrl)
+    ) {
+      return;
+    }
+
+    const nextFindingId = activeRow !== null ? activeRow.findingId : null;
+    const normalizedNext = parseGovernanceFindingTriageFocusedFindingIdFromSearch(nextFindingId);
+    const currentFindingId = focusedFindingIdFromUrl;
+
     if (currentFindingId === normalizedNext) {
       return;
     }
@@ -88,7 +155,7 @@ export function useGovernanceFindingTriageWithCursor(
       governanceFindingTriagePanelsHrefFromSearch(searchParams.toString(), nextFindingId, pathname),
       { scroll: false },
     );
-  }, [activeRow?.findingId, close, focusedFindingParam, open, pathname, router, searchParams]);
+  }, [activeRow?.findingId, focusedFindingParam, open, pathname, router, searchParams]);
 
   return triage;
 }
