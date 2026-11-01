@@ -3094,6 +3094,36 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_corrupt_payload_and_title_is_empty_string()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            string.Empty,
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveInspectClassification_ignores_decimal_string_classification_token()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"classification":"2.0"}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectClassification(null, typed).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveInspectTreatment_ignores_fractional_json_number_in_typed_payload()
+    {
+        JsonElement typed = JsonSerializer.Deserialize<JsonElement>("""{"treatment":1.5}""");
+
+        FindingInspectReadRepositoryCore.ResolveInspectTreatment(null, typed).Should().BeNull();
+    }
+
+    [Fact]
     public void NormalizeFindingId_preserves_trailing_format_character()
     {
         FindingInspectReadRepositoryCore.NormalizeFindingId("finding-1\u200B").Should().Be("finding-1\u200B");

@@ -257,6 +257,12 @@ public sealed class FindingInspectReadModelMapperTests
     }
 
     [Fact]
+    public void ParseDisposition_returns_null_for_interior_format_character_in_disposition_name()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("Acc\u200Bepted").Should().BeNull();
+    }
+
+    [Fact]
     public void ParseHumanReview_parses_after_trailing_invisible_format_characters()
     {
         FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("Pending\u200B");
