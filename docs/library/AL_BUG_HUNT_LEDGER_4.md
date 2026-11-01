@@ -16667,13 +16667,21 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ## Zone: core-findings-advice
 
+2026-11-01 thorough hunt #1211 (hit): no rotation (`shouldRotate: false`). Cheap-disproof promoted five header `(candidate)` rows with failing repros — line separator (`U+2028`) and paragraph separator (`U+2029`) Jaccard token splits (`Jaccard_similarity_treats_line_separator_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_paragraph_separator_separated_resource_tokens_as_space_separated_peers`), `may not comply with` / `might not comply with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `forbidden access from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1707/1707** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Invited operators reviewing LLM findings see fewer false near-duplicate insight pairs when titles use Unicode line or paragraph separators, and may/might-not compliance conflict titles plus forbidden-access-from phrasing route through falsifiability and generic-advice filters correctly.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — soft hyphen (`U+00AD`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u00ADsql\u00ADdb` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — word joiner (`U+2060`) between resource tokens — locus: `Tokenize` split set; input: `prod\u2060sql\u2060db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `won't comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `won't comply with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `never complies with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `never complies with`; wrong outcome: falsifiability bonus skipped.
+- [ ] (candidate) `EnglishNegationTokenizer` — `prohibited access from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: `prohibited access from` prohibitive phrasing; wrong outcome: `IsObviousGenericAdvice` true.
+
 2026-11-01 thorough hunt #1127 (hit, rotation): **Zone rotation** after **3 consecutive low-yield** dry outcomes on `knowledge-graph-provenance` (#1124–#1126; run log). Picker applied **`-AvoidZoneId knowledge-graph-provenance`** and returned `core-findings-advice`. Cheap-disproof promoted five header `(candidate)` rows from hunt #1071 reseed with failing repros — ideographic space (`U+3000`) and zero-width space (`U+200B`) Jaccard token splits (`Jaccard_similarity_treats_ideographic_space_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_zero_width_space_separated_resource_tokens_as_space_separated_peers`), `shall not comply with` / `should not comply with` conflict falsifiability (`HasFalsifiabilitySignal_recognizes_conflict_wording_variants`), `denied access from` negation parity (`IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`). Scoped **1704/1704** `GenericArchitectureAdvicePatterns` tests passed (`RunAnalyzers=false`). Private beta: Invited operators reviewing LLM findings see fewer false near-duplicate insight pairs when titles use ideographic or zero-width spaces, and shall/should-not compliance conflict titles plus denied-access-from phrasing route through falsifiability and generic-advice filters correctly.
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — line separator (`U+2028`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2028sql\u2028db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — paragraph separator (`U+2029`) separated resource tokens — locus: `Tokenize` split set; input: `prod\u2029sql\u2029db` vs spaced peer; wrong outcome: Jaccard below 0.85 threshold.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `may not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `may not comply with`; wrong outcome: falsifiability bonus skipped.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `might not comply with the constraint` missed `HasFalsifiabilitySignal` — locus: `ConflictFindingPattern`; input: `might not comply with`; wrong outcome: falsifiability bonus skipped.
-- [ ] (candidate) `EnglishNegationTokenizer` — `forbidden access from enable mfa` false-positive demoted obvious generic advice — locus: multi-word negations; input: `forbidden access from` prohibitive phrasing; wrong outcome: `IsObviousGenericAdvice` true.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — line separator (`U+2028`) separated resource tokens — **hit 2026-11-01 thorough hunt #1211:** split on `\u2028`; regression above. [class:fail-open-validation]
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — paragraph separator (`U+2029`) separated resource tokens — **hit 2026-11-01 thorough hunt #1211:** split on `\u2029`; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `may not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-11-01 thorough hunt #1211:** `(?:may|might) not comply with` branch; regression above. [class:fail-open-validation]
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `might not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-11-01 thorough hunt #1211:** regression above. [class:fail-open-validation]
+- [x] (proven) `EnglishNegationTokenizer` — `forbidden access from enable mfa` false-positive demoted obvious generic advice — **hit 2026-11-01 thorough hunt #1211:** added `forbidden access from` to multi-word negations; regression above. [class:fail-open-validation]
 
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — ideographic space (`U+3000`) separated resource tokens — **hit 2026-11-01 thorough hunt #1127:** split on `\u3000`; regressions above. [class:fail-open-validation]
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — zero-width space (`U+200B`) between resource tokens — **hit 2026-11-01 thorough hunt #1127:** split on `\u200B`; regression above. [class:fail-open-validation]
@@ -16740,11 +16748,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 37
-- **bugs-found:** 56
+- **hunts:** 38
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — ideographic/zero-width Jaccard spaces, shall/should-not comply conflict wording, denied-access-from negation
+- **last-bug:** 2026-11-01 — line/paragraph-separator Jaccard splits, may/might-not comply conflict wording, forbidden-access-from negation
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
