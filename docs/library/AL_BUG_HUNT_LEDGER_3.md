@@ -3143,6 +3143,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak is **1/3** on `ui-review-detail-workspace` after prior rotation hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread BFF session cookie sync optional token field trimming, working-mode gating on refresh/activity posts, and bounded token-sync sequencing after token response persistence. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
+
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **2/3** before this hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread `buildAuthorizeUrl` query parameter encoding, supplemental Google authorize wiring, and IdP-specific optional authorize params retention. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed. After this run the zone streak is **3/3** seed-only; the next default Set 3 pick should rotate with `-AvoidZoneId ui-oidc` when another zone is eligible.
 
 2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **1/3** before this hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread `ensureAccessTokenFresh` refresh vs activity ping paths, session-generation invalidation during in-flight refresh, and expiry skew before silent refresh. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
@@ -6237,7 +6239,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 96
+- **hunts:** 97
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
