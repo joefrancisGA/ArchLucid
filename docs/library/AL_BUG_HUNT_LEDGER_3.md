@@ -3183,10 +3183,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 37
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
