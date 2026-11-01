@@ -3027,11 +3027,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (superseded) `buildProxyUpstreamHeaders` — anonymous bearer (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
 - [x] (superseded) `forwardMutatingWithBody` — chunked bypass (reseed duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
 
-- [ ] (candidate) `passThrough` — upstream `ETag` / `Vary` on auth/me may leak cache validators without matching `Cache-Control` policy — locus: selective header forwarding; input: upstream auth/me with validators; wrong outcome: stale identity in intermediate caches; reachability: monitor pass-through header allowlist tests.
-- [ ] (candidate) `handleRateLimitedForward` — 429 response may omit BFF slide cookies on allowed requests that hit rate limit after guard — locus: rate limit before `forward`; input: burst GET with active session; wrong outcome: session not slid before 429; reachability: monitor rate-limit + session slide ordering tests.
-- [ ] (candidate) `consumePostSignInReturnUrl` — double consume during OTP verify + bootstrap complete may drop desk path — locus: OIDC return storage single-use; input: verify then bootstrap complete in one tab; wrong outcome: fallback `/` landing; reachability: monitor OTP post-auth path tests with paired consumes.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — anonymous public path with browser bearer may omit cookie bearer upstream — locus: `skipPrivilegedUpstreamAuth` bearer selection; input: marketing register with Authorization header; wrong outcome: wrong upstream auth mode; reachability: monitor anonymous marketing upstream header tests.
-- [ ] (candidate) `forwardMutatingWithBody` — chunked upload without Content-Length may bypass declared-size 413 guard — locus: streaming read limit vs header check; input: large chunked POST; wrong outcome: memory pressure; reachability: monitor body limit streaming regressions.
+- [x] (superseded) `passThrough` — ETag/Vary (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `handleRateLimitedForward` — 429 slide (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `consumePostSignInReturnUrl` — double consume (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `buildProxyUpstreamHeaders` — anonymous bearer (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
+- [x] (superseded) `forwardMutatingWithBody` — chunked bypass (second duplicate) — **superseded 2026-11-01 thorough hunt (pass 3):** see closed row above.
 
 - [x] (superseded) `passThrough` — upstream Cache-Control override — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
 - [x] (superseded) `buildProxyUpstreamPath` — overlong segment list — **superseded 2026-11-01 thorough hunt (pass 2):** see closed row above.
