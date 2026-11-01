@@ -580,21 +580,6 @@ export function DiagramsWorkbenchClient() {
   }, [urlEvidenceFamily]);
 
   useEffect(() => {
-    setSeedNodeDraft(urlSeedNodeId);
-
-    if (urlMermaidMode !== "dependencyNeighborhood") {
-      setAppliedSeedNodeId("");
-      return;
-    }
-
-    const trimmedUrlSeed = urlSeedNodeId.trim();
-
-    if (trimmedUrlSeed.length > 0) {
-      setAppliedSeedNodeId(trimmedUrlSeed);
-    }
-  }, [urlMermaidMode, urlSeedNodeId]);
-
-  useEffect(() => {
     setShowPrivateEndpoints(urlIncludePrivateEndpoints);
   }, [urlIncludePrivateEndpoints]);
 
@@ -648,6 +633,7 @@ export function DiagramsWorkbenchClient() {
   syncUrlRef.current = syncUrl;
 
   const priorUrlSnapshotIdRef = useRef(urlSnapshotId);
+  const suppressUrlSeedApplyRef = useRef(false);
 
   useEffect(() => {
     const priorSnapshotId = priorUrlSnapshotIdRef.current;
@@ -663,8 +649,33 @@ export function DiagramsWorkbenchClient() {
 
     setAppliedSeedNodeId("");
     setSeedNodeDraft("");
+    suppressUrlSeedApplyRef.current = true;
     syncUrlRef.current({ seedNodeId: "" });
   }, [urlMermaidMode, urlSnapshotId]);
+
+  useEffect(() => {
+    setSeedNodeDraft(urlSeedNodeId);
+
+    if (urlMermaidMode !== "dependencyNeighborhood") {
+      setAppliedSeedNodeId("");
+      return;
+    }
+
+    if (suppressUrlSeedApplyRef.current) {
+      const trimmedPendingSeed = urlSeedNodeId.trim();
+
+      if (trimmedPendingSeed.length > 0) {
+        setAppliedSeedNodeId("");
+        setSeedNodeDraft("");
+        return;
+      }
+
+      suppressUrlSeedApplyRef.current = false;
+    }
+
+    const trimmedUrlSeed = urlSeedNodeId.trim();
+    setAppliedSeedNodeId(trimmedUrlSeed.length > 0 ? trimmedUrlSeed : "");
+  }, [urlMermaidMode, urlSeedNodeId, urlSnapshotId]);
 
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
