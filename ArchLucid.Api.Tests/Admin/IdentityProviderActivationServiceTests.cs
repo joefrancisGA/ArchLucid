@@ -814,6 +814,49 @@ public sealed class IdentityProviderActivationServiceTests
     }
 
     [Fact]
+    public async Task ActivateAsync_reactivate_rewrites_stored_claim_mapping_json_from_request_not_legacy_blob()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("19191919-1919-1919-1919-191919191919");
+        string legacyClaimMappingJson = """{"roleClaimName":"groups","mappings":[{"idpValue":"legacy-group","archLucidRole":"Reader"}]}""";
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example/",
+                ClaimMappingJson = legacyClaimMappingJson,
+                KeyVaultSecretName = "tenant-idp-client-secret",
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+                UpdatedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        IdentityClaimRoleMappingRequest mapping = ValidClaimMapping();
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+            },
+            CancellationToken.None);
+
+        record.ClaimMappingJson.Should().NotBe(legacyClaimMappingJson);
+        record.ClaimMappingJson.Should().Contain("al-admins");
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+        loaded!.ClaimMappingJson.Should().Be(record.ClaimMappingJson);
+    }
+
+    [Fact]
     public async Task ActivateAsync_rejects_saml_reactivate_that_would_clear_metadata_via_whitespace()
     {
         InMemoryTenantIdentityProviderConfigurationRepository repository = new();
