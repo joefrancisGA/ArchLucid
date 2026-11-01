@@ -167,6 +167,47 @@ public sealed class CostPolicyExpectationFindingEngineTests
     }
 
     [Fact]
+    public async Task Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_utf8_bom_prefix()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "context-1",
+                    NodeType = GraphNodeTypes.ContextSnapshot,
+                    Label = "scope",
+                    Properties = new()
+                    {
+                        [ContextGraphPropertyKeys.PolicyCostRequireBudgetCap] = "true",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "topo-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "app",
+                    Category = GraphTopologyCategories.Compute,
+                    Properties = new(),
+                },
+                new GraphNode
+                {
+                    NodeId = "cost-1",
+                    NodeType = "CostConstraint",
+                    Label = "budget",
+                    Properties = new() { ["maxMonthlyCost"] = "\uFEFF5000" },
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _constraintEngine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].Title.Should().StartWith("Cost constraint:");
+    }
+
+    [Fact]
     public async Task Cost_constraint_no_spurious_policy_cap_when_max_monthly_cost_has_trailing_currency_suffix()
     {
         GraphSnapshot graph = new()

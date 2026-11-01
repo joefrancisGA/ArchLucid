@@ -21,7 +21,7 @@ internal static class CostGraphDecimalParser
             return false;
         }
 
-        string trimmed = raw.Trim();
+        string trimmed = StripUtf8ByteOrderMark(raw.Trim());
 
         if (TryParseInvariantAmount(trimmed, out value))
         {
@@ -64,5 +64,16 @@ internal static class CostGraphDecimalParser
         }
 
         return false;
+    }
+
+    private static string StripUtf8ByteOrderMark(string value)
+    {
+        if (value.Length > 0 && value[0] == '\uFEFF')
+            value = value[1..].TrimStart();
+
+        if (value.Length > 0 && value[^1] == '\uFEFF')
+            value = value[..^1].TrimEnd();
+
+        return value;
     }
 }
