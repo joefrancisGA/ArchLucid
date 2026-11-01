@@ -2402,3 +2402,4 @@
 {"at":"2026-11-01T15:29:07.3752948Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T15:33:47.3573505Z","zoneId":"email-otp-auth","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T15:37:40.4017333Z","zoneId":"api-tenancy-workspaces","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T15:39:56.6452489Z","zoneId":"finding-disposition","outcome":"dry","productLine":"archlucid-shared"}

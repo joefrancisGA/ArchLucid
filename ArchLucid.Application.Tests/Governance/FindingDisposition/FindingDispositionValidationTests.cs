@@ -59,6 +59,23 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_deferred_accepts_single_character_optional_rationale()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = nowUtc.AddDays(30),
+            Rationale = "x",
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Validate_deferred_disposition_requires_revisit()
     {
         RecordFindingDispositionRequest request = new()
