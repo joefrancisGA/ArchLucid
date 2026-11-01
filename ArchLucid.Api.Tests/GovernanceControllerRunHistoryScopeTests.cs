@@ -730,7 +730,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
-    public async Task BatchReviewApprovalRequests_returns_conflict_when_approval_run_id_has_sealed_manifest_hash_drift()
+    public async Task BatchReviewApprovalRequests_returns_ok_with_per_item_conflict_when_sealed_manifest_hash_drift()
     {
         const string approvalRequestId = "apr-batch-zwsp-run-sealed";
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -788,10 +788,130 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             approvals.Object,
             CancellationToken.None);
 
-        ObjectResult conflict = result.Should().BeOfType<ObjectResult>().Subject;
-        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
-        conflict.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>()
-            .Which.Type.Should().Be(ProblemTypes.Conflict);
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
+        body.Results.Should().ContainSingle().Which.Should().Match<ApiGovernanceBatchReviewItemResult>(item =>
+            item.ApprovalRequestId == approvalRequestId
+            && !item.Succeeded
+            && item.ErrorCode == ProblemTypes.Conflict);
+        workflow.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task BatchReviewApprovalRequests_returns_ok_with_per_item_conflict_when_mixed_batch_contains_sealed_manifest_hash_drift()
+    {
+        const string blockedApprovalRequestId = "apr-batch-mixed-sealed";
+        const string okApprovalRequestId = "apr-batch-mixed-ok";
+        Guid blockedRunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid okRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        string prefixedBlockedRunId = $"\u200B{blockedRunId:D}";
+        const string storedHash = "stored-manifest-hash";
+        const string computedHash = "recomputed-manifest-hash";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new(MockBehavior.Strict);
+        approvals
+            .Setup(r => r.GetByIdAsync(blockedApprovalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = blockedApprovalRequestId,
+                RunId = prefixedBlockedRunId,
+            });
+        approvals
+            .Setup(r => r.GetByIdAsync(okApprovalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = okApprovalRequestId,
+                RunId = okRunId.ToString("D"),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, okRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = okRunId });
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, blockedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = blockedRunId,
+                    ManifestHash = storedHash,
+                },
+            });
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, okRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = okRunId,
+                    ManifestHash = storedHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new(MockBehavior.Strict);
+        manifestHash
+            .Setup(service => service.ComputeHash(It.Is<ManifestDocument>(m => m.RunId == blockedRunId)))
+            .Returns(computedHash);
+        manifestHash
+            .Setup(service => service.ComputeHash(It.Is<ManifestDocument>(m => m.RunId == okRunId)))
+            .Returns(storedHash);
+
+        Mock<IGovernanceWorkflowFacade> workflow = new(MockBehavior.Strict);
+        workflow
+            .Setup(w => w.ApproveAsync(
+                okApprovalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest { ApprovalRequestId = okApprovalRequestId });
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        GovernanceController sut = GovernanceControllerTestFactory.Create(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object,
+            approvalRepository: approvals.Object,
+            scopeContextProvider: scope.Object,
+            tenantRepository: TenantExistsRepository(),
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.BatchReviewApprovalRequests(
+            new GovernanceApprovalBatchReviewRequest
+            {
+                ApprovalRequestIds = [okApprovalRequestId, blockedApprovalRequestId],
+                Decision = "approve",
+                ReviewComment = "ok",
+            },
+            approvals.Object,
+            CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ApiGovernanceBatchReviewResponse body =
+            ok.Value.Should().BeOfType<ApiGovernanceBatchReviewResponse>().Subject;
+        body.Results.Should().HaveCount(2);
+        body.Results[0].ApprovalRequestId.Should().Be(okApprovalRequestId);
+        body.Results[0].Succeeded.Should().BeTrue();
+        body.Results[1].ApprovalRequestId.Should().Be(blockedApprovalRequestId);
+        body.Results[1].Succeeded.Should().BeFalse();
+        body.Results[1].ErrorCode.Should().Be(ProblemTypes.Conflict);
+        workflow.Verify(
+            w => w.ApproveAsync(
+                okApprovalRequestId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         workflow.VerifyNoOtherCalls();
     }
 
