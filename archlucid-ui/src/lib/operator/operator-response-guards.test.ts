@@ -238,6 +238,16 @@ describe("coerceRunDetail", () => {
         },
       }).ok,
     ).toBe(false);
+
+    expect(
+      coerceRunDetail({
+        run: {
+          runId: "r",
+          projectId: "p",
+          createdUtc: "   ",
+        },
+      }).ok,
+    ).toBe(false);
   });
 });
 

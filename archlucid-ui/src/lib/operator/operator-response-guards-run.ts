@@ -162,13 +162,15 @@ export function coerceRunSummaryPaged(
   };
 }
 
+const nonEmptyTrimmedString = z.string().trim().min(1);
+
 const runDetailSchema = z
   .object({
     run: z
       .object({
-        runId: z.string().trim().min(1),
-        projectId: z.string().trim().min(1),
-        createdUtc: z.string(),
+        runId: nonEmptyTrimmedString,
+        projectId: nonEmptyTrimmedString,
+        createdUtc: nonEmptyTrimmedString,
       })
       .passthrough(),
   })

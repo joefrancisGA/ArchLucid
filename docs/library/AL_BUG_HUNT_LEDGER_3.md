@@ -8973,7 +8973,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 124 · **Bugs found:** 113 · **Consecutive dry hunts:** 0
+**Hunts:** 125 · **Bugs found:** 114 · **Consecutive dry hunts:** 0
+
+2026-11-01 thorough hunt (hit): promoted **whitespace-only `createdUtc` accepted in run detail coercion** — consolidated `nonEmptyTrimmedString` for `runId`, `projectId`, and `createdUtc` in `runDetailSchema` (state-machine-gap consolidation after prior id/projectId trim); regression extends `rejects whitespace-only runId or projectId` with whitespace-only `createdUtc`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 131 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer hydrate review detail when the API returns a blank `createdUtc` string — the envelope fails closed with the same non-empty trim guard as malformed ids.
+
+- [x] (proven) `coerceRunDetail` — whitespace-only `createdUtc` still passes zod string checks — **hit 2026-11-01 thorough hunt:** shared `nonEmptyTrimmedString` on `createdUtc`; regression above.
+- [x] (invalid) `coerceRunSummaryPaged` — keyset envelope with `requestedTake: 0` still synthesizes totals — **cheap-disproof 2026-11-01 thorough hunt:** API keyset pages always send positive `requestedTake`; synthesized `pageSize: 0` is unreachable on pilot paths.
+- [x] (invalid) `coerceRunSummaryPaged` — non-string `nextCursor` object fails before page validation — **cheap-disproof 2026-11-01 thorough hunt:** cursor branch rejects invalid `nextCursor` before page validation (`Paged runs response has invalid nextCursor.`).
+- [x] (invalid) `coerceManifestSummary` — non-finite numeric count fields pass zod number checks — **cheap-disproof 2026-11-01 thorough hunt:** Zod 4 `z.number()` rejects `NaN`; coercion fails closed.
+- [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — description-matched showcase-only page with positive `reportedTotalCount` — **cheap-disproof 2026-11-01 thorough hunt:** TB-1039 returns zero when `filterTenantOverviewRuns` is empty but overview rows remain (showcase-only); stale positive metadata does not uplift.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — negative finite `requestedTake` accepted as keyset page size — locus: `isCursorPagedRunEnvelope`; input: `{ requestedTake: -5, hasMore: false, items: [{ runId: "r1" }] }`.
+- [ ] (candidate) `coerceRunSummaryList` — array with `null` element fails with generic zod message — locus: `coerceRunSummaryList`; input: `[null]` parity with missing runId copy.
+- [ ] (candidate) `coerceGraphViewModel` — `edges` array containing non-object entries — locus: `coerceGraphViewModel`; input: `{ nodes: [], edges: [null] }`.
+- [ ] (candidate) `coerceReplayResponse` — missing `replayedUtc` falls through to generic object message — locus: `coerceReplayResponse`; input: envelope with `validation.notes` only.
+- [ ] (candidate) `resolveOperatorHomeReviewTotalCount` — positive stale total with zero visible non-archived rows but zero on-page archived count — locus: archived-only guard; input: `reportedTotalCount: 9`, `visibleNonArchivedItemCount: 0`, `onPageItemCount: 0`.
 
 2026-11-01 thorough hunt (hit): promoted **whitespace-only `runId` / `projectId` accepted in run detail coercion** — `runDetailSchema` used plain `z.string()` while list/paged guards already trim + `min(1)`; malformed detail envelopes could reach review workspace loaders with blank identifiers; align `runDetailSchema` with `runSummaryRowSchema`; regression `rejects whitespace-only runId or projectId`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 131 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, attention-dedup, and review-total-resolution vitest passed. Private beta: Invited operators no longer hydrate review detail surfaces from API envelopes whose `runId` or `projectId` is only whitespace — those responses fail closed like malformed list rows.
 
@@ -8982,12 +8996,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `keysetTotalCountLowerBound` — fractional `page` context yields non-integer synthesized totals — **cheap-disproof 2026-11-01 thorough hunt:** keyset paging callers pass integer `page` from runs dashboard state; no reachability for fractional context.
 - [x] (invalid) `coerceRunSummaryList` — non-string `runId` (numeric) fails with generic zod message — **cheap-disproof 2026-11-01 thorough hunt:** unified shape-error copy is intentional for all row parse failures.
 - [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only with explicit `reportedTotalCount: 0` vs omitted — **cheap-disproof 2026-11-01 thorough hunt:** TB-1039 demo-only guard returns zero before metadata uplift regardless of explicit zero vs omission; regression `returns zero for demo-only overview rows even when workspace totalCount is populated`.
-
-- [ ] (candidate) `coerceRunDetail` — whitespace-only `createdUtc` still passes zod string checks — locus: `runDetailSchema`; input: `{ run: { runId: "r", projectId: "p", createdUtc: "   " } }`.
-- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope with `requestedTake: 0` still synthesizes totals — locus: `isCursorPagedRunEnvelope`; input: `{ requestedTake: 0, hasMore: false, items: [] }`.
-- [ ] (candidate) `coerceRunSummaryPaged` — non-string `nextCursor` object fails before page validation — locus: cursor branch; input: `{ requestedTake: 10, hasMore: true, nextCursor: {}, items: [{ runId: "r1" }] }`.
-- [ ] (candidate) `coerceManifestSummary` — non-finite numeric count fields pass zod number checks — locus: `coerceManifestSummary`; input: `{ decisionCount: Number.NaN, …required strings }`.
-- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — description-matched showcase-only page with positive `reportedTotalCount` — locus: `filterTenantOverviewRuns`; input: customer-intake showcase story row + `reportedTotalCount: 8`.
 
 2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `runId` accepted in runs list coercion** — `coerceRunSummaryList` / `coerceRunSummaryPaged` treated `"   "` as a valid string `runId`, letting malformed API rows reach home attention dedupe and tab counts as empty keys; tighten `runSummaryRowSchema` with trim + `min(1)`; regressions `rejects row when runId is whitespace-only` and `rejects paged rows when runId is whitespace-only`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 119 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, and attention-dedup vitest passed. Private beta: Invited operators no longer hydrate home runs surfaces from paged API rows whose `runId` is only whitespace — those responses fail closed with the same shape error as missing ids.
 
