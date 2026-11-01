@@ -33,7 +33,8 @@ SN-ROI-05 through SN-ROI-07 are easy to regress into a filled customer result, a
    - `docs/securenow/ROI_SEND_RULE.md` lacks `NO_GO`, `NOT COLLECTED`, `FIXTURE`, `ROI not calculated`, or `sponsor approved`.
    - That send rule contains `$`, `975%`, or `guaranteed ROI`.
    - `securenow-sponsor-home-copy.ts` lacks `Investigation effort` and `/administration/securenow-investigation-effort`.
-   - `SecureNowInvestigationEffortPageView.tsx` lacks `securenow-investigation-effort-page`, `docs/securenow/PILOT_MEASUREMENT_LOG.md`, `docs/securenow/ROI_COST_INPUT.md`, `docs/securenow/ROI_FIXTURE_WORKSHEET.md`, and `docs/securenow/ROI_SEND_RULE.md`.
+   - `SecureNowInvestigationEffortPageView.tsx` lacks `securenow-investigation-effort-page`.
+   - `archlucid-ui/src/lib/product-line/securenow-investigation-effort-copy.ts` lacks any of `docs/securenow/PILOT_MEASUREMENT_LOG.md`, `docs/securenow/ROI_COST_INPUT.md`, `docs/securenow/ROI_FIXTURE_WORKSHEET.md`, or `docs/securenow/ROI_SEND_RULE.md`.
 3. Extend `scripts/ci/test_check_securenow_roi_notes.py`. The real tree passes. A temp copy that inserts `$` into `ROI_SEND_RULE.md` fails. A temp copy that deletes `Sample size` from the measurement log fails.
 4. Leave the existing CI steps in place. Do not add a second workflow job. Both steps stay `continue-on-error: true`.
 
