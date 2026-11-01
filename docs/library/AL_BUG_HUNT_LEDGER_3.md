@@ -3143,6 +3143,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-01 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **1/3** before this hunt — below `minLowYieldStreak` 3); **cooldown fallback** kept **`ui-oidc`** selected. Reread `ensureAccessTokenFresh` refresh vs activity ping paths, session-generation invalidation during in-flight refresh, and expiry skew before silent refresh. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
+
 2026-11-01 seed hunt (seed-only): **rotation fired** (`shouldRotate: true`; **7** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied; **cooldown fallback** selected **`ui-oidc`** because every open zone was demoted). Reread OIDC discovery in-flight dedupe map, `isSafeOidcEndpointUrl` http(s)/credential/hash guards, and required discovery field normalization. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034** (`src/lib/oidc` + `oidc-authority-host`). No production code changed.
 
 2026-10-31 seed hunt (seed-only): no rotation (`shouldRotate: false`; run-log low-yield streak on `ui-oidc` is **1/3** after prior seed-only — below `minLowYieldStreak` 3); cooldown fallback kept saturated `ui-oidc` selected. Reread `buildAuthorizeUrl` query value normalization and IdP-specific authorize parameter retention, dual-flow PKCE storage keys, in-flight BFF refresh deduplication with session-generation guards, and bounded token-sync sequencing before `syncBffSessionCookieFromTokenResponse`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped OIDC tests passed **1034/1034**. No production code changed.
@@ -6233,7 +6235,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 94
+- **hunts:** 95
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-31
