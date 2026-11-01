@@ -20959,16 +20959,30 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: quick-scan-distributed-concurrency
 
+2026-11-01 thorough hunt (hunt 43, dry): no rotation (`shouldRotate: false`). Repro-first on five open `(candidate)` rows; no failing repro and no production change. **valid-no-repro** in-flight renewal delay not shortened when `LeaseRenewalIntervalSeconds` increases (symmetric to 2026-10-23 decrease case; extra renewals before the delay completes do not shrink TTL below `min(interval, duration-1)` renew-then-delay math); **invalid** Dapper `(int)leaseDuration.TotalSeconds` sub-second truncation (2026-10-23 `QuickScanSafetyOptionsValidator` requires positive integer seconds); **invalid** empty/colliding `Environment.MachineName` holder id (diagnostics-only, admit capacity unchanged); **valid-no-repro** in-memory `ExpireStale` only on mutating entry (2026-10-20 capacity counts exclude timed-out rows; production SQL TTL); **invalid** dispose surfacing renewal fault (`StopRenewalLoopAsync` swallows non-cancel exceptions per #1402; regression `DisposeAsync_releases_lease_when_renewal_loop_faults`). Reseeded five `(candidate)` rows; scoped filter **45/45** passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — in-flight delay when `LeaseRenewalIntervalSeconds` increases — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `DapperQuickScanDistributedConcurrencyStore.RenewLeaseAsync` — sub-second `LeaseDurationSeconds` truncation — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `QuickScanDistributedConcurrencyService` — empty or colliding `HolderInstanceId` — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.ExpireStale` — stale rows until mutating entry — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — faulted renewal task prevents lease release — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+
+- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — ops reload lengthening `LeaseRenewalIntervalSeconds` during an active delay may renew earlier than the new interval until the current delay completes — locus: renewal loop; input: `IOptionsMonitor` reload during anonymous scan (monitor; capacity-safe).
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote-loop wall-clock `Task.Delay(250ms)` vs injected `TimeProvider` deadline skew under test harnesses — locus: promote poll delay; input: fake clock tests (monitor).
+- [ ] (candidate) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryAdmitAsync` — refreshed `LeaseDurationSeconds` at direct admit could diverge from lease TTL stamped on an already-queued row — locus: admit refresh decorator; input: limit reload between queue and promote (monitor).
+- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` — `@LeaseDurationSeconds` cast truncates if fractional `LeaseDuration` ever reaches SQL layer — locus: admit SQL parameters; input: future fractional lease duration config (monitor).
+- [ ] (candidate) `QuickScanDistributedConcurrencyService` — `HolderInstanceId` uses `Environment.MachineName` without pod/instance disambiguation — locus: admit/promote stamping; input: duplicated host names in Kubernetes (monitor; diagnostics only).
+
 - **id:** quick-scan-distributed-concurrency
 - **status:** open
 - **impact:** high
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-27
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-01
 - **last-bug:** 2026-10-20 — lease renewal loop ignored live LeaseRenewalIntervalSeconds changes
 
 2026-10-27 thorough hunt (dry #88): repro-first on five open `(candidate)` rows (promote-loop wall-clock `Task.Delay` vs `TimeProvider` deadline, mid-wait `QueueWaitTimeoutSeconds` lengthen, double-fault abandon cleanup, renewal `cancellationToken` on host shutdown, promote refresh `UtcNow`); no failing repro; cheap-disproof closed all five; seeded five follow-on `(candidate)` rows below; 45 scoped QuickScanDistributedConcurrency tests passed (`RunAnalyzers=false`).
@@ -21084,11 +21098,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — `RenewLeaseAsync` forwards execute `cancellationToken` on host shutdown — **cheap-disproof 2026-10-27 thorough hunt #88:** linked `ExecutionCancellationToken` cancels in-flight scan on renewal failure (#1403); `DisposeAsync` releases lease with `CancellationToken.None` (#1404); remaining TTL is bounded over-capacity window only.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryPromoteAsync` — does not refresh `UtcNow` at store entry — **cheap-disproof 2026-10-27 thorough hunt #88:** service promote loop stamps `_timeProvider.GetUtcNow()` each poll (#1542); regression `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`.
 
-- [ ] (candidate) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` **increases** during the delay, so the next renewal may run sooner than the newly configured interval until the current delay completes — locus: renewal loop delay; input: ops reload lengthening renewal interval during active anonymous scan.
-- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.RenewLeaseAsync` — `LeaseDurationSeconds = (int)leaseDuration.TotalSeconds` truncates sub-second renewal TTL extensions if fractional durations are ever introduced — locus: SQL renew parameters; input: future sub-second `LeaseDurationSeconds` configuration (validator today requires positive integers).
-- [ ] (candidate) `QuickScanDistributedConcurrencyService` — static `HolderInstanceId = Environment.MachineName` may be empty or collide across containers, weakening lease-holder diagnostics without affecting admit capacity — locus: admit/promote request stamping; input: Kubernetes pods with duplicate or blank machine names.
-- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore.ExpireStale` — stale leases and timed-out queue rows are purged only on mutating store entry, so a read-only process could observe historical rows until another admit/promote — locus: `ExpireStale` call sites; input: in-memory simulator idle after timeouts (production SQL uses TTL procedures).
-- [ ] (candidate) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — `StopRenewalLoopAsync` awaits the renewal `Task` after `CancelAsync`; if `RunLoopAsync` faulted before observe, dispose may surface `AggregateException` instead of still releasing the lease — locus: `StopRenewalLoopAsync` + faulted renewal task; input: renewal store throws once then dispose during anonymous scan cleanup.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` **increases** during the delay — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `DapperQuickScanDistributedConcurrencyStore.RenewLeaseAsync` — sub-second `LeaseDurationSeconds` truncation — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `QuickScanDistributedConcurrencyService` — static `HolderInstanceId = Environment.MachineName` may be empty or collide — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (valid-no-repro) `InMemoryQuickScanDistributedConcurrencyStore.ExpireStale` — stale leases and timed-out queue rows purged only on mutating store entry — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
+- [x] (invalid) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — faulted renewal task may surface through dispose — **cheap-disproof 2026-11-01 thorough hunt (hunt 43):** see zone-header diary row above.
 
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — an in-flight `Task.Delay` is not shortened when `LeaseRenewalIntervalSeconds` decreases during the delay — **cheap-disproof 2026-10-23 thorough hunt:** interval changes apply on the next loop after the current `TimeProvider` delay completes (documented by `Renewal_loop_re_reads_lease_renewal_interval_after_options_change`); uncancelled in-flight delay is intentional, not the pre-#1406 `PeriodicTimer` stuck-interval defect.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — paired reload shrinking `LeaseDurationSeconds` during a scheduled renewal delay lets `ExpiresUtc` elapse before the next renewal — **cheap-disproof 2026-10-23 thorough hunt:** each cycle renews with fresh `leaseDuration` before delaying, and delay is clamped to `min(renewal, leaseDuration - 1)`; regression `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`.
