@@ -2335,3 +2335,4 @@
 {"at":"2026-11-01T01:13:36.2824200Z","zoneId":"persistence-billing-stripe","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T01:15:01.8169692Z","zoneId":"billing-webhooks","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T01:18:53.5537665Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T01:25:14.7678892Z","zoneId":"tenant-data-export","outcome":"dry","productLine":"archlucid-shared"}
