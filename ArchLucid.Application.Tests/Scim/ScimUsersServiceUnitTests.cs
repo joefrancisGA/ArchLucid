@@ -430,6 +430,95 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_directory_removed_user_rejects_active_true_patch()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await sut.DeactivateAsync(tenantId, created.Id, CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [
+                { "op": "replace", "path": "active", "value": true }
+              ]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimNotFoundException>(
+            "directory-removed rows must not reactivate via PATCH; POST reprovision only");
+    }
+
+    [Fact]
+    public async Task ListAsync_whitespace_only_filter_returns_unfiltered_page()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-a",
+            "a@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, "   ", 1, 100, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().ContainSingle(static u => u.UserName == "a@example.com");
+    }
+
+    [Fact]
+    public async Task ListAsync_null_filter_matches_empty_string_filter_totals()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-a",
+            "a@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> omitted, int totalOmitted) =
+            await sut.ListAsync(tenantId, null, 1, 100, CancellationToken.None);
+        (IReadOnlyList<ScimUserRecord> empty, int totalEmpty) =
+            await sut.ListAsync(tenantId, string.Empty, 1, 100, CancellationToken.None);
+
+        totalOmitted.Should().Be(1);
+        totalEmpty.Should().Be(totalOmitted);
+        empty.Select(static u => u.Id).Should().BeEquivalentTo(omitted.Select(static u => u.Id));
+    }
+
+    [Fact]
     public async Task DeactivateAsync_throws_not_found_when_user_already_directory_removed()
     {
         Guid tenantId = Guid.NewGuid();
@@ -1017,6 +1106,78 @@ public sealed class ScimUsersServiceUnitTests
 
         total.Should().Be(1);
         items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ListAsync_count_above_max_clamped_to_200_items()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        for (int i = 0; i < 205; i++)
+        {
+            await users.InsertAsync(
+                tenantId,
+                $"ext-{i}",
+                $"user{i}@example.com",
+                null,
+                true,
+                null,
+                ScimResolvedRoleOrigin.Unknown,
+                CancellationToken.None);
+        }
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, null, 1, 10_000, CancellationToken.None);
+
+        total.Should().Be(205);
+        items.Should().HaveCount(200);
+    }
+
+    [Fact]
+    public async Task GetAsync_returns_inactive_user_after_patch_deactivates_without_directory_remove()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM Inactive GET Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "active", "value": false }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserRecord? loaded = await sut.GetAsync(tenantId, created.Id, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Active.Should().BeFalse();
+        loaded.DirectoryRemovedUtc.Should().BeNull();
     }
 
     [Fact]

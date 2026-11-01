@@ -12,6 +12,15 @@ public static class ApiKeyMaterialNormalizer
 
         string trimmed = value.Trim();
 
+        try
+        {
+            trimmed = trimmed.Normalize(NormalizationForm.FormC);
+        }
+        catch (ArgumentException)
+        {
+            // Ill-formed UTF-16 paste: fall through to invisible-char stripping.
+        }
+
         if (trimmed.Length == 0)
             return string.Empty;
 

@@ -8,6 +8,7 @@ import { resolveWizardPresetIdFromDeeplink } from "@/lib/wizard-preset-deeplink"
 import {
   resolveWizardPresetLabel,
   isWizardFormFieldDirty,
+  isWizardFormFieldTouched,
   resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   WIZARD_STARTER_PRESET_FIELD_COPY,
@@ -190,8 +191,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
     constraintsEntries.length > 0 && constraintsEntries.some((c) => c.trim().length === 0);
 
   const identityStepReached = props.stepIndex >= 1;
-  const constraintsTouched = isWizardFormFieldDirty(formState.touchedFields.constraints);
-  const capabilitiesTouched = isWizardFormFieldDirty(formState.touchedFields.requiredCapabilities);
+  const constraintsTouched = isWizardFormFieldTouched(formState.touchedFields.constraints);
+  const capabilitiesTouched = isWizardFormFieldTouched(formState.touchedFields.requiredCapabilities);
   const constraintsStoredEmpty =
     constraintsTouched && constraintsNonEmpty.length === 0 && !hasBlankConstraintEntry;
   const capabilitiesStoredEmpty =

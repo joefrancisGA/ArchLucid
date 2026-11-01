@@ -6,7 +6,7 @@ import {
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_CONVERSATION_MAILTO,
   WHY_SECURENOW_DRAFT_AUDIENCE,
-  WHY_SECURENOW_DRAFT_BANNER,
+  WHY_SECURENOW_STATUS_LINE,
   WHY_SECURENOW_DRAFT_HEADING,
   WHY_SECURENOW_DRAFT_PITCH,
   WHY_SECURENOW_DRAFT_REFUSALS,
@@ -15,10 +15,12 @@ import {
   WHY_SECURENOW_REVIEWER_PACK_HEADING,
   WHY_SECURENOW_PILOT_DECISION_BODY,
   WHY_SECURENOW_PILOT_DECISION_HEADING,
+  WHY_SECURENOW_SAMPLE_LINK_LABEL,
+  WHY_SECURENOW_SAMPLE_LINK_LEAD,
 } from "@/lib/marketing/why-securenow-draft-copy";
 import { cn } from "@/lib/utils";
 
-/** SN-MKT-02 — internal Why SecureNow draft (noindex, not linked from marketing nav). */
+/** SN-MKT-02 / SN-MKT-08 — public Why SecureNow explanation (indexed; linked from resources menu). */
 export function WhySecureNowDraftView(): React.JSX.Element {
   return (
     <MarketingPageShell variant="reading" data-testid="why-securenow-draft-page">
@@ -27,7 +29,7 @@ export function WhySecureNowDraftView(): React.JSX.Element {
           className={cn(MARKETING_TYPOGRAPHY.lead, "text-amber-900 dark:text-amber-200")}
           data-testid="why-securenow-draft-banner"
         >
-          {WHY_SECURENOW_DRAFT_BANNER}
+          {WHY_SECURENOW_STATUS_LINE}
         </p>
 
         <header className="space-y-3">
@@ -87,6 +89,13 @@ export function WhySecureNowDraftView(): React.JSX.Element {
           </h2>
           <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_PILOT_DECISION_BODY}</p>
         </section>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          {WHY_SECURENOW_SAMPLE_LINK_LEAD}{" "}
+          <Link href="/securenow-sample" className="text-al-link underline-offset-2 hover:underline">
+            {WHY_SECURENOW_SAMPLE_LINK_LABEL}
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link href={WHY_SECURENOW_CONVERSATION_MAILTO} className="text-al-link underline-offset-2 hover:underline">

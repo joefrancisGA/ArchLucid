@@ -580,6 +580,53 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
     }
 
     [Fact]
+    public async Task Erasure_quarantine_passes_through_when_scope_tenant_id_is_empty()
+    {
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(provider => provider.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = Guid.Empty });
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton(scopes.Object);
+        services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool terminalReached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            terminalReached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached.Should().BeTrue();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+        tenants.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Erasure_quarantine_blocks_past_due_scheduled_erasure_when_not_offboarded()
     {
         DateTimeOffset now = new(2026, 9, 26, 14, 0, 0, TimeSpan.Zero);

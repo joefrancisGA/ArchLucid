@@ -188,6 +188,7 @@ jobs:
           name: golden-cohort-drift
           path: |
             docs/quality/golden-cohort-drift-latest.md
+            docs/quality/golden-cohort-drift-actuals.json
             docs/quality/archive/*.md
           if-no-files-found: warn
 

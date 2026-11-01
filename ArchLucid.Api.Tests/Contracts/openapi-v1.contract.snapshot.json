@@ -19296,6 +19296,13 @@
               "string"
             ]
           },
+          "securityEvidencePathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "sinceUtc": {
             "format": "date-time",
             "type": [
@@ -35231,6 +35238,12 @@
           "explanationId": {
             "format": "uuid",
             "type": "string"
+          },
+          "modelOutputRejection": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "pathId": {
             "format": "uuid",

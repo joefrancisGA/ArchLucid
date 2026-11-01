@@ -2,6 +2,8 @@ namespace ArchLucid.Contracts.InfraEvidence;
 
 public static class InfraEvidenceAskTopicKinds
 {
+    public const string RankedPath = "RankedPath";
+
     public const string SubscriptionChange = "SubscriptionChange";
 
     public const string Drift = "Drift";

@@ -6,13 +6,20 @@ import {
   SECURENOW_REVIEWER_HOME_SECTION_LEAD,
 } from "@/lib/product-line/securenow-reviewer-home-copy";
 
-describe("SecureNow reviewer home copy (SN-MKT-06)", () => {
-  it("defines the For reviewers section and three destinations", () => {
+describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
+  it("defines the For reviewers section and public destinations", () => {
     expect(SECURENOW_REVIEWER_HOME_SECTION_HEADING).toBe("For reviewers");
+    expect(SECURENOW_REVIEWER_HOME_SECTION_LEAD).toMatch(/Public explanation/i);
     expect(SECURENOW_REVIEWER_HOME_SECTION_LEAD).toMatch(/NO_GO/);
 
     const labels = SECURENOW_REVIEWER_HOME_ROWS.map((row) => row.label);
-    expect(labels).toEqual(["Draft overview", "Reviewer packet", "Request a conversation", "Accessibility"]);
+    expect(labels).toEqual([
+      "Why SecureNow",
+      "SecureNow sample",
+      "Reviewer packet",
+      "Request a conversation",
+      "Accessibility",
+    ]);
     expect(SECURENOW_REVIEWER_HOME_ROWS.filter((row) => row.recommendedFirst === true)).toHaveLength(0);
   });
 

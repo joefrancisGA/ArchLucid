@@ -228,12 +228,34 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsAdviceStyleNegation(string haystack, int tokenIndex)
     {
-        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+        ReadOnlySpan<char> clause = ClausePrefixGoverningMatch(haystack, tokenIndex);
 
-        if (before.Length < 4)
+        if (clause.Length < 4)
             return false;
 
-        return EnglishNegationTokenizer.ContainsNegation(before);
+        return EnglishNegationTokenizer.ContainsNegation(clause);
+    }
+
+    // A negation only governs a matched control when both live in the same clause; negations in
+    // earlier sentences ("... blocked from the subnet. Use managed identity ...") do not apply.
+    private static ReadOnlySpan<char> ClausePrefixGoverningMatch(string haystack, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = haystack.AsSpan(0, tokenIndex).TrimEnd();
+        int start = 0;
+
+        for (int index = 0; index < before.Length; index++)
+        {
+            char character = before[index];
+
+            if (character == '.'
+                || character == '!'
+                || character == '?'
+                || character == ';'
+                || character == ':')
+                start = index + 1;
+        }
+
+        return before.Slice(start).TrimStart();
     }
 
     private static bool ContainsPhrase(ReadOnlySpan<char> haystack, string phrase)
@@ -402,9 +424,10 @@ internal static class RequestConstraintTokenMatcher
             return haystack;
 
         if (!ContainsConstraintNormalizationCharacters(haystack))
-            return NormalizeSpacedListSeparators(
-                NormalizeSpacedAsciiSolidus(
-                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack))));
+        return NormalizeSpacedListSeparators(
+            NormalizeSpacedAsciiSolidus(
+                NormalizeSpacedAsciiHyphen(
+                    NormalizeSpacedAsciiBackslash(NormalizeSpacedPhraseSeparators(haystack)))));
 
         StringBuilder builder = new(haystack.Length);
 
@@ -422,13 +445,16 @@ internal static class RequestConstraintTokenMatcher
 
         return NormalizeSpacedListSeparators(
             NormalizeSpacedAsciiSolidus(
-                NormalizeSpacedAsciiBackslash(
-                    NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString())))));
+                NormalizeSpacedAsciiHyphen(
+                    NormalizeSpacedAsciiBackslash(
+                        NormalizeSpacedPhraseSeparators(CollapseConsecutiveAsciiSpaces(builder.ToString()))))));
     }
 
     private static string NormalizeSpacedListSeparators(string haystack)
     {
-        if (!haystack.Contains(',') && !haystack.Contains(';'))
+        if (!haystack.Contains(',')
+            && !haystack.Contains(';')
+            && !haystack.Contains('\uFF0C'))
             return haystack;
 
         StringBuilder normalized = new(haystack.Length);
@@ -437,7 +463,9 @@ internal static class RequestConstraintTokenMatcher
         {
             char character = haystack[index];
 
-            if ((character == ',' || character == ';')
+            if ((character == ','
+                    || character == ';'
+                    || character == '\uFF0C')
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
@@ -464,6 +492,32 @@ internal static class RequestConstraintTokenMatcher
             char character = haystack[index];
 
             if (character == '/'
+                && ((index > 0 && haystack[index - 1] == ' ')
+                    || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
+            {
+                normalized.Append(' ');
+            }
+            else
+            {
+                normalized.Append(character);
+            }
+        }
+
+        return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+    }
+
+    private static string NormalizeSpacedAsciiHyphen(string haystack)
+    {
+        if (!haystack.Contains('-'))
+            return haystack;
+
+        StringBuilder normalized = new(haystack.Length);
+
+        for (int index = 0; index < haystack.Length; index++)
+        {
+            char character = haystack[index];
+
+            if (character == '-'
                 && ((index > 0 && haystack[index - 1] == ' ')
                     || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
             {
@@ -519,6 +573,8 @@ internal static class RequestConstraintTokenMatcher
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '~');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '!');
         haystack = NormalizeSpacedAsciiDelimiter(haystack, '?');
+        haystack = NormalizeSpacedAsciiDelimiter(haystack, '*');
+        haystack = CollapseConsecutiveAsciiSpaces(haystack.Replace(" . ", " ", StringComparison.Ordinal));
 
         return haystack;
     }

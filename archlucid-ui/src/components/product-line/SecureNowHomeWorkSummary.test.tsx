@@ -130,7 +130,18 @@ describe("SecureNowHomeWorkSummary", () => {
     });
     renderSummary();
 
-    expect(await screen.findByText("None assigned to you")).toBeInTheDocument();
+    expect(
+      await screen.findByText("None assigned to you. Open Priorities & waves to choose a ranked path."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("No critical exposure. Open Priorities & waves to inspect a ranked path."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("No comparison yet. Collect another snapshot before reviewing drift."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("None waiting for a check. Stop until a later capture is ready."),
+    ).toBeInTheDocument();
   });
 
   it("appends failed checks without counting Executed as awaiting verification", async () => {
@@ -168,7 +179,7 @@ describe("SecureNowHomeWorkSummary", () => {
     });
     renderSummary();
 
-    expect(await screen.findAllByText("Factory summary unavailable")).toHaveLength(2);
+    expect(await screen.findAllByText(/Factory summary unavailable\. Check collection status and try again\./)).toHaveLength(2);
     expect(screen.getByRole("link", { name: "My Findings" })).toBeInTheDocument();
   });
 
@@ -191,6 +202,8 @@ describe("SecureNowHomeWorkSummary", () => {
         "/infrastructure/snapshots-drift",
       );
     });
-    expect(await screen.findByText("No comparison yet")).toBeInTheDocument();
+    expect(
+      await screen.findByText("No comparison yet. Collect another snapshot before reviewing drift."),
+    ).toBeInTheDocument();
   });
 });

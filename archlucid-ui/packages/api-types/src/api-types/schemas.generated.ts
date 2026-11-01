@@ -5584,6 +5584,8 @@ export interface components {
             question?: string;
             /** Format: uuid */
             runId?: null | string;
+            /** Format: uuid */
+            securityEvidencePathId?: null | string;
             /** Format: date-time */
             sinceUtc?: null | string;
             /** Format: uuid */
@@ -10302,6 +10304,7 @@ export interface components {
             executiveSummary?: string;
             /** Format: uuid */
             explanationId?: string;
+            modelOutputRejection?: null | string;
             /** Format: uuid */
             pathId?: string;
             proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];

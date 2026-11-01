@@ -70,18 +70,46 @@ public static class AzureInventoryNsgAssociationParser
                 continue;
             }
 
+            string normalizedTargetArmId = NormalizeAssociationTargetArmId(targetArmId);
+
             associations.Add(new AzureInventoryNsgAssociation
             {
-                TargetArmId = ArmResourceIdNormalizer.Normalize(targetArmId),
+                TargetArmId = normalizedTargetArmId,
                 TargetKind = ReadAssociationProperty(
                     properties,
                     index,
                     InventoryDiagramNodeRelationshipPropertyKeys.NsgAssociationKindSuffix)
-                    ?? InferTargetKind(targetArmId),
+                    ?? InferTargetKind(normalizedTargetArmId),
             });
         }
 
         return associations;
+    }
+
+    private static string NormalizeAssociationTargetArmId(string targetArmId)
+    {
+        if (string.IsNullOrWhiteSpace(targetArmId))
+        {
+            return string.Empty;
+        }
+
+        string working = targetArmId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? ReadAssociationProperty(

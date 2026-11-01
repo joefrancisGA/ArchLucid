@@ -103,6 +103,7 @@ public sealed class CommitSponsorEmailNotifier(
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
+        string displayProductName = EmailHeaderFragmentSanitizer.Sanitize(productName);
         string? operatorBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(emailOptions.OperatorBaseUrl);
         Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
             _runRepository,
@@ -113,14 +114,15 @@ public sealed class CommitSponsorEmailNotifier(
             ? $"(configure {nameof(EmailNotificationOptions.OperatorBaseUrl)}) {WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(trimmedRunId, architectureId)}"
             : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(operatorBase, trimmedRunId, architectureId);
         string runUrlHref = operatorBase is null ? "#" : runUrlText;
-        string safeRun = WebUtility.HtmlEncode(trimmedRunId);
-        string safeProduct = WebUtility.HtmlEncode(productName);
-        string safeUrlText = WebUtility.HtmlEncode(runUrlText);
-        string subject = $"{productName}: architecture run finalized — sponsor link";
+        string displayRunId = EmailHeaderFragmentSanitizer.Sanitize(trimmedRunId);
+        string safeRun = WebUtility.HtmlEncode(displayRunId);
+        string safeProduct = WebUtility.HtmlEncode(displayProductName);
+        string safeUrlText = WebUtility.HtmlEncode(EmailHeaderFragmentSanitizer.Sanitize(runUrlText));
+        string subject = $"{displayProductName}: architecture run finalized — sponsor link";
         string html = $"<p>{safeProduct}: an architecture run was finalized.</p>" + $"<p>Run id: <strong>{safeRun}</strong></p>" +
                       $"<p>Operator link: <a href=\"{WebUtility.HtmlEncode(runUrlHref)}\">{safeUrlText}</a></p>" +
                       "<p>This message was sent because someone chose to notify the tenant admin contact when finalizing the manifest.</p>";
-        string text = $"{productName}: an architecture run was finalized.\n" + $"Run id: {trimmedRunId}\n" + $"Link: {runUrlText}\n";
+        string text = $"{displayProductName}: an architecture run was finalized.\n" + $"Run id: {displayRunId}\n" + $"Link: {runUrlText}\n";
         string idempotencyKey = $"architecture-commit-sponsor:{tenantId:N}:{trimmedRunId}";
         EmailMessage message = new()
         {

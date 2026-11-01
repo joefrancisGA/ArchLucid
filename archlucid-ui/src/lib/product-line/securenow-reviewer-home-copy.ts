@@ -6,13 +6,18 @@ import {
 export const SECURENOW_REVIEWER_HOME_SECTION_HEADING = "For reviewers" as const;
 
 export const SECURENOW_REVIEWER_HOME_SECTION_LEAD =
-  "Internal drafts for a champion. Not an approved offer. SecureNow beta remains NO_GO." as const;
+  "Public explanation and a synthetic sample. Not an offer. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_REVIEWER_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: "/why-securenow",
-    label: "Draft overview",
+    label: "Why SecureNow",
     summary: "Who it is for, the six-step workflow, and the refusals.",
+  },
+  {
+    href: "/securenow-sample",
+    label: "SecureNow sample",
+    summary: "One synthetic ranked path. Not a customer result.",
   },
   {
     href: "/why-securenow#reviewer-pack",

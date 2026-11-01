@@ -9,16 +9,31 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
   {
     href: "/why-securenow#reviewer-pack",
     label: "Readout preparation",
-    summary: "Review the evidence sequence, limitations, and owner decision before a sponsor briefing.",
+    summary:
+      "Review the evidence sequence, limitations, and owner decision before a sponsor briefing.",
   },
   {
     href: "/why-securenow",
     label: "Executive packet context",
-    summary: "Use the template and fill guide; customer outcomes remain uncollected until a real pilot.",
+    summary:
+      "Use the template and fill guide; customer outcomes remain uncollected until a real pilot.",
   },
   {
     href: "/administration/securenow-pilot-decision",
     label: "Pilot decision path",
-    summary: "Prepare the human proceed, extend, or stop disposition with owners and follow-ups.",
+    summary:
+      "Prepare the human proceed, extend, or stop disposition with owners and follow-ups.",
+  },
+  {
+    href: "/administration/securenow-pilot-decision#decision-cycle",
+    label: "Decision cycle",
+    summary:
+      "Record qualify start, close, and the step that stalled. Leave the outcome blank until a person selects it.",
+  },
+  {
+    href: "/administration/securenow-investigation-effort",
+    label: "Investigation effort",
+    summary:
+      "Record comparable minutes and read the send rule before a number leaves the room.",
   },
 ];

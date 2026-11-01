@@ -1185,7 +1185,7 @@ describe("SignupForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
     });
 
     const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");

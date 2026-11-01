@@ -1,10 +1,17 @@
-export const WHY_SECURENOW_DRAFT_BANNER =
-  "Internal draft. Not approved buyer communication. SecureNow beta remains NO_GO." as const;
+export const WHY_SECURENOW_STATUS_LINE =
+  "SecureNow beta remains NO_GO. This page explains the product. It does not publish a price or open a signup." as const;
 
 export const WHY_SECURENOW_DRAFT_HEADING = "Why SecureNow" as const;
 
 export const WHY_SECURENOW_DRAFT_PITCH =
   "SecureNow shows which permission and network combinations in your Azure subscriptions form a possible access path, where an engineer could intervene, and whether a later capture supports that the condition changed." as const;
+
+export const WHY_SECURENOW_SAMPLE_LINK_HREF = "/securenow-sample" as const;
+
+export const WHY_SECURENOW_SAMPLE_LINK_LABEL = "SecureNow sample" as const;
+
+export const WHY_SECURENOW_SAMPLE_LINK_LEAD =
+  "One synthetic ranked path. Not a customer result." as const;
 
 export const WHY_SECURENOW_DRAFT_AUDIENCE =
   "Azure cloud-security, infrastructure, and security-architecture teams." as const;
