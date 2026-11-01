@@ -10,7 +10,15 @@
 
 Do not build any of the following while implementing SN-MKT prompts.
 
-SN-MKT-08 through SN-MKT-11 lift three older stops: `robots` index true on `/why-securenow`, a resources-menu link to that page and to `/securenow-sample`, and a security-shell exception for `/securenow-sample`. Those three are allowed only in the numbered prompt that names them. Every other stop below still applies.
+SN-MKT-08 through SN-MKT-11 lift three older stops: `robots` index true on `/why-securenow`, a resources-menu link to that page and to `/securenow-sample`, and a security-shell exception for `/securenow-sample`. Those three are allowed only in the numbered prompt that names them.
+
+SN-MKT-12 may change `marketing-layout-securenow-draft.test.ts` so it expects the resources-menu hrefs SN-MKT-10 already shipped. It does not add a link.
+
+SN-MKT-13 may add `href="/securenow-sample"` inside `WhySecureNowDraftView.tsx` and `href="/why-securenow"` inside `SecureNowSampleView.tsx`. Those two body links are allowed only in that prompt.
+
+SN-MKT-14 may append the sample beats titled `Engineer action`, `Not verified`, and `Audit link`, using the sentences in that prompt. It does not edit `FIXTURE_STORYBOARD.md`.
+
+Every other stop below still applies.
 
 - A public price, a pricing page, or any dollar amount on a SecureNow surface.
 - A Stripe link, a Partner Center offer, a Marketplace plan, or a live billing toggle.
@@ -18,7 +26,7 @@ SN-MKT-08 through SN-MKT-11 lift three older stops: `robots` index true on `/why
 - A "Start trial", "Buy", or "Sign up" control.
 - The phrases "guaranteed ROI", "guaranteed savings", "guaranteed breach prevention", "autonomous remediation", "automatically apply", "SOC 2 certified", or "observed exploit".
 - A numeric probability or a numeric confidence score.
-- A link to `/why-securenow` or `/securenow-sample` from the welcome page, the marketing footer, or the operator sidebar. SN-MKT-10 may add those two hrefs to `MarketingResourcesMenu` only. SN-MKT-01 through SN-MKT-07 do not add them.
+- A link to `/why-securenow` or `/securenow-sample` from the welcome page, the marketing footer, or the operator sidebar. SN-MKT-10 may add those two hrefs to `MarketingResourcesMenu` only. SN-MKT-13 may add them only inside the two public views named above. No other prompt adds them.
 - Rendering `MarketingPublicHeader`, the marketing footer, signup, pricing, or analytics on the security-shell render of `/why-securenow` or `/securenow-sample`.
 - Letting any marketing path other than exact `/why-securenow` and exact `/securenow-sample` (trailing slash allowed) render on the security product line. `/securenow-sample` is added by SN-MKT-09.
 - Changing the blocked-prefix matcher so `/why` also matches `/why-securenow`.
