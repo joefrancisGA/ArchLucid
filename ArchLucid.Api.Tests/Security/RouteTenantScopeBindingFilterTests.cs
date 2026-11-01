@@ -344,6 +344,34 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_n_format_guid_object_route_tenant_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        Guid routeTenant = Guid.Parse(TenantB.ToString("N").ToUpperInvariant());
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            routeTenant,
+            "/v1/admin/tenants/" + routeTenant + "/catalog-migration/default-scope");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_n_format_route_tenant_string_enforces_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

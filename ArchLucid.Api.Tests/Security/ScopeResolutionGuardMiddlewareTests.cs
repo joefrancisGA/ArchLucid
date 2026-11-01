@@ -613,6 +613,7 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     [InlineData("/robots.txt/")]
     [InlineData("/sitemap.xml/")]
     [InlineData("/ROBOTS.TXT/")]
+    [InlineData("/SITEMAP.XML/")]
     public async Task InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths(string path)
     {
         DefaultHttpContext context = CreateContext(path);
@@ -672,6 +673,28 @@ public sealed class ScopeResolutionGuardMiddlewareTests
 
         nextCalled.Should().BeFalse(
             "encoded slashes are not normalized into an anonymous live probe skip on staging-like hosts");
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_default_scope_on_literal_percent_encoded_health_live_trailing_slash_path()
+    {
+        DefaultHttpContext context = CreateContext("/health/live%2F");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse(
+            "encoded trailing slash is not normalized into an anonymous live probe skip on staging-like hosts");
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
