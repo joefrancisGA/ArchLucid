@@ -340,6 +340,11 @@ internal static class TenantScopedSqlExpressionResolver
         if (merged is not null)
             return merged;
 
+        ResolutionResult? fromPrimaryConstructor = TryResolveFromPrimaryConstructorParameterDefault(symbol, semanticModel);
+
+        if (fromPrimaryConstructor is not null)
+            return fromPrimaryConstructor;
+
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
              string.Equals(member.Name.Identifier.Text, "RunChildScopeWhereClause", StringComparison.Ordinal)) &&
@@ -377,6 +382,45 @@ internal static class TenantScopedSqlExpressionResolver
             TryGetPropertySqlExpression(propertyDeclaration) is ExpressionSyntax propertySql)
         {
             return ResolveCore(propertySql, modelForSyntax, visitingInterpolatedHole: false);
+        }
+
+        return null;
+    }
+
+    private static ResolutionResult? TryResolveFromPrimaryConstructorParameterDefault(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not IPropertySymbol property)
+            return null;
+
+        INamedTypeSymbol? containingType = property.ContainingType;
+
+        if (containingType is null || !containingType.IsRecord)
+            return null;
+
+        foreach (SyntaxReference syntaxReference in containingType.DeclaringSyntaxReferences)
+        {
+            if (syntaxReference.GetSyntax() is not RecordDeclarationSyntax recordDeclaration)
+                continue;
+
+            ParameterListSyntax? parameterList = recordDeclaration.ParameterList;
+
+            if (parameterList is null)
+                continue;
+
+            foreach (ParameterSyntax parameter in parameterList.Parameters)
+            {
+                if (!string.Equals(parameter.Identifier.Text, property.Name, StringComparison.Ordinal))
+                    continue;
+
+                if (parameter.Default?.Value is not ExpressionSyntax defaultExpression)
+                    return null;
+
+                SemanticModel modelForSyntax = GetSemanticModelForSyntax(parameter, semanticModel);
+
+                return ResolveCore(defaultExpression, modelForSyntax, visitingInterpolatedHole: false);
+            }
         }
 
         return null;

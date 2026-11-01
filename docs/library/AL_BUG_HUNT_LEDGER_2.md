@@ -1244,16 +1244,23 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-11-01 thorough hunt (hit #357): promoted `(candidate)` record primary-constructor parameter default SQL — `ResolveFromSymbol` read property initializers and assignments but not `RecordDeclarationSyntax` parameter defaults, so `record Repo(string Sql = "SELECT … dbo.Runs …")` using `Query(Sql)` emitted **0** diagnostics; fold matching primary-constructor parameter defaults in `TryResolveFromPrimaryConstructorParameterDefault`; regression `ARCH006_reports_unscoped_sql_for_record_primary_constructor_sql_parameter`. Cheap-disproof closed four hunt **#356** monitor rows — **valid-no-repro** `QueryMultipleAsync` local stored-proc `CommandDefinition` (same defer + `IsStoredProcedureCommandDefinition` as **#356** `QueryAsync`), **valid-no-repro** `QueryFirstAsync` string + `commandType: StoredProcedure` (`IsStoredProcedureDapperInvocation` parity **#352**), **valid-no-repro** `CommandDefinition` via instance helper parameter (ARCH006 at `new` site; regression `ARCH006_reports_unscoped_sql_for_execute_async_via_instance_method_command_definition_parameter`), **valid-no-repro** default interface method SQL (`MethodDeclaration` callback; regression `ARCH006_reports_unscoped_sql_for_default_interface_method`). Reseeded five `(candidate)` rows below. Scoped parity probes **8/8** passed. Private beta: no direct pilot-path change today; Persistence Release builds now flag unscoped SQL on record repositories that hold SQL in primary-constructor parameter defaults before they ship.
+
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — primary-constructor parameter **without** default; SQL assigned only in instance constructor to synthesized property — locus: assignment vs parameter default; input: ctor body sets `Sql` field (monitor; hunt #357).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `QuerySingleAsync` / `QuerySingleOrDefaultAsync` string overload with `commandType: StoredProcedure` — locus: `IsStoredProcedureDapperInvocation`; input: parity extension of **#357** `QueryFirstAsync` probe (monitor; hunt #357).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `ExecuteAsync`/`QueryAsync` with `CommandDefinition` returned from **local function** (not parameterless factory method) — locus: `TryResolveFromMethodInvocation` parameter guard; input: local function with parameters (monitor; hunt #357).
+- [ ] (candidate) `TenantScopedSqlExpressionResolver` — `init` accessor or required primary-constructor parameter promoted to property — locus: primary ctor parameter list without default; input: `required string Sql` on record (monitor; hunt #357).
+- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on **static abstract** interface method implementation — locus: exemption on explicit implementation; input: static virtual/abstract API shape (monitor; hunt #357).
+
+- [x] (proven) `TenantScopedSqlExpressionResolver` — primary-constructor parameter default or field promoted from `record` repository — **hit 2026-11-01 thorough hunt #357:** `TryResolveFromPrimaryConstructorParameterDefault`; regression `ARCH006_reports_unscoped_sql_for_record_primary_constructor_sql_parameter`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryMultipleAsync` with local `CommandDefinition` and `CommandType.StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #357:** parity probe `ARCH006_does_not_analyze_query_multiple_async_local_command_definition_when_command_type_is_stored_procedure`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `QueryFirstAsync` / `QuerySingleAsync` string overload with `commandType: StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #357:** parity probe `ARCH006_does_not_analyze_query_first_async_string_when_command_type_is_stored_procedure`.
+- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandDefinition` passed through instance method parameter before Dapper call — **cheap-disproof 2026-11-01 thorough hunt #357:** regression `ARCH006_reports_unscoped_sql_for_execute_async_via_instance_method_command_definition_parameter`.
+- [x] (valid-no-repro) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `interface` default interface method with SQL — **cheap-disproof 2026-11-01 thorough hunt #357:** DIM still analyzed; regression `ARCH006_reports_unscoped_sql_for_default_interface_method`.
+
 2026-11-01 thorough hunt (dry #356): cheap-disproof closed five open monitor `(candidate)` rows from hunt #355 reseed (duplicate of **#354** diary: CommandDefinition local defer + object-creation analysis, `(CommandType)1` via `TryGetConstantCommandType`, span/stackalloc invalid, partial class, nested exempt) — added isolated parity probes in `TenantScopedQueryScopeBindingAnalyzerParityProbeTests` confirming **valid-no-repro** `QueryAsync` local stored-proc `CommandDefinition` (same gate as **#353** `ExecuteAsync`) and **valid-no-repro** unscoped `QueryAsync` local still reports ARCH006 at `CommandDefinition` creation; scoped stored-proc + parity regressions **7/7** passed. Reseeded five `(candidate)` rows below. Private beta: n/a.
 
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryMultipleAsync` with local `CommandDefinition` and `CommandType.StoredProcedure` — locus: defer + object creation; input: streaming batch read shape (monitor; hunt #356).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `QueryFirstAsync` / `QuerySingleAsync` string overload with `commandType: StoredProcedure` — locus: `IsStoredProcedureDapperInvocation`; input: parity with **#352** `ExecuteAsync` (monitor; hunt #356).
-- [ ] (candidate) `TenantScopedSqlExpressionResolver` — primary-constructor parameter default or field promoted from `record` repository — locus: symbol/init coverage; input: C# 12 primary constructor SQL holder (monitor; hunt #356).
-- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer` — `CommandDefinition` passed through instance method parameter before Dapper call — locus: `UnwrapCommandDefinitionSqlExpression`; input: helper wraps `CommandDefinition` local (monitor; hunt #356).
-- [ ] (candidate) `TenantScopeExemptSymbolHelper` — `[TenantScopeExempt]` on `interface` default interface method with SQL — locus: `MethodDeclaration` vs interface member; input: DIM repository (monitor; hunt #356).
-
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local variable (non stored-proc) — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary + parity probe `ARCH006_reports_unscoped_sql_for_query_async_local_command_definition_when_not_stored_procedure`.
-- [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeInvocation` — `QueryAsync<T>` with `CommandDefinition` local + `CommandType.StoredProcedure` — **cheap-disproof 2026-11-01 thorough hunt #356:** parity probe `ARCH006_does_not_analyze_query_async_local_command_definition_when_command_type_is_stored_procedure`.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `CommandType` enum cast `(CommandType)1` for StoredProcedure on invocation — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` / `#352` diary.
 - [x] (invalid) `TenantScopedSqlExpressionResolver` — `ReadOnlySpan<char>` or `stackalloc` SQL buffer — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary.
 - [x] (valid-no-repro) `TenantScopedQueryScopeBindingAnalyzer` — `partial class` repository with SQL only on one part — **cheap-disproof 2026-11-01 thorough hunt #356:** `#354` diary.
@@ -1365,11 +1372,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 49
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 3
+- **hunts:** 50
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-10-31 — ARCH006 false-positive on stored-procedure CommandDefinition passed via ExecuteAsync local
+- **last-bug:** 2026-11-01 — record primary-constructor parameter default SQL bypassed ARCH006 folding
 - **related-pd-tb:** none
 - **code-changed-since:** no
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
