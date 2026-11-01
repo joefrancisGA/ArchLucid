@@ -2331,3 +2331,4 @@
 {"at":"2026-11-01T00:54:23.5469411Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:58:52.8812736Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-01T00:59:55.5716791Z","zoneId":"scim-users","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T01:04:38.8986622Z","zoneId":"scim-users","outcome":"dry","productLine":"archlucid-shared"}
