@@ -2488,3 +2488,4 @@
 {"at":"2026-11-02T14:01:20.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-02T14:38:56.2146760Z","zoneId":"llm-wallet","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T14:48:26.3329592Z","zoneId":"tenant-data-export","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-02T14:55:26.0804341Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
