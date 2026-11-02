@@ -38,4 +38,17 @@ public sealed class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         armId.Should().Be(ArmResourceIdNormalizer.Normalize(plainId));
     }
+
+    [Fact]
+    public void TryReadArmId_keeps_raw_value_when_percent_escape_is_malformed()
+    {
+        const string rawId =
+            "/subscriptions/sub/resourceGroups/rg%ZZ/providers/Microsoft.Network/networkInterfaces/nic1/ipConfigurations/ipconfig1";
+
+        using JsonDocument document = JsonDocument.Parse($"\"{rawId}\"");
+
+        string? armId = AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(document.RootElement);
+
+        armId.Should().Be(ArmResourceIdNormalizer.Normalize(rawId));
+    }
 }

@@ -46,23 +46,30 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        try
         {
-            string decoded = Uri.UnescapeDataString(working);
+            string working = armId.Trim();
 
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            const int maxPercentDecodePasses = 8;
+
+            for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
             {
-                break;
+                string decoded = Uri.UnescapeDataString(working);
+
+                if (string.Equals(decoded, working, StringComparison.Ordinal))
+                {
+                    break;
+                }
+
+                working = decoded;
             }
 
-            working = decoded;
+            return ArmResourceIdNormalizer.Normalize(working);
         }
-
-        return ArmResourceIdNormalizer.Normalize(working);
+        catch (UriFormatException)
+        {
+            return null;
+        }
     }
 
     private static bool TryGetPropertyIgnoreCase(
