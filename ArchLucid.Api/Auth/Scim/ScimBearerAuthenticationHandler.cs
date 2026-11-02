@@ -227,9 +227,9 @@ internal class ScimBearerAuthenticationHandler(
         "\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F";
 
     // Block Elements lookalikes: upper/lower/left partial blocks and the full block
-    // (U+2581, U+258E, U+258F are deliberately excluded: not observed as glued placeholders).
+    // (U+2581 is deliberately excluded: not observed as glued placeholders).
     private const string BearerGluedBlockElementLookalikes =
-        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D";
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F";
 
     // Miscellaneous Mathematical Symbols-B lookalikes: big solidus and big reverse solidus.
     private const string BearerGluedBigSolidusLookalikes = "\u29F8\u29F9";
