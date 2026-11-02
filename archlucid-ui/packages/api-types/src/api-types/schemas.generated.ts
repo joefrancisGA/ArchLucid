@@ -7216,6 +7216,7 @@ export interface components {
         PilotRunDeltasResponse: {
             /** Format: int32 */
             auditRowCount?: number;
+            auditRowCountResolved?: boolean;
             auditRowCountTruncated?: boolean;
             /** Format: double */
             estimatedUsdSavings?: null | number | string;
@@ -8030,6 +8031,7 @@ export interface components {
             /** Format: int32 */
             artifactDescriptorCount?: null | number;
             artifactDescriptorCountResolved?: boolean;
+            auditRowCountResolved?: boolean;
             auditRowsPresentOrLowerBound?: boolean;
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
@@ -10304,6 +10306,7 @@ export interface components {
             executiveSummary?: string;
             /** Format: uuid */
             explanationId?: string;
+            modelOutputRejection?: null | string;
             /** Format: uuid */
             pathId?: string;
             proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];

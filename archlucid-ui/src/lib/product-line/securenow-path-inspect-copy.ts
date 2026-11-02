@@ -35,15 +35,25 @@ export const SECURENOW_PATH_INSPECT_RANK_UNAVAILABLE = "Path rank unavailable" a
 export const SECURENOW_PATH_INSPECT_EXPLANATION_TITLE = secureNowTitleCase("Architect explanation");
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_LEAD =
-  "Generate a cited simulator explanation for this path. Structured path hops remain authoritative." as const;
+  "Generate a cited explanation for this path. Structured path hops remain authoritative." as const;
 
-export const SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON = "Generate simulator explanation" as const;
+export const SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON = "Generate explanation" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_LOADING = "Generating explanation…" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_ERROR = "Explanation unavailable" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG = "Simulator — not live LLM" as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG = "Model — cited stored path" as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD =
+  "This uses the deterministic simulator. Structured path hops remain authoritative." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD =
+  "This uses the live model with citations constrained to the stored path. Structured path hops remain authoritative." as const;
+
+export const SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON = "Grounded on" as const;
 
 export const SECURENOW_PATH_RANKED_PATHS_TITLE = secureNowTitleCase("Ranked architect paths");
 

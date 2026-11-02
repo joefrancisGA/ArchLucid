@@ -279,6 +279,7 @@ public static class SecurityEvidencePathExplanationBuilder
             CitedEvidenceRefs = record.CitedEvidenceRefs,
             ProvenanceKind = record.ProvenanceKind.ToString(),
             SimulatorLabel = record.SimulatorLabel,
+            ModelOutputRejection = record.ModelOutputRejection,
             CreatedUtc = record.CreatedUtc,
         };
 
