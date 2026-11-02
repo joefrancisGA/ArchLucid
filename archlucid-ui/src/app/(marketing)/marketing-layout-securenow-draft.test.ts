@@ -10,6 +10,18 @@ const resourcesMenuSource = readFileSync(
   join(marketingAppDir, "..", "..", "components", "marketing", "MarketingResourcesMenu.tsx"),
   "utf8",
 );
+const welcomeMarketingEngagementPathsSource = readFileSync(
+  join(marketingAppDir, "..", "..", "components", "marketing", "WelcomeMarketingEngagementPathsSection.tsx"),
+  "utf8",
+);
+const welcomeMarketingProofAtGlanceSource = readFileSync(
+  join(marketingAppDir, "..", "..", "components", "marketing", "WelcomeMarketingProofAtGlanceSection.tsx"),
+  "utf8",
+);
+const marketingPublicFooterSource = readFileSync(
+  join(marketingAppDir, "..", "..", "components", "marketing", "MarketingPublicFooter.tsx"),
+  "utf8",
+);
 
 describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
   it("uses shouldRedirectMarketingLayout and the security-shell test id", () => {
@@ -18,7 +30,17 @@ describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
     expect(marketingLayoutSource).toContain("ARCHLUCID_PATHNAME_REQUEST_HEADER");
   });
 
-  it("does not link the draft from marketing resources", () => {
-    expect(resourcesMenuSource).not.toContain('href="/why-securenow"');
+  it("matches the shipped resources links without adding public-surface links", () => {
+    expect(resourcesMenuSource).toContain('href="/why-securenow"');
+    expect(resourcesMenuSource).toContain('href="/securenow-sample"');
+
+    for (const source of [
+      welcomeMarketingEngagementPathsSource,
+      welcomeMarketingProofAtGlanceSource,
+      marketingPublicFooterSource,
+    ]) {
+      expect(source).not.toContain('href="/why-securenow"');
+      expect(source).not.toContain('href="/securenow-sample"');
+    }
   });
 });

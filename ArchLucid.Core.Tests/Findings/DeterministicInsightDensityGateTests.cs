@@ -728,6 +728,46 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Jaccard_similarity_treats_line_separator_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u2028sql\u2028db storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_paragraph_separator_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u2029sql\u2029db storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_soft_hyphen_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u00ADsql\u00ADdb storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
+    public void Jaccard_similarity_treats_word_joiner_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u2060sql\u2060db storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
     public void Score_applies_high_duplication_for_same_engine_near_duplicate_peers()
     {
         const string sharedMessage =

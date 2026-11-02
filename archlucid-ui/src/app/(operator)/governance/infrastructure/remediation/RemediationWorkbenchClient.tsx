@@ -130,6 +130,7 @@ import {
   type RemediationLifecycleAction,
 } from "@/lib/infra-evidence/remediation-lifecycle-action-blocked-reason";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
+import { SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL } from "@/lib/product-line/securenow-remediation-waves-empty-copy";
 import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -1536,7 +1537,9 @@ export function RemediationWorkbenchClient() {
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_WAVES_HEADING}</h2>
         {wavePlanner.length === 0 ? (
           <div className="space-y-1">
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_LABEL}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              {productLine === "security" ? SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL : REMEDIATION_WAVES_EMPTY_LABEL}
+            </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_WAVES_EMPTY_HELPER}</p>
           </div>
         ) : (

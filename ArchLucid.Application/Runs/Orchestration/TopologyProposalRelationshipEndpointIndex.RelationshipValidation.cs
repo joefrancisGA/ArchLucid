@@ -82,6 +82,100 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         return TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys);
     }
 
+    public static void RegisterRejectedManifestServiceEndpointKeys(
+        HashSet<string> rejectedEndpointKeys,
+        ManifestService service)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        AddManifestServiceEndpointKeys(rejectedKeys, service);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    public static void RegisterRejectedManifestDatastoreEndpointKeys(
+        HashSet<string> rejectedEndpointKeys,
+        ManifestDatastore datastore)
+    {
+        HashSet<string> rejectedKeys = [];
+
+        AddManifestDatastoreEndpointKeys(rejectedKeys, datastore);
+
+        foreach (string rejectedKey in rejectedKeys)
+        {
+            if (!string.IsNullOrWhiteSpace(rejectedKey))
+                rejectedEndpointKeys.Add(rejectedKey);
+        }
+    }
+
+    public static bool RelationshipReferencesExclusiveRejectedEndpoint(
+        ManifestRelationship relationship,
+        HashSet<string> rejectedEndpointKeys,
+        IReadOnlyList<ManifestService> acceptedServices,
+        IReadOnlyList<ManifestDatastore> acceptedDatastores)
+    {
+        if (rejectedEndpointKeys.Count == 0)
+            return false;
+
+        HashSet<string> acceptedIdentityKeys = CollectStrictManifestEndpointIdentityKeys(
+            acceptedServices,
+            acceptedDatastores);
+
+        return EndpointIsExclusiveRejectedEndpoint(relationship.SourceId, rejectedEndpointKeys, acceptedIdentityKeys)
+               || EndpointIsExclusiveRejectedEndpoint(relationship.TargetId, rejectedEndpointKeys, acceptedIdentityKeys);
+    }
+
+    public static bool EndpointIsExclusiveRejectedEndpoint(
+        string? endpoint,
+        HashSet<string> rejectedEndpointKeys,
+        HashSet<string> acceptedIdentityKeys)
+    {
+        if (string.IsNullOrWhiteSpace(endpoint))
+            return false;
+
+        if (!EndpointKeyIsKnown(endpoint, rejectedEndpointKeys))
+            return false;
+
+        return !EndpointKeyIsKnown(endpoint, acceptedIdentityKeys);
+    }
+
+    public static HashSet<string> CollectStrictManifestEndpointIdentityKeys(
+        IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores)
+    {
+        HashSet<string> identityKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in services)
+        {
+            AddStrictManifestServiceIdentityKeys(identityKeys, service);
+        }
+
+        foreach (ManifestDatastore datastore in datastores)
+        {
+            AddStrictManifestDatastoreIdentityKeys(identityKeys, datastore);
+        }
+
+        return identityKeys;
+    }
+
+    internal static void AddStrictManifestServiceIdentityKeys(HashSet<string> identityKeys, ManifestService service)
+    {
+        AddEndpointKey(identityKeys, service.ServiceName);
+        AddEndpointKey(identityKeys, service.ServiceId);
+        AddSyntheticServiceEndpointKey(identityKeys, service.ServiceName);
+    }
+
+    internal static void AddStrictManifestDatastoreIdentityKeys(HashSet<string> identityKeys, ManifestDatastore datastore)
+    {
+        AddEndpointKey(identityKeys, datastore.DatastoreName);
+        AddEndpointKey(identityKeys, datastore.DatastoreId);
+        AddSyntheticDatastoreEndpointKey(identityKeys, datastore.DatastoreName);
+    }
+
     private static bool EndpointKeyIsKnownViaStrippedTerraformInstanceKey(
         string trimmed,
         HashSet<string> knownEndpointKeys)
