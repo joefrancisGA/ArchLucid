@@ -64,6 +64,7 @@ import {
   resolveAuditEvidenceLineageChainExpanded,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
 import {
+  AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT,
   controlEvidenceMarkdownFileName,
   formatAuditEvidenceControlLineageMarkdown,
 } from "@/lib/audit-evidence-control-lineage-markdown";
@@ -304,15 +305,23 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
                 </p>
               </div>
               {lineage ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  data-testid="audit-evidence-control-lineage-download"
-                  onClick={onDownloadControlEvidence}
-                >
-                  Download control evidence
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    data-testid="audit-evidence-control-lineage-download"
+                    onClick={onDownloadControlEvidence}
+                  >
+                    Download control evidence
+                  </Button>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                    data-testid="audit-evidence-control-lineage-download-limit"
+                  >
+                    {AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT}
+                  </p>
+                </>
               ) : null}
               <Button
                 type="button"

@@ -22,14 +22,22 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
           </h2>
           <ol className="list-decimal space-y-3 pl-5">
             {SECURENOW_SELF_SERVICE_STEPS.map((step) => (
-              <li key={step.title} className={OPERATOR_TYPOGRAPHY.body}>
+              <li key={step.title} id={step.id} className={OPERATOR_TYPOGRAPHY.body}>
                 <span className="font-medium">{step.title}</span>
                 <span> — {step.body}</span>
                 {step.href ? (
                   <>
                     {" "}
                     <Link className={OPERATOR_LINK.inline} href={step.href}>
-                      Open in product
+                      {step.secondaryHref ? "Open Priorities & waves" : "Open in product"}
+                    </Link>
+                  </>
+                ) : null}
+                {step.secondaryHref ? (
+                  <>
+                    {" "}
+                    <Link className={OPERATOR_LINK.inline} href={step.secondaryHref}>
+                      Open remediation tracker
                     </Link>
                   </>
                 ) : null}

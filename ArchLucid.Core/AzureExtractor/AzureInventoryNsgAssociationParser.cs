@@ -88,7 +88,14 @@ public static class AzureInventoryNsgAssociationParser
 
     private static string NormalizeAssociationTargetArmId(string targetArmId)
     {
-        return ArmResourceIdNormalizer.NormalizePercentEncoded(targetArmId);
+        if (string.IsNullOrWhiteSpace(targetArmId))
+        {
+            return string.Empty;
+        }
+
+        string working = PercentDecodeBounded.Decode(targetArmId.Trim());
+
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? ReadAssociationProperty(

@@ -90,6 +90,16 @@ def validate(root: Path = ROOT) -> list[str]:
         ):
             if token not in one_pager:
                 errors.append(f"{ONE_PAGER}: missing {token!r}")
+    for token in (
+        "CLOUD_CONNECTIONS_PATH",
+        "SECURENOW_REMEDIATION_FACTORY_PATH",
+        "SECURENOW_REMEDIATION_INSTANCES_PATH",
+        "/administration/securenow-first-hour",
+        "/administration/securenow-pilot-decision#securenow-pilot-decision-outcomes-heading",
+        "SECURENOW_DECISION_CYCLE_LOG_PATH",
+    ):
+        if token not in operator_copy:
+            errors.append(f"{OPERATOR_COPY}: missing stall-surface reference {token!r}")
     if why_copy:
         for token in ("WHY_SECURENOW_PILOT_DECISION_HEADING", "proceed to commercial discussion", "extend with bounded scope"):
             if token not in why_copy:

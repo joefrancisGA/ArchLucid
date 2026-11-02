@@ -62,7 +62,7 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/governance/infrastructure/diagrams");
     expect(hrefs).toContain("/infrastructure/resources");
     expect(hrefs).not.toContain("/governance/infrastructure/resources");
-    expect(rows[0]?.group.id).toBe("operate-security");
+    expect(rows[0]?.group.id).toBe("securenow-home");
     expect(rows.some((row) => row.group.id === "pilot")).toBe(false);
     expect(hrefs).toContain("/integrations/cloud-connections");
     expect(hrefs).toContain("/integrations/jira");
@@ -397,6 +397,12 @@ describe("product-line catalog", () => {
     ).toBe(true);
     expect(
       isPathAllowedForProductLine(
+        "/administration/securenow-compliance-notes",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
         "/administration/securenow-self-service",
         "security",
       ),
@@ -428,6 +434,12 @@ describe("product-line catalog", () => {
     expect(
       isPathAllowedForProductLine(
         "/administration/securenow-first-hour",
+        "architecture",
+      ),
+    ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-compliance-notes",
         "architecture",
       ),
     ).toBe(false);

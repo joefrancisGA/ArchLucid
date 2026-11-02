@@ -57,6 +57,20 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_hydrated_restore_point_source_when_value_is_percent_encoded_plain_arm_scalar()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId] =
+                Uri.EscapeDataString(VirtualMachineArmId),
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_reads_source_id_when_value_is_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
@@ -70,18 +84,49 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
-    public void Parse_does_not_decode_json_blob_before_parsing_when_other_fields_contain_percent_sequences()
+public void Parse_does_not_decode_json_blob_before_parsing_when_other_fields_contain_percent_sequences()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             ["source"] =
                 """{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm%2Dapp","note":"100% coverage"}""",
+
+public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm_scalar()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = Uri.EscapeDataString(Uri.EscapeDataString(VirtualMachineArmId)),
+
         };
 
         AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
             .Should()
-            .Be(ArmResourceIdNormalizer.Normalize(
-                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app"));
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
+    public void Parse_with_malformed_percent_encoding_does_not_throw()
+    {
+        string encoded = Uri.EscapeDataString(VirtualMachineArmId);
+
+        Dictionary<string, string> malformedTailProperties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = encoded + "%zz",
+        };
+
+        Action actTail = () => AzureInventoryRestorePointCollectionSourceParser.Parse(malformedTailProperties);
+
+        actTail.Should().NotThrow();
+
+        Dictionary<string, string> malformedHexProperties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%zz" + encoded,
+        };
+
+        Action actHex = () => AzureInventoryRestorePointCollectionSourceParser.Parse(malformedHexProperties);
+
+        actHex.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(malformedHexProperties).Should().BeNull();
     }
 
     [Fact]

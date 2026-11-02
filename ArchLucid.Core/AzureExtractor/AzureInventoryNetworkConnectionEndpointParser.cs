@@ -82,22 +82,14 @@ public static class AzureInventoryNetworkConnectionEndpointParser
 
         string trimmed = armId.Trim();
 
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            return TryReadArmIdFromJson(trimmed);
-        }
-
-        string working = trimmed.StartsWith("%7B", StringComparison.OrdinalIgnoreCase)
-            || trimmed.StartsWith("%25", StringComparison.OrdinalIgnoreCase)
-            || trimmed.Contains("%2F", StringComparison.OrdinalIgnoreCase)
-            ? ArmResourceIdNormalizer.PercentDecodeBounded(trimmed)
-            : trimmed;
+        string working = trimmed.StartsWith("{", StringComparison.Ordinal)
+            ? trimmed
+            : PercentDecodeBounded.Decode(trimmed);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
             return TryReadArmIdFromJson(working);
         }
-
         if (!working.StartsWith("/", StringComparison.Ordinal)
             || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {

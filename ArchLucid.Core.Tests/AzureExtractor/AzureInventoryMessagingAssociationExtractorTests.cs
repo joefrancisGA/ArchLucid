@@ -220,7 +220,7 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
-    public void TryExtractEventHub_does_not_throw_when_ids_contain_malformed_percent_sequences()
+public void TryExtractEventHub_does_not_throw_when_ids_contain_malformed_percent_sequences()
     {
         const string malformedNamespaceId = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2";
         const string malformedChildId = malformedNamespaceId + "%2Fproviders%2FMicrosoft.EventHub%2Fnamespaces%2Fns%2Feventhubs%2Forders%";
@@ -228,32 +228,55 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         using JsonDocument document = JsonDocument.Parse($$"""
                                                             {
                                                               "id": "{{malformedChildId}}",
+
+public void TryExtractServiceBusChild_reads_child_when_child_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        const string queueId = $"{namespaceId}/queues/orders";
+        string encodedQueueId = Uri.EscapeDataString(queueId);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": "{{encodedQueueId}}",
+
                                                               "name": "orders"
                                                             }
                                                             """);
 
-        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractEventHub(
-            malformedNamespaceId,
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            namespaceId,
             document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
             out AzureInventoryMessagingAssociationRow? row);
 
         extracted.Should().BeTrue();
-        row.Should().NotBeNull();
-        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(SafeUnescapeDataString(malformedNamespaceId)));
-        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(SafeUnescapeDataString(malformedChildId)));
+        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(namespaceId));
+        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
     }
 
-    private static string SafeUnescapeDataString(string value)
+    [Fact]
+    public void TryExtractServiceBusChild_reads_parent_when_namespace_id_is_percent_encoded_plain_arm_scalar()
     {
-        try
-        {
-            return Uri.UnescapeDataString(value);
-        }
-        catch (UriFormatException)
-        {
-            // Malformed percent-escape sequences can throw on some runtimes; the extractor
-            // is expected to be resilient, so keep the original string in that case.
-            return value;
-        }
+        const string namespaceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
+        const string queueId = $"{namespaceId}/queues/orders";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "id": "{{queueId}}",
+                                                              "name": "orders"
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            Uri.EscapeDataString(namespaceId),
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusQueue,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(namespaceId));
+        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(queueId));
     }
 }

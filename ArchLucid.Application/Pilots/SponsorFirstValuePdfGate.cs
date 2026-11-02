@@ -30,14 +30,30 @@ public static class SponsorFirstValuePdfGate
         if (proof is null)
             return null;
 
-        if (!proof.AgentOutputPilotStrictEvidenceSatisfied)
+        if (built.PilotRunDeltas is { AgentOutputPilotStrictSignalsResolved: false }
+            or { AgentOutputPilotStrictViolatesSponsorEvidence: true })
         {
             return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
         }
 
-        if (proof.RoiBaselineInputs is not null && !proof.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe)
+        if (built.PilotRunDeltas is null && !proof.AgentOutputPilotStrictEvidenceSatisfied)
         {
-            return "Sponsor PDF export is blocked until buyer-provided ROI baselines make projected-dollar claims sponsor-safe.";
+            return "Sponsor PDF export is blocked until PilotStrict agent-output quality evidence passes for this run.";
+        }
+
+        bool demoScope = built.PilotRunDeltas is not null
+            ? PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(built.PilotRunDeltas)
+            : proof.DemoTenantWarningRequired;
+
+        if (!demoScope)
+        {
+            bool projectedDollarClaimsSponsorSafe = built.RoiClaimGate?.ProjectedDollarClaimsSponsorSafe
+                ?? proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true;
+
+            if (!projectedDollarClaimsSponsorSafe)
+            {
+                return "Sponsor PDF export is blocked until buyer-provided ROI baselines make projected-dollar claims sponsor-safe.";
+            }
         }
 
         if (built.SponsorProofReadiness == SponsorProofReadinessClassification.NeedsBaseline)
