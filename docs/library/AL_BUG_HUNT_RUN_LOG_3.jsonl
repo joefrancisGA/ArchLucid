@@ -2436,3 +2436,4 @@
 {"at":"2026-11-02T15:34:10.6471340Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-02T15:34:59.2000493Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-02T15:35:48.6552403Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow"}
+{"at":"2026-11-02T15:37:50.9406850Z","zoneId":"cli-tenant-isolation","outcome":"dry","productLine":"archlucid-shared"}
