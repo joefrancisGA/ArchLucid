@@ -108,6 +108,11 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {DiagramForestCollapsedSingletonTailLabels.CollapsedSingletonTailPartialRollupLine}";
         }
 
+        if (string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            combined = $"{combined} · Diagram seed was not stored.";
+        }
+
         if (node.ParentAttachmentDetails.Count > 0)
         {
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";

@@ -40,13 +40,16 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
     }
 
     if (normalizedScope === "subscription") {
-      return "Subscription question";
+      return "Policy pack question. Stored scope was not on this title.";
     }
 
     const inferredScope = secureNowQuestionPackScopeKindFromPrompt(question.questionText ?? "");
-    return inferredScope === "ResourceGroup"
-      ? "Resource group question"
-      : "Subscription question";
+
+    if (inferredScope === "ResourceGroup") {
+      return "Policy pack question. Resource group was read from question text, not from stored scope.";
+    }
+
+    return "Policy pack question. Stored scope was not on this title.";
   }
 
   const scope = question.scopeKind?.trim().toLowerCase() ?? "";

@@ -162,7 +162,11 @@ internal static class DiagramDataFlowCaptionBuilder
                 omittedStages.Add(stage);
         }
 
-        if (omittedStages.Count > 0 && omittedStages.Count < AzureInventoryDataFlowStageNames.OrderedStages.Count)
+        if (omittedStages.Count == AzureInventoryDataFlowStageNames.OrderedStages.Count)
+        {
+            captions.Add(DiagramDataFlowHonestyLegend.NoResolvedDataFlowStageSentence);
+        }
+        else if (omittedStages.Count > 0)
         {
             captions.Add(
                 $"{DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix} {string.Join(", ", omittedStages)}.");

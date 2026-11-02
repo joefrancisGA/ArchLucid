@@ -25,7 +25,9 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(chain.hasAnyValue).toBe(true);
     expect(chain.steps.map((step) => step.key)).toEqual(["rule", "evidence", "recommendation"]);
     expect(chain.steps[0]?.value).toBe("Require private endpoints");
-    expect(chain.steps[1]?.value).toBe("2 cited evidence references");
+    expect(chain.steps[1]?.value).toBe(
+      "2 cited evidence references Evidence label was not stored.",
+    );
     expect(chain.steps[2]?.value).toBe(
       "Lock down public ingress. (Full recommendation was stored; only the first sentence is shown.)",
     );
@@ -138,7 +140,9 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
 
     const fromRow = findingCausalMiniChainFromGovernanceQueueRow(row);
     expect(fromRow?.hasAnyValue).toBe(true);
-    expect(fromRow?.steps[1]?.value).toBe("3 cited evidence references");
+    expect(fromRow?.steps[1]?.value).toBe(
+      "3 cited evidence references Evidence label was not stored.",
+    );
 
     const decisionRow = { ...row, recordKind: "decision" as const };
     expect(findingCausalMiniChainFromGovernanceQueueRow(decisionRow)).toBeNull();
