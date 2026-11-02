@@ -644,12 +644,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           {
             snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
             runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
+            tab: activeTab,
           },
         ),
         { scroll: false },
       );
     },
-    [cloudResourceId, pathname, resolvedRunId, resolvedSnapshotId, router, searchParams],
+    [activeTab, cloudResourceId, pathname, resolvedRunId, resolvedSnapshotId, router, searchParams],
   );
 
   const setInfraResourceHubTechnicalKey = useCallback(

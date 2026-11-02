@@ -403,6 +403,12 @@ describe("product-line catalog", () => {
     ).toBe(true);
     expect(
       isPathAllowedForProductLine(
+        "/administration/securenow-quote-packet",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
         "/administration/securenow-self-service",
         "security",
       ),
@@ -445,6 +451,12 @@ describe("product-line catalog", () => {
     ).toBe(false);
     expect(
       isPathAllowedForProductLine(
+        "/administration/securenow-quote-packet",
+        "architecture",
+      ),
+    ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
         "/administration/securenow-self-service",
         "architecture",
       ),
@@ -452,6 +464,18 @@ describe("product-line catalog", () => {
     expect(
       isPathAllowedForProductLine(
         "/administration/securenow-investigation-effort",
+        "architecture",
+      ),
+    ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-scenario-walks",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-scenario-walks",
         "architecture",
       ),
     ).toBe(false);
