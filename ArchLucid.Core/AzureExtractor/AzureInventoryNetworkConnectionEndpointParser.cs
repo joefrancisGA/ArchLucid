@@ -80,29 +80,16 @@ public static class AzureInventoryNetworkConnectionEndpointParser
             return null;
         }
 
-        string working = armId.Trim();
+        string trimmed = armId.Trim();
 
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses
-            && !working.StartsWith("{", StringComparison.Ordinal)
-            && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
+        string working = trimmed.StartsWith("{", StringComparison.Ordinal)
+            ? trimmed
+            : PercentDecodeBounded.Decode(trimmed);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
             return TryReadArmIdFromJson(working);
         }
-
         if (!working.StartsWith("/", StringComparison.Ordinal)
             || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
