@@ -242,12 +242,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryLogicAppConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            if (!string.IsNullOrWhiteSpace(storedLabel))
-            {
-                return storedLabel.Trim();
-            }
-
-            return "API connection name was not stored.";
+            return DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel;
         }
 
         if (TryResolveDiagnosticSettingStorageLabel(inferenceSource, out string diagnosticStorageLabel))
@@ -406,9 +401,7 @@ internal static class DiagramEdgeLabelHumanizer
             baseLabel = "Observed dependency. Read/write direction was not stored.";
         }
 
-        label = ObservedDependencyHasStoredTimeWindow(properties)
-            ? baseLabel
-            : $"{baseLabel} {InventoryDiagramRelationshipLabelTexts.ObservedInLogsDiagnosticTimeWindowNotStored}";
+        label = FormatObservedDependencyEdgeLabel(baseLabel, properties);
 
         return true;
     }
@@ -424,6 +417,41 @@ internal static class DiagramEdgeLabelHumanizer
         properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc, out string? windowEnd);
 
         return !string.IsNullOrWhiteSpace(windowStart) && !string.IsNullOrWhiteSpace(windowEnd);
+    }
+
+    internal static bool ObservedDependencyHasPartialTimeWindow(IReadOnlyDictionary<string, string>? properties)
+    {
+        if (properties is null || properties.Count == 0)
+        {
+            return false;
+        }
+
+        properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc, out string? windowStart);
+        properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc, out string? windowEnd);
+
+        bool hasStart = !string.IsNullOrWhiteSpace(windowStart);
+        bool hasEnd = !string.IsNullOrWhiteSpace(windowEnd);
+
+        return hasStart ^ hasEnd;
+    }
+
+    private static string FormatObservedDependencyEdgeLabel(
+        string baseLabel,
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (ObservedDependencyHasStoredTimeWindow(properties)
+            && properties!.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc, out string? windowStart)
+            && properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc, out string? windowEnd))
+        {
+            return
+                $"{baseLabel} · {InventoryDiagramRelationshipLabelTexts.FormatObservedInLogsEdgeWindowDates(windowStart!, windowEnd!)}";
+        }
+
+        string suffix = InventoryDiagramRelationshipLabelTexts.FormatObservedInLogsEdgeWindowSuffix(
+            hasStoredWindow: false,
+            hasPartialWindow: ObservedDependencyHasPartialTimeWindow(properties));
+
+        return string.IsNullOrEmpty(suffix) ? baseLabel : $"{baseLabel} {suffix}";
     }
 
     private static bool TryResolveTopologyGraphInferenceHonestyLabel(
@@ -662,7 +690,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "API connection name was not stored.";
+            humanized = DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel;
 
             return true;
         }

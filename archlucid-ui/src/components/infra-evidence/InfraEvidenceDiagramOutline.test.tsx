@@ -154,7 +154,7 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
     expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
-      "No connection state detail was stored.",
+      "Connection state was not stored.",
     );
   });
 
@@ -582,7 +582,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const detailPanel = screen.getByTestId("infra-evidence-inventory-edge-detail-panel");
 
     expect(detailPanel).toBeInTheDocument();
-    expect(within(detailPanel).getByText("Probable")).toBeInTheDocument();
+    expect(within(detailPanel).getByText(/^Probable/)).toBeInTheDocument();
     expect(within(detailPanel).getByText(/Authorization from managed identity and RBAC/)).toBeInTheDocument();
   });
 
@@ -1051,7 +1051,7 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
     expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
-      "No connection state detail was stored.",
+      "Connection state was not stored.",
     );
   });
 

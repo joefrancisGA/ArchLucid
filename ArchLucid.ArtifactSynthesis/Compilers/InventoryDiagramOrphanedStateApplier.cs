@@ -66,6 +66,25 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             if (!graphNodesById.TryGetValue(diagramNode.SeedNodeId, out GraphNode? graphNode))
             {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
+                diagramNode.ConnectionStateMessage = null;
+                List<string> seedNotOnGraphDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    []);
+                const string seedNotOnGraph = "Diagram seed was not on this graph.";
+                const string connectionStateNotStored = "Connection state was not stored.";
+
+                if (!seedNotOnGraphDetails.Contains(seedNotOnGraph, StringComparer.Ordinal))
+                {
+                    seedNotOnGraphDetails.Add(seedNotOnGraph);
+                }
+
+                if (!seedNotOnGraphDetails.Contains(connectionStateNotStored, StringComparer.Ordinal))
+                {
+                    seedNotOnGraphDetails.Add(connectionStateNotStored);
+                }
+
+                diagramNode.UnresolvedRelationshipDetails = seedNotOnGraphDetails;
                 continue;
             }
 

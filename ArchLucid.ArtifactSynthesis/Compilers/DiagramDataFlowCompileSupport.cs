@@ -96,15 +96,23 @@ internal static class DiagramDataFlowCaptionBuilder
                 .Where(IsObservedRuntimeGraphEdge)
                 .ToList();
 
-            if (observedRuntimeEdges.Count > 0
-                && observedRuntimeEdges.All(edge =>
-                    DiagramEdgeLabelHumanizer.ObservedDependencyHasStoredTimeWindow(edge.Properties)))
+            if (observedRuntimeEdges.Count > 0)
             {
-                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
-            }
-            else if (observedRuntimeEdges.Count > 0)
-            {
-                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
+                int withStoredWindow = observedRuntimeEdges.Count(edge =>
+                    DiagramEdgeLabelHumanizer.ObservedDependencyHasStoredTimeWindow(edge.Properties));
+
+                if (withStoredWindow == observedRuntimeEdges.Count)
+                {
+                    captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+                }
+                else if (withStoredWindow == 0)
+                {
+                    captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowZeroSentence);
+                }
+                else
+                {
+                    captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowPartialSentence);
+                }
             }
         }
 

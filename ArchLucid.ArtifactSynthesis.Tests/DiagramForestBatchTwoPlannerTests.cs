@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -52,7 +53,11 @@ public sealed class DiagramForestBatchTwoPlannerTests
 
         DiagramInventoryConnectionRollupApplier.Apply(ast);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Office 365 (2)");
+        ast.Nodes.Should().ContainSingle(node =>
+            node.Label.StartsWith("Office 365 (2)", StringComparison.Ordinal)
+            && node.Label.Contains(
+                InventoryDiagramRelationshipLabelTexts.ConnectionRollupCollapsedHonestySuffix,
+                StringComparison.Ordinal));
         ast.Edges.Should().ContainSingle(edge => edge.Label == "uses");
     }
 

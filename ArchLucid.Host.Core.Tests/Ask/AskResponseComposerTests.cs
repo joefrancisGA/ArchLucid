@@ -99,6 +99,20 @@ public sealed class AskResponseComposerTests
     }
 
     [Fact]
+    public void Parse_appends_citation_id_honesty_when_referenced_artifact_id_is_blank()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.Parse(
+            threadId,
+            """{"answer":"Summary.","referencedArtifacts":["   "]}""");
+
+        response.Answer.Should().Contain("Citation id was not stored on this answer.");
+        response.ReferencedArtifacts.Should().BeEmpty();
+    }
+
+    [Fact]
     public void BuildFallbackResponse_appends_citation_honesty_on_this_answer()
     {
         var composer = AskServiceTestFactory.CreateResponseComposer();

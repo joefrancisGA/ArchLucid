@@ -69,6 +69,7 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
 
         chips.Should().ContainSingle();
         chips[0].Text.Should().Contain("to Destination was not stored");
+        chips[0].Text.Should().Contain("Rule name was not stored");
     }
 
     [Fact]

@@ -205,10 +205,11 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         {
             NodeId = "n-null-state",
             Label = "resource-b",
+            SeedNodeId = "graph-node-1",
             ConnectionState = null,
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-b · Resource type was not stored");
+            .Be("resource-b · Resource type was not stored · Connection state was not stored.");
     }
 }

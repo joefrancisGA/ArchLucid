@@ -7,6 +7,15 @@
 
 import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/findings/finding-derivation-sentence";
 
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_STORED =
+  "How reviewers derived it: Derivation sentence was not stored." as const;
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_STORED_EMPTY =
+  "How reviewers derived it: Derivation sentence was stored empty." as const;
+export const SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_AVAILABLE_LINE =
+  "How reviewers derived it: Derivation was not available on this finding." as const;
+export const SPONSOR_PLAIN_ENGLISH_SUMMARY_STORED_EMPTY =
+  "Finding summary was stored empty." as const;
+
 export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_NOT_STORED =
   "Residual risk note was not stored." as const;
 export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_STORED_EMPTY =
@@ -99,16 +108,30 @@ function buildHeadline(title: string | null, severity: string | null): string {
   return "Finding title was not stored.";
 }
 
-function usableDerivationSentence(derivationSentence: string | null): string | null {
-  if (derivationSentence === null) {
+function derivationHonestyLine(derivationSentence: string | null | undefined): string | null {
+  if (derivationSentence === undefined) {
     return null;
+  }
+
+  if (derivationSentence === null) {
+    return SPONSOR_PLAIN_ENGLISH_DERIVATION_NOT_STORED;
   }
 
   if (derivationSentence === FINDING_DERIVATION_NOT_AVAILABLE) {
     return null;
   }
 
-  return derivationSentence;
+  const trimmed = nonEmpty(derivationSentence);
+
+  if (trimmed === null) {
+    return null;
+  }
+
+  if (trimmed === FINDING_DERIVATION_NOT_AVAILABLE) {
+    return null;
+  }
+
+  return `How reviewers derived it: ${trimmed}`;
 }
 
 /**
@@ -121,7 +144,7 @@ export function buildSponsorPlainEnglishFinding(
   const title = nonEmpty(input.title);
   const message = nonEmpty(input.message);
   const severity = storedSeverityForSponsorCopy(nonEmpty(input.severity));
-  const derivation = usableDerivationSentence(nonEmpty(input.derivationSentence));
+  const derivationLine = derivationHonestyLine(input.derivationSentence);
   const residualRisk = nonEmpty(input.residualRisk);
 
   const parts: string[] = [
@@ -132,12 +155,14 @@ export function buildSponsorPlainEnglishFinding(
     parts.push(`In plain terms: ${message}`);
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
-  } else {
+  } else if (input.message === null || input.message === undefined) {
     parts.push("Finding summary was not stored.");
+  } else {
+    parts.push(SPONSOR_PLAIN_ENGLISH_SUMMARY_STORED_EMPTY);
   }
 
-  if (derivation !== null) {
-    parts.push(`How reviewers derived it: ${derivation}`);
+  if (derivationLine !== null) {
+    parts.push(derivationLine);
   }
 
   if (input.residualRisk === null) {

@@ -176,10 +176,6 @@ public class MermaidDiagramRenderer : IDiagramRenderer
         {
             tokens.Add($"al-seed={QuoteMetadataValue(node.SeedNodeId)}");
         }
-        else
-        {
-            tokens.Add("al-seed=Diagram seed was not stored.");
-        }
 
         if (node.IsUnresolvedPolicyOutlineOnly)
         {
