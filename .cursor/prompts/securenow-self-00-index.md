@@ -1,5 +1,6 @@
 <!-- SecureNow customer self-sufficiency — Composer prompts.
      Origin: 31 October 2026 desk pass. Customer Self-Sufficiency 62, weight 1.
+     Follow-on/current context: Customer Self-Sufficiency 66 (weight 1) and prompt set SN-SELF-01–08.
      SN-SELF-01–04 are shipped on trunk. Do not implement from this index. -->
 
 # SecureNow customer self-sufficiency — prompt set (SN-SELF-01–08)

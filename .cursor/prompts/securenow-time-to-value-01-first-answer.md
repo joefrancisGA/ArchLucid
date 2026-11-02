@@ -24,7 +24,7 @@ Time-to-Value is **66** (weight 7). `docs/securenow/FIRST_HOUR.md` stops the ope
 
 1. Branch `sn-ttv/01-first-answer` from current `master`.
 2. Add `docs/securenow/FIRST_USEFUL_ANSWER.md`.
-3. First line is a Scope blockquote: the first useful SecureNow answer. Not a timer. Not a minutes claim. Not an SLA. Not customer evidence. Beta remains **NO_GO**.
+3. First line is a Scope blockquote: the first useful SecureNow answer. Not a timer. Not a minutes claim. Include the exact sentence `This is not a timed SLA.` Not customer evidence. Beta remains **NO_GO**.
 4. One sentence under the title: the first useful answer is present when collection status, one ranked path in Path inspect, and one review question on Diagrams are all visible. A missing or stale capture still counts as collection status.
 5. A table with columns `Fact`, `Where`, `Honest limit`. **Exactly 3 data rows:**
     - Collection status — SecureNow Home environment line and [`/integrations/cloud-connections`](/integrations/cloud-connections) — a missing or stale capture is a gap, not a clean bill of health.
