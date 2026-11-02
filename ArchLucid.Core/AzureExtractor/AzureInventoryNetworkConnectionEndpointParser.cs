@@ -88,6 +88,7 @@ public static class AzureInventoryNetworkConnectionEndpointParser
         }
 
         string working = trimmed.StartsWith("%7B", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("%25", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("%2F", StringComparison.OrdinalIgnoreCase)
             ? ArmResourceIdNormalizer.PercentDecodeBounded(trimmed)
             : trimmed;
