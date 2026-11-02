@@ -6199,6 +6199,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-02 seed hunt (seed→hit #80): promoted comma-folded `Authorization` with lower left quadrant inverse white circle (`U+25DE`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DE`; regression `HandleAuthenticateAsync_succeeds_when_u25de_lower_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#79** (lower right quadrant inverse white circle `U+25DF` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **155/155** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DE placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower left quadrant inverse white circle (`U+25DE`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #80:** regression `HandleAuthenticateAsync_succeeds_when_u25de_lower_left_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — **cheap-disproof 2026-11-02 seed hunt #80:** regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — **cheap-disproof 2026-11-02 seed hunt #80:** regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — **cheap-disproof 2026-11-02 seed hunt #80:** regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — lower right quadrant inverse white circle (`U+25DF`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #80:** deferred; monitor reseed below.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower right quadrant inverse white circle (`U+25DF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#80**).
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — dotted right half circle (`U+25E0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#80**).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — locus: numeric parse; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — locus: auth-version gate; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`).
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — locus: auth-type guard; reachability: SAML/JWT coexistence (regression `Apply_when_not_saml_authentication_type_is_noop`).
+
 2026-11-02 seed hunt (seed→hit #79): promoted comma-folded `Authorization` with upper right quadrant inverse white circle (`U+25DD`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25DD`; regression `HandleAuthenticateAsync_succeeds_when_u25dd_upper_right_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#78** (lower left quadrant inverse white circle `U+25DE` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **154/154** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25DD placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — upper right quadrant inverse white circle (`U+25DD`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #79:** regression `HandleAuthenticateAsync_succeeds_when_u25dd_upper_right_quadrant_inverse_white_circle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7092,11 +7106,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 107
-- **bugs-found:** 116
+- **hunts:** 108
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-02
-- **last-bug:** 2026-11-02 — SCIM Bearer mix guard rejected U+25DD placeholder before valid comma-folded token
+- **last-bug:** 2026-11-02 — SCIM Bearer mix guard rejected U+25DE placeholder before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
