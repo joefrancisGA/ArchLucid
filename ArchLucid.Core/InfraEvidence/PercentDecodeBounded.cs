@@ -22,7 +22,11 @@ internal static class PercentDecodeBounded
             }
             catch (UriFormatException)
             {
-                return value;
+                return working;
+            }
+            catch (ArgumentException)
+            {
+                return working;
             }
 
             if (string.Equals(decoded, working, StringComparison.Ordinal))
