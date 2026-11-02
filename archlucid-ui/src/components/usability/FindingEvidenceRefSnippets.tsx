@@ -2,18 +2,36 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatFindingEvidenceRefSnippetsHeading } from "@/lib/findings/finding-evidence-ref-snippet";
+import {
+  formatFindingEvidenceRefSnippetsHeading,
+  formatFindingEvidenceRefSnippetsWireHonesty,
+} from "@/lib/findings/finding-evidence-ref-snippet";
+import type { FindingEvidenceRefSnippetsWireState } from "@/lib/findings/finding-source-evidence-excerpt-copy";
 
 export type FindingEvidenceRefSnippetsProps = {
   readonly snippets: readonly string[];
   readonly totalStoredSnippetCount?: number | null;
+  readonly wireState?: FindingEvidenceRefSnippetsWireState | null;
   readonly className?: string;
 };
 
 /** Inline evidence ref excerpts for retained findings (TB-385). */
 export function FindingEvidenceRefSnippets(props: FindingEvidenceRefSnippetsProps): ReactElement | null {
   if (props.snippets.length === 0) {
-    return null;
+    if (props.wireState === null || props.wireState === undefined) {
+      return null;
+    }
+
+    const honesty = formatFindingEvidenceRefSnippetsWireHonesty(props.wireState);
+
+    return (
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="finding-evidence-ref-snippets-honesty"
+      >
+        {honesty}
+      </p>
+    );
   }
 
   const heading = formatFindingEvidenceRefSnippetsHeading(

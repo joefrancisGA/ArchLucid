@@ -8,6 +8,9 @@ export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE =
 export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_NOT_COPIED_LINE =
   "Prior package fields were not copied onto this step." as const;
 
+export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED =
+  "No non-empty field was copied." as const;
+
 import { tryLoadPriorPackageGuidedIntakePrefill } from "@/lib/try-load-prior-package-guided-intake-prefill";
 import type { PriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";
 import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-scope-understanding-check";
@@ -36,31 +39,41 @@ type Options = GuidedIntakePriorRunPrefillTarget & {
 function applyPriorPackagePrefill(
   target: GuidedIntakePriorRunPrefillTarget,
   prefill: PriorPackageGuidedIntakePrefill,
-): void {
+): boolean {
+  let copiedAny = false;
+
   if (target.systemName.trim().length === 0 && prefill.systemName.length > 0) {
     target.setSystemName(prefill.systemName);
+    copiedAny = true;
   }
 
   if (target.freeTextIntent.trim().length === 0 && prefill.freeTextIntent.length > 0) {
     target.setFreeTextIntent(prefill.freeTextIntent);
+    copiedAny = true;
   }
 
   if (target.businessOutcome.trim().length === 0 && prefill.businessOutcome.length > 0) {
     target.setBusinessOutcome(prefill.businessOutcome);
+    copiedAny = true;
   }
 
   if (target.actorSet.actors.length === 0 && prefill.actorSet.actors.length > 0) {
     target.setActorSet(prefill.actorSet);
+    copiedAny = true;
   }
 
   if (target.scopeBullets.length === 0 && prefill.scopeBullets.length > 0) {
     target.setScopeBullets([...prefill.scopeBullets]);
     target.setScopeGateOpen(prefill.scopeGateOpen);
+    copiedAny = true;
   }
 
   if (prefill.priorAttachedFileNames.length > 0) {
     target.setPriorAttachedFileNames([...prefill.priorAttachedFileNames]);
+    copiedAny = true;
   }
+
+  return copiedAny;
 }
 
 export type GuidedIntakePriorRunPrefillState = {
@@ -136,8 +149,12 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
         return;
       }
 
-      applyPriorPackagePrefill(targetRef.current, prefill);
-      setPriorRunPrefillCopiedFromLine(GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE);
+      const copiedAny = applyPriorPackagePrefill(targetRef.current, prefill);
+      setPriorRunPrefillCopiedFromLine(
+        copiedAny
+          ? GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE
+          : GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED,
+      );
     }).catch(() => {
       // A failed optional rerun prefill must not become an unhandled rejection or block manual intake.
     });

@@ -90,7 +90,9 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
+                string label = backendTarget.RulePort is null
+                    ? InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(null)
+                    : InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,

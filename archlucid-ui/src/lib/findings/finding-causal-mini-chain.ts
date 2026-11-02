@@ -77,7 +77,7 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
 
   if (explicitLabel !== null) {
     parts.push(explicitLabel);
-  } else if (count === 0) {
+  } else if (count !== null && count >= 0) {
     parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED);
   }
 

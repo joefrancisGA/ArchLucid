@@ -81,7 +81,8 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
                 new HashSet<string>(["from", "to"], StringComparer.Ordinal));
 
         resolved.Should().ContainSingle().Which.RelationshipLabel
-            .Should().Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel);
+            .Should().Be(
+                $"{InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel} Private endpoint name: from.");
     }
 
     [Fact]

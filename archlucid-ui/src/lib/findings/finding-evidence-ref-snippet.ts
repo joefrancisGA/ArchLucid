@@ -2,6 +2,11 @@ import {
   formatStoredTextPreview,
   STORED_TEXT_PREVIEW_CONTINUATION,
 } from "@/lib/format-stored-text-preview";
+import {
+  SOURCE_EVIDENCE_EXCERPTS_NOT_STORED,
+  SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY,
+  type FindingEvidenceRefSnippetsWireState,
+} from "@/lib/findings/finding-source-evidence-excerpt-copy";
 
 const MAX_SNIPPET_LENGTH = 240;
 
@@ -30,6 +35,14 @@ export function normalizeEvidenceRefSnippet(raw: unknown): string | null {
   }
 
   return decoded;
+}
+
+export function formatFindingEvidenceRefSnippetsWireHonesty(
+  wireState: FindingEvidenceRefSnippetsWireState,
+): string {
+  return wireState === "stored-empty"
+    ? SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY
+    : SOURCE_EVIDENCE_EXCERPTS_NOT_STORED;
 }
 
 /** Collects up to `limit` display snippets from a finding `evidenceRefs` wire array. */

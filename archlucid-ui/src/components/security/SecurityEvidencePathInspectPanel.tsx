@@ -75,6 +75,10 @@ import {
 } from "@/lib/security-evidence-path-presentation";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
+import {
+  readSecureNowPilotDisposition,
+  type SecureNowPilotDispositionRecord,
+} from "@/lib/product-line/securenow-pilot-disposition-storage";
 import type {
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -637,6 +641,7 @@ export function SecurityEvidencePathInspectPanel(props: {
   const [explanationError, setExplanationError] = useState<string | null>(null);
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
   const [explanationGeneratedAt, setExplanationGeneratedAt] = useState<Date | null>(null);
+  const [pilotDisposition, setPilotDisposition] = useState<SecureNowPilotDispositionRecord | null>(null);
   const { mode, isLoading: isAgentExecutionModeLoading } = useAgentExecutionMode();
   const useSimulatorForExplanation =
     mode === "Real" && !isAgentExecutionModeLoading
@@ -651,6 +656,14 @@ export function SecurityEvidencePathInspectPanel(props: {
     retry: false,
   });
   const advisoryInstance = instancesQuery.data?.[0] ?? null;
+  useEffect(() => {
+    if (resolvedPathId == null || resolvedPathId.trim().length === 0) {
+      setPilotDisposition(null);
+      return;
+    }
+
+    setPilotDisposition(readSecureNowPilotDisposition(resolvedPathId));
+  }, [resolvedPathId]);
   const decisionReadiness = pathQuery.data != null
     ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
     : null;
@@ -844,6 +857,27 @@ export function SecurityEvidencePathInspectPanel(props: {
                   instanceId: advisoryInstance?.instanceId,
                 })}>Review remediation and verification</Link>
               ) : null}
+            </div>
+          ) : null}
+
+          {pilotDisposition != null && resolvedPathId != null ? (
+            <div
+              className="space-y-2 rounded border border-border bg-muted/30 p-3"
+              data-testid="security-evidence-path-pilot-disposition"
+            >
+              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Saved path disposition</h3>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                {pilotDisposition.outcome}: {pilotDisposition.rationale}
+              </p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Stored in this browser only. It does not clear beta NO_GO.
+              </p>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(resolvedPathId)}`}
+              >
+                Open pilot decision record
+              </Link>
             </div>
           ) : null}
 
