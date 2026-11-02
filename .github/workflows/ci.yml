@@ -36,10 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
-# RC41-only full regression and coverage on every branch push; no production deployment.
+# RC42-only full regression and coverage on every branch push; no production deployment.
 on:
   push:
-    branches: [RC41]
+    branches: [RC42]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -52,11 +52,11 @@ on:
         default: false
         type: boolean
 
-# RC41 push CI uses one branch-scoped group: a new candidate supersedes older RC41 push runs.
+# RC42 push CI uses one branch-scoped group: a new candidate supersedes older RC42 push runs.
 # A distinct prefix keeps workflow_dispatch, PR and merge_group grouping unchanged.
 # merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC41' && format('rc41-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
+  group: ci-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref == 'refs/heads/RC42' && format('rc42-push-{0}', github.ref)) || (github.event.pull_request.number || github.ref) }}
   cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
@@ -2649,11 +2649,11 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
+    # RC42 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
     # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
-    continue-on-error: ${{ github.ref != 'refs/heads/RC2' }}
+    continue-on-error: ${{ github.ref != 'refs/heads/RC42' }}
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -2721,7 +2721,7 @@ jobs:
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
-    # RC41 diagnostic exception: the OpenAPI snapshot remains a separate hard gate,
+    # RC42 diagnostic exception: the OpenAPI snapshot remains a separate hard gate,
     # but contract mismatch must not suppress independent .NET/SQL test evidence.
     # All other refs retain the existing OpenAPI-success prerequisite.
     if: >-
@@ -2732,7 +2732,7 @@ jobs:
         && needs.terraform-validate-private.result == 'success'
         && needs.terraform-validate-public-stacks.result == 'success'
         && needs.guards-pre-corset.result == 'success'
-        && (github.ref == 'refs/heads/RC41' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC42' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -2785,7 +2785,17 @@ jobs:
     name: ".NET: fast core — test (${{ matrix.shard_label }})"
     needs:
       - ci-path-lanes
+      - openapi-contract-snapshot
       - dotnet-fast-core-build
+    # RC42 diagnostic scheduling mirrors dotnet-fast-core-build: shard matrix runs when the
+    # build artifact exists even if OpenAPI drift failed the snapshot job (snapshot stays blocking).
+    if: >-
+      ${{
+        !cancelled()
+        && needs.ci-path-lanes.result == 'success'
+        && needs.dotnet-fast-core-build.result == 'success'
+        && (github.ref == 'refs/heads/RC42' || needs.openapi-contract-snapshot.result == 'success')
+      }}
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
     # run_fast_core_corset_shard.sh (14m, names the stuck project) → step timeout → job timeout.
@@ -4040,7 +4050,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC41' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC42' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
