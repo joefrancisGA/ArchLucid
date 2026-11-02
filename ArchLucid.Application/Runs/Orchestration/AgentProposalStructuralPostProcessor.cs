@@ -31,15 +31,18 @@ public static class AgentProposalStructuralPostProcessor
         ArgumentNullException.ThrowIfNull(proposal);
 
         proposal.SourceAgent = agentType;
-        proposal.AddedServices = DedupeServices(proposal.AddedServices);
-        proposal.AddedDatastores = DedupeDatastores(proposal.AddedDatastores);
-        proposal.AddedRelationships = FilterRelationships(proposal);
+        HashSet<string> rejectedEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+        proposal.AddedServices = DedupeServices(proposal.AddedServices, rejectedEndpointKeys);
+        proposal.AddedDatastores = DedupeDatastores(proposal.AddedDatastores, rejectedEndpointKeys);
+        proposal.AddedRelationships = FilterRelationships(proposal, rejectedEndpointKeys);
 
         if (agentType is AgentType.Compliance or AgentType.Critic)
             proposal.RequiredControls = DedupeRequiredControls(proposal.RequiredControls);
     }
 
-    private static List<ManifestRelationship> FilterRelationships(AgentTopologyProposal proposal)
+    private static List<ManifestRelationship> FilterRelationships(
+        AgentTopologyProposal proposal,
+        HashSet<string> rejectedEndpointKeys)
     {
         IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
 
@@ -49,9 +52,12 @@ public static class AgentProposalStructuralPostProcessor
         if (!ProposalDeclaresEndpoints(proposal))
             return CopyNonNullRelationships(relationships);
 
+        IReadOnlyList<ManifestService> acceptedServices = proposal.AddedServices ?? [];
+        IReadOnlyList<ManifestDatastore> acceptedDatastores = proposal.AddedDatastores ?? [];
+
         HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
-            proposal.AddedServices ?? [],
-            proposal.AddedDatastores ?? []);
+            acceptedServices,
+            acceptedDatastores);
 
         List<ManifestRelationship> retained = [];
 
@@ -59,6 +65,15 @@ public static class AgentProposalStructuralPostProcessor
         {
             if (relationship is null)
                 continue;
+
+            if (TopologyProposalRelationshipEndpointIndex.RelationshipReferencesExclusiveRejectedEndpoint(
+                    relationship,
+                    rejectedEndpointKeys,
+                    acceptedServices,
+                    acceptedDatastores))
+            {
+                continue;
+            }
 
             if (ShouldRetainDeclaredProposalRelationship(relationship, declaredEndpointKeys))
                 retained.Add(relationship);
@@ -89,7 +104,9 @@ public static class AgentProposalStructuralPostProcessor
     private static bool ProposalDeclaresEndpoints(AgentTopologyProposal proposal) =>
         (proposal.AddedServices?.Count ?? 0) > 0 || (proposal.AddedDatastores?.Count ?? 0) > 0;
 
-    private static List<ManifestService> DedupeServices(IReadOnlyList<ManifestService>? services)
+    private static List<ManifestService> DedupeServices(
+        IReadOnlyList<ManifestService>? services,
+        HashSet<string> rejectedEndpointKeys)
     {
         if (services is null || services.Count == 0)
             return [];
@@ -109,13 +126,22 @@ public static class AgentProposalStructuralPostProcessor
             }
 
             if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasService(service, deduped))
+            {
                 deduped.Add(service);
+                continue;
+            }
+
+            TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestServiceEndpointKeys(
+                rejectedEndpointKeys,
+                service);
         }
 
         return deduped;
     }
 
-    private static List<ManifestDatastore> DedupeDatastores(IReadOnlyList<ManifestDatastore>? datastores)
+    private static List<ManifestDatastore> DedupeDatastores(
+        IReadOnlyList<ManifestDatastore>? datastores,
+        HashSet<string> rejectedEndpointKeys)
     {
         if (datastores is null || datastores.Count == 0)
             return [];
@@ -135,7 +161,14 @@ public static class AgentProposalStructuralPostProcessor
             }
 
             if (TopologyProposalRelationshipEndpointIndex.IsRenameAliasDatastore(datastore, deduped))
+            {
                 deduped.Add(datastore);
+                continue;
+            }
+
+            TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestDatastoreEndpointKeys(
+                rejectedEndpointKeys,
+                datastore);
         }
 
         return deduped;

@@ -2305,7 +2305,7 @@ public sealed class ScimBearerAuthenticationHandlerTests
     }
 
     [Fact]
-    public async Task HandleAuthenticateAsync_succeeds_when_upper_one_quarter_block_only_bearer_segment_precedes_valid_comma_folded_credential()
+    public async Task HandleAuthenticateAsync_succeeds_when_left_half_block_only_bearer_segment_precedes_valid_comma_folded_credential()
     {
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
         authenticator

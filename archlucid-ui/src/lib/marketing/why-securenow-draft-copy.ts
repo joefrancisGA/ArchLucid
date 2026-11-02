@@ -6,6 +6,13 @@ export const WHY_SECURENOW_DRAFT_HEADING = "Why SecureNow" as const;
 export const WHY_SECURENOW_DRAFT_PITCH =
   "SecureNow shows which permission and network combinations in your Azure subscriptions form a possible access path, where an engineer could intervene, and whether a later capture supports that the condition changed." as const;
 
+export const WHY_SECURENOW_SAMPLE_LINK_HREF = "/securenow-sample" as const;
+
+export const WHY_SECURENOW_SAMPLE_LINK_LABEL = "SecureNow sample" as const;
+
+export const WHY_SECURENOW_SAMPLE_LINK_LEAD =
+  "One synthetic ranked path. Not a customer result." as const;
+
 export const WHY_SECURENOW_DRAFT_AUDIENCE =
   "Azure cloud-security, infrastructure, and security-architecture teams." as const;
 
