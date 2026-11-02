@@ -2347,6 +2347,7 @@ public sealed class ScimBearerAuthenticationHandlerTests
     [InlineData("\u25D8")]
     public async Task HandleAuthenticateAsync_succeeds_when_delimiter_only_placeholder_bearer_segment_precedes_valid_comma_folded_credential(
         string placeholder)
+
     {
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
         authenticator

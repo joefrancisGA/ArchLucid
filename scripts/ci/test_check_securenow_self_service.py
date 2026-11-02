@@ -54,6 +54,15 @@ class SecureNowSelfServiceTests(unittest.TestCase):
             errors = validate(root)
             self.assertTrue(any("support route must remain architecture-only" in error for error in errors))
 
+    def test_home_ranking_anchor_is_required(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-self-service-home-copy.ts"
+            path.write_text(path.read_text(encoding="utf-8").replace("#ranking", ""), encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("Home anchor '#ranking'" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

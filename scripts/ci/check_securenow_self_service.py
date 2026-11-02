@@ -37,6 +37,8 @@ REQUIRED_COPY = (
     "Still stuck",
     "mailto:support@archlucid.net?subject=SecureNow",
 )
+REQUIRED_ANCHORS = ("collection", "connector", "ranking", "email")
+REQUIRED_HOME_ANCHORS = ("#collection", "#connector", "#ranking", "#email")
 
 
 def _read(root: Path, relative: Path, errors: list[str]) -> str:
@@ -69,10 +71,18 @@ def validate(root: Path = ROOT) -> list[str]:
     for token in REQUIRED_COPY:
         if token not in copy:
             errors.append(f"{COPY}: missing {token!r}")
+    for token in REQUIRED_ANCHORS:
+        if f'id: "{token}"' not in copy:
+            errors.append(f"{COPY}: missing anchor id {token!r}")
+    for token in REQUIRED_HOME_ANCHORS:
+        if token not in home_copy:
+            errors.append(f"{HOME_COPY}: missing Home anchor {token!r}")
 
     page = _read(root, PAGE, errors)
     if "securenow-self-service-page" not in page:
         errors.append(f"{PAGE}: missing page test id")
+    if "Open remediation tracker" not in page:
+        errors.append(f"{PAGE}: missing remediation tracker link")
 
     catalog = _read(root, CATALOG, errors)
     if '"/administration/securenow-self-service": "security"' not in catalog:

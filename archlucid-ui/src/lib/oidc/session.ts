@@ -35,6 +35,7 @@ import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
   normalizeOidcDisplayString,
+  normalizeOidcOAuthFormString,
   normalizeOidcOpaqueOAuthString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
@@ -212,7 +213,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     throw new Error("OIDC token response missing access_token");
   }
 
-  const accessToken = normalizeOidcConfigurationString(tokens.access_token);
+  const accessToken = normalizeOidcOAuthFormString(tokens.access_token);
 
   if (accessToken.length === 0) {
     throw new Error("OIDC token response missing access_token");
