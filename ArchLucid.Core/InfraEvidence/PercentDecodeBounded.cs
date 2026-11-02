@@ -5,8 +5,8 @@ public static class PercentDecodeBounded
 {
     /// <summary>
     ///     Repeatedly applies <see cref="Uri.UnescapeDataString" /> up to <paramref name="maxPasses" /> times,
-    ///     stopping when a pass no longer changes the value. On malformed percent-encoding the decode throws, in
-    ///     which case the last successfully decoded value is kept.
+    ///     stopping when a pass no longer changes the value. <see cref="Uri.UnescapeDataString" /> may throw on
+    ///     malformed percent-encoding; if it does, decoding stops and the last successfully decoded value is kept.
     /// </summary>
     public static string Decode(string input, int maxPasses = 8)
     {
