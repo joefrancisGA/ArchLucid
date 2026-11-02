@@ -80,7 +80,11 @@ public static class AzureInventoryNetworkConnectionEndpointParser
             return null;
         }
 
-        string working = PercentDecodeBounded.Decode(armId.Trim());
+        string trimmed = armId.Trim();
+
+        string working = trimmed.StartsWith("{", StringComparison.Ordinal)
+            ? trimmed
+            : PercentDecodeBounded.Decode(trimmed);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {

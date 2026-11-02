@@ -10223,6 +10223,7 @@
 
 ## Zone: core-azure-extractor
 
+
 2026-11-01 seed hunt #864 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded HTTPS `issuer` on federated credential companion rows (`AzureInventoryFederatedCredentialParser` stored trimmed encoded `https%3A%2F%2F...` issuer strings without bounded percent-decode before row identity and default evidence hash, so re-import produced duplicate node ids and mismatched hashes vs decoded issuer rows); bounded percent-decode before trim on issuer (parity with **#863** parent ARM normalize); regressions `TryParse_reads_issuer_when_issuer_is_percent_encoded_https_url` and `TryParse_default_evidence_hash_matches_when_issuer_is_percent_encoded_https_url`; cheap-disproof closed open `(candidate)` **MessagingAssociationExtractor** encoded Service Bus namespace from seed **#863** as **valid-no-repro** (**#862** `NormalizeArmId` — regression `TryExtractServiceBusChild_reads_parent_when_namespace_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **ApplicationGatewayBackendAddressReader** as **valid-no-repro** (regression `TryReadBackendResourceArmId_reads_resource_when_backend_resource_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **NetworkConnectionEndpointParser** gateway endpoint as **valid-no-repro** (regression `Parse_reads_gateway_endpoint_when_virtual_network_gateway_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **RestorePointCollectionSourceParser** alternate property key monitor deferred (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2657/2657** (Release). Private beta: invited operators see stable federated-credential identity on inventory diagrams when companion JSON stores percent-encoded OIDC issuer URLs.
 
 - [x] (proven) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL changes row identity on re-import — **hit 2026-11-01 seed hunt #864:** `NormalizePercentEncodedTrimmedScalar` on issuer; regressions above. [class:fail-open-validation]
@@ -10321,6 +10322,7 @@
 - [x] (valid-no-repro) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL breaks evidence hash stability — **cheap-disproof 2026-11-01 seed hunt #859:** monitor reseed **#859**.
 - [x] (valid-no-repro) `AzureInventoryPaasChildAssociationExtractor` — percent-encoded child `id` on live extraction JSON — **cheap-disproof 2026-11-01 seed hunt #859:** deferred; monitor reseed **#859**.
 
+
 2026-11-01 seed hunt #857 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded NIC ipConfiguration `id` on load balancer backend pool JSON (`AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId` split on `/` before bounded percent-decode, so encoded `%2Fsubscriptions%2F.../ipConfigurations/...` yielded no parent NIC and dropped LB backend edges); bounded percent-decode before segment split (parity with **#856** connection endpoints); regressions `ResolveFromBackendAddressPoolsJson_reads_parent_when_ip_configuration_id_is_percent_encoded_plain_arm_scalar` and `Resolves_parent_when_configuration_id_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed open `(candidate)` connection `remoteVirtualNetwork.id` from seed **#856** as **valid-no-repro** (**#856** `NormalizeArmId` plus regression `Parse_reads_remote_virtual_network_endpoint_when_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **PaasChild** and **FederatedCredential** monitor rows deferred (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2640/2640** (Release). Private beta: invited operators keep load balancer backend-to-NIC attachment edges on inventory diagrams when backend pool JSON stores percent-encoded ipConfiguration ARM references.
 
 - [x] (proven) `AzureInventoryPublicIpConfigurationParentResolver` — percent-encoded ipConfiguration ARM id before parent split — **hit 2026-11-01 seed hunt #857:** bounded percent-decode in `TryResolveParentArmId`; regressions above. [class:fail-open-validation]
@@ -10342,6 +10344,14 @@
 - [x] (valid-no-repro) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — percent-encoded backend pool reference on flattened properties — **cheap-disproof 2026-11-01 seed hunt #856:** deferred; distinct `NetworkInterfaceIpConfigurationReferenceReader` path remains monitor (reseed below).
 - [x] (valid-no-repro) `AzureInventoryPaasChildAssociationParser` — percent-encoded child resource id on association row — **cheap-disproof 2026-11-01 seed hunt #856:** deferred; raw `GetString()` path remains monitor (reseed below).
 - [x] (valid-no-repro) `AzureInventoryMessagingAssociationParser` — percent-encoded `forwardTo` target on Service Bus row — **cheap-disproof 2026-11-01 seed hunt #856:** `forwardTo` is entity name not ARM; monitor row retired (reseed below).
+
+
+- [ ] (candidate) `AzureInventoryNetworkConnectionEndpointParser` — percent-encoded `remoteVirtualNetwork.id` on connection endpoint2 flattened property — locus: `NormalizeArmId`; input: encoded remote VNet ARM scalar; wrong outcome: missing Vnet2Vnet endpoint join (monitor seed **#856**).
+- [ ] (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — percent-encoded NIC ipConfiguration `id` on backend pool flattened reference — locus: `NetworkInterfaceIpConfigurationReferenceReader`; input: encoded `/ipConfigurations/` path; wrong outcome: missing LB backend parent edge (monitor seed **#856**).
+- [ ] (candidate) `AzureInventoryPaasChildAssociationParser` — percent-encoded `childResourceId` on flattened association row — locus: raw property read; input: encoded child ARM scalar; wrong outcome: dropped PaaS child edge (monitor seed **#856**).
+- [ ] (candidate) `AzureInventoryPublicIpConfigurationParentResolver` — percent-encoded ipConfiguration reference on load balancer frontend — locus: parent resolver split; input: encoded configuration id; wrong outcome: orphan public IP attachment (monitor seed **#856**).
+- [ ] (candidate) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL on federated credential row — locus: issuer field reader; input: encoded `https` issuer; wrong outcome: null issuer metadata (monitor seed **#856**).
+
 
 2026-11-01 seed hunt #855 (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt` and 206 commits since **2026-10-30**; promoted NSG association target percent-encoded plain ARM scalar (`AzureInventoryNsgAssociationParser` passed encoded subnet ids through `ArmResourceIdNormalizer` only, so `InferTargetKind` missed `/subnets/` and data-flow NSG attachment keys stayed wrong); bounded percent-decode before normalize (parity with **#655** VNet peering); regression `Parse_normalizes_percent_encoded_subnet_target_arm_id`; cheap-disproof closed five stale open `(candidate)` rows from hunt **#854** reseed as **invalid** duplicate hypotheses (already closed **#853**); reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2636/2636** (Release). Private beta: invited operators keep NSG-to-subnet/NIC attachment edges on inventory diagrams when flattened NSG association targets store percent-encoded ARM paths.
 
@@ -10779,11 +10789,13 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
+
 - **hunts:** 68
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
 - **last-bug:** 2026-11-01 — Federated credential companion percent-encoded HTTPS issuer URLs
+
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

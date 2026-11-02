@@ -26,8 +26,8 @@ The **Download control evidence** button on a loaded lineage says the file is th
 1. Branch `sn-comp/07-download-limit` from current `master` after SN-COMP-06 is present.
 2. Export `AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT` from `audit-evidence-control-lineage-markdown.ts` with the exact text `This download is the loaded lineage. It is not an attestation.`
 3. In `AuditEvidenceControlLineageClient.tsx`, render that text next to the button whose `data-testid` is `audit-evidence-control-lineage-download`. Give the note `data-testid="audit-evidence-control-lineage-download-limit"`. Do not change `formatAuditEvidenceControlLineageMarkdown` status logic.
-4. Extend `check_securenow_compliance_notes.py` so the client file must contain `audit-evidence-control-lineage-download-limit` and `It is not an attestation.` Keep the existing formatter check for `Not a certification`.
-5. Add a negative unittest that deletes the limit sentence and expects `validate` to fail.
+4. Extend `check_securenow_compliance_notes.py` so the client file must contain `audit-evidence-control-lineage-download-limit` and `AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT`, while `audit-evidence-control-lineage-markdown.ts` must contain `This download is the loaded lineage. It is not an attestation.` and `Not a certification`. Preserve the existing `NOT VERIFIED` formatter check.
+5. Add a negative unittest that deletes the limit sentence from the formatter module in a temporary tree and expects `validate` to fail. Include the client file in the temporary-tree fixture.
 6. If a vitest already renders that download button, assert the limit text there. Otherwise add a one-assertion test that the exported constant equals the sentence above.
 
 ## Tests

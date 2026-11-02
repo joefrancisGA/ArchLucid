@@ -1,5 +1,6 @@
 <!-- SecureNow compliance readiness — Composer prompts.
-     Origin: 2026-10-30 desk pass. SecureNow score 48, ArchLucid 71.
+     Origin wave: 2026-10-30 desk pass (SN-COMP-01–04). SecureNow score 48, ArchLucid 71.
+     Follow-on wave: adds SN-COMP-05–07 to target Compliance Readiness 66 (weight 2).
      Do not implement from this index. -->
 
 # SecureNow compliance readiness — prompt set (SN-COMP-01–07)

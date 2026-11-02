@@ -20,7 +20,7 @@ The warn-only self-service checker requires the four anchors, the four Home href
 
 1. Branch `sn-self/08-checker` from current `master` after SN-SELF-07 is present.
 2. Extend `validate` to require:
-    - ids `collection`, `connector`, `ranking`, and `email` in `SecureNowSelfServicePageView.tsx`
+    - ids `collection`, `connector`, `ranking`, and `email` in `securenow-self-service-copy.ts`, and `id={step.id}` in `SecureNowSelfServicePageView.tsx`
     - the four hash hrefs in `securenow-self-service-home-copy.ts`
     - `Open remediation tracker` in the page
     - `SECURENOW_REMEDIATION_INSTANCES_PATH` still present in the copy module

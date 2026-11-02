@@ -27,8 +27,8 @@ The warn-only decision-velocity checker requires the six stall hrefs and still r
     - `/administration/securenow-pilot-decision#securenow-pilot-decision-outcomes-heading`
     - `/security/remediation-instances`
     - `docs/securenow/DECISION_CYCLE_LOG.md` inside the existing GitHub log URL
-3. Keep the existing checks that `DECISION_CYCLE_LOG.md` contains `BLANK`, `SYNTHETIC FIXTURE`, and `NO_GO`, and that it does not contain `- [x]` or `$`.
-4. Add a negative test that removes `/security/remediation-factory` from a temporary copy of the operator copy and expects an error.
+3. Keep the existing checks that `DECISION_CYCLE_LOG.md` contains `BLANK`, `SYNTHETIC FIXTURE`, and `NO_GO`, and that it does not contain `- [x]` or `$`. Also parse the cycle table and require every data row's UTC start, UTC close, stall step, and outcome cells to remain `BLANK`, ignoring Markdown emphasis.
+4. Add negative temporary-tree tests that remove `/security/remediation-factory` from the operator copy and fill the synthetic row's UTC start cell. Each mutation must make `validate` return an error.
 5. Do not change the CI `continue-on-error: true` on the existing decision-velocity steps.
 
 ## Tests
