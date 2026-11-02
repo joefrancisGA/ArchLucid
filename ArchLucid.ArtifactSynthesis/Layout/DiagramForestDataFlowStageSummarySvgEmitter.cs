@@ -140,7 +140,21 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (segments.Count == 0)
         {
-            return null;
+            if (hasExplicitNotStagedLabel && notStagedCount > 0
+                && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+            {
+                segments.Add($"{notStagedCount} {notStagedColumnLabel}");
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if (hasExplicitNotStagedLabel
+                 && notStagedCount > 0
+                 && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+        {
+            segments.Add($"{notStagedCount} {notStagedColumnLabel}");
         }
 
         StringBuilder summary = new();

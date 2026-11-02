@@ -660,7 +660,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
 
         diagramNode.ConnectionState.Should().Be(InventoryDiagramConnectionState.Used);
         diagramNode.ConnectionStateMessage.Should().Be(
-            "Attached to nic-a. That resource is in this inventory snapshot.");
+            "Attached to nic-a. That resource is in this inventory snapshot. Observed use was not stored.");
     }
 
     private static GraphSnapshot BuildUnconnectedStorageGraph()

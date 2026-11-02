@@ -8,8 +8,16 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
   capturedUtc: string | null | undefined,
   ianaTimeZoneId: string = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
-  if (capturedUtc == null || capturedUtc.trim().length === 0) {
+  if (capturedUtc == null) {
     return "Captured time was not stored.";
+  }
+
+  if (capturedUtc.length === 0) {
+    return "Captured time was stored empty.";
+  }
+
+  if (capturedUtc.trim().length === 0) {
+    return "Captured time was stored empty.";
   }
 
   const formatted = formatInstantInPreferredTimeZone(capturedUtc, ianaTimeZoneId);
@@ -115,6 +123,9 @@ export function formatInfraEvidenceDiffTotalChangesPhrase(totalChanges: number |
   return `${totalChanges} changes`;
 }
 
+export const INFRA_EVIDENCE_DIFF_OTHER_CAPTURE_NOT_IN_LIST =
+  "Other snapshot capture time was not in this list." as const;
+
 export function formatInfraEvidenceDiffLabel(
   diff: InfraEvidenceDiffSummary,
   selectedSnapshotId: string,
@@ -125,7 +136,7 @@ export function formatInfraEvidenceDiffLabel(
   const otherCaptured =
     otherSnapshot != null
       ? formatInfraEvidenceSnapshotCapturedLabel(otherSnapshot.capturedUtc)
-      : formatInfraEvidenceSnapshotCapturedLabel(diff.createdUtc);
+      : INFRA_EVIDENCE_DIFF_OTHER_CAPTURE_NOT_IN_LIST;
 
   return `${formatInfraEvidenceDiffTotalChangesPhrase(diff.totalChanges)} vs ${otherCaptured}`;
 }
