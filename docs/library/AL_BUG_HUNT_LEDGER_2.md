@@ -6199,6 +6199,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-02 seed hunt (seed→hit #91): promoted comma-folded `Authorization` with black down-pointing small triangle (`U+25BE`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25BE`; regression `HandleAuthenticateAsync_succeeds_when_u25be_black_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#90** (white down-pointing small triangle `U+25BF` — monitor reseed below; plus-prefixed fresh `iat` — regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`; platform Guid `sub` missing auth-version when local issuer matches — regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`; non-SAML auth type no-op — regression `Apply_when_not_saml_authentication_type_is_noop`); reseeded five follow-on `(candidate)` rows; scoped **166/166** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25BE placeholder before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — black down-pointing small triangle (`U+25BE`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #91:** regression `HandleAuthenticateAsync_succeeds_when_u25be_black_down_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — plus-prefixed fresh `iat` parseable without `auth_time` — **cheap-disproof 2026-11-02 seed hunt #91:** regression `HasRecentAuthentication_returns_true_when_plus_prefixed_iat_is_parseable_without_auth_time`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — rejects platform Guid `sub` with missing auth-version when local issuer matches — **cheap-disproof 2026-11-02 seed hunt #91:** regression `ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches`.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — non-SAML authentication type no-op when inbound role present — **cheap-disproof 2026-11-02 seed hunt #91:** regression `Apply_when_not_saml_authentication_type_is_noop`.
+- [x] (valid-no-repro) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25BF`) glued after `Bearer` — **cheap-disproof 2026-11-02 seed hunt #91:** deferred; monitor reseed below.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — white down-pointing small triangle (`U+25BF`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#91**).
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — black left-pointing small triangle (`U+25C0`) glued after `Bearer` — locus: Geometric Shapes set; reachability: proxy comma-fold monitor (seed **#91**).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — latest fresh `auth_time` among multiples accepted — locus: max selector; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — allows non-Guid local `sub` without auth-version claim — locus: Guid gate; reachability: pilot JWT monitor (regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`).
+- [ ] (candidate) `LocalTrialJwtIssuer` — sub-five-minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`).
+
 2026-11-02 seed hunt (seed→hit #90): promoted comma-folded `Authorization` with white right-pointing small triangle (`U+25B7`) placeholder after `Bearer` before valid segment — glued segment misclassified as non-Bearer and tripped mix guard; extended `BearerGluedGeometricShapeLookalikes` with `U+25B7`; regression `HandleAuthenticateAsync_succeeds_when_u25b7_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed four open `(candidate)` rows from seed **#89** (black down-pointing small triangle `U+25BE` — monitor reseed below; latest fresh `auth_time` among multiples — regression `HasRecentAuthentication_returns_true_when_latest_auth_time_is_fresh_among_multiple_values`; non-Guid local `sub` without auth-version — regression `ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim`; sub-five-minute trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **165/165** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a U+25B7 placeholder before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — white right-pointing small triangle (`U+25B7`) placeholder after `Bearer` trips mix guard — **hit 2026-11-02 seed hunt #90:** regression `HandleAuthenticateAsync_succeeds_when_u25b7_white_right_pointing_small_triangle_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -7246,11 +7260,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 118
-- **bugs-found:** 127
+- **hunts:** 119
+- **bugs-found:** 128
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-02
-- **last-bug:** 2026-11-02 — SCIM Bearer mix guard rejected U+25B7 placeholder before valid comma-folded token
+- **last-bug:** 2026-11-02 — SCIM Bearer mix guard rejected U+25BE placeholder before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
