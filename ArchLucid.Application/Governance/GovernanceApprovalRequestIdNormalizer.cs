@@ -9,6 +9,6 @@ public static class GovernanceApprovalRequestIdNormalizer
     {
         ArgumentNullException.ThrowIfNull(approvalRequestId);
 
-        return ApiKeyMaterialNormalizer.Normalize(approvalRequestId.Trim());
+        return ApiKeyMaterialNormalizer.Normalize(approvalRequestId).Trim();
     }
 }

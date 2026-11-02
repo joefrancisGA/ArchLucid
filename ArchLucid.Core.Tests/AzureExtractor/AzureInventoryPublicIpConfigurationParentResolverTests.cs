@@ -31,6 +31,19 @@ public sealed class AzureInventoryPublicIpConfigurationParentResolverTests
         parentId.Should().Be(expectedParentId);
     }
 
+    [Fact]
+    public void Resolves_parent_when_configuration_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string plain =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1/ipConfigurations/ipconfig1";
+        string encoded = Uri.EscapeDataString(plain);
+
+        string? parentId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(encoded);
+
+        parentId.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1");
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

@@ -24794,6 +24794,9 @@
             "format": "int32",
             "type": "integer"
           },
+          "auditRowCountResolved": {
+            "type": "boolean"
+          },
           "auditRowCountTruncated": {
             "type": "boolean"
           },
@@ -27386,6 +27389,9 @@
             ]
           },
           "artifactDescriptorCountResolved": {
+            "type": "boolean"
+          },
+          "auditRowCountResolved": {
             "type": "boolean"
           },
           "auditRowsPresentOrLowerBound": {
@@ -35238,6 +35244,12 @@
           "explanationId": {
             "format": "uuid",
             "type": "string"
+          },
+          "modelOutputRejection": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "pathId": {
             "format": "uuid",

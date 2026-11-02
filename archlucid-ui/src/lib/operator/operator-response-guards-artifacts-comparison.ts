@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { ArtifactDescriptor, RunComparison } from "@/types/authority";
+import { operatorNonEmptyTrimmedString } from "@/lib/operator/operator-response-guard-scalars";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -9,7 +10,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const artifactDescriptorSchema = z
   .object({
-    artifactId: z.string(),
+    artifactId: operatorNonEmptyTrimmedString,
     artifactType: z.string(),
     name: z.string(),
     format: z.string(),
@@ -20,7 +21,9 @@ const artifactDescriptorSchema = z
   })
   .passthrough();
 
-const artifactListRowSchema = z.object({ artifactId: z.string(), name: z.string() }).passthrough();
+const artifactListRowSchema = z
+  .object({ artifactId: operatorNonEmptyTrimmedString, name: z.string() })
+  .passthrough();
 
 /**
  * Ensures artifact list is an array of descriptors with stable ids.
@@ -57,8 +60,11 @@ export function coerceArtifactDescriptor(
       return { ok: false, message: "Artifact descriptor was not a JSON object." };
     }
 
+    if (!operatorNonEmptyTrimmedString.safeParse(data.artifactId).success) {
+      return { ok: false, message: 'Artifact descriptor is missing or invalid "artifactId".' };
+    }
+
     const stringKeys = [
-      "artifactId",
       "artifactType",
       "name",
       "format",
@@ -88,8 +94,8 @@ export function coerceArtifactDescriptor(
 
 const runComparisonSchema = z
   .object({
-    leftRunId: z.string(),
-    rightRunId: z.string(),
+    leftRunId: operatorNonEmptyTrimmedString,
+    rightRunId: operatorNonEmptyTrimmedString,
     runLevelDiffs: z.array(z.unknown()),
     manifestComparison: z
       .object({
@@ -114,7 +120,10 @@ export function coerceRunComparison(
       return { ok: false, message: "Run comparison response was not a JSON object." };
     }
 
-    if (typeof data.leftRunId !== "string" || typeof data.rightRunId !== "string") {
+    if (
+      !operatorNonEmptyTrimmedString.safeParse(data.leftRunId).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.rightRunId).success
+    ) {
       return { ok: false, message: "Run comparison is missing leftRunId or rightRunId." };
     }
 
