@@ -33,8 +33,8 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 | **SN-LIFT-20** | `securenow-score-lift-20-correctness-not-verified.md` | Correctness | 80 toward 82 |
 | **SN-LIFT-HOLD** | `securenow-score-lift-hold.md` | Stop list | — |
 
-The largest weighted moves, if the sessions land, are Cutting-Edge (weight 8), Time-to-Value (weight 7), and Adoption Friction (weight 6). Marketability stays at 70 until the owner approves welcome and footer links. That approval is not in this set.
+The largest weighted moves, if the sessions land, are Cutting-Edge (weight 8), Time-to-Value (weight 7), and Adoption Friction (weight 6). On 2026-11-02 the owner approved the existing sample review and `fixture-path-01` on the welcome page and the marketing footer. Paste [`.cursor/prompts/securenow-welcome-footer-sample-links.md`](../../.cursor/prompts/securenow-welcome-footer-sample-links.md) for that change. `/why-securenow` stays off those two surfaces. **M-316** stays owner-held.
 
 ## Stop
 
-No public price. No welcome or footer links. No CPA report or pen-test claim. No duration written into a customer log. No Azure write. No hidden review-workspace tabs. No second ranker.
+No public price. No `/why-securenow` link on the welcome page or the marketing footer. The sample-review and `fixture-path-01` links are the separate prompt `securenow-welcome-footer-sample-links.md`. No CPA report or pen-test claim. No duration written into a customer log. No Azure write. No hidden review-workspace tabs. No second ranker.
