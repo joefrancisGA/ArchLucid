@@ -1,3 +1,6 @@
+# TEMPORARY CI STABILIZATION HOLD (2026-11-02): automatic CI-completion
+# CD scheduling is paused to avoid run fanout. Owner-approved manual staging
+# dispatch, immutable target SHA and existing environment/deployment gates remain.
 # Optional: deploy to the GitHub **staging** environment after a **green** CI run on main/master,
 # or manually deploy an owner-approved immutable commit SHA from RC35.
 # Enable by setting repository variable `AUTO_DEPLOY_STAGING_MERGE` to `true`.
@@ -20,9 +23,6 @@
 name: CD staging on merge
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
   workflow_dispatch:
     inputs:
       target_sha:
@@ -47,19 +47,8 @@ jobs:
   deploy-staging:
     if: |
       vars.AUTO_DEPLOY_STAGING_MERGE == 'true' &&
-      (
-        (
-          github.event_name == 'workflow_run' &&
-          github.event.workflow_run.conclusion == 'success' &&
-          (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
-          (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') &&
-          github.event.workflow_run.head_repository.full_name == github.repository
-        ) ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          inputs.target_sha != ''
-        )
-      )
+      github.event_name == 'workflow_dispatch' &&
+      inputs.target_sha != ''
     name: Deploy staging (merge)
     runs-on: ubuntu-latest
     environment: staging
