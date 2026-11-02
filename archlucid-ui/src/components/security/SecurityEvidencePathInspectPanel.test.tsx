@@ -419,7 +419,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Relationship type was not stored").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Relationship type was not stored/).length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);
@@ -495,11 +495,17 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "No routing citations were stored.",
     );
     expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Weakest-hop reason was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Hop evidence was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
       "Proposed change was not stored.",
     );
   });
 
-  it("does not cite weakest-hop reason on the recommended-action evidence line", () => {
+  it("labels weakest-hop reason and hop evidence on recommended action", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
       isLoading: false,
@@ -567,10 +573,73 @@ describe("SecurityEvidencePathInspectPanel", () => {
     renderPanel("finding-1");
 
     const recommended = screen.getByTestId("security-evidence-path-recommended-action");
-    expect(recommended).toHaveTextContent("Evidence citation was not stored.");
-    expect(recommended).not.toHaveTextContent("Role assignment inferred from tag metadata.");
+    expect(recommended).toHaveTextContent("Weakest-hop reason");
+    expect(recommended).toHaveTextContent("Role assignment inferred from tag metadata.");
+    expect(recommended).toHaveTextContent("Hop evidence was not stored.");
     expect(recommended).toHaveTextContent("Disable public access.");
     expect(recommended).not.toHaveTextContent("Cut summary should not appear as proposed change.");
+  });
+
+  it("omits grounded-on copy when explanation cites zero evidence refs", async () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      explanation: {
+        explanationId: "exp-1",
+        pathId: "path-1",
+        executiveSummary: "Summary",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "WeakestHop",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: [],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: new Date().toISOString(),
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
+      "Cited evidence was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-explanation-output")).not.toHaveTextContent(
+      "Grounded on 0 citations",
+    );
   });
 
   it("links hop resource evidence when cloudResourceId is present", () => {

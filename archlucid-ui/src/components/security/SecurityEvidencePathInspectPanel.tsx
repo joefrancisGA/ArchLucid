@@ -381,8 +381,10 @@ function PathExplanationSection(props: {
               : "Recommended change was not stored.",
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
+              : "Cited evidence was not stored.",
+            props.explanation.citedEvidenceRefs.length > 0
+              ? `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`
               : "",
-            `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`,
             props.explanation.modelOutputRejection?.trim() ?? "",
           ]
             .filter((line) => line.trim().length > 0)
@@ -409,11 +411,15 @@ function RecommendedActionSection(props: {
       value: architectSentence.length > 0 ? architectSentence : "Problem statement was not stored.",
     },
     {
-      label: "Evidence",
+      label: "Weakest-hop reason",
       value:
         props.path.weakestHop?.reason?.trim() && props.path.weakestHop.reason.trim().length > 0
           ? props.path.weakestHop.reason.trim()
           : "Weakest-hop reason was not stored.",
+    },
+    {
+      label: "Hop evidence",
+      value: hopEvidenceRef.length > 0 ? hopEvidenceRef : "Hop evidence was not stored.",
     },
     {
       label: "Consequence",
@@ -512,7 +518,7 @@ function InspectSelectionIdentityHeader(props: {
           Path rank{" "}
           {props.pathSummary.rankOrder !== null && props.pathSummary.rankOrder !== undefined
             ? props.pathSummary.rankOrder
-            : "was not stored"}{" "}
+            : "Rank was not stored"}{" "}
           · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
         <SecurityEvidencePathRankReaderDisclosures rank={props.pathSummary} />
@@ -525,7 +531,10 @@ function InspectSelectionIdentityHeader(props: {
         </Link>
         {idsOpen ? (
           <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-path-id">
-            Path ID: {props.pathId}
+            Path ID:{" "}
+            {props.pathId != null && props.pathId.trim().length > 0
+              ? props.pathId
+              : "Path id was not stored."}
           </p>
         ) : null}
       </div>
@@ -558,16 +567,18 @@ function InspectSelectionIdentityHeader(props: {
             <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)} data-testid="security-evidence-path-inspect-finding-id">
               Finding ID: {props.findingId}
             </p>
-            {props.findingSummary?.patternKey != null ? (
-              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-                Pattern key: {props.findingSummary.patternKey}
-              </p>
-            ) : null}
-            {props.verificationId != null && props.verificationId.trim().length > 0 ? (
-              <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-                Verification ID: {props.verificationId}
-              </p>
-            ) : null}
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+              Pattern key:{" "}
+              {props.findingSummary.patternKey != null && props.findingSummary.patternKey.trim().length > 0
+                ? props.findingSummary.patternKey
+                : "Pattern key was not stored."}
+            </p>
+            <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
+              Verification ID:{" "}
+              {props.verificationId != null && props.verificationId.trim().length > 0
+                ? props.verificationId
+                : "Verification id was not stored."}
+            </p>
           </div>
         ) : null}
       </div>
@@ -584,16 +595,16 @@ function resolvePathInspectSubjectLabel(input: {
 }): string | null {
   if (input.selectedFinding != null) {
     const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.findingId;
-    const patternLead =
+    const patternKey =
       input.selectedFinding.patternKey != null && input.selectedFinding.patternKey.trim().length > 0
-        ? "Pattern"
-        : "Pattern was not stored";
+        ? input.selectedFinding.patternKey.trim()
+        : "Pattern key was not stored.";
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · ${patternLead}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · Pattern key ${patternKey}`;
   }
 
   if (input.selectedPath != null) {
-    return `Path ${input.selectedPath.pathKind} · rank ${input.selectedPath.rankOrder} · ${input.selectedPath.pathId}`;
+    return `Path ${formatSecurityEvidencePathKindLabel(input.selectedPath.pathKind)} · rank ${input.selectedPath.rankOrder ?? "Rank was not stored"} · ${input.selectedPath.pathId?.trim() || "Path id was not stored."}`;
   }
 
   if (input.findingId != null) {

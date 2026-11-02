@@ -14,6 +14,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 {
     internal const string DuplicateOnPathLabelSuppressedSuffix =
         " Duplicate on-path relationship label suppressed; see the labeled edge in this group.";
+    internal const string DuplicateOnPathVisibleLabel =
+        "Same stored relationship as the labeled connector in this group.";
     private const double LabelFontSize = 11.0d;
     private const double LabelPaddingX = 4.0d;
     private const double LabelPaddingY = 2.0d;
@@ -130,6 +132,40 @@ internal static class DiagramForestEdgeLabelSvgEmitter
             string suppressedTitle = title + DuplicateOnPathLabelSuppressedSuffix;
             edgeGroup.Element(svgNamespace + "title")?.ReplaceWith(new XElement(svgNamespace + "title", suppressedTitle));
             edgeGroup.Add(new XAttribute("data-duplicate-label-suppressed", "true"));
+
+            string duplicateLabel = MermaidDiagramRenderer.EscapeLabel(DuplicateOnPathVisibleLabel).Trim();
+            double duplicateLabelWidth = EstimateLabelWidth(duplicateLabel);
+            double duplicateLabelHeight = LabelFontSize + (LabelPaddingY * 2.0d);
+            (double duplicateLabelX, double duplicateLabelY) = ResolveLabelAnchor(
+                route.Segments,
+                duplicateLabelWidth,
+                duplicateLabelHeight,
+                placedLabelBounds);
+            placedLabelBounds.Add((duplicateLabelX, duplicateLabelY, duplicateLabelWidth, duplicateLabelHeight));
+
+            edgeGroup.Add(new XElement(
+                svgNamespace + "g",
+                new XAttribute("class", "edge-label edge-label-duplicate"),
+                new XElement(
+                    svgNamespace + "rect",
+                    new XAttribute("x", FormatCoordinate(duplicateLabelX - (duplicateLabelWidth / 2.0d))),
+                    new XAttribute("y", FormatCoordinate(duplicateLabelY - (duplicateLabelHeight / 2.0d))),
+                    new XAttribute("width", FormatCoordinate(duplicateLabelWidth)),
+                    new XAttribute("height", FormatCoordinate(duplicateLabelHeight)),
+                    new XAttribute("rx", "3"),
+                    new XAttribute("fill", "#ffffff"),
+                    new XAttribute("stroke", "#cbd5e1"),
+                    new XAttribute("stroke-width", "1")),
+                new XElement(
+                    svgNamespace + "text",
+                    new XAttribute("x", FormatCoordinate(duplicateLabelX)),
+                    new XAttribute("y", FormatCoordinate(duplicateLabelY)),
+                    new XAttribute("text-anchor", "middle"),
+                    new XAttribute("dominant-baseline", "middle"),
+                    new XAttribute("font-size", FormatCoordinate(LabelFontSize)),
+                    new XAttribute("font-family", "system-ui, sans-serif"),
+                    new XAttribute("fill", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
+                    duplicateLabel)));
 
             return edgeGroup;
         }

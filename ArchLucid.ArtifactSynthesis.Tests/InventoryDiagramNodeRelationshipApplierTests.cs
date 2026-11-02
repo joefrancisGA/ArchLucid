@@ -51,6 +51,32 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     }
 
     [Fact]
+    public void BuildNsgAttachmentLabel_adds_multi_rule_disclaimer_when_multiple_inbound_rules_stored()
+    {
+        string label = InventoryDiagramNodeRelationshipApplier.BuildNsgAttachmentLabel(
+            [
+                new AzureInventoryNsgSecurityRule
+                {
+                    Direction = "Inbound",
+                    Protocol = "Tcp",
+                    DestinationPortRange = "443",
+                    SourcePortRange = "*",
+                    Access = "Allow",
+                },
+                new AzureInventoryNsgSecurityRule
+                {
+                    Direction = "Inbound",
+                    Protocol = "Udp",
+                    DestinationPortRange = "53",
+                    SourcePortRange = "*",
+                    Access = "Allow",
+                },
+            ]);
+
+        label.Should().Contain("only the first inbound rule is shown on this diagram");
+    }
+
+    [Fact]
     public void Compile_resolved_network_connection_emits_one_edge_and_no_connection_node()
     {
         GraphSnapshot graph = BuildNetworkConnectionGraph(includeBothEndpoints: true);

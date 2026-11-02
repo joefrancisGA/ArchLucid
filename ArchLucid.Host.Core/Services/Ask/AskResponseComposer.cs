@@ -47,7 +47,8 @@ public sealed class AskResponseComposer(
                     ? $"Context included {decisionCount} decision(s)."
                     : prepared.Manifest is { Decisions: { Count: 0 } }
                         ? "Manifest decisions were stored empty on this answer."
-                        : "Manifest decisions were not stored on this answer."),
+                        : "Manifest decisions were not stored on this answer.")
+                + " Citations were not stored on this answer.",
             RetrievalDegraded = prepared.RetrievalDegraded,
         };
     }

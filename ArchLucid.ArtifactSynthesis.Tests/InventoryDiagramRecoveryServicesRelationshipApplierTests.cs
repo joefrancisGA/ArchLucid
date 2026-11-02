@@ -122,7 +122,7 @@ public sealed class InventoryDiagramRecoveryServicesRelationshipApplierTests
         DiagramEdge edge = ast.Edges.Single();
         edge.Label.Should()
             .Be(InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesReplicatesLabel(null));
-        edge.ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        edge.ProvenanceKind.Should().BeNull();
     }
 
     [Fact]
@@ -177,7 +177,60 @@ public sealed class InventoryDiagramRecoveryServicesRelationshipApplierTests
 
         DiagramEdge edge = ast.Edges.Single();
         edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesProtectsLabel());
-        edge.ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        edge.ProvenanceKind.Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_keeps_stored_graph_provenance_on_recovery_services_edge()
+    {
+        DiagramAst ast = new()
+        {
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vault",
+                    ToNodeId = "vm",
+                    Label = AzureInventoryRecoveryServices.ReplicateEdgeLabel,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates,
+                },
+            ],
+        };
+
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.Empty,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "vault-node", NodeType = GraphNodeTypes.TopologyResource, Label = "vault" },
+                new GraphNode { NodeId = "vm-node", NodeType = GraphNodeTypes.TopologyResource, Label = "vm" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-1",
+                    FromNodeId = "vault-node",
+                    ToNodeId = "vm-node",
+                    EdgeType = GraphEdgeTypes.Protects,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates,
+                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                },
+            ],
+        };
+
+        Dictionary<string, string> map = new(StringComparer.Ordinal)
+        {
+            ["vault-node"] = "vault",
+            ["vm-node"] = "vm",
+        };
+
+        InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, map);
+
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
     }
 
     [Fact]
@@ -210,6 +263,6 @@ public sealed class InventoryDiagramRecoveryServicesRelationshipApplierTests
             graph,
             new Dictionary<string, string>(StringComparer.Ordinal));
 
-        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
+        ast.Edges.Single().ProvenanceKind.Should().BeNull();
     }
 }
