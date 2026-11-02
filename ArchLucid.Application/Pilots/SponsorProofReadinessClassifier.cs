@@ -13,6 +13,10 @@ public static class SponsorProofReadinessClassifier
     /// </summary>
     internal const string ComparativeBaselineNarrativeSoftGapToken = "ROI comparative narrative";
 
+    internal static string FormatComparativeBaselineBuyerSafeGateSoftGapLine() =>
+        FormattableString.Invariant(
+            $"{ComparativeBaselineNarrativeSoftGapToken} uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+
     public static SponsorProofReadinessClassification Classify(PilotRunDeltas deltas, PilotBuyerSafeEvidenceGateResult gate)
     {
         ArgumentNullException.ThrowIfNull(deltas);
@@ -35,6 +39,23 @@ public static class SponsorProofReadinessClassifier
 
         return SponsorProofReadinessClassification.Incomplete;
 
+    }
+
+    /// <summary>
+    ///     Single markdown cell for sponsor-proof readiness across proof checklist, sponsor-safe status, and evidence card.
+    ///     Uses live gate classification when <paramref name="gate"/> is present; otherwise parses the proof DTO string.
+    /// </summary>
+    public static string FormatMarkdownTableCell(
+        PilotRunDeltas deltas,
+        PilotBuyerSafeEvidenceGateResult? gate,
+        string? sponsorProofReadinessFromProof)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        if (gate is not null)
+            return DescribeForMarkdownTable(Classify(deltas, gate));
+
+        return PilotSponsorProofReadinessUnresolvedHonestyCopy.FormatProofPackageCell(sponsorProofReadinessFromProof);
     }
 
     private static bool IsComparativeBaselineSoftGap(string message) =>

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
@@ -12,6 +12,10 @@ import {
 
 vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
   useOperationalSecurityFindingDetailQuery: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-agent-execution-mode", () => ({
+  useAgentExecutionMode: vi.fn(),
 }));
 
 vi.mock("@/hooks/use-security-evidence-path-detail-query", () => ({
@@ -36,6 +40,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
 }));
 
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
@@ -59,6 +64,14 @@ function renderPanel(
 }
 
 describe("SecurityEvidencePathInspectPanel", () => {
+  beforeEach(() => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Simulator",
+      isSimulator: true,
+      isLoading: false,
+    });
+  });
+
   it("shows the path rank reader sentence on the identity header", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: undefined,
@@ -709,6 +722,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
         citedEvidenceRefs: ["path:path-1"],
         provenanceKind: "DeterministicInference",
         simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
         createdUtc: "2026-01-01T00:00:00Z",
       },
     });
@@ -720,6 +734,143 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
       "Simulator summary for the cited path.",
     );
+    expect(buildSecurityEvidencePathExplanation).toHaveBeenCalledWith("path-1", {
+      useSimulator: true,
+      allowInsufficientEvidence: false,
+    });
+  });
+
+  it("generates a model explanation in Real mode and labels the stored-path provenance", async () => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Real",
+      isSimulator: false,
+      isLoading: false,
+    });
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      errorMessage: null,
+      explanation: {
+        explanationId: "explanation-1",
+        pathId: "path-1",
+        executiveSummary: "Model summary for the cited path.",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "Restrict public access",
+          recommendedChangeSource: "cut-point",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: ["path:path-1", "hop:evidence-1"],
+        provenanceKind: "AiInference",
+        simulatorLabel: null,
+        modelOutputRejection: null,
+        createdUtc: "2026-01-01T00:00:00Z",
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    expect(await screen.findByTestId("security-evidence-path-explanation-output")).toHaveTextContent(
+      "Model summary for the cited path.",
+    );
+    expect(screen.getAllByText("Model — cited stored path")).not.toHaveLength(0);
+    expect(buildSecurityEvidencePathExplanation).toHaveBeenCalledWith("path-1", {
+      useSimulator: false,
+      allowInsufficientEvidence: false,
+    });
+  });
+
+  it("uses the simulator while the agent execution mode is still loading", async () => {
+    vi.mocked(useAgentExecutionMode).mockReturnValue({
+      mode: "Real",
+      isSimulator: false,
+      isLoading: true,
+    });
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Public exposure.",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: null,
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+    vi.mocked(buildSecurityEvidencePathExplanation).mockResolvedValue({
+      succeeded: true,
+      errorMessage: null,
+      explanation: {
+        explanationId: "explanation-1",
+        pathId: "path-1",
+        executiveSummary: "Simulator summary while mode loads.",
+        businessImpactHypotheses: [],
+        proposedRemediation: {
+          recommendedChange: "",
+          recommendedChangeSource: "",
+          verificationQueries: [],
+          preconditions: [],
+          suggestedPatternKey: null,
+        },
+        citedEvidenceRefs: ["path:path-1"],
+        provenanceKind: "DeterministicInference",
+        simulatorLabel: "SIMULATOR",
+        modelOutputRejection: null,
+        createdUtc: "2026-01-01T00:00:00Z",
+      },
+    });
+
+    renderPanel("finding-1");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-explanation-button"));
+
+    await screen.findByTestId("security-evidence-path-explanation-output");
     expect(buildSecurityEvidencePathExplanation).toHaveBeenCalledWith("path-1", {
       useSimulator: true,
       allowInsufficientEvidence: false,
