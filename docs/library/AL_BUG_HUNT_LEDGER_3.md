@@ -10234,6 +10234,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
+**Hunts:** 131 · **Bugs found:** 126 · **Consecutive dry hunts:** 0
+
+2026-11-02 thorough hunt #201 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted four open `(candidate)` scalar guard gaps from hunt **#200** reseed — `coerceArtifactDescriptor` accepting whitespace-only `artifactType`, `name`, or `createdUtc`, and `coerceComparisonExplanation` accepting whitespace-only `narrative` — so malformed artifact detail or run-compare AI payloads could render blank type/name/timestamp labels or empty narrative bodies; extend `operatorNonEmptyTrimmedString` on those fields and unify artifact manual fallbacks; regressions `rejects whitespace-only artifactType`, `rejects whitespace-only name`, `rejects whitespace-only createdUtc`, and `rejects whitespace-only narrative`; cheap-disproof closed **valid-no-repro** whitespace-only `ruleSetVersion` (summary scalars on `operatorNonEmptyTrimmedString` since hunt **#197**; regression `rejects whitespace-only ruleSetVersion`); 50/50 `operator-response-guards.test.ts`. Private beta: Invited operators no longer hydrate artifact panels or run-compare AI sections from API payloads whose type, name, created timestamp, or narrative fields are whitespace-only.
+
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `artifactType` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** `operatorNonEmptyTrimmedString` on `artifactType`; regression `rejects whitespace-only artifactType`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `name` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** `operatorNonEmptyTrimmedString` on `name`; regression `rejects whitespace-only name`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `createdUtc` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** `operatorNonEmptyTrimmedString` on `createdUtc`; regression `rejects whitespace-only createdUtc`.
+- [x] (proven) `coerceComparisonExplanation` — whitespace-only `narrative` passes zod string checks — **hit 2026-11-02 thorough hunt #201:** trim guard on `narrative`; regression `rejects whitespace-only narrative`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetVersion` passes zod string checks — **cheap-disproof 2026-11-02 thorough hunt #201:** hunt **#197** summary scalar trim guard; regression `rejects whitespace-only ruleSetVersion`.
+
+- [ ] (candidate) `coerceArtifactDescriptorList` — whitespace-only list row `name` passes zod string checks — locus: `artifactListRowSchema`; input: `[{ artifactId: "a", name: "  " }]`.
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `manifestId` passes when present — locus: optional manifest id field; input: `{ manifestId: "  ", …required fields }`.
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only optional `runId` passes when present — locus: optional run id field; input: `{ runId: " ", …required fields }`.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `status` passes zod string checks — locus: `manifestSummarySchema`; input: `{ status: "  ", …required fields }`.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only optional `operatorSummary` passes when present — locus: optional operator summary string; input: `{ operatorSummary: "  ", …required fields }`.
+
+- [x] (superseded) pass **#201** open `(candidate)` queue (hunt **#200** reseed) — **superseded 2026-11-02 thorough hunt #201 (hit):** four proven + one cheap-disproof; see hunt **#201** header reseed.
+
+## Zone: ui-operator-lib
+
 **Hunts:** 130 · **Bugs found:** 123 · **Consecutive dry hunts:** 0
 
 2026-11-02 thorough hunt #200 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted three open `(candidate)` scalar guard gaps — `coerceArtifactDescriptor` accepting whitespace-only `contentHash` / `format`, and `coerceComparisonExplanation` accepting whitespace-only `highLevelSummary` — so malformed artifact detail payloads or run-compare AI summaries could render blank integrity/format labels or empty summary headings; extend `operatorNonEmptyTrimmedString` on those fields and manual fallbacks; regressions `rejects whitespace-only contentHash`, `rejects whitespace-only format`, and `rejects whitespace-only highLevelSummary`; cheap-disproof closed **valid-no-repro** legacy offset `page: 0` (hunt **#197** `page`/`pageSize` lower bound; regression `rejects legacy offset envelope when page is zero`) and **valid-no-repro** whitespace-only `ruleSetId` (summary scalars already on `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only ruleSetId`); 45/45 `operator-response-guards.test.ts`. Private beta: Invited operators no longer hydrate artifact detail panels with blank content hashes or formats, or run-compare AI summaries with whitespace-only headline text, when the API returns padded scalar fields.

@@ -558,6 +558,26 @@ describe("coerceManifestSummary", () => {
       expect(result.message).toBe('Review record summary is missing or invalid "ruleSetId".');
     }
   });
+
+  it("rejects whitespace-only ruleSetVersion", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "rs",
+      ruleSetVersion: "   ",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "ruleSetVersion".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptor", () => {
@@ -646,6 +666,54 @@ describe("coerceArtifactDescriptor", () => {
       expect(result.message).toBe('Artifact descriptor is missing or invalid "format".');
     }
   });
+
+  it("rejects whitespace-only artifactType", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "   ",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "artifactType".');
+    }
+  });
+
+  it("rejects whitespace-only name", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: " ",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "name".');
+    }
+  });
+
+  it("rejects whitespace-only createdUtc", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "  ",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "createdUtc".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptorList", () => {
@@ -663,6 +731,20 @@ describe("coerceComparisonExplanation", () => {
     const result = coerceComparisonExplanation({
       highLevelSummary: " ",
       narrative: "n",
+      majorChanges: [],
+      keyTradeoffs: [],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("AI explanation is missing highLevelSummary or narrative strings.");
+    }
+  });
+
+  it("rejects whitespace-only narrative", () => {
+    const result = coerceComparisonExplanation({
+      highLevelSummary: "summary",
+      narrative: " ",
       majorChanges: [],
       keyTradeoffs: [],
     });
