@@ -10,24 +10,56 @@ internal static class PilotRunDeltasFindingsTotalFormatter
     internal const string MutedOnlyFindingsTotalLabel =
         "0 (muted findings were excluded from this total.)";
 
+    internal const string SnapshotZeroUnmutedFindingsTotalLabel =
+        "0 (no unmuted findings in persisted snapshot.)";
+
     internal static string FormatFindingsTotal(PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(deltas);
 
         int unmutedTotal = deltas.FindingsBySeverity.Sum(static p => p.Value);
 
-        if (unmutedTotal == 0 && deltas.MutedFindingsExcludedCount > 0)
+        if (deltas.FindingsBySeverity.Count == 0 && unmutedTotal == 0)
         {
-            return MutedOnlyFindingsTotalLabel;
-        }
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.HasMaterialFindingWithoutSeverityBuckets(deltas))
+            {
+                return FindingsTotalNotAttestedLabel;
+            }
 
-        if (deltas.FindingsBySeverity.Count == 0
-            && deltas.SponsorNarrativeFindings.Count == 0
-            && string.IsNullOrWhiteSpace(deltas.TopFindingId))
-        {
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsMutedOnlyEmptySeverity(deltas))
+            {
+                return MutedOnlyFindingsTotalLabel;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsSnapshotAttestedZeroUnmuted(deltas))
+            {
+                return SnapshotZeroUnmutedFindingsTotalLabel;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsOmittedEmptySeverity(deltas))
+            {
+                return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
+            }
+
+            if (PilotRunDeltasFindingsEmptySeverityHonesty.IsAgentResultsIncludedEmptySeverity(deltas))
+            {
+                return PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel;
+            }
+
             return FindingsTotalNotAttestedLabel;
         }
 
         return unmutedTotal.ToString(CultureInfo.InvariantCulture);
+    }
+
+    internal static string FormatMarkdownTableCell(PilotRunDeltas deltas)
+    {
+        ArgumentNullException.ThrowIfNull(deltas);
+
+        string value = FormatFindingsTotal(deltas);
+
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
+            ? value
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value);
     }
 }

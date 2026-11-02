@@ -26,6 +26,7 @@ import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
   runsListEffectiveSearchFromSearch,
+  runsListNavigationSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
 import {
@@ -296,7 +297,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   useEffect(() => {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
-        runsListSearchHrefFromSearch(routerSearchString, filterText, pathname),
+        runsListSearchHrefFromSearch(
+          runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+          filterText,
+          pathname,
+        ),
         { notify: false },
       );
     }, 250);
@@ -314,9 +319,13 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const clearFilterText = useCallback(() => {
     filterTextRef.current = "";
     setFilterTextState("");
-    commitHrefIfChanged(runsListClearSearchHrefFromSearch(routerSearchString, pathname), {
-      notify: false,
-    });
+    commitHrefIfChanged(
+      runsListClearSearchHrefFromSearch(
+        runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+        pathname,
+      ),
+      { notify: false },
+    );
   }, [pathname, routerSearchString]);
 
   const setSortOrder = useCallback((_order: SortOrder): void => {
@@ -581,8 +590,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const currentSearch = searchParams.toString();
-  const navigationSearch = runsListEffectiveSearchFromSearch(currentSearch, filterText);
+  const navigationSearch = runsListNavigationSearchFromSearch(
+    routerSearchString,
+    readWindowLocationSearch(),
+    filterText,
+  );
   const previousHref = runsListPreviousPageHrefFromSearch(
     navigationSearch,
     pathname,

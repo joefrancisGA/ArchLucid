@@ -13,6 +13,35 @@ describe("SecureNow pilot decision preparation page", () => {
     expect(screen.getByText(/Proceed to commercial discussion is a human decision/)).toBeInTheDocument();
     expect(screen.getByText(/Extend with bounded scope names/)).toBeInTheDocument();
     expect(screen.getByText(/Stop preserves the evidence/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-decision-cycle")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Qualify" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-first-hour",
+    );
+    expect(screen.getByRole("link", { name: "Scope" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
+    expect(screen.getByRole("link", { name: "Review" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory",
+    );
+    expect(screen.getByRole("link", { name: "Decide change" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-pilot-decision#securenow-pilot-decision-outcomes-heading",
+    );
+    expect(screen.getByRole("link", { name: "Verify" })).toHaveAttribute(
+      "href",
+      "/security/remediation-instances",
+    );
+    expect(screen.getByRole("link", { name: "Close" })).toHaveAttribute(
+      "href",
+      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
+    );
+    expect(screen.getByRole("link", { name: "Decision cycle log" })).toHaveAttribute(
+      "href",
+      "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md",
+    );
     expect(screen.getByRole("link", { name: "Read the sponsor-facing decision path" })).toHaveAttribute(
       "href",
       "/why-securenow#pilot-decision",

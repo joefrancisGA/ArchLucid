@@ -13,7 +13,9 @@ FIXTURE_STORYBOARD = Path("docs/securenow/FIXTURE_STORYBOARD.md")
 WHY_COPY = Path("archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts")
 SAMPLE_COPY = Path("archlucid-ui/src/lib/marketing/securenow-sample-copy.ts")
 WHY_PAGE = Path("archlucid-ui/src/app/(marketing)/why-securenow/page.tsx")
+WHY_VIEW = Path("archlucid-ui/src/app/(marketing)/why-securenow/WhySecureNowDraftView.tsx")
 SAMPLE_PAGE = Path("archlucid-ui/src/app/(marketing)/securenow-sample/page.tsx")
+SAMPLE_VIEW = Path("archlucid-ui/src/app/(marketing)/securenow-sample/SecureNowSampleView.tsx")
 ROUTE_POLICY = Path("archlucid-ui/src/lib/product-line/securenow-marketing-route-policy.ts")
 MARKETING_LAYOUT = Path("archlucid-ui/src/app/(marketing)/layout.tsx")
 RESOURCES_MENU = Path("archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx")
@@ -87,16 +89,27 @@ def validate(root: Path = ROOT) -> list[str]:
     if why_page and "index: true" not in why_page:
         errors.append(f"{WHY_PAGE}: missing index: true")
 
+    why_view = _read(root, WHY_VIEW, errors)
+    if why_view and 'href="/securenow-sample"' not in why_view:
+        errors.append(f'{WHY_VIEW}: missing href="/securenow-sample"')
+
     sample_copy = _read(root, SAMPLE_COPY, errors)
     if sample_copy:
         if "Synthetic fixture. Not a customer result." not in sample_copy:
             errors.append(f"{SAMPLE_COPY}: missing fixture discipline line")
         if "fixture-path-01" not in sample_copy:
             errors.append(f"{SAMPLE_COPY}: missing fixture-path-01")
+        for title in ("Engineer action", "Not verified", "Audit link"):
+            if title not in sample_copy:
+                errors.append(f"{SAMPLE_COPY}: missing beat {title!r}")
 
     sample_page = _read(root, SAMPLE_PAGE, errors)
     if sample_page and "index: true" not in sample_page:
         errors.append(f"{SAMPLE_PAGE}: missing index: true")
+
+    sample_view = _read(root, SAMPLE_VIEW, errors)
+    if sample_view and 'href="/why-securenow"' not in sample_view:
+        errors.append(f'{SAMPLE_VIEW}: missing href="/why-securenow"')
 
     route_policy = _read(root, ROUTE_POLICY, errors)
     if route_policy:

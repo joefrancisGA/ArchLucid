@@ -73,6 +73,48 @@ describe("idle-desk-restore (DR-12)", () => {
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/run-1");
   });
 
+  it("persists livelihood form snapshots before session clear when operator scope is missing (WS-18)", () => {
+    clearOperatorScopeStorage();
+
+    const returnPath = "/architecture/reviews/run-1/findings/finding-1";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("finding-inspect-disposition", "run-1:finding-1");
+
+    registerLivelihoodIdleFormSnapshot(snapshotKey, {
+      surfaceId: "finding-inspect-disposition",
+      returnPath,
+      entityKey: "run-1:finding-1",
+      fields: { rationale: "Defer until Q4 capacity is available." },
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+    });
+
+    persistIdleDeskRestoreBeforeSessionClear(returnPath);
+
+    expect(readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.rationale).toBe(
+      "Defer until Q4 capacity is available.",
+    );
+    expect(readIdleDeskRestorePayload()?.scope).toBeNull();
+  });
+
+  it("merges one livelihood snapshot when operator scope is missing (LW-095)", () => {
+    clearOperatorScopeStorage();
+
+    const returnPath = "/governance/workflow";
+    const snapshotKey = buildLivelihoodIdleFormSnapshotKey("governance-approval-rationale", "approval-3");
+
+    mergeLivelihoodIdleFormSnapshotIntoDeskRestore(snapshotKey, {
+      surfaceId: "governance-approval-rationale",
+      returnPath,
+      entityKey: "approval-3",
+      fields: { reviewComment: "Held for security review." },
+      savedAtUtc: "2026-09-11T00:00:00.000Z",
+    });
+
+    expect(
+      readIdleDeskRestorePayload()?.formSnapshots?.[snapshotKey]?.fields.reviewComment,
+    ).toBe("Held for security review.");
+    expect(readIdleDeskRestorePayload()?.scope).toBeNull();
+  });
+
   it("restores after sign-in without writing scope when payload is return-only", () => {
     clearOperatorScopeStorage();
     persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
