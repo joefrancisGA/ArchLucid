@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 
@@ -102,7 +103,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (InferredTrailEntry entry in inferred)
         {
-            sb.AppendLine($"- {entry.FormatMarkdownExportLine()}");
+            sb.AppendLine($"- {FormatInferredTrailExportLine(entry)}");
         }
 
         sb.AppendLine();
@@ -174,7 +175,7 @@ public static class TransparencyTrailMarkdownFormatter
         string key = entry.Key is null
             ? AssertionKeyNotStoredLabel
             : entry.Key.Trim().Length > 0
-                ? entry.Key
+                ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(entry.Key.Trim())
                 : AssertionKeyStoredEmptyLabel;
 
         return $"{key}: {FormatAssertedTrailValue(entry.Value)}";
@@ -199,7 +200,9 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = responderLabel.Trim();
 
-        return trimmed.Length > 0 ? $" — {trimmed}" : " — Responder was stored empty.";
+        return trimmed.Length > 0
+            ? $" — {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
+            : " — Responder was stored empty.";
     }
 
     internal static string FormatAssertedTrailQuestionIdSuffix(string? questionId)
@@ -211,7 +214,9 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = questionId.Trim();
 
-        return trimmed.Length > 0 ? $" — Question id: {trimmed}" : " — Question id was stored empty.";
+        return trimmed.Length > 0
+            ? $" — Question id: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)}"
+            : " — Question id was stored empty.";
     }
 
     internal static string FormatAssertedTrailRecordedUtcSuffix(DateTime? recordedUtc)
@@ -231,7 +236,45 @@ public static class TransparencyTrailMarkdownFormatter
             return AssertionValueNotStoredLabel;
         }
 
-        return value.Trim().Length > 0 ? value : AssertionValueStoredEmptyLabel;
+        return value.Trim().Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim())
+            : AssertionValueStoredEmptyLabel;
+    }
+
+    internal static string FormatInferredTrailExportLine(InferredTrailEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+
+        return
+            $"{FormatInferredTrailKey(entry)}: {FormatInferredTrailValue(entry)} ({entry.FormatExportConfidenceSegment()})";
+    }
+
+    private static string FormatInferredTrailKey(InferredTrailEntry entry)
+    {
+        if (entry.Key is null)
+        {
+            return InferredTrailEntry.KeyNotStoredLabel;
+        }
+
+        string trimmed = entry.Key.Trim();
+
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : InferredTrailEntry.KeyStoredEmptyLabel;
+    }
+
+    private static string FormatInferredTrailValue(InferredTrailEntry entry)
+    {
+        if (entry.Value is null)
+        {
+            return InferredTrailEntry.ValueNotStoredLabel;
+        }
+
+        string trimmed = entry.Value.Trim();
+
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : InferredTrailEntry.ValueStoredEmptyLabel;
     }
 
     internal static string FormatSkippedTrailExportLine(SkippedQuestionTrailEntry entry)
@@ -243,6 +286,8 @@ public static class TransparencyTrailMarkdownFormatter
     {
         string trimmed = questionKey?.Trim() ?? string.Empty;
 
-        return trimmed.Length > 0 ? trimmed : SkippedQuestionKeyNotStoredLabel;
+        return trimmed.Length > 0
+            ? FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(trimmed)
+            : SkippedQuestionKeyNotStoredLabel;
     }
 }

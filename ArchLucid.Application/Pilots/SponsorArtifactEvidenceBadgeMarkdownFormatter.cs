@@ -42,10 +42,10 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"- **Evidence source:** **{badges.SourceLabel}** (`{badges.SourceToken}`)");
+            $"- **Evidence source:** **{badges.SourceLabel}** ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(badges.SourceToken)})");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"- **Evidence freshness:** **{badges.FreshnessLabel}** (`{badges.FreshnessToken}`)");
+            $"- **Evidence freshness:** **{badges.FreshnessLabel}** ({FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(badges.FreshnessToken)})");
 
         if (badges.WarnBeforeSponsorSend)
         {
@@ -87,7 +87,7 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
         ValueReportSnapshot snapshot,
         string savingsPricingBasis)
     {
-        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
+        if (PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas))
             return "demo-derived";
 
         if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.UploadedActualAmortized, StringComparison.Ordinal))
@@ -100,10 +100,6 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
             or ReviewCycleBaselineProvenance.TenantSuppliedViaSettings)
             return "buyer-provided";
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
-            && !string.IsNullOrWhiteSpace(proof.RoiConfidenceLabel))
-            return "buyer-provided";
-
         if (string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.Retail, StringComparison.Ordinal)
             || string.Equals(savingsPricingBasis, SponsorRoiSavingsPricingBasis.EaAdjusted, StringComparison.Ordinal))
             return "azure-retail";
@@ -113,13 +109,15 @@ public static class SponsorArtifactEvidenceBadgeMarkdownFormatter
 
     private static string ResolveFreshnessToken(string costEvidenceFreshnessStatus)
     {
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Fresh, StringComparison.OrdinalIgnoreCase))
+        string normalized = costEvidenceFreshnessStatus.Trim();
+
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Fresh, StringComparison.OrdinalIgnoreCase))
             return "fresh";
 
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Stale, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Stale, StringComparison.OrdinalIgnoreCase))
             return "stale";
 
-        if (string.Equals(costEvidenceFreshnessStatus, RoiCostEvidenceFreshness.Missing, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalized, RoiCostEvidenceFreshness.Missing, StringComparison.OrdinalIgnoreCase))
             return "missing";
 
         return "not-collected";

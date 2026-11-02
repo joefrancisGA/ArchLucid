@@ -21,7 +21,7 @@ Run **SN-DV-01**, then **02**, then **03**, then **04**. **SN-DV-HOLD** is not a
 
 ## Human tasks (owner)
 
-These are not Composer sessions. Do them after the log exists, on a private copy or in a follow-up you explicitly ask an agent to record.
+These are not Composer sessions. Do them after the log exists, on a private copy. They are recorded as **M-314** in [`docs/go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md). Do not perform the walk in an implementation session, and do not write the times into source.
 
 1. Walk `fixture-path-01` from Qualify to Close. Write the UTC start and UTC close on the `SYNTHETIC FIXTURE` row.
 2. Name one stall step from that walk.

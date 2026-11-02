@@ -37,7 +37,7 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
                 | --- | --- |
                 | Mode | {modeLabel} |
                 {fallbackDetailRow}| LLM completion traces (this run) | {FormatLlmCompletionTraceCount(input)} |
-                | Azure OpenAI deployment (when known) | `{deployment}` |
+                | Azure OpenAI deployment (when known) | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(deployment)} |
 
                 _Token totals per provider are not aggregated in this report; trace count reflects persisted completion attempts._
                 """;
