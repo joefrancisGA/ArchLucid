@@ -81,6 +81,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ISecurityEvidencePathReportQueryService, SecurityEvidencePathReportQueryService>();
         services.AddScoped<ISecurityEvidencePathExplanationService, SecurityEvidencePathExplanationService>();
         services.AddScoped<ISecureNowPilotPathDispositionService, SecureNowPilotPathDispositionService>();
+        services.AddScoped<ISecureNowInvestigationEffortInputService, SecureNowInvestigationEffortInputService>();
         services.AddScoped<ISecureNowArchitectMetricsQueryService, SecureNowArchitectMetricsQueryService>();
         services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<ISecurityAssetAssertionService, SecurityAssetAssertionService>();

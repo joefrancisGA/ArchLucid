@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -15,6 +15,16 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
     workspaceLabel: "Working",
     projectLabel: "Default",
   }),
+}));
+
+vi.mock("@/lib/product-line/securenow-investigation-effort-sync", () => ({
+  loadSecureNowInvestigationEffortInputs: vi.fn(async () => {
+    const { readSecureNowInvestigationEffortInputs } = await import(
+      "@/lib/product-line/securenow-investigation-effort-input-storage"
+    );
+    return readSecureNowInvestigationEffortInputs();
+  }),
+  persistSecureNowInvestigationEffortInputsToAudit: vi.fn(async () => null),
 }));
 
 describe("SecureNowInvestigationEffortPageView", () => {
@@ -75,7 +85,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
     );
   });
 
-  it("restores persisted non-fixture inputs on mount", () => {
+  it("restores persisted non-fixture inputs on mount", async () => {
     window.localStorage.setItem(
       secureNowInvestigationEffortInputStorageKeyForScope("tenant-a", "workspace-b"),
       JSON.stringify({
@@ -89,7 +99,9 @@ describe("SecureNowInvestigationEffortPageView", () => {
 
     render(<SecureNowInvestigationEffortPageView />);
 
-    expect(screen.getByLabelText("Baseline hours (B)")).toHaveValue(5);
+    await waitFor(() => {
+      expect(screen.getByLabelText("Baseline hours (B)")).toHaveValue(5);
+    });
     expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
       "Entered inputs. Not a customer result.",
     );

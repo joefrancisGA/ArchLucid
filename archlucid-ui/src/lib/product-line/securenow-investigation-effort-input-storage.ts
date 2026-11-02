@@ -4,7 +4,13 @@ export const SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX =
   "securenow-investigation-effort-inputs:" as const;
 
 export const SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE =
-  "Stored in this browser for this workspace. Reloading restores your entries; they are not written to the pilot measurement log." as const;
+  "Tenant audit stores operator inputs for this workspace. This browser copy is a cache. Fixture worksheet values are not stored. They are not written to the pilot measurement log. This is not a customer result." as const;
+
+export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_BASELINE_HOURS = 3;
+export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_AFTER_HOURS = 2;
+export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_INVESTIGATIONS = 20;
+export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_HOURLY_RATE = 100;
+export const SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_COST = 10000;
 
 export type SecureNowInvestigationEffortInputFields = {
   readonly baselineHours: string;
@@ -94,4 +100,31 @@ export function secureNowInvestigationEffortInputStorageKeyForScope(
   workspaceId: string,
 ): string {
   return `${SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_PREFIX}${tenantId.trim()}:${workspaceId.trim()}`;
+}
+
+function positiveNumber(value: string): number | null {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+export function isSecureNowInvestigationEffortFixtureWorksheet(
+  fields: SecureNowInvestigationEffortInputFields,
+): boolean {
+  return positiveNumber(fields.baselineHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_BASELINE_HOURS
+    && positiveNumber(fields.afterHours) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_AFTER_HOURS
+    && positiveNumber(fields.annualInvestigations) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_INVESTIGATIONS
+    && positiveNumber(fields.hourlyRate) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_HOURLY_RATE
+    && positiveNumber(fields.annualCost) === SECURENOW_INVESTIGATION_EFFORT_FIXTURE_ANNUAL_COST;
+}
+
+/** Complete positive operator inputs that are not the published fixture worksheet. */
+export function isSecureNowInvestigationEffortAuditCandidate(
+  fields: SecureNowInvestigationEffortInputFields,
+): boolean {
+  return positiveNumber(fields.baselineHours) !== null
+    && positiveNumber(fields.afterHours) !== null
+    && positiveNumber(fields.annualInvestigations) !== null
+    && positiveNumber(fields.hourlyRate) !== null
+    && positiveNumber(fields.annualCost) !== null
+    && !isSecureNowInvestigationEffortFixtureWorksheet(fields);
 }
