@@ -4,6 +4,21 @@ export type SecureNowCollectionMissingInput = {
   readonly hasSuccessfulPull: boolean;
 };
 
+export const SECURENOW_COLLECTION_MISSING_STATUS_LINE = "Collection status: Missing." as const;
+
+export const SECURENOW_COLLECTION_READER_ROLE_LINE =
+  "Connector role: Reader on the subscription in scope." as const;
+
+export function formatSecureNowHomeSubscriptionScopeLine(subscriptionLabel: string | null | undefined): string {
+  const trimmed = subscriptionLabel?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "Subscription scope: not selected.";
+  }
+
+  return `Subscription scope: ${trimmed}.`;
+}
+
 /** One buyer-safe reason when SecureNow has no current capture. */
 export function resolveSecureNowCollectionMissingDetail(
   input: SecureNowCollectionMissingInput,

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatSecureNowHomeSubscriptionScopeLine,
   resolveSecureNowCollectionMissingDetail,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
 
@@ -51,5 +53,20 @@ describe("resolveSecureNowCollectionMissingDetail", () => {
         hasSuccessfulPull: true,
       }),
     ).toBe(false);
+  });
+});
+
+describe("SecureNow home collection missing copy", () => {
+  it("names the reader role line used on Home and cloud connections", () => {
+    expect(SECURENOW_COLLECTION_READER_ROLE_LINE).toMatch(/Reader on the subscription in scope/i);
+  });
+
+  it("formats subscription scope when the label is absent", () => {
+    expect(formatSecureNowHomeSubscriptionScopeLine(null)).toBe("Subscription scope: not selected.");
+    expect(formatSecureNowHomeSubscriptionScopeLine("  ")).toBe("Subscription scope: not selected.");
+  });
+
+  it("formats subscription scope when a label is present", () => {
+    expect(formatSecureNowHomeSubscriptionScopeLine("Production")).toBe("Subscription scope: Production.");
   });
 });

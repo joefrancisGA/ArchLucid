@@ -204,6 +204,8 @@ describe("SecureNowHomeEnvironmentContext", () => {
     const gap = await screen.findByRole("link", { name: "Inventory capture failed." });
 
     expect(gap).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: Production.");
   });
 
   it("links an empty snapshot list to cloud connections", async () => {
@@ -228,6 +230,9 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "/integrations/cloud-connections",
     );
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Collection status: Missing.");
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent(/Reader on the subscription in scope/i);
+    expect(screen.getByTestId("securenow-home-reader-role-hint")).toHaveTextContent("Subscription scope: not selected.");
   });
 
   it("gives a collection error one safe next action", async () => {

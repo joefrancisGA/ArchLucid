@@ -18,6 +18,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   resolveSecureNowCollectionMissingDetail,
+  SECURENOW_COLLECTION_READER_ROLE_LINE,
   shouldShowSecureNowCollectionMissingBlock,
 } from "@/lib/product-line/securenow-collection-missing-reason";
 
@@ -72,7 +73,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
         {collectionMissingDetail}
       </p>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-        Connector role: Reader on the subscription in scope. SecureNow does not change Azure.
+        {SECURENOW_COLLECTION_READER_ROLE_LINE} SecureNow does not change Azure.
       </p>
     </section>
   ) : null;
