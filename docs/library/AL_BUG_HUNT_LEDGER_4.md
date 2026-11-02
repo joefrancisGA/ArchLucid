@@ -32256,10 +32256,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 148
+- **hunts:** 149
 - **bugs-found:** 93
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-29
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-11-02
 - **last-bug:** 2026-10-22 — AWS Resource Explorer partition query trims region before prefix checks
 - **related-pd-tb:** none
 - **code-changed-since:** no
