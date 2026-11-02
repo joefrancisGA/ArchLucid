@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -11,6 +11,11 @@ import {
   SECURENOW_INVESTIGATION_EFFORT_LEAD,
   SECURENOW_INVESTIGATION_EFFORT_NOTES,
 } from "@/lib/product-line/securenow-investigation-effort-copy";
+import {
+  persistSecureNowInvestigationEffortInputs,
+  readSecureNowInvestigationEffortInputs,
+  SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE,
+} from "@/lib/product-line/securenow-investigation-effort-input-storage";
 
 type EffortInputs = {
   readonly baselineHours: string;
@@ -35,6 +40,21 @@ function numberValue(value: string): number | null {
 
 export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
   const [inputs, setInputs] = useState<EffortInputs>(EMPTY_INPUTS);
+  const [restoreComplete, setRestoreComplete] = useState(false);
+
+  useEffect(() => {
+    setInputs(readSecureNowInvestigationEffortInputs() ?? EMPTY_INPUTS);
+    setRestoreComplete(true);
+  }, []);
+
+  useEffect(() => {
+    if (!restoreComplete) {
+      return;
+    }
+
+    persistSecureNowInvestigationEffortInputs(inputs);
+  }, [inputs, restoreComplete]);
+
   const result = useMemo(() => {
     const baselineHours = numberValue(inputs.baselineHours);
     const afterHours = numberValue(inputs.afterHours);
@@ -100,6 +120,12 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
           </h2>
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             Enter comparable operator inputs. Fixture worksheet values are rejected.
+          </p>
+          <p
+            className={OPERATOR_TYPOGRAPHY.helper}
+            data-testid="securenow-investigation-effort-input-storage-discipline"
+          >
+            {SECURENOW_INVESTIGATION_EFFORT_INPUT_STORAGE_DISCIPLINE}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             {([
