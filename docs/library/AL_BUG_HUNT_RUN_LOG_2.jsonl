@@ -2494,3 +2494,4 @@
 {"at":"2026-11-02T15:06:30.9213109Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T15:09:55.3352482Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T15:13:11.9905387Z","zoneId":"api-governance-tenancy-controllers","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T20:28:12.0711621Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
