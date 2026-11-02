@@ -77,7 +77,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 await cutPointRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
             IReadOnlyList<string> allowedEvidenceRefs =
-                SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops);
+                SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops, cutPoints);
             string rankContext = await BuildRankContextAsync(scope, path, rankRepository, cancellationToken);
 
             HashSet<string> allowedArmIds = SecurityEvidencePathExplanationValidator.CollectAllowedArmIds(hops);

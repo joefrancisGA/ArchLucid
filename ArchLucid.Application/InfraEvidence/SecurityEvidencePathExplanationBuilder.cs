@@ -186,6 +186,17 @@ public static class SecurityEvidencePathExplanationBuilder
                 SuggestedPatternKey = proposedRemediation.SuggestedPatternKey,
             };
 
+            IReadOnlyList<string> disallowedCitedRefs = SecurityEvidencePathExplanationValidator.FindDisallowedCitedEvidenceRefs(
+                parsed.CitedEvidenceRefs,
+                allowedEvidenceRefs);
+
+            if (disallowedCitedRefs.Count > 0)
+            {
+                rejectionReason =
+                    $"Cited evidence refs outside the stored path: {string.Join(", ", disallowedCitedRefs)}.";
+                return false;
+            }
+
             IReadOnlyList<string> citedEvidenceRefs = SecurityEvidencePathExplanationValidator.FilterCitedEvidenceRefs(
                 parsed.CitedEvidenceRefs,
                 allowedEvidenceRefs);

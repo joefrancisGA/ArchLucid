@@ -103,6 +103,7 @@ export function useCloudConnectionsPage() {
     gcp: DEFAULT_PROVIDER_SUMMARY,
   });
   const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
+  const [azureSubscriptionIdsPresent, setAzureSubscriptionIdsPresent] = useState(false);
 
   const refreshSummaries = useCallback(async () => {
     const loadAws = isCloudProviderSupportedForProductLine("aws", productLine);
@@ -160,6 +161,9 @@ export function useCloudConnectionsPage() {
         }),
       );
 
+      setAzureSubscriptionIdsPresent(
+        azureConnections.some((connection) => connection.subscriptionIds.trim().length > 0),
+      );
       setSuccessfulPullByProvider((previous) => ({ ...previous, azure: azureIndicatesPull }));
       setProviderSummaries((previous) => ({
         ...previous,
@@ -386,6 +390,7 @@ export function useCloudConnectionsPage() {
     cloudConnectEmphasizedStepId,
     hasConfiguredProvider,
     hasSuccessfulPull,
+    azureSubscriptionIdsPresent,
     connectedProviderCount,
     totalProviderCount: supportedProviderCount,
     visiblePlatformChipOptions,
