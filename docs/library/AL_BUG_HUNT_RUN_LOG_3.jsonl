@@ -2458,3 +2458,4 @@
 {"at":"2026-11-02T17:09:52.2851324Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-02T17:11:41.6818560Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow"}
 {"at":"2026-11-02T17:14:20.8663813Z","zoneId":"securenow-question-queue","outcome":"dry","productLine":"securenow"}
+{"at":"2026-11-02T17:41:12.7135397Z","zoneId":"securenow-question-queue","outcome":"seed-only","productLine":"securenow"}
