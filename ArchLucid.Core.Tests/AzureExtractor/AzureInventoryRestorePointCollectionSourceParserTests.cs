@@ -57,6 +57,34 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_id_from_raw_json_when_another_property_contains_percent_encoding()
+    {
+        string blob = $$"""{"id":"{{VirtualMachineArmId}}","tag":"a%22b"}""";
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["source"] = blob,
+                })
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
+    public void Parse_reads_id_from_a_fully_percent_encoded_json_blob()
+    {
+        string blob = Uri.EscapeDataString($$"""{"id":"{{VirtualMachineArmId}}"}""");
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["source"] = blob,
+                })
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
     public void Parse_reads_hydrated_restore_point_source_when_value_is_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
