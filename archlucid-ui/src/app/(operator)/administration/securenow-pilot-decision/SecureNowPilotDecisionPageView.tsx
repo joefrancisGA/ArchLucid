@@ -60,8 +60,11 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_DECISION_CYCLE_LEAD}</p>
           <ul className="list-disc space-y-2 pl-5">
             {SECURENOW_DECISION_CYCLE_STALL_STEPS.map((step) => (
-              <li key={step} className={OPERATOR_TYPOGRAPHY.body}>
-                {step}
+              <li key={step.label} className={OPERATOR_TYPOGRAPHY.body}>
+                <Link className={OPERATOR_LINK.inline} href={step.href}>
+                  {step.label}
+                </Link>
+                <span> — {step.note}</span>
               </li>
             ))}
           </ul>

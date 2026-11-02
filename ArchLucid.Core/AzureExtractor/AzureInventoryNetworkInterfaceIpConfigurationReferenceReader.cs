@@ -18,7 +18,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         if (reference.ValueKind is JsonValueKind.String)
         {
-            return ArmResourceIdNormalizer.NormalizeOrNull(reference.GetString());
+            return NormalizeReferenceArmId(reference.GetString());
         }
 
         return TryReadDirectId(reference);
@@ -28,7 +28,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
     {
         if (configuration.ValueKind is JsonValueKind.String)
         {
-            return ArmResourceIdNormalizer.NormalizeOrNull(configuration.GetString());
+            return NormalizeReferenceArmId(configuration.GetString());
         }
 
         if (TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement))
@@ -37,6 +37,38 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         }
 
         return null;
+    }
+
+    private static string? NormalizeReferenceArmId(string? armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+        {
+            return null;
+        }
+
+        string working = PercentDecodeBounded.Decode(armId.Trim());
+
+        // Post-decode guard: only normalize values that look like ARM resource IDs.
+        // This avoids throwing/altering non-ARM values and keeps behavior consistent across parsers.
+        if (!LooksLikeArmResourceId(working))
+        {
+            return null;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(working);
+    }
+
+    private static bool LooksLikeArmResourceId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        string trimmed = value.Trim();
+
+        return trimmed.StartsWith("/", StringComparison.Ordinal)
+            && trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryGetPropertyIgnoreCase(

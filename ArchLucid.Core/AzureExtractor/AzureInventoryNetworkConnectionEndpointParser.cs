@@ -75,25 +75,28 @@ public static class AzureInventoryNetworkConnectionEndpointParser
 
     private static string? NormalizeArmId(string? armId)
     {
-        string? working = ArmResourceIdNormalizer.NormalizeOrNull(armId);
-
-        if (working is null)
+        if (string.IsNullOrWhiteSpace(armId))
         {
             return null;
         }
+
+        string trimmed = armId.Trim();
+
+        string working = trimmed.StartsWith("{", StringComparison.Ordinal)
+            ? trimmed
+            : PercentDecodeBounded.Decode(trimmed);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
             return TryReadArmIdFromJson(working);
         }
-
         if (!working.StartsWith("/", StringComparison.Ordinal)
             || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
-        return working;
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? TryReadArmIdFromJson(string json)

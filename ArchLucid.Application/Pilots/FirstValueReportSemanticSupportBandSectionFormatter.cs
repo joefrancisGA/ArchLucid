@@ -58,7 +58,7 @@ public static class FirstValueReportSemanticSupportBandSectionFormatter
             foreach (string label in FirstValueReportSemanticSupportBandSummary.FormatStampUnsupportedSemanticSupportLabels(
                          unsupportedEntries))
             {
-                sb.AppendLine($"- {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(label)}");
+                sb.AppendLine($"- {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(label)}");
             }
         }
 
@@ -92,7 +92,7 @@ public static class FirstValueReportSemanticSupportBandSectionFormatter
                     FirstValueReportSemanticSupportBandSummary.ListUnsupportedDecisionGradeSemanticSupportFindings(
                         materialFindings));
 
-            string list = string.Join("<br />", unsupportedLabels.Select(FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell));
+            string list = string.Join("<br />", unsupportedLabels.Select(FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode));
             return $"**{line}** — review unsupported rows before sponsor send:<br />{list}";
         }
 
