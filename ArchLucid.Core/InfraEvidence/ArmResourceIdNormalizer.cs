@@ -34,12 +34,7 @@ public static class ArmResourceIdNormalizer
             {
                 next = Uri.UnescapeDataString(working);
             }
-            catch (UriFormatException)
-            {
-                decoded = working;
-                return false;
-            }
-            catch (ArgumentException)
+            catch (Exception ex) when (ex is UriFormatException or ArgumentException)
             {
                 decoded = working;
                 return false;
