@@ -158,4 +158,15 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(empty).toHaveAttribute("href", "/integrations/cloud-connections");
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
   });
+
+  it("gives a collection error one safe next action", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockRejectedValue(new Error("Collection unavailable"));
+    renderContext();
+
+    expect(await screen.findByText("Collection unavailable. Check cloud connections and try again.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Check cloud connections" })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections",
+    );
+  });
 });

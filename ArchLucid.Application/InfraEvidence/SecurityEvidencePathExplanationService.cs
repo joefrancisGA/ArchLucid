@@ -18,6 +18,8 @@ public sealed class SecurityEvidencePathExplanationService(
     IPromptRedactor promptRedactor,
     ILogger<SecurityEvidencePathExplanationService> logger) : ISecurityEvidencePathExplanationService
 {
+    public const int PathExplanationMaxOutputTokens = 800;
+
     private const string ExplanationSystemPrompt =
         "You are an enterprise cloud security architect summarizing a cited SecureNow architect path. "
         + "Return ONLY JSON with keys executiveSummary, businessImpactHypotheses, proposedRemediation, citedEvidenceRefs. "
@@ -83,6 +85,7 @@ public sealed class SecurityEvidencePathExplanationService(
             SecurityEvidencePathExplanationContent content;
             ProvenanceKind provenanceKind;
             string? simulatorLabel = null;
+            string? modelOutputRejection = null;
 
             if (useSimulator)
             {
@@ -106,27 +109,56 @@ public sealed class SecurityEvidencePathExplanationService(
 
                 PromptRedactionOutcome redactedPrompt = promptRedactor.Redact(userPrompt);
 
-                string llmJson = await llm.CompleteJsonAsync(
-                    ExplanationSystemPrompt,
-                    redactedPrompt.Text,
-                    maxTokens: null,
-                    cancellationToken: cancellationToken);
-
-                if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
-                        llmJson,
-                        allowedEvidenceRefs,
-                        allowedArmIds,
-                        out content,
-                        out string? rejectionReason))
+                try
                 {
-                    return new SecurityEvidencePathExplanationResult
-                    {
-                        Succeeded = false,
-                        ErrorMessage = rejectionReason ?? "Path explanation could not be validated against cited evidence.",
-                    };
-                }
+                    string llmJson = await llm.CompleteJsonAsync(
+                        ExplanationSystemPrompt,
+                        redactedPrompt.Text,
+                        maxTokens: PathExplanationMaxOutputTokens,
+                        cancellationToken: cancellationToken);
 
-                provenanceKind = ProvenanceKind.AiInference;
+                    if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
+                            llmJson,
+                            allowedEvidenceRefs,
+                            allowedArmIds,
+                            out content,
+                            out string? rejectionReason))
+                    {
+                        content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
+                            path,
+                            hops,
+                            cutPoints,
+                            allowedEvidenceRefs);
+                        provenanceKind = ProvenanceKind.DeterministicInference;
+                        simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
+                        modelOutputRejection =
+                            rejectionReason ?? "Model output was rejected; showing the stored-path summary.";
+                    }
+                    else
+                    {
+                        provenanceKind = ProvenanceKind.AiInference;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Model path explanation failed; using stored-path summary for PathId={PathId}.",
+                        pathId);
+                    content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
+                        path,
+                        hops,
+                        cutPoints,
+                        allowedEvidenceRefs);
+                    provenanceKind = ProvenanceKind.DeterministicInference;
+                    simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
+                    modelOutputRejection =
+                        "Model completion failed; showing the stored-path summary.";
+                }
             }
 
             if (string.IsNullOrWhiteSpace(content.ExecutiveSummary))
@@ -156,6 +188,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 CitedEvidenceRefs = validCitations,
                 ProvenanceKind = provenanceKind,
                 SimulatorLabel = simulatorLabel,
+                ModelOutputRejection = modelOutputRejection,
                 CreatedUtc = createdUtc,
             };
 
