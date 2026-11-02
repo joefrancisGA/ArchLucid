@@ -45,9 +45,9 @@ internal static class InventoryDiagramRecoveryServicesRelationshipApplier
             diagramEdge.Label = isReplication
                 ? InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesReplicatesLabel(ReadTargetRegion(graphEdge))
                 : InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesProtectsLabel();
-            diagramEdge.ProvenanceKind = graphEdge is null
-                ? ProvenanceKind.DerivedFact.ToString()
-                : ProvenanceKind.ObservedFact.ToString();
+            diagramEdge.ProvenanceKind = string.IsNullOrWhiteSpace(graphEdge?.ProvenanceKind)
+                ? null
+                : graphEdge!.ProvenanceKind;
         }
     }
 

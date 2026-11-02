@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
@@ -70,6 +71,18 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
         ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.FromNodeId == agwId && edge.ToNodeId == firewallId);
         ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.FromNodeId == firewallId && edge.ToNodeId == appId);
         ast.Edges.Should().NotContain(edge => !edge.IsLayoutOnly && edge.FromNodeId == frontDoorId && edge.ToNodeId == appId);
+    }
+
+    [Fact]
+    public void Hop_edge_provenance_helpers_leave_provenance_empty_and_append_honesty_label()
+    {
+        InventoryDiagramDataFlowTraversalHopApplier.ResolveHopEdgeProvenance(null).Should().BeNull();
+        InventoryDiagramDataFlowTraversalHopApplier.FormatHopEdgeLabel("Firewall subnet association")
+            .Should()
+            .Be($"Firewall subnet association {InventoryDiagramDataFlowTraversalHopApplier.HopProvenanceNotStoredLabel}");
+        DiagramEdgeVisualKindResolver.From(null, GraphEdgeInferenceSources.InventoryFirewallSubnet)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
     }
 
     [Fact]
