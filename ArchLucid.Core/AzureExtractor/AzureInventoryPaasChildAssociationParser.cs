@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.InfraEvidence;
-
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -49,8 +47,8 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string normalizedParentResourceId = NormalizeCompanionArmId(parentResourceId);
-        string normalizedChildResourceId = NormalizeCompanionArmId(childResourceId);
+        string normalizedParentResourceId = CompanionArmIdNormalizer.Normalize(parentResourceId);
+        string normalizedChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId);
 
         row = new AzureInventoryPaasChildAssociationRow
         {
@@ -84,18 +82,6 @@ public static class AzureInventoryPaasChildAssociationParser
         }
 
         return trimmed;
-    }
-
-    private static string NormalizeCompanionArmId(string armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        string working = PercentDecodeBounded.Decode(armId.Trim());
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
