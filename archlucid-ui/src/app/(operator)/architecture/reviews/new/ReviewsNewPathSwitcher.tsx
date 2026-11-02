@@ -27,8 +27,11 @@ import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   parseReviewsNewReturningJobChooserOpenFromSearch,
@@ -144,7 +147,7 @@ export function ReviewsNewPathSwitcher() {
   useEffect(() => {
     const syncReturningJobChooserOpenFromUrl = (): void => {
       const next = parseReviewsNewReturningJobChooserOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("reviewsNewReturningJobChooserOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "reviewsNewReturningJobChooserOpen"),
       );
 
       if (returningJobChooserOpenRef.current === next) {

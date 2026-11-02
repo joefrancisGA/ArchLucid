@@ -146,6 +146,29 @@ describe("ReviewsNewPathSwitcher returning job chooser URL sync", () => {
     expect(returningJobChooserSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 
+  it("keeps returning job chooser closed from useSearchParams when popstate reads lagging window.location.search", async () => {
+    returningJobChooserSearchParamsHarness.applySearchParamsQuery("");
+    returningJobChooserSearchParamsHarness.setWindowLocationSearch("reviewsNewReturningJobChooserOpen=1");
+
+    render(
+      <ReturningJobChooserSearchParamsRerenderHost>
+        <ReviewsNewPathSwitcher />
+      </ReturningJobChooserSearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-returning-job-chooser")).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-returning-job-chooser")).not.toHaveAttribute("open");
+    });
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(screen.getByTestId("reviews-new-returning-job-chooser")).not.toHaveAttribute("open");
+  });
+
   it("follows reviewsNewReturningJobChooserOpen= URL changes without a popstate event", async () => {
     returningJobChooserSearchParamsHarness.state.query = "reviewsNewReturningJobChooserOpen=1";
 

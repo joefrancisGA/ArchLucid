@@ -10,3 +10,15 @@ export function searchParamsQueryStringForHrefWrite(searchParams: ReadonlyURLSea
     return readWindowLocationSearch();
   }
 }
+
+/** Read one search param for URL-driven UI state (popstate / disclosure sync). */
+export function searchParamFromRouterSearchParams(
+  searchParams: ReadonlyURLSearchParams,
+  param: string,
+): string | null {
+  try {
+    return searchParams.get(param);
+  } catch {
+    return new URLSearchParams(readWindowLocationSearch()).get(param);
+  }
+}

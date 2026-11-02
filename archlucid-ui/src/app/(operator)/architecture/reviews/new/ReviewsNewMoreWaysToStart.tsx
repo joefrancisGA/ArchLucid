@@ -22,7 +22,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ReviewsNewActivePath } from "./reviews-new-path-switcher-state";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 type ReviewsNewMoreWaysToStartProps = {
   readonly onSelectPath: (path: ReviewsNewActivePath) => void;
@@ -97,7 +97,7 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const next = parseReviewsNewMoreWaysToStartOpenFromSearch(
-        new URLSearchParams(window.location.search).get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
+        searchParamFromRouterSearchParams(searchParamsRef.current, REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
       );
 
       if (openRef.current === next) {
