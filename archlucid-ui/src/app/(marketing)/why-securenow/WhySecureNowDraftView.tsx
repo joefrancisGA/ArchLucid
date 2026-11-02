@@ -79,6 +79,13 @@ export function WhySecureNowDraftView(): React.JSX.Element {
           <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_REVIEWER_PACK_BODY}</p>
         </section>
 
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          <Link href="/securenow-sku" className="text-al-link underline-offset-2 hover:underline">
+            SKU and meter card
+          </Link>{" "}
+          — identifiers only; no public fee.
+        </p>
+
         <section
           id="pilot-decision"
           className="space-y-2"

@@ -20,6 +20,8 @@ ROUTE_POLICY = Path("archlucid-ui/src/lib/product-line/securenow-marketing-route
 MARKETING_LAYOUT = Path("archlucid-ui/src/app/(marketing)/layout.tsx")
 RESOURCES_MENU = Path("archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx")
 REVIEWER_HOME_COPY = Path("archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts")
+WELCOME_PAGE = Path("archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx")
+MARKETING_FOOTER = Path("archlucid-ui/src/components/marketing/MarketingPublicFooter.tsx")
 
 STATUS_LINE = (
     "SecureNow beta remains NO_GO. This page explains the product. "
@@ -153,6 +155,13 @@ def validate(root: Path = ROOT) -> list[str]:
         for phrase in FORBIDDEN_PHRASES:
             if phrase.lower() in lowered:
                 errors.append(f"{REVIEWER_HOME_COPY}: contains forbidden phrase {phrase!r}")
+
+    for relative in (WELCOME_PAGE, MARKETING_FOOTER):
+        public_entry = _read(root, relative, errors)
+        if public_entry:
+            for href in ("/why-securenow", "/securenow-sample"):
+                if href in public_entry:
+                    errors.append(f"{relative}: welcome/footer must not contain {href!r}")
 
     storyboard = _read(root, FIXTURE_STORYBOARD, errors)
     if storyboard and "Every beat below is a fixture" not in storyboard:

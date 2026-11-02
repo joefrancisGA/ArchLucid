@@ -774,6 +774,12 @@ export function AuditEvidenceLookupClient() {
               {AUDIT_EVIDENCE_START_FROM_INVENTORY_ACTION}
             </Link>
           </p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link className={OPERATOR_LINK.inline} href="/administration/securenow-compliance-notes">
+              Duty split
+            </Link>{" "}
+            — Not a certification.
+          </p>
         </section>
 
         {buyerPolishedShell ? <AuditEvidenceClaimOrientationStrip /> : null}

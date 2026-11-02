@@ -11,11 +11,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 const artifactDescriptorSchema = z
   .object({
     artifactId: operatorNonEmptyTrimmedString,
-    artifactType: z.string(),
-    name: z.string(),
-    format: z.string(),
-    createdUtc: z.string(),
-    contentHash: z.string(),
+    artifactType: operatorNonEmptyTrimmedString,
+    name: operatorNonEmptyTrimmedString,
+    format: operatorNonEmptyTrimmedString,
+    createdUtc: operatorNonEmptyTrimmedString,
+    contentHash: operatorNonEmptyTrimmedString,
     manifestId: z.string().optional(),
     runId: z.string().optional(),
   })
@@ -64,7 +64,7 @@ export function coerceArtifactDescriptor(
       return { ok: false, message: 'Artifact descriptor is missing or invalid "artifactId".' };
     }
 
-    const stringKeys = [
+    const trimmedStringKeys = [
       "artifactType",
       "name",
       "format",
@@ -72,8 +72,12 @@ export function coerceArtifactDescriptor(
       "contentHash",
     ] as const;
 
-    for (const key of stringKeys) {
+    for (const key of trimmedStringKeys) {
       if (typeof data[key] !== "string") {
+        return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
+      }
+
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
         return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
       }
     }
@@ -149,8 +153,8 @@ export function coerceRunComparison(
 
 const comparisonExplanationSchema = z
   .object({
-    highLevelSummary: z.string(),
-    narrative: z.string(),
+    highLevelSummary: operatorNonEmptyTrimmedString,
+    narrative: operatorNonEmptyTrimmedString,
     majorChanges: z.array(z.unknown()),
     keyTradeoffs: z.array(z.unknown()),
   })
@@ -170,6 +174,20 @@ export function coerceComparisonExplanation(
     }
 
     if (typeof data.highLevelSummary !== "string" || typeof data.narrative !== "string") {
+      return {
+        ok: false,
+        message: "AI explanation is missing highLevelSummary or narrative strings.",
+      };
+    }
+
+    if (!operatorNonEmptyTrimmedString.safeParse(data.highLevelSummary).success) {
+      return {
+        ok: false,
+        message: "AI explanation is missing highLevelSummary or narrative strings.",
+      };
+    }
+
+    if (!operatorNonEmptyTrimmedString.safeParse(data.narrative).success) {
       return {
         ok: false,
         message: "AI explanation is missing highLevelSummary or narrative strings.",

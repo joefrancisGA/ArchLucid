@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.InfraEvidence;
-
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -47,8 +45,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = ArmResourceIdNormalizer.NormalizePercentEncoded(namespaceResourceId),
-            ChildResourceId = ArmResourceIdNormalizer.NormalizePercentEncoded(childResourceId),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -95,8 +93,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = ArmResourceIdNormalizer.NormalizePercentEncoded(namespaceResourceId),
-            ChildResourceId = ArmResourceIdNormalizer.NormalizePercentEncoded(childResourceId),
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(namespaceResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -119,5 +117,4 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
-
 }

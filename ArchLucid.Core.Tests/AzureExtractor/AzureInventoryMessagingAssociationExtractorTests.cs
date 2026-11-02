@@ -220,16 +220,7 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
-public void TryExtractEventHub_does_not_throw_when_ids_contain_malformed_percent_sequences()
-    {
-        const string malformedNamespaceId = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2";
-        const string malformedChildId = malformedNamespaceId + "%2Fproviders%2FMicrosoft.EventHub%2Fnamespaces%2Fns%2Feventhubs%2Forders%";
-
-        using JsonDocument document = JsonDocument.Parse($$"""
-                                                            {
-                                                              "id": "{{malformedChildId}}",
-
-public void TryExtractServiceBusChild_reads_child_when_child_id_is_percent_encoded_plain_arm_scalar()
+    public void TryExtractServiceBusChild_reads_child_when_child_id_is_percent_encoded_plain_arm_scalar()
     {
         const string namespaceId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns";
@@ -239,7 +230,6 @@ public void TryExtractServiceBusChild_reads_child_when_child_id_is_percent_encod
         using JsonDocument document = JsonDocument.Parse($$"""
                                                             {
                                                               "id": "{{encodedQueueId}}",
-
                                                               "name": "orders"
                                                             }
                                                             """);

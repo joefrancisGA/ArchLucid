@@ -112,19 +112,11 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
-public void Parse_does_not_decode_json_blob_before_parsing_when_other_fields_contain_percent_sequences()
-    {
-        Dictionary<string, string> properties = new(StringComparer.Ordinal)
-        {
-            ["source"] =
-                """{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm%2Dapp","note":"100% coverage"}""",
-
-public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm_scalar()
+    public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             ["source.id"] = Uri.EscapeDataString(Uri.EscapeDataString(VirtualMachineArmId)),
-
         };
 
         AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
@@ -163,5 +155,30 @@ public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public void Parse_returns_null_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> barePercent = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "50%",
+        };
+
+        Action act = () => AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent);
+
+        act.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent).Should().BeNull();
+
+        // Partially decodable: valid escapes decode, but the malformed "%ZZ" remains.
+        Dictionary<string, string> partialDecode = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%ZZ",
+        };
+
+        Action partialAct = () => AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode);
+
+        partialAct.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode).Should().BeNull();
     }
 }

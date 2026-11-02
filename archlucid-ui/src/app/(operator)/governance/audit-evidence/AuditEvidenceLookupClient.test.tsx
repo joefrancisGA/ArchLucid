@@ -6,6 +6,7 @@ const pushMock = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
   usePathname: () => "/governance/audit-evidence",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
@@ -46,6 +47,11 @@ describe("AuditEvidenceLookupClient (Working seat)", () => {
     expect(screen.getAllByText(AUDIT_EVIDENCE_LOOKUP_OPEN_LINEAGE_SHORTCUT).length).toBeGreaterThan(0);
     expect(screen.queryByTestId("audit-evidence-inventory-start-panel")).not.toBeInTheDocument();
     expect(screen.getByTestId("audit-evidence-browse-inventory-link")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Duty split" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-compliance-notes",
+    );
+    expect(screen.getByText("— Not a certification.")).toBeInTheDocument();
   });
 
   it("WS-COA: persists identifier draft, applies paste with undo, and validates UUID shapes", async () => {
