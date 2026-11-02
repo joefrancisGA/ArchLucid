@@ -7,6 +7,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryPaasChildAssociationParser
 {
+    private const int MaxIdentifierLength = 512;
+
     private const int MaxNameLength = 260;
 
     public static bool TryParse(JsonElement element, out AzureInventoryPaasChildAssociationRow? row, out string? errorMessage)
@@ -21,8 +23,8 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string? parentResourceId = TryReadString(element, "parentResourceId");
-        string? childResourceId = TryReadString(element, "childResourceId");
+        string? parentResourceId = TryReadBoundedString(element, "parentResourceId", MaxIdentifierLength);
+        string? childResourceId = TryReadBoundedString(element, "childResourceId", MaxIdentifierLength);
         string? childName = TryReadBoundedString(element, "childName", MaxNameLength);
         string? childType = TryReadBoundedString(element, "childType", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
@@ -45,17 +47,8 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                parentResourceId,
-                out string normalizedParentResourceId)
-            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                childResourceId,
-                out string normalizedChildResourceId))
-        {
-            errorMessage = "parentResourceId and childResourceId must be valid bounded ARM identifiers.";
-
-            return false;
-        }
+        string normalizedParentResourceId = CompanionArmIdNormalizer.Normalize(parentResourceId);
+        string normalizedChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId);
 
         row = new AzureInventoryPaasChildAssociationRow
         {
