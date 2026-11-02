@@ -9,6 +9,8 @@
 
 ## How to use this file
 
+**Implementation status:** **SN-CPKG-01–03** are implemented in this PR; owner rows **M-316**, **M-317**, and **M-318** remain open.
+
 | Need | Action |
 |------|--------|
 | Pick up one engineering slice | Open the wave index in [Composer prompt indexes](#composer-prompt-indexes), paste **one** numbered prompt file per session — **do not implement from an index**. |

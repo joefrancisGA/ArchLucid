@@ -11,9 +11,9 @@ The owner rows stay in [`docs/go-to-market/GTM_BACKLOG.md`](../../docs/go-to-mar
 
 | # | Prompt | What moves |
 |---|--------|------------|
-| 1 | **SN-CPKG-01** | Operator page `/administration/securenow-quote-packet`. |
-| 2 | **SN-CPKG-02** | Home **For reviewers** row **Quote packet**. |
-| 3 | **SN-CPKG-03** | Extend the warn-only commercial packaging checker. |
+| 1 | **SN-CPKG-01** | Operator page `/administration/securenow-quote-packet`. **Implemented in this PR.** |
+| 2 | **SN-CPKG-02** | Home **For reviewers** row **Quote packet**. **Implemented in this PR.** |
+| 3 | **SN-CPKG-03** | Extend the warn-only commercial packaging checker. **Implemented in this PR.** |
 | — | **SN-CPKG-HOLD** | Stop list. Paste only when a session drifts. |
 
 Run **01**, then **02**, then **03**. **SN-CPKG-HOLD** is not a build step.

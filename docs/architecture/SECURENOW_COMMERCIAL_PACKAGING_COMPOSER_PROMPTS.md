@@ -3,7 +3,7 @@
 
 # SecureNow commercial packaging — Composer prompts
 
-**Created:** 2026-11-02 · **Status:** SN-CPKG-01–03 not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-11-02 · **Status:** SN-CPKG-01–03 implemented in this PR. **Audience:** Composer 2.5 slow (`composer-2.5`)
 
 Commercial Packaging Readiness is **67** (weight 2) on the 2 Nov 2026 board. The private quote package already exists as documents: `SKU_METER_CARD.md`, `ORDER_FORM_TEMPLATE.md`, `QUOTE_COVER.md`, `QUOTE_TO_PILOT_CHECKLIST.md`, and `PRIVATE_PRICE_SHEET.md`. Home tells a reviewer to ask the owner for the packet. These prompts put the buyer-safe identifiers and the quote sequence on an operator page. They aim at about **70**. They do not approve an offer.
 
@@ -11,9 +11,9 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 
 | ID | Paste file | What moves |
 |----|------------|------------|
-| **SN-CPKG-01** | `securenow-commercial-packaging-01-operator-page.md` | `/administration/securenow-quote-packet` |
-| **SN-CPKG-02** | `securenow-commercial-packaging-02-home-row.md` | Home **For reviewers** row **Quote packet** |
-| **SN-CPKG-03** | `securenow-commercial-packaging-03-checker.md` | Fee-free check of the new page and the public hold sentence |
+| **SN-CPKG-01** | `securenow-commercial-packaging-01-operator-page.md` | `/administration/securenow-quote-packet` (**implemented**) |
+| **SN-CPKG-02** | `securenow-commercial-packaging-02-home-row.md` | Home **For reviewers** row **Quote packet** (**implemented**) |
+| **SN-CPKG-03** | `securenow-commercial-packaging-03-checker.md` | Fee-free check of the new page and the public hold sentence (**implemented**) |
 | **SN-CPKG-HOLD** | `securenow-commercial-packaging-hold.md` | Stop list |
 
 ## Human tasks
