@@ -33,4 +33,4 @@ If a prompt's done-when text is already on trunk, stop that session and go to th
 
 **SN-LIFT-HOLD** is the stop list. It is not a build step.
 
-Owner walks **M-308** through **M-315** stay in the GTM backlog. These prompts do not perform them. **SN-LIFT-19** does not raise Marketability. It keeps welcome and footer links off.
+Owner walks **M-308** through **M-315** stay in the GTM backlog. These prompts do not perform them. **SN-LIFT-19** does not raise Marketability. Owner **2026-11-02** lifted sample links on welcome and the footer; `/why-securenow` stays off those surfaces.

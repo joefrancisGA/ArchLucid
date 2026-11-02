@@ -1,4 +1,5 @@
-import { resolveFirstReviewGuideRequiredBlockers } from "./first-review-guide-blockers";
+import type { FirstReviewGuidePrerequisiteInput } from "./first-review-guide-blockers";
+import { resolveFirstReviewGuideRequiredBlockers, resolveFirstReviewGuideOnePrerequisite } from "./first-review-guide-blockers";
 import type { FirstReviewGuideStateInput } from "./first-review-guide-status";
 import { hasSealedReviewRecord } from "@/lib/first-review-guide-persistence";
 
@@ -14,9 +15,13 @@ export type FirstReviewGuideReadiness = {
   readonly detail: string | null;
 };
 
-export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInput): FirstReviewGuideReadiness {
+export function resolveFirstReviewGuideReadiness(
+  input: FirstReviewGuideStateInput,
+  prerequisiteInput: FirstReviewGuidePrerequisiteInput,
+): FirstReviewGuideReadiness {
   const { commitContext } = input;
   const blockers = resolveFirstReviewGuideRequiredBlockers(input);
+  const onePrerequisite = resolveFirstReviewGuideOnePrerequisite(prerequisiteInput);
 
   if (hasSealedReviewRecord(commitContext)) {
     return {
@@ -31,6 +36,14 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
       kind: "required-setup-remains",
       headline: "One required setup item remains",
       detail: blockers[0]?.title ?? null,
+    };
+  }
+
+  if (onePrerequisite !== null) {
+    return {
+      kind: "required-setup-remains",
+      headline: "One required setup item remains",
+      detail: onePrerequisite.title,
     };
   }
 
