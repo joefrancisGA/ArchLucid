@@ -135,7 +135,12 @@ public static class AgentOutputTraceQualityEvaluator
         double? calibratedConfidence = null;
 
         if (calibratedConfidenceByTaskId is not null)
-            calibratedConfidenceByTaskId.TryGetValue(trace.TaskId, out calibratedConfidence);
+        {
+            string? taskKey = AgentEvaluationTaskIdKey.Normalize(trace.TaskId);
+
+            if (taskKey is not null)
+                calibratedConfidenceByTaskId.TryGetValue(taskKey, out calibratedConfidence);
+        }
 
         AgentOutputQualityGateOutcome gateOutcome =
             qualityGate.Evaluate(structuralScore, semanticScore, calibratedConfidence);
