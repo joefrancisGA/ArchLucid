@@ -75,12 +75,12 @@ public static class AzureInventoryNetworkConnectionEndpointParser
 
     private static string? NormalizeArmId(string? armId)
     {
-        if (string.IsNullOrWhiteSpace(armId))
+        string? working = ArmResourceIdNormalizer.NormalizeOrNull(armId);
+
+        if (working is null)
         {
             return null;
         }
-
-        string working = ArmResourceIdNormalizer.DecodePercentEscapes(armId.Trim());
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
@@ -93,7 +93,7 @@ public static class AzureInventoryNetworkConnectionEndpointParser
             return null;
         }
 
-        return ArmResourceIdNormalizer.Normalize(working);
+        return working;
     }
 
     private static string? TryReadArmIdFromJson(string json)

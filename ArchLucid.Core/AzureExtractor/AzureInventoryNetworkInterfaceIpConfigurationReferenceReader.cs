@@ -18,7 +18,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         if (reference.ValueKind is JsonValueKind.String)
         {
-            return NormalizeReferenceArmId(reference.GetString());
+            return ArmResourceIdNormalizer.NormalizeOrNull(reference.GetString());
         }
 
         return TryReadDirectId(reference);
@@ -28,7 +28,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
     {
         if (configuration.ValueKind is JsonValueKind.String)
         {
-            return NormalizeReferenceArmId(configuration.GetString());
+            return ArmResourceIdNormalizer.NormalizeOrNull(configuration.GetString());
         }
 
         if (TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement))
@@ -37,18 +37,6 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         }
 
         return null;
-    }
-
-    private static string? NormalizeReferenceArmId(string? armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return null;
-        }
-
-        string working = ArmResourceIdNormalizer.DecodePercentEscapes(armId.Trim());
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static bool TryGetPropertyIgnoreCase(

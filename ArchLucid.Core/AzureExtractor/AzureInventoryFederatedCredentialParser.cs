@@ -45,7 +45,7 @@ public static class AzureInventoryFederatedCredentialParser
             Subject = subject.Trim(),
             PrincipalId = principalId.Trim(),
             AppId = TryReadString(element, "appId"),
-            ParentResourceId = NormalizeOptionalArmId(TryReadString(element, "parentResourceId")),
+            ParentResourceId = ArmResourceIdNormalizer.NormalizeIfArmId(TryReadString(element, "parentResourceId")),
             CredentialName = TryReadString(element, "credentialName"),
             ProvenanceKind = provenanceKind,
             EvidenceHashSha256 = TryReadEvidenceHash(element)
@@ -114,22 +114,5 @@ public static class AzureInventoryFederatedCredentialParser
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
-    }
-
-    private static string? NormalizeOptionalArmId(string? armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return null;
-        }
-
-        string working = ArmResourceIdNormalizer.DecodePercentEscapes(armId.Trim());
-
-        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-        {
-            return working;
-        }
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 }

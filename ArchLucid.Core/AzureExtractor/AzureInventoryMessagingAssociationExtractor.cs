@@ -47,8 +47,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = NormalizeArmId(namespaceResourceId),
-            ChildResourceId = NormalizeArmId(childResourceId),
+            ParentResourceId = ArmResourceIdNormalizer.NormalizeOrEmpty(namespaceResourceId),
+            ChildResourceId = ArmResourceIdNormalizer.NormalizeOrEmpty(childResourceId),
             ChildName = childName.Trim(),
             ChildType = AzureInventoryMessagingAssociationTypes.EventHub,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -95,8 +95,8 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         row = new AzureInventoryMessagingAssociationRow
         {
-            ParentResourceId = NormalizeArmId(namespaceResourceId),
-            ChildResourceId = NormalizeArmId(childResourceId),
+            ParentResourceId = ArmResourceIdNormalizer.NormalizeOrEmpty(namespaceResourceId),
+            ChildResourceId = ArmResourceIdNormalizer.NormalizeOrEmpty(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             AssociationType = AzureInventoryMessagingAssociationTypes.MessagingChild,
@@ -118,18 +118,6 @@ public static class AzureInventoryMessagingAssociationExtractor
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
-    }
-
-    private static string NormalizeArmId(string armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        string working = ArmResourceIdNormalizer.DecodePercentEscapes(armId.Trim());
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 
 }

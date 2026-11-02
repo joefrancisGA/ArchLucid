@@ -501,7 +501,7 @@ public static class AzureInventoryRouteTableRouteParser
             return normalized;
         }
 
-        string decoded = UnwrapJsonStringScalarIfPresent(PercentDecodeUntilStable(working));
+        string decoded = UnwrapJsonStringScalarIfPresent(ArmResourceIdNormalizer.DecodePercentEscapes(working));
         normalized = TryParseFlattenedArmIdValue(decoded);
 
         if (!string.IsNullOrWhiteSpace(normalized))
@@ -604,7 +604,7 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         string trimmed = rawValue.Trim();
-        trimmed = PercentDecodeUntilStable(trimmed);
+        trimmed = ArmResourceIdNormalizer.DecodePercentEscapes(trimmed);
 
         try
         {
@@ -691,25 +691,6 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         return null;
-    }
-
-    private static string PercentDecodeUntilStable(string trimmed)
-    {
-        string working = trimmed;
-
-        for (int pass = 0; pass < 8 && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
-
-        return working;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)

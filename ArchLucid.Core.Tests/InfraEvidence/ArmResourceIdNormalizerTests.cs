@@ -51,6 +51,74 @@ public sealed class ArmResourceIdNormalizerTests
             .Be("%ZZ/subscriptions/sub");
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void NormalizeOrEmpty_blank_input_returns_empty_string(string? input)
+    {
+        ArmResourceIdNormalizer.NormalizeOrEmpty(input).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void NormalizeOrEmpty_trims_decodes_and_normalizes_arm_ids()
+    {
+        const string encodedTwice =
+            " /subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns%252Feventhubs%252Forders ";
+
+        ArmResourceIdNormalizer.NormalizeOrEmpty(encodedTwice)
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.eventhub/namespaces/ehns/eventhubs/orders");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void NormalizeOrNull_blank_input_returns_null(string? input)
+    {
+        ArmResourceIdNormalizer.NormalizeOrNull(input).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeOrNull_decodes_and_normalizes_arm_ids()
+    {
+        const string encoded =
+            "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2Fproviders%2FMicrosoft.Storage%2FstorageAccounts%2Fsa1";
+
+        ArmResourceIdNormalizer.NormalizeOrNull(encoded)
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void NormalizeIfArmId_blank_input_returns_null(string? input)
+    {
+        ArmResourceIdNormalizer.NormalizeIfArmId(input).Should().BeNull();
+    }
+
+    [Fact]
+    public void NormalizeIfArmId_normalizes_values_with_a_subscriptions_segment()
+    {
+        const string encoded =
+            "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%2Fproviders%2FMicrosoft.Storage%2FstorageAccounts%2Fsa1";
+
+        ArmResourceIdNormalizer.NormalizeIfArmId(encoded)
+            .Should()
+            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+    }
+
+    [Fact]
+    public void NormalizeIfArmId_returns_trimmed_decoded_value_when_not_an_arm_id()
+    {
+        ArmResourceIdNormalizer.NormalizeIfArmId("  My%20App%20Registration  ")
+            .Should()
+            .Be("My App Registration");
+    }
+
     [Fact]
     public void IsDescendantOf_detects_nested_arm_child_resources()
     {

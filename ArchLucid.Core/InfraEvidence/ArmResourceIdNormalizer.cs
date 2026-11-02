@@ -18,6 +18,50 @@ public static class ArmResourceIdNormalizer
     }
 
     /// <summary>
+    ///     Trims, percent-decodes (bounded, tolerant of malformed escapes), and normalizes an ARM
+    ///     resource id. Null, whitespace, or normalization-empty input yields <see cref="string.Empty"/>.
+    /// </summary>
+    public static string NormalizeOrEmpty(string? armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+            return string.Empty;
+
+        return Normalize(DecodePercentEscapes(armId.Trim()));
+    }
+
+    /// <summary>
+    ///     Trims, percent-decodes (bounded, tolerant of malformed escapes), and normalizes an ARM
+    ///     resource id. Null, whitespace, or normalization-empty input yields <see langword="null"/>.
+    /// </summary>
+    public static string? NormalizeOrNull(string? armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+            return null;
+
+        string normalized = Normalize(DecodePercentEscapes(armId.Trim()));
+
+        return normalized.Length == 0 ? null : normalized;
+    }
+
+    /// <summary>
+    ///     Trims and percent-decodes (bounded, tolerant of malformed escapes); full normalization is
+    ///     applied only when the decoded value contains an ARM <c>/subscriptions/</c> segment. Null or
+    ///     whitespace input yields <see langword="null"/>; non-ARM input round-trips trimmed and decoded.
+    /// </summary>
+    public static string? NormalizeIfArmId(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string working = DecodePercentEscapes(value.Trim());
+
+        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            return working;
+
+        return Normalize(working);
+    }
+
+    /// <summary>
     ///     Repeatedly percent-decodes <paramref name="value"/> until it is stable (bounded passes) so
     ///     double-encoded ARM ids normalize onto the same canonical form before downstream checks.
     ///     Malformed escape sequences keep the last-known-good value instead of throwing.
