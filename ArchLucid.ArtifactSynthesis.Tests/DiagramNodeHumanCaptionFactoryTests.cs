@@ -186,7 +186,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
     }
 
     [Fact]
-    public void TryFormatDataFlowTypeCaption_uses_not_stored_for_unmapped_arm_types()
+    public void TryFormatDataFlowTypeCaption_uses_catalog_honesty_for_unmapped_arm_types()
     {
         DiagramNode node = new()
         {
@@ -195,7 +195,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(node).Should()
-            .Be(DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption);
+            .Be(DiagramDataFlowHonestyLegend.FormatArmTypeWithoutCatalogLabel(node.ArmResourceType!));
     }
 
     [Fact]

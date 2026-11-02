@@ -22,7 +22,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         ast.Nodes.Should().ContainSingle(node =>
             node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
@@ -45,7 +45,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         ast.Nodes.Should().ContainSingle(node =>
             node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.");
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
             && string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase)
@@ -83,7 +83,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             },
             DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Target is not on this diagram (remote).");
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Target is not on this diagram.");
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         string externalNodeId = ast.Nodes.Single(node =>
             node.Label ==
-            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).").NodeId;
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.").NodeId;
         string vnetNodeId = ast.Nodes.Single(node => node.Label == "vnet-a").NodeId;
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly

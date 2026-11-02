@@ -75,7 +75,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
 
         return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
-            ?? DiagramDataFlowHonestyLegend.UnclassifiedArmResourceTypeCaption;
+            ?? DiagramDataFlowHonestyLegend.FormatArmTypeWithoutCatalogLabel(node.ArmResourceType);
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
@@ -106,11 +106,6 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.IsCollapsedResourceGroupTail)
         {
             combined = $"{combined} · {DiagramForestCollapsedSingletonTailLabels.CollapsedSingletonTailPartialRollupLine}";
-        }
-
-        if (string.IsNullOrWhiteSpace(node.SeedNodeId))
-        {
-            combined = $"{combined} · Diagram seed was not stored.";
         }
 
         if (node.ParentAttachmentDetails.Count > 0)

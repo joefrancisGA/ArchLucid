@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AZURE_RESOURCE_NAME_NOT_STORED_LABEL,
   formatAzureResourceDisplay,
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
@@ -130,14 +131,7 @@ describe("formatCloudResourceDisplayName", () => {
         displayName: null,
         externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/Gateway",
       }),
-    ).toBe("gateway");
-    expect(
-      formatCloudResourceDisplayName({
-        displayName: null,
-        externalResourceId:
-          "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/customerdata",
-      }),
-    ).toBe("customerdata");
+    ).toBe(AZURE_RESOURCE_NAME_NOT_STORED_LABEL);
   });
 });
 

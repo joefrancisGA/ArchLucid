@@ -322,6 +322,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL =
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_NO_ASSOCIATION_LABEL =
   "No subnet or network interface association was stored." as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_ASSOCIATION_TARGET_ID_NOT_STORED_LABEL =
+  "NSG association target id was not stored." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NSG_OFF_DIAGRAM_TARGET_LABEL =
   "This NSG names a target that is not on this diagram." as const;
 

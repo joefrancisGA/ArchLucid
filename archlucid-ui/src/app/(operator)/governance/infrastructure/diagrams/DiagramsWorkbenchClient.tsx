@@ -1137,13 +1137,19 @@ export function DiagramsWorkbenchClient() {
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
   const completenessWarnings = useMemo(() => {
-    if (renderResult?.completenessWarnings !== undefined) {
+    if (renderResult !== null && renderResult.completenessWarnings !== undefined) {
       return renderResult.completenessWarnings;
     }
 
     return snapshotCompletenessWarnings;
-  }, [renderResult?.completenessWarnings, snapshotCompletenessWarnings]);
-  const completenessSummary = renderResult?.completenessSummary ?? null;
+  }, [renderResult, snapshotCompletenessWarnings]);
+  const completenessSummary = useMemo(() => {
+    if (renderResult !== null && "completenessSummary" in renderResult) {
+      return renderResult.completenessSummary ?? null;
+    }
+
+    return undefined;
+  }, [renderResult]);
 
   const renderStatusPresentation = useMemo(() => {
     if (renderStatus.length === 0 || renderStatus !== "Failed") {
@@ -1898,13 +1904,15 @@ export function DiagramsWorkbenchClient() {
 
         if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setModePreviews(preview.modes ?? []);
-          setSnapshotCompletenessWarnings(preview.completenessWarnings ?? []);
+          setSnapshotCompletenessWarnings(
+            preview.completenessWarnings === undefined ? undefined : preview.completenessWarnings,
+          );
         }
       } catch (error: unknown) {
         if (!cancelled && requestSnapshotId === selectedSnapshotIdRef.current) {
           setLoadError(formatInfraEvidenceMermaidApiError(error));
           setModePreviews([]);
-          setSnapshotCompletenessWarnings([]);
+          setSnapshotCompletenessWarnings(undefined);
         }
       } finally {
         if (!cancelled) {
@@ -2203,7 +2211,7 @@ export function DiagramsWorkbenchClient() {
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
-        completenessWarnings: completenessWarnings ?? [],
+        completenessWarnings,
         layoutEngine,
         pngRasterSource,
         executiveOverflowStripped:

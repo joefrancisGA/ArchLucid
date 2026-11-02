@@ -29,7 +29,12 @@ describe("quick-decision-severity-labels", () => {
     expect(severityBadgeLabel(-1)).toBe("Stored severity Low has no reviewer label.");
   });
 
-  it("maps contract enum numbers to Error and Warning, not High and Medium (P-01)", () => {
+  it("preserves High and Medium stored severity words instead of Error and Warning", () => {
+    expect(severityBadgeLabel(2, "High")).toBe("High");
+    expect(severityBadgeLabel(1, "Medium")).toBe("Medium");
+  });
+
+  it("maps contract enum numbers to Error and Warning when no stored label is present", () => {
     expect(severityBadgeLabel(2)).toBe("Error");
     expect(severityBadgeLabel(1)).toBe("Warning");
     expect(severityKindFromNumericValue(2)).toBe("error");

@@ -205,6 +205,20 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips.some((c) => c.kind === "evidence" && c.label.includes("bundle-1"))).toBe(true);
   });
 
+  it("surfaces omitted Ask citation lists from metadata", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      inspectMetadataJson: JSON.stringify({
+        referencedFindings: null,
+        referencedDecisions: [],
+        referencedArtifacts: null,
+      }),
+    });
+
+    expect(chips.some((chip) => chip.label.includes("Referenced findings list was not stored"))).toBe(true);
+    expect(chips.some((chip) => chip.label.includes("Referenced artifacts list was not stored"))).toBe(true);
+  });
+
   it("dedupes finding ids across citation sources", () => {
     const chips = buildAskCitationActionFollowUps({
       runId: "run-a",

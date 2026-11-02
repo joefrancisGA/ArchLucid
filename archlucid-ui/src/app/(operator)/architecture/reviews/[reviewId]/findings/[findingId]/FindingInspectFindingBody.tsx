@@ -177,10 +177,15 @@ export function FindingInspectFindingBody({
     </div>
   );
 
-  const rawRecommendedActions = payload.recommendedActions ?? [];
+  const recommendedActionsNotStored = payload.recommendedActionsReturned === false;
+  const rawRecommendedActions = recommendedActionsNotStored
+    ? []
+    : (payload.recommendedActions ?? []);
   const structuredActions: string[] = rawRecommendedActions.filter((a) => a.trim().length > 0);
   const recommendedActionsStoredEmpty =
-    rawRecommendedActions.length > 0 && structuredActions.length === 0;
+    !recommendedActionsNotStored
+    && rawRecommendedActions.length > 0
+    && structuredActions.length === 0;
   const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
 
   const whyBlock = (

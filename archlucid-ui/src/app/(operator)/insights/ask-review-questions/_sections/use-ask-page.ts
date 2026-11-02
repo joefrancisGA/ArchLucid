@@ -249,6 +249,11 @@ export function useAskPage(options: UseAskPageOptions = {}) {
         ? parseAskCitationRefsFromMessageMetadata(trailing.metadataJson)
         : null;
 
+    const trailingMetadataJson =
+      trailing !== null && trailing.role.toLowerCase() === "assistant"
+        ? trailing.metadataJson
+        : undefined;
+
     return buildAskCitationActionFollowUps({
       runId,
       referencedFindings:
@@ -263,6 +268,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
         lastAskReferencedArtifacts.length > 0
           ? lastAskReferencedArtifacts
           : (fromMetadata?.referencedArtifacts ?? []),
+      inspectMetadataJson: trailingMetadataJson,
       groundingLinks:
         askAssistantGroundingLinks === null
           ? null

@@ -590,8 +590,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
     private static string BuildTitle(DiagramMode mode, DiagramAstCompileOptions options)
     {
-        if (mode == DiagramMode.ResourceGroup && !string.IsNullOrWhiteSpace(options.ResourceGroupName))
+        if (mode == DiagramMode.ResourceGroup)
         {
+            if (string.IsNullOrWhiteSpace(options.ResourceGroupName))
+            {
+                return $"Azure inventory ({mode}) — Resource group name was not stored.";
+            }
+
             return $"Azure inventory ({mode}) — {options.ResourceGroupName}";
         }
 

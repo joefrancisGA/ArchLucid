@@ -46,4 +46,11 @@ public static class DiagramDataFlowHonestyLegend
 
     public const string UnclassifiedArmResourceTypeCaption =
         "ARM resource type was not stored.";
+
+    public static string FormatArmTypeWithoutCatalogLabel(string armResourceType)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(armResourceType);
+
+        return $"ARM type {armResourceType.Trim()} has no catalog label.";
+    }
 }

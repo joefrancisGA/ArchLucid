@@ -291,6 +291,13 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   referencedFindings: turn.referencedFindings,
                   referencedDecisions: turn.referencedDecisions,
                   referencedArtifacts: turn.referencedArtifacts,
+                  inspectMetadataJson: turn.citationRefsOmitted
+                    ? JSON.stringify({
+                        referencedFindings: null,
+                        referencedDecisions: null,
+                        referencedArtifacts: null,
+                      })
+                    : undefined,
                 });
                 const citationRefs = {
                   referencedFindings: turn.citationRefsOmitted ? undefined : turn.referencedFindings,

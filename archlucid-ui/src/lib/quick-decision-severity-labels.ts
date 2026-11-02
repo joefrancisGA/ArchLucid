@@ -37,7 +37,16 @@ export function formatRecommendationFirstSentenceWithTruncationHonesty(text: str
   return sentence;
 }
 
-export function severityBadgeLabel(severityValue: number | null | undefined): string {
+export function severityBadgeLabel(
+  severityValue: number | null | undefined,
+  storedSeverityLabel?: string | null,
+): string {
+  const stored = storedSeverityLabel?.trim() ?? "";
+
+  if (/^(high|medium)$/i.test(stored)) {
+    return stored.charAt(0).toUpperCase() + stored.slice(1).toLowerCase();
+  }
+
   if (severityValue == null || !Number.isFinite(severityValue)) {
     return "Severity label was not stored.";
   }

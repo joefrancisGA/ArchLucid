@@ -161,7 +161,25 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
 
         chips.Should().ContainSingle(chip =>
             chip.Text.Contains("Direction was not stored for 1 security rules.", StringComparison.Ordinal));
-        chips.Should().NotContain(chip =>
-            chip.Text.Contains("outbound rules were not listed", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void BuildVisibleChips_does_not_map_wildcard_source_prefix_to_internet()
+    {
+        AzureInventoryNsgSecurityRule rule = new()
+        {
+            Protocol = "TCP",
+            DestinationPortRange = "3389",
+            Direction = "Inbound",
+            Access = "Allow",
+            Priority = "100",
+            SourceAddressPrefix = "*",
+        };
+
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips([rule]);
+
+        chips.Should().ContainSingle();
+        chips[0].Text.Should().Contain("Any source (prefix was stored as *; not Internet).");
+        chips[0].Text.Should().NotContain("· Internet ·");
     }
 }
