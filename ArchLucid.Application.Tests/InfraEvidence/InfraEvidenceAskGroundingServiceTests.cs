@@ -206,6 +206,44 @@ public sealed class InfraEvidenceAskGroundingServiceTests
     }
 
     [Fact]
+    public void Resolve_path_id_wins_over_keyword_topics()
+    {
+        Guid pathId = Guid.NewGuid();
+
+        InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "Show me this path",
+            SecurityEvidencePathId = pathId,
+        }).Should().Be(InfraEvidenceAskTopicKinds.RankedPath);
+
+        InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "What changed since baseline?",
+            SecurityEvidencePathId = pathId,
+        }).Should().Be(InfraEvidenceAskTopicKinds.RankedPath);
+    }
+
+    [Fact]
+    public void Resolve_ranked_path_without_id_keeps_existing_keyword_behavior()
+    {
+        InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "Show me the diagram",
+        }).Should().Be(InfraEvidenceAskTopicKinds.DiagramView);
+
+        InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "ranked path",
+        }).Should().Be(InfraEvidenceAskTopicKinds.ResourceOverview);
+
+        InfraEvidenceAskIntentResolver.Resolve(new InfraEvidenceAskRequest
+        {
+            Question = "Show me this path",
+            SecurityEvidencePathId = Guid.Empty,
+        }).Should().Be(InfraEvidenceAskTopicKinds.DiagramView);
+    }
+
+    [Fact]
     public void BuildSimulatorViewPlan_identity_question_returns_identity_mode()
     {
         Guid snapshotId = Guid.NewGuid();
@@ -298,6 +336,123 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             bundle);
 
         plan.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryAnswerAsync_ranked_path_simulator_uses_stored_citations()
+    {
+        Guid pathId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.RankedPath,
+        };
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            pathId.ToString("D"),
+            "path",
+            "path row");
+
+        Mock<IInfraEvidenceAskEvidenceCollector> collector = new();
+        collector
+            .Setup(c => c.CollectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<InfraEvidenceAskRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+
+        InfraEvidenceAskGroundingService service = new(
+            collector.Object,
+            Mock.Of<IAgentCompletionClient>(),
+            Mock.Of<IPromptRedactor>(),
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+
+        InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
+            new ScopeContext(),
+            new InfraEvidenceAskRequest
+            {
+                Question = "Explain this ranked path.",
+                SecurityEvidencePathId = pathId,
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Response!.TopicKind.Should().Be(InfraEvidenceAskTopicKinds.RankedPath);
+        result.Response.SimulatorLabel.Should().Be(InfraEvidenceAskPromptBuilder.SimulatorLabel);
+        result.Response.Answer.Should().Contain($"{InfraEvidenceAskCitationKinds.SecurityEvidencePathId}:{pathId:D}");
+        result.Response.Answer.Should().NotContain("%");
+    }
+
+    [Fact]
+    public async Task TryAnswerAsync_ranked_path_rejects_off_bundle_completion()
+    {
+        Guid pathId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.RankedPath,
+        };
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SecurityEvidencePathId,
+            pathId.ToString("D"),
+            "path",
+            "path row");
+
+        Mock<IInfraEvidenceAskEvidenceCollector> collector = new();
+        collector
+            .Setup(c => c.CollectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<InfraEvidenceAskRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bundle);
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{\"answer\":\"because\",\"citationIds\":[\"SecurityEvidencePathId:not-in-bundle\"]}");
+
+        Mock<IPromptRedactor> redactor = new();
+        redactor
+            .Setup(r => r.Redact(It.IsAny<string?>()))
+            .Returns((string? input) => new PromptRedactionOutcome(input ?? string.Empty, new Dictionary<string, int>()));
+
+        InfraEvidenceAskGroundingService service = new(
+            collector.Object,
+            llm.Object,
+            redactor.Object,
+            Mock.Of<IArchitectureDiagramReconciliationRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+
+        InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
+            new ScopeContext(),
+            new InfraEvidenceAskRequest
+            {
+                Question = "Explain this ranked path.",
+                SecurityEvidencePathId = pathId,
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("could not be parsed into a grounded answer");
+        llm.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                800,
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static InfraEvidenceAskGroundingService CreateService()

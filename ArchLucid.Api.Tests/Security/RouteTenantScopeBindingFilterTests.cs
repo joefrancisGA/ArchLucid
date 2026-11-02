@@ -104,6 +104,32 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_uppercase_internal_path_skips_binding_by_design()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/v1/INTERNAL/platform/tenants/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue(
+            "internal carve-out uses OrdinalIgnoreCase substring match by design for platform routes");
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_traversal_shaped_internal_path_does_not_skip_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -114,6 +140,33 @@ public sealed class RouteTenantScopeBindingFilterTests
         ActionExecutingContext executing = BuildExecutingContext(
             TenantA,
             "/v1/internal/foo/../analytics/cross-tenant/daily/refresh");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_mixed_case_internal_parent_escape_does_not_skip_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(
+            TenantA,
+            "/Internal/../v1/tenants/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/runs");
         bool next = false;
 
         await sut.OnActionExecutionAsync(
@@ -344,6 +397,195 @@ public sealed class RouteTenantScopeBindingFilterTests
     }
 
     [SkippableFact]
+    public async Task OnActionExecutionAsync_n_format_guid_object_route_tenant_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        Guid routeTenant = Guid.Parse(TenantB.ToString("N").ToUpperInvariant());
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            routeTenant,
+            "/v1/admin/tenants/" + routeTenant + "/catalog-migration/default-scope");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_n_format_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantA.ToString("N"),
+            "/v1/value-report/" + TenantA.ToString("N") + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue();
+        executing.Result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_whitespace_padded_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            $"  {TenantA:D}  ",
+            "/v1/value-report/" + TenantA + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_braced_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantB.ToString("B"),
+            "/v1/value-report/" + TenantB + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_uppercase_x_format_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantB.ToString("X"),
+            "/v1/value-report/" + TenantB.ToString("X") + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_x_format_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantB.ToString("x"),
+            "/v1/value-report/" + TenantB.ToString("x") + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_p_format_route_tenant_string_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            TenantB.ToString("P"),
+            "/v1/value-report/" + Uri.EscapeDataString(TenantB.ToString("P")) + "/generate");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
     public async Task OnActionExecutionAsync_allow_anonymous_metadata_skips_binding()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -393,6 +635,73 @@ public sealed class RouteTenantScopeBindingFilterTests
             });
 
         next.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_nullable_guid_route_tenant_enforces_binding()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        Guid? routeTenant = TenantB;
+        ActionExecutingContext executing = BuildExecutingContextWithRawTenantId(
+            routeTenant,
+            "/v1/admin/tenants/" + routeTenant + "/catalog-migration/default-scope");
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        executing.Result.Should().BeOfType<StatusCodeResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task OnActionExecutionAsync_mismatched_tenant_guid_route_key_does_not_forbid()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = TenantB, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        RouteTenantScopeBindingFilter sut = new(scopeProvider.Object);
+        DefaultHttpContext httpContext = new() { Request = { Path = "/v1/example/" + TenantA } };
+        RouteData routeData = new();
+        routeData.Values["tenantGuid"] = TenantA;
+
+        ActionDescriptor descriptor = new();
+        ActionContext actionContext = new(
+            httpContext,
+            routeData,
+            descriptor,
+            new ModelStateDictionary());
+        ActionExecutingContext executing = new(
+            actionContext,
+            [],
+            new Dictionary<string, object?>(),
+            new object());
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeTrue(
+            "the filter binds only the tenantId route key; tenantGuid is not a production route contract in this API");
+        executing.Result.Should().BeNull();
     }
 
     private static ActionExecutingContext BuildExecutingContextWithRawTenantId(

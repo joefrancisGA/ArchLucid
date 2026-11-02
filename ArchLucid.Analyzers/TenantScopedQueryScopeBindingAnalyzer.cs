@@ -133,6 +133,12 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (!TryGetSqlArgument(invocation, context.SemanticModel, out ExpressionSyntax? sqlExpression))
             return;
 
+        if (IsCommandDefinitionSqlArgument(sqlExpression, context.SemanticModel))
+            return;
+
+        if (IsStoredProcedureDapperInvocation(invocation, context.SemanticModel))
+            return;
+
         AnalyzeSqlExpression(context, registry, sqlExpression, invocation.GetLocation());
     }
 
@@ -154,6 +160,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         ExpressionSyntax? sqlExpression = TryGetCommandDefinitionSqlExpression(objectCreation);
 
         if (sqlExpression is null)
+            return;
+
+        if (IsStoredProcedureCommandDefinition(objectCreation, context.SemanticModel))
             return;
 
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
@@ -245,6 +254,99 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         }
 
         return objectCreation.ArgumentList.Arguments[0].Expression;
+    }
+
+    private static bool IsStoredProcedureCommandDefinition(
+        BaseObjectCreationExpressionSyntax objectCreation,
+        SemanticModel semanticModel)
+    {
+        if (objectCreation.ArgumentList is null)
+            return false;
+
+        IMethodSymbol? constructor = semanticModel.GetSymbolInfo(objectCreation).Symbol as IMethodSymbol;
+
+        foreach (ArgumentSyntax argument in objectCreation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is null && constructor is not null)
+            {
+                int argumentIndex = objectCreation.ArgumentList.Arguments.IndexOf(argument);
+
+                if (argumentIndex >= 0 && argumentIndex < constructor.Parameters.Length)
+                    parameterName = constructor.Parameters[argumentIndex].Name;
+            }
+
+            if (parameterName is null ||
+                !string.Equals(parameterName, "commandType", StringComparison.Ordinal))
+                continue;
+
+            if (TryGetConstantCommandType(argument.Expression, semanticModel) == System.Data.CommandType.StoredProcedure)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsCommandDefinitionSqlArgument(
+        ExpressionSyntax sqlExpression,
+        SemanticModel semanticModel)
+    {
+        ITypeSymbol? type = semanticModel.GetTypeInfo(sqlExpression).Type;
+
+        return type is not null &&
+               string.Equals(type.Name, "CommandDefinition", StringComparison.Ordinal);
+    }
+
+    private static bool IsStoredProcedureDapperInvocation(
+        InvocationExpressionSyntax invocation,
+        SemanticModel semanticModel)
+    {
+        if (invocation.ArgumentList?.Arguments.Count is not > 0)
+            return false;
+
+        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+            return false;
+
+        foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is null)
+            {
+                int argumentIndex = invocation.ArgumentList.Arguments.IndexOf(argument);
+
+                if (argumentIndex >= 0 && argumentIndex < method.Parameters.Length)
+                    parameterName = method.Parameters[argumentIndex].Name;
+            }
+
+            if (parameterName is null ||
+                !string.Equals(parameterName, "commandType", StringComparison.Ordinal))
+                continue;
+
+            if (TryGetConstantCommandType(argument.Expression, semanticModel) == System.Data.CommandType.StoredProcedure)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static System.Data.CommandType? TryGetConstantCommandType(
+        ExpressionSyntax expression,
+        SemanticModel semanticModel)
+    {
+        Optional<object?> constant = semanticModel.GetConstantValue(expression);
+
+        if (!constant.HasValue || constant.Value is null)
+            return null;
+
+        if (constant.Value is System.Data.CommandType commandType)
+            return commandType;
+
+        if (constant.Value is int commandTypeValue)
+            return (System.Data.CommandType)commandTypeValue;
+
+        return null;
     }
 
     private static void AnalyzeSqlExpression(

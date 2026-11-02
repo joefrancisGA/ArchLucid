@@ -63,8 +63,8 @@ function collectionGapDescription(snapshot: InfraEvidenceSnapshotSummary): strin
 
 function errorMessage(error: unknown): string {
   return error instanceof Error && error.message.trim().length > 0
-    ? error.message
-    : "Could not load collection context.";
+    ? `${error.message}. Check cloud connections and try again.`
+    : "Could not load collection context. Check cloud connections and try again.";
 }
 
 function ContextLink(props: { readonly href: string; readonly children: string }): React.JSX.Element {
@@ -103,6 +103,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context" role="alert">
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <span>{errorMessage(snapshotsQuery.error)}</span>
+        <ContextLink href={CLOUD_CONNECTIONS_HREF}>Check cloud connections</ContextLink>
       </p>
     );
   }

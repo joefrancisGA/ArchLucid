@@ -1,6 +1,9 @@
+using System.Text;
+
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Serialization;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 
@@ -14,6 +17,100 @@ public sealed class ProvenanceSnapshotRevisionHasherTests
     private static readonly Guid RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid BundleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    [Fact]
+    public void Compute_does_not_throw_when_manifest_supporting_finding_ids_contain_null_placeholder()
+    {
+        ProvenanceBuildInput input = CreateInput(
+            [],
+            decisions:
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-1",
+                    Title = "Decision",
+                    Category = "c",
+                    SelectedOption = "opt",
+                    Rationale = "r",
+                    SupportingFindingIds = [null!, "find-1"],
+                },
+            ],
+            findings:
+            [
+                new Finding
+                {
+                    FindingId = "find-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Info,
+                    Title = "Finding",
+                    Rationale = "r",
+                },
+            ]);
+
+        Action act = () => ProvenanceSnapshotRevisionHasher.Compute(input, BundleId);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Compute_does_not_throw_when_graph_edges_contain_null_element_from_deserialized_snapshot()
+    {
+        GraphSnapshot? graphSnapshot = GraphJsonSerialization.DeserializeSnapshot(
+            Encoding.UTF8.GetBytes(
+                """{"nodes":[{"nodeId":"n1","nodeType":"Service","label":"One"}],"edges":[null,{"fromNodeId":"n1","toNodeId":"n1","edgeType":"Self"}]}"""));
+
+        graphSnapshot.Should().NotBeNull();
+        graphSnapshot!.Edges.Any(static edge => edge is null).Should().BeTrue();
+
+        ProvenanceBuildInput input = CreateInput(
+            [],
+            graphNodes: graphSnapshot.Nodes.ToList(),
+            graphEdges: graphSnapshot.Edges.ToList(),
+            findings:
+            [
+                new Finding
+                {
+                    FindingId = "find-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Info,
+                    Title = "Finding",
+                    Rationale = "r",
+                },
+            ]);
+
+        Action act = () => ProvenanceSnapshotRevisionHasher.Compute(input, BundleId);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Compute_does_not_throw_when_findings_contain_null_element_from_deserialized_snapshot()
+    {
+        ProvenanceBuildInput input = CreateInput(
+            [],
+            findings:
+            [
+                null!,
+                new Finding
+                {
+                    FindingId = "find-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Severity = FindingSeverity.Info,
+                    Title = "One",
+                    Rationale = "r",
+                },
+            ]);
+
+        Action act = () => ProvenanceSnapshotRevisionHasher.Compute(input, BundleId);
+
+        act.Should().NotThrow();
+    }
 
     [Fact]
     public void Compute_changes_when_manifest_rule_set_id_differs_but_manifest_id_hash_and_decisions_are_unchanged()

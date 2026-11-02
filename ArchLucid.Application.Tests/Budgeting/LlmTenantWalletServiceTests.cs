@@ -110,6 +110,294 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_when_persisted_monthly_cap_is_zero()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 0m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull("zero monthly cap cannot satisfy auto-replenish enable validation");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_when_explicit_monthly_cap_is_zero_in_same_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 0m,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull("explicit zero cap in enable PUT must fail before persist");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_with_zero_cap_on_fresh_wallet_without_prior_settings()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 0m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "service cap-only guard does not apply on fresh wallet, but consume-stage enable pre-check must still reject zero cap");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_enabling_with_payment_method_uses_linked_customer_instead_of_stale_persisted_customer()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_stale_persisted",
+                StripePaymentMethodId = "pm_old",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeLinkedCustomerResolver> linkedCustomer = new();
+        linkedCustomer
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                null,
+                "pm_new",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_stale_persisted",
+                "pm_new",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_linked",
+                "pm_new",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object,
+            stripeLinkedCustomerResolver: linkedCustomer.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                StripePaymentMethodId = "pm_new",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.AutoReplenishEnabled.Should().BeTrue();
+
+        LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        state.StripeCustomerId.Should().Be("cus_linked");
+        state.StripePaymentMethodId.Should().Be("pm_new");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_put_when_payment_method_fails_guard_even_if_customer_matches_linked()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+
+        Mock<IStripeLinkedCustomerResolver> linkedCustomer = new();
+        linkedCustomer
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_linked",
+                "pm_not_attached",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object,
+            stripeLinkedCustomerResolver: linkedCustomer.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                StripeCustomerId = "cus_linked",
+                StripePaymentMethodId = "pm_not_attached",
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_treats_null_stripe_customer_like_omitted_for_partial_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 50m,
+                StripeCustomerId = "cus_keep",
+                StripePaymentMethodId = "pm_keep",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updatedWithNull = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = null,
+                StripePaymentMethodId = null,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updatedWithNull.Should().NotBeNull();
+        updatedWithNull!.MonthlyCapUsd.Should().Be(100m);
+
+        LlmTenantWalletStateReadModel afterNull = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        afterNull.StripeCustomerId.Should().Be("cus_keep");
+        afterNull.StripePaymentMethodId.Should().Be("pm_keep");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_treats_whitespace_payment_method_id_like_omitted_for_partial_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                StripeCustomerId = "cus_keep",
+                StripePaymentMethodId = "pm_keep",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                StripePaymentMethodId = "   ",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        guard.Verify(
+            g => g.AllowsWalletUpdateAsync(tenantId, null, null, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        state.StripePaymentMethodId.Should().Be("pm_keep");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_persists_linked_stripe_customer_when_put_updates_payment_method_only()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -327,6 +615,179 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_with_stripe_customer_but_no_payment_method_in_same_request()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeLinkedCustomerResolver> linkedCustomer = new();
+        linkedCustomer
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("cus_linked");
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_linked",
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object,
+            stripeLinkedCustomerResolver: linkedCustomer.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                StripeCustomerId = "cus_linked",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "enabling auto-replenish in one PUT must require a charge-ready payment method, not customer id alone");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_with_payment_method_only_when_linked_customer_unresolved()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        Mock<IStripeLinkedCustomerResolver> linkedCustomer = new();
+        linkedCustomer
+            .Setup(r => r.TryResolveLinkedCustomerIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                null,
+                "pm_new",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            new Mock<IStripeWalletGateway>().Object,
+            stripePaymentIdentifierGuard: guard.Object,
+            stripeLinkedCustomerResolver: linkedCustomer.Object);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                StripePaymentMethodId = "pm_new",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "enable with payment method only requires a resolved or persisted customer before auto-replenish can turn on");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_enabling_auto_replenish_when_whitespace_stripe_customer_id_normalizes_to_null()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                StripeCustomerId = "   ",
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "whitespace Stripe customer ids normalize to omitted values and cannot satisfy enable validation alone");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_preserves_stripe_identifiers_when_disabling_auto_replenish_without_stripe_fields()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_keep",
+                StripePaymentMethodId = "pm_keep",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = false,
+                ExpectedRowVersion = seeded!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.AutoReplenishEnabled.Should().BeFalse();
+        updated.MonthlyCapUsd.Should().Be(100m);
+
+        LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        state.StripeCustomerId.Should().Be("cus_keep");
+        state.StripePaymentMethodId.Should().Be("pm_keep");
+    }
+
+    [SkippableFact]
     public async Task UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -359,6 +820,176 @@ public sealed class LlmTenantWalletServiceTests
         updated.Should().NotBeNull("partial wallet PUT must not require resubmitting an already-valid monthly cap");
         updated!.AutoReplenishEnabled.Should().BeTrue();
         updated.MonthlyCapUsd.Should().Be(100m);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_allows_monthly_cap_only_put_while_auto_replenish_remains_enabled()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? enabled = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        enabled.Should().NotBeNull();
+        byte[] rowVersion = enabled!.RowVersion;
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = 150m,
+                ExpectedRowVersion = rowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "cap-only PUT while auto-replenish stays enabled must not require re-enabling or resubmitting Stripe ids");
+        updated!.AutoReplenishEnabled.Should().BeTrue();
+        updated.MonthlyCapUsd.Should().Be(150m);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_materializes_wallet_row_without_prior_get()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = false,
+                MonthlyCapUsd = 100m,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "first wallet settings PUT must not require a prior GET when the tenant row is not materialized yet");
+        updated!.MonthlyCapUsd.Should().Be(100m);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_allows_monthly_cap_at_catalog_max_step_boundary()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = LlmTenantWalletDefaults.MaxMonthlyAutoReplenishCapUsd,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.MonthlyCapUsd.Should().Be(LlmTenantWalletDefaults.MaxMonthlyAutoReplenishCapUsd);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_cap_only_zero_while_auto_replenish_remains_enabled()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? enabled = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        enabled.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = 0m,
+                ExpectedRowVersion = enabled!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull(
+            "cap-only zero PUT must not persist while auto-replenish stays enabled");
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_allows_disabling_auto_replenish_with_zero_cap_in_same_put()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? enabled = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        enabled.Should().NotBeNull();
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = false,
+                MonthlyCapUsd = 0m,
+                ExpectedRowVersion = enabled!.RowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull(
+            "disabling auto-replenish in the same PUT must remain allowed when monthly cap is zero");
+        updated!.AutoReplenishEnabled.Should().BeFalse();
+        updated.MonthlyCapUsd.Should().Be(0m);
+    }
+
+    [SkippableFact]
+    public async Task UpdateWalletAsync_rejects_monthly_cap_above_catalog_max()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                MonthlyCapUsd = LlmTenantWalletDefaults.MaxMonthlyAutoReplenishCapUsd + 50m,
+            },
+            CancellationToken.None);
+
+        updated.Should().BeNull();
     }
 
     [SkippableFact]
@@ -507,6 +1138,10 @@ public sealed class LlmTenantWalletServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+        LlmTenantWalletStateReadModel state = await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        state.AutoReplenishEnabled.Should().BeTrue(
+            "guard refusal skips charge but does not silently disable auto-replenish; operator fixes identifiers or disables explicitly");
     }
 
     [SkippableFact]
@@ -953,6 +1588,74 @@ public sealed class LlmTenantWalletServiceTests
         second.Should().BeTrue();
         chargeCalls.Should().Be(1);
         (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+    }
+
+    [SkippableFact]
+    public async Task TryAutoRefillAsync_settles_pending_credit_without_re_running_payment_identifier_guard()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            5m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            cancellationToken: CancellationToken.None);
+
+        Mock<IStripeWalletPaymentIdentifierGuard> guard = new();
+        guard
+            .Setup(g => g.AllowsWalletUpdateAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StripeWalletChargeResult.AwaitingCompletion("pi_pending_guard_once", "processing"));
+
+        LlmTenantWalletService service = CreateService(
+            repository,
+            stripe.Object,
+            stripePaymentIdentifierGuard: guard.Object);
+
+        bool first = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        first.Should().BeFalse();
+
+        bool second = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+        second.Should().BeTrue();
+
+        guard.Verify(
+            g => g.AllowsWalletUpdateAsync(
+                tenantId,
+                "cus_test",
+                "pm_test",
+                It.IsAny<CancellationToken>()),
+            Times.Once,
+            "pending settlement credits an already-authorized payment intent without a second guard pass");
     }
 
     [SkippableFact]

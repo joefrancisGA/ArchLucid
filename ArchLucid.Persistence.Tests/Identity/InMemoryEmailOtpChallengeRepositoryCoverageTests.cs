@@ -384,4 +384,39 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Should()
             .Be(1);
     }
+
+    [Fact]
+    public async Task GetLatestRequestUtcByEmailAsync_returns_max_created_utc_among_active_unexpired_challenges()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+        DateTimeOffset expires = now.AddMinutes(10);
+
+        EmailOtpChallengeRecord older = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "older",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        await Task.Delay(2);
+
+        EmailOtpChallengeRecord newer = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "newer",
+                ExpiresUtc = expires,
+            },
+            CancellationToken.None);
+
+        newer.CreatedUtc.Should().BeAfter(older.CreatedUtc);
+
+        DateTimeOffset? latest =
+            await sut.GetLatestRequestUtcByEmailAsync("otp@example.com", now, CancellationToken.None);
+
+        latest.Should().Be(newer.CreatedUtc);
+    }
 }

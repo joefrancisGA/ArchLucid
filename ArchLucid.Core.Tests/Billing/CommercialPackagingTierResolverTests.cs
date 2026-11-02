@@ -10,6 +10,16 @@ namespace ArchLucid.Core.Tests.Billing;
 public sealed class CommercialPackagingTierResolverTests
 {
     [SkippableFact]
+    public void ResolveCommercialTierLabel_returns_null_for_active_trial_on_enterprise_tier()
+    {
+        TenantRecord tenant = PaidTenant(TenantTier.Enterprise, TrialLifecycleStatus.Active);
+
+        string? label = CommercialPackagingTierResolver.ResolveCommercialTierLabel(tenant, null, 1, 1);
+
+        label.Should().BeNull("active self-service trials must not resolve marketplace labels on any tier enum");
+    }
+
+    [SkippableFact]
     public void ResolveCommercialTierLabel_returns_enterprise_for_enterprise_tier()
     {
         TenantRecord tenant = PaidTenant(TenantTier.Enterprise);

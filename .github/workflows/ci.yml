@@ -660,6 +660,54 @@ jobs:
         continue-on-error: true
         run: python -m unittest scripts.ci.test_check_securenow_stickiness
 
+      - name: SecureNow adoption friction
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_adoption_friction.py
+
+      - name: SecureNow adoption friction unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_adoption_friction
+
+      - name: SecureNow cognitive load
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_cognitive_load.py
+
+      - name: SecureNow cognitive load unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_cognitive_load
+
+      - name: SecureNow time to value
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_time_to_value.py
+
+      - name: SecureNow time to value unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_time_to_value
+
+      - name: SecureNow self-service
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_self_service.py
+
+      - name: SecureNow self-service unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_self_service
+
+      - name: SecureNow cutting edge
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_cutting_edge.py
+
+      - name: SecureNow cutting edge unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_cutting_edge
+
+      - name: SecureNow agent readiness
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_agent_readiness.py
+
+      - name: SecureNow agent readiness unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_agent_readiness
+
       - name: SecureNow ROI notes
         continue-on-error: true
         run: python scripts/ci/check_securenow_roi_notes.py

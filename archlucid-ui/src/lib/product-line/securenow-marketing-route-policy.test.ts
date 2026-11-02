@@ -4,6 +4,7 @@ import {
   isMarketingRouteBlockedForProductLine,
   isMarketingRoutePath,
   isSecureNowDraftMarketingPath,
+  isSecureNowSampleMarketingPath,
   normalizeMarketingRoutePath,
   shouldRedirectMarketingLayout,
 } from "@/lib/product-line/securenow-marketing-route-policy";
@@ -39,12 +40,25 @@ describe("securenow-marketing-route-policy", () => {
     expect(isMarketingRoutePath("/why")).toBe(true);
   });
 
-  it("redirects marketing layout for security except the draft path", () => {
+  it("recognizes the SecureNow sample path only", () => {
+    expect(isSecureNowSampleMarketingPath("/securenow-sample")).toBe(true);
+    expect(isSecureNowSampleMarketingPath("/securenow-sample/")).toBe(true);
+    expect(isSecureNowSampleMarketingPath("/securenow-sample/extra")).toBe(false);
+    expect(isMarketingRoutePath("/securenow-sample")).toBe(false);
+  });
+
+  it("redirects marketing layout for security except Why and sample paths", () => {
     expect(
       shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/pricing" }),
     ).toBe(true);
     expect(
+      shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/see-it" }),
+    ).toBe(true);
+    expect(
       shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/why-securenow" }),
+    ).toBe(false);
+    expect(
+      shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/securenow-sample" }),
     ).toBe(false);
     expect(
       shouldRedirectMarketingLayout({ productLineId: "architecture", pathname: "/pricing" }),

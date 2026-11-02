@@ -156,6 +156,38 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_SlackPayload_preserves_vertical_tab_in_alert_title_after_mrkdwn_escape()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://hooks.slack.com/x");
+        payload.Alert.Title = "Latency\u000Bspike";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+
+        object slackBody = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        string text = GetStringProperty(slackBody, "text");
+
+        text.Should().Contain("Latency\u000Bspike");
+    }
+
+    [Fact]
     public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();

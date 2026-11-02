@@ -10,11 +10,15 @@ Time one comparable investigation per row. Leave the row blank until a person re
 
 The before and after tasks share the same question, the same Azure scope, and the same definition of done. A removed path is not a minute.
 
-| Task | Scope | Timer | Baseline minutes (B) | Pilot minutes (A) | Sample note | Capacity or cash |
-| --- | --- | --- | --- | --- | --- | --- |
-| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
-| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
-| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
+| Task | Scope | Timer | Baseline minutes (B) | Pilot minutes (A) | Sample note | Capacity or cash | Sample size | Limitation | Selection note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
+| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
+| BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK | BLANK |
+
+## Hours for the formula
+
+The log records minutes. A person divides baseline minutes by 60 to get **B**, and pilot minutes by 60 to get **A**. Write the hours only after the minutes exist. Until then the hour line stays **BLANK**. This log does not divide a blank row.
 
 ## Capacity or cash
 

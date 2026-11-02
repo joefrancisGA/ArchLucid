@@ -123,6 +123,48 @@ public sealed class PolicyPackAssignmentOutcomeRecorderTests
     }
 
     [Fact]
+    public void ApplyOutcomes_marks_evaluated_when_partially_complete_with_unmuted_pack_signal()
+    {
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                    ComplianceRuleKeys = ["rule-live"],
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = "f-live",
+                PolicyRuleId = "rule-live",
+                IsMuted = false,
+            },
+        ];
+
+        FindingsSnapshot snapshot = new()
+        {
+            GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
+        };
+
+        string updated = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(scopeJson, findings, snapshot);
+
+        ExecutedEffectiveGovernanceSnapshotDescriptor? parsed =
+            ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(updated);
+
+        parsed!.PackAssignments[0].EvaluationOutcome.Should().Be(PolicyPackEvaluationOutcomes.Evaluated);
+    }
+
+    [Fact]
     public void ApplyOutcomes_marks_skipped_when_findings_snapshot_is_missing()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

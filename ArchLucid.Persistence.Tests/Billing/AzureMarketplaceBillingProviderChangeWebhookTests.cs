@@ -72,6 +72,63 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
     }
 
     [SkippableFact]
+    public async Task HandleWebhookAsync_rejects_malformed_json_after_jwt_without_ledger_insert()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                GaEnabled = true,
+                OpenIdMetadataAddress =
+                    "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+                ValidAudiences = ["https://marketplaceapi.microsoft.com"]
+            }
+        };
+
+        TestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        Mock<ITenantRepository> tenants = new();
+        Mock<IAuditService> audit = new();
+        BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+        Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
+        verifier
+            .Setup(v => v.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
+        Mock<IHttpClientFactory> httpFactory = new();
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler =
+            MarketplaceChangePlanHandlerTestSupport.CreateHandler(monitor, ledger.Object);
+        MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
+        AzureMarketplaceBillingProvider sut = new(
+            monitor,
+            ledger.Object,
+            BillingWebhookReplayGuardTestSupport.CreatePermissiveReplayGuard().Object,
+            activator,
+            verifier.Object,
+            httpFactory.Object,
+            changePlanHandler,
+            changeQtyHandler);
+
+        BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound
+            {
+                RawBody = "{not-valid-json",
+                MarketplaceAuthorizationBearer = "Bearer test-token"
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("valid JSON");
+        ledger.Verify(
+            static l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ChangePlan_ga_off_skips_ledger_change_plan()
     {
         BillingOptions billing = new()

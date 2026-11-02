@@ -161,6 +161,28 @@ export function MarketingResourcesMenu({ seeItLinked }: MarketingResourcesMenuPr
           >
             Why ArchLucid
           </Link>
+          <Link
+            href="/why-securenow"
+            role="menuitem"
+            className={cn(
+              "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            onClick={closeMenu}
+          >
+            Why SecureNow
+          </Link>
+          <Link
+            href="/securenow-sample"
+            role="menuitem"
+            className={cn(
+              "block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+            onClick={closeMenu}
+          >
+            SecureNow sample
+          </Link>
           {seeItLinked ? (
             <Link
               href={MARKETING_CANONICAL_DEMO_PATH}
