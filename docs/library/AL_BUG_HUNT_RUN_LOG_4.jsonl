@@ -965,7 +965,6 @@
 {"at":"2026-10-10T07:14:47.4992914Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:22:11.735516Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
-{"at":"2026-10-10T07:27:19.6356368Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:36:16.2989417Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:42:27.7377236Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T07:49:01.7869564Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
@@ -1494,8 +1493,6 @@
 {"at":"2026-10-21T00:45:00Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/"]}
 {"at":"2026-10-21T01:35:28.4561425Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:42:23.0000000Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
-{"zoneId":"cloud-extractors","outcome":"hit","lane":"B","kind":"seed hunt","note":"ListChildJsonElementsAsync partialCollection wiring for AX-DE collectors","at":"2026-10-21T01:42:23.0000000Z"}
-{"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:44:11.4723088Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:50:29.1932207Z","zoneId":"retrieval","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-21T01:56:30.7334759Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
@@ -2298,13 +2295,11 @@
 {"at":"2026-10-27T17:20:13.5517745Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:25:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:30:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-27T17:30:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:35:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:40:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:45:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:50:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T17:55:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-27T18:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T18:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T18:05:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T18:10:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
@@ -2326,12 +2321,10 @@
 {"at":"2026-10-27T23:55:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-27T23:58:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-28T00:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:03:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:06:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:09:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:12:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-28T00:15:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:15:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:18:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T00:21:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
@@ -2357,13 +2350,11 @@
 {"at":"2026-10-28T01:20:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:25:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:30:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-28T01:30:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:35:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:40:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:45:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:50:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T01:55:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-28T02:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T02:00:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T02:05:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T02:10:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
@@ -3470,3 +3461,4 @@
 {"at":"2026-11-02T15:29:02.7067022Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T15:29:03.6163379Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T15:33:15.5047456Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T15:33:40.1645472Z","zoneId":"core-safety-network","outcome":"dry","productLine":"archlucid-shared"}
