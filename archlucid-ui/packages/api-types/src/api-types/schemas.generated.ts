@@ -10068,6 +10068,23 @@ export interface components {
             sharedDependencyNodeId?: null | string;
             status?: string;
         };
+        SecureNowPilotPathDispositionResponse: {
+            outcome?: string;
+            /** Format: uuid */
+            pathId?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedUtc?: string;
+        };
+        SecureNowPilotPathDispositionSaveResult: {
+            disposition?: null | components["schemas"]["SecureNowPilotPathDispositionResponse"];
+            errorMessage?: null | string;
+            succeeded?: boolean;
+        };
+        SecureNowPilotPathDispositionWriteRequest: {
+            outcome?: string;
+            rationale?: string;
+        };
         SecureNowQuestionDispositionAuditResponse: {
             action?: string;
             actorKey?: string;
@@ -10363,6 +10380,7 @@ export interface components {
             confidenceBandScore?: number | string;
             dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
             explanationSummary?: string;
+            nextStoredPathRankContext?: string;
             pathConfidenceBand?: string;
             /** Format: uuid */
             pathId?: string;

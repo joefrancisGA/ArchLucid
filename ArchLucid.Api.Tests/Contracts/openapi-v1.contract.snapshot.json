@@ -34522,6 +34522,60 @@
         },
         "type": "object"
       },
+      "SecureNowPilotPathDispositionResponse": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionSaveResult": {
+        "properties": {
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+              }
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionWriteRequest": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecureNowQuestionDispositionAuditResponse": {
         "properties": {
           "action": {
@@ -35465,6 +35519,9 @@
             "$ref": "#/components/schemas/SecurityEvidencePathRankDimensionProseResponse"
           },
           "explanationSummary": {
+            "type": "string"
+          },
+          "nextStoredPathRankContext": {
             "type": "string"
           },
           "pathConfidenceBand": {
@@ -187335,6 +187392,415 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/SecurityEvidencePathExplanationResultResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityPaths"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/operational-security/paths/{pathId}/pilot-disposition": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pathId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityPaths"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pathId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SecureNowPilotPathDispositionWriteRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SecureNowPilotPathDispositionWriteRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SecureNowPilotPathDispositionWriteRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionSaveResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionSaveResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowPilotPathDispositionSaveResult"
                 }
               }
             },

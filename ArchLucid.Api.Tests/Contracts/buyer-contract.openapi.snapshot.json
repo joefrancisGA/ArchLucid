@@ -34522,6 +34522,60 @@
         },
         "type": "object"
       },
+      "SecureNowPilotPathDispositionResponse": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionSaveResult": {
+        "properties": {
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowPilotPathDispositionResponse"
+              }
+            ]
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowPilotPathDispositionWriteRequest": {
+        "properties": {
+          "outcome": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecureNowQuestionDispositionAuditResponse": {
         "properties": {
           "action": {
@@ -35465,6 +35519,9 @@
             "$ref": "#/components/schemas/SecurityEvidencePathRankDimensionProseResponse"
           },
           "explanationSummary": {
+            "type": "string"
+          },
+          "nextStoredPathRankContext": {
             "type": "string"
           },
           "pathConfidenceBand": {
