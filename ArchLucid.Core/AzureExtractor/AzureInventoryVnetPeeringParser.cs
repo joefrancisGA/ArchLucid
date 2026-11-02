@@ -352,10 +352,7 @@ public static class AzureInventoryVnetPeeringParser
             return null;
         }
 
-        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(azureResourceId, out string working))
-        {
-            return null;
-        }
+        string working = PercentDecodeBounded.Decode(azureResourceId.Trim());
 
         string normalized = ArmResourceIdNormalizer.Normalize(working);
 

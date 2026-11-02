@@ -37,7 +37,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof, deltas)} |");
-        sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run)} |");
+        sb.AppendLine($"| Execution mode | {FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof, deltas)} |");
         sb.AppendLine($"| ROI claim gate | {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(roiClaimGate.DispositionLeadLine)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
@@ -53,6 +53,10 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
     private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
         PilotDemoTenantDisciplineHonestyCopy.FormatSponsorFirstPageEvidenceSourceCell(proof, deltas);
+
+    // First-page cell wraps shared execution-mode copy with simulator-substitution honesty.
+    private static string FormatSponsorExecutionMode(ArchitectureRun run) =>
+        SponsorExecutionModeMarkdownFormatter.FormatSponsorFirstPageTableCell(run);
 
     private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof, PilotRunDeltas deltas) =>
         PilotAgentOutputPilotStrictHonestyCopy.FormatProofPackageCell(deltas);

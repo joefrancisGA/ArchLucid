@@ -12,10 +12,7 @@ public static class AzureInventoryPublicIpConfigurationParentResolver
             return null;
         }
 
-        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(configurationId, out string working))
-        {
-            return null;
-        }
+        string working = PercentDecodeBounded.Decode(configurationId.Trim());
 
         string[] segments = working
             .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

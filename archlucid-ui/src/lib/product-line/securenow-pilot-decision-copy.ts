@@ -1,3 +1,7 @@
+import { SECURENOW_REMEDIATION_INSTANCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+
 export const SECURENOW_PILOT_DECISION_HEADING = "Pilot decision preparation" as const;
 
 export const SECURENOW_PILOT_DECISION_LEAD =
@@ -24,17 +28,47 @@ export const SECURENOW_DECISION_CYCLE_HEADING = "Decision cycle" as const;
 export const SECURENOW_DECISION_CYCLE_LEAD =
   "A person writes the qualify start, the close, and one stall step in the decision cycle log. SecureNow beta remains NO_GO." as const;
 
-export const SECURENOW_DECISION_CYCLE_STALL_STEPS: readonly string[] = [
-  "Qualify",
-  "Scope",
-  "Review",
-  "Decide change",
-  "Verify",
-  "Close",
+export const SECURENOW_DECISION_CYCLE_LOG_PATH =
+  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md" as const;
+
+export type SecureNowDecisionCycleStallStep = {
+  readonly label: string;
+  readonly href: string;
+  readonly note: string;
+};
+
+export const SECURENOW_DECISION_CYCLE_STALL_STEPS: readonly SecureNowDecisionCycleStallStep[] = [
+  {
+    label: "Qualify",
+    href: "/administration/securenow-first-hour",
+    note: "Confirm the review is worth opening.",
+  },
+  {
+    label: "Scope",
+    href: CLOUD_CONNECTIONS_PATH,
+    note: "Collection status, including a gap.",
+  },
+  {
+    label: "Review",
+    href: SECURENOW_REMEDIATION_FACTORY_PATH,
+    note: "One ranked path in Path inspect.",
+  },
+  {
+    label: "Decide change",
+    href: "/administration/securenow-pilot-decision#securenow-pilot-decision-outcomes-heading",
+    note: "The outcome on this page stays unselected.",
+  },
+  {
+    label: "Verify",
+    href: SECURENOW_REMEDIATION_INSTANCES_PATH,
+    note: "A later capture. Not verified stays not verified.",
+  },
+  {
+    label: "Close",
+    href: SECURENOW_DECISION_CYCLE_LOG_PATH,
+    note: "Write times only on a private copy. Leave the source log blank.",
+  },
 ] as const;
 
 export const SECURENOW_DECISION_CYCLE_GUARDRAIL =
   "Leave the outcome blank until a person selects proceed to commercial discussion, extend with bounded scope, or stop on the pilot decision record." as const;
-
-export const SECURENOW_DECISION_CYCLE_LOG_PATH =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/DECISION_CYCLE_LOG.md" as const;

@@ -34,6 +34,18 @@ class SecureNowDecisionVelocityTests(unittest.TestCase):
     def test_real_repo_passes(self) -> None:
         self.assertEqual([], validate())
 
+    def test_stall_surface_href_is_required(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-pilot-decision-copy.ts"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("SECURENOW_REMEDIATION_FACTORY_PATH", ""),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("stall-surface reference" in error for error in errors))
+
     def test_dollar_amount_in_record_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
