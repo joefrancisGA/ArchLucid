@@ -3404,4 +3404,5 @@
 {"at":"2026-11-02T14:12:59.2202637Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T14:14:32.5755502Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T14:15:56.2860539Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T14:16:19.3257066Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T14:18:01.2017505Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
