@@ -57,6 +57,9 @@ public static partial class AuditEventTypes
     /// <summary>SecureNow architect neighborhood path recompute after IE-06 diff (SA-13).</summary>
     public const string SecureNowArchitectNeighborhoodRecomputed = "SecureNowArchitect.NeighborhoodRecomputed";
 
+    /// <summary>Operator recorded Proceed / Extend / Stop for a SecureNow architect path.</summary>
+    public const string SecureNowPilotPathDispositionRecorded = "SecureNowPilotPath.DispositionRecorded";
+
     /// <summary>Human security asset assertion created (SA-18).</summary>
     public const string SecurityAssetAssertionCreated = "SecurityAssetAssertion.Created";
 

@@ -9,11 +9,13 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  readSecureNowPilotDisposition,
   secureNowPilotDispositionStorageKey,
-  writeSecureNowPilotDisposition,
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import {
+  loadSecureNowPilotDispositionForPath,
+  persistSecureNowPilotDispositionForPath,
+} from "@/lib/product-line/securenow-pilot-disposition-sync";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
@@ -32,18 +34,28 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
       return;
     }
 
-    const stored = readSecureNowPilotDisposition(pathId);
+    let cancelled = false;
 
-    if (stored === null) {
-      setOutcome("");
-      setRationale("");
-      setSavedDisposition(null);
-      return;
-    }
+    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+      if (cancelled) {
+        return;
+      }
 
-    setOutcome(stored.outcome);
-    setRationale(stored.rationale);
-    setSavedDisposition(stored);
+      if (stored === null) {
+        setOutcome("");
+        setRationale("");
+        setSavedDisposition(null);
+        return;
+      }
+
+      setOutcome(stored.outcome);
+      setRationale(stored.rationale);
+      setSavedDisposition(stored);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathId]);
 
   const saveDisposition = () => {
@@ -58,9 +70,16 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
     }
 
     const record = { outcome, rationale: rationale.trim() };
-    writeSecureNowPilotDisposition(pathId, record);
-    setSavedDisposition(record);
-    setSaveError(null);
+
+    void persistSecureNowPilotDispositionForPath(pathId, record).then((errorMessage) => {
+      if (errorMessage !== null) {
+        setSaveError(errorMessage);
+        return;
+      }
+
+      setSavedDisposition(record);
+      setSaveError(null);
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
@@ -37,6 +37,16 @@ vi.mock("@/lib/security-evidence-path-api", async (importOriginal) => {
 
 vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   fetchRemediationInstances: vi.fn(async () => []),
+}));
+
+vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
+  loadSecureNowPilotDispositionForPath: vi.fn(async (pathId: string) => {
+    const { readSecureNowPilotDisposition } = await import(
+      "@/lib/product-line/securenow-pilot-disposition-storage"
+    );
+    return readSecureNowPilotDisposition(pathId);
+  }),
+  persistSecureNowPilotDispositionForPath: vi.fn(async () => null),
 }));
 
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
@@ -381,6 +391,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
           overall: "Rank driven by privilege depth and exposure.",
         },
         computedUtc: "2026-01-01T00:00:00Z",
+        nextStoredPathRankContext:
+          "Selected path path-2 outranks stored path path-3 on TechnicalExposure. This does not change the rank.",
       },
       isLoading: false,
       isError: false,
@@ -401,6 +413,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-rank-next-stored-context")).toHaveTextContent(
+      "This does not change the rank.",
+    );
     expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
       "Rank was not stored",
     );
@@ -1041,7 +1056,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
-  it("shows a saved pilot disposition beside the inspected path", () => {
+  it("shows a saved pilot disposition beside the inspected path", async () => {
     const pathId = "path-local-1";
     window.localStorage.setItem(
       secureNowPilotDispositionStorageKey(pathId),
@@ -1075,12 +1090,18 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     renderPanel(null, { pathIdOverride: pathId });
 
-    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
     expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
       "Synthetic fixture only.",
     );
     expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
       SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+    );
+    expect(screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/internal/integrations/itsm?"),
     );
   });
 });

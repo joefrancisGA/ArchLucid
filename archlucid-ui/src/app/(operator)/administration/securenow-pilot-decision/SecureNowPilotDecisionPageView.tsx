@@ -8,10 +8,10 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  readSecureNowPilotDisposition,
-  secureNowPilotDispositionStorageKey,
-  writeSecureNowPilotDisposition,
-} from "@/lib/product-line/securenow-pilot-disposition-storage";
+  loadSecureNowPilotDispositionForPath,
+  persistSecureNowPilotDispositionForPath,
+} from "@/lib/product-line/securenow-pilot-disposition-sync";
+import { secureNowPilotDispositionStorageKey } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
@@ -40,16 +40,26 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       return;
     }
 
-    const stored = readSecureNowPilotDisposition(pathId);
+    let cancelled = false;
 
-    if (stored === null) {
-      setOutcome("");
-      setRationale("");
-      return;
-    }
+    void loadSecureNowPilotDispositionForPath(pathId).then((stored) => {
+      if (cancelled) {
+        return;
+      }
 
-    setOutcome(stored.outcome);
-    setRationale(stored.rationale);
+      if (stored === null) {
+        setOutcome("");
+        setRationale("");
+        return;
+      }
+
+      setOutcome(stored.outcome);
+      setRationale(stored.rationale);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathId]);
 
   const saveDisposition = () => {
@@ -63,8 +73,17 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       return;
     }
 
-    writeSecureNowPilotDisposition(pathId, { outcome, rationale: rationale.trim() });
-    setSaveError(null);
+    void persistSecureNowPilotDispositionForPath(pathId, {
+      outcome,
+      rationale: rationale.trim(),
+    }).then((errorMessage) => {
+      if (errorMessage !== null) {
+        setSaveError(errorMessage);
+        return;
+      }
+
+      setSaveError(null);
+    });
   };
 
   return (

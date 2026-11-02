@@ -40,6 +40,61 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         detail.DimensionProse.BusinessConsequence.Should().Contain("Business consequence was not stored");
         detail.ExplanationSummary.Should().Contain(SecurityEvidencePathRankConstants.RuleVersion);
         detail.ExplanationSummary.Should().NotContain("%");
+        detail.NextStoredPathRankContext.Should()
+            .Be(SecurityEvidencePathRankContextBuilder.NoNextStoredPathSentence);
+    }
+
+    [Fact]
+    public async Task TryGetPathRankAsync_includes_next_stored_path_rank_context()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository pathRepository = CreateSamplePathRepository();
+        Guid nextPathId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        InMemoryRankRepository rankRepository = new();
+        rankRepository.StoredRanks[(TenantId, PathId)] = new SecurityEvidencePathRankRecord
+        {
+            PathId = PathId,
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            RuleVersion = SecurityEvidencePathRankConstants.RuleVersion,
+            TechnicalExposureScore = 3m,
+            PrivilegeDepthScore = 2.0m,
+            BlastRadiusScore = 1.0m,
+            BusinessConsequenceScore = null,
+            ConfidenceBandScore = 2.0m,
+            CompositeSortScore = 1.8m,
+            RankOrder = 1,
+            ExplanationSummary = $"{SecurityEvidencePathRankConstants.RuleVersion}: sample rank.",
+            BreakdownJson = "[]",
+            ComputedUtc = DateTime.UtcNow,
+        };
+        rankRepository.StoredRanks[(TenantId, nextPathId)] = new SecurityEvidencePathRankRecord
+        {
+            PathId = nextPathId,
+            TenantId = TenantId,
+            SnapshotId = SnapshotId,
+            RuleVersion = SecurityEvidencePathRankConstants.RuleVersion,
+            TechnicalExposureScore = 1m,
+            PrivilegeDepthScore = 2.0m,
+            BlastRadiusScore = 1.0m,
+            BusinessConsequenceScore = null,
+            ConfidenceBandScore = 2.0m,
+            CompositeSortScore = 1.5m,
+            RankOrder = 2,
+            ExplanationSummary = $"{SecurityEvidencePathRankConstants.RuleVersion}: next rank.",
+            BreakdownJson = "[]",
+            ComputedUtc = DateTime.UtcNow,
+        };
+
+        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository, new InMemoryCutPointRepository());
+
+        SecurityEvidencePathRankDetailResponse? detail =
+            await sut.TryGetPathRankAsync(scope, PathId, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.NextStoredPathRankContext.Should().Contain(nextPathId.ToString("D"));
+        detail.NextStoredPathRankContext.Should().Contain("TechnicalExposure");
+        detail.NextStoredPathRankContext.Should().Contain("This does not change the rank.");
     }
 
     [Fact]
@@ -350,8 +405,11 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
 
         public Task<IReadOnlyList<SecurityEvidencePathRankRecord>> ListBySnapshotAsync(
             ProjectSnapshotScopeKey scope,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>([]);
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathRankRecord>>(
+                StoredRanks.Values
+                    .Where(rank => rank.TenantId == scope.TenantId && rank.SnapshotId == scope.SnapshotId)
+                    .ToList());
 
         public Task ReplaceRanksForSnapshotAsync(
             Guid tenantId,

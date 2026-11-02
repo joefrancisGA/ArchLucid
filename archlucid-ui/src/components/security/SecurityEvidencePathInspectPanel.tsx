@@ -76,10 +76,14 @@ import {
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import {
-  readSecureNowPilotDisposition,
   SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
   type SecureNowPilotDispositionRecord,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { loadSecureNowPilotDispositionForPath } from "@/lib/product-line/securenow-pilot-disposition-sync";
+import {
+  buildSecureNowStopItsmOutboundHandoffHref,
+  SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
+} from "@/lib/product-line/securenow-stop-itsm-handoff";
 import type {
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -308,6 +312,14 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
       </div>
       {props.rank.dimensionProse.overall.trim().length > 0 ? (
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{props.rank.dimensionProse.overall}</p>
+      ) : null}
+      {props.rank.nextStoredPathRankContext.trim().length > 0 ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="security-evidence-path-rank-next-stored-context"
+        >
+          {props.rank.nextStoredPathRankContext}
+        </p>
       ) : null}
       {dimensionEntries.length > 0 ? (
         <ul
@@ -663,7 +675,17 @@ export function SecurityEvidencePathInspectPanel(props: {
       return;
     }
 
-    setPilotDisposition(readSecureNowPilotDisposition(resolvedPathId));
+    let cancelled = false;
+
+    void loadSecureNowPilotDispositionForPath(resolvedPathId).then((record) => {
+      if (!cancelled) {
+        setPilotDisposition(record);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [resolvedPathId]);
   const decisionReadiness = pathQuery.data != null
     ? buildPathDecisionReadiness(pathQuery.data, pathRankQuery.data ?? null, advisoryInstance)
@@ -873,6 +895,18 @@ export function SecurityEvidencePathInspectPanel(props: {
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 {SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}
               </p>
+              {pilotDisposition.outcome === "Stop" ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={buildSecureNowStopItsmOutboundHandoffHref(resolvedPathId, pilotDisposition.rationale)}
+                    data-testid="security-evidence-path-pilot-stop-itsm-handoff"
+                  >
+                    Draft ITSM outbound handoff
+                  </Link>
+                  <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}</span>
+                </p>
+              ) : null}
               <Link
                 className={OPERATOR_LINK.inline}
                 href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(resolvedPathId)}`}
