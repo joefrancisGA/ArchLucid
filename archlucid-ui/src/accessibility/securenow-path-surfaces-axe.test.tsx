@@ -117,6 +117,7 @@ vi.mock("@/hooks/use-security-evidence-path-rank-query", () => ({
         overall: "Rank driven by privilege depth and exposure.",
       },
       computedUtc: "2026-01-01T00:00:00Z",
+      nextStoredPathRankContext: "",
     },
     isLoading: false,
     isError: false,

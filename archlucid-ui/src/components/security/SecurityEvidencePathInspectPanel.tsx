@@ -81,8 +81,9 @@ import {
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import { loadSecureNowPilotDispositionForPath } from "@/lib/product-line/securenow-pilot-disposition-sync";
 import {
-  buildSecureNowStopItsmOutboundHandoffHref,
+  resolveSecureNowStopItsmOutboundHandoffHref,
   SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE,
+  SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE,
 } from "@/lib/product-line/securenow-stop-itsm-handoff";
 import type {
   SecurityEvidencePathDetail,
@@ -899,12 +900,21 @@ export function SecurityEvidencePathInspectPanel(props: {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   <Link
                     className={OPERATOR_LINK.inline}
-                    href={buildSecureNowStopItsmOutboundHandoffHref(resolvedPathId, pilotDisposition.rationale)}
+                    href={resolveSecureNowStopItsmOutboundHandoffHref({
+                      pathId: resolvedPathId,
+                      rationale: pilotDisposition.rationale,
+                      findingId: props.findingId,
+                      snapshotId: pathQuery.data?.snapshotId,
+                    })}
                     data-testid="security-evidence-path-pilot-stop-itsm-handoff"
                   >
-                    Draft ITSM outbound handoff
+                    {props.findingId != null ? "Draft finding ITSM export" : "Draft ITSM outbound handoff"}
                   </Link>
-                  <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}</span>
+                  <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>
+                    {props.findingId != null
+                      ? SECURENOW_PILOT_STOP_ITSM_FINDING_EXPORT_DRAFT_DISCIPLINE
+                      : SECURENOW_PILOT_STOP_ITSM_DRAFT_DISCIPLINE}
+                  </span>
                 </p>
               ) : null}
               <Link

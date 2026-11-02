@@ -275,25 +275,27 @@ export function FirstReviewGuideWalkthrough({
   }
 
   return (
-    <ol
-      className="m-0 list-none space-y-3 p-0"
-      data-testid="first-review-guide-walkthrough"
-      aria-label="First review walkthrough"
-    >
-      {steps.map((step) => (
-        <FirstReviewGuideStepCard
-          key={step.title}
-          step={step}
-          totalSteps={totalSteps}
-          onFocusStep={focusGuideStep}
-        />
-      ))}
+    <>
+      <ol
+        className="m-0 list-none space-y-3 p-0"
+        data-testid="first-review-guide-walkthrough"
+        aria-label="First review walkthrough"
+      >
+        {steps.map((step) => (
+          <FirstReviewGuideStepCard
+            key={step.title}
+            step={step}
+            totalSteps={totalSteps}
+            onFocusStep={focusGuideStep}
+          />
+        ))}
+      </ol>
       {announceProgress ? (
         <span className="sr-only" aria-live="polite" data-testid="first-review-guide-walkthrough-live">
           {completionLabel}
         </span>
       ) : null}
-    </ol>
+    </>
   );
 }
 
