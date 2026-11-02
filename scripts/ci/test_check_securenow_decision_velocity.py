@@ -11,6 +11,7 @@ from scripts.ci.check_securenow_decision_velocity import ROOT, validate
 
 TRACKED_PATHS = (
     "docs/securenow/PILOT_DECISION_RECORD.md",
+    "docs/securenow/DECISION_CYCLE_LOG.md",
     "docs/securenow/DECISION_PATH_ONE_PAGER.md",
     "archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts",
     "archlucid-ui/src/app/(marketing)/why-securenow/WhySecureNowDraftView.tsx",
@@ -33,6 +34,18 @@ class SecureNowDecisionVelocityTests(unittest.TestCase):
     def test_real_repo_passes(self) -> None:
         self.assertEqual([], validate())
 
+    def test_stall_surface_href_is_required(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-pilot-decision-copy.ts"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("SECURENOW_REMEDIATION_FACTORY_PATH", ""),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("stall-surface reference" in error for error in errors))
+
     def test_dollar_amount_in_record_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -51,6 +64,27 @@ class SecureNowDecisionVelocityTests(unittest.TestCase):
             path.write_text(text, encoding="utf-8")
             errors = validate(root)
             self.assertTrue(any("Proceed to commercial discussion" in error for error in errors))
+
+    def test_dollar_amount_in_cycle_log_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "docs/securenow/DECISION_CYCLE_LOG.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\nFee: $5000.\n", encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("DECISION_CYCLE_LOG.md: contains '$'" in error for error in errors))
+
+    def test_missing_synthetic_fixture_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "docs/securenow/DECISION_CYCLE_LOG.md"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("SYNTHETIC FIXTURE", "EXAMPLE"),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("SYNTHETIC FIXTURE" in error for error in errors))
 
 
 if __name__ == "__main__":

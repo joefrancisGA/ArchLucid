@@ -13,11 +13,32 @@ internal static class AgentCalibratedConfidenceByTaskIdBuilder
 
         Dictionary<string, double?> map = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (AgentResult result in agentResults)
+        foreach (IGrouping<string, AgentResult> group in agentResults
+                     .Select(static result => new
+                     {
+                         Result = result,
+                         TaskIdKey = AgentEvaluationTaskIdKey.Normalize(result.TaskId) ?? result.TaskId
+                     })
+                     .Where(static x => !string.IsNullOrWhiteSpace(x.TaskIdKey))
+                     .GroupBy(static x => x.TaskIdKey, static x => x.Result, StringComparer.OrdinalIgnoreCase))
         {
+            List<AgentResult> groupResults = group.ToList();
+            AgentResult? latest = AgentResultLatestForTaskSelector.Select(groupResults, group.Key);
 
-            if (result.CalibratedConfidence is { } calibrated)
-                map[result.TaskId] = calibrated;
+            if (latest?.CalibratedConfidence is { } calibrated)
+            {
+                map[group.Key] = calibrated;
+                continue;
+            }
+
+            AgentResult? latestWithCalibrated = groupResults
+                .Where(static result => result.CalibratedConfidence is not null)
+                .OrderByDescending(static result => result.CreatedUtc)
+                .ThenByDescending(static result => result.ResultId, StringComparer.Ordinal)
+                .FirstOrDefault();
+
+            if (latestWithCalibrated?.CalibratedConfidence is { } fallbackCalibrated)
+                map[group.Key] = fallbackCalibrated;
         }
 
         return map;
