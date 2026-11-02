@@ -241,4 +241,59 @@ public sealed class AzureInventoryFederatedCredentialParserTests
 
         row!.EvidenceHashSha256.Should().Equal(expectedHash);
     }
+
+    [Fact]
+    public void TryParse_reads_app_id_when_appId_is_percent_encoded_guid_scalar()
+    {
+        const string appId = "22222222-2222-2222-2222-222222222222";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "appId": "{{Uri.EscapeDataString(appId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.AppId.Should().Be(appId);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_appId_is_percent_encoded_guid_scalar()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        const string appId = "22222222-2222-2222-2222-222222222222";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{issuer}}",
+                                                              "subject": "{{subject}}",
+                                                              "principalId": "{{principalId}}",
+                                                              "appId": "{{Uri.EscapeDataString(appId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
+    }
 }
