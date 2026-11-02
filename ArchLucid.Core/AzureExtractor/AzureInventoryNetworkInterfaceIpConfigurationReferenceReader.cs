@@ -48,15 +48,27 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         string working = PercentDecodeBounded.Decode(armId.Trim());
 
-        // Only normalize strings that resemble an ARM resource id.
-        // If this is not an ARM id, keep the original (decoded) value to preserve tolerance.
-        if (!working.StartsWith("/", StringComparison.Ordinal) ||
-            working.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase) < 0)
+        // Post-decode guard: only normalize values that look like ARM resource IDs.
+        // This avoids throwing/altering non-ARM values and keeps behavior consistent across parsers.
+        if (!LooksLikeArmResourceId(working))
         {
-            return working;
+            return null;
         }
 
         return ArmResourceIdNormalizer.Normalize(working);
+    }
+
+    private static bool LooksLikeArmResourceId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        string trimmed = value.Trim();
+
+        return trimmed.StartsWith("/", StringComparison.Ordinal)
+            && trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryGetPropertyIgnoreCase(

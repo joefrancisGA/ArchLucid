@@ -19,7 +19,7 @@ public sealed class PilotRunDeltasFindingsTotalFormatterTests
 
         PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas)
             .Should()
-            .Be(PilotRunDeltasFindingsTotalFormatter.FindingsTotalNotAttestedLabel);
+            .Be(PilotRunDeltasFindingsEmptySeverityHonesty.AgentResultsIncludedEmptySeverityPlainLabel);
     }
 
     [Fact]

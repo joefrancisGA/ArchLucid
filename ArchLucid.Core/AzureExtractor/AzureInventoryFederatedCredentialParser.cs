@@ -139,6 +139,8 @@ public static class AzureInventoryFederatedCredentialParser
 
     private static string NormalizePercentEncodedTrimmedScalar(string value)
     {
-        return PercentDecodeBounded.Decode(value.Trim());
+        string working = PercentDecodeBounded.Decode(value.Trim());
+
+        return working;
     }
 }

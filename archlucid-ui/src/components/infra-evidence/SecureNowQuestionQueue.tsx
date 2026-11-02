@@ -37,6 +37,7 @@ import {
 } from "@/lib/infra-evidence/securenow-question-resource-identity-display";
 import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
+import { SECURENOW_QUESTION_QUEUE_EMPTY_FILTER } from "@/lib/product-line/securenow-question-queue-empty-copy";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -553,7 +554,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </div>
       ) : (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No questions match this filter.
+          {SECURENOW_QUESTION_QUEUE_EMPTY_FILTER}
         </p>
       )}
     </div>

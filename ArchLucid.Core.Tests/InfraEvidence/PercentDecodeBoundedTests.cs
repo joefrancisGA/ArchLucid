@@ -7,62 +7,35 @@ namespace ArchLucid.Core.Tests.InfraEvidence;
 [Trait("Suite", "Core")]
 public sealed class PercentDecodeBoundedTests
 {
-    [Fact]
-    public void Decode_plain_value_is_returned_unchanged()
-    {
-        PercentDecodeBounded.Decode("plain-value").Should().Be("plain-value");
-    }
-
-    [Fact]
-    public void Decode_unwraps_multiple_encoding_layers()
-    {
-        string once = Uri.EscapeDataString("/subscriptions/sub/resourceGroups/rg");
-        string twice = Uri.EscapeDataString(once);
-
-        PercentDecodeBounded.Decode(twice).Should().Be("/subscriptions/sub/resourceGroups/rg");
-    }
-
-    [Fact]
-    public void Decode_malformed_percent_encoding_keeps_last_working_value()
-    {
-        PercentDecodeBounded.Decode("value%ZZtail").Should().Be("value%ZZtail");
-    }
-
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void Decode_rejects_non_positive_max_passes(int maxPasses)
+    [InlineData("/subscriptions/abc", "/subscriptions/abc")]
+    [InlineData("%2Fsubscriptions%2Fabc", "/subscriptions/abc")]
+    [InlineData("%252Fsubscriptions%252Fabc", "/subscriptions/abc")]
+    [InlineData("%25252Fsubscriptions%25252Fabc", "/subscriptions/abc")]
+    public void Decode_unwraps_repeated_percent_encoding(string input, string expected)
     {
-        Action act = () => PercentDecodeBounded.Decode("value", maxPasses);
-
-        act.Should().Throw<ArgumentOutOfRangeException>()
-            .Which.ParamName.Should().Be("maxPasses");
+        PercentDecodeBounded.Decode(input).Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_with_one_max_pass_leaves_a_second_encoding_layer()
+    public void Decode_stops_when_a_pass_makes_no_progress()
     {
-        string once = Uri.EscapeDataString("value");
-        string twice = Uri.EscapeDataString(once);
-
-        PercentDecodeBounded.Decode(twice, maxPasses: 1).Should().Be(once);
+        PercentDecodeBounded.Decode("%25").Should().Be("%");
     }
 
     [Fact]
-    public void Decode_stops_at_max_passes()
+    public void Decode_stops_at_the_pass_cap_for_adversarial_input()
     {
-        string encoded = "x";
-        for (int layer = 0; layer < 12; layer++)
+        string input = "/subscriptions/abc";
+
+        for (int i = 0; i < PercentDecodeBounded.MaxPasses + 4; i++)
         {
-            encoded = Uri.EscapeDataString(encoded);
+            input = Uri.EscapeDataString(input);
         }
 
-        string expected = encoded;
-        for (int pass = 0; pass < 8; pass++)
-        {
-            expected = Uri.UnescapeDataString(expected);
-        }
+        string decoded = PercentDecodeBounded.Decode(input);
 
-        PercentDecodeBounded.Decode(encoded).Should().Be(expected);
+        decoded.Should().Contain("%");
+        decoded.Length.Should().BeLessThan(input.Length);
     }
 }

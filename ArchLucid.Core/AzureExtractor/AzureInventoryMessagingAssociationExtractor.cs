@@ -117,5 +117,4 @@ public static class AzureInventoryMessagingAssociationExtractor
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
     }
-
 }
