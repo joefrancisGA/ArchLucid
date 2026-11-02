@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildCorePilotCommitContextFromRunItems,
@@ -15,6 +15,10 @@ import {
 } from "@/lib/first-review-guide-state";
 import { SHOWCASE_CREATED_STATIC_DEMO_RUN_ID } from "@/lib/showcase-created-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+vi.mock("@/lib/live-operator-shell-recovery", () => ({
+  isLiveOperatorShellRecoveryContext: () => false,
+}));
 
 const emptyContext: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -197,8 +201,9 @@ describe("first-review-guide-state", () => {
       finishSetupLoaded: true,
     });
 
-    expect(actions.primaryDisabled).toBe(true);
-    expect(actions.primaryLabel).toBe("Start first review");
+    expect(actions.primaryDisabled).toBe(false);
+    expect(actions.primaryLabel).toBe("Open sample review");
+    expect(actions.secondaryLabel).toBeNull();
   });
 
   it("step 3 title avoids standalone Run job language (ARF P0-7)", () => {
@@ -248,7 +253,8 @@ describe("first-review-guide-state", () => {
 
     expect(readiness.kind).toBe("ready-to-start");
     expect(progress.phase).toBe("not-started");
-    expect(actions.primaryLabel).toBe("Start first review");
+    expect(actions.primaryLabel).toBe("Open sample review");
+    expect(actions.secondaryLabel).toBe("Start first review");
   });
 
   it("uses sealed-record header actions when the first review is complete", () => {
@@ -312,7 +318,7 @@ describe("first-review-guide-state", () => {
 
     expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
     expect(resolveFirstReviewGuideProgress(commitContext).phase).toBe("not-started");
-    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Open sample review");
   });
 
   it("does not treat the reviewed showcase sample as a completed first review", () => {
@@ -335,7 +341,7 @@ describe("first-review-guide-state", () => {
     };
 
     expect(resolveFirstReviewGuideReadiness(input).kind).toBe("ready-to-start");
-    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Start first review");
+    expect(resolveFirstReviewGuideHeaderActions(input).primaryLabel).toBe("Open sample review");
   });
 
   it("reports completed when a sealed record exists despite self-hosted setup blockers", () => {

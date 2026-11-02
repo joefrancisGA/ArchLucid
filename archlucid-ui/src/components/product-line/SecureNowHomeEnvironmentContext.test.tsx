@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relative-time", () => ({
@@ -42,12 +42,17 @@ const rankedPaths = vi.hoisted(() => ({
   fetchRankedSecurityEvidencePaths: vi.fn(),
 }));
 
+const attackPathReports = vi.hoisted(() => ({
+  fetchSecurityEvidencePathAttackPathReport: vi.fn(),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: snapshots.fetchInfraEvidenceSnapshots,
 }));
 
 vi.mock("@/lib/security-evidence-path-api", () => ({
   fetchRankedSecurityEvidencePaths: rankedPaths.fetchRankedSecurityEvidencePaths,
+  fetchSecurityEvidencePathAttackPathReport: attackPathReports.fetchSecurityEvidencePathAttackPathReport,
 }));
 
 import { SecureNowHomeEnvironmentContext } from "./SecureNowHomeEnvironmentContext";
@@ -79,6 +84,7 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 
 describe("SecureNowHomeEnvironmentContext", () => {
   beforeEach(() => {
+    attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockReset();
     rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
       items: [],
       totalCount: 0,
@@ -233,5 +239,62 @@ describe("SecureNowHomeEnvironmentContext", () => {
       "href",
       "/integrations/cloud-connections",
     );
+  });
+
+  it("asks for a second capture before listing path deltas", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot()],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    renderContext();
+
+    expect(await screen.findByTestId("securenow-capture-delta")).toHaveTextContent(
+      "A second capture is required before path changes can be listed.",
+    );
+  });
+
+  it("lists added, gone, and unchanged path ids after two successful captures", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [
+        snapshot({ snapshotId: "snap-new", captureStatus: "Succeeded" }),
+        snapshot({
+          snapshotId: "snap-old",
+          captureStatus: "Succeeded",
+          capturedUtc: "2026-10-11T12:00:00.000Z",
+        }),
+      ],
+      totalCount: 2,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    attackPathReports.fetchSecurityEvidencePathAttackPathReport.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === "snap-new") {
+        return {
+          snapshotId: "snap-new",
+          vulnerableAttackPaths: [{ pathId: "path-added" }, { pathId: "path-shared" }],
+          unevaluatedGroups: [],
+        };
+      }
+
+      return {
+        snapshotId: "snap-old",
+        vulnerableAttackPaths: [{ pathId: "path-gone" }, { pathId: "path-shared" }],
+        unevaluatedGroups: [],
+      };
+    });
+    renderContext();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("securenow-capture-delta")).toHaveTextContent("Added: path-added");
+    });
+
+    const delta = screen.getByTestId("securenow-capture-delta");
+    expect(delta).toHaveTextContent("Gone: path-gone");
+    expect(delta).toHaveTextContent("Unchanged: path-shared");
+    expect(delta).toHaveTextContent("This is not a usage claim.");
   });
 });

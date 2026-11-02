@@ -106,6 +106,13 @@ export function isInfraEvidenceSnapshotCapturePending(
   return parseCaptureLifecycle(captureStatus) === "pending";
 }
 
+/** True when capture lifecycle completed successfully (not partial, failed, or pending). */
+export function isInfraEvidenceSnapshotCaptureSucceeded(
+  captureStatus: number | string | null | undefined,
+): boolean {
+  return parseCaptureLifecycle(captureStatus) === "succeeded";
+}
+
 /** Maps Azure inventory capture lifecycle to canonical StatusTag presentation. */
 export function resolveInfraEvidenceSnapshotCaptureStatusPresentation(
   captureStatus: number | string | null | undefined,

@@ -214,7 +214,7 @@ export function cloudConnectionsHelpSubtitleForProductLine(productLineId: Produc
 }
 
 export function secureNowCloudConnectionsHubContextualLead(): string {
-  return "Connect Azure for optional read-only inventory collection, or upload a validated inventory ZIP when no connector is configured.";
+  return "SecureNow collection is Azure-only. Connect Azure for optional read-only inventory collection, or upload a validated inventory ZIP when no connector is configured.";
 }
 
 export function architectureCloudConnectionsHubContextualLead(): string {
