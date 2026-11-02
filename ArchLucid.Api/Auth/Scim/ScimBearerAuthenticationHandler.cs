@@ -243,7 +243,23 @@ internal class ScimBearerAuthenticationHandler(
     // Halfwidth and Fullwidth Forms lookalikes: fullwidth solidus, vertical line, reverse solidus.
     private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
 
-    
+    // Geometric Shapes lookalikes: white/black circle placeholders glued after Bearer (hunt #70).
+    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF";
+
+    private const string BearerGluedDelimiterPlaceholderCodePoints =
+        BearerGluedAsciiDelimiterLookalikes +
+        BearerGluedLatin1OperatorLookalikes +
+        BearerGluedModifierLetterLookalikes +
+        BearerGluedGeneralPunctuationLookalikes +
+        BearerGluedMathOperatorLookalikes +
+        BearerGluedBoxDrawingLookalikes +
+        BearerGluedBlockElementLookalikes +
+        BearerGluedGeometricShapeLookalikes +
+        BearerGluedBigSolidusLookalikes +
+        BearerGluedWaveDashLookalike +
+        BearerGluedSmallFormLookalikes +
+        BearerGluedFullwidthLookalikes;
+
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
         foreach (char character in tail)
