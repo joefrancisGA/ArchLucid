@@ -288,6 +288,14 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-one-prerequisite")).toHaveTextContent(
       "Sample package and policy pack are selected.",
     );
+    expect(screen.getByTestId("first-review-walkthrough-next-step")).toHaveTextContent(
+      "Next checklist step: Define the architecture",
+    );
+    const prerequisite = screen.getByTestId("first-review-one-prerequisite");
+    expect(within(prerequisite).getByRole("link", { name: "Start review" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
   });
 
   it("shows the sample package prerequisite before the policy pack", () => {
