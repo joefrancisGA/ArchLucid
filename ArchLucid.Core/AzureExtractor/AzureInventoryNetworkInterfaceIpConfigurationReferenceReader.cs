@@ -46,21 +46,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
+        string working = PercentDecodeBounded.Decode(armId.Trim());
 
         // Post-decode guard: only normalize values that look like ARM resource IDs.
         // This avoids throwing/altering non-ARM values and keeps behavior consistent across parsers.
