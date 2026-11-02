@@ -1,10 +1,10 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { act, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const wizardModeSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,12 +24,28 @@ const wizardModeSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -39,7 +55,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => wizardModeSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => wizardModeSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       wizardModeSearchParamsHarness.applyHref(href);
 
@@ -104,6 +120,22 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("full");
     expect(window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY)).toBe("full");
     expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
+  });
+
+  it("writes wizard mode from useSearchParams when window.location.search lags after soft navigation", () => {
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    wizardModeSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    act(() => {
+      result.current.persistWizardMode("full");
+    });
+
+    expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
+    expect(wizardModeSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 
   it("surfaces committed-manifest probe failure without claiming no finalized reviews exist", () => {

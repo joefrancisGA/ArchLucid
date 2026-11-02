@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const wizardSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,12 +24,28 @@ const wizardSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -39,7 +55,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => wizardSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => wizardSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       wizardSearchParamsHarness.applyHref(href);
 
@@ -133,6 +149,20 @@ describe("useNewRunWizardSteps", () => {
     expect(result.current.stepIndex).toBe(0);
     expect(result.current.showQuickStartWizard).toBe(false);
     expect(result.current.showSimplifiedPilotWizard).toBe(false);
+  });
+
+  it("writes wizard step from useSearchParams when window.location.search lags after soft navigation", () => {
+    wizardSearchParamsHarness.applySearchParamsQuery("");
+    wizardSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
+
+    const { result } = renderHook(() => useNewRunWizardSteps(baseOptions), {
+      wrapper: WizardSearchParamsRerenderHost,
+    });
+
+    result.current.goToStep(2);
+
+    expect(wizardSearchParamsHarness.state.query).toContain("step=2");
+    expect(wizardSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 
   it("canonicalizes an out-of-range deep-linked step in the URL", async () => {

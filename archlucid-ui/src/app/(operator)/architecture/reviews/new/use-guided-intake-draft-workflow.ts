@@ -8,6 +8,7 @@ import {
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   areGuidedIntakeClarificationsPersistedForSubmit,
@@ -91,6 +92,8 @@ export type GuidedIntakeDraftWorkflow = ReturnType<typeof useGuidedIntakeDraftWo
 export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowOptions) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
   const urlViewAllClarifications = parseGuidedIntakeViewAllClarificationsOpenFromSearch(
     guidedIntakeViewAllClarificationsOpenParam,
@@ -130,7 +133,11 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const syncViewAllClarificationsToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
