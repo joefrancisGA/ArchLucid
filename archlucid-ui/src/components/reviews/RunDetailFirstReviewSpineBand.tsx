@@ -20,6 +20,9 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly className?: string;
   readonly unmappedFindingCount?: number;
   readonly runId?: string | null;
+  readonly isSample?: boolean | null;
+  readonly manifestVersion?: string | null;
+  readonly sampleSponsorParagraph?: string | null;
 };
 
 function gateOutcomeStatusKind(
@@ -73,6 +76,38 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {summary.gateOutcomeDetail}
         </p>
+      ) : null}
+
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-open-gate">
+        {summary.openGateLabel === null ? (
+          "No open gate on this review."
+        ) : (
+          <>
+            Open gate: {summary.openGateLabel}.{" "}
+            {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
+              <Link
+                href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=findings`}
+                className={OPERATOR_LINK.inline}
+              >
+                Open the gate
+              </Link>
+            ) : (
+              "Review id was not stored."
+            )}
+          </>
+        )}
+      </p>
+
+      {props.isSample === true ? (
+        <div className="mt-2 space-y-1 rounded border border-border bg-muted/30 p-2" data-testid="sample-review-evidence">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Sample manifest: {props.manifestVersion?.trim() || "Committed manifest id was not stored."}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            Sample sponsor paragraph: {props.sampleSponsorParagraph?.trim() || "Sample sponsor paragraph was not stored."}
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Sample. Not a customer result.</p>
+        </div>
       ) : null}
 
       <p

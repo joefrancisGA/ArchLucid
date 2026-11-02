@@ -41,16 +41,19 @@ public static class AzureInventoryRestorePointCollectionSourceParser
             return null;
         }
 
-        string working = value.Trim();
+        string trimmed = value.Trim();
 
-        if (working.StartsWith("{", StringComparison.Ordinal))
+        // Parse raw JSON first. Percent-decoding the whole blob first would rewrite sibling
+        // escapes such as %22 and corrupt the document before the id can be read.
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
         {
-            // Parse JSON before decoding: a whole-string decode could turn escapes
-            // like %22 into quotes and invalidate otherwise-correct JSON.
-            return TryReadArmIdFromJson(working);
+            return TryReadArmIdFromJson(trimmed);
         }
 
-        working = ArmResourceIdNormalizer.DecodePercentEscapes(working);
+        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(trimmed, out string working))
+        {
+            return null;
+        }
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {

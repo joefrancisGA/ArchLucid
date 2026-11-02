@@ -25,6 +25,9 @@ export function SecureNowAccessibilityPageView(): React.JSX.Element {
           </h2>
           <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_ACCESSIBILITY_BODY}</p>
           <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_ACCESSIBILITY_REFUSAL}</p>
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            Operator notes pages are in the same WCAG 2.2 AA target. That target is not a certification.
+          </p>
         </section>
 
         <section aria-labelledby="securenow-accessibility-surfaces-heading" className="space-y-2">

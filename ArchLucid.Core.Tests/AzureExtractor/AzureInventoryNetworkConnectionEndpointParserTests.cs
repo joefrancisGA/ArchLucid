@@ -151,4 +151,87 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
         result.Endpoint2ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(plainRemoteVnetId));
         result.HasBothEndpoints.Should().BeTrue();
     }
+
+    [Fact]
+    public void Parse_returns_null_endpoint_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1.id"] = "50%",
+            ["localNetworkGateway2.id"] = "%ZZ",
+        };
+
+        Action act = () => AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        act.Should().NotThrow();
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().BeNull();
+        result.Endpoint2ArmId.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_reads_arm_id_from_json_without_mutating_percent_sequences_in_other_string_values()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a","label":"100% allocated"}
+                """,
+            ["localNetworkGateway2.id"] =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-b",
+        };
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().Be(
+            ArmResourceIdNormalizer.Normalize(
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a"));
+        result.HasBothEndpoints.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_does_not_throw_when_json_contains_malformed_percent_sequence_in_other_string_values()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1"] =
+                """
+                {"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a","label":"%zz"}
+                """,
+        };
+
+        Action act = () => AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Parse_reads_arm_id_from_percent_encoded_json_reference_property_value()
+    {
+        const string plainGatewayId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
+        string encodedJson = Uri.EscapeDataString($$"""{"id":"{{plainGatewayId}}"}""");
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1"] = encodedJson,
+            ["localNetworkGateway2.id"] =
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-b",
+        };
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(plainGatewayId));
+        result.HasBothEndpoints.Should().BeTrue();
+    }
 }

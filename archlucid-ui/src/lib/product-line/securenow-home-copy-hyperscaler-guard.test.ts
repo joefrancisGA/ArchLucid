@@ -54,6 +54,15 @@ describe("SecureNow home copy hyperscaler guard", () => {
     }
   });
 
+  it("states the SecureNow collection boundary", () => {
+    expect(SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD).toContain(
+      "Collection is Azure Reader inventory or an approved upload.",
+    );
+    expect(
+      SECURENOW_INFRASTRUCTURE_HOME_ROWS.find((row) => row.href === "/infrastructure/ask")?.summary,
+    ).toBe("Explain one stored ranked path. The answer cites collected evidence and does not change the rank.");
+  });
+
   it("keeps integration destinations out of the SecureNow security home rows", () => {
     const integrationHrefs = [
       "/integrations/cloud-connections",

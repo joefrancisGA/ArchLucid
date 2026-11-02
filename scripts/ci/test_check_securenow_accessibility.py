@@ -49,6 +49,19 @@ class SecureNowAccessibilityTests(unittest.TestCase):
             errors = validate(root)
             self.assertTrue(any("securenow-accessibility" in error for error in errors))
 
+    def test_missing_axe_view_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/accessibility/securenow-accessibility-axe.test.tsx"
+            text = path.read_text(encoding="utf-8").replace(
+                "SecureNowFirstHourPageView",
+                "RemovedFirstHourView",
+            )
+            path.write_text(text, encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("SecureNowFirstHourPageView" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

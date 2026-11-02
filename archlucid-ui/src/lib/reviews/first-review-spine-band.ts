@@ -44,6 +44,8 @@ export type FirstReviewSpineBandSummary = {
   readonly showTopFindingRow: boolean;
   readonly topFindingId: string | null;
   readonly topFindingPolicyMapped: boolean;
+  readonly openGateLabel: string | null;
+  readonly openGateHref: string | null;
 };
 
 export function countUncitedFindings(findings: readonly QuickDecisionFinding[]): number {
@@ -168,6 +170,8 @@ export function deriveFirstReviewSpineBandSummary(input: {
       topFindingId: null,
       showTopFindingRow: false,
       topFindingPolicyMapped: false,
+      openGateLabel: null,
+      openGateHref: null,
       topFindingSeverityLabel: null,
       semanticSupportLine: null,
       showLaneBHonesty: false,
@@ -225,6 +229,12 @@ export function deriveFirstReviewSpineBandSummary(input: {
   const treatmentCounts = countFindingsByTreatmentBand(findings);
   const treatmentSummaryLine = formatTreatmentSummaryLine(treatmentCounts);
   const dispositionStats = countDispositionStats(findings);
+  const openGateLabel =
+    uncitedCount > 0
+      ? "Uncited finding"
+      : dispositionStats.openDecisionGradeCount > 0
+        ? "Open disposition"
+        : null;
 
   return {
     gateOutcomeLabel,
@@ -255,5 +265,7 @@ export function deriveFirstReviewSpineBandSummary(input: {
     showDispositionNextAction: dispositionStats.openDecisionGradeCount > 0,
     classificationCountsStored: true,
     dispositionCountsStored: true,
+    openGateLabel,
+    openGateHref: openGateLabel === null ? null : "#run-detail-first-review-spine-findings",
   };
 }

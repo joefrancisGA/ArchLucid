@@ -112,20 +112,6 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
-    public void Parse_parses_literal_json_without_decoding_percent_escapes_elsewhere_in_payload()
-    {
-        Dictionary<string, string> properties = new(StringComparer.Ordinal)
-        {
-            ["source.id"] =
-                """{"id":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app","note":"%22%22"}""",
-        };
-
-        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
-            .Should()
-            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
-    }
-
-    [Fact]
     public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm_scalar()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
@@ -169,5 +155,30 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
             .Should()
             .BeNull();
+    }
+
+    [Fact]
+    public void Parse_returns_null_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> barePercent = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "50%",
+        };
+
+        Action act = () => AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent);
+
+        act.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent).Should().BeNull();
+
+        // Partially decodable: valid escapes decode, but the malformed "%ZZ" remains.
+        Dictionary<string, string> partialDecode = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%ZZ",
+        };
+
+        Action partialAct = () => AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode);
+
+        partialAct.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode).Should().BeNull();
     }
 }

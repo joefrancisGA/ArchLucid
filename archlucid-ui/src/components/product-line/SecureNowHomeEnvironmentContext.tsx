@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -20,6 +21,8 @@ import { cn } from "@/lib/utils";
 const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = "/integrations/cloud-connections";
 const DRIFT_HREF = "/infrastructure/snapshots-drift";
+const RANKED_PATHS_HREF = "/security/remediation-factory";
+const FIRST_HOUR_STOP_HREF = "/administration/securenow-first-hour#stop";
 
 function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
   const subscriptions = [...new Set(
@@ -77,6 +80,7 @@ function ContextLink(props: { readonly href: string; readonly children: string }
 
 /** One line: workspace, subscription scope, latest collection, and a gap when capture status says there is one. */
 export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
+  const searchParams = useSearchParams();
   const scope = useOperatorScopeQueryKey();
   const snapshotsQuery = useQuery({
     queryKey: operatorQueryKeys.infraEvidenceSnapshotsList(1, SNAPSHOT_PAGE_SIZE),
@@ -118,26 +122,70 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
 
   const snapshotRows = snapshotsQuery.data?.items ?? [];
   const snapshot = snapshotRows[0] ?? null;
+  const selectedPathId = searchParams.get("pathId")?.trim() ?? "";
+
+  const nextStep = (needsCollection: boolean): { label: string; href: string } => {
+    if (needsCollection) {
+      return { label: "Next: Scope and freshness", href: CLOUD_CONNECTIONS_HREF };
+    }
+
+    if (selectedPathId.length > 0) {
+      return { label: "Next: Stop", href: FIRST_HOUR_STOP_HREF };
+    }
+
+    return { label: "Next: One ranked path", href: RANKED_PATHS_HREF };
+  };
 
   if (snapshot === null) {
+    const next = nextStep(true);
+
     return (
-      <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context">
+      <div
+        className="space-y-1"
+        data-testid="securenow-home-environment-context"
+      >
+        <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)}>
         {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
         <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
-      </p>
+        <ContextLink href="/administration/securenow-first-hour">First hour</ContextLink>
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
+          Next step:{" "}
+          <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
+          This is not a timed SLA.
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-capture-delta">
+          Capture delta: Waiting for a second capture.{" "}
+          <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
+        </p>
+      </div>
     );
   }
 
   const subscriptions = subscriptionPhrase(snapshotRows);
   const collectedAt = snapshot.capturedUtc === null ? null : formatRelativeTime(snapshot.capturedUtc);
   const gap = collectionGapDescription(snapshot);
+  const next = nextStep(gap !== null);
 
   return (
-    <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context">
-      {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
-      {subscriptions !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{subscriptions}</ContextLink> : null}
-      {collectedAt !== null ? <ContextLink href={DRIFT_HREF}>{collectedAt}</ContextLink> : null}
-      {gap !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{gap}</ContextLink> : null}
-    </p>
+    <div className="space-y-1" data-testid="securenow-home-environment-context">
+      <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)}>
+        {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
+        {subscriptions !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{subscriptions}</ContextLink> : null}
+        {collectedAt !== null ? <ContextLink href={DRIFT_HREF}>{collectedAt}</ContextLink> : null}
+        {gap !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{gap}</ContextLink> : null}
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
+        Next step:{" "}
+        <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
+        This is not a timed SLA.
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-capture-delta">
+        Capture delta: {snapshotRows.length >= 2
+          ? "Two or more captures are available. Compare stored snapshot evidence in Drift."
+          : "Waiting for a second capture."}{" "}
+        <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
+      </p>
+    </div>
   );
 }

@@ -23,7 +23,8 @@ public static class SecurityEvidencePathExplanationBuilder
         SecurityEvidencePathRecord path,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
-        IReadOnlyList<string> citedEvidenceRefs)
+        IReadOnlyList<string> citedEvidenceRefs,
+        string? rankContext = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -34,7 +35,8 @@ public static class SecurityEvidencePathExplanationBuilder
         string executiveSummary =
             $"[{SimulatorLabel}] {path.PathKind} path ({path.PathConfidenceBand}) with {hops.Count} hop(s). "
             + $"Weakest link: hop {path.WeakestHopOrdinal} — {path.WeakestHopReason}. "
-            + $"Cited evidence: {string.Join(", ", citedEvidenceRefs)}.";
+            + $"Cited evidence: {string.Join(", ", citedEvidenceRefs)}."
+            + (string.IsNullOrWhiteSpace(rankContext) ? string.Empty : $" {rankContext.Trim()}");
 
         IReadOnlyList<string> hypotheses =
         [
@@ -56,7 +58,8 @@ public static class SecurityEvidencePathExplanationBuilder
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
         SecurityEvidencePathExplanationTemplateResponse explanationTemplate,
-        IReadOnlyList<string> allowedEvidenceRefs)
+        IReadOnlyList<string> allowedEvidenceRefs,
+        string? rankContext = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(hops);
@@ -75,6 +78,7 @@ public static class SecurityEvidencePathExplanationBuilder
             weakestHopReason = path.WeakestHopReason,
             allowedEvidenceRefs,
             explanationTemplate,
+            rankContext,
             hops = hops.Select(hop => new
             {
                 hop.HopOrdinal,

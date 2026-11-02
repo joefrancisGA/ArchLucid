@@ -13,10 +13,9 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
       "Review the evidence sequence, limitations, and owner decision before a sponsor briefing.",
   },
   {
-    href: "/why-securenow",
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/EXECUTIVE_PACKET_FILL_GUIDE.md",
     label: "Executive packet context",
-    summary:
-      "Use the template and fill guide; customer outcomes remain uncollected until a real pilot.",
+    summary: "Map each packet field to an evidence owner. Leave customer outcomes blank.",
   },
   {
     href: "/administration/securenow-pilot-decision",
@@ -27,13 +26,17 @@ export const SECURENOW_SPONSOR_HOME_ROWS: readonly SecureNowHomeDestinationRow[]
   {
     href: "/administration/securenow-pilot-decision#decision-cycle",
     label: "Decision cycle",
-    summary:
-      "Record qualify start, close, and the step that stalled. Leave the outcome blank until a person selects it.",
+    summary: "Open the blank qualify-to-close log. Do not write a duration.",
   },
   {
     href: "/administration/securenow-investigation-effort",
     label: "Investigation effort",
     summary:
       "Record comparable minutes and read the send rule before a number leaves the room.",
+  },
+  {
+    href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/securenow/SPONSOR_READOUT_OUTLINE.md",
+    label: "Readout outline",
+    summary: "Stage 6 facilitation. Not an approved offer and not customer evidence.",
   },
 ];

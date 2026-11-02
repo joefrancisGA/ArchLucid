@@ -3,6 +3,80 @@ namespace ArchLucid.Core.InfraEvidence;
 /// <summary>Normalizes ARM resource identifiers for stable cross-snapshot joins.</summary>
 public static class ArmResourceIdNormalizer
 {
+    /// <summary>
+    ///     Maximum bounded passes applied when decoding percent-encoded ARM ids.
+    /// </summary>
+    private const int MaxPercentDecodePasses = 8;
+
+    /// <summary>
+    ///     Performs a bounded percent-decode of <paramref name="value"/>. Returns <see langword="true"/>
+    ///     when decoding completed (or no decoding was needed) and no residual percent-escape remains;
+    ///     returns <see langword="false"/> and leaves <paramref name="decoded"/> as the last safe value
+    ///     when <see cref="Uri.UnescapeDataString"/> fails or the value stays percent-encoded
+    ///     (malformed input such as <c>50%</c> or <c>%ZZ</c>).
+    /// </summary>
+    public static bool TryDecodePercentEncoded(string? value, out string decoded)
+    {
+        decoded = string.Empty;
+
+        // Null/whitespace needs no decoding; callers treat the empty out value as "no ARM id".
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        string working = value.Trim();
+
+        for (int pass = 0; pass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string next;
+
+            try
+            {
+                next = Uri.UnescapeDataString(working);
+            }
+            catch (Exception ex) when (ex is UriFormatException or ArgumentException)
+            {
+                decoded = working;
+                return false;
+            }
+
+            if (string.Equals(next, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = next;
+        }
+
+        decoded = working;
+
+        // A residual '%' means the escape sequence never decoded (for example "50%" or "%ZZ");
+        // treat the value as malformed instead of normalizing a partially decoded ARM id.
+        return !working.Contains('%', StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Bounded percent-decodes <paramref name="value"/> and normalizes the result into the
+    ///     canonical lowercased ARM id form. Returns <see cref="string.Empty"/> for null, whitespace,
+    ///     or malformed percent-encoding so callers can treat a blank result as a rejected reference.
+    ///     Shared by the Azure extractor parsers and extractors that read companion ARM id fields.
+    /// </summary>
+    internal static string NormalizePercentDecoded(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        if (!TryDecodePercentEncoded(value, out string working))
+        {
+            return string.Empty;
+        }
+
+        return Normalize(working);
+    }
+
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
     public static string Normalize(string? externalResourceId)
     {
@@ -15,91 +89,6 @@ public static class ArmResourceIdNormalizer
             trimmed = trimmed[..^1];
 
         return trimmed.ToString().ToLowerInvariant();
-    }
-
-    /// <summary>
-    ///     Trims, percent-decodes (bounded, tolerant of malformed escapes), and normalizes an ARM
-    ///     resource id. Null, whitespace, or normalization-empty input yields <see cref="string.Empty"/>.
-    /// </summary>
-    public static string NormalizeOrEmpty(string? armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-            return string.Empty;
-
-        return Normalize(DecodePercentEscapes(armId.Trim()));
-    }
-
-    /// <summary>
-    ///     Trims, percent-decodes (bounded, tolerant of malformed escapes), and normalizes an ARM
-    ///     resource id. Null, whitespace, or normalization-empty input yields <see langword="null"/>.
-    /// </summary>
-    public static string? NormalizeOrNull(string? armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-            return null;
-
-        string normalized = Normalize(DecodePercentEscapes(armId.Trim()));
-
-        return normalized.Length == 0 ? null : normalized;
-    }
-
-    /// <summary>
-    ///     Trims and percent-decodes (bounded, tolerant of malformed escapes); full normalization is
-    ///     applied only when the decoded value contains an ARM <c>/subscriptions/</c> segment. Null or
-    ///     whitespace input yields <see langword="null"/>; non-ARM input round-trips trimmed and decoded.
-    /// </summary>
-    public static string? NormalizeIfArmId(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
-
-        string working = DecodePercentEscapes(value.Trim());
-
-        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-            return working;
-
-        return Normalize(working);
-    }
-
-    /// <summary>
-    ///     Repeatedly percent-decodes <paramref name="value"/> until it is stable (bounded passes) so
-    ///     double-encoded ARM ids normalize onto the same canonical form before downstream checks.
-    ///     Malformed escape sequences keep the last-known-good value instead of throwing.
-    /// </summary>
-    public static string DecodePercentEscapes(string value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
-
-        string working = value;
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
-        {
-            string decoded;
-
-            try
-            {
-                decoded = Uri.UnescapeDataString(working);
-            }
-            catch (UriFormatException)
-            {
-                break;
-            }
-            catch (ArgumentException)
-            {
-                break;
-            }
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
-
-        return working;
     }
 
     /// <summary>Returns the resource group segment from a top-level ARM resource id.</summary>

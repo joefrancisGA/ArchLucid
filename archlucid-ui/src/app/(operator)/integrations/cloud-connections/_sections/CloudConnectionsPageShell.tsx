@@ -45,6 +45,24 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
     />
   ) : null;
 
+  const collectionStatus = showConnectionContent && !props.hasConfiguredProvider ? (
+    <section
+      className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      aria-labelledby="cloud-connections-collection-status-heading"
+      data-testid="cloud-connections-collection-status"
+    >
+      <h2 id="cloud-connections-collection-status-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+        Collection status: Missing
+      </h2>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+        Reader role is required before SecureNow can collect Azure evidence.
+      </p>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+        Subscription name: Not stored. Configure a connection, then validate the first collection.
+      </p>
+    </section>
+  ) : null;
+
   const orientationStrip = buyerPolishedShell ? (
     <div data-testid="cloud-connections-orientation-bottom">
       <CloudConnectionsEvidenceOrientationStrip />
@@ -79,6 +97,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
           }
         />
 
+        {collectionStatus}
         {checklist}
         {orientationStrip}
         {providerList}
@@ -141,6 +160,7 @@ export function CloudConnectionsPageShell(props: CloudConnectionsPageShellProps)
             </p>
           </section>
 
+          {collectionStatus}
           {checklist}
           {providerList}
         </div>

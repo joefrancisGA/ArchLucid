@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { SecureNowInvestigationEffortPageView } from "./SecureNowInvestigationEffortPageView";
@@ -11,6 +11,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
       screen.getByTestId("securenow-investigation-effort-page"),
     ).toBeInTheDocument();
     expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
+    expect(screen.getByText(/This page is not a savings claim\./)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Pilot measurement log" }),
     ).toHaveAttribute(
@@ -34,5 +35,23 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(
       screen.getByTestId("securenow-investigation-effort-page"),
     ).not.toHaveTextContent(/\$/);
+  });
+
+  it("keeps incomplete and fixture inputs out of the ROI result", () => {
+    render(<SecureNowInvestigationEffortPageView />);
+
+    expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
+      "ROI not calculated.",
+    );
+
+    fireEvent.change(screen.getByLabelText("Baseline hours (B)"), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("After-product hours (A)"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("Annual investigations (N)"), { target: { value: "20" } });
+    fireEvent.change(screen.getByLabelText("Fully loaded hourly rate (R)"), { target: { value: "100" } });
+    fireEvent.change(screen.getByLabelText("Annual product and operating cost (C)"), { target: { value: "10000" } });
+
+    expect(screen.getByTestId("securenow-investigation-effort-result")).toHaveTextContent(
+      "Those values are the fixture worksheet.",
+    );
   });
 });

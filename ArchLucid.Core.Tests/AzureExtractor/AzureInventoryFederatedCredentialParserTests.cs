@@ -86,6 +86,52 @@ public sealed class AzureInventoryFederatedCredentialParserTests
     }
 
     [Fact]
+    public void TryParse_does_not_lowercase_decoded_parent_resource_id_that_is_not_rooted_at_subscriptions()
+    {
+        const string parentId = "https://example.com/subscriptions/Sub/resourceGroups/RG";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "parentResourceId": "{{Uri.EscapeDataString(parentId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.ParentResourceId.Should().Be(parentId);
+    }
+
+    [Fact]
+    public void TryParse_does_not_lowercase_decoded_parent_resource_id_without_subscription_segment()
+    {
+        const string parentId = "/resourceGroups/RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Uai1";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "parentResourceId": "{{Uri.EscapeDataString(parentId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.ParentResourceId.Should().Be(parentId);
+    }
+
+    [Fact]
     public void TryParse_keeps_last_known_good_parent_resource_id_when_percent_encoding_is_malformed()
     {
         using JsonDocument document = JsonDocument.Parse(
@@ -105,7 +151,112 @@ public sealed class AzureInventoryFederatedCredentialParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.ParentResourceId.Should().Be("%zz/subscriptions/sub");
+        row!.ParentResourceId.Should().Be("%ZZ/subscriptions/sub");
+    }
+
+    [Fact]
+    public void TryParse_reads_issuer_when_issuer_is_percent_encoded_https_url()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        string encodedIssuer = Uri.EscapeDataString(issuer);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{encodedIssuer}}",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.Issuer.Should().Be(issuer);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_issuer_is_percent_encoded_https_url()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId: null);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{Uri.EscapeDataString(issuer)}}",
+                                                              "subject": "{{subject}}",
+                                                              "principalId": "{{principalId}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
+    }
+
+    [Fact]
+    public void TryParse_reads_subject_when_subject_is_percent_encoded_oidc_claim()
+    {
+        const string subject = "repo:org/repo:environment:prod";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "{{Uri.EscapeDataString(subject)}}",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.Subject.Should().Be(subject);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_subject_is_percent_encoded_oidc_claim()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId: null);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{issuer}}",
+                                                              "subject": "{{Uri.EscapeDataString(subject)}}",
+                                                              "principalId": "{{principalId}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
     }
 
     [Fact]
@@ -136,6 +287,113 @@ public sealed class AzureInventoryFederatedCredentialParserTests
 
         row!.Issuer.Should().Be(issuer);
         row.EvidenceHashSha256.Should().Equal(expectedHash);
+    }
+
+    [Fact]
+    public void TryParse_reads_principal_id_when_principalId_is_percent_encoded_guid_scalar()
+    {
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "{{Uri.EscapeDataString(principalId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.PrincipalId.Should().Be(principalId);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_principalId_is_percent_encoded_guid_scalar()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId: null);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{issuer}}",
+                                                              "subject": "{{subject}}",
+                                                              "principalId": "{{Uri.EscapeDataString(principalId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
+    }
+
+    [Fact]
+    public void TryParse_reads_app_id_when_appId_is_percent_encoded_guid_scalar()
+    {
+        const string appId = "22222222-2222-2222-2222-222222222222";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "appId": "{{Uri.EscapeDataString(appId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.AppId.Should().Be(appId);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_appId_is_percent_encoded_guid_scalar()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        const string appId = "22222222-2222-2222-2222-222222222222";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{issuer}}",
+                                                              "subject": "{{subject}}",
+                                                              "principalId": "{{principalId}}",
+                                                              "appId": "{{Uri.EscapeDataString(appId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
     }
 
     [Theory]

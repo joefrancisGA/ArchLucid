@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SecureNowPilotDecisionPageView } from "./SecureNowPilotDecisionPageView";
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 describe("SecureNow pilot decision preparation page", () => {
   it("renders the human close path and all three outcomes", () => {
