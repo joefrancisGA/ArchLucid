@@ -26,12 +26,14 @@ const {
   downloadInfraEvidenceMermaidPngMock,
   fetchInfraEvidenceMermaidPreviewMock,
   fetchInfraEvidenceMermaidRenderMock,
+  fetchSecurityEvidencePathDetailMock,
   routerReplaceMock,
 } = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshotsMock: vi.fn(),
   downloadInfraEvidenceMermaidPngMock: vi.fn(),
   fetchInfraEvidenceMermaidPreviewMock: vi.fn(),
   fetchInfraEvidenceMermaidRenderMock: vi.fn(),
+  fetchSecurityEvidencePathDetailMock: vi.fn(),
   routerReplaceMock: vi.fn(),
 }));
 
@@ -46,6 +48,14 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
   useTenantBrandingPresentationQuery: () => ({ data: null }),
+}));
+
+vi.mock("@/lib/security-evidence-path-api", () => ({
+  fetchSecurityEvidencePathDetail: fetchSecurityEvidencePathDetailMock,
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "security" }),
 }));
 
 vi.mock("@/lib/use-iana-time-zone-preference", () => ({
@@ -157,6 +167,8 @@ describe("DiagramsWorkbenchClient", () => {
     downloadInfraEvidenceMermaidPngMock.mockReset();
     downloadInfraEvidenceMermaidPngMock.mockResolvedValue({ usedBrowserFallback: false });
     fetchInfraEvidenceMermaidPreviewMock.mockReset();
+    fetchSecurityEvidencePathDetailMock.mockReset();
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue(null);
     fetchInfraEvidenceMermaidPreviewMock.mockResolvedValue({
       snapshotId: "11111111-1111-1111-1111-111111111111",
       modes: [
@@ -2938,5 +2950,76 @@ describe("DiagramsWorkbenchClient", () => {
       .filter((href) => href.includes("seedNodeId="));
 
     expect(restoredSeedHref).toEqual([]);
+  });
+
+  it("filters the diagram to path hops until Show the rest of the subscription is activated", async () => {
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      mode: query.mode ?? "executive",
+      fallbackKey: query.fallbackKey ?? null,
+      status: "Succeeded",
+      mermaid:
+        "flowchart LR\n  nodea[vm-a] --> nodeb[vm-b]\n  nodeb --> nodec[vm-c]",
+      metrics: {
+        nodeCount: 3,
+        edgeCount: 2,
+        subgraphCount: 0,
+        maxDegree: 1,
+        crossSubgraphEdgeCount: 0,
+        textSizeBytes: 120,
+        layoutEstimate: 80,
+      },
+      fallbackArtifacts: [],
+    }));
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue({
+      pathId: "path-1",
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      hops: [
+        {
+          hopOrdinal: 1,
+          fromNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-a",
+          toNodeLabel:
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-b",
+          edgeType: "Allows",
+          provenanceKind: "ObservedFact",
+          hopConfidenceBand: "High",
+          inferenceSource: null,
+          evidenceReference: "hop:1",
+          cloudResourceId: null,
+        },
+      ],
+      routing: [],
+      weakestHop: null,
+      relatedCutPoints: [],
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&pathId=path-1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await openDiagramOutlineNodes();
+    const nodesPanel = await screen.findByTestId("infra-diagrams-outline-nodes-panel");
+
+    expect(within(nodesPanel).getByText("vm-a")).toBeInTheDocument();
+    expect(within(nodesPanel).getByText("vm-b")).toBeInTheDocument();
+    expect(within(nodesPanel).queryByText("vm-c")).not.toBeInTheDocument();
+
+    fireEvent.click(await screen.findByTestId("securenow-diagram-show-subscription"));
+
+    expect(await within(nodesPanel).findByText("vm-c")).toBeInTheDocument();
+    expect(searchParams.get("pathId")).toBe("path-1");
+  });
+
+  it("hides the subscription expansion control when pathId is absent", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    await screen.findByTestId("infra-diagrams-mode-picker");
+
+    expect(screen.queryByTestId("securenow-diagram-show-subscription")).not.toBeInTheDocument();
   });
 });

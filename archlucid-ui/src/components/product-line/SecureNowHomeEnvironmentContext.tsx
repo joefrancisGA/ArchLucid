@@ -2,15 +2,23 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
-import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import {
+  isInfraEvidenceSnapshotCaptureSucceeded,
+  resolveInfraEvidenceSnapshotCaptureStatusPresentation,
+} from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { fetchRankedSecurityEvidencePaths } from "@/lib/security-evidence-path-api";
+import {
+  computeSecureNowCapturePathDelta,
+  collectSecurityEvidencePathIdsFromAttackPathReport,
+  formatSecureNowCapturePathDeltaList,
+} from "@/lib/product-line/securenow-capture-path-delta";
+import { fetchRankedSecurityEvidencePaths, fetchSecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -65,6 +73,55 @@ function collectionGapDescription(snapshot: InfraEvidenceSnapshotSummary): strin
   return null;
 }
 
+function CaptureDeltaBlock(props: {
+  readonly eligibleSnapshots: readonly InfraEvidenceSnapshotSummary[];
+  readonly reportQueries: ReadonlyArray<{ readonly isPending: boolean; readonly isError: boolean; readonly data: ReturnType<typeof collectSecurityEvidencePathIdsFromAttackPathReport> | undefined }>;
+}): React.JSX.Element {
+  if (props.eligibleSnapshots.length < 2) {
+    return (
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
+        A second capture is required before path changes can be listed.{" "}
+        <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
+      </p>
+    );
+  }
+
+  if (props.reportQueries.some((query) => query.isPending)) {
+    return (
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
+        Loading path changes since the previous capture…
+      </p>
+    );
+  }
+
+  if (props.reportQueries.some((query) => query.isError)) {
+    return (
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
+        Path changes could not be loaded for the latest captures.{" "}
+        <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
+      </p>
+    );
+  }
+
+  const latestIds = props.reportQueries[0]?.data ?? [];
+  const previousIds = props.reportQueries[1]?.data ?? [];
+  const delta = computeSecureNowCapturePathDelta(previousIds, latestIds);
+
+  return (
+    <div className={cn("m-0 space-y-1", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-capture-delta">
+      <p className="m-0">
+        Added: {formatSecureNowCapturePathDeltaList(delta.added)} · Gone:{" "}
+        {formatSecureNowCapturePathDeltaList(delta.gone)} · Unchanged:{" "}
+        {formatSecureNowCapturePathDeltaList(delta.unchanged)}
+      </p>
+      <p className="m-0">
+        This is not a usage claim.{" "}
+        <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
+      </p>
+    </div>
+  );
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error && error.message.trim().length > 0
     ? `${error.message}. Check cloud connections and try again.`
@@ -94,6 +151,35 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
     retry: false,
     enabled: snapshotsQuery.isSuccess,
   });
+  const snapshotRowsForDelta = snapshotsQuery.data?.items ?? [];
+  const eligibleCaptureSnapshots = snapshotRowsForDelta.filter((row) =>
+    isInfraEvidenceSnapshotCaptureSucceeded(row.captureStatus),
+  );
+  const pathDeltaReportTargets = eligibleCaptureSnapshots.slice(0, 2);
+  const pathDeltaReportQueries = useQueries({
+    queries: pathDeltaReportTargets.map((snapshot) => ({
+      queryKey: [
+        "securenow",
+        "home",
+        "capture-path-delta",
+        scope.workspaceId,
+        scope.projectId,
+        snapshot.snapshotId,
+      ],
+      queryFn: async () => {
+        const report = await fetchSecurityEvidencePathAttackPathReport(snapshot.snapshotId);
+
+        return collectSecurityEvidencePathIdsFromAttackPathReport(report);
+      },
+      enabled: snapshotsQuery.isSuccess && pathDeltaReportTargets.length >= 2,
+      retry: false,
+    })),
+  });
+  const pathDeltaReportQueryViews = pathDeltaReportQueries.map((query) => ({
+    isPending: query.isPending,
+    isError: query.isError,
+    data: query.data,
+  }));
   const firstRankedPathId = rankedPathsQuery.data?.items[0]?.pathId.trim() ?? "";
   const workspacesQuery = useTenantWorkspacesListQuery();
   const workspace = workspacesQuery.data?.workspaces.find((row) => row.workspaceId === scope.workspaceId);
@@ -172,10 +258,10 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
           This is not a timed SLA.
         </p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-capture-delta">
-          Capture delta: Waiting for a second capture.{" "}
-          <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
-        </p>
+        <CaptureDeltaBlock
+          eligibleSnapshots={eligibleCaptureSnapshots}
+          reportQueries={pathDeltaReportQueryViews}
+        />
       </div>
     );
   }
@@ -198,12 +284,10 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
         <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
         This is not a timed SLA.
       </p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-capture-delta">
-        Capture delta: {snapshotRows.length >= 2
-          ? "Two or more captures are available. Compare stored snapshot evidence in Drift."
-          : "Waiting for a second capture."}{" "}
-        <ContextLink href={DRIFT_HREF}>Compare captures</ContextLink>
-      </p>
+      <CaptureDeltaBlock
+        eligibleSnapshots={eligibleCaptureSnapshots}
+        reportQueries={pathDeltaReportQueryViews}
+      />
     </div>
   );
 }

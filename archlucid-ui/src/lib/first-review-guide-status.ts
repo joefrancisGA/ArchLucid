@@ -379,6 +379,23 @@ export function resolveFirstReviewGuideHeaderActions(
     };
   }
 
+  if (sampleHref !== null) {
+    return {
+      primaryLabel: "Open sample review",
+      primaryHref: sampleHref,
+      primaryDisabled: false,
+      primaryDisabledReason: null,
+      secondaryLabel: "Start first review",
+      secondaryHref: REVIEWS_NEW_PATH,
+      ...(canExecute
+        ? {}
+        : {
+            secondaryLabel: null,
+            secondaryHref: null,
+          }),
+    };
+  }
+
   return {
     primaryLabel: "Start first review",
     primaryHref: REVIEWS_NEW_PATH,
