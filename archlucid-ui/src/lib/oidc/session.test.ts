@@ -346,6 +346,22 @@ describe("persistTokenResponse", () => {
     expect(isLikelySignedIn()).toBe(false);
   });
 
+  it("strips soft hyphens from access_token before syncing to the BFF session cookie", async () => {
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockResolvedValue();
+
+    const base = accessTokenWithSubjectClaim();
+    const parts = base.split(".");
+    const accessTokenWithSoftHyphen = `${parts[0]}.${parts[1]}.sig\u00AD`;
+
+    persistTokenResponse({ access_token: accessTokenWithSoftHyphen, expires_in: 3600 });
+
+    await vi.waitUntil(() => syncMock.mock.calls.length > 0);
+
+    expect(syncMock.mock.calls[0]?.[0]?.access_token).toBe(`${parts[0]}.${parts[1]}.sig`);
+  });
+
   it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
     persistTokenResponse({
       access_token: accessTokenWithSubjectClaim(),
