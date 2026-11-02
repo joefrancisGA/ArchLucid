@@ -12711,6 +12711,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-11-02 thorough hunt #198 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted open `(candidate)` **buyer-polished technical disclosure URL sync** — `buildInfraResourceHubTechnicalDisclosureScopedHref` rewrote disclosure query from raw `searchParams` without passing the resolved hub tab into `resourceHubFilterHrefFromSearch`, so duplicate or stale `tab=` keys (for example `tab=not-a-real-tab&tab=drift`) survived `router.replace` when expanding ARM/Terraform technical rows; thread `activeTab` through `syncInfraResourceHubTechnicalKeyToUrl`; regression `canonicalizes duplicate stale tab params when syncing buyer-polished technical disclosure`; cheap-disproof closed **invalid** cross-workbench exit duplicate-tab row (overview drift/remediation/diagram links use scoped workbench builders, not hub search serialization), **valid-no-repro** in-flight create remediation on tab switch (intentional busy retention; hunt **#118** monitor), **valid-no-repro** invalid audit partial URL Ask/banner (existing stale-scope regressions), **valid-no-repro** snapshot scope strip during tab dedupe (label derives from resolved snapshot pin, not raw tab string), **valid-no-repro** drift change id trim (defer class); scoped `ResourceHubClient.test.tsx` **142/142**. Private beta: invited operators on the resource hub no longer copy duplicate stale tab query keys into the address bar when opening buyer-polished technical identifier disclosures on drift or other tabs.
+
+- [x] (proven) `ResourceHubClient` buyer-polished technical disclosure — duplicate stale `tab` in disclosure URL sync — **hit 2026-11-02 thorough hunt #198:** `activeTab` on `buildInfraResourceHubTechnicalDisclosureScopedHref`; regression above.
+- [x] (invalid) `ResourceHubClient` workbench exits — raw `searchParams` on cross-hub links — **cheap-disproof 2026-11-02 thorough hunt #198:** cross-workbench overview links use `buildDriftWorkbenchHref` / scoped workbench helpers without hub `searchParams.toString()`.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — **cheap-disproof 2026-11-02 thorough hunt #198:** `findingActionBusyId` retained until request completes; hunt **#118** monitor policy.
+- [x] (valid-no-repro) `ResourceHubClient` invalid audit partial URL — stale banner + Ask — **cheap-disproof 2026-11-02 thorough hunt #198:** regressions `omits partial stale URL assessmentId from hub fetch`, `omits duplicate stale tab params on drift Infrastructure Ask links`.
+- [x] (valid-no-repro) `ResourceHubClient` snapshot scope strip — pinned label during duplicate tab dedupe — **cheap-disproof 2026-11-02 thorough hunt #198:** strip uses `snapshotPinned` + resolved ids; tab normalize is independent.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — change id trim — **cheap-disproof 2026-11-02 thorough hunt #198:** defer trim class; unchanged monitor.
+
+- [ ] (candidate) `ResourceHubClient` infrastructure Ask handoff — explorer `workQueue` dropped when duplicate tab normalize races first paint — locus: `infrastructureAskHandoffSearch`; input: `tab=bad&tab=drift&workQueue=open-findings` before replace settles; monitor.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — stale duplicate `tab` before normalize on first paint — locus: `auditScopeChipHref`; input: duplicate tab + linked audit scope; monitor.
+- [ ] (candidate) `ResourceHubClient` `switchActiveAuditControl` — duplicate tab survives control picker replace — locus: audit control href builder; input: duplicate tab bookmark; monitor.
+- [ ] (candidate) `ResourceHubClient` explorer back link — `workQueue` preserved when tab dedupe rewrites URL — locus: `explorerBackHref` vs tab normalize ordering; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — locus: scoped drift change href builder; defer trim class.
+
 2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff kept duplicate stale `tab` params** — `infrastructureAskHandoffSearch` serialized raw `searchParams` before tab dedupe `router.replace` finished, so Ask links could carry `tab=not-a-real-tab&tab=drift` even while `activeTab` was Drift; build handoff search from scoped `resourceHubFilterHrefFromSearch` using `activeTab`; regression `omits duplicate stale tab params on drift Infrastructure Ask links`; cheap-disproof closed two-valid-tab last-wins policy (intentional hunt 120), normalize race (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 141/141. Private beta: Infrastructure Ask from the resource hub no longer embeds stale duplicate tab query keys in overlay handoff URLs.
 
 - [x] (proven) `ResourceHubClient` infrastructure Ask — duplicate stale `tab` in handoff search — **hit 2026-10-26 seed hunt #121:** canonical scoped handoff search; regression above.
@@ -12719,11 +12734,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #121:** saturated `[state-machine-gap]` monitor.
 - [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #121:** defer trim class.
 
-- [ ] (candidate) `ResourceHubClient` workbench exits — raw `searchParams` on cross-hub links — locus: href builders using `searchParams.toString()` without scoped tab; input: duplicate `tab` before normalize.
-- [ ] (candidate) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — locus: `findingActionBusyId`; monitor.
-- [ ] (candidate) `ResourceHubClient` invalid audit partial URL — locus: stale banner + Ask; existing regressions; monitor.
-- [ ] (candidate) `ResourceHubClient` snapshot scope strip — pinned label during duplicate tab dedupe — monitor.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — change id trim — defer.
+- [x] (superseded) pass **#198** open `(candidate)` queue (workbench exits duplicate tab, busy on tab switch, audit partial URL, snapshot strip, drift trim) — **superseded 2026-11-02 thorough hunt #198:** one proven + five cheap-disproof; see hunt **#198** header reseed.
 
 - **id:** ui-infra-resource-hub
 - **status:** open
