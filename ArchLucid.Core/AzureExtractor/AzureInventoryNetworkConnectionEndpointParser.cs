@@ -84,11 +84,9 @@ public static class AzureInventoryNetworkConnectionEndpointParser
 
         const int maxPercentDecodePasses = 8;
 
-        for (int pass = 0;
-             pass < maxPercentDecodePasses
-                 && !working.StartsWith("{", StringComparison.Ordinal)
-                 && working.Contains('%', StringComparison.Ordinal);
-             pass++)
+        for (int pass = 0; pass < maxPercentDecodePasses
+            && !working.StartsWith("{", StringComparison.Ordinal)
+            && working.Contains('%', StringComparison.Ordinal); pass++)
         {
             string decoded = Uri.UnescapeDataString(working);
 
