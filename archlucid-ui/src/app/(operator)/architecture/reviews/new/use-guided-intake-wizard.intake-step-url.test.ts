@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const intakeStepSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { pathname: "/architecture/reviews/new", query: "" };
+  const state = { pathname: "/architecture/reviews/new", query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -24,13 +24,29 @@ const intakeStepSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.pathname = "/architecture/reviews/new";
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -40,7 +56,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => intakeStepSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => intakeStepSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       intakeStepSearchParamsHarness.applyHref(href);
 
@@ -134,7 +150,7 @@ vi.mock("./use-guided-intake-clarification-inference", () => ({
 }));
 
 vi.mock("./use-guided-intake-prior-run-prefill", () => ({
-  useGuidedIntakePriorRunPrefill: () => {},
+  useGuidedIntakePriorRunPrefill: () => ({ priorRunPrefillCopiedFromLine: null }),
 }));
 
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
@@ -178,6 +194,20 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
     });
 
     expect(result.current.sourceArchitectureId).toBe("architecture-123");
+  });
+
+  it("writes intake step from useSearchParams when window.location.search lags after soft navigation", () => {
+    intakeStepSearchParamsHarness.applySearchParamsQuery("");
+    intakeStepSearchParamsHarness.setWindowLocationSearch("staleToolbar=old");
+
+    const { result } = renderHook(() => useGuidedIntakeWizard(), {
+      wrapper: IntakeStepSearchParamsRerenderHost,
+    });
+
+    result.current.setStep(1);
+
+    expect(intakeStepSearchParamsHarness.state.query).toContain("intakeStep=1");
+    expect(intakeStepSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 
   it("rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing", async () => {

@@ -11869,6 +11869,19 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-02 thorough hunt #192 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice; run-log low-yield streak on `cli-draft-new` is **2/3**). Promoted five open `(candidate)` rows whose URL commits still read `readWindowLocationSearch()` on write — `useNewRunWizardMode.persistWizardMode`, `useNewRunWizardSteps` step href sync, `useGuidedIntakeWizard.setStep`, `FirstPilotIntakeFields` standards disclosure, and `SimplifiedPilotWizard` advanced-config disclosure — so after soft navigation operators could merge stale toolbar query keys when changing wizard mode, detailed step, guided intake slide, or quick-start / simplified-pilot disclosures; shared `searchParamsQueryStringForHrefWrite` now bases writes on App Router `useSearchParams` (with safe fallback for proxied test doubles); regressions `writes wizard mode from useSearchParams when window.location.search lags after soft navigation`, `writes wizard step from useSearchParams when window.location.search lags after soft navigation`, and `writes intake step from useSearchParams when window.location.search lags after soft navigation`; url-sync vitest **14/14** on mode/steps/intake/pilot files; focused `reviews/new` scope **243/260** (17 pre-existing baseline failures). Private beta: invited operators on `/architecture/reviews/new` no longer inherit stale query params when moving wizard mode, steps, guided intake slides, or disclosure panels after in-app navigation.
+
+- [x] (proven) `useNewRunWizardMode.persistWizardMode` — mode URL write merged stale window search after soft navigation — **hit 2026-11-02 thorough hunt #192:** `searchParamsQueryStringForHrefWrite`; regression `writes wizard mode from useSearchParams when window.location.search lags after soft navigation`.
+- [x] (proven) `useNewRunWizardSteps.goToStep` — step URL write merged stale window search after soft navigation — **hit 2026-11-02 thorough hunt #192:** shared helper; regression `writes wizard step from useSearchParams when window.location.search lags after soft navigation`.
+- [x] (proven) `useGuidedIntakeWizard.setStep` — intake step URL write merged stale window search after soft navigation — **hit 2026-11-02 thorough hunt #192:** shared helper; regression `writes intake step from useSearchParams when window.location.search lags after soft navigation`.
+- [x] (proven) `FirstPilotIntakeFields` — standards disclosure URL write merged stale window search after soft navigation — **hit 2026-11-02 thorough hunt #192:** shared helper.
+- [x] (proven) `SimplifiedPilotWizard` — advanced config disclosure URL write merged stale window search after soft navigation — **hit 2026-11-02 thorough hunt #192:** shared helper.
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — view-all clarifications disclosure href writes use `readWindowLocationSearch()` on write — locus: `use-guided-intake-draft-workflow.ts`; input: soft navigation clears guided-intake query then operator expands all clarifications.
+- [ ] (candidate) `ReviewsNewMoreWaysToStart` — more-ways disclosure href writes use `readWindowLocationSearch()` on write — locus: `ReviewsNewMoreWaysToStart.tsx`; input: soft navigation then expand alternate start paths panel.
+- [ ] (candidate) `ReviewsNewPathSwitcher` — returning job chooser disclosure href writes use `readWindowLocationSearch()` on write — locus: `ReviewsNewPathSwitcher.tsx`; input: soft navigation then open returning-job chooser.
+- [ ] (candidate) `useGuidedIntakeBriefForm` — scope gate URL writes use `readWindowLocationSearch()` on write — locus: `use-guided-intake-brief-form.ts`; input: soft navigation then toggle guided brief scope gate.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — scope gate URL writes use `readWindowLocationSearch()` on write — locus: `use-first-pilot-intake-wizard.ts`; input: soft navigation then confirm quick-start scope gate (monitor parity with prior scope-gate transition hit).
+
 2026-10-29 seed hunt (seed→hit): promoted open `(candidate)` `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes used `readWindowLocationSearch()`, so after soft navigation disabling focused pilot mode merged stale query keys from the address bar; `syncPilotTogglesToUrl` now uses `searchParams.toString()`; regression `writes pilot toggle from useSearchParams when window.location.search lags after soft navigation`; `use-new-run-wizard-client.pilot-url.test.ts` 2/2. Seeded five follow-on `(candidate)` rows below. Private beta: full guided wizard pilot toggles no longer resurrect stale toolbar params after in-app navigation on `/architecture/reviews/new`.
 
 - [x] (proven) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes merged stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for toggle writes; regression above.
@@ -11924,10 +11937,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — new-run wizard pilot toggle merged stale query after soft navigation
-- **code-changed-since:** no
+- **last-bug:** 2026-11-02 — intake wizard mode/step/disclosure URL writes merged stale query after soft navigation
+- **code-changed-since:** yes
 
-**Hunts:** 71 · **Bugs found:** 42 · **Consecutive dry hunts:** 0
+**Hunts:** 72 · **Bugs found:** 43 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
