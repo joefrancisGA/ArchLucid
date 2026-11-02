@@ -1206,6 +1206,14 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceDiagramOutlineByPathHops(visibleMermaidOutline, pathDetailQuery.data.hops);
   }, [pathDetailQuery.data, pathFocusActive, visibleMermaidOutline]);
 
+  const pathFocusMatchedNoNodes =
+    pathFocusActive
+    && pathDetailQuery.data != null
+    && visibleMermaidOutline != null
+    && visibleMermaidOutline.nodes.length > 0
+    && pathScopedMermaidOutline != null
+    && pathScopedMermaidOutline.nodes.length === 0;
+
   const evidenceFamilyFilterEnabled = EVIDENCE_FAMILY_FILTER_MODES.has(selectedMode);
   const availableEvidenceFamilies = useMemo(
     () => INFRA_EVIDENCE_DIAGRAM_FAMILIES.filter(
@@ -2429,7 +2437,11 @@ export function DiagramsWorkbenchClient() {
           </h2>
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
             Path {urlPathId} is the requested SecureNow path. Path hops and cut points remain authoritative in Path inspect.
-            {pathFocusActive ? " The diagram below shows this path's hops first." : " The full subscription graph is shown."}
+            {pathFocusMatchedNoNodes
+              ? " No diagram nodes matched this path's hop identifiers yet."
+              : pathFocusActive
+                ? " The diagram below shows this path's hops first."
+                : " The full subscription graph is shown."}
           </p>
           <div className="mt-2 flex flex-wrap gap-3">
             <Link

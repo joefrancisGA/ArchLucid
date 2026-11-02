@@ -11,7 +11,7 @@
 Do not build any of the following while implementing SN-LIFT prompts:
 
 - A public list price, a `$` amount, Stripe price, or Marketplace publication.
-- Welcome-page or marketing-footer links to `/why-securenow` or `/securenow-sample`.
+- Welcome-page or marketing-footer links to `/why-securenow`. Owner decision **2026-11-02:** welcome and the footer may link the Healthcare Claims sample review and `/securenow-sample` (`fixture-path-01`); `/why-securenow` stays off those surfaces.
 - A CPA SOC 2 program, a third-party pen-test claim, or a numeric compliance score.
 - A clock, a minute count, or a duration written into `DECISION_CYCLE_LOG.md` or `PILOT_MEASUREMENT_LOG.md`.
 - Filling `EXECUTIVE_PROOF_PACKET_TEMPLATE.md` with customer outcomes.

@@ -1,5 +1,8 @@
 export const SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX = "securenow-pilot-disposition:" as const;
 
+export const SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE =
+  "Stored in this browser for this workspace. It does not clear beta NO_GO." as const;
+
 export type SecureNowPilotDispositionRecord = {
   readonly outcome: string;
   readonly rationale: string;

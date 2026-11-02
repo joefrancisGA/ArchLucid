@@ -77,6 +77,7 @@ import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-pa
 import { buildPathDecisionReadiness } from "@/lib/security-evidence-path-decision-readiness";
 import {
   readSecureNowPilotDisposition,
+  SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
   type SecureNowPilotDispositionRecord,
 } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import type {
@@ -870,7 +871,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                 {pilotDisposition.outcome}: {pilotDisposition.rationale}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Stored in this browser only. It does not clear beta NO_GO.
+                {SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}
               </p>
               <Link
                 className={OPERATOR_LINK.inline}

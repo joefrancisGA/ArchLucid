@@ -37,4 +37,4 @@ The largest weighted moves, if the sessions land, are Cutting-Edge (weight 8), T
 
 ## Stop
 
-No public price. No `/why-securenow` link on the welcome page or the marketing footer. The sample-review and `fixture-path-01` links are the separate prompt `securenow-welcome-footer-sample-links.md`. No CPA report or pen-test claim. No duration written into a customer log. No Azure write. No hidden review-workspace tabs. No second ranker.
+No public price. No `/why-securenow` on welcome or the footer (owner **2026-11-02:** sample review, `/securenow-sample`, and `fixture-path-01` links allowed there — paste [`securenow-welcome-footer-sample-links.md`](../../.cursor/prompts/securenow-welcome-footer-sample-links.md)). No CPA report or pen-test claim. No duration written into a customer log. No Azure write. No hidden review-workspace tabs. No second ranker.
