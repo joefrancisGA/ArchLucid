@@ -94,6 +94,9 @@ export function RunDetailReviewPackageStampViewport(
             summary={firstReviewSpineSummary}
             unmappedFindingCount={props.unmappedFindingCount}
             runId={props.runId}
+            isSample={props.isSample}
+            manifestVersion={props.manifestVersion}
+            sampleSponsorParagraph={feasibilityVerdict.summary}
           />
         ) : null}
         {!pipelineTerminalFailure ? (

@@ -26,7 +26,12 @@ import {
   FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LAYOUT, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   FIRST_REVIEW_GUIDE_PATH,
@@ -279,6 +284,26 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
             {guide.evaluationScopeHelper ?? FIRST_REVIEW_GUIDE_EVALUATION_SCOPE_HELPER}
           </p>
         ) : null}
+
+        <section
+          aria-labelledby="first-review-one-prerequisite-heading"
+          className="space-y-1"
+          data-testid="first-review-one-prerequisite"
+        >
+          <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            One next prerequisite
+          </h2>
+          {guide.requiredBlockers[0] !== undefined ? (
+            <>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.requiredBlockers[0].title}</p>
+              <Link className={OPERATOR_LINK.inline} href={guide.requiredBlockers[0].href}>
+                {guide.requiredBlockers[0].actionLabel}
+              </Link>
+            </>
+          ) : (
+            <p className={OPERATOR_TYPOGRAPHY.helper}>Sample package and policy pack are selected.</p>
+          )}
+        </section>
 
         <FirstReviewGuideRequiredSetupPanel blockers={guide.requiredBlockers} />
       </>

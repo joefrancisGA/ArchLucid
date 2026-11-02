@@ -5,6 +5,8 @@ import { SecureNowSampleView } from "@/app/(marketing)/securenow-sample/SecureNo
 import { metadata } from "@/app/(marketing)/securenow-sample/page";
 import {
   SECURENOW_SAMPLE_FIXTURE_LINE,
+  SECURENOW_SAMPLE_PATH_INSPECT_HREF,
+  SECURENOW_SAMPLE_PATH_INSPECT_LABEL,
   SECURENOW_SAMPLE_WHY_LINK_LABEL,
   WHY_SECURENOW_CONVERSATION_LABEL,
   WHY_SECURENOW_DRAFT_PITCH,
@@ -19,6 +21,10 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
       SECURENOW_SAMPLE_FIXTURE_LINE,
     );
     expect(screen.getByTestId("securenow-sample-pitch")).toHaveTextContent(WHY_SECURENOW_DRAFT_PITCH);
+    expect(screen.getByRole("link", { name: SECURENOW_SAMPLE_PATH_INSPECT_LABEL })).toHaveAttribute(
+      "href",
+      SECURENOW_SAMPLE_PATH_INSPECT_HREF,
+    );
     expect(screen.getByRole("link", { name: WHY_SECURENOW_CONVERSATION_LABEL })).toHaveAttribute(
       "href",
       "mailto:support@archlucid.net?subject=SecureNow%20conversation",

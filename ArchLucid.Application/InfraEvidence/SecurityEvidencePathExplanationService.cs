@@ -16,7 +16,8 @@ public sealed class SecurityEvidencePathExplanationService(
     ISecurityEvidencePathExplanationRepository explanationRepository,
     IAgentCompletionClient llm,
     IPromptRedactor promptRedactor,
-    ILogger<SecurityEvidencePathExplanationService> logger) : ISecurityEvidencePathExplanationService
+    ILogger<SecurityEvidencePathExplanationService> logger,
+    ISecurityEvidencePathRankRepository? rankRepository = null) : ISecurityEvidencePathExplanationService
 {
     public const int PathExplanationMaxOutputTokens = 800;
 
@@ -77,6 +78,7 @@ public sealed class SecurityEvidencePathExplanationService(
 
             IReadOnlyList<string> allowedEvidenceRefs =
                 SecurityEvidencePathExplanationValidator.SelectAllowedEvidenceRefs(pathId, hops);
+            string rankContext = await BuildRankContextAsync(scope, path, rankRepository, cancellationToken);
 
             HashSet<string> allowedArmIds = SecurityEvidencePathExplanationValidator.CollectAllowedArmIds(hops);
             SecurityEvidencePathExplanationTemplateResponse explanationTemplate =
@@ -93,7 +95,8 @@ public sealed class SecurityEvidencePathExplanationService(
                     path,
                     hops,
                     cutPoints,
-                    allowedEvidenceRefs);
+                    allowedEvidenceRefs,
+                    rankContext);
 
                 provenanceKind = ProvenanceKind.DeterministicInference;
                 simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
@@ -105,7 +108,8 @@ public sealed class SecurityEvidencePathExplanationService(
                     hops,
                     cutPoints,
                     explanationTemplate,
-                    allowedEvidenceRefs);
+                    allowedEvidenceRefs,
+                    rankContext);
 
                 PromptRedactionOutcome redactedPrompt = promptRedactor.Redact(userPrompt);
 
@@ -128,7 +132,8 @@ public sealed class SecurityEvidencePathExplanationService(
                             path,
                             hops,
                             cutPoints,
-                            allowedEvidenceRefs);
+                            allowedEvidenceRefs,
+                            rankContext);
                         provenanceKind = ProvenanceKind.DeterministicInference;
                         simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
                         modelOutputRejection =
@@ -153,7 +158,8 @@ public sealed class SecurityEvidencePathExplanationService(
                         path,
                         hops,
                         cutPoints,
-                        allowedEvidenceRefs);
+                        allowedEvidenceRefs,
+                        rankContext);
                     provenanceKind = ProvenanceKind.DeterministicInference;
                     simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
                     modelOutputRejection =
@@ -218,5 +224,50 @@ public sealed class SecurityEvidencePathExplanationService(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    private static async Task<string> BuildRankContextAsync(
+        ScopeContext scope,
+        SecurityEvidencePathRecord selectedPath,
+        ISecurityEvidencePathRankRepository? rankRepository,
+        CancellationToken cancellationToken)
+    {
+        if (rankRepository is null)
+        {
+            return "No next stored path is available. This does not change the rank.";
+        }
+
+        IReadOnlyList<SecurityEvidencePathRankRecord> ranks =
+            await rankRepository.ListBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), selectedPath.SnapshotId),
+                cancellationToken);
+        SecurityEvidencePathRankRecord[] ordered = ranks
+            .OrderBy(rank => rank.RankOrder)
+            .ToArray();
+        int selectedIndex = Array.FindIndex(ordered, rank => rank.PathId == selectedPath.PathId);
+
+        if (selectedIndex < 0 || selectedIndex + 1 >= ordered.Length)
+        {
+            return "No next stored path is available. This does not change the rank.";
+        }
+
+        SecurityEvidencePathRankRecord selected = ordered[selectedIndex];
+        SecurityEvidencePathRankRecord next = ordered[selectedIndex + 1];
+        (string Name, decimal Gap)[] dimensions =
+        [
+            ("TechnicalExposure", selected.TechnicalExposureScore - next.TechnicalExposureScore),
+            ("PrivilegeDepth", selected.PrivilegeDepthScore - next.PrivilegeDepthScore),
+            ("BlastRadius", selected.BlastRadiusScore - next.BlastRadiusScore),
+            ("BusinessConsequence", (selected.BusinessConsequenceScore ?? 0m) - (next.BusinessConsequenceScore ?? 0m)),
+            ("ConfidenceBand", selected.ConfidenceBandScore - next.ConfidenceBandScore),
+        ];
+        (string Name, decimal Gap)? largest = dimensions
+            .Where(dimension => dimension.Gap > 0)
+            .OrderByDescending(dimension => dimension.Gap)
+            .FirstOrDefault();
+
+        return largest is { } dimension
+            ? $"Selected path {selected.PathId:D} outranks stored path {next.PathId:D} on {dimension.Name}. This does not change the rank."
+            : $"Selected path {selected.PathId:D} does not outrank stored path {next.PathId:D} on a stored dimension. This does not change the rank.";
     }
 }

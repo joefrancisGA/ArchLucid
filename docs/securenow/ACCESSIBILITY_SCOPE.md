@@ -22,6 +22,9 @@ This is not a WCAG certification.
 - When to come back
 - Pilot decision
 - Investigation effort
+- Public synthetic sample
+- Public SKU and meter card
+- Sponsor path readout
 
 ## Where the public ArchLucid statement lives
 

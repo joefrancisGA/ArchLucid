@@ -50,6 +50,7 @@ import {
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
+  SECURENOW_PATH_INSPECT_FRAMEWORK_THEME,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
   SECURENOW_PATH_INSPECT_LOADING,
   SECURENOW_PATH_INSPECT_PANEL_LEAD,
@@ -729,6 +730,17 @@ export function SecurityEvidencePathInspectPanel(props: {
             Selected subject: {subjectLabel}
           </p>
         ) : null}
+        {resolvedPathId != null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link
+              href={`/administration/securenow-sponsor-path?pathId=${encodeURIComponent(resolvedPathId)}`}
+              className={OPERATOR_LINK.inline}
+              data-testid="security-evidence-path-sponsor-link"
+            >
+              Sponsor page for this path
+            </Link>
+          </p>
+        ) : null}
       </header>
 
       {hasSelection === false ? (
@@ -913,6 +925,12 @@ export function SecurityEvidencePathInspectPanel(props: {
             <div className="space-y-2" data-testid="security-evidence-path-cut-points">
               <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE}</h3>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Where you could break this path.</p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="securenow-path-framework-theme"
+              >
+                {SECURENOW_PATH_INSPECT_FRAMEWORK_THEME}
+              </p>
               <ul className="space-y-2">
                 {pathQuery.data.relatedCutPoints.map((cutPoint) => (
                   <li
