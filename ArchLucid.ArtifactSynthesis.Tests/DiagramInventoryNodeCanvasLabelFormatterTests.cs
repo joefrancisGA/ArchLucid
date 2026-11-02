@@ -43,9 +43,10 @@ public sealed class DiagramInventoryNodeCanvasLabelFormatterTests
             peerNames,
             new DiagramForestLayoutOptions { UniformNodeWidth = 400 });
 
-        lines.Should().HaveCount(1);
+        lines.Should().HaveCount(2);
         lines[0].Should().EndWith("...");
         lines[0].Should().Contain("vm-production-eastus");
+        lines[1].Should().Be(DiagramInventoryNodeCanvasLabelFormatter.NameShortenedOnCanvasHonesty);
     }
 
     [Fact]

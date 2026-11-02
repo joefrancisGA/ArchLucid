@@ -142,6 +142,9 @@ export const FINDING_EXPLAINABILITY_TITLE_NOT_STORED = "Finding title was not st
 
 export const FINDING_EXPLAINABILITY_ENGINE_NOT_STORED = "Engine was not stored." as const;
 
+export const FINDING_EXPLAINABILITY_RATIONALE_TITLE_ONLY =
+  "Stored rationale only restates the finding title." as const;
+
 export function findingRationalePreview(input: FindingRationalePreviewInput): string | null {
   const stripped = stripFindingNarrativePreamble(input.narrativeText, input.findingId);
   const source = stripped.length > 0 ? stripped : input.conclusion.trim();
@@ -152,7 +155,11 @@ export function findingRationalePreview(input: FindingRationalePreviewInput): st
 
   const withoutRestatement = dropLeadingRestatement(source, input.title);
 
-  return withoutRestatement.length > 0 ? withoutRestatement : null;
+  if (withoutRestatement.length === 0) {
+    return FINDING_EXPLAINABILITY_RATIONALE_TITLE_ONLY;
+  }
+
+  return withoutRestatement;
 }
 
 export type FindingConfidenceExplanation = {

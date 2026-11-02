@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE =
   "Fields on this step were copied from the prior package, not retyped here." as const;
 
+export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_NOT_COPIED_LINE =
+  "Prior package fields were not copied onto this step." as const;
+
 export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED =
   "No non-empty field was copied." as const;
 
@@ -135,11 +138,17 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
     let cancelled = false;
 
     void tryLoadPriorPackageGuidedIntakePrefill(priorRunId).then((prefill) => {
-      if (cancelled || prefill === null || appliedRef.current) {
+      if (cancelled || appliedRef.current) {
         return;
       }
 
       appliedRef.current = true;
+
+      if (prefill === null) {
+        setPriorRunPrefillCopiedFromLine(GUIDED_INTAKE_PRIOR_RUN_PREFILL_NOT_COPIED_LINE);
+        return;
+      }
+
       const copiedAny = applyPriorPackagePrefill(targetRef.current, prefill);
       setPriorRunPrefillCopiedFromLine(
         copiedAny

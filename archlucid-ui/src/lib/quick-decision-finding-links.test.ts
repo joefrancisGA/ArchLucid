@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   QUICK_DECISION_RECOMMENDATION_FALLBACK,
+  QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED,
+  QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO,
   buildQuickDecisionFindingEvidenceLinks,
+  formatQuickDecisionFindingEvidenceLinkLabel,
   quickDecisionRecommendationSnippet,
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
@@ -55,6 +58,15 @@ describe("quickDecisionRecommendationSnippet", () => {
     expect(quickDecisionRecommendationSnippet(finding({ recommendation: " " }))).toBe(
       "Recommended action was stored empty.",
     );
+  });
+});
+
+describe("formatQuickDecisionFindingEvidenceLinkLabel (P-20)", () => {
+  it("distinguishes missing count from zero stored references", () => {
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(null)).toBe(
+      QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED,
+    );
+    expect(formatQuickDecisionFindingEvidenceLinkLabel(0)).toBe(QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO);
   });
 });
 

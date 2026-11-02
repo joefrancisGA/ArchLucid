@@ -10,6 +10,7 @@ import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assu
 import {
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY,
   FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_TITLE,
+  FIRST_REVIEW_AZURE_INVENTORY_ZIP_SKIPPED_LINE,
   FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE,
   FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE,
   resolveFirstReviewAzureInventoryZipPrompt,
@@ -98,6 +99,17 @@ export function FirstReviewAzureInventoryZipPromptStrip(
   }, [resolution.scopeKey]);
 
   if (!resolution.visible) {
+    if (resolution.skipped) {
+      return (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-review-azure-inventory-zip-skipped-line"
+        >
+          {FIRST_REVIEW_AZURE_INVENTORY_ZIP_SKIPPED_LINE}
+        </p>
+      );
+    }
+
     return null;
   }
 
@@ -114,6 +126,12 @@ export function FirstReviewAzureInventoryZipPromptStrip(
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-review-azure-inventory-zip-evidence-honesty"
+          >
+            {resolution.evidenceHonestyLine}
           </p>
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

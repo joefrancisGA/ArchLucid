@@ -66,6 +66,18 @@ function humanReviewStatusLabelForExport(finding: QuickDecisionFinding): string 
   }).label;
 }
 
+function formatItsmRunIdCell(runId: string | null | undefined): string {
+  if (runId === null || runId === undefined) {
+    return "Run id was not stored.";
+  }
+
+  if (runId.length === 0 || runId.trim().length === 0) {
+    return "Run id was not stored.";
+  }
+
+  return runId.trim();
+}
+
 function formatItsmFindingIdCell(findingId: string | null | undefined): string {
   if (findingId === null || findingId === undefined) {
     return "Finding id was not stored.";
@@ -234,7 +246,7 @@ export function buildQuickDecisionFindingsCsv(
 
     return [
       formatItsmFindingIdCell(finding.findingId),
-      runId,
+      formatItsmRunIdCell(runId),
       severityLabelFromQuickDecisionFinding(finding),
       escapeCsvCell(formatItsmFindingTitleCell(finding.title)),
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),

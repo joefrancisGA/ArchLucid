@@ -37,7 +37,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     expect(result.plainEnglish).toContain("Severity was not stored.");
     expect(result.plainEnglish).toContain("Finding summary was not stored.");
     expect(result.plainEnglish).not.toContain("How reviewers derived it");
-    expect(result.plainEnglish).not.toContain("Residual risk note");
+    expect(result.plainEnglish).toContain("Residual risk note was not stored.");
     expect(result.sponsorCaution).toBe(SPONSOR_PLAIN_ENGLISH_CAUTION);
   });
 

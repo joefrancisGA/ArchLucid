@@ -4,6 +4,9 @@ import {
   INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 
+export const INFRA_EVIDENCE_RESOURCE_GROUP_FRAME_LEGEND =
+  "Resource group frames show the group name; node cards omit duplicate group lines inside framed cells." as const;
+
 const DATA_FLOW_READING_HEDGE_BOXES = "This diagram shows what may connect.";
 const DATA_FLOW_READING_HEDGE_CONNECTORS = "It is not observed traffic.";
 const DATA_FLOW_OBSERVED_VS_DECLARED_BOXES =
@@ -23,6 +26,7 @@ export type InfraEvidenceDiagramReadingLegendOptions = {
   readonly crossGroupFanOutIncluded?: boolean;
   readonly executiveFirstTwelveDrawn?: boolean;
   readonly dataFlowHasObservedInLogs?: boolean;
+  readonly resourceGroupFramesDrawn?: boolean;
 };
 
 export type InfraEvidenceDiagramReadingLegendLines = {
@@ -41,6 +45,7 @@ export function resolveInfraEvidenceDiagramReadingLegend(
   const crossGroupFanOutIncluded = options.crossGroupFanOutIncluded === true;
   const executiveFirstTwelveDrawn = options.executiveFirstTwelveDrawn === true;
   const dataFlowHasObservedInLogs = options.dataFlowHasObservedInLogs === true;
+  const resourceGroupFramesDrawn = options.resourceGroupFramesDrawn === true;
 
   switch (mode) {
     case "dataFlow":
@@ -66,6 +71,15 @@ export function resolveInfraEvidenceDiagramReadingLegend(
         boxes: INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
         connectors: INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
         evidenceKind: "Evidence kind is configuration from inventory.",
+      };
+    case "resourceGroup":
+      return {
+        boxes: resourceGroupFramesDrawn
+          ? INFRA_EVIDENCE_RESOURCE_GROUP_FRAME_LEGEND
+          : "Boxes are resources in this inventory view.",
+        connectors: "Each connector is only as strong as its own line.",
+        evidenceKind: "This view does not prove reachability or runtime use.",
+        scopeNote: resourceGroupFramesDrawn ? INFRA_EVIDENCE_RESOURCE_GROUP_FRAME_LEGEND : undefined,
       };
     case "data":
       return {

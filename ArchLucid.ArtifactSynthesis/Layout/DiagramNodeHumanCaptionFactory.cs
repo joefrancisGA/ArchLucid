@@ -149,8 +149,7 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · No diagram link was stored.";
         }
-        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
-            && node.UnresolvedRelationshipDetails.Count == 0)
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
         {
             combined = $"{combined} · Connection state was not stored.";
         }

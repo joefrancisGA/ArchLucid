@@ -289,6 +289,11 @@ public sealed class DiagramForestCanvasLabelContext
         DiagramNode node,
         string? dataFlowTypeLine)
     {
+        if (node.ExternalLinkedServiceType is not null && string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
+        {
+            return ["Linked service type was stored empty."];
+        }
+
         if (string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
         {
             return [];
