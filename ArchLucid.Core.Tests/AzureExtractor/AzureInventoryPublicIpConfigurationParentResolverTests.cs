@@ -44,6 +44,32 @@ public sealed class AzureInventoryPublicIpConfigurationParentResolverTests
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1");
     }
 
+    [Fact]
+    public void Resolves_parent_when_configuration_id_is_double_percent_encoded()
+    {
+        const string plain =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1/ipConfigurations/ipconfig1";
+        string encoded = Uri.EscapeDataString(Uri.EscapeDataString(plain));
+
+        AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(encoded)
+            .Should()
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1");
+    }
+
+    [Theory]
+    [InlineData("100%")]
+    [InlineData("%ZZ")]
+    [InlineData("foo%2")]
+    public void Returns_null_without_throwing_for_malformed_percent_encoding(string configurationId)
+    {
+        Action act = () => AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(configurationId);
+
+        act.Should().NotThrow();
+        AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(configurationId)
+            .Should()
+            .BeNull();
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

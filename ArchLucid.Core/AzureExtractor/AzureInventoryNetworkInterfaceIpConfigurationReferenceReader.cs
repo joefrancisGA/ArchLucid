@@ -46,7 +46,19 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
             return null;
         }
 
-        string working = PercentDecodeBounded.Decode(armId.Trim());
+        string trimmed = armId.Trim();
+
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(trimmed);
+        }
+
+        string working = PercentDecodeBounded.Decode(trimmed);
+
+        if (working.StartsWith("{", StringComparison.Ordinal))
+        {
+            return TryReadArmIdFromJson(working);
+        }
 
         // Post-decode guard: only normalize values that look like ARM resource IDs.
         // This avoids throwing/altering non-ARM values and keeps behavior consistent across parsers.
@@ -56,6 +68,26 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         }
 
         return ArmResourceIdNormalizer.Normalize(working);
+    }
+
+    private static string? TryReadArmIdFromJson(string json)
+    {
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Object
+                || !TryGetPropertyIgnoreCase(document.RootElement, "id", out JsonElement idElement))
+            {
+                return null;
+            }
+
+            return TryReadArmId(idElement);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static bool LooksLikeArmResourceId(string value)

@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.InfraEvidence;
-
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -9,8 +7,6 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryPaasChildAssociationParser
 {
-    private const int MaxIdentifierLength = 512;
-
     private const int MaxNameLength = 260;
 
     public static bool TryParse(JsonElement element, out AzureInventoryPaasChildAssociationRow? row, out string? errorMessage)
@@ -25,8 +21,8 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string? parentResourceId = TryReadBoundedString(element, "parentResourceId", MaxIdentifierLength);
-        string? childResourceId = TryReadBoundedString(element, "childResourceId", MaxIdentifierLength);
+        string? parentResourceId = TryReadString(element, "parentResourceId");
+        string? childResourceId = TryReadString(element, "childResourceId");
         string? childName = TryReadBoundedString(element, "childName", MaxNameLength);
         string? childType = TryReadBoundedString(element, "childType", MaxNameLength);
         string? collectionStatus = TryReadBoundedString(element, "collectionStatus", MaxNameLength);
@@ -49,8 +45,17 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string normalizedParentResourceId = NormalizeCompanionArmId(parentResourceId);
-        string normalizedChildResourceId = NormalizeCompanionArmId(childResourceId);
+        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(
+                parentResourceId,
+                out string normalizedParentResourceId)
+            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(
+                childResourceId,
+                out string normalizedChildResourceId))
+        {
+            errorMessage = "parentResourceId and childResourceId must be valid bounded ARM identifiers.";
+
+            return false;
+        }
 
         row = new AzureInventoryPaasChildAssociationRow
         {
@@ -84,11 +89,6 @@ public static class AzureInventoryPaasChildAssociationParser
         }
 
         return trimmed;
-    }
-
-    private static string NormalizeCompanionArmId(string armId)
-    {
-        return ArmResourceIdNormalizer.NormalizePercentEncoded(armId);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
