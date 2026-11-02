@@ -11972,9 +11972,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-11-02 — wizard popstate URL sync resurrected stale mode/step/toggle/disclosure state from lagging window search
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 **Hunts:** 76 · **Bugs found:** 46 · **Consecutive dry hunts:** 1
 
