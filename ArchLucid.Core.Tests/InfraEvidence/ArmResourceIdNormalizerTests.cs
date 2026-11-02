@@ -23,6 +23,34 @@ public sealed class ArmResourceIdNormalizerTests
         ArmResourceIdNormalizer.Normalize("   ").Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(null, "")]
+    [InlineData("   ", "")]
+    [InlineData("/subscriptions/abc", "/subscriptions/abc")]
+    [InlineData("  /subscriptions/abc  ", "/subscriptions/abc")]
+    [InlineData("%2Fsubscriptions%2Fabc", "/subscriptions/abc")]
+    [InlineData("%252Fsubscriptions%252Fabc", "/subscriptions/abc")]
+    public void DecodePercentEncoded_trims_and_unwinds_percent_encoded_ids(string? input, string expected)
+    {
+        ArmResourceIdNormalizer.DecodePercentEncoded(input).Should().Be(expected);
+    }
+
+    [Fact]
+    public void DecodePercentEncoded_is_bounded_for_deeply_nested_encoding()
+    {
+        // 16 nested encoding layers: each pass unwinds exactly one layer.
+        string id = "/subscriptions/abc";
+
+        for (int layer = 0; layer < 16; layer++)
+        {
+            id = Uri.EscapeDataString(id);
+        }
+
+        string decoded = ArmResourceIdNormalizer.DecodePercentEncoded(id);
+
+        decoded.Should().StartWith("%").And.Contain("subscriptions").And.NotContain("%2Fsubscriptions%2F");
+    }
+
     [Fact]
     public void IsDescendantOf_detects_nested_arm_child_resources()
     {

@@ -3,6 +3,32 @@ namespace ArchLucid.Core.InfraEvidence;
 /// <summary>Normalizes ARM resource identifiers for stable cross-snapshot joins.</summary>
 public static class ArmResourceIdNormalizer
 {
+    /// <summary>
+    ///     Decodes percent-encoded ARM ids with a bounded number of passes (double-encoded ids unwind
+    ///     one layer per pass). Stops early once a pass changes nothing.
+    /// </summary>
+    public static string DecodePercentEncoded(string? armId)
+    {
+        if (string.IsNullOrWhiteSpace(armId))
+            return string.Empty;
+
+        string working = armId.Trim();
+
+        const int maxPercentDecodePasses = 8;
+
+        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%'); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+                break;
+
+            working = decoded;
+        }
+
+        return working;
+    }
+
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
     public static string Normalize(string? externalResourceId)
     {

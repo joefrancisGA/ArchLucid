@@ -80,21 +80,7 @@ public static class AzureInventoryNetworkConnectionEndpointParser
             return null;
         }
 
-        string working = armId.Trim();
-
-        const int maxPercentDecodePasses = 8;
-
-        for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%'); pass++)
-        {
-            string decoded = Uri.UnescapeDataString(working);
-
-            if (string.Equals(decoded, working, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            working = decoded;
-        }
+        string working = ArmResourceIdNormalizer.DecodePercentEncoded(armId);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {
