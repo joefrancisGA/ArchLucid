@@ -14,7 +14,16 @@ internal static class PercentDecodeBounded
 
         for (int pass = 0; pass < MaxPasses && working.Contains('%', StringComparison.Ordinal); pass++)
         {
-            string decoded = Uri.UnescapeDataString(working);
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                return value;
+            }
 
             if (string.Equals(decoded, working, StringComparison.Ordinal))
             {
