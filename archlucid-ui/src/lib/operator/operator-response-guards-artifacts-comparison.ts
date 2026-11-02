@@ -13,9 +13,9 @@ const artifactDescriptorSchema = z
     artifactId: operatorNonEmptyTrimmedString,
     artifactType: z.string(),
     name: z.string(),
-    format: z.string(),
+    format: operatorNonEmptyTrimmedString,
     createdUtc: z.string(),
-    contentHash: z.string(),
+    contentHash: operatorNonEmptyTrimmedString,
     manifestId: z.string().optional(),
     runId: z.string().optional(),
   })
@@ -74,6 +74,13 @@ export function coerceArtifactDescriptor(
 
     for (const key of stringKeys) {
       if (typeof data[key] !== "string") {
+        return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
+      }
+
+      if (
+        (key === "format" || key === "contentHash") &&
+        !operatorNonEmptyTrimmedString.safeParse(data[key]).success
+      ) {
         return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
       }
     }
@@ -149,7 +156,7 @@ export function coerceRunComparison(
 
 const comparisonExplanationSchema = z
   .object({
-    highLevelSummary: z.string(),
+    highLevelSummary: operatorNonEmptyTrimmedString,
     narrative: z.string(),
     majorChanges: z.array(z.unknown()),
     keyTradeoffs: z.array(z.unknown()),
@@ -170,6 +177,13 @@ export function coerceComparisonExplanation(
     }
 
     if (typeof data.highLevelSummary !== "string" || typeof data.narrative !== "string") {
+      return {
+        ok: false,
+        message: "AI explanation is missing highLevelSummary or narrative strings.",
+      };
+    }
+
+    if (!operatorNonEmptyTrimmedString.safeParse(data.highLevelSummary).success) {
       return {
         ok: false,
         message: "AI explanation is missing highLevelSummary or narrative strings.",

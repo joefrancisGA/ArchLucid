@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   coerceArtifactDescriptor,
   coerceArtifactDescriptorList,
+  coerceComparisonExplanation,
   coerceGoldenManifestComparison,
   coerceGraphViewModel,
   coerceManifestSummary,
@@ -132,6 +133,21 @@ describe("coerceRunSummaryPaged", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.message).toContain("pageSize");
+    }
+  });
+
+  it("rejects legacy offset envelope when page is zero", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 0,
+      page: 0,
+      pageSize: 20,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("page");
     }
   });
 });
@@ -522,6 +538,26 @@ describe("coerceManifestSummary", () => {
       expect(result.message).toBe('Review record summary is missing or invalid "manifestHash".');
     }
   });
+
+  it("rejects whitespace-only ruleSetId", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "   ",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "ruleSetId".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptor", () => {
@@ -578,6 +614,38 @@ describe("coerceArtifactDescriptor", () => {
       expect(result.message).toBe('Artifact descriptor is missing or invalid "artifactId".');
     }
   });
+
+  it("rejects whitespace-only contentHash", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "   ",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "contentHash".');
+    }
+  });
+
+  it("rejects whitespace-only format", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: " ",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "format".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptorList", () => {
@@ -587,5 +655,21 @@ describe("coerceArtifactDescriptorList", () => {
 
   it("rejects row without artifactId", () => {
     expect(coerceArtifactDescriptorList([{ name: "n" }]).ok).toBe(false);
+  });
+});
+
+describe("coerceComparisonExplanation", () => {
+  it("rejects whitespace-only highLevelSummary", () => {
+    const result = coerceComparisonExplanation({
+      highLevelSummary: " ",
+      narrative: "n",
+      majorChanges: [],
+      keyTradeoffs: [],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("AI explanation is missing highLevelSummary or narrative strings.");
+    }
   });
 });

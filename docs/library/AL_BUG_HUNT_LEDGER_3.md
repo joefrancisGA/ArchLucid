@@ -10234,6 +10234,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
+**Hunts:** 130 · **Bugs found:** 123 · **Consecutive dry hunts:** 0
+
+2026-11-02 thorough hunt #200 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted three open `(candidate)` scalar guard gaps — `coerceArtifactDescriptor` accepting whitespace-only `contentHash` / `format`, and `coerceComparisonExplanation` accepting whitespace-only `highLevelSummary` — so malformed artifact detail payloads or run-compare AI summaries could render blank integrity/format labels or empty summary headings; extend `operatorNonEmptyTrimmedString` on those fields and manual fallbacks; regressions `rejects whitespace-only contentHash`, `rejects whitespace-only format`, and `rejects whitespace-only highLevelSummary`; cheap-disproof closed **valid-no-repro** legacy offset `page: 0` (hunt **#197** `page`/`pageSize` lower bound; regression `rejects legacy offset envelope when page is zero`) and **valid-no-repro** whitespace-only `ruleSetId` (summary scalars already on `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only ruleSetId`); 45/45 `operator-response-guards.test.ts`. Private beta: Invited operators no longer hydrate artifact detail panels with blank content hashes or formats, or run-compare AI summaries with whitespace-only headline text, when the API returns padded scalar fields.
+
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `contentHash` passes zod string checks — **hit 2026-11-02 thorough hunt #200:** `operatorNonEmptyTrimmedString` on `contentHash`; regression `rejects whitespace-only contentHash`.
+- [x] (proven) `coerceArtifactDescriptor` — whitespace-only `format` passes zod string checks — **hit 2026-11-02 thorough hunt #200:** `operatorNonEmptyTrimmedString` on `format`; regression `rejects whitespace-only format`.
+- [x] (proven) `coerceComparisonExplanation` — whitespace-only `highLevelSummary` passes zod string checks — **hit 2026-11-02 thorough hunt #200:** trim guard on `highLevelSummary`; regression `rejects whitespace-only highLevelSummary`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset envelope accepts `page: 0` — **cheap-disproof 2026-11-02 thorough hunt #200:** hunt **#197** legacy `page < 1` guard; regression `rejects legacy offset envelope when page is zero`.
+- [x] (valid-no-repro) `coerceManifestSummary` — whitespace-only `ruleSetId` passes zod string checks — **cheap-disproof 2026-11-02 thorough hunt #200:** `operatorNonEmptyTrimmedString` on summary scalars since hunt **#197**; regression `rejects whitespace-only ruleSetId`.
+
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `artifactType` passes zod string checks — locus: artifact descriptor schema; input: `{ artifactType: "  ", …required fields }`.
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `name` passes zod string checks — locus: artifact descriptor schema; input: `{ name: " ", …required fields }`.
+- [ ] (candidate) `coerceArtifactDescriptor` — whitespace-only `createdUtc` passes zod string checks — locus: artifact descriptor schema; input: `{ createdUtc: "  ", …required fields }`.
+- [ ] (candidate) `coerceComparisonExplanation` — whitespace-only `narrative` passes zod string checks — locus: explanation schema; input: `{ highLevelSummary: "h", narrative: " ", majorChanges: [], keyTradeoffs: [] }`.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `ruleSetVersion` passes zod string checks — locus: `manifestSummarySchema`; input: `{ ruleSetVersion: "  ", …required fields }`.
+
+- [x] (superseded) pass **#200** open `(candidate)` queue (hunt **#197** reseed) — **superseded 2026-11-02 thorough hunt #200 (hit):** three proven + two cheap-disproof; see hunt **#200** header reseed.
+
+## Zone: ui-operator-lib
+
 **Hunts:** 129 · **Bugs found:** 120 · **Consecutive dry hunts:** 0
 
 2026-11-02 thorough hunt #197 (hit): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice). Promoted three open `(candidate)` scalar guard gaps — legacy offset `coerceRunSummaryPaged` accepting `pageSize: 0`, `coerceManifestSummary` accepting whitespace-only `manifestHash` (and related summary scalars still on plain `z.string()`), and `coerceReplayResponse` accepting whitespace-only `replayedUtc` / `mode` — so malformed API payloads could reach runs pagination metadata, review header manifest hash display, or replay timestamps; reject legacy `page < 1` / `pageSize < 1`, extend `operatorNonEmptyTrimmedString` on manifest summary scalars and replay `mode`/`replayedUtc`, and align manual fallbacks; regressions `rejects legacy offset envelope when pageSize is zero`, `rejects whitespace-only manifestHash`, and `rejects whitespace-only replayedUtc`; cheap-disproof closed **valid-no-repro** compare whitespace `leftRunId` (prior hunt **#195**-class trim guard + regression) and **invalid** comparison explanation partial envelope (manual fallback already names missing narrative fields); 40/40 `operator-response-guards.test.ts`. Private beta: invited operators no longer see zero page sizes in legacy runs pagination, blank manifest hashes on review headers, or blank replay timestamps when the API returns whitespace-only scalar fields.
