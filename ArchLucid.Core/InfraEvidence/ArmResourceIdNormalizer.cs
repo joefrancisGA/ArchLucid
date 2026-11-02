@@ -38,6 +38,11 @@ public static class ArmResourceIdNormalizer
                 decoded = working;
                 return false;
             }
+            catch (ArgumentException)
+            {
+                decoded = working;
+                return false;
+            }
 
             if (string.Equals(next, working, StringComparison.Ordinal))
             {
