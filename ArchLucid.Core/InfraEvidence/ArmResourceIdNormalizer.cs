@@ -19,9 +19,10 @@ public static class ArmResourceIdNormalizer
     {
         decoded = string.Empty;
 
+        // Null/whitespace needs no decoding; callers treat the empty out value as "no ARM id".
         if (string.IsNullOrWhiteSpace(value))
         {
-            return false;
+            return true;
         }
 
         string working = value.Trim();
