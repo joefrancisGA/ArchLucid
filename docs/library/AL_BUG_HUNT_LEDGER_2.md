@@ -7170,6 +7170,14 @@
 
 ## Zone: tenant-data-export
 
+2026-11-02 seed hunt (seed-only #957): re-read `ExportBundleCareerPostureResolver`, `RunExportQueryFacade`, `ArchitectureExportController`, `ArtifactExportController.PushRunExportToBlob`, and `AllowedRunExportBlobDestinationUrlPolicy`; retired duplicate open monitor rows that duplicated dry **#955**/**#956** closures; seeded five mechanism-backed `(candidate)` rows (triage path hardcodes sample-run false, fractional numeric `is_sample_run`, blob SAS trailing slash host parse, export history per-row career gate ordering, summary export cancel propagation); no row met hunt-ready bar for falsification this pass; scoped zone test-filter **41/43** (11/12 Application ArchitectureReviewExport — 1 pre-existing HTML sponsor copy assertion; 11/11 Api ExportsController; 19/20 Core blob policy — 1 pre-existing IPv4 literal account-label expectation); `RunAnalyzers=false`. Private beta: n/a.
+
+- [ ] (candidate) `ExportBundleCareerPostureResolver.ResolveTriageFromRunFields` — `ShouldBlockWorkingCareer` always receives `isSampleRun: false` — locus: ~37–42; input: sample/demo run fields on support-bundle triage path vs deltas JSON block (monitor seed **#957**).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — JSON number `is_sample_run` as sub-unit positive fraction (for example `0.0000001`) — locus: `JsonValueKind.Number` ~215–219; input: hand-edited deltas with truthy fractional token (monitor seed **#957**).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — HTTPS blob SAS with trailing slash after container path segment — locus: `Uri.TryCreate` absolute parse ~14–15; input: `https://acct.blob.core.windows.net/container/` push destination (monitor seed **#957**).
+- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — history lists export metadata when one stored export row would fail career gate on direct read — locus: history enumeration vs per-record gate; input: mixed career posture across export records for same run (monitor seed **#957**).
+- [ ] (candidate) `ArchitectureExportController.ExportRunSummary` — cooperative cancel during `GenerateMarkdownAsync` after sealed-manifest guard — locus: ~70–76; input: canceled token mid summary export (monitor seed **#957**).
+
 2026-11-01 thorough hunt (dry #956): cheap-disproof closed five open `(candidate)` monitor rows from dry **#955** reseed — **valid-no-repro** mathematical bold `"𝐟𝐚𝐥𝐬𝐞"` on `is_demo_tenant` with numeric `is_sample_run:1` still blocks because `TryParseSampleRun(root) || isDemoTenant` (~74) OR-composes posture and numeric `1` already satisfies sample path — regression `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_numeric_one` (bold false on demo flag is irrelevant); **invalid** `ArchitectureReviewExportService.GenerateReportAsync` PDF path when honesty loader throws **after** career gate — gate ~110 runs on loaded material before `BuildAsync`/PDF builders; a post-gate loader fault aborts export without bypassing `EnsureCanExportFromHonestyMaterial` (dry **#952** before-gate class); **valid-no-repro** `RunExportQueryFacade.ReplayExportAsync` with export record id differing only by case — `RunExportRecordIdNormalizer.NormalizeRequired` at ~241, scoped load, then `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` at ~279 (parity `GetExportRecordAsync_throws_when_career_posture_blocks_and_export_id_differs_only_by_casing`, `ReplayExportAsync_invokes_career_gate_before_replay_service_on_success`); **invalid** zonal blob host `acct.z13%2eblob.storage.azure.net` — percent-encoded dot in host fails absolute HTTPS / suffix allowlist before DNS — regression `TryGetRejectionReason_WhenPercentEncodedDotsInHost_RejectsAsInvalidAbsoluteUrl` (dry **#952**); **invalid** `Acct.BLOB.core.windows.net` — `IsAzureBlobStorageHost` / `EndsWith` ordinal ignore case — regression `TryGetRejectionReason_WhenMixedCaseAzureBlobHost_Allows` in Core policy tests. Reseeded five follow-on `(candidate)` rows; scoped zone test-filter **41/43** (11 Application + 11 Api + 19 Core; 2 pre-existing VM failures: unrelated HTML sponsor copy assertion + IPv4 literal blob-account-label expectation); `RunAnalyzers=false`. Private beta: n/a.
 
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — mathematical bold `"𝐟𝐚𝐥𝐬𝐞"` on `is_demo_tenant` with `is_sample_run` true numeric — **cheap-disproof 2026-11-01 thorough hunt #956:** dry **#955** reseed queue; numeric sample path blocks; regression above.
@@ -7185,14 +7193,6 @@
 - [x] (valid-no-repro) `RunExportQueryFacade.GetExportRecordAsync` — metadata read skips career gate when export record id casing differs only by case — **cheap-disproof 2026-11-01 thorough hunt #955:** lookup normalization finds row; `EnsureCareerAllowsExportRecordMetadataOrThrowAsync` still runs; regression above.
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — mixed-case entire `.BLOB.STORAGE.AZURE.NET` suffix on zonal host — **cheap-disproof 2026-11-01 thorough hunt #955:** `EndsWith(..., OrdinalIgnoreCase)`; extended allow test above; dry **#954** diary.
 - [x] (invalid) `ExportsController.PushRunExport` — blob push rejects `*.blob.core.windows.net` when account label is IPv6 literal bracket form — **cheap-disproof 2026-11-01 thorough hunt #955:** `PrivateNetworkAddressGuard` on bracket-prefixed host label; regression `TryGetRejectionReason_WhenIpv6LiteralPrefixedBlobAccountLabel_Rejects`; dry **#951** IPv6 literal class.
-
-2026-11-01 thorough hunt (dry #956): reseeded five follow-on monitor rows below after closing dry **#955** reseed set.
-
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — mathematical bold `"𝐭𝐫𝐮𝐞"` on `is_sample_run` after NFKC must block like ASCII `"true"` — locus: alias parse; input: operator typo token (monitor dry **#956**).
-- [ ] (candidate) `ArchitectureReviewExportService.GenerateReportAsync` — Mermaid PNG branch when honesty loader throws before gate — locus: format switch; input: unsupported PNG export lane (monitor dry **#956**).
-- [ ] (candidate) `RunExportQueryFacade.GetExportRecordAsync` — metadata read skips career gate when export record id casing differs only by case — locus: normalize before gate; input: mixed-case lookup id (monitor dry **#956**).
-- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — mixed-case entire `.BLOB.STORAGE.AZURE.NET` suffix on zonal host — locus: sync allowlist; input: uppercase zonal suffix (monitor dry **#956**).
-- [ ] (candidate) `ExportsController.PushRunExport` — blob push rejects `*.blob.core.windows.net` when account label is IPv6 literal bracket form — locus: sync guard; input: bracket-prefixed account label (monitor dry **#956**).
 
 - [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — mathematical bold `"𝐟𝐚𝐥𝐬𝐞"` on `is_demo_tenant` with `is_sample_run` true numeric — **cheap-disproof 2026-11-01 thorough hunt #956:** see dry #956 diary.
 - [x] (invalid) `ArchitectureReviewExportService.GenerateReportAsync` — PDF export when honesty loader throws after gate — **cheap-disproof 2026-11-01 thorough hunt #956:** see dry #956 diary.
@@ -7306,10 +7306,10 @@
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 956
+- **hunts:** 957
 - **bugs-found:** 61
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-11-01
+- **last-hunt:** 2026-11-02
 - **last-bug:** 2026-10-31 — phonetic small-cap Latin boolean tokens on `is_sample_run` bypassed CLI sample-workspace block
 - **related-pd-tb:** none
 - **code-changed-since:** yes
