@@ -6,7 +6,7 @@ public static class ArmResourceIdNormalizer
     /// <summary>
     ///     Maximum bounded passes applied when decoding percent-encoded ARM ids.
     /// </summary>
-    public const int MaxPercentDecodePasses = 8;
+    private const int MaxPercentDecodePasses = 8;
 
     /// <summary>
     ///     Performs a bounded percent-decode of <paramref name="value"/>. Returns <see langword="true"/>
