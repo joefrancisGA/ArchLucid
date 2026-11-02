@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relative-time", () => ({
   formatRelativeTime: () => "2 hours ago",
@@ -38,8 +38,16 @@ const snapshots = vi.hoisted(() => ({
   fetchInfraEvidenceSnapshots: vi.fn(),
 }));
 
+const rankedPaths = vi.hoisted(() => ({
+  fetchRankedSecurityEvidencePaths: vi.fn(),
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: snapshots.fetchInfraEvidenceSnapshots,
+}));
+
+vi.mock("@/lib/security-evidence-path-api", () => ({
+  fetchRankedSecurityEvidencePaths: rankedPaths.fetchRankedSecurityEvidencePaths,
 }));
 
 import { SecureNowHomeEnvironmentContext } from "./SecureNowHomeEnvironmentContext";
@@ -70,6 +78,16 @@ function snapshot(overrides: Record<string, unknown> = {}) {
 }
 
 describe("SecureNowHomeEnvironmentContext", () => {
+  beforeEach(() => {
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
+    });
+  });
+
   it("renders workspace, one subscription, and collection time without a gap", async () => {
     snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
       items: [snapshot()],
@@ -77,6 +95,13 @@ describe("SecureNowHomeEnvironmentContext", () => {
       page: 1,
       pageSize: 20,
       hasMore: false,
+    });
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
     });
     renderContext();
 
@@ -94,6 +119,29 @@ describe("SecureNowHomeEnvironmentContext", () => {
     expect(screen.getByRole("link", { name: "One ranked path" })).toHaveAttribute(
       "href",
       "/security/remediation-factory",
+    );
+  });
+
+  it("links the next step to the first loaded ranked path id", async () => {
+    snapshots.fetchInfraEvidenceSnapshots.mockResolvedValue({
+      items: [snapshot()],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+    rankedPaths.fetchRankedSecurityEvidencePaths.mockResolvedValue({
+      items: [{ pathId: "path-ranked-01", snapshotId: "snap-1" }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 1,
+      topCutPoints: [],
+    });
+    renderContext();
+
+    expect(await screen.findByRole("link", { name: "One ranked path" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory?pathId=path-ranked-01",
     );
   });
 

@@ -138,11 +138,19 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             sentence.Append(" from ");
             sentence.Append(actor.Trim());
         }
+        else
+        {
+            sentence.Append(" Actor was not stored.");
+        }
 
         if (!string.IsNullOrWhiteSpace(identity))
         {
             sentence.Append(" through identity ");
             sentence.Append(identity.Trim());
+        }
+        else
+        {
+            sentence.Append(" Identity was not stored.");
         }
 
         if (!string.IsNullOrWhiteSpace(network))
@@ -150,11 +158,19 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             sentence.Append(" and network path ");
             sentence.Append(network.Trim());
         }
+        else
+        {
+            sentence.Append(" Network path was not stored.");
+        }
 
         if (!string.IsNullOrWhiteSpace(asset))
         {
             sentence.Append(" to asset ");
             sentence.Append(asset.Trim());
+        }
+        else
+        {
+            sentence.Append(" Asset was not stored.");
         }
 
         sentence.Append('.');
@@ -212,7 +228,8 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             return path.WeakestHopReason.Trim();
         }
 
-        return $"{weakestHop.EdgeType} ({weakestHop.HopConfidenceBand})";
+        return
+            $"Weakest-hop reason was not stored. Weakest hop: {weakestHop.EdgeType} ({weakestHop.HopConfidenceBand}).";
     }
 
     private static SecurityEvidenceCutPointRecord? SelectPrimaryCutPoint(
@@ -357,7 +374,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
 
         if (nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal))
         {
-            return $"principal:{nodeId[^8..]}";
+            return "Principal display name was not stored.";
         }
 
         int lastSlash = nodeId.LastIndexOf('/');

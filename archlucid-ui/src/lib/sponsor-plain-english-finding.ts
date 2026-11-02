@@ -7,6 +7,11 @@
 
 import { FINDING_DERIVATION_NOT_AVAILABLE } from "@/lib/findings/finding-derivation-sentence";
 
+export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_NOT_STORED =
+  "Residual risk note was not stored." as const;
+export const SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_STORED_EMPTY =
+  "Residual risk note was stored empty." as const;
+
 export const SPONSOR_PLAIN_ENGLISH_CAUTION =
   "Sponsor-facing paraphrase only — not new evidence, not a formal risk acceptance, and not a substitute for the recorded finding and evidence trail.";
 
@@ -135,8 +140,14 @@ export function buildSponsorPlainEnglishFinding(
     parts.push(`How reviewers derived it: ${derivation}`);
   }
 
-  if (residualRisk !== null) {
-    parts.push(`Residual risk note: ${residualRisk}`);
+  if (input.residualRisk === null) {
+    parts.push(SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_NOT_STORED);
+  } else if (input.residualRisk !== undefined) {
+    if (residualRisk !== null) {
+      parts.push(`Residual risk note: ${residualRisk}`);
+    } else {
+      parts.push(SPONSOR_PLAIN_ENGLISH_RESIDUAL_RISK_STORED_EMPTY);
+    }
   }
 
   parts.push(

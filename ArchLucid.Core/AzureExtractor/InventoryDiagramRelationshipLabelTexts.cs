@@ -251,12 +251,34 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public static string FormatPrivateEndpointStoredLinkEdgeLabel(string? privateEndpointName)
     {
-        if (string.IsNullOrWhiteSpace(privateEndpointName))
+        if (privateEndpointName is null)
         {
             return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
         }
 
-        return PrivateEndpointAccessWasStoredLabel;
+        if (privateEndpointName.Length == 0 || string.IsNullOrWhiteSpace(privateEndpointName))
+        {
+            return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
+        }
+
+        return $"{PrivateEndpointAccessWasStoredLabel} Private endpoint name: {privateEndpointName.Trim()}.";
+    }
+
+    public static string FormatObservedDependencyCallLabel(string? edgeType, string targetName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetName);
+
+        if (string.Equals(edgeType, "CAN_READ", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"observed call (read) → {targetName}";
+        }
+
+        if (string.Equals(edgeType, "CAN_WRITE", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"observed call (write) → {targetName}";
+        }
+
+        return $"Call direction was not stored → {targetName}";
     }
 
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =

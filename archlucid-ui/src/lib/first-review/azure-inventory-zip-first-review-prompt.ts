@@ -10,6 +10,12 @@ export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY =
 export const FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE =
   "Get-ArchLucidAzurePackage.ps1, Get-ArchLucidAwsPackage.ps1, Get-ArchLucidGcpPackage.ps1" as const;
 
+export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_EVIDENCE_HONESTY_LINE =
+  "Azure inventory ZIP evidence was not inspected on this review; this prompt is advisory only." as const;
+
+export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_SKIPPED_LINE =
+  "Azure inventory ZIP upload was skipped for this review scope." as const;
+
 export const FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE =
   "ZIP inventory is optional. Continue with briefs, diagrams, documents, or IaC on the evidence-only fast path." as const;
 
@@ -37,6 +43,7 @@ export type FirstReviewAzureInventoryZipPromptResolution = {
   readonly scopeKey: string;
   readonly uploadHref: string;
   readonly skipped: boolean;
+  readonly evidenceHonestyLine: string;
 };
 
 export function resolveFirstReviewAzureInventoryZipPromptScopeKey(
@@ -127,17 +134,18 @@ export function resolveFirstReviewAzureInventoryZipPrompt(
   const scopeKey = resolveFirstReviewAzureInventoryZipPromptScopeKey(input.scope);
   const skipped = readFirstReviewAzureInventoryZipPromptSkipped(scopeKey);
   const uploadHref = buildAzureExtractUploadHref(input.scope.runId);
+  const evidenceHonestyLine = FIRST_REVIEW_AZURE_INVENTORY_ZIP_EVIDENCE_HONESTY_LINE;
 
   if (input.manifestFinalized) {
-    return { visible: false, scopeKey, uploadHref, skipped };
+    return { visible: false, scopeKey, uploadHref, skipped, evidenceHonestyLine };
   }
 
   if (input.azureInventoryEvidencePresent) {
-    return { visible: false, scopeKey, uploadHref, skipped };
+    return { visible: false, scopeKey, uploadHref, skipped, evidenceHonestyLine };
   }
 
   if (skipped) {
-    return { visible: false, scopeKey, uploadHref, skipped: true };
+    return { visible: false, scopeKey, uploadHref, skipped: true, evidenceHonestyLine };
   }
 
   if (
@@ -146,8 +154,8 @@ export function resolveFirstReviewAzureInventoryZipPrompt(
       proseAssumptionHeldCheckAsks: input.proseAssumptionHeldCheckAsks,
     })
   ) {
-    return { visible: false, scopeKey, uploadHref, skipped: false };
+    return { visible: false, scopeKey, uploadHref, skipped: false, evidenceHonestyLine };
   }
 
-  return { visible: true, scopeKey, uploadHref, skipped: false };
+  return { visible: true, scopeKey, uploadHref, skipped: false, evidenceHonestyLine };
 }

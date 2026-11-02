@@ -142,6 +142,18 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
     private static string FormatPort(AzureInventoryNsgSecurityRule rule)
     {
+        if (rule.DestinationPortRange is null && rule.DestinationPortRanges.Count == 0)
+        {
+            return "Port was not stored";
+        }
+
+        if (rule.DestinationPortRange is not null
+            && (rule.DestinationPortRange.Length == 0 || string.IsNullOrWhiteSpace(rule.DestinationPortRange))
+            && rule.DestinationPortRanges.Count == 0)
+        {
+            return "Destination port was stored empty";
+        }
+
         if (!string.IsNullOrWhiteSpace(rule.DestinationPortRange))
         {
             string trimmed = rule.DestinationPortRange.Trim();

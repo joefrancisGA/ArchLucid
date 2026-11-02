@@ -6,6 +6,7 @@ import {
   formatFindingExplainabilityPolicyRuleDisplay,
   findingRationalePreview,
   FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED,
+  FINDING_EXPLAINABILITY_RATIONALE_TITLE_ONLY,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
   stripFindingNarrativePreamble,
@@ -74,7 +75,7 @@ describe("finding-explainability-summary", () => {
         findingId: "f-1",
       });
 
-      expect(preview).toBeNull();
+      expect(preview).toBe(FINDING_EXPLAINABILITY_RATIONALE_TITLE_ONLY);
     });
 
     it("keeps the part of the narrative that adds information", () => {

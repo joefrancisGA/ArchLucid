@@ -47,8 +47,10 @@ public sealed class AskResponseComposer(
                     ? $"Context included {decisionCount} decision(s)."
                     : prepared.Manifest is { Decisions: { Count: 0 } }
                         ? "Manifest decisions were stored empty on this answer."
-                        : "Manifest decisions were not stored on this answer."),
+                        : "Manifest decisions were not stored on this answer.")
+                + " Citations were not stored on this answer.",
             RetrievalDegraded = prepared.RetrievalDegraded,
+            IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue,
         };
     }
 
@@ -67,6 +69,7 @@ public sealed class AskResponseComposer(
     {
         (AskResponse response, LlmAskShape? parsed) = ParseWithShape(prepared.Thread.ThreadId, raw);
         response.RetrievalDegraded = prepared.RetrievalDegraded;
+        response.IndexedSearchNotLimitedToReviewId = prepared.EffectiveRunId.HasValue;
 
         await PersistRunScopedTurnAsync(prepared, response, parsed, cancellationToken);
 
@@ -238,7 +241,7 @@ public sealed class AskResponseComposer(
         if (trimmed.StartsWith('{') && trimmed.EndsWith('}'))
             return "Ask answer was not stored.";
 
-        return trimmed;
+        return $"This reply was not parsed as an Ask answer. {trimmed}";
     }
 
     private LlmAskShape? TryDeserialize(string? json)

@@ -14,6 +14,26 @@ export const QUICK_DECISION_RECOMMENDATION_NOT_STORED = "Recommended action was 
 export const QUICK_DECISION_RECOMMENDATION_STORED_EMPTY =
   "Recommended action was stored empty." as const;
 
+export const QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED =
+  "Evidence reference count was not stored." as const;
+
+export const QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO =
+  "Zero evidence references were stored." as const;
+
+export function formatQuickDecisionFindingEvidenceLinkLabel(
+  evidenceRefCount: number | null,
+): string {
+  if (evidenceRefCount === null || evidenceRefCount === undefined) {
+    return QUICK_DECISION_EVIDENCE_REF_COUNT_NOT_STORED;
+  }
+
+  if (evidenceRefCount <= 0) {
+    return QUICK_DECISION_EVIDENCE_REF_COUNT_ZERO;
+  }
+
+  return "Evidence link was not stored";
+}
+
 /** @deprecated Use {@link QUICK_DECISION_RECOMMENDATION_NOT_STORED}. */
 export const QUICK_DECISION_RECOMMENDATION_FALLBACK = QUICK_DECISION_RECOMMENDATION_NOT_STORED;
 

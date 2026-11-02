@@ -2195,10 +2195,17 @@ export function DiagramsWorkbenchClient() {
 
     try {
       const query = renderQuery;
+      const layoutEngine = renderResult?.layoutEngine ?? null;
+      const pngRasterSource =
+        layoutEngine === "inventory-forest" || layoutEngine === "graphviz-fdp"
+          ? ("server-graphviz" as const)
+          : ("server-mermaid-cli" as const);
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings: completenessWarnings ?? [],
+        layoutEngine,
+        pngRasterSource,
         executiveOverflowStripped:
           selectedMode === "executive"
           && mermaidSource.trim().length > 0
@@ -2244,7 +2251,10 @@ export function DiagramsWorkbenchClient() {
         fallbackMermaidSource: mermaidSource,
         fallbackSvgMarkup: exportableSvgMarkup,
         dark,
-        readingStrip,
+        readingStrip: {
+          ...readingStrip,
+          pngRasterSource: "browser-fallback",
+        },
       });
 
       if (result.usedBrowserFallback) {
@@ -2269,6 +2279,7 @@ export function DiagramsWorkbenchClient() {
     exportableSvgMarkup,
     mermaidSource,
     renderQuery,
+    renderResult?.layoutEngine,
     selectedSnapshotId,
     tooLargeForBrowser,
   ]);

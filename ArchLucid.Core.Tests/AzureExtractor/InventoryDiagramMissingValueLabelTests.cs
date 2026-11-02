@@ -129,7 +129,7 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("Address prefix was not stored. Next hop type is VnetLocal.");
+            .Be("Address prefix was not stored. Next hop type is VnetLocal. This is not observed traffic.");
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("Default route 0.0.0.0/0 was not drawn. Next hop type is VirtualNetworkGateway.");
+            .Be("Default route 0.0.0.0/0 was not drawn. Next hop type is VirtualNetworkGateway. This is not observed traffic.");
     }
 
     [Fact]

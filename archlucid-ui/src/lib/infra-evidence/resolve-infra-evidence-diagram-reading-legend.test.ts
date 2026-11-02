@@ -61,4 +61,13 @@ describe("resolveInfraEvidenceDiagramReadingLegend", () => {
     expect(lines.boxes).toMatch(/does not prove reachability/);
     expect(lines.connectors).toMatch(/does not prove reachability/);
   });
+
+  it("explains resource group frame labels when frames are drawn (P-19)", () => {
+    const lines = resolveInfraEvidenceDiagramReadingLegend("resourceGroup", {
+      resourceGroupFramesDrawn: true,
+    });
+
+    expect(lines.boxes).toContain("Resource group frames show the group name");
+    expect(lines.scopeNote).toContain("Resource group frames show the group name");
+  });
 });

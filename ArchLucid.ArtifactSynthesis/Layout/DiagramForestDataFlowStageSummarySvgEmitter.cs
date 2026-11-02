@@ -86,6 +86,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
             {
                 int used = 0;
                 int none = 0;
+                int missingStatus = 0;
                 string? nonePhrase = null;
                 bool hasMessagingNamespace = false;
 
@@ -105,6 +106,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
                     if (status is null)
                     {
+                        missingStatus++;
                         continue;
                     }
 
@@ -124,6 +126,13 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                     }
                 }
 
+                if (missingStatus > 0)
+                {
+                    segment += missingStatus == 1
+                        ? " (1 neighbor status was not stored.)"
+                        : $" ({missingStatus} neighbor statuses were not stored.)";
+                }
+
                 if (used + none > 0 && nonePhrase is not null)
                 {
                     segment += $" ({used} with diagram neighbors, {none} {nonePhrase})";
@@ -140,7 +149,21 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (segments.Count == 0)
         {
-            return null;
+            if (hasExplicitNotStagedLabel && notStagedCount > 0
+                && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+            {
+                segments.Add($"{notStagedCount} {notStagedColumnLabel}");
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if (hasExplicitNotStagedLabel
+                 && notStagedCount > 0
+                 && stageLabelByIndex.TryGetValue(notStagedStageIndex, out string? notStagedColumnLabel))
+        {
+            segments.Add($"{notStagedCount} {notStagedColumnLabel}");
         }
 
         StringBuilder summary = new();

@@ -8,6 +8,11 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  readSecureNowPilotDisposition,
+  secureNowPilotDispositionStorageKey,
+  writeSecureNowPilotDisposition,
+} from "@/lib/product-line/securenow-pilot-disposition-storage";
+import {
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
   SECURENOW_PILOT_DECISION_LEAD,
@@ -23,31 +28,29 @@ import {
 export function SecureNowPilotDecisionPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
-  const storageKey = pathId.length > 0 ? `securenow-pilot-disposition:${pathId}` : null;
+  const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
   const [outcome, setOutcome] = useState("");
   const [rationale, setRationale] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (storageKey === null) {
+    if (pathId.length === 0) {
       setOutcome("");
       setRationale("");
       return;
     }
 
-    const stored = window.localStorage.getItem(storageKey);
+    const stored = readSecureNowPilotDisposition(pathId);
+
     if (stored === null) {
+      setOutcome("");
+      setRationale("");
       return;
     }
 
-    try {
-      const parsed = JSON.parse(stored) as { outcome?: string; rationale?: string };
-      setOutcome(parsed.outcome ?? "");
-      setRationale(parsed.rationale ?? "");
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
-  }, [storageKey]);
+    setOutcome(stored.outcome);
+    setRationale(stored.rationale);
+  }, [pathId]);
 
   const saveDisposition = () => {
     if (storageKey === null || outcome.length === 0) {
@@ -60,7 +63,7 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
       return;
     }
 
-    window.localStorage.setItem(storageKey, JSON.stringify({ outcome, rationale: rationale.trim() }));
+    writeSecureNowPilotDisposition(pathId, { outcome, rationale: rationale.trim() });
     setSaveError(null);
   };
 

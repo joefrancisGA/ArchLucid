@@ -41,14 +41,12 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Unclassified;
         }
 
-        if (!string.IsNullOrWhiteSpace(inferenceSource)
-            && !inferenceSource.StartsWith("inventory-", StringComparison.OrdinalIgnoreCase)
-            && !inferenceSource.StartsWith("topology-", StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(inferenceSource))
         {
             return DiagramEdgeVisualKind.Unclassified;
         }
 
-        return DiagramEdgeVisualKind.Observed;
+        return DiagramEdgeVisualKind.Unclassified;
     }
 
     public static bool IsDeclared(string? provenanceKind, string? inferenceSource)

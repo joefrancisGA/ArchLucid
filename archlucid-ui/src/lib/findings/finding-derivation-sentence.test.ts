@@ -103,13 +103,25 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
-  it("labels omitted evidence ref count when rule fields are present", () => {
+  it("labels omitted evidence ref count while keeping rule copy (P-05)", () => {
     const result = buildFindingDerivationSentence({
+      ruleName: "Ingress baseline",
       categoryLabel: "Security",
       severityLabel: "High",
     });
 
-    expect(result.sentence).toBe(FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED);
+    expect(result.sentence).toContain('Policy rule "Ingress baseline"');
+    expect(result.sentence).toContain(FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED);
+  });
+
+  it("labels trace confidence as not stored when absent (P-17)", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress baseline",
+      severityLabel: "High",
+      evidenceRefCount: 1,
+    });
+
+    expect(result.sentence).toContain("Trace confidence was not stored.");
   });
 
   it("labels category-only rows without quoting the category as a rule when ref count is stored", () => {
