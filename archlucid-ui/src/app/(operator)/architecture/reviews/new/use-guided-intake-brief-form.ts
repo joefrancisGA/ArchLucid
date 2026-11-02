@@ -9,8 +9,11 @@ import {
   scopeConfirmBriefLines,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { appendIntakeAttachedFileNames } from "@/lib/intake-attached-file-names";
 import {
@@ -109,7 +112,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {

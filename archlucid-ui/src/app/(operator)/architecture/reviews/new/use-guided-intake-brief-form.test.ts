@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { renderHook, act, waitFor, fireEvent, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -117,6 +117,22 @@ describe("useGuidedIntakeBriefForm", () => {
     });
 
     expect(scopeGateSearchParamsHarness.state.query).not.toContain("scopeGate=");
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+
+  it("keeps scope gate closed from useSearchParams when popstate reads lagging window.location.search", () => {
+    scopeGateSearchParamsHarness.applySearchParamsQuery("");
+    scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+
+    const { result } = renderHook(
+      () => useGuidedIntakeBriefForm({ exampleTemplate: null, isCreateArchitectureFlow: false }),
+      { wrapper: ScopeGateSearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopeGateOpen).toBe(false);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
     expect(result.current.scopeGateOpen).toBe(false);
   });
 

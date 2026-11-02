@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { useExpertIntakePostureEnabled } from "@/components/reviews/ExpertIntakePostureToggle";
@@ -127,7 +127,7 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
   useEffect(() => {
     const syncStandardsSelectionOpenFromUrl = (): void => {
       const next = parseFirstPilotStandardsSelectionOpenFromSearch(
-        new URLSearchParams(window.location.search).get("firstPilotStandardsSelectionOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "firstPilotStandardsSelectionOpen"),
       );
 
       if (standardsSelectionOpenRef.current === next) {

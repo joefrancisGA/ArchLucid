@@ -124,6 +124,25 @@ describe("ReviewsNewMoreWaysToStart", () => {
     expect(moreWaysSearchParamsHarness.state.query).not.toContain("staleToolbar");
   });
 
+  it("keeps more-ways disclosure closed from useSearchParams when popstate reads lagging window.location.search", async () => {
+    moreWaysSearchParamsHarness.applySearchParamsQuery("");
+    window.history.replaceState({}, "", `/architecture/reviews/new?${REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM}=1`);
+
+    render(
+      <MoreWaysSearchParamsRerenderHost>
+        <ReviewsNewMoreWaysToStart onSelectPath={vi.fn()} />
+      </MoreWaysSearchParamsRerenderHost>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-intake-options")).not.toHaveAttribute("open");
+    });
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(screen.getByTestId("reviews-new-more-intake-options")).not.toHaveAttribute("open");
+  });
+
   it("follows reviewsNewMoreWaysToStartOpen= URL changes without a popstate event", async () => {
     moreWaysSearchParamsHarness.state.query = `${REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM}=1`;
 

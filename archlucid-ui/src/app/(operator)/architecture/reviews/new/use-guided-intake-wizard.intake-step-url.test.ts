@@ -1,4 +1,4 @@
-import { renderHook, waitFor, type ReactNode } from "@testing-library/react";
+import { fireEvent, renderHook, waitFor, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -208,6 +208,21 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
 
     expect(intakeStepSearchParamsHarness.state.query).toContain("intakeStep=1");
     expect(intakeStepSearchParamsHarness.state.query).not.toContain("staleToolbar");
+  });
+
+  it("keeps intake step from useSearchParams when popstate reads lagging window.location.search", () => {
+    intakeStepSearchParamsHarness.applySearchParamsQuery("");
+    intakeStepSearchParamsHarness.setWindowLocationSearch("intakeStep=2");
+
+    const { result } = renderHook(() => useGuidedIntakeWizard(), {
+      wrapper: IntakeStepSearchParamsRerenderHost,
+    });
+
+    expect(result.current.step).toBe(0);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.step).toBe(0);
   });
 
   it("rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing", async () => {

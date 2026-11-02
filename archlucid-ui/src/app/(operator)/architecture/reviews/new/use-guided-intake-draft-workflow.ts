@@ -7,8 +7,11 @@ import {
   emptyArchitectureDraftStructuredBrief,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   areGuidedIntakeClarificationsPersistedForSubmit,
@@ -170,7 +173,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   useEffect(() => {
     const syncViewAllClarificationsFromUrl = (): void => {
       const next = parseGuidedIntakeViewAllClarificationsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("guidedIntakeViewAllClarificationsOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "guidedIntakeViewAllClarificationsOpen"),
       );
 
       if (viewAllClarificationsRef.current === next) {

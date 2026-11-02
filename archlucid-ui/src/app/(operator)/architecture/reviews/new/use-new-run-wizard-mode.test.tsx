@@ -1,4 +1,4 @@
-import { act, renderHook, type ReactNode } from "@testing-library/react";
+import { act, fireEvent, renderHook, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -136,6 +136,21 @@ describe("useNewRunWizardMode", () => {
 
     expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
     expect(wizardModeSearchParamsHarness.state.query).not.toContain("staleToolbar");
+  });
+
+  it("keeps wizard mode from useSearchParams when popstate reads lagging window.location.search", () => {
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    wizardModeSearchParamsHarness.setWindowLocationSearch("mode=full");
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("quick");
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.wizardMode).toBe("quick");
   });
 
   it("surfaces committed-manifest probe failure without claiming no finalized reviews exist", () => {

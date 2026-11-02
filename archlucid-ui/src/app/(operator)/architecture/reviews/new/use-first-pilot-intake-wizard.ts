@@ -4,8 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
@@ -163,7 +166,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {

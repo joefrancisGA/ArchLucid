@@ -3,8 +3,11 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import type { UseFormTrigger } from "react-hook-form";
 
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -139,7 +142,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   useEffect(() => {
     const syncStepFromUrl = (): void => {
       const parsedStep = parseNewRunWizardStepFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("step"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "step"),
       );
       const nextStep =
         parsedStep === null ? 0 : clampWizardStepIndex(parsedStep, stepDefinitions.length);

@@ -4,8 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, type SetStateAction } from "re
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system-name-availability";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -118,7 +121,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
   useEffect(() => {
     const syncIntakeStepFromUrl = (): void => {
       const parsedStep = parseGuidedIntakeStepFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("intakeStep"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "intakeStep"),
       );
       const nextStep =
         parsedStep === null

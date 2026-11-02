@@ -4,8 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { resolveFirstRunWizardMode } from "@/lib/core-pilot-step-presentation";
 import {
   newRunWizardModeHrefFromSearch,
@@ -101,7 +104,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   useEffect(() => {
     const syncModeFromUrl = (): void => {
       const nextMode = parseNewRunWizardModeFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("mode"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "mode"),
       );
 
       if (nextMode !== null) {
