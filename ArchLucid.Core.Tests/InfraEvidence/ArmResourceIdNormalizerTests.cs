@@ -164,15 +164,15 @@ public sealed class ArmResourceIdNormalizerTests
     }
 
     [Fact]
-    public void TryDecodePercentEncoded_leaves_malformed_percent_sequences_undecoded()
+    public void TryDecodePercentEncoded_fails_when_malformed_percent_sequences_remain()
     {
         // Uri.UnescapeDataString is lenient: invalid escapes like %ZZ and bare % pass through unchanged.
-        // The loop terminates because the decoded output equals the input.
+        // A residual '%' after decoding means the value is malformed, so the helper reports failure.
         const string malformed = "50%ZZ";
 
         bool succeeded = ArmResourceIdNormalizer.TryDecodePercentEncoded(malformed, out string decoded);
 
-        succeeded.Should().BeTrue();
+        succeeded.Should().BeFalse();
         decoded.Should().Be(malformed);
     }
 

@@ -61,4 +61,29 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
             .Should()
             .BeNull();
     }
+
+    [Fact]
+    public void Parse_returns_null_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> barePercent = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "50%",
+        };
+
+        Action act = () => AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent);
+
+        act.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(barePercent).Should().BeNull();
+
+        // Partially decodable: valid escapes decode, but the malformed "%ZZ" remains.
+        Dictionary<string, string> partialDecode = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%2Fsubscriptions%2Fsub%2FresourceGroups%2Frg%ZZ",
+        };
+
+        Action partialAct = () => AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode);
+
+        partialAct.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(partialDecode).Should().BeNull();
+    }
 }

@@ -10,9 +10,10 @@ public static class ArmResourceIdNormalizer
 
     /// <summary>
     ///     Performs a bounded percent-decode of <paramref name="value"/>. Returns <see langword="true"/>
-    ///     when decoding completed (or no decoding was needed) without throwing; returns
-    ///     <see langword="false"/> and leaves <paramref name="decoded"/> as the last safe value when
-    ///     <see cref="Uri.UnescapeDataString"/> fails on malformed input.
+    ///     when decoding completed (or no decoding was needed) and no residual percent-escape remains;
+    ///     returns <see langword="false"/> and leaves <paramref name="decoded"/> as the last safe value
+    ///     when <see cref="Uri.UnescapeDataString"/> fails or the value stays percent-encoded
+    ///     (malformed input such as <c>50%</c> or <c>%ZZ</c>).
     /// </summary>
     public static bool TryDecodePercentEncoded(string? value, out string decoded)
     {
@@ -53,7 +54,10 @@ public static class ArmResourceIdNormalizer
         }
 
         decoded = working;
-        return true;
+
+        // A residual '%' means the escape sequence never decoded (for example "50%" or "%ZZ");
+        // treat the value as malformed instead of normalizing a partially decoded ARM id.
+        return !working.Contains('%', StringComparison.Ordinal);
     }
 
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
