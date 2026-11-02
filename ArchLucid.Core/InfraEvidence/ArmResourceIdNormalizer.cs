@@ -21,7 +21,7 @@ public static class ArmResourceIdNormalizer
 
         if (string.IsNullOrWhiteSpace(value))
         {
-            return true;
+            return false;
         }
 
         string working = value.Trim();
