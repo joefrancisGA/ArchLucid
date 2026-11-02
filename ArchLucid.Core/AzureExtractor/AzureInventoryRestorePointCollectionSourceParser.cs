@@ -41,14 +41,10 @@ public static class AzureInventoryRestorePointCollectionSourceParser
             return null;
         }
 
-        string trimmed = value.Trim();
-
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(value, out string working))
         {
-            return TryReadArmIdFromJson(trimmed);
+            return null;
         }
-
-        string working = PercentDecodeBounded.Decode(trimmed);
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {

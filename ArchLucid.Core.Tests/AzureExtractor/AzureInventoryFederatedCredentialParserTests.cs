@@ -86,6 +86,52 @@ public sealed class AzureInventoryFederatedCredentialParserTests
     }
 
     [Fact]
+    public void TryParse_does_not_lowercase_decoded_parent_resource_id_that_is_not_rooted_at_subscriptions()
+    {
+        const string parentId = "https://example.com/subscriptions/Sub/resourceGroups/RG";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "parentResourceId": "{{Uri.EscapeDataString(parentId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.ParentResourceId.Should().Be(parentId);
+    }
+
+    [Fact]
+    public void TryParse_does_not_lowercase_decoded_parent_resource_id_without_subscription_segment()
+    {
+        const string parentId = "/resourceGroups/RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Uai1";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "repo:org/repo:environment:prod",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "parentResourceId": "{{Uri.EscapeDataString(parentId)}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.ParentResourceId.Should().Be(parentId);
+    }
+
+    [Fact]
     public void TryParse_reads_issuer_when_issuer_is_percent_encoded_https_url()
     {
         const string issuer = "https://token.actions.githubusercontent.com";

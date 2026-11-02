@@ -131,6 +131,7 @@ export const PRODUCT_LINE_EXTRA_ASSIGNMENTS: Readonly<
   "/integrations/cloud-connections/gcp": "architecture",
   "/administration/securenow-first-hour": "security",
   "/administration/securenow-compliance-notes": "security",
+  "/administration/securenow-quote-packet": "security",
   "/administration/securenow-self-service": "security",
   "/administration/securenow-return-reasons": "security",
   "/administration/securenow-pilot-decision": "security",

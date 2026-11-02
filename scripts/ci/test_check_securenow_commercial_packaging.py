@@ -15,6 +15,9 @@ def _copy_tree(destination: Path) -> None:
         "docs/securenow/ORDER_FORM_TEMPLATE.md",
         "docs/securenow/QUOTE_TO_PILOT_CHECKLIST.md",
         "docs/securenow/SKU_METER_CARD.md",
+        "archlucid-ui/src/lib/product-line/securenow-quote-packet-copy.ts",
+        "archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts",
+        "archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts",
     ):
         source = ROOT / relative
         target = destination / relative
@@ -46,6 +49,30 @@ class SecureNowCommercialPackagingTests(unittest.TestCase):
             )
             errors = validate(root)
             self.assertTrue(any("missing NO_GO" in error for error in errors))
+
+    def test_fee_literal_in_quote_packet_copy_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/product-line/securenow-quote-packet-copy.ts"
+            path.write_text(path.read_text(encoding="utf-8") + "\n$100\n", encoding="utf-8")
+            errors = validate(root)
+            self.assertTrue(any("quote-packet-copy.ts: contains '$'" in error for error in errors))
+
+    def test_missing_owner_held_sentence_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    "Those documents stay with the owner until buyer communication is approved.",
+                    "Those documents stay with the owner.",
+                ),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("owner-held buyer-communication sentence" in error for error in errors))
 
 
 if __name__ == "__main__":

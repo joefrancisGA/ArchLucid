@@ -29,20 +29,10 @@ public static class AzureInventoryPaasChildAssociationExtractor
             return false;
         }
 
-        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                parentResourceId,
-                out string normalizedParentResourceId)
-            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(
-                childResourceId,
-                out string normalizedChildResourceId))
-        {
-            return false;
-        }
-
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = normalizedParentResourceId,
-            ChildResourceId = normalizedChildResourceId,
+            ParentResourceId = CompanionArmIdNormalizer.Normalize(parentResourceId),
+            ChildResourceId = CompanionArmIdNormalizer.Normalize(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
@@ -60,5 +50,4 @@ public static class AzureInventoryPaasChildAssociationExtractor
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : null;
     }
-
 }

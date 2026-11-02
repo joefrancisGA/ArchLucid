@@ -88,3 +88,4 @@
 - [Commercial order template](ORDER_FORM_TEMPLATE.md) is a SecureNow quote and sign-off shell with SKU meters by reference. It is not an approved customer offer.
 - [Quote-to-pilot checklist](QUOTE_TO_PILOT_CHECKLIST.md) sequences owner, legal, security, and buyer attachments without authorizing commerce.
 - [SKU and meter card](SKU_METER_CARD.md) names SecureNow identifiers and capacity meters without printing fee amounts or a public list price.
+- [Commercial packaging prompt index](../architecture/SECURENOW_COMMERCIAL_PACKAGING_COMPOSER_PROMPTS.md) is the paste set for an operator quote packet, a Home row, and a fee-free checker extension. It does not approve an offer, publish a price, or perform **M-316**, **M-317**, or **M-318**.
