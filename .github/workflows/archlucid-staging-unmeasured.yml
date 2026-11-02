@@ -1,18 +1,29 @@
 name: ArchLucid staging deployment absence evidence
 
-# Independent from the deploy workflow: reporting a skipped deploy must never
-# change "CD staging on merge" from skipped/failed into a successful deployment.
+# TEMPORARY CI STABILIZATION HOLD (2026-11-02): no automatic workflow_run.
+# Optional manual absence evidence for an existing CD run; never a deploy.
 on:
-  workflow_run:
-    workflows: [CD staging on merge]
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      deploy_conclusion:
+        description: "Verified conclusion of an existing CD staging run"
+        required: true
+        type: choice
+        options: [skipped, failure, cancelled]
+      deploy_head_sha:
+        description: "Exact commit SHA from that run"
+        required: true
+        type: string
+      deploy_run_id:
+        description: "Existing CD staging workflow run ID"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   record-unmeasured-staging:
-    if: github.event.workflow_run.conclusion != 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -21,9 +32,9 @@ jobs:
           ref: master
       - name: Record absence without inventing cold-start numbers
         env:
-          DEPLOY_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-          DEPLOY_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          DEPLOY_RUN_ID: ${{ github.event.workflow_run.id }}
+          DEPLOY_CONCLUSION: ${{ inputs.deploy_conclusion }}
+          DEPLOY_HEAD_SHA: ${{ inputs.deploy_head_sha }}
+          DEPLOY_RUN_ID: ${{ inputs.deploy_run_id }}
         run: |
           set -euo pipefail
           ARGS=()

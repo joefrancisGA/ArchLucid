@@ -280,8 +280,7 @@ def _check_staging_dispatch(root: Path) -> list[str]:
         "workflow_dispatch:",
         "target_sha:",
         "github.event_name == 'workflow_dispatch'",
-        "github.event.workflow_run.head_branch == 'main'",
-        "github.event.workflow_run.head_branch == 'master'",
+        "inputs.target_sha",
         "staging-dispatch.json",
         "archlucid.staging-dispatch.v1",
     )
