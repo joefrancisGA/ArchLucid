@@ -43,18 +43,20 @@ public static class AzureInventoryRestorePointCollectionSourceParser
 
         string trimmed = value.Trim();
 
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        string working = PercentDecodeBounded.Decode(trimmed);
+
+        if (working.StartsWith("{", StringComparison.Ordinal))
         {
-            return TryReadArmIdFromJson(trimmed);
+            return TryReadArmIdFromJson(working);
         }
 
-        if (!trimmed.StartsWith("/", StringComparison.Ordinal)
-            || !trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (!working.StartsWith("/", StringComparison.Ordinal)
+            || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
-        return ArmResourceIdNormalizer.Normalize(trimmed);
+        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? TryReadArmIdFromJson(string json)
