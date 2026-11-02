@@ -17,6 +17,7 @@ describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
       "Why SecureNow",
       "SecureNow sample",
       "Reviewer packet",
+      "Quote packet",
       "Request a conversation",
       "Accessibility",
     ]);
