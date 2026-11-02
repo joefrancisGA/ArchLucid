@@ -889,7 +889,13 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
-    await waitFor(() => expect(screen.getByText("No questions match this filter.")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "No questions match this filter. Clear the filter, or open a diagram subscription that has a capture. An empty list is not a clean environment.",
+        ),
+      ).toBeInTheDocument(),
+    );
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });

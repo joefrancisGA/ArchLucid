@@ -2,6 +2,9 @@ import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-ty
 
 const NOT_VERIFIED = "NOT VERIFIED";
 
+export const AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT =
+  "This download is the loaded lineage. It is not an attestation." as const;
+
 function valueOrNotStored(value: string | undefined): string {
   return value?.trim() ? value : "Not stored";
 }
