@@ -21,7 +21,7 @@ The existing warn-only checker fails if the question-queue empty sentence or the
 
 1. Branch `sn-cog/06-checker` from current `master` after SN-COG-05 is present.
 2. Extend `validate` to require:
-    - `An empty list is not a clean environment.` in `securenow-question-queue-empty-copy.ts` and in `SecureNowQuestionQueue.tsx`
+    - `An empty list is not a clean environment.` in `securenow-question-queue-empty-copy.ts`, and a reference to `SECURENOW_QUESTION_QUEUE_EMPTY_FILTER` in `SecureNowQuestionQueue.tsx`
     - `A blank list is not a clean result.` in `securenow-remediation-waves-empty-copy.ts`
     - `productLine === "security"` in `RemediationWorkbenchClient.tsx` together with `SECURENOW_REMEDIATION_WAVES_EMPTY_LABEL`
     - `REMEDIATION_WAVES_EMPTY_LABEL` still defined as `No remediation waves yet.`
