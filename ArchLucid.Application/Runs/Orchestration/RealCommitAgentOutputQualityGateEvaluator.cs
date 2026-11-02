@@ -24,8 +24,16 @@ public static class RealCommitAgentOutputQualityGateEvaluator
         if (!options.Enabled || options.Mode != AgentOutputQualityGateMode.PilotStrict)
             return [];
 
+        List<AgentExecutionTrace> materializedTraces = [];
+
+        foreach (AgentExecutionTrace? trace in traces)
+        {
+            if (trace is not null)
+                materializedTraces.Add(trace);
+        }
+
         IReadOnlyList<AgentExecutionTrace> latestTracesPerTask =
-            AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+            AgentExecutionTraceLatestPerTaskSelector.Select(materializedTraces);
 
         List<string> reasons = [];
 

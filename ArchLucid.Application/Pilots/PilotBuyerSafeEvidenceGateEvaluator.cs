@@ -1,7 +1,9 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -18,7 +20,8 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         ArchitectureRun run,
         GoldenManifest? manifest,
         PilotRunDeltas deltas,
-        ValueReportSnapshot valueWindowSnapshot)
+        ValueReportSnapshot valueWindowSnapshot,
+        PilotBaselineRecord? scorecardBaselines = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -27,72 +30,95 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         List<string> demoGaps = [];
 
         if (deltas.IsDemoTenant)
-            demoGaps.Add("Seeded/demo tenant — replace before external sponsor screenshots or purchase narratives.");
+            demoGaps.Add(PilotDemoTenantDisciplineHonestyCopy.FailedPlain);
 
         List<string> hardGapMessages = [];
 
         if (string.IsNullOrWhiteSpace(run.RunId))
         {
-            hardGapMessages.Add(
-                "Support run id is missing — the proof package cannot be anchored to a persisted architecture review.");
+            hardGapMessages.Add(PilotSupportRunIdHonestyCopy.MissingPlain);
         }
 
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
-            hardGapMessages.Add(
-                "Committed architecture manifest absent or run not in Committed status — finalize before external sponsor distribution.");
-        }
-
-        if (deltas.AuditRowCount == 0)
-        {
-            hardGapMessages.Add(
-                "Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
-        }
-
-        if (deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true })
-        {
-            hardGapMessages.Add(
-                "PilotStrict agent output quality posture failed for one or more LLM traces (or aggregate explanation faithfulness) — do not circulate this run as sponsor-grade real-mode evidence until traces are green.");
+            hardGapMessages.Add(PilotCommittedManifestStatusHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         List<string> softGapMessages = [];
 
+        if (!deltas.AuditRowCountResolved)
+        {
+            softGapMessages.Add(PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
+        }
+        else if (deltas.AuditRowCount == 0)
+        {
+            hardGapMessages.Add(PilotRunDeltasAuditRowCountFormatter.FormatSponsorSafeConcreteGapLineWhenZero());
+        }
+
+        if (deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true })
+        {
+            hardGapMessages.Add(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLine());
+        }
+
         if (manifest is not null && manifest.Metadata.CreatedUtc == default)
         {
-            softGapMessages.Add(
-                "Golden manifest metadata carries a default commit UTC timestamp — timing / delta proofs are incomplete until metadata is non-default.");
+            softGapMessages.Add(PilotCommittedManifestTimestampHonestyCopy.FormatSponsorSafeConcreteGapLine());
+        }
+
+        if (manifest is not null
+            && run.Status == ArchitectureRunStatus.Committed
+            && deltas.TimeToCommittedManifest is null)
+        {
+            softGapMessages.Add(PilotRunDeltasTimeToCommitFormatter.FormatSponsorSafeConcreteGapLineWhenUnresolved());
+        }
+
+        if (manifest is not null
+            && run.Status == ArchitectureRunStatus.Committed
+            && !deltas.SynthesizedArtifactDescriptorCountResolved)
+        {
+            softGapMessages.Add(PilotArtifactDescriptorCountHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         if (run.RealModeFellBackToSimulator)
         {
-            softGapMessages.Add(
-                "Run recorded **simulator substitution** — disclose when claiming real LLM / production agent evidence.");
+            softGapMessages.Add(PilotSimulatorSubstitutionHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
         {
-            softGapMessages.Add(
-                "Top-severity finding present but evidence-chain pointers did not resolve — verify full run detail JSON before sponsor send.");
+            softGapMessages.Add(PilotTopFindingEvidenceChainHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnavailable());
         }
 
         if (!deltas.LlmCallCountResolved)
         {
-            softGapMessages.Add(
-                "LLM / agent execution trace count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no calls.");
+            softGapMessages.Add(PilotRunDeltasLlmCallCountFormatter.FormatSponsorSafeConcreteGapLine());
         }
 
         if (!deltas.AgentOutputPilotStrictSignalsResolved)
         {
-            softGapMessages.Add(
-                "PilotStrict agent-output signals **not attested** — execution trace query failed; do not treat this run as sponsor-grade real-mode evidence.");
+            softGapMessages.Add(PilotAgentOutputPilotStrictHonestyCopy.FormatSponsorSafeConcreteGapLineWhenUnresolved());
         }
 
         ReviewCycleBaselineProvenance prov = valueWindowSnapshot.ReviewCycleBaselineProvenance;
 
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)
         {
-            softGapMessages.Add(
-                "ROI comparative narrative uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+            softGapMessages.Add(SponsorProofReadinessClassifier.FormatComparativeBaselineBuyerSafeGateSoftGapLine());
+        }
+
+        PilotRoiEvidenceConfidence roiEvidenceConfidence = PilotRoiEvidenceConfidenceResolver.Resolve(valueWindowSnapshot);
+
+        if (roiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+        {
+            softGapMessages.Add(PilotRoiEvidenceConfidenceHonestyCopy.FormatSponsorSafeConcreteGapLineWhenPartialOrLow());
+        }
+
+        PilotRoiBaselineInputsStatusResponse roiBaselineInputs =
+            PilotRoiBaselineInputsStatusResolver.Resolve(valueWindowSnapshot, deltas, scorecardBaselines);
+
+        if (!deltas.IsDemoTenant && !roiBaselineInputs.ProjectedDollarClaimsSponsorSafe)
+        {
+            softGapMessages.Add(PilotProjectedDollarClaimsSponsorSafeHonestyCopy.FormatSponsorSafeConcreteGapLine());
         }
 
         (PilotBuyerSafeEvidencePublishingTier tier, ProofPackageSendability sendability) =
