@@ -244,7 +244,7 @@ internal class ScimBearerAuthenticationHandler(
     private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
 
     // Geometric Shapes lookalikes: circle placeholders glued after Bearer (hunts #69–#70).
-    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0";
+    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0\u25D1\u25D2";
 
     private const string BearerGluedDelimiterPlaceholderCodePoints =
         BearerGluedAsciiDelimiterLookalikes +
