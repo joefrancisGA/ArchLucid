@@ -93,7 +93,7 @@ public static class AzureInventoryNsgAssociationParser
             return string.Empty;
         }
 
-        string working = ArmPercentDecoder.PercentDecodeRepeatedly(targetArmId.Trim());
+        string working = PercentDecodeBounded.Decode(targetArmId.Trim());
 
         return ArmResourceIdNormalizer.Normalize(working);
     }

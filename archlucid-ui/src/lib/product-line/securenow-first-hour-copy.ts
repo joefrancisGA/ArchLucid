@@ -12,6 +12,13 @@ export type SecureNowFirstHourStep = {
   readonly href?: string;
 };
 
+export const SECURENOW_FIRST_USEFUL_ANSWER_HEADING = "First useful answer" as const;
+
+export const SECURENOW_FIRST_USEFUL_ANSWER_BODY =
+  "The first useful answer is collection status, one ranked path in Path inspect, and one review question on Diagrams. A missing capture still counts as status. This is not a timed SLA." as const;
+
+export const SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH = "/infrastructure/diagrams" as const;
+
 export const SECURENOW_FIRST_HOUR_STEPS: readonly SecureNowFirstHourStep[] = [
   {
     title: "1 — Scope and freshness",
@@ -29,7 +36,8 @@ export const SECURENOW_FIRST_HOUR_STEPS: readonly SecureNowFirstHourStep[] = [
   },
   {
     title: "4 — Stop",
-    body: "Do not start verification, engineer tickets, or sponsor packaging until the sponsor names the review question.",
+    body: "Do not start verification, engineer tickets, or sponsor packaging until the sponsor names the review question. Name that question in the question queue on Diagrams.",
+    href: SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH,
   },
 ] as const;
 

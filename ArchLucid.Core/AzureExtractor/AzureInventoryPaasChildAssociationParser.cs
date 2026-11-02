@@ -93,7 +93,7 @@ public static class AzureInventoryPaasChildAssociationParser
             return string.Empty;
         }
 
-        string working = ArmPercentDecoder.PercentDecodeRepeatedly(armId.Trim());
+        string working = PercentDecodeBounded.Decode(armId.Trim());
 
         return ArmResourceIdNormalizer.Normalize(working);
     }

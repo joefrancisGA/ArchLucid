@@ -3292,7 +3292,6 @@
 {"at":"2026-11-01T20:05:11.0388490Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:07:38.0048435Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:09:10.3925033Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
-{"at":"2026-11-01T20:11:08.0000000Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:11:09.0204563Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:14:01.0000000Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:14:01.3403151Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
@@ -3350,6 +3349,7 @@
 {"at":"2026-11-01T21:07:55.9923574Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:08:48.9957028Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:09:24.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+
 {"at":"2026-11-01T21:10:37.1005082Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:12:34.3774797Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T21:15:18.5357124Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
@@ -3362,3 +3362,15 @@
 {"at":"2026-11-01T22:06:46.6755131Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-01T22:07:51.3733480Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T22:17:08.8534335Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:23:04.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:26:21.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:29:51.1099021Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:36:08.4009532Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:40:06.3372358Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:45:17.1403810Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-01T22:58:00.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T23:05:00.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T23:12:00.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-01T23:18:00.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-02T13:30:25.3505163Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+
