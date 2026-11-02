@@ -7,7 +7,11 @@ import { useForm, useWatch } from "react-hook-form";
 
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import type { WizardCreateRunPayloadOptions } from "@/lib/wizard-payload";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import {
   buildDefaultWizardValues,
   wizardFormSchema,
@@ -45,6 +49,8 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   const embeddedInPathSwitcher = options.embeddedInPathSwitcher === true;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const params = useNewRunWizardIntakeParams();
   const {
     baselineFirst,
@@ -78,11 +84,18 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
       readonly focusedPilotModeEnabled?: boolean;
       readonly advancedConfigurationOptIn?: boolean;
     }) => {
-      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(searchParams.toString(), patch, pathname), {
-        notify: false,
-      });
+      commitHrefIfChanged(
+        newRunWizardPilotHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          patch,
+          pathname,
+        ),
+        {
+          notify: false,
+        },
+      );
     },
-    [pathname, searchParams],
+    [pathname],
   );
 
   const setFocusedPilotModeEnabled = useCallback(
@@ -109,14 +122,14 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
   useEffect(() => {
     const syncPilotTogglesFromUrl = (): void => {
       const nextPilot = parseNewRunWizardPilotFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("pilot"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "pilot"),
       );
 
       setFocusedPilotModeEnabledState(nextPilot ?? true);
 
       setAdvancedConfigurationOptInState(
         parseNewRunWizardAdvancedConfigFromSearch(
-          new URLSearchParams(readWindowLocationSearch()).get("advancedConfig"),
+          searchParamFromRouterSearchParams(searchParamsRef.current, "advancedConfig"),
         ),
       );
     };

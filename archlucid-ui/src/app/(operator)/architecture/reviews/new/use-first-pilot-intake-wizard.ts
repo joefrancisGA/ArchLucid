@@ -4,7 +4,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
@@ -74,6 +78,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const { onRunCreatedNavigate } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const { isSimulator } = useAgentExecutionMode();
@@ -133,7 +139,13 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
         if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
-          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
+          commitHrefIfChanged(
+            scopeGateHrefFromSearch(
+              searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+              resolved,
+              pathname,
+            ),
+            {
             notify: false,
           });
         }
@@ -154,7 +166,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   useEffect(() => {
     const syncScopeGateFromUrl = (): void => {
       const next = parseScopeGateOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("scopeGate"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "scopeGate"),
       );
 
       if (scopeGateOpenRef.current === next) {

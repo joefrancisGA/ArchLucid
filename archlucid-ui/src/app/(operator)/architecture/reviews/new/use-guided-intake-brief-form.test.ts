@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { renderHook, act, waitFor, fireEvent, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -11,7 +11,7 @@ import { useGuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 
 const scopeGateSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -31,12 +31,28 @@ const scopeGateSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -46,7 +62,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => scopeGateSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => scopeGateSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       scopeGateSearchParamsHarness.applyHref(href);
 
@@ -82,6 +98,42 @@ describe("useGuidedIntakeBriefForm", () => {
     replaceMock.mockReset();
     scopeGateSearchParamsHarness.reset();
     resetGuidedIntakeExampleTemplatePrefillAppliedIdsForTests();
+  });
+
+  it("clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state", () => {
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new?scopeGate=1");
+
+    const { result } = renderHook(
+      () => useGuidedIntakeBriefForm({ exampleTemplate: null, isCreateArchitectureFlow: false }),
+      { wrapper: ScopeGateSearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopeGateOpen).toBe(true);
+
+    act(() => {
+      scopeGateSearchParamsHarness.applySearchParamsQuery("");
+      scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+      result.current.setScopeGateOpen(false);
+    });
+
+    expect(scopeGateSearchParamsHarness.state.query).not.toContain("scopeGate=");
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+
+  it("keeps scope gate closed from useSearchParams when popstate reads lagging window.location.search", () => {
+    scopeGateSearchParamsHarness.applySearchParamsQuery("");
+    scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+
+    const { result } = renderHook(
+      () => useGuidedIntakeBriefForm({ exampleTemplate: null, isCreateArchitectureFlow: false }),
+      { wrapper: ScopeGateSearchParamsRerenderHost },
+    );
+
+    expect(result.current.scopeGateOpen).toBe(false);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.scopeGateOpen).toBe(false);
   });
 
   it("follows scopeGate= URL changes without a popstate event", () => {
