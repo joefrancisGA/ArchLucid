@@ -3,11 +3,11 @@
 
 # SecureNow marketability — Composer prompts
 
-**Created:** 2026-10-29 · **Updated:** 2026-10-31 · **Status:** SN-MKT-01–11 shipped on trunk. **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-29 · **Updated:** 2026-11-01 · **Status:** SN-MKT-01–11 shipped on trunk. SN-MKT-12–14 not started. **Audience:** Composer 2.5 slow (`composer-2.5`)
 
-Marketability scored **36** on the 2026-10-29 desk review, **50** after SN-MKT-01–03, and **61** on the 31 October desk pass. Differentiability is **78**. ArchLucid’s comparable marketability score is **68**. The accepted SecureNow copy is the pitch, the audience, the six steps, and the five refusals. SN-MKT-08–11 publish that copy. They do not rewrite it.
+Marketability scored **36** on the 2026-10-29 desk review, **50** after SN-MKT-01–03, **61** on the 31 October desk pass, and **67** after SN-MKT-08–11 (weight 8, weighted deficiency 264). Differentiability is **78**. ArchLucid’s comparable marketability score is **68**. The accepted SecureNow copy is the pitch, the audience, the six steps, and the five refusals.
 
-SN-MKT-01–07 put the buyer job on Home, in a noindex draft, in a fixture storyboard, on the security shell, in an internal overview, and in a warn-only checker. The next four prompts index `/why-securenow`, add a public synthetic sample, add two resources-menu links, and retarget the checker. Conversation intake stays `mailto:support@archlucid.net?subject=SecureNow%20conversation`. They do not approve a public price, Marketplace publication, or a beta GO.
+SN-MKT-12 makes the layout test expect the resources-menu links that are already on trunk. The score stays **67**. SN-MKT-13 adds one body link from each public page to the other and aims at **68** (+8 weighted points, about +0.07 on the 120-weight board). SN-MKT-14 publishes the last three fixture beats on `/securenow-sample` and aims at about **70**. Welcome-page links, footer links, a public price, Marketplace publication, and a beta GO have no prompt.
 
 Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/prompts/).
 
@@ -24,6 +24,9 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 | **SN-MKT-09** | `securenow-marketability-09-public-sample.md` | Indexed `/securenow-sample`. One synthetic path. Same ArchLucid mailto. (**shipped**) |
 | **SN-MKT-10** | `securenow-marketability-10-marketing-menu.md` | Resources menu: Why SecureNow and SecureNow sample. (**shipped**) |
 | **SN-MKT-11** | `securenow-marketability-11-public-checker.md` | Checker requires the public pages and still rejects a price. (**shipped**) |
+| **SN-MKT-12** | `securenow-marketability-12-menu-test.md` | Layout test expects the shipped resources-menu hrefs. Welcome and footer still omit them. |
+| **SN-MKT-13** | `securenow-marketability-13-page-links.md` | Body link from each public page to the other. Aims at **68**. |
+| **SN-MKT-14** | `securenow-marketability-14-sample-beats.md` | Sample beats for engineer action, not verified, and the audit link. Aims at about **70**. |
 | **SN-MKT-HOLD** | `securenow-marketability-hold.md` | Stop list |
 
-**SN-MKT-01** through **SN-MKT-11** are on trunk. Do not redo them. **SN-MKT-HOLD** is not a build step.
+**SN-MKT-01** through **SN-MKT-11** are on trunk. Do not redo them. Run **SN-MKT-12**, then **13**, then **14**. **SN-MKT-HOLD** is not a build step.

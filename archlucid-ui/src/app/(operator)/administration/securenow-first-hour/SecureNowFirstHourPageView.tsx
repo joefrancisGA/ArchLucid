@@ -9,6 +9,9 @@ import {
   SECURENOW_FIRST_HOUR_LEAD,
   SECURENOW_FIRST_HOUR_STEPS,
   SECURENOW_FIRST_HOUR_TERMS,
+  SECURENOW_FIRST_USEFUL_ANSWER_BODY,
+  SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH,
+  SECURENOW_FIRST_USEFUL_ANSWER_HEADING,
 } from "@/lib/product-line/securenow-first-hour-copy";
 
 export function SecureNowFirstHourPageView(): React.JSX.Element {
@@ -23,7 +26,17 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
           </h2>
           <ol className="list-decimal space-y-3 pl-5">
             {SECURENOW_FIRST_HOUR_STEPS.map((step) => (
-              <li key={step.title} className={OPERATOR_TYPOGRAPHY.body}>
+              <li
+                key={step.title}
+                id={
+                  step.title === "3 — Advisory cut point"
+                    ? "path-inspect"
+                    : step.title === "4 — Stop"
+                      ? "stop"
+                      : undefined
+                }
+                className={OPERATOR_TYPOGRAPHY.body}
+              >
                 <span className="font-medium">{step.title}</span>
                 <span> — {step.body}</span>
                 {step.href ? (
@@ -37,6 +50,23 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section
+          id="first-useful-answer"
+          data-testid="securenow-first-useful-answer"
+          aria-labelledby="securenow-first-useful-answer-heading"
+          className="space-y-2"
+        >
+          <h2 id="securenow-first-useful-answer-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_FIRST_USEFUL_ANSWER_HEADING}
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_FIRST_USEFUL_ANSWER_BODY}</p>
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH}>
+              Open question queue
+            </Link>
+          </p>
         </section>
 
         <section aria-labelledby="securenow-first-hour-terms-heading" className="space-y-2">

@@ -24,8 +24,8 @@ type WorkSummaryRowProps = {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error && error.message.trim().length > 0
-    ? error.message
-    : "Could not load this count.";
+    ? `${error.message}. Check collection status and try again.`
+    : "Could not load this count. Check collection status and try again.";
 }
 
 function knownCountDetail(count: number | null | undefined, zeroCopy: string, knownCopy: (count: number) => string): string {
@@ -91,29 +91,33 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
   );
   const assignedDetail = assignedQuery.isPending
     ? "Loading…"
-    : knownCountDetail(assignedQuery.data, "None assigned to you", (count) => `${count} assigned to you`);
+    : knownCountDetail(
+        assignedQuery.data,
+        "None assigned to you. Open Priorities & waves to choose a ranked path.",
+        (count) => `${count} assigned to you`,
+      );
   const priorityDetail = factoryQuery.isPending
     ? "Loading…"
     : knownCountDetail(
         criticalExposureCount,
-        "No critical exposure",
+        "No critical exposure. Open Priorities & waves to inspect a ranked path.",
         (count) => `${count} with critical exposure`,
       );
   const comparisonDiff = diffsQuery.data === undefined ? null : diffsQuery.data[0] ?? null;
   const changesDetail = snapshotsQuery.isPending || (newestSnapshotIdValue !== null && diffsQuery.isPending)
     ? "Loading…"
     : comparisonDiff === null
-      ? "No comparison yet"
+      ? "No comparison yet. Collect another snapshot before reviewing drift."
       : knownCountDetail(
           comparisonDiff.totalChanges,
-          "No comparison yet",
+          "No comparison yet. Collect another snapshot before reviewing drift.",
           (count) => `${count} changes since the previous collection`,
         );
   const verificationDetail = factoryQuery.isPending
     ? "Loading…"
     : knownCountDetail(
         awaitingVerification,
-        "None waiting for a check",
+        "None waiting for a check. Stop until a later capture is ready.",
         (count) => `${count} waiting for a check`,
       );
   const verificationSuffix = verificationFailures !== undefined && verificationFailures > 0

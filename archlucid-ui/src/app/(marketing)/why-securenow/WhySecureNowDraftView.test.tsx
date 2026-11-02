@@ -8,6 +8,7 @@ import {
   WHY_SECURENOW_DRAFT_PITCH,
   WHY_SECURENOW_PILOT_DECISION_BODY,
   WHY_SECURENOW_REVIEWER_PACK_BODY,
+  WHY_SECURENOW_SAMPLE_LINK_LABEL,
   WHY_SECURENOW_STATUS_LINE,
 } from "@/lib/marketing/why-securenow-draft-copy";
 
@@ -62,5 +63,14 @@ describe("Why SecureNow page (SN-MKT-02 / SN-MKT-08)", () => {
     expect(decisionSection).toHaveTextContent(/proceed to commercial discussion/i);
     expect(decisionSection).toHaveTextContent(/extend with bounded scope/i);
     expect(decisionSection).toHaveTextContent(/\bstop\b/i);
+  });
+
+  it("links to the public synthetic sample", () => {
+    render(<WhySecureNowDraftView />);
+
+    expect(screen.getByRole("link", { name: WHY_SECURENOW_SAMPLE_LINK_LABEL })).toHaveAttribute(
+      "href",
+      "/securenow-sample",
+    );
   });
 });

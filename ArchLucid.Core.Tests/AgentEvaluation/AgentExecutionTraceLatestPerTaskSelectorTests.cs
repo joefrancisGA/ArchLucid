@@ -1042,6 +1042,27 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_single_trace_mutable_input_list_cleared_after_select_still_returns_trace()
+    {
+        AgentExecutionTrace onlyTrace = new()
+        {
+            TraceId = "trace-only",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        var input = new List<AgentExecutionTrace> { onlyTrace };
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select(input);
+
+        input.Clear();
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-only");
+    }
+
+    [Fact]
     public void Select_when_higher_attempt_warned_wins_over_lower_attempt_accepted()
     {
         DateTime olderUtc = new(2026, 12, 5, 18, 0, 0, DateTimeKind.Utc);
@@ -1079,6 +1100,23 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     {
         AgentExecutionTraceLatestPerTaskSelector.Select([])
             .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Select_when_empty_mutable_input_list_gains_trace_after_select_still_returns_empty()
+    {
+        var input = new List<AgentExecutionTrace>();
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select(input);
+
+        input.Add(new AgentExecutionTrace
+        {
+            TraceId = "trace-late",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+        });
+
+        latest.Should().BeEmpty();
     }
 
     [Fact]
@@ -1153,6 +1191,37 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         Action act = () => AgentExecutionTraceLatestPerTaskSelector.Select(null!);
 
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Select_when_single_trace_element_null_returns_empty()
+    {
+        AgentExecutionTraceLatestPerTaskSelector.Select([null!]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Select_skips_null_trace_elements_when_selecting_latest_per_task()
+    {
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([null!, accepted]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-accepted");
+    }
+
+    [Fact]
+    public void Select_when_all_trace_elements_null_returns_empty_list()
+    {
+        AgentExecutionTraceLatestPerTaskSelector.Select([null!, null!, null!]).Should().BeEmpty();
     }
 
     [Fact]

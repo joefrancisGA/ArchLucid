@@ -100,23 +100,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 It.IsAny<int?>(),
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                """
-                {
-                  "executiveSummary": "Executive summary for cited path.",
-                  "businessImpactHypotheses": ["AiInference hypothesis: outage risk if identity hop remains."],
-                  "proposedRemediation": {
-                    "recommendedChange": "Remove weakest hop control gap.",
-                    "recommendedChangeSource": "WeakestHop",
-                    "verificationQueries": ["path:hash-absent=abc"],
-                    "preconditions": ["Confirm with owners."]
-                  },
-                  "citedEvidenceRefs": ["evidence-1", "path:00000000-0000-0000-0000-000000000000"]
-                }
-                """.Replace(
-                    "00000000-0000-0000-0000-000000000000",
-                    pathId.ToString("D"),
-                    StringComparison.Ordinal));
+            .ReturnsAsync(ReadFixture("path-explanation-cited.json", pathId));
 
         Mock<IPromptRedactor> redactor = new();
         redactor
@@ -137,6 +121,59 @@ public sealed class SecurityEvidencePathExplanationServiceTests
 
         result.Succeeded.Should().BeTrue();
         redactor.Verify(item => item.Redact(It.IsAny<string?>()), Times.Once);
+        result.Explanation!.ProvenanceKind.Should().Be(ProvenanceKind.AiInference);
+        result.Explanation.ModelOutputRejection.Should().BeNull();
+        llm.Verify(
+            client => client.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                SecurityEvidencePathExplanationService.PathExplanationMaxOutputTokens,
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task TryBuildExplanationAsync_rejected_model_output_falls_back_to_stored_path()
+    {
+        Guid pathId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+
+        InMemoryPathRepository pathRepository = new();
+        pathRepository.StoredPaths.Add(CreatePath(pathId, PathConfidenceBand.Probable));
+        pathRepository.StoredHops.Add(CreateHop(pathId, 1, "evidence-1"));
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ReadFixture("path-explanation-invented-arm.json", pathId));
+
+        CapturingExplanationRepository explanationRepository = new();
+        SecurityEvidencePathExplanationService sut = CreateSut(
+            pathRepository,
+            explanationRepository,
+            llm.Object,
+            CreatePassthroughRedactor());
+
+        SecurityEvidencePathExplanationResult result = await sut.TryBuildExplanationAsync(
+            scope,
+            pathId,
+            useSimulator: false,
+            allowInsufficientEvidence: false);
+
+        result.Succeeded.Should().BeTrue();
+        result.Explanation.Should().NotBeNull();
+        result.Explanation!.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        result.Explanation.SimulatorLabel.Should().Be(SecurityEvidencePathExplanationBuilder.SimulatorLabel);
+        result.Explanation.ModelOutputRejection.Should().NotBeNullOrWhiteSpace();
+        result.Explanation.CitedEvidenceRefs.Should().OnlyContain(
+            reference => reference == $"path:{pathId:D}" || reference == "evidence-1");
+        explanationRepository.LastInserted!.ModelOutputRejection.Should().NotBeNullOrWhiteSpace();
         llm.Verify(
             client => client.CompleteJsonAsync(
                 It.IsAny<string>(),
@@ -145,6 +182,45 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryBuildExplanationAsync_completion_failure_falls_back_to_stored_path()
+    {
+        Guid pathId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+
+        InMemoryPathRepository pathRepository = new();
+        pathRepository.StoredPaths.Add(CreatePath(pathId, PathConfidenceBand.Probable));
+        pathRepository.StoredHops.Add(CreateHop(pathId, 1, "evidence-1"));
+
+        Mock<IAgentCompletionClient> llm = new();
+        llm
+            .Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("provider unavailable"));
+
+        SecurityEvidencePathExplanationService sut = CreateSut(
+            pathRepository,
+            new CapturingExplanationRepository(),
+            llm.Object,
+            CreatePassthroughRedactor());
+
+        SecurityEvidencePathExplanationResult result = await sut.TryBuildExplanationAsync(
+            scope,
+            pathId,
+            useSimulator: false,
+            allowInsufficientEvidence: false);
+
+        result.Succeeded.Should().BeTrue();
+        result.ErrorMessage.Should().BeNull();
+        result.Explanation!.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        result.Explanation.ModelOutputRejection.Should().Contain("Model completion failed");
+        result.Explanation.SimulatorLabel.Should().Be(SecurityEvidencePathExplanationBuilder.SimulatorLabel);
     }
 
     [Fact]
@@ -224,6 +300,19 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             llm,
             promptRedactor,
             NullLogger<SecurityEvidencePathExplanationService>.Instance);
+
+    private static IPromptRedactor CreatePassthroughRedactor()
+    {
+        Mock<IPromptRedactor> redactor = new();
+        redactor
+            .Setup(item => item.Redact(It.IsAny<string?>()))
+            .Returns((string? input) => new PromptRedactionOutcome(input ?? string.Empty, new Dictionary<string, int>()));
+        return redactor.Object;
+    }
+
+    private static string ReadFixture(string fileName, Guid pathId) =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "fixtures", "securenow", fileName))
+            .Replace("{{PATH_ID}}", pathId.ToString("D"), StringComparison.Ordinal);
 
     private static ScopeContext CreateScope() =>
         new()
