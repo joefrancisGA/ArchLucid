@@ -15,6 +15,7 @@ def _copy_tree(destination: Path) -> None:
         "docs/securenow/CONTROL_EVIDENCE_RESPONSIBILITY.md",
         "docs/securenow/FRAMEWORK_COVERAGE.md",
         "archlucid-ui/src/lib/audit-evidence-control-lineage-markdown.ts",
+        "archlucid-ui/src/app/(operator)/governance/audit-evidence/[assessmentId]/snapshots/[snapshotId]/controls/[controlId]/AuditEvidenceControlLineageClient.tsx",
     ):
         source = ROOT / relative
         target = destination / relative
@@ -49,6 +50,21 @@ class SecureNowComplianceNotesTests(unittest.TestCase):
             )
             errors = validate(root)
             self.assertTrue(any("forbidden certification" in error for error in errors))
+
+    def test_lineage_download_limit_is_required(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/app/(operator)/governance/audit-evidence/[assessmentId]/snapshots/[snapshotId]/controls/[controlId]/AuditEvidenceControlLineageClient.tsx"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    "AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT",
+                    "REMOVED_DOWNLOAD_LIMIT",
+                ),
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("DOWNLOAD_LIMIT" in error for error in errors))
 
 
 if __name__ == "__main__":

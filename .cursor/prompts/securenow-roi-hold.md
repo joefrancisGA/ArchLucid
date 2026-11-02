@@ -22,4 +22,6 @@ Do not build any of the following while implementing SN-ROI prompts:
 - More than one SN-ROI prompt in the same session.
 - Setting `continue-on-error` to false on the ROI checker.
 
+Wave 2 (SN-ROI-05–08) has its own stop list in `securenow-roi-05-hold.md`. This file still binds SN-ROI-01–04.
+
 If the session is about to do one of these, stop and report which line it hit.

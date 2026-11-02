@@ -1345,6 +1345,69 @@ describe("RunsListClient inspector", () => {
     vi.useRealTimers();
   });
 
+  it("preserves compareRuns when Escape clears the filter before useSearchParams catches up", async () => {
+    vi.useFakeTimers();
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.routerQuery).not.toContain("compareRuns=");
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Demo" } });
+    fireEvent.keyDown(filterInput, { key: "Escape", code: "Escape" });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(filterInput).toHaveValue("");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
+
+    vi.useRealTimers();
+  });
+
+  it("clears q= after backspacing the filter empty once the debounce completes", async () => {
+    vi.useFakeTimers();
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Demo" } });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+
+    fireEvent.change(filterInput, { target: { value: "" } });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(filterInput).toHaveValue("");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
+
+    vi.useRealTimers();
+  });
+
   it("clears compare replacement notice when compareRuns URL changes without a popstate event", () => {
     const runB: RunSummary = {
       ...sampleRun,
@@ -1568,6 +1631,37 @@ describe("RunsListClient inspector", () => {
     expect(previousLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
   });
 
+  it("preserves compareRuns in the Next pagination link when useSearchParams lags committed compareRuns", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
+    expect(runsListSearchParamsHarness.state.routerQuery).not.toContain("compareRuns=");
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink.getAttribute("href")).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(nextLink.getAttribute("href")).toContain(secondRun.runId);
+  });
+
   it("preserves pending text filter in the Next pagination link before q= debounce completes", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
@@ -1740,5 +1834,37 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("q=nomatch"));
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+  });
+
+  it("preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up", async () => {
+    vi.useFakeTimers();
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.routerQuery).not.toContain("compareRuns=");
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+
+    vi.useRealTimers();
   });
 });

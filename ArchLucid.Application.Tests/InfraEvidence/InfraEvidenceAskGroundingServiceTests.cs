@@ -445,6 +445,14 @@ public sealed class InfraEvidenceAskGroundingServiceTests
 
         result.Succeeded.Should().BeFalse();
         result.ErrorMessage.Should().Contain("could not be parsed into a grounded answer");
+        llm.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                800,
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static InfraEvidenceAskGroundingService CreateService()
