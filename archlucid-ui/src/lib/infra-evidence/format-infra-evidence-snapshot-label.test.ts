@@ -8,6 +8,7 @@ import {
   formatInfraEvidenceSnapshotFreshness,
   formatInfraEvidenceSnapshotLabel,
   formatInfraEvidenceSubscriptionLabel,
+  INFRA_EVIDENCE_DIFF_OTHER_CAPTURE_NOT_IN_LIST,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceDiffSummary, InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 
@@ -83,7 +84,8 @@ describe("formatInfraEvidenceSubscriptionLabel", () => {
 describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
   it("returns a fallback when capture time is missing", () => {
     expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored.");
-    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored.");
+    expect(formatInfraEvidenceSnapshotCapturedLabel("")).toBe("Captured time was stored empty.");
+    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was stored empty.");
   });
 
   it("formats capture time at minute precision without seconds", () => {
@@ -118,7 +120,7 @@ describe("formatInfraEvidenceDiffLabel", () => {
     const current = snapshot();
 
     expect(formatInfraEvidenceDiffLabel(diff(), current.snapshotId, [current])).toBe(
-      `23 changes vs ${formatInfraEvidenceSnapshotCapturedLabel("2026-09-08T23:01:56Z")}`,
+      `23 changes vs ${INFRA_EVIDENCE_DIFF_OTHER_CAPTURE_NOT_IN_LIST}`,
     );
   });
 });

@@ -10,6 +10,7 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
+import { fetchRankedSecurityEvidencePaths } from "@/lib/security-evidence-path-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -87,6 +88,13 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
     queryFn: () => fetchInfraEvidenceSnapshots(1, SNAPSHOT_PAGE_SIZE),
     retry: false,
   });
+  const rankedPathsQuery = useQuery({
+    queryKey: ["securenow", "home", "ranked-paths", scope.workspaceId, scope.projectId],
+    queryFn: () => fetchRankedSecurityEvidencePaths(1, 1),
+    retry: false,
+    enabled: snapshotsQuery.isSuccess,
+  });
+  const firstRankedPathId = rankedPathsQuery.data?.items[0]?.pathId.trim() ?? "";
   const workspacesQuery = useTenantWorkspacesListQuery();
   const workspace = workspacesQuery.data?.workspaces.find((row) => row.workspaceId === scope.workspaceId);
   const project = workspace?.projects.find((row) => row.projectId === scope.projectId);
@@ -124,7 +132,10 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const snapshot = snapshotRows[0] ?? null;
   const selectedPathId = searchParams.get("pathId")?.trim() ?? "";
 
-  const nextStep = (needsCollection: boolean): { label: string; href: string } => {
+  const nextStep = (
+    needsCollection: boolean,
+    firstRankedPathId: string,
+  ): { label: string; href: string } => {
     if (needsCollection) {
       return { label: "Next: Scope and freshness", href: CLOUD_CONNECTIONS_HREF };
     }
@@ -133,11 +144,18 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       return { label: "Next: Stop", href: FIRST_HOUR_STOP_HREF };
     }
 
+    if (firstRankedPathId.length > 0) {
+      return {
+        label: "Next: One ranked path",
+        href: `${RANKED_PATHS_HREF}?pathId=${encodeURIComponent(firstRankedPathId)}`,
+      };
+    }
+
     return { label: "Next: One ranked path", href: RANKED_PATHS_HREF };
   };
 
   if (snapshot === null) {
-    const next = nextStep(true);
+    const next = nextStep(true, firstRankedPathId);
 
     return (
       <div
@@ -165,7 +183,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const subscriptions = subscriptionPhrase(snapshotRows);
   const collectedAt = snapshot.capturedUtc === null ? null : formatRelativeTime(snapshot.capturedUtc);
   const gap = collectionGapDescription(snapshot);
-  const next = nextStep(gap !== null);
+  const next = nextStep(gap !== null, firstRankedPathId);
 
   return (
     <div className="space-y-1" data-testid="securenow-home-environment-context">

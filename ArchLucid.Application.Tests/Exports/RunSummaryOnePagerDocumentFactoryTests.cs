@@ -159,6 +159,7 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
 
         model.AgentFindingsCountsStored.Should().BeFalse();
         model.AgentFindingsNotStoredCopy.Should().Be(RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored);
+        model.TopFindingsEmptyCopy.Should().Be(RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored);
         model.CriticalCount.Should().Be(0);
     }
 

@@ -74,7 +74,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
         string label = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(
             FormatRoiConfidenceLabel(PilotRoiEvidenceConfidenceHonestyCopy.ResolveDisplayLabel(proof, roiClaimGate)));
         string inputsSummary = proof.RoiBaselineInputs is null
-            ? string.Empty
+            ? " Per-field ROI inputs were not stored."
             : $" Per-field inputs: {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
 
         PilotRoiEvidenceConfidence evidenceConfidence = roiClaimGate.EvidenceConfidence;

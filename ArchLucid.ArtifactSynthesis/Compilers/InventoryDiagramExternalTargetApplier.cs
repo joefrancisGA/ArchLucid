@@ -599,8 +599,14 @@ internal static class InventoryDiagramExternalTargetApplier
                 : "Scope subscription was not stored. Target is not on this diagram.";
         }
 
+        if (string.IsNullOrWhiteSpace(targetSubscriptionId))
+        {
+            return hasResourceName
+                ? "Target subscription id was not stored, so outside-subscription was not decided. (" + resourceName + ")."
+                : "Target subscription id was not stored, so outside-subscription was not decided.";
+        }
+
         bool outsideSubscription = !string.IsNullOrWhiteSpace(scopeSubscriptionId)
-            && !string.IsNullOrWhiteSpace(targetSubscriptionId)
             && !string.Equals(scopeSubscriptionId, targetSubscriptionId, StringComparison.OrdinalIgnoreCase);
 
         if (outsideSubscription)

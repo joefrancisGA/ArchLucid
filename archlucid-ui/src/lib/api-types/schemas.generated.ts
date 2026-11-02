@@ -1764,6 +1764,7 @@ export interface components {
         AskResponse: {
             answer?: string;
             comparisonNarrative?: null | string;
+            indexedSearchNotLimitedToReviewId?: boolean;
             referencedArtifacts?: string[];
             referencedDecisions?: string[];
             referencedFindings?: string[];

@@ -41,6 +41,9 @@ public static class DiagramDataFlowHonestyLegend
     public const string OmittedDataFlowStagesSentencePrefix =
         "Data flow stages with no resolved nodes on this diagram (stage classification, not missing inventory census):";
 
+    public const string NoResolvedDataFlowStageSentence =
+        "No data-flow stage was resolved on this diagram.";
+
     public const string UnclassifiedArmResourceTypeCaption =
         "ARM resource type was not stored.";
 }

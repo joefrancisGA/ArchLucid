@@ -53,7 +53,7 @@ public sealed class AskResponseComposerTests
 
         AskResponse response = composer.Parse(threadId, "  Plain text answer.  ");
 
-        response.Answer.Should().Be("Plain text answer.");
+        response.Answer.Should().Be("This reply was not parsed as an Ask answer. Plain text answer.");
     }
 
     [Fact]
@@ -96,5 +96,30 @@ public sealed class AskResponseComposerTests
 
         emptyDecisions.Answer.Should().Contain("Manifest decisions were stored empty on this answer.");
         missingManifest.Answer.Should().Contain("Manifest decisions were not stored on this answer.");
+    }
+
+    [Fact]
+    public void BuildFallbackResponse_appends_citation_honesty_on_this_answer()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.BuildFallbackResponse(
+            new AskPreparedContext(
+                new ConversationThread { ThreadId = threadId },
+                "question",
+                string.Empty,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "{}",
+                string.Empty,
+                false,
+                new ScopeContext(),
+                []));
+
+        response.Answer.Should().Contain("Citations were not stored on this answer.");
     }
 }

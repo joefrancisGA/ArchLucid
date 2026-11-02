@@ -108,6 +108,11 @@ public static class DiagramNodeHumanCaptionFactory
             combined = $"{combined} · {DiagramForestCollapsedSingletonTailLabels.CollapsedSingletonTailPartialRollupLine}";
         }
 
+        if (string.IsNullOrWhiteSpace(node.SeedNodeId))
+        {
+            combined = $"{combined} · Diagram seed was not stored.";
+        }
+
         if (node.ParentAttachmentDetails.Count > 0)
         {
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
@@ -144,8 +149,7 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · No diagram link was stored.";
         }
-        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
-            && node.UnresolvedRelationshipDetails.Count == 0)
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
         {
             combined = $"{combined} · Connection state was not stored.";
         }

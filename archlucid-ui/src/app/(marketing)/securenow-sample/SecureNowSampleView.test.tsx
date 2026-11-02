@@ -50,4 +50,12 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
     expect(screen.getAllByText(/not verified/i)).not.toHaveLength(0);
     expect(screen.getAllByText(/does not change Azure/i)).not.toHaveLength(0);
   });
+
+  it("lists the public fixture hops and cut point", () => {
+    render(<SecureNowSampleView />);
+
+    expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("fixture-path-01");
+    expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("Reader on the subscription");
+    expect(screen.getByTestId("securenow-sample-fixture-hops")).toHaveTextContent("not an observed exploit");
+  });
 });

@@ -84,7 +84,8 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase))
         {
-            return label.StartsWith("Backend pool membership is configured", StringComparison.OrdinalIgnoreCase);
+            return label.StartsWith("Backend pool membership is configured", StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Configured backend pool member", StringComparison.OrdinalIgnoreCase);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))

@@ -53,4 +53,13 @@ public sealed class AskResponse
         get;
         set;
     }
+
+    /// <summary>
+    /// When <see langword="true" />, vector retrieval ran without a review run id filter even though Ask was run-scoped.
+    /// </summary>
+    public bool IndexedSearchNotLimitedToReviewId
+    {
+        get;
+        set;
+    }
 }

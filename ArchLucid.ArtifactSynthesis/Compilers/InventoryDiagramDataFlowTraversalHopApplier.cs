@@ -11,6 +11,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class InventoryDiagramDataFlowTraversalHopApplier
 {
+    internal const string HopProvenanceNotStoredLabel = "Hop provenance was not stored.";
+
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
@@ -183,7 +185,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             {
                 FromNodeId = fromDiagramNodeId,
                 ToNodeId = toDiagramNodeId,
-                Label = link.Evidence.DiagramLabel,
+                Label = FormatHopEdgeLabel(link.Evidence.DiagramLabel),
                 InferenceSource = link.Evidence.InferenceSource,
                 ProvenanceKind = ResolveHopEdgeProvenance(link.Evidence),
             });
@@ -240,7 +242,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                 {
                     FromNodeId = currentDiagramNodeId,
                     ToNodeId = nextDiagramNodeId,
-                    Label = link.Evidence.DiagramLabel,
+                    Label = FormatHopEdgeLabel(link.Evidence.DiagramLabel),
                     InferenceSource = link.Evidence.InferenceSource,
                     ProvenanceKind = ResolveHopEdgeProvenance(link.Evidence),
                 });
@@ -263,7 +265,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                 {
                     FromNodeId = currentDiagramNodeId,
                     ToNodeId = targetDiagramNodeId,
-                    Label = terminalLink?.Evidence.DiagramLabel ?? "Hop label was not stored",
+                    Label = FormatHopEdgeLabel(terminalLink?.Evidence.DiagramLabel ?? "Hop label was not stored"),
                     InferenceSource = terminalLink?.Evidence.InferenceSource,
                     ProvenanceKind = ResolveHopEdgeProvenance(terminalLink?.Evidence),
                 });
@@ -369,19 +371,28 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         };
     }
 
-    private static string ResolveHopEdgeProvenance(InventoryDiagramDataFlowTraversalHopEvidence? evidence)
+    internal static string? ResolveHopEdgeProvenance(InventoryDiagramDataFlowTraversalHopEvidence? evidence)
     {
-        if (evidence is null)
+        _ = evidence;
+
+        return null;
+    }
+
+    internal static string FormatHopEdgeLabel(string diagramLabel)
+    {
+        string trimmed = diagramLabel?.Trim() ?? string.Empty;
+
+        if (trimmed.Length == 0)
         {
-            return ProvenanceKind.DeterministicInference.ToString();
+            trimmed = "Hop label was not stored";
         }
 
-        if (string.Equals(evidence.DiagramLabel, "Hop label was not stored", StringComparison.Ordinal))
+        if (trimmed.Contains(HopProvenanceNotStoredLabel, StringComparison.Ordinal))
         {
-            return ProvenanceKind.DeterministicInference.ToString();
+            return trimmed;
         }
 
-        return ProvenanceKind.ObservedFact.ToString();
+        return $"{trimmed} {HopProvenanceNotStoredLabel}";
     }
 
     private static DiagramNode? FindDiagramNodeForGraphNodeId(

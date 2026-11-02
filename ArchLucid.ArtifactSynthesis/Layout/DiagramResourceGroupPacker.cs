@@ -31,6 +31,10 @@ public static class DiagramResourceGroupPacker
         return !string.IsNullOrWhiteSpace(cell.GroupName);
     }
 
+    /// <summary>Legend line when RG frames replace per-node group captions on the canvas.</summary>
+    public const string ResourceGroupFrameSuppressesNodeGroupLine =
+        "Resource group frames show the group name; node cards omit duplicate group lines inside framed cells.";
+
     public static IReadOnlyList<ResourceGroupCell> PartitionCells(IReadOnlyList<DiagramNode> nodes)
     {
         ArgumentNullException.ThrowIfNull(nodes);

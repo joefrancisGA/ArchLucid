@@ -40,8 +40,31 @@ internal static class InventoryDiagramOrphanedStateApplier
 
         foreach (DiagramNode diagramNode in ast.Nodes)
         {
-            if (string.IsNullOrWhiteSpace(diagramNode.SeedNodeId)
-                || !graphNodesById.TryGetValue(diagramNode.SeedNodeId, out GraphNode? graphNode))
+            if (string.IsNullOrWhiteSpace(diagramNode.SeedNodeId))
+            {
+                diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
+                diagramNode.ConnectionStateMessage = null;
+                List<string> missingSeedDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    []);
+                const string diagramSeedNotStored = "Diagram seed was not stored.";
+                const string connectionStateNotStored = "Connection state was not stored.";
+
+                if (!missingSeedDetails.Contains(diagramSeedNotStored, StringComparer.Ordinal))
+                {
+                    missingSeedDetails.Add(diagramSeedNotStored);
+                }
+
+                if (!missingSeedDetails.Contains(connectionStateNotStored, StringComparer.Ordinal))
+                {
+                    missingSeedDetails.Add(connectionStateNotStored);
+                }
+
+                diagramNode.UnresolvedRelationshipDetails = missingSeedDetails;
+                continue;
+            }
+
+            if (!graphNodesById.TryGetValue(diagramNode.SeedNodeId, out GraphNode? graphNode))
             {
                 continue;
             }
@@ -217,8 +240,8 @@ internal static class InventoryDiagramOrphanedStateApplier
                 string resourceName = ReadResourceName(resolvedArmId);
 
                 message = string.IsNullOrWhiteSpace(resourceName)
-                    ? "Attached resource name was not stored."
-                    : $"Attached to {resourceName}. That resource is in this inventory snapshot.";
+                    ? "Attached resource name was not stored. Observed use was not stored."
+                    : $"Attached to {resourceName}. That resource is in this inventory snapshot. Observed use was not stored.";
                 return true;
             }
         }

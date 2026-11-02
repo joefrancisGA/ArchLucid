@@ -294,6 +294,47 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
         CountOccurrences(result.Svg!, "No diagram link was stored on this view.").Should().Be(1);
     }
 
+    [Fact]
+    public void Data_flow_detail_lines_label_whitespace_linked_service_type_as_stored_empty_p08()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "data-flow-stage-source",
+                    Label = "Source",
+                    OrderKey = 0,
+                },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "source-node",
+                    Label = "source-node",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "data-flow-stage-source",
+                    ExternalLinkedServiceType = "   ",
+                    OrderKey = 0,
+                },
+            ],
+        };
+
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
+            ast.Nodes,
+            options,
+            ast.Edges,
+            isDataFlow: true);
+        DiagramForestNodeMetrics metrics = labelContext.Measure(ast.Nodes[0]);
+
+        metrics.DataFlowDetailLines.Should().ContainSingle()
+            .Which.Should().Be("Linked service type was stored empty.");
+    }
+
     private static DiagramForestDataFlowColumnLayout.Result BuildThreeColumnLayout(DiagramForestLayoutOptions options)
     {
         DiagramAst ast = BuildDataFlowRoutingAst();

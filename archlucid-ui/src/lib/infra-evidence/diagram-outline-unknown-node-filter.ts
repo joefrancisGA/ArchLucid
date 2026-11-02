@@ -89,6 +89,28 @@ export function resolveDiagramOutlineStartingResourceGroup(
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function resolveDiagramOutlineUnknownFilterEmptyMessage(input: {
+  readonly outline: InfraEvidenceMermaidOutline;
+  readonly startingSeedId: string | null | undefined;
+  readonly scope: DiagramOutlineUnknownNodeFilterScope;
+}): string {
+  const trimmedSeed = input.startingSeedId?.trim() ?? "";
+
+  if (trimmedSeed.length > 0 && resolveDiagramOutlineStartingNode(input.outline, input.startingSeedId) === null) {
+    return "Starting resource was not found on this diagram outline.";
+  }
+
+  if (
+    input.scope === "startingResourceGroup"
+    && trimmedSeed.length > 0
+    && resolveDiagramOutlineStartingResourceGroup(input.outline, input.startingSeedId) === null
+  ) {
+    return "Starting resource group was not stored on the outline seed node.";
+  }
+
+  return "No unknown rows match this filter. Choose a broader scope or clear the search.";
+}
+
 export function filterDiagramOutlineUnknownNodes(input: {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly outline: InfraEvidenceMermaidOutline;

@@ -32,10 +32,17 @@ public static class SecurityEvidencePathExplanationBuilder
         ArgumentNullException.ThrowIfNull(citedEvidenceRefs);
 
         SecurityEvidencePathProposedRemediation proposedRemediation = BuildProposedRemediation(path, hops, cutPoints);
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+        string citedEvidence = citedEvidenceRefs.Count > 0
+            ? string.Join(", ", citedEvidenceRefs)
+            : "Cited evidence was not stored.";
         string executiveSummary =
-            $"[{SimulatorLabel}] {path.PathKind} path ({path.PathConfidenceBand}) with {hops.Count} hop(s). "
-            + $"Weakest link: hop {path.WeakestHopOrdinal} — {path.WeakestHopReason}. "
-            + $"Cited evidence: {string.Join(", ", citedEvidenceRefs)}."
+            "Simulator template, not a stored inference: "
+            + $"[{SimulatorLabel}] {path.PathKind} path ({path.PathConfidenceBand}) with {hops.Count} hop(s). "
+            + $"Weakest link: hop {path.WeakestHopOrdinal} — {weakestHopReason} "
+            + $"Cited evidence: {citedEvidence}."
             + (string.IsNullOrWhiteSpace(rankContext) ? string.Empty : $" {rankContext.Trim()}");
 
         IReadOnlyList<string> hypotheses =
@@ -185,6 +192,17 @@ public static class SecurityEvidencePathExplanationBuilder
                 Preconditions = proposedRemediation.Preconditions,
                 SuggestedPatternKey = proposedRemediation.SuggestedPatternKey,
             };
+
+            IReadOnlyList<string> disallowedCitedRefs = SecurityEvidencePathExplanationValidator.FindDisallowedCitedEvidenceRefs(
+                parsed.CitedEvidenceRefs,
+                allowedEvidenceRefs);
+
+            if (disallowedCitedRefs.Count > 0)
+            {
+                rejectionReason =
+                    $"Cited evidence refs outside the stored path: {string.Join(", ", disallowedCitedRefs)}.";
+                return false;
+            }
 
             IReadOnlyList<string> citedEvidenceRefs = SecurityEvidencePathExplanationValidator.FilterCitedEvidenceRefs(
                 parsed.CitedEvidenceRefs,
