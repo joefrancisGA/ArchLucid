@@ -202,22 +202,32 @@ internal class ScimBearerAuthenticationHandler(
         return false;
     }
 
+    // Placeholder runes some gateways substitute for the redacted token (and glue directly after
+    // "Bearer") when comma-folding duplicate Authorization headers into one value. The allowlist is
+    // the delimiter-shaped block/geometric code points actually observed from that comma-folding;
+    // it is not a general "any symbol" rule. Add a rune only when a gateway is observed emitting it
+    // as a redacted-token placeholder.
     private const string BearerGluedDelimiterPlaceholderCodePoints =
         "|/\\" + "\u00D7\u00F7\u02C2\u02C3\u02CD\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044\u2215\u2216\u2217\u2218\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7\u25CE\u25CB\u25CF\u25D0\u25D1\u25D2\u25D3\u25D4\u25D5\u25D6\u25D7\u25D8\u29F8\u29F9\u301C\uFE31\uFE57\uFE58\uFE63\uFE68\uFF0F\uFF5C\uFF3C";
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
+        int placeholderCount = 0;
+
         foreach (char character in tail)
         {
-            if (BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
-                continue;
-
             if (char.IsWhiteSpace(character))
                 continue;
 
-            return false;
+            if (!BearerGluedDelimiterPlaceholderCodePoints.Contains(character))
+                return false;
+
+            // Accept a single placeholder rune (the comma-folding artifact) so a run of allowlisted
+            // characters cannot pad a malformed Authorization segment past the mix guard.
+            if (++placeholderCount > 1)
+                return false;
         }
 
-        return true;
+        return placeholderCount == 1;
     }
 }
