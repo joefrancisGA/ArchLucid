@@ -33,7 +33,7 @@ public static class AzureInventoryFederatedCredentialParser
 
         string issuer = NormalizePercentEncodedTrimmedScalar(issuerRaw);
         string normalizedSubject = NormalizePercentEncodedTrimmedScalar(subject);
-        string trimmedPrincipalId = principalId.Trim();
+        string normalizedPrincipalId = NormalizePercentEncodedTrimmedScalar(principalId);
 
         ProvenanceKind provenanceKind = TryReadProvenanceKind(element) ?? ProvenanceKind.HumanAssertion;
 
@@ -47,13 +47,13 @@ public static class AzureInventoryFederatedCredentialParser
         {
             Issuer = issuer,
             Subject = normalizedSubject,
-            PrincipalId = trimmedPrincipalId,
+            PrincipalId = normalizedPrincipalId,
             AppId = TryReadString(element, "appId"),
             ParentResourceId = NormalizeOptionalArmId(TryReadString(element, "parentResourceId")),
             CredentialName = TryReadString(element, "credentialName"),
             ProvenanceKind = provenanceKind,
             EvidenceHashSha256 = TryReadEvidenceHash(element)
-                ?? ComputeDefaultEvidenceHash(issuer, normalizedSubject, trimmedPrincipalId, TryReadString(element, "appId")),
+                ?? ComputeDefaultEvidenceHash(issuer, normalizedSubject, normalizedPrincipalId, TryReadString(element, "appId")),
         };
 
         return true;
