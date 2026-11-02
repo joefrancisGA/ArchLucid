@@ -86,7 +86,6 @@ public static class AzureInventoryNetworkConnectionEndpointParser
         {
             return TryReadArmIdFromJson(working);
         }
-
         if (!working.StartsWith("/", StringComparison.Ordinal)
             || !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
