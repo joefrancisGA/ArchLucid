@@ -2463,3 +2463,4 @@
 {"at":"2026-11-01T20:43:22.5879721Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:46:41.3101427Z","zoneId":"finding-disposition","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-01T20:54:42.0000000Z","zoneId":"saml-jwt-bearer","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-11-01T21:02:38.0000000Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
