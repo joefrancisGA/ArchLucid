@@ -10,6 +10,13 @@ ROOT = Path(__file__).resolve().parents[2]
 ORDER_FORM = Path("docs/securenow/ORDER_FORM_TEMPLATE.md")
 CHECKLIST = Path("docs/securenow/QUOTE_TO_PILOT_CHECKLIST.md")
 METER_CARD = Path("docs/securenow/SKU_METER_CARD.md")
+QUOTE_PACKET_COPY = Path(
+    "archlucid-ui/src/lib/product-line/securenow-quote-packet-copy.ts"
+)
+REVIEWER_HOME_COPY = Path(
+    "archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts"
+)
+WHY_COPY = Path("archlucid-ui/src/lib/marketing/why-securenow-draft-copy.ts")
 
 SKU_IDS = ("SN-EVAL", "SN-ANNUAL", "SN-SUB-ADD", "SN-SNAP-4")
 FORBIDDEN_PHRASES = ("guaranteed savings", "guaranteed ROI", "READY_TO_PUBLISH")
@@ -78,6 +85,36 @@ def validate(root: Path = ROOT) -> list[str]:
         for token in ("2 Azure subscriptions", "4 successful snapshots", "5 named operators"):
             if token not in meter:
                 errors.append(f"{METER_CARD}: missing meter {token!r}")
+
+    quote_packet = _read(root, QUOTE_PACKET_COPY, errors)
+    if quote_packet:
+        if "NO_GO" not in quote_packet:
+            errors.append(f"{QUOTE_PACKET_COPY}: missing NO_GO")
+        if "$" in quote_packet:
+            errors.append(f"{QUOTE_PACKET_COPY}: contains '$'; fee amounts must stay private")
+        for sku in SKU_IDS:
+            if sku not in quote_packet:
+                errors.append(f"{QUOTE_PACKET_COPY}: missing {sku}")
+        for token in ("Not an approved offer", "cannot authorize commerce"):
+            if token not in quote_packet:
+                errors.append(f"{QUOTE_PACKET_COPY}: missing {token!r}")
+        if "PRIVATE_PRICE_SHEET" in quote_packet:
+            errors.append(f"{QUOTE_PACKET_COPY}: must not name PRIVATE_PRICE_SHEET")
+
+    reviewer_home = _read(root, REVIEWER_HOME_COPY, errors)
+    if reviewer_home:
+        if "/administration/securenow-quote-packet" not in reviewer_home:
+            errors.append(f"{REVIEWER_HOME_COPY}: missing quote-packet href")
+        if "Quote packet" not in reviewer_home:
+            errors.append(f"{REVIEWER_HOME_COPY}: missing Quote packet label")
+        if "$" in reviewer_home:
+            errors.append(f"{REVIEWER_HOME_COPY}: contains '$'; fee amounts must stay private")
+
+    why = _read(root, WHY_COPY, errors)
+    if why and (
+        "Those documents stay with the owner until buyer communication is approved." not in why
+    ):
+        errors.append(f"{WHY_COPY}: missing owner-held buyer-communication sentence")
 
     return errors
 

@@ -892,9 +892,13 @@ describe("SecureNowQuestionQueue", () => {
     await waitFor(() =>
       expect(
         screen.getByText(
-          "No questions match this filter. Clear the filter, or open a diagram subscription that has a capture. An empty list is not a clean environment.",
+          "No diagram question yet. Name the review question, then attach it to one path.",
         ),
       ).toBeInTheDocument(),
+    );
+    expect(screen.getByRole("link", { name: "First useful answer" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-first-hour#first-useful-answer",
     );
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();

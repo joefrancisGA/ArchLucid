@@ -48,6 +48,7 @@ import { SecureNowFirstHourHomeSection } from "@/components/product-line/SecureN
 import { SecureNowFirstUsefulAnswerHomeSection } from "@/components/product-line/SecureNowFirstUsefulAnswerHomeSection";
 import { SecureNowSelfServiceHomeSection } from "@/components/product-line/SecureNowSelfServiceHomeSection";
 import { SecureNowReturnHomeSection } from "@/components/product-line/SecureNowReturnHomeSection";
+import { SecureNowScenarioHomeSection } from "@/components/product-line/SecureNowScenarioHomeSection";
 import { SecureNowSponsorHomeSection } from "@/components/product-line/SecureNowSponsorHomeSection";
 import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
 import { SecureNowRemediationHomeSection } from "@/components/product-line/SecureNowRemediationHomeSection";
@@ -157,6 +158,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
             {secureNowHome ? <SecureNowSelfServiceHomeSection /> : null}
             {secureNowHome ? <SecureNowHomeWorkSummary /> : null}
             {secureNowHome ? <SecureNowReturnHomeSection /> : null}
+            {secureNowHome ? <SecureNowScenarioHomeSection /> : null}
             {secureNowHome ? <SecureNowReviewerHomeSection /> : null}
             {secureNowHome ? <SecureNowSponsorHomeSection /> : null}
             <SecureNowFindingsHomeSection />

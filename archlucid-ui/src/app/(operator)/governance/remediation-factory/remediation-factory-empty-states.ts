@@ -5,6 +5,7 @@ import {
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { SECURENOW_ARCHITECT_METRICS_SNAPSHOTS_EMPTY } from "@/lib/product-line/securenow-architect-metrics-copy";
 import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 
 export const REMEDIATION_FACTORY_EXECUTIVE_METRICS_LOADING =
@@ -21,7 +22,10 @@ export const REMEDIATION_FACTORY_PRIORITY_QUEUE_EMPTY: EnterpriseCompactEmptySta
 export const REMEDIATION_FACTORY_RANKED_PATHS_EMPTY: EnterpriseCompactEmptyStateProps = {
   title: "No ranked architect paths",
   description: SECURENOW_PATH_RANKED_PATHS_EMPTY,
-  actions: [{ label: "Upload inventory", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, variant: "primary" }],
+  actions: [
+    { label: "Upload inventory", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, variant: "primary" },
+    { label: "Open collection", href: CLOUD_CONNECTIONS_PATH, variant: "outline" },
+  ],
   testId: "remediation-factory-ranked-paths-empty",
 };
 

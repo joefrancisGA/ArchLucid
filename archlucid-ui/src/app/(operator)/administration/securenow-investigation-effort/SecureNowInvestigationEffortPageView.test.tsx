@@ -11,6 +11,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
       screen.getByTestId("securenow-investigation-effort-page"),
     ).toBeInTheDocument();
     expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
+    expect(screen.getByText(/This page is not a savings claim\./)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Pilot measurement log" }),
     ).toHaveAttribute(
