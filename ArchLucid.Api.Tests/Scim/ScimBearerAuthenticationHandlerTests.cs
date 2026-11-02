@@ -2378,7 +2378,7 @@ public sealed class ScimBearerAuthenticationHandlerTests
         Mock<IScimBearerTokenAuthenticator> authenticator = new();
 
         DefaultHttpContext http = new();
-        http.Request.Headers.Authorization = $"Bearer\uFF5C\uFF5C, ******";
+        http.Request.Headers.Authorization = $"Bearer\u25D7\u25D7, Bearer {ValidToken}";
 
         ScimBearerAuthenticationHandlerTestDouble handler = CreateHandler(authenticator.Object, http);
 
