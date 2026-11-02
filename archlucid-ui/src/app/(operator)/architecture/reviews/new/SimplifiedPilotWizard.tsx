@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
@@ -63,6 +64,8 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution, onPendingZipFileChange } = props;
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlAdvancedConfigOpen = parseSimplifiedPilotAdvancedConfigOpenFromSearch(
     searchParams.get("simplifiedPilotAdvancedConfigOpen"),
   );
@@ -110,7 +113,11 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const syncAdvancedConfigOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        simplifiedPilotAdvancedConfigDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        simplifiedPilotAdvancedConfigDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -140,7 +147,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   useEffect(() => {
     const syncAdvancedConfigOpenFromUrl = (): void => {
       const next = parseSimplifiedPilotAdvancedConfigOpenFromSearch(
-        new URLSearchParams(window.location.search).get("simplifiedPilotAdvancedConfigOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "simplifiedPilotAdvancedConfigOpen"),
       );
 
       if (advancedConfigOpenRef.current === next) {

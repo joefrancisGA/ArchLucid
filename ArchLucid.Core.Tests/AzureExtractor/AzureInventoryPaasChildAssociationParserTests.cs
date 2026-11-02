@@ -40,4 +40,35 @@ public sealed class AzureInventoryPaasChildAssociationParserTests
         row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(serverId));
         row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(databaseId));
     }
+
+    [Fact]
+    public void TryParse_decodes_before_applying_identifier_length_cap()
+    {
+        string serverId =
+            $"/subscriptions/sub/resourceGroups/{new string('r', 220)}/providers/Microsoft.Sql/servers/{new string('s', 180)}";
+        string databaseId = $"{serverId}/databases/appdb";
+        string encodedParentId = Uri.EscapeDataString(Uri.EscapeDataString(serverId));
+        string encodedChildId = Uri.EscapeDataString(Uri.EscapeDataString(databaseId));
+
+        encodedChildId.Length.Should().BeGreaterThan(512);
+        databaseId.Length.Should().BeLessThan(512);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "parentResourceId": "{{encodedParentId}}",
+                                                              "childResourceId": "{{encodedChildId}}",
+                                                              "childName": "appdb",
+                                                              "childType": "{{AzureInventoryPaasChildAssociationTypes.SqlDatabase}}",
+                                                              "collectionStatus": "{{AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded}}"
+                                                            }
+                                                            """);
+
+        AzureInventoryPaasChildAssociationParser.TryParse(
+            document.RootElement,
+            out AzureInventoryPaasChildAssociationRow? row,
+            out string? errorMessage).Should().BeTrue(errorMessage);
+
+        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(serverId));
+        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(databaseId));
+    }
 }
