@@ -13,11 +13,19 @@ import {
   TRUST_CENTER_PUBLIC_LABEL,
   TRUST_CENTER_PUBLIC_PATH,
 } from "@/lib/marketing-assurance-public-labels";
+import {
+  PUBLIC_SAMPLE_REVIEW_HREF,
+  PUBLIC_SAMPLE_REVIEW_LABEL,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL,
+} from "@/lib/marketing/public-sample-entry-links";
 import { appSiteHref } from "@/lib/site-urls";
 import { cn } from "@/lib/utils";
 
 function marketingPublicFooterLinks(): readonly { readonly label: string; readonly href: string }[] {
   return [
+    { label: PUBLIC_SAMPLE_REVIEW_LABEL, href: PUBLIC_SAMPLE_REVIEW_HREF },
+    { label: PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL, href: PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF },
     { label: TRUST_CENTER_PUBLIC_LABEL, href: TRUST_CENTER_PUBLIC_PATH },
     { label: ASSURANCE_STATUS_PUBLIC_LABEL, href: ASSURANCE_STATUS_PUBLIC_PATH },
     { label: PRIVACY_POLICY_PUBLIC_LABEL, href: PRIVACY_POLICY_PUBLIC_PATH },

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -94,6 +94,7 @@ const loadedGuideState = {
     secondaryHref: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
   },
   requiredBlockers: [],
+  onePrerequisite: null,
   canExecute: true,
   readyToFinalize: false,
   latestRunHref: null,
@@ -275,6 +276,57 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByTestId("first-review-guide-walkthrough-completed-summary")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-walkthrough")).not.toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-orientation")).toBeInTheDocument();
+  });
+
+  it("shows the selected prerequisite sentence when sample and policy pack are ready", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: null,
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(screen.getByTestId("first-review-one-prerequisite")).toHaveTextContent(
+      "Sample package and policy pack are selected.",
+    );
+  });
+
+  it("shows the sample package prerequisite before the policy pack", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: {
+        id: "sample-package",
+        title: "Sample package",
+        description: "Select a completed sample package for this workspace.",
+        href: "/",
+        actionLabel: "Choose sample review",
+      },
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    expect(screen.getByTestId("first-review-one-prerequisite")).toHaveTextContent(
+      "Select a completed sample package for this workspace.",
+    );
+    expect(screen.getByRole("link", { name: "Choose sample review" })).toHaveAttribute("href", "/");
+  });
+
+  it("shows the policy pack prerequisite when the sample is selected", () => {
+    mockUseFirstReviewGuideState.mockReturnValue({
+      ...loadedGuideState,
+      onePrerequisite: {
+        id: "policy-pack",
+        title: "Policy pack",
+        description: "Assign a policy pack so findings and the pre-commit gate use your standards.",
+        href: "/governance/policy-packs",
+        actionLabel: "Review policy pack assignments",
+      },
+    });
+    render(<FirstReviewGuidePageClient model={{ fromRegistration: false }} />);
+
+    const prerequisite = screen.getByTestId("first-review-one-prerequisite");
+    expect(within(prerequisite).getByRole("link", { name: "Review policy pack assignments" })).toHaveAttribute(
+      "href",
+      "/governance/policy-packs",
+    );
   });
 
   it("scrolls the walkthrough progress section when the onboarding checklist hash is active", () => {

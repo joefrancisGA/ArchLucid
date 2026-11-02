@@ -18,6 +18,10 @@ const welcomeMarketingProofAtGlanceSource = readFileSync(
   join(marketingAppDir, "..", "..", "components", "marketing", "WelcomeMarketingProofAtGlanceSection.tsx"),
   "utf8",
 );
+const welcomeMarketingPageSource = readFileSync(
+  join(marketingAppDir, "..", "..", "components", "marketing", "WelcomeMarketingPage.tsx"),
+  "utf8",
+);
 const marketingPublicFooterSource = readFileSync(
   join(marketingAppDir, "..", "..", "components", "marketing", "MarketingPublicFooter.tsx"),
   "utf8",
@@ -30,17 +34,18 @@ describe("marketing layout SecureNow draft (SN-MKT-04)", () => {
     expect(marketingLayoutSource).toContain("ARCHLUCID_PATHNAME_REQUEST_HEADER");
   });
 
-  it("matches the shipped resources links without adding public-surface links", () => {
+  it("matches the shipped resources links without adding why-securenow to welcome or footer", () => {
     expect(resourcesMenuSource).toContain('href="/why-securenow"');
     expect(resourcesMenuSource).toContain('href="/securenow-sample"');
 
-    for (const source of [
-      welcomeMarketingEngagementPathsSource,
-      welcomeMarketingProofAtGlanceSource,
-      marketingPublicFooterSource,
-    ]) {
-      expect(source).not.toContain('href="/why-securenow"');
-      expect(source).not.toContain('href="/securenow-sample"');
-    }
+    expect(welcomeMarketingEngagementPathsSource).not.toContain('href="/why-securenow"');
+    expect(welcomeMarketingEngagementPathsSource).not.toContain('href="/securenow-sample"');
+    expect(welcomeMarketingProofAtGlanceSource).not.toContain('href="/why-securenow"');
+    expect(welcomeMarketingProofAtGlanceSource).not.toContain('href="/securenow-sample"');
+
+    expect(marketingPublicFooterSource).toContain("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF");
+    expect(marketingPublicFooterSource).not.toContain('href="/why-securenow"');
+    expect(welcomeMarketingPageSource).toContain("PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF");
+    expect(welcomeMarketingPageSource).not.toContain('href="/why-securenow"');
   });
 });

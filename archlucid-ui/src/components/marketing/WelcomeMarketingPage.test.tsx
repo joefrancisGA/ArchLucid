@@ -21,6 +21,13 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import {
+  PUBLIC_SAMPLE_REVIEW_HREF,
+  PUBLIC_SAMPLE_REVIEW_LABEL,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF,
+  PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL,
+} from "@/lib/marketing/public-sample-entry-links";
+import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
+import {
   WELCOME_HERO_DIFFERENTIATORS,
   WELCOME_HERO_PITCH,
   WELCOME_PAGE_METADATA_TITLE,
@@ -220,10 +227,22 @@ describe("WelcomeMarketingPage", () => {
       "href",
       "/trust",
     );
-    expect(within(pillars as HTMLElement).getByRole("link", { name: /Healthcare Claims sample review/i })).toHaveAttribute(
+    expect(within(pillars as HTMLElement).getByRole("link", { name: PUBLIC_SAMPLE_REVIEW_LABEL })).toHaveAttribute(
       "href",
-      expect.stringMatching(/\/showcase\//),
+      PUBLIC_SAMPLE_REVIEW_HREF,
     );
+    expect(
+      within(pillars as HTMLElement).getByRole("link", { name: PUBLIC_SECURENOW_FIXTURE_SAMPLE_LABEL }),
+    ).toHaveAttribute("href", PUBLIC_SECURENOW_FIXTURE_SAMPLE_HREF);
+    expect(within(pillars as HTMLElement).getByText(new RegExp(SECURENOW_SAMPLE_FIXTURE_LINE))).toBeInTheDocument();
+  });
+
+  it("exposes approved public sample links in the pillars band", () => {
+    renderWelcomePage();
+
+    const pillars = screen.getByRole("heading", { name: /Three pillars/i }).closest("section");
+    expect(pillars).not.toBeNull();
+    expect(within(pillars as HTMLElement).queryByRole("link", { name: /why securenow/i })).toBeNull();
   });
 
   it("renders a hero product visual linking to the see-it proof slice", () => {

@@ -293,11 +293,11 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
           <h2 id="first-review-one-prerequisite-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             One next prerequisite
           </h2>
-          {guide.requiredBlockers[0] !== undefined ? (
+          {guide.onePrerequisite !== null ? (
             <>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.requiredBlockers[0].title}</p>
-              <Link className={OPERATOR_LINK.inline} href={guide.requiredBlockers[0].href}>
-                {guide.requiredBlockers[0].actionLabel}
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{guide.onePrerequisite.description}</p>
+              <Link className={OPERATOR_LINK.inline} href={guide.onePrerequisite.href}>
+                {guide.onePrerequisite.actionLabel}
               </Link>
             </>
           ) : (

@@ -5,7 +5,7 @@
 ## Target
 
 SecureNow uses the same target as [`../../ACCESSIBILITY.md`](../../ACCESSIBILITY.md): **WCAG 2.2 Level AA**. Automated checks support that target. They do not certify it.
-This is not a WCAG certification.
+This is not a WCAG certification. Path inspect and the diagram surface are in the automated axe set. That set is not a WCAG certification and not an assistive-technology user study.
 
 ## Surfaces in scope
 

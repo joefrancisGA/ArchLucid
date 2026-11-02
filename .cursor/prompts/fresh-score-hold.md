@@ -5,7 +5,7 @@ Paste this only when a session drifts. It is not a build step.
 Stop if the session is about to:
 
 - Publish a fee, a currency amount from `PRIVATE_PRICE_SHEET.md`, or a public list price.
-- Add `/why-securenow` or `/securenow-sample` to the welcome page or the footer.
+- Add `/why-securenow` to the welcome page or the footer. Owner decision **2026-11-02:** `/securenow-sample` and the Healthcare Claims sample review link are allowed on welcome and the footer; `/why-securenow` stays off those surfaces. **M-316** stays owner-held.
 - Mark SecureNow beta **GO**, or mark a beta-evidence row **PASS** without `test_command`, `result_reference`, and `commit_sha`.
 - Claim a CPA SOC 2 report, a third-party pen test, a certification, or a completed SIG or CAIQ.
 - Fill `EXECUTIVE_PROOF_PACKET_TEMPLATE.md` or `DECISION_CYCLE_LOG.md` with times or a customer outcome.

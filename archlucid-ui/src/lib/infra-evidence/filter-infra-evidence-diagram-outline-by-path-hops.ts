@@ -6,14 +6,18 @@ function normalizeMatchToken(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function hopMatchTokens(hop: SecurityEvidencePathHop): readonly string[] {
-  const tokens = new Set<string>();
-
+function hopCloudResourceIdTokens(hop: SecurityEvidencePathHop): readonly string[] {
   const cloudResourceId = hop.cloudResourceId?.trim() ?? "";
 
-  if (cloudResourceId.length > 0) {
-    tokens.add(normalizeMatchToken(cloudResourceId));
+  if (cloudResourceId.length === 0) {
+    return [];
   }
+
+  return [normalizeMatchToken(cloudResourceId)];
+}
+
+function hopLabelMatchTokens(hop: SecurityEvidencePathHop): readonly string[] {
+  const tokens = new Set<string>();
 
   for (const label of [hop.fromNodeLabel, hop.toNodeLabel]) {
     const trimmed = label.trim();
@@ -45,31 +49,10 @@ function nodeMatchesPathHop(node: InfraEvidenceMermaidOutline["nodes"][number], 
   return false;
 }
 
-/** Keeps hop endpoints and edges between matched nodes for SecureNow path-focused diagrams. */
-export function filterInfraEvidenceDiagramOutlineByPathHops(
-  outline: InfraEvidenceMermaidOutline | null,
-  hops: readonly SecurityEvidencePathHop[],
-): InfraEvidenceMermaidOutline | null {
-  if (outline == null || hops.length === 0) {
-    return outline;
-  }
-
-  const tokens = new Set<string>();
-
-  for (const hop of hops) {
-    for (const token of hopMatchTokens(hop)) {
-      tokens.add(token);
-    }
-  }
-
-  if (tokens.size === 0) {
-    return outline;
-  }
-
-  const matchedNodeIds = new Set(
-    outline.nodes.filter((node) => nodeMatchesPathHop(node, tokens)).map((node) => node.id),
-  );
-
+function filterOutlineToMatchedNodes(
+  outline: InfraEvidenceMermaidOutline,
+  matchedNodeIds: ReadonlySet<string>,
+): InfraEvidenceMermaidOutline {
   if (matchedNodeIds.size === 0) {
     return { ...outline, nodes: [], edges: [] };
   }
@@ -77,7 +60,7 @@ export function filterInfraEvidenceDiagramOutlineByPathHops(
   const edges = outline.edges.filter(
     (edge) => matchedNodeIds.has(edge.from) && matchedNodeIds.has(edge.to),
   );
-  const connectedNodeIds = new Set<string>();
+  const connectedNodeIds = new Set<string>(matchedNodeIds);
 
   for (const edge of edges) {
     connectedNodeIds.add(edge.from);
@@ -91,4 +74,49 @@ export function filterInfraEvidenceDiagramOutlineByPathHops(
     nodes,
     edges,
   };
+}
+
+/** Keeps hop endpoints and edges between matched nodes for SecureNow path-focused diagrams. */
+export function filterInfraEvidenceDiagramOutlineByPathHops(
+  outline: InfraEvidenceMermaidOutline | null,
+  hops: readonly SecurityEvidencePathHop[],
+): InfraEvidenceMermaidOutline | null {
+  if (outline == null || hops.length === 0) {
+    return outline;
+  }
+
+  const cloudResourceTokens = new Set<string>();
+  const labelTokens = new Set<string>();
+
+  for (const hop of hops) {
+    for (const token of hopCloudResourceIdTokens(hop)) {
+      cloudResourceTokens.add(token);
+    }
+
+    for (const token of hopLabelMatchTokens(hop)) {
+      labelTokens.add(token);
+    }
+  }
+
+  if (cloudResourceTokens.size > 0) {
+    const cloudResourceMatchedNodeIds = new Set(
+      outline.nodes
+        .filter((node) => nodeMatchesPathHop(node, cloudResourceTokens))
+        .map((node) => node.id),
+    );
+
+    if (cloudResourceMatchedNodeIds.size > 0) {
+      return filterOutlineToMatchedNodes(outline, cloudResourceMatchedNodeIds);
+    }
+  }
+
+  if (labelTokens.size === 0) {
+    return outline;
+  }
+
+  const labelMatchedNodeIds = new Set(
+    outline.nodes.filter((node) => nodeMatchesPathHop(node, labelTokens)).map((node) => node.id),
+  );
+
+  return filterOutlineToMatchedNodes(outline, labelMatchedNodeIds);
 }

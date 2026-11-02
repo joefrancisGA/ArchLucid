@@ -36,4 +36,4 @@ These prompts do not perform owner walks. **M-308**, **M-313**, **M-314**, **M-3
 
 ## Stop
 
-No public price. No welcome or footer links. No CPA report or pen-test claim. No customer result. No timer. No Azure write. No second ranker. No hidden review-workspace tabs.
+No public price. No `/why-securenow` on welcome or the footer (owner **2026-11-02:** sample review + `/securenow-sample` links allowed there). No CPA report or pen-test claim. No customer result. No timer. No Azure write. No second ranker. No hidden review-workspace tabs.

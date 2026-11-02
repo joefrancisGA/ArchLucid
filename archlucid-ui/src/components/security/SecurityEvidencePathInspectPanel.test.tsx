@@ -44,7 +44,7 @@ import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
-import { secureNowPilotDispositionStorageKey } from "@/lib/product-line/securenow-pilot-disposition-storage";
+import { secureNowPilotDispositionStorageKey, SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -1078,6 +1078,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
     expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
       "Synthetic fixture only.",
+    );
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
+      SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
     );
   });
 });

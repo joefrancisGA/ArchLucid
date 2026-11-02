@@ -2,15 +2,66 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  readSecureNowPilotDisposition,
+  secureNowPilotDispositionStorageKey,
+  writeSecureNowPilotDisposition,
+  SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE,
+} from "@/lib/product-line/securenow-pilot-disposition-storage";
 
 export function SecureNowSponsorPathPageView(): React.JSX.Element {
   const searchParams = useSearchParams();
   const pathId = searchParams.get("pathId")?.trim() ?? "";
+  const storageKey = pathId.length > 0 ? secureNowPilotDispositionStorageKey(pathId) : null;
+  const [outcome, setOutcome] = useState("");
+  const [rationale, setRationale] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedDisposition, setSavedDisposition] = useState<{ outcome: string; rationale: string } | null>(null);
+
+  useEffect(() => {
+    if (pathId.length === 0) {
+      setOutcome("");
+      setRationale("");
+      setSavedDisposition(null);
+      return;
+    }
+
+    const stored = readSecureNowPilotDisposition(pathId);
+
+    if (stored === null) {
+      setOutcome("");
+      setRationale("");
+      setSavedDisposition(null);
+      return;
+    }
+
+    setOutcome(stored.outcome);
+    setRationale(stored.rationale);
+    setSavedDisposition(stored);
+  }, [pathId]);
+
+  const saveDisposition = () => {
+    if (storageKey === null || outcome.length === 0) {
+      setSaveError("Select Proceed, Extend, or Stop for a path.");
+      return;
+    }
+
+    if (rationale.trim().length === 0) {
+      setSaveError("Rationale is required.");
+      return;
+    }
+
+    const record = { outcome, rationale: rationale.trim() };
+    writeSecureNowPilotDisposition(pathId, record);
+    setSavedDisposition(record);
+    setSaveError(null);
+  };
 
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-sponsor-path-page">
@@ -39,18 +90,53 @@ export function SecureNowSponsorPathPageView(): React.JSX.Element {
               {pathId === "fixture-path-01" ? (
                 <p className={OPERATOR_TYPOGRAPHY.helper}>Synthetic fixture. Not a customer result.</p>
               ) : null}
-              <fieldset className="space-y-2">
-                <legend className={OPERATOR_TYPOGRAPHY.helper}>Choose one after the sponsor readout.</legend>
-                {["Proceed", "Extend", "Stop"].map((outcome) => (
-                  <label key={outcome} className="mr-4 inline-flex items-center gap-2">
-                    <input type="radio" name="sponsor-disposition" value={outcome} />
-                    <span className={OPERATOR_TYPOGRAPHY.body}>{outcome}</span>
-                  </label>
-                ))}
-              </fieldset>
-              <p className={OPERATOR_TYPOGRAPHY.helper}>Rationale: NOT COLLECTED.</p>
+              <label className="block space-y-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Outcome</span>
+                <select
+                  className="w-full rounded border border-border bg-background px-3 py-2"
+                  value={outcome}
+                  onChange={(event) => setOutcome(event.target.value)}
+                  aria-label="Path disposition outcome"
+                >
+                  <option value="">Select an outcome</option>
+                  <option value="Proceed">Proceed</option>
+                  <option value="Extend">Extend</option>
+                  <option value="Stop">Stop</option>
+                </select>
+              </label>
+              <label className="block space-y-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Rationale</span>
+                <textarea
+                  className="min-h-24 w-full rounded border border-border bg-background px-3 py-2"
+                  value={rationale}
+                  onChange={(event) => setRationale(event.target.value)}
+                  aria-label="Path disposition rationale"
+                />
+              </label>
+              <button type="button" className="rounded border border-border px-3 py-2" onClick={saveDisposition}>
+                Save path disposition
+              </button>
+              {saveError !== null ? (
+                <p className="text-rose-700" role="alert">
+                  {saveError}
+                </p>
+              ) : null}
+              {savedDisposition !== null ? (
+                <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-sponsor-path-saved-disposition">
+                  Saved {savedDisposition.outcome}: {savedDisposition.rationale}
+                </p>
+              ) : null}
+              <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE}</p>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
                 SecureNow recommends; it does not change Azure. A sponsor disposition does not clear beta NO_GO.
+              </p>
+              <p className={OPERATOR_TYPOGRAPHY.body}>
+                <Link
+                  className={OPERATOR_LINK.inline}
+                  href={`/administration/securenow-pilot-decision?pathId=${encodeURIComponent(pathId)}`}
+                >
+                  Open pilot decision record
+                </Link>
               </p>
             </section>
           </>
