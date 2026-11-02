@@ -400,7 +400,14 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                 {turns.map((turn, index) => {
                   const citationChips = buildAskCitationActionFollowUps(
                     turn.citationRefsOmitted
-                      ? { runId }
+                      ? {
+                          runId,
+                          inspectMetadataJson: JSON.stringify({
+                            referencedFindings: null,
+                            referencedDecisions: null,
+                            referencedArtifacts: null,
+                          }),
+                        }
                       : {
                           runId,
                           referencedFindings: turn.referencedFindings,

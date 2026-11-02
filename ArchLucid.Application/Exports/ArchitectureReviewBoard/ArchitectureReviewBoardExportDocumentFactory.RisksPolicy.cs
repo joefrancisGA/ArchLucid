@@ -18,6 +18,16 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         List<ArchitectureReviewBoardExportRiskRow> risks = [];
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
 
+        if (report.Warnings is null)
+        {
+            risks.Add(
+                new ArchitectureReviewBoardExportRiskRow
+                {
+                    SeverityLabel = "Analysis warning",
+                    Summary = ArchitectureReviewBoardExportHonestyCopy.AnalysisWarningsNotStoredLabel,
+                });
+        }
+
         if (m is not null)
         {
             string riskClassification = ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(m.Governance);

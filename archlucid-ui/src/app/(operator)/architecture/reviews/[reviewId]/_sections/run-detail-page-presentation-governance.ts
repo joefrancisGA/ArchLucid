@@ -45,9 +45,13 @@ export function resolveCommitBlockedReason(
       return "Some checks must finish before this review can be finalized.";
     }
 
-    const failedEngines = findingCoverageSummary?.failedEngineLabels?.length
-      ? findingCoverageSummary.failedEngineLabels.join(", ")
-      : "one or more required finding engines";
+    const failedEngines =
+      findingCoverageSummary?.failedEngineLabels === null
+      || findingCoverageSummary?.failedEngineLabels === undefined
+        ? "Failed engine labels were not stored."
+        : findingCoverageSummary.failedEngineLabels.length > 0
+          ? findingCoverageSummary.failedEngineLabels.join(", ")
+          : "one or more required finding engines";
 
     return `Finding coverage is commit-blocking. Failed engines: ${failedEngines}.`;
   }

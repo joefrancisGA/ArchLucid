@@ -431,23 +431,16 @@ public static class InventoryDiagramIndirectRelationshipResolver
 
     private static string ReadResourceName(string? armResourceId, string fallbackLabel)
     {
-        if (string.IsNullOrWhiteSpace(armResourceId))
+        if (InventoryDiagramArmSegmentResourceNames.TryResolveStoredName(
+                armResourceId,
+                fallbackLabel,
+                nodeId: null,
+                out string? storedName))
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return storedName!;
         }
 
-        int lastSlash = armResourceId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
-        {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
-        }
-
-        return armResourceId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored;
     }
 
     private static string FormatDerivedThroughNicLabel(string nicName)

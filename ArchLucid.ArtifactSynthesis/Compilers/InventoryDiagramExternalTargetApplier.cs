@@ -584,26 +584,15 @@ internal static class InventoryDiagramExternalTargetApplier
     {
         string? scopeSubscriptionId = scopeSubscription.SubscriptionId;
         string? targetSubscriptionId = TryReadSubscriptionIdFromArmId(targetArmId);
-        string resourceName = InventoryDiagramArmSegmentResourceNames.ReadArmLastSegmentOrNotStored(
-            targetArmId,
-            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
-        bool hasResourceName = !string.Equals(
-            resourceName,
-            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored,
-            StringComparison.Ordinal);
 
         if (string.IsNullOrWhiteSpace(scopeSubscriptionId) && !string.IsNullOrWhiteSpace(targetSubscriptionId))
         {
-            return hasResourceName
-                ? $"Scope subscription was not stored. Target is not on this diagram ({resourceName})."
-                : "Scope subscription was not stored. Target is not on this diagram.";
+            return "Scope subscription was not stored. Target is not on this diagram.";
         }
 
         if (string.IsNullOrWhiteSpace(targetSubscriptionId))
         {
-            return hasResourceName
-                ? "Target subscription id was not stored, so outside-subscription was not decided. (" + resourceName + ")."
-                : "Target subscription id was not stored, so outside-subscription was not decided.";
+            return "Target subscription id was not stored, so outside-subscription was not decided.";
         }
 
         bool outsideSubscription = !string.IsNullOrWhiteSpace(scopeSubscriptionId)
@@ -613,19 +602,13 @@ internal static class InventoryDiagramExternalTargetApplier
         {
             if (scopeSubscription.InferredFromDiagram)
             {
-                return hasResourceName
-                    ? $"Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription ({resourceName})."
-                    : "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.";
+                return "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription. Resource name was not stored.";
             }
 
-            return hasResourceName
-                ? $"Outside this subscription ({resourceName})."
-                : "Outside this subscription. Resource name was not stored.";
+            return "Outside this subscription. Resource name was not stored.";
         }
 
-        return hasResourceName
-            ? $"Target is not on this diagram ({resourceName})."
-            : "Target is not on this diagram.";
+        return "Target is not on this diagram.";
     }
 
 }

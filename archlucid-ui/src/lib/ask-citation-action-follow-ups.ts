@@ -37,6 +37,8 @@ export type AskCitationActionFollowUpsInput = {
   readonly referencedArtifacts?: readonly string[] | null;
   readonly groundingLinks?: readonly AskCitationGroundingLinkRef[] | null;
   readonly inspectHrefOptions?: GovernanceFindingInspectHrefOptions;
+  /** Optional Ask message metadataJson for omitted citation list honesty. */
+  readonly inspectMetadataJson?: string | null;
 };
 
 const FINDING_PATH_RE = /\/findings\/([^/?#]+)(?:\/(evidence-trace|inspect))?/i;
@@ -161,6 +163,15 @@ function hasBlankDecisionReference(input: AskCitationActionFollowUpsInput): bool
 
   return false;
 }
+
+export const ASK_CITATION_REFERENCED_FINDINGS_LIST_NOT_STORED =
+  "Referenced findings list was not stored on this answer." as const;
+
+export const ASK_CITATION_REFERENCED_DECISIONS_LIST_NOT_STORED =
+  "Referenced decisions list was not stored on this answer." as const;
+
+export const ASK_CITATION_REFERENCED_ARTIFACTS_LIST_NOT_STORED =
+  "Referenced artifacts list was not stored on this answer." as const;
 
 export const ASK_CITATION_FOLLOW_UPS_EMPTY_STORED_COPY =
   "No finding, evidence, or decision id was stored on this answer." as const;
@@ -326,6 +337,37 @@ export function buildAskCitationActionFollowUps(
           : `${trimmed} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
       href: null,
       citationId: trimmed.length === 0 ? "artifact-id-stored-empty" : trimmed,
+    });
+  }
+
+  const parsedMetadataRefs = parseAskCitationRefsFromMessageMetadata(
+    input.inspectMetadataJson ?? undefined,
+  );
+
+  if (parsedMetadataRefs?.referencedFindings === null) {
+    pushChip(chips, {
+      kind: "finding",
+      label: ASK_CITATION_REFERENCED_FINDINGS_LIST_NOT_STORED,
+      href: null,
+      citationId: "referenced-findings-list-not-stored",
+    });
+  }
+
+  if (parsedMetadataRefs?.referencedDecisions === null) {
+    pushChip(chips, {
+      kind: "disposition",
+      label: ASK_CITATION_REFERENCED_DECISIONS_LIST_NOT_STORED,
+      href: null,
+      citationId: "referenced-decisions-list-not-stored",
+    });
+  }
+
+  if (parsedMetadataRefs?.referencedArtifacts === null) {
+    pushChip(chips, {
+      kind: "evidence",
+      label: ASK_CITATION_REFERENCED_ARTIFACTS_LIST_NOT_STORED,
+      href: null,
+      citationId: "referenced-artifacts-list-not-stored",
     });
   }
 
