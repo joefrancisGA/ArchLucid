@@ -202,8 +202,61 @@ internal class ScimBearerAuthenticationHandler(
         return false;
     }
 
-    private const string BearerGluedDelimiterPlaceholderCodePoints =
-        "|/\\" + "\u00D7\u00F7\u02C2\u02C3\u02CD\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044\u2215\u2216\u2217\u2218\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7\u25CE\u25CB\u25CF\u25D0\u25D1\u25D2\u25D3\u25D4\u29F8\u29F9\u301C\uFE31\uFE57\uFE58\uFE63\uFE68\uFF0F\uFF5C\uFF3C";
+    // Placeholder code points grouped by Unicode block so additions stay intentional and reviewable.
+    /// <summary>ASCII pipe, solidus, reverse solidus.</summary>
+    private const string BearerGluedAsciiPlaceholderCodePoints = "|/\\";
+
+    /// <summary>Multiplication sign, division sign.</summary>
+    private const string BearerGluedLatin1SupplementPlaceholders = "\u00D7\u00F7";
+
+    /// <summary>Modifier letter arrowheads and low macron.</summary>
+    private const string BearerGluedSpacingModifierPlaceholders = "\u02C2\u02C3\u02CD";
+
+    /// <summary>Hyphens/dashes (U+2010-U+2017), overline, fraction slash.</summary>
+    private const string BearerGluedGeneralPunctuationPlaceholders = "\u2010\u2011\u2012\u2013\u2014\u2015\u2016\u2017\u203E\u2044";
+
+    /// <summary>Division/set-minus slashes, asterisk and ring operators.</summary>
+    private const string BearerGluedMathOperatorPlaceholders = "\u2215\u2216\u2217\u2218";
+
+    /// <summary>Verticals, dash verticals, double vertical, diagonal, and horizontal strokes.</summary>
+    private const string BearerGluedBoxDrawingPlaceholders = "\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F";
+
+    /// <summary>Upper half block, partial block fills, and quadrant blocks.</summary>
+    private const string BearerGluedBlockElementPlaceholders = "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F";
+
+    /// <summary>Squares, triangles, diamonds, and circle fills through upper-half/quadrant circles.</summary>
+    private const string BearerGluedGeometricShapePlaceholders = "\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7\u25CE\u25CB\u25CF\u25D0\u25D1\u25D2\u25D3\u25D4";
+
+    /// <summary>Big solidus and its inverse.</summary>
+    private const string BearerGluedSupplementalArrowPlaceholders = "\u29F8\u29F9";
+
+    /// <summary>Wave dash.</summary>
+    private const string BearerGluedCjkSymbolPlaceholders = "\u301C";
+
+    /// <summary>Presentation form for vertical em dash.</summary>
+    private const string BearerGluedCjkCompatibilityPlaceholders = "\uFE31";
+
+    /// <summary>Small exclamation mark, em dash, hyphen-minus, and reverse solidus.</summary>
+    private const string BearerGluedSmallFormVariantPlaceholders = "\uFE57\uFE58\uFE63\uFE68";
+
+    /// <summary>Fullwidth solidus, fullwidth vertical line, fullwidth reverse solidus.</summary>
+    private const string BearerGluedFullwidthFormPlaceholders = "\uFF0F\uFF5C\uFF3C";
+
+    private static readonly string BearerGluedDelimiterPlaceholderCodePoints =
+        string.Concat(
+            BearerGluedAsciiPlaceholderCodePoints,
+            BearerGluedLatin1SupplementPlaceholders,
+            BearerGluedSpacingModifierPlaceholders,
+            BearerGluedGeneralPunctuationPlaceholders,
+            BearerGluedMathOperatorPlaceholders,
+            BearerGluedBoxDrawingPlaceholders,
+            BearerGluedBlockElementPlaceholders,
+            BearerGluedGeometricShapePlaceholders,
+            BearerGluedSupplementalArrowPlaceholders,
+            BearerGluedCjkSymbolPlaceholders,
+            BearerGluedCjkCompatibilityPlaceholders,
+            BearerGluedSmallFormVariantPlaceholders,
+            BearerGluedFullwidthFormPlaceholders);
 
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
