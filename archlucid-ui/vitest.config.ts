@@ -1,10 +1,18 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+
+const srcRoot = fileURLToPath(new URL("./src", import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     tsconfigPaths: true,
+    // Vite 8.1+ skips tsconfig path mapping for importers under tsconfig.json "exclude"
+    // (`testing/` setup files). Keep an explicit alias so Vitest still resolves `@/`.
+    alias: {
+      "@": srcRoot,
+    },
   },
   test: {
     environment: "jsdom",
