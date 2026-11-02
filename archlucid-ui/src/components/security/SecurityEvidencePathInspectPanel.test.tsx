@@ -1104,4 +1104,51 @@ describe("SecurityEvidencePathInspectPanel", () => {
       expect.stringContaining("/internal/integrations/itsm?"),
     );
   });
+
+  it("links Stop handoff to finding ITSM export when a finding is in scope", async () => {
+    const pathId = "path-with-finding";
+    const findingId = "finding-stop-1";
+    window.localStorage.setItem(
+      secureNowPilotDispositionStorageKey(pathId),
+      JSON.stringify({ outcome: "Stop", rationale: "Stop linked finding." }),
+    );
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId, pathId, title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        relatedCutPoints: [],
+        routing: [],
+        weakestHop: null,
+        explanationTemplate: null,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(findingId, { pathIdOverride: pathId });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    });
+
+    const handoff = screen.getByTestId("security-evidence-path-pilot-stop-itsm-handoff");
+    expect(handoff).toHaveTextContent("Draft finding ITSM export");
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`findingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("itsmCreateOpen=1"));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining(`itsmCreateFindingId=${findingId}`));
+    expect(handoff).toHaveAttribute("href", expect.stringContaining("pilotStopPathId=path-with-finding"));
+  });
 });
