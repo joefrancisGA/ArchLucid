@@ -1,4 +1,4 @@
-import { render, waitFor, act, type ReactNode } from "@testing-library/react";
+import { render, waitFor, act, fireEvent, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -282,5 +282,26 @@ describe("useNewRunWizardClient pilot URL sync", () => {
     expect(lastQuery).toContain("pilot=0");
     expect(lastQuery).toContain("mode=full");
     expect(lastQuery).not.toContain("staleToolbar");
+  });
+
+  it("keeps focused pilot mode from useSearchParams when popstate reads lagging window.location.search", async () => {
+    pilotSearchParamsHarness.applySearchParamsQuery("mode=full");
+    pilotSearchParamsHarness.setWindowLocationSearch("mode=full&pilot=0");
+
+    render(
+      createElement(
+        PilotSearchParamsRerenderHost,
+        null,
+        createElement(NewRunWizardClientPilotProbe),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(focusedPilotModeEnabledRef.current).toBe(true);
+    });
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(focusedPilotModeEnabledRef.current).toBe(true);
   });
 });
