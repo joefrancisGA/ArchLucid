@@ -223,18 +223,14 @@ internal class ScimBearerAuthenticationHandler(
         "\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B" +
         "\u257C\u257D\u257E\u257F";
 
-    // U+2580, U+2582..U+259F: Block Elements.
+    // U+2580, U+2582..U+258B: Block Elements.
     private const string BearerGluedDelimiterPlaceholderBlockElements =
         "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588" +
-        "\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590" +
-        "\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598" +
-        "\u2599\u259A\u259B\u259C\u259D\u259E\u259F";
+        "\u2589\u258A\u258B";
 
-    // U+25A0..U+25A1, U+25AA..U+25AB, U+25B2, U+25BC, U+25C6..U+25C7, U+25CE, U+25CB,
-    // U+25CF..U+25D0: Geometric Shapes squares, triangles, diamonds, and circles.
+    // U+25CE, U+25D0: Geometric Shapes circles (fisheye, circle with left half black).
     private const string BearerGluedDelimiterPlaceholderGeometricShapes =
-        "\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7" +
-        "\u25CE\u25CB\u25CF\u25D0";
+        "\u25CE\u25D0";
 
     // U+29F8..U+29F9, U+301C, U+FE31, U+FE57..U+FE58, U+FE63, U+FE68, U+FF0F, U+FF5C, U+FF3C:
     // big solidus operators, wave dash, and small-form/fullwidth presentation variants.
