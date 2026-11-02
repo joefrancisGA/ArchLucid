@@ -35,6 +35,23 @@ public sealed class ArmResourceIdNormalizerTests
         ArmResourceIdNormalizer.DecodePercentEncoded(input).Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("100%", "100%")]
+    [InlineData("%2", "%2")]
+    [InlineData("%ZZ", "%ZZ")]
+    [InlineData("/subscriptions/abc%2", "/subscriptions/abc%2")]
+    public void DecodePercentEncoded_keeps_last_known_good_value_for_malformed_percent_encoding(string input, string expected)
+    {
+        ArmResourceIdNormalizer.DecodePercentEncoded(input).Should().Be(expected);
+    }
+
+    [Fact]
+    public void DecodePercentEncoded_discards_only_the_malformed_pass()
+    {
+        ArmResourceIdNormalizer.DecodePercentEncoded("%2Fsubscriptions%2Fabc%2")
+            .Should().Be("/subscriptions/abc%2");
+    }
+
     [Fact]
     public void DecodePercentEncoded_is_bounded_for_deeply_nested_encoding()
     {

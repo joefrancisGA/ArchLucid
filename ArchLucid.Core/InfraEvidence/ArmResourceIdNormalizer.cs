@@ -5,7 +5,8 @@ public static class ArmResourceIdNormalizer
 {
     /// <summary>
     ///     Decodes percent-encoded ARM ids with a bounded number of passes (double-encoded ids unwind
-    ///     one layer per pass). Stops early once a pass changes nothing.
+    ///     one layer per pass). Stops early once a pass changes nothing. A pass that hits malformed
+    ///     percent-encoding is discarded so the last known-good value is returned instead of throwing.
     /// </summary>
     public static string DecodePercentEncoded(string? armId)
     {
@@ -18,7 +19,16 @@ public static class ArmResourceIdNormalizer
 
         for (int pass = 0; pass < maxPercentDecodePasses && working.Contains('%'); pass++)
         {
-            string decoded = Uri.UnescapeDataString(working);
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                break;
+            }
 
             if (string.Equals(decoded, working, StringComparison.Ordinal))
                 break;
