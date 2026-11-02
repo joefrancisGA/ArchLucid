@@ -15,6 +15,14 @@ ROUTE_POLICY = Path("archlucid-ui/src/lib/product-line/securenow-marketing-route
 AXE_TEST = Path("archlucid-ui/src/accessibility/securenow-accessibility-axe.test.tsx")
 
 FORBIDDEN = ("WCAG certified", "fully accessible", "VPAT complete")
+REQUIRED_AXE_VIEWS = (
+    "SecureNowFirstHourPageView",
+    "SecureNowComplianceNotesPageView",
+    "SecureNowSelfServicePageView",
+    "SecureNowReturnReasonsPageView",
+    "SecureNowPilotDecisionPageView",
+    "SecureNowInvestigationEffortPageView",
+)
 
 
 def _read(root: Path, relative: Path, errors: list[str]) -> str:
@@ -30,7 +38,13 @@ def validate(root: Path = ROOT) -> list[str]:
 
     scope = _read(root, SCOPE, errors)
     if scope:
-        for token in ("**Scope:**", "WCAG 2.2", "accessibility@archlucid.net"):
+        for token in (
+            "**Scope:**",
+            "WCAG 2.2",
+            "accessibility@archlucid.net",
+            "First hour",
+            "not a WCAG certification",
+        ):
             if token not in scope:
                 errors.append(f"{SCOPE}: missing {token!r}")
         if "$" in scope:
@@ -59,8 +73,12 @@ def validate(root: Path = ROOT) -> list[str]:
         errors.append(f"{ROUTE_POLICY}: missing blocked /accessibility prefix")
 
     axe_test = _read(root, AXE_TEST, errors)
-    if axe_test and "toHaveNoViolations" not in axe_test:
-        errors.append(f"{AXE_TEST}: missing toHaveNoViolations")
+    if axe_test:
+        if "toHaveNoViolations" not in axe_test:
+            errors.append(f"{AXE_TEST}: missing toHaveNoViolations")
+        for view_name in REQUIRED_AXE_VIEWS:
+            if view_name not in axe_test:
+                errors.append(f"{AXE_TEST}: missing {view_name}")
 
     return errors
 

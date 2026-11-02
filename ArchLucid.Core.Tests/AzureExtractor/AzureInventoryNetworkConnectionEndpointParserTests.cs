@@ -151,4 +151,25 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
         result.Endpoint2ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(plainRemoteVnetId));
         result.HasBothEndpoints.Should().BeTrue();
     }
+
+    [Fact]
+    public void Parse_returns_null_endpoint_instead_of_throwing_when_percent_encoding_is_malformed()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["connectionType"] = "IPsec",
+            ["virtualNetworkGateway1.id"] = "50%",
+            ["localNetworkGateway2.id"] = "%ZZ",
+        };
+
+        Action act = () => AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        act.Should().NotThrow();
+
+        AzureInventoryNetworkConnectionEndpointParseResult result =
+            AzureInventoryNetworkConnectionEndpointParser.Parse(properties);
+
+        result.Endpoint1ArmId.Should().BeNull();
+        result.Endpoint2ArmId.Should().BeNull();
+    }
 }
