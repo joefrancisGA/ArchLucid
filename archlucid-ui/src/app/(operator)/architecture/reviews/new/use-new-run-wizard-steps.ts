@@ -1,9 +1,13 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import type { UseFormTrigger } from "react-hook-form";
 
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
@@ -57,6 +61,8 @@ export type UseNewRunWizardStepsOptions = {
 export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlStepIndex = parseNewRunWizardStepFromSearch(searchParams.get("step"));
 
   const stepDefinitions = options.baselineFirst
@@ -74,7 +80,11 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   const syncStepToUrl = useCallback(
     (nextStepIndex: number) => {
       commitHrefIfChanged(
-        newRunWizardStepHrefFromSearch(readWindowLocationSearch(), nextStepIndex, pathname),
+        newRunWizardStepHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          nextStepIndex,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -132,7 +142,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
   useEffect(() => {
     const syncStepFromUrl = (): void => {
       const parsedStep = parseNewRunWizardStepFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("step"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "step"),
       );
       const nextStep =
         parsedStep === null ? 0 : clampWizardStepIndex(parsedStep, stepDefinitions.length);
