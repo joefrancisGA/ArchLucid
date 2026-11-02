@@ -9,6 +9,7 @@ import {
   isUsableOAuthErrorUriValue,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
+  normalizeOidcOAuthFormString,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
@@ -580,9 +581,7 @@ async function postTokenForm(
 
 function normalizeTokenString(value: string): string {
   // Soft hyphens, variation selectors, and Unicode replacement glyphs are copy/paste artifacts, not bearer token material.
-  return stripOAuthInvisibleFormatChars(
-    value.replace(/[\u00AD\uFE00-\uFE0F\uFFFC\uFFFD]/gu, "").trim(),
-  ).trim();
+  return normalizeOidcOAuthFormString(value);
 }
 
 function normalizeOptionalTokenString(value: unknown): string | undefined {

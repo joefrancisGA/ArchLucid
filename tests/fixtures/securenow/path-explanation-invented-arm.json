@@ -1,0 +1,14 @@
+{
+  "executiveSummary": "The path reaches /subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/not-on-this-path.",
+  "businessImpactHypotheses": [],
+  "proposedRemediation": {
+    "recommendedChange": "Fix the cited exposure.",
+    "recommendedChangeSource": "WeakestHop",
+    "verificationQueries": [],
+    "preconditions": []
+  },
+  "citedEvidenceRefs": [
+    "evidence-1",
+    "path:{{PATH_ID}}"
+  ]
+}

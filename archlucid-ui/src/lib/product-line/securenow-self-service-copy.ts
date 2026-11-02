@@ -11,29 +11,36 @@ export const SECURENOW_SELF_SERVICE_GUARDRAIL =
   "SecureNow does not change Azure. This page is not a support SLA." as const;
 
 export type SecureNowSelfServiceStep = {
+  readonly id: string;
   readonly title: string;
   readonly body: string;
   readonly href?: string;
+  readonly secondaryHref?: string;
   readonly mailto?: string;
 };
 
 export const SECURENOW_SELF_SERVICE_STEPS: readonly SecureNowSelfServiceStep[] = [
   {
+    id: "collection",
     title: "Collection missing or stale",
     body: "A missing or stale capture is a gap. It is not proof the environment is clean.",
     href: CLOUD_CONNECTIONS_PATH,
   },
   {
+    id: "connector",
     title: "Connector will not finish",
     body: "Read the connector status. A failed connector is not a completed capture.",
     href: "/administration/connection-status",
   },
   {
+    id: "ranking",
     title: "No ranked path, or not verified",
     body: `An empty ranking is not proof you are secure. Not verified means a later capture, your attestation, completed analysis, or the postcondition is missing. Review the ranked path and the remediation tracker at ${SECURENOW_REMEDIATION_FACTORY_PATH} and ${SECURENOW_REMEDIATION_INSTANCES_PATH}.`,
     href: SECURENOW_REMEDIATION_FACTORY_PATH,
+    secondaryHref: SECURENOW_REMEDIATION_INSTANCES_PATH,
   },
   {
+    id: "email",
     title: "Still stuck",
     body: "Email support@archlucid.net with subject SecureNow. Include tenant, workspace, subscription, collection time, and path id when you have one. Do not paste secrets, tokens, or connection strings.",
     mailto: "mailto:support@archlucid.net?subject=SecureNow",

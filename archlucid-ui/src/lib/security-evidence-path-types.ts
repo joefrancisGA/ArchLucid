@@ -171,6 +171,7 @@ export type SecurityEvidencePathExplanation = {
   citedEvidenceRefs: ReadonlyArray<string>;
   provenanceKind: string;
   simulatorLabel: string | null;
+  modelOutputRejection: string | null;
   createdUtc: string;
 };
 

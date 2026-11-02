@@ -49,6 +49,7 @@ public sealed partial class GovernanceController
         Dictionary<string, Application.Governance.GovernanceBatchReviewItemResult> sealedPreflightFailures =
             new(StringComparer.OrdinalIgnoreCase);
         List<string> approvalRequestIdsForFacade = [];
+        HashSet<string> checkedApprovalRequestIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string rawApprovalRequestId in body.ApprovalRequestIds)
         {
@@ -61,22 +62,28 @@ public sealed partial class GovernanceController
             string approvalRequestId =
                 GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(rawApprovalRequestId);
 
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
-                approvalRequestId,
-                approvalRepository,
-                cancellationToken);
-
-            if (sealedGuardResult is ObjectResult { StatusCode: StatusCodes.Status409Conflict } conflictResult)
-            {
-                sealedPreflightFailures[approvalRequestId] = MapSealedManifestBatchPreflightFailure(
-                    approvalRequestId,
-                    conflictResult);
-
+            if (sealedPreflightFailures.ContainsKey(approvalRequestId))
                 continue;
-            }
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (checkedApprovalRequestIds.Add(approvalRequestId))
+            {
+                IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+                    approvalRequestId,
+                    approvalRepository,
+                    cancellationToken);
+
+                if (sealedGuardResult is ObjectResult { StatusCode: StatusCodes.Status409Conflict } conflictResult)
+                {
+                    sealedPreflightFailures[approvalRequestId] = MapSealedManifestBatchPreflightFailure(
+                        approvalRequestId,
+                        conflictResult);
+
+                    continue;
+                }
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
 
             approvalRequestIdsForFacade.Add(rawApprovalRequestId);
         }
