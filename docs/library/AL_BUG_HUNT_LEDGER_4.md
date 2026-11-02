@@ -10240,6 +10240,20 @@
 ## Zone: core-azure-extractor
 
 
+2026-11-02 seed hunt (seed→hit #865): promoted percent-encoded OIDC `subject` on federated credential companion rows (`AzureInventoryFederatedCredentialParser` stored trimmed encoded subject strings without bounded percent-decode before `NodeId` and default evidence hash, so re-import produced duplicate credential nodes vs decoded subject rows); bounded percent-decode on subject (parity with **#864** issuer normalize); regressions `TryParse_reads_subject_when_subject_is_percent_encoded_oidc_claim` and `TryParse_default_evidence_hash_matches_when_subject_is_percent_encoded_oidc_claim`; cheap-disproof closed four open `(candidate)` rows from seed **#864**; reseeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~AzureExtractor` filter **2661/2661** (Release). Private beta: invited operators see stable federated-credential identity on inventory diagrams when companion JSON stores percent-encoded OIDC subject claims.
+
+- [x] (proven) `AzureInventoryFederatedCredentialParser` — percent-encoded `subject` claim changes row identity on re-import — **hit 2026-11-02 seed hunt #865:** `NormalizePercentEncodedTrimmedScalar` on subject; regressions above. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryLoadBalancerBackendTrafficResolver` — percent-encoded ipConfiguration on backend pool member — **cheap-disproof 2026-11-02 seed hunt #865:** **#859** reader regression `ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_is_percent_encoded_plain_arm_scalar`.
+- [x] (valid-no-repro) `AzureInventoryVnetPeeringParser` — percent-encoded remote virtual network id on flattened peering property — **cheap-disproof 2026-11-02 seed hunt #865:** regression `TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar`.
+- [x] (valid-no-repro) `AzureInventoryPaasChildAssociationParser` — percent-encoded `childResourceId` on companion row with plain parent — **cheap-disproof 2026-11-02 seed hunt #865:** **#858** regression `TryParse_reads_parent_and_child_when_resource_ids_are_percent_encoded_plain_arm_scalars`.
+- [x] (valid-no-repro) `AzureInventoryRestorePointCollectionSourceParser` — percent-encoded `source.id` property with alternate segment casing — **cheap-disproof 2026-11-02 seed hunt #865:** monitor reseed below.
+
+- [ ] (candidate) `AzureInventoryRestorePointCollectionSourceParser` — percent-encoded `source.id` property with alternate segment casing — locus: dictionary key lookup; input: encoded scalar on non-canonical key; wrong outcome: missing lineage (monitor seed **#865**).
+- [ ] (candidate) `AzureInventoryFederatedCredentialParser` — percent-encoded `principalId` GUID scalar changes evidence hash on re-import — locus: principalId trim-only; input: encoded principal id string; wrong outcome: duplicate credential rows (monitor seed **#865**).
+- [ ] (candidate) `AzureInventoryMessagingAssociationParser` — percent-encoded `forwardTo` entity name on Service Bus companion row — locus: trim-only forward target; input: encoded non-ARM forwardTo string; wrong outcome: broken messaging edge label (monitor seed **#865**).
+- [ ] (candidate) `AzureInventoryNetworkConnectionEndpointParser` — percent-encoded `remoteVirtualNetwork.id` on endpoint2 flattened property — locus: `NormalizeArmId`; input: encoded remote VNet ARM scalar; wrong outcome: missing Vnet2Vnet endpoint join (regression `Parse_reads_remote_virtual_network_endpoint_when_id_is_percent_encoded_plain_arm_scalar`).
+- [ ] (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — percent-encoded backend resource id on flat address row — locus: reader normalize; input: encoded backend scalar; wrong outcome: missing AGW backend edge (regression `TryReadBackendResourceArmId_reads_resource_when_backend_resource_id_is_percent_encoded_plain_arm_scalar`).
+
 2026-11-01 seed hunt #864 (seed→hit): reseeded after picker `seedHunt`; promoted percent-encoded HTTPS `issuer` on federated credential companion rows (`AzureInventoryFederatedCredentialParser` stored trimmed encoded `https%3A%2F%2F...` issuer strings without bounded percent-decode before row identity and default evidence hash, so re-import produced duplicate node ids and mismatched hashes vs decoded issuer rows); bounded percent-decode before trim on issuer (parity with **#863** parent ARM normalize); regressions `TryParse_reads_issuer_when_issuer_is_percent_encoded_https_url` and `TryParse_default_evidence_hash_matches_when_issuer_is_percent_encoded_https_url`; cheap-disproof closed open `(candidate)` **MessagingAssociationExtractor** encoded Service Bus namespace from seed **#863** as **valid-no-repro** (**#862** `NormalizeArmId` — regression `TryExtractServiceBusChild_reads_parent_when_namespace_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **ApplicationGatewayBackendAddressReader** as **valid-no-repro** (regression `TryReadBackendResourceArmId_reads_resource_when_backend_resource_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **NetworkConnectionEndpointParser** gateway endpoint as **valid-no-repro** (regression `Parse_reads_gateway_endpoint_when_virtual_network_gateway_id_is_percent_encoded_plain_arm_scalar`); cheap-disproof **RestorePointCollectionSourceParser** alternate property key monitor deferred (reseed below); scoped `FullyQualifiedName~AzureExtractor` filter **2657/2657** (Release). Private beta: invited operators see stable federated-credential identity on inventory diagrams when companion JSON stores percent-encoded OIDC issuer URLs.
 
 - [x] (proven) `AzureInventoryFederatedCredentialParser` — percent-encoded issuer URL changes row identity on re-import — **hit 2026-11-01 seed hunt #864:** `NormalizePercentEncodedTrimmedScalar` on issuer; regressions above. [class:fail-open-validation]
@@ -10806,11 +10820,11 @@
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
 
-- **hunts:** 68
-- **bugs-found:** 44
+- **hunts:** 69
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — Federated credential companion percent-encoded HTTPS issuer URLs
+- **last-hunt:** 2026-11-02
+- **last-bug:** 2026-11-02 — Federated credential companion percent-encoded OIDC subject claims
 
 - **related-pd-tb:** none
 - **code-changed-since:** no

@@ -3381,3 +3381,4 @@
 {"at":"2026-11-02T13:48:30.1151167Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T13:49:32.1722510Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T13:51:34.1830475Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T13:51:43.0000000Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}

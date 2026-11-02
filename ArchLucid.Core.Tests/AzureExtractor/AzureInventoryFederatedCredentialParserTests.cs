@@ -137,4 +137,56 @@ public sealed class AzureInventoryFederatedCredentialParserTests
 
         row!.EvidenceHashSha256.Should().Equal(expectedHash);
     }
+
+    [Fact]
+    public void TryParse_reads_subject_when_subject_is_percent_encoded_oidc_claim()
+    {
+        const string subject = "repo:org/repo:environment:prod";
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "https://token.actions.githubusercontent.com",
+                                                              "subject": "{{Uri.EscapeDataString(subject)}}",
+                                                              "principalId": "11111111-1111-1111-1111-111111111111",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.Subject.Should().Be(subject);
+    }
+
+    [Fact]
+    public void TryParse_default_evidence_hash_matches_when_subject_is_percent_encoded_oidc_claim()
+    {
+        const string issuer = "https://token.actions.githubusercontent.com";
+        const string subject = "repo:org/repo:environment:prod";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        byte[] expectedHash = AzureInventoryFederatedCredentialParser.ComputeDefaultEvidenceHash(
+            issuer,
+            subject,
+            principalId,
+            appId: null);
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "issuer": "{{issuer}}",
+                                                              "subject": "{{Uri.EscapeDataString(subject)}}",
+                                                              "principalId": "{{principalId}}",
+                                                              "provenanceKind": "ObservedFact"
+                                                            }
+                                                            """);
+
+        AzureInventoryFederatedCredentialParser.TryParse(
+            document.RootElement,
+            out AzureInventoryFederatedCredentialRow? row,
+            out string? error).Should().BeTrue(error);
+
+        row!.EvidenceHashSha256.Should().Equal(expectedHash);
+    }
 }
