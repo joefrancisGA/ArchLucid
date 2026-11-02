@@ -29476,10 +29476,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 74
+- **hunts:** 75
 - **bugs-found:** 47
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-11-01
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-11-02
 - **last-bug:** 2026-11-01 — revision hasher threw on null collection elements in graph/findings JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
