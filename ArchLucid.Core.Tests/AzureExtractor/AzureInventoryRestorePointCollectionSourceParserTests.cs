@@ -84,6 +84,44 @@ public sealed class AzureInventoryRestorePointCollectionSourceParserTests
     }
 
     [Fact]
+    public void Parse_reads_source_id_when_value_is_double_percent_encoded_plain_arm_scalar()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = Uri.EscapeDataString(Uri.EscapeDataString(VirtualMachineArmId)),
+        };
+
+        AzureInventoryRestorePointCollectionSourceParser.Parse(properties)
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(VirtualMachineArmId));
+    }
+
+    [Fact]
+    public void Parse_with_malformed_percent_encoding_does_not_throw()
+    {
+        string encoded = Uri.EscapeDataString(VirtualMachineArmId);
+
+        Dictionary<string, string> malformedTailProperties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = encoded + "%zz",
+        };
+
+        Action actTail = () => AzureInventoryRestorePointCollectionSourceParser.Parse(malformedTailProperties);
+
+        actTail.Should().NotThrow();
+
+        Dictionary<string, string> malformedHexProperties = new(StringComparer.Ordinal)
+        {
+            ["source.id"] = "%zz" + encoded,
+        };
+
+        Action actHex = () => AzureInventoryRestorePointCollectionSourceParser.Parse(malformedHexProperties);
+
+        actHex.Should().NotThrow();
+        AzureInventoryRestorePointCollectionSourceParser.Parse(malformedHexProperties).Should().BeNull();
+    }
+
+    [Fact]
     public void Parse_without_source_returns_null()
     {
         AzureInventoryRestorePointCollectionSourceParser.Parse(new Dictionary<string, string>())
