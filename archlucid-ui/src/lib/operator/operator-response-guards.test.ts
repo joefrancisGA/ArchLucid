@@ -119,6 +119,21 @@ describe("coerceRunSummaryPaged", () => {
       expect(result.message).toContain("requestedTake");
     }
   });
+
+  it("rejects legacy offset envelope when pageSize is zero", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 0,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("pageSize");
+    }
+  });
 });
 
 describe("coerceGraphViewModel", () => {
@@ -328,6 +343,24 @@ describe("coerceReplayResponse", () => {
       expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
     }
   });
+
+  it("rejects whitespace-only replayedUtc", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: "m",
+      replayedUtc: "   ",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
+    }
+  });
 });
 
 describe("coerceRunDetail", () => {
@@ -467,6 +500,26 @@ describe("coerceManifestSummary", () => {
     expect(blankRunId.ok).toBe(false);
     if (!blankRunId.ok) {
       expect(blankRunId.message).toBe('Review record summary is missing or invalid "runId".');
+    }
+  });
+
+  it("rejects whitespace-only manifestHash", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "   ",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "manifestHash".');
     }
   });
 });
