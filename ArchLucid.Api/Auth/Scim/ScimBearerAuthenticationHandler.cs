@@ -221,11 +221,11 @@ internal class ScimBearerAuthenticationHandler(
     /// <summary>Verticals, dash verticals, double vertical, diagonal, and horizontal strokes.</summary>
     private const string BearerGluedBoxDrawingPlaceholders = "\u2502\u2503\u2506\u2507\u2508\u2509\u2551\u2571\u2574\u2575\u2576\u2577\u2578\u2579\u257A\u257B\u257C\u257D\u257E\u257F";
 
-    /// <summary>Upper half block, partial block fills, and quadrant blocks.</summary>
-    private const string BearerGluedBlockElementPlaceholders = "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259A\u259B\u259C\u259D\u259E\u259F";
+    /// <summary>Upper half block and partial block fills.</summary>
+    private const string BearerGluedBlockElementPlaceholders = "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589";
 
-    /// <summary>Squares, triangles, diamonds, and circle fills through upper-half/quadrant circles.</summary>
-    private const string BearerGluedGeometricShapePlaceholders = "\u25A0\u25A1\u25AA\u25AB\u25B2\u25BC\u25C6\u25C7\u25CE\u25CB\u25CF\u25D0\u25D1\u25D2\u25D3\u25D4";
+    /// <summary>Circle fills through upper-half/quadrant circles.</summary>
+    private const string BearerGluedGeometricShapePlaceholders = "\u25D3\u25D4";
 
     /// <summary>Big solidus and its inverse.</summary>
     private const string BearerGluedSupplementalArrowPlaceholders = "\u29F8\u29F9";
