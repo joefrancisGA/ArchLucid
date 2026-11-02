@@ -239,7 +239,21 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
 
         extracted.Should().BeTrue();
         row.Should().NotBeNull();
-        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(Uri.UnescapeDataString(malformedNamespaceId)));
-        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(Uri.UnescapeDataString(malformedChildId)));
+        row!.ParentResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(SafeUnescapeDataString(malformedNamespaceId)));
+        row.ChildResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(SafeUnescapeDataString(malformedChildId)));
+    }
+
+    private static string SafeUnescapeDataString(string value)
+    {
+        try
+        {
+            return Uri.UnescapeDataString(value);
+        }
+        catch (UriFormatException)
+        {
+            // Malformed percent-escape sequences can throw on some runtimes; the extractor
+            // is expected to be resilient, so keep the original string in that case.
+            return value;
+        }
     }
 }
