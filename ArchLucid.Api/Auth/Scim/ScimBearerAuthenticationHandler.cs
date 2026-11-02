@@ -206,7 +206,7 @@ internal class ScimBearerAuthenticationHandler(
     // (e.g. "Bearer▌") when comma-folding Authorization headers. Each group below lists the
     // delimiter-lookalike codepoints observed in that position, grouped by Unicode block.
     // ASCII delimiter lookalikes: vertical line, solidus, reverse solidus.
-    private const string BearerGluedAsciiDelimiterLookalikes = "|/\";
+    private const string BearerGluedAsciiDelimiterLookalikes = "|/\\";
 
     // Latin-1 Supplement operator lookalikes: multiplication and division signs.
     private const string BearerGluedLatin1OperatorLookalikes = "\u00D7\u00F7";
@@ -243,7 +243,23 @@ internal class ScimBearerAuthenticationHandler(
     // Halfwidth and Fullwidth Forms lookalikes: fullwidth solidus, vertical line, reverse solidus.
     private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
 
-    
+    // Geometric Shapes lookalikes: circle placeholders glued after Bearer (hunts #69–#70).
+    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0\u25D1\u25D2\u25D3\u25D4";
+
+    private const string BearerGluedDelimiterPlaceholderCodePoints =
+        BearerGluedAsciiDelimiterLookalikes +
+        BearerGluedLatin1OperatorLookalikes +
+        BearerGluedModifierLetterLookalikes +
+        BearerGluedGeneralPunctuationLookalikes +
+        BearerGluedMathOperatorLookalikes +
+        BearerGluedBoxDrawingLookalikes +
+        BearerGluedBlockElementLookalikes +
+        BearerGluedGeometricShapeLookalikes +
+        BearerGluedBigSolidusLookalikes +
+        BearerGluedWaveDashLookalike +
+        BearerGluedSmallFormLookalikes +
+        BearerGluedFullwidthLookalikes;
+
     private static bool IsBearerDelimiterOnlyPlaceholder(ReadOnlySpan<char> tail)
     {
         foreach (char character in tail)

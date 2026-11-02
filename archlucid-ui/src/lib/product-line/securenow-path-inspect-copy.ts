@@ -48,10 +48,10 @@ export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG = "Simulator — n
 export const SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG = "Model — cited stored path" as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD =
-  "This uses the deterministic simulator. Structured path hops remain authoritative." as const;
+  "This uses the deterministic simulator. Structured path hops remain authoritative. This does not change the rank." as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD =
-  "This uses the live model with citations constrained to the stored path. Structured path hops remain authoritative." as const;
+  "This uses the live model with citations constrained to the stored path. Structured path hops remain authoritative. This does not change the rank." as const;
 
 export const SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON = "Grounded on" as const;
 
@@ -60,6 +60,7 @@ export const SECURENOW_PATH_RANKED_PATHS_TITLE = secureNowTitleCase("Ranked arch
 export const SECURENOW_PATH_RANKED_PATHS_LEAD =
   "Deterministic path ranking (SA-09). Select a row to inspect hops, cut points, and rank breakdown." as const;
 
-export const SECURENOW_PATH_RANKED_PATHS_EMPTY = "No ranked architect paths for the current scope." as const;
+export const SECURENOW_PATH_RANKED_PATHS_EMPTY =
+  "No ranked path for this scope. Open collection, then select a row." as const;
 
 export const SECURENOW_PATH_RANKED_PATHS_ERROR = "Ranked paths unavailable" as const;
