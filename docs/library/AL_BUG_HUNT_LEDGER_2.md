@@ -6191,6 +6191,20 @@
 
 ## Zone: saml-jwt-bearer
 
+2026-11-01 seed hunt (seed→hit #57): promoted comma-folded `Authorization` with lower one eighth block (`U+2590`) and lower three eighths block (`U+2591`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+2590` and `U+2591`; regressions `HandleAuthenticateAsync_succeeds_when_u2590_lower_one_eighth_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_u2591_lower_three_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#56** (future `auth_time` beyond skew — regression `HasRecentAuthentication_returns_false_for_future_auth_time`; current auth-version stamp — regression `ValidateAsync_accepts_current_auth_version`; zero-minute lifetime floor — regression `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **115/115** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is a lower block-element placeholder (`U+2590`/`U+2591`) before a valid token on the JwtBearer pilot path.
+
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower one eighth block (`U+2590`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #57:** regression `HandleAuthenticateAsync_succeeds_when_u2590_lower_one_eighth_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — lower three eighths block (`U+2591`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #57:** regression `HandleAuthenticateAsync_succeeds_when_u2591_lower_three_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator` — future `auth_time` beyond clock skew rejected — **cheap-disproof 2026-11-01 seed hunt #57:** regression `HasRecentAuthentication_returns_false_for_future_auth_time`.
+- [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — accepts current auth-version stamp — **cheap-disproof 2026-11-01 seed hunt #57:** regression `ValidateAsync_accepts_current_auth_version`.
+- [x] (valid-no-repro) `LocalTrialJwtIssuer` — zero minute lifetime request clamped to floor — **cheap-disproof 2026-11-01 seed hunt #57:** regression `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`.
+
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower five eighths block (`U+2592`) glued after `Bearer` — locus: placeholder set; reachability: proxy comma-fold monitor (seed **#57**).
+- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower three quarters block (`U+2593`) glued after `Bearer` — locus: dash normalization; reachability: proxy comma-fold monitor (seed **#57**).
+- [ ] (candidate) `RecentAuthenticationEvaluator` — fresh `iat` without `auth_time` within window accepted — locus: `iat` fallback; reachability: step-up monitor (regression `HasRecentAuthentication_returns_true_when_only_fresh_iat_is_present_without_auth_time`).
+- [ ] (candidate) `PlatformUserAuthVersionValidator` — stale auth-version on Guid `sub` rejected — locus: platform user lookup; reachability: pilot JWT monitor (regression `ValidateAsync_rejects_stale_auth_version`).
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — disabled options no-op when inbound role present — locus: inbound normalizer gate; reachability: SAML monitor (regression `Apply_when_disabled_is_noop`).
+
 2026-11-01 seed hunt (seed→hit #56): promoted comma-folded `Authorization` with upper one eighth block (`U+258E`) and upper one quarter block (`U+258F`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+258E` and `U+258F`; regressions `HandleAuthenticateAsync_succeeds_when_upper_one_eighth_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_upper_one_quarter_block_u258f_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#55** (sixty-minute clamp plus one-second-past boundary — regressions `HasRecentAuthentication_clamps_max_age_minutes_above_sixty_to_sixty` and `HasRecentAuthentication_returns_false_when_auth_time_is_one_second_past_max_age_boundary`; empty auth-version on Guid `sub` — `ValidateAsync_rejects_platform_user_tokens_without_auth_version_claim`; SAML normalizer monitor — `Apply_when_not_saml_authentication_type_is_noop` for non-SAML types); reseeded five follow-on `(candidate)` rows; scoped **113/113** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an upper one-eighth or upper one-quarter block placeholder (`U+258F`) before a valid token on the JwtBearer pilot path.
 
 - [x] (proven) `ScimBearerAuthenticationHandler.TryReadBearerCredentialSegment` — upper one eighth block (`U+258E`) placeholder after `Bearer` trips mix guard — **hit 2026-11-01 seed hunt #56:** regression `HandleAuthenticateAsync_succeeds_when_upper_one_eighth_block_only_bearer_segment_precedes_valid_comma_folded_credential`.
@@ -6198,12 +6212,6 @@
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator` — `maxAgeMinutes` exactly sixty when `auth_time` is one second past window — **cheap-disproof 2026-11-01 seed hunt #56:** clamp plus boundary regressions above.
 - [x] (valid-no-repro) `PlatformUserAuthVersionValidator` — empty auth-version claim on local Guid `sub` rejected — **cheap-disproof 2026-11-01 seed hunt #56:** regression `ValidateAsync_rejects_platform_user_tokens_without_auth_version_claim`.
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — inbound role on non-SAML authentication type stays no-op — **cheap-disproof 2026-11-01 seed hunt #56:** regression `Apply_when_not_saml_authentication_type_is_noop`; monitor seed **#55** row retired.
-
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower one eighth block (`U+2590`) glued after `Bearer` — locus: placeholder set; reachability: proxy comma-fold monitor (seed **#56**).
-- [ ] (candidate) `ScimBearerAuthenticationHandler` — lower three eighths block (`U+2591`) glued after `Bearer` — locus: dash normalization; reachability: proxy comma-fold monitor (seed **#56**).
-- [ ] (candidate) `RecentAuthenticationEvaluator` — future `auth_time` beyond clock skew rejected — locus: skew window; reachability: step-up monitor (regression `HasRecentAuthentication_returns_false_for_future_auth_time`).
-- [ ] (candidate) `PlatformUserAuthVersionValidator` — accepts current auth-version stamp — locus: platform user lookup; reachability: pilot JWT monitor (regression `ValidateAsync_accepts_current_auth_version`).
-- [ ] (candidate) `LocalTrialJwtIssuer` — zero minute lifetime request clamped to floor — locus: lifetime floor; reachability: Email OTP / trial mint (regression `IssueAccessToken_clamps_zero_minute_lifetime_request_to_five_minutes`).
 
 2026-11-01 seed hunt (seed→hit #55): promoted comma-folded `Authorization` with upper one quarter block (`U+258C`) and upper three eighths block (`U+258D`) placeholders after `Bearer` before valid segment — glued segments misclassified as non-Bearer and tripped mix guard; extended `BearerGluedDelimiterPlaceholderCodePoints` with `U+258C` and `U+258D`; regressions `HandleAuthenticateAsync_succeeds_when_upper_one_quarter_block_only_bearer_segment_precedes_valid_comma_folded_credential` and `HandleAuthenticateAsync_succeeds_when_upper_three_eighths_block_only_bearer_segment_precedes_valid_comma_folded_credential`; cheap-disproof closed three open `(candidate)` rows from seed **#54** (`maxAgeMinutes` one-second-past `iat`-only window — regression `HasRecentAuthentication_returns_false_when_only_iat_is_one_second_past_max_age_boundary_without_auth_time`; non-Guid auth-version — `Guid.TryParse` gate in `ValidateAsync`; trial lifetime floor — regression `IssueAccessToken_clamps_requested_access_token_lifetime_below_five_minutes`); reseeded five follow-on `(candidate)` rows; scoped **111/111** `ScimBearerAuthenticationHandlerTests` (Release). Private beta: SCIM Bearer provisioning succeeds when a gateway comma-folds credentials and the first segment is an upper one-quarter or upper three-eighths block placeholder before a valid token on the JwtBearer pilot path.
 
@@ -6834,11 +6842,11 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 84
-- **bugs-found:** 80
+- **hunts:** 85
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-01
-- **last-bug:** 2026-11-01 — SCIM Bearer mix guard rejected upper one-eighth and U+258F block placeholders before valid comma-folded token
+- **last-bug:** 2026-11-01 — SCIM Bearer mix guard rejected U+2590/U+2591 block placeholders before valid comma-folded token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
