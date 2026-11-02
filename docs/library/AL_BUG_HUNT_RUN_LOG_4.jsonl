@@ -3599,3 +3599,4 @@
 {"at":"2026-11-02T19:06:10.4955005Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T19:07:23.6002395Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T19:08:25.9821756Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T19:08:34.1539658Z","zoneId":"host-core-jobs","outcome":"seed-only","productLine":"archlucid-shared"}

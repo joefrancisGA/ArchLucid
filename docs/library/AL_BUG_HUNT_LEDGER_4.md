@@ -1049,6 +1049,14 @@
 
 ## Zone: host-core-jobs
 
+2026-11-02 seed hunt #1532 (seed-only): picker returned `host-core-jobs` with **zero** open `(candidate)` rows at zone head after thorough dry **#1425** closed the prior **#1114** reseed queue. Re-read `ArchLucid.Host.Core/Jobs/` and `Hosted/` (durable/in-memory queues, processor hosted service, stuck-running watchdog). Promoted no hunt-ready rows this pass — revived mechanisms remain covered by existing regressions (`ShouldAbortRetryNotification`, capacity HOLDLOCK family **#1365**, cancel-wins re-reads **#1064**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1114**); scoped **77/77** Host.Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — post-backoff `SendMessageAsync` may run when `MarkPendingRetryAsync` succeeded but a concurrent path marked the row `Failed` before delay completed without matching #961 `ShouldAbortRetryNotification` ordering — locus: retry notify after backoff; input: terminal transition during delay; wrong outcome: stale queue notify (monitor; hunt #1532 reseed; hunt **#1114** family).
+- [ ] (candidate) `BackgroundJobRepository.MarkFailedTerminalAsync` — processor may need `bool` return parity with `MarkPendingRetryAsync` to skip redundant queue notify when SQL `Running` guard no-ops — locus: terminal assignment guard; input: concurrent reclaim to `Pending`; wrong outcome: redundant notify (monitor; hunt #1532 reseed; hunt **#1114** family).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `Task.Delay` retry backoff interrupted by host shutdown may leave durable `Pending` row without queue message until watchdog — locus: shutdown during backoff; input: `stoppingToken` during delay; wrong outcome: silent `Pending` until watchdog (monitor; hunt #1532 reseed; hunt **#1114** family).
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — notify-failure terminal may persist stale `RetryCount` when stale worker and watchdog both mutate retries in one window — locus: watchdog terminal snapshot; input: concurrent retry bumps; wrong outcome: incorrect retry budget (monitor; hunt #1532 reseed; hunt **#1114** family).
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — concurrent `MarkCanceledAsync` on `Pending` between notify failure and `MarkFailedTerminalFromQueuedStateAsync` may terminal a canceled row — locus: enqueue notify failure path; input: cancel during notify failure handling; wrong outcome: canceled row marked failed (monitor; hunt #1532 reseed; hunt **#1114** family).
+
 2026-11-02 thorough hunt #1425 (dry): no rotation (`shouldRotate: false`; run-log low-yield streak on `host-core-jobs` is **1/3** before this record — dry **#1371** only among jobs outcomes after KG/worker hunts **#1419–#1424**). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1371 reseed (regression family hunt **#1365** / **#960** / **#961**) — **valid-no-repro** capacity gate then concurrent fill before post-backoff notify (`TryInsertPendingJobIfUnderCapacityAsync` HOLDLOCK hunt **#1365**; `ShouldAbortRetryNotification`, **#961** `MarkPendingRetryAsync` bool guard, capacity-exhausted terminal lines 344–350), **valid-no-repro** stale `Running` notification (`ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable` — hunt **#1365** / **#960**), **valid-no-repro** cancel after blob upload (`ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment` — hunt **#960** / **#1064**), **valid-no-repro** in-memory writer-rejected shutdown terminal (post-log `_info` re-read — hunt **#955** / **#1112**), **valid-no-repro** enqueue insert then caller cancel before notify (watchdog recovery — hunt **#961**). Reseeded five `(candidate)` monitor rows below (regression family hunt **#1114**); scoped filter **77/77** Host.Core tests passed (`RunAnalyzers=false`). Private beta: n/a.
 
 
@@ -1512,7 +1520,7 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-11-02
