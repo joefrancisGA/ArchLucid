@@ -689,6 +689,45 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_data_flow_stage_summary_counts_missing_neighbor_status_p02()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "data-flow-stage-storage", Label = "Storage", OrderKey = 0 },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "bus-a",
+                    Label = "bus-a",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.ServiceBus/namespaces",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 0,
+                },
+                new DiagramNode
+                {
+                    NodeId = "bus-b",
+                    Label = "bus-b",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.ServiceBus/namespaces",
+                    SubgraphId = "data-flow-stage-storage",
+                    OrderKey = 1,
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("2 Storage (2 neighbor statuses were not stored.)");
+    }
+
+    [Fact]
     public void Resolve_row_width_limit_keeps_three_cell_floor_and_scales_large_plates()
     {
         DiagramForestLayoutOptions options = new()

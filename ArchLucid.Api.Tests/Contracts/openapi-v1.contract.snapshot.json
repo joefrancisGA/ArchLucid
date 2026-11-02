@@ -5994,6 +5994,9 @@
               "string"
             ]
           },
+          "indexedSearchNotLimitedToReviewId": {
+            "type": "boolean"
+          },
           "referencedArtifacts": {
             "items": {
               "type": "string"

@@ -34,6 +34,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   filterDiagramOutlineUnknownNodes,
+  resolveDiagramOutlineUnknownFilterEmptyMessage,
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
   resolveDiagramOutlineStartingNode,
   type DiagramOutlineUnknownNodeFilterScope,
@@ -908,7 +909,11 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                           data-testid="infra-diagrams-unknown-filter-empty"
                         >
-                          No unknown rows match this filter. Choose a broader scope or clear the search.
+                          {resolveDiagramOutlineUnknownFilterEmptyMessage({
+                            outline,
+                            startingSeedId: startingResourceSeedId,
+                            scope: unknownFilterScope,
+                          })}
                         </p>
                       ) : null}
                     </div>

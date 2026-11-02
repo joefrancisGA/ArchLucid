@@ -53,7 +53,7 @@ public sealed class AskResponseComposerTests
 
         AskResponse response = composer.Parse(threadId, "  Plain text answer.  ");
 
-        response.Answer.Should().Be("Plain text answer.");
+        response.Answer.Should().Be("This reply was not parsed as an Ask answer. Plain text answer.");
     }
 
     [Fact]
