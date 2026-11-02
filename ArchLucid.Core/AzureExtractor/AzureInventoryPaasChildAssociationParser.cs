@@ -49,8 +49,8 @@ public static class AzureInventoryPaasChildAssociationParser
             return false;
         }
 
-        string normalizedParentResourceId = NormalizeCompanionArmId(parentResourceId);
-        string normalizedChildResourceId = NormalizeCompanionArmId(childResourceId);
+        string normalizedParentResourceId = ArmResourceIdNormalizer.NormalizePercentDecoded(parentResourceId);
+        string normalizedChildResourceId = ArmResourceIdNormalizer.NormalizePercentDecoded(childResourceId);
 
         row = new AzureInventoryPaasChildAssociationRow
         {
@@ -84,21 +84,6 @@ public static class AzureInventoryPaasChildAssociationParser
         }
 
         return trimmed;
-    }
-
-    private static string NormalizeCompanionArmId(string armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(armId, out string working))
-        {
-            return string.Empty;
-        }
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

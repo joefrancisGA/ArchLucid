@@ -33,8 +33,8 @@ public static class AzureInventoryPaasChildAssociationExtractor
 
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = NormalizeCompanionArmId(parentResourceId),
-            ChildResourceId = NormalizeCompanionArmId(childResourceId),
+            ParentResourceId = ArmResourceIdNormalizer.NormalizePercentDecoded(parentResourceId),
+            ChildResourceId = ArmResourceIdNormalizer.NormalizePercentDecoded(childResourceId),
             ChildName = childName.Trim(),
             ChildType = childType,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
@@ -51,20 +51,5 @@ public static class AzureInventoryPaasChildAssociationExtractor
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : null;
-    }
-
-    private static string NormalizeCompanionArmId(string armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(armId, out string working))
-        {
-            return string.Empty;
-        }
-
-        return ArmResourceIdNormalizer.Normalize(working);
     }
 }

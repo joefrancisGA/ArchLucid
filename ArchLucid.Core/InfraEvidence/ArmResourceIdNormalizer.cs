@@ -60,6 +60,27 @@ public static class ArmResourceIdNormalizer
         return !working.Contains('%', StringComparison.Ordinal);
     }
 
+    /// <summary>
+    ///     Bounded percent-decodes <paramref name="value"/> and normalizes the result into the
+    ///     canonical lowercased ARM id form. Returns <see cref="string.Empty"/> for null, whitespace,
+    ///     or malformed percent-encoding so callers can treat a blank result as a rejected reference.
+    ///     Shared by the Azure extractor parsers and extractors that read companion ARM id fields.
+    /// </summary>
+    internal static string NormalizePercentDecoded(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        if (!TryDecodePercentEncoded(value, out string working))
+        {
+            return string.Empty;
+        }
+
+        return Normalize(working);
+    }
+
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
     public static string Normalize(string? externalResourceId)
     {

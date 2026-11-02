@@ -187,4 +187,35 @@ public sealed class ArmResourceIdNormalizerTests
             .Should().BeTrue();
         whitespaceDecoded.Should().BeEmpty();
     }
+
+    [Fact]
+    public void NormalizePercentDecoded_decodes_then_normalizes_percent_encoded_arm_id()
+    {
+        const string encoded =
+            "/subscriptions/Sub/resourceGroups/RG/providers/Microsoft.Sql/servers/sql1%2Fdatabases%2Fappdb";
+
+        ArmResourceIdNormalizer.NormalizePercentDecoded(encoded).Should().Be(
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql1/databases/appdb");
+    }
+
+    [Fact]
+    public void NormalizePercentDecoded_normalizes_plain_arm_id_without_decoding()
+    {
+        const string plain =
+            "/subscriptions/Sub/resourceGroups/RG/providers/Microsoft.Sql/servers/sql1/";
+
+        ArmResourceIdNormalizer.NormalizePercentDecoded(plain).Should().Be(
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.sql/servers/sql1");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("50%")]
+    [InlineData("%2Fsubscriptions%2Fsub%ZZ")]
+    public void NormalizePercentDecoded_returns_empty_for_blank_or_malformed_input(string? input)
+    {
+        ArmResourceIdNormalizer.NormalizePercentDecoded(input).Should().BeEmpty();
+    }
 }
