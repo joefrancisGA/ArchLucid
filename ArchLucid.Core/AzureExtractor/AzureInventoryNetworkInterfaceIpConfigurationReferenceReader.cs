@@ -54,7 +54,7 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
         // Gate normalization to strings that look like ARM resource IDs.
         // This avoids treating arbitrary decoded strings as ARM IDs.
         if (!working.StartsWith("/", StringComparison.Ordinal) ||
-            !working.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            !working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
