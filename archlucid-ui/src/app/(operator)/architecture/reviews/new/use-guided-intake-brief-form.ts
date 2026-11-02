@@ -10,6 +10,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import { appendIntakeAttachedFileNames } from "@/lib/intake-attached-file-names";
 import {
@@ -47,6 +48,8 @@ export type GuidedIntakeBriefForm = ReturnType<typeof useGuidedIntakeBriefForm>;
 export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) {
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlScopeGateOpen = parseScopeGateOpenFromSearch(searchParams.get("scopeGate"));
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
@@ -79,7 +82,13 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
 
         if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
-          commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
+          commitHrefIfChanged(
+            scopeGateHrefFromSearch(
+              searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+              resolved,
+              pathname,
+            ),
+            {
             notify: false,
           });
         }

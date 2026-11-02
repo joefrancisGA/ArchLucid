@@ -21,7 +21,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ReviewsNewActivePath } from "./reviews-new-path-switcher-state";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 type ReviewsNewMoreWaysToStartProps = {
   readonly onSelectPath: (path: ReviewsNewActivePath) => void;
@@ -52,6 +53,8 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
   const { onSelectPath } = props;
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const urlMoreWaysOpen = parseReviewsNewMoreWaysToStartOpenFromSearch(
     searchParams.get(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM),
   );
@@ -61,7 +64,11 @@ export function ReviewsNewMoreWaysToStart(props: ReviewsNewMoreWaysToStartProps)
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
       commitHrefIfChanged(
-        reviewsNewMoreWaysToStartDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+        reviewsNewMoreWaysToStartDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          detailsOpen,
+          pathname,
+        ),
         { notify: false },
       );
     },
