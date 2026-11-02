@@ -44,6 +44,7 @@ import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { buildSecurityEvidencePathExplanation } from "@/lib/security-evidence-path-api";
+import { secureNowPilotDispositionStorageKey } from "@/lib/product-line/securenow-pilot-disposition-storage";
 import {
   SECURENOW_PATH_INSPECT_RANK_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
@@ -70,6 +71,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       isSimulator: true,
       isLoading: false,
     });
+    window.localStorage.clear();
   });
 
   it("shows the path rank reader sentence on the identity header", () => {
@@ -1036,6 +1038,46 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-inspect-panel")).not.toHaveAttribute(
       "id",
       REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
+    );
+  });
+
+  it("shows a saved pilot disposition beside the inspected path", () => {
+    const pathId = "path-local-1";
+    window.localStorage.setItem(
+      secureNowPilotDispositionStorageKey(pathId),
+      JSON.stringify({ outcome: "Stop", rationale: "Synthetic fixture only." }),
+    );
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId,
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        hops: [],
+        relatedCutPoints: [],
+        routing: [],
+        weakestHop: null,
+        explanationTemplate: null,
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, { pathIdOverride: pathId });
+
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent("Stop");
+    expect(screen.getByTestId("security-evidence-path-pilot-disposition")).toHaveTextContent(
+      "Synthetic fixture only.",
     );
   });
 });
