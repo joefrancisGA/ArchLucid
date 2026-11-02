@@ -3484,6 +3484,7 @@
 {"at":"2026-11-02T15:57:53.5464818Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T15:58:50.9031551Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T16:00:44.4088546Z","zoneId":"host-core-coordination","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-11-02T16:00:57.2571503Z","zoneId":"core-tenancy-commercial","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-11-02T16:01:46.8458739Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T16:02:35.1929409Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-11-02T16:03:30.3189390Z","zoneId":"knowledge-graph-provenance","outcome":"dry","productLine":"archlucid-shared"}
