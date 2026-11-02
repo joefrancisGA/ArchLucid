@@ -37,7 +37,7 @@ SN-TTV-01 names the answer in a markdown note. The operator page still ends at S
 
 From `archlucid-ui`:
 
-`npx vitest run src/app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView.test.tsx`
+`npx vitest run 'src/app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView.test.tsx'`
 
 ## Constraints
 
