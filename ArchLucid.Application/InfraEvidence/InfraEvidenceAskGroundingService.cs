@@ -112,11 +112,14 @@ public sealed class InfraEvidenceAskGroundingService(
 
             string userPrompt = InfraEvidenceAskPromptBuilder.BuildUserPrompt(request.Question, topicKind, bundle);
             PromptRedactionOutcome redactedPrompt = promptRedactor.Redact(userPrompt);
+            int? maxTokens = string.Equals(topicKind, InfraEvidenceAskTopicKinds.RankedPath, StringComparison.Ordinal)
+                ? 800
+                : null;
 
             string llmJson = await llm.CompleteJsonAsync(
                 InfraEvidenceAskPromptBuilder.BuildSystemPrompt(topicKind),
                 redactedPrompt.Text,
-                maxTokens: null,
+                maxTokens: maxTokens,
                 cancellationToken: cancellationToken);
 
             if (!InfraEvidenceAskPromptBuilder.TryParseLlmResponse(

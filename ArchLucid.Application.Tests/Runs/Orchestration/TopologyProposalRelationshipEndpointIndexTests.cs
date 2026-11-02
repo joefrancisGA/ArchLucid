@@ -4916,4 +4916,49 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
 
         endpointKeyToNodeId[canonicalArmId].Should().Be("svc-1");
     }
+
+    [Fact]
+    public void RelationshipReferencesExclusiveRejectedEndpoint_returns_true_for_rejected_terraform_service_id()
+    {
+        const string acceptedId = "azurerm_linux_virtual_machine.app[\"primary\"]";
+        const string rejectedId = "azurerm_linux_virtual_machine.app[\"secondary\"]";
+
+        HashSet<string> rejectedEndpointKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        TopologyProposalRelationshipEndpointIndex.RegisterRejectedManifestServiceEndpointKeys(
+            rejectedEndpointKeys,
+            new ManifestService
+            {
+                ServiceName = "app",
+                ServiceId = rejectedId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            });
+
+        List<ManifestService> acceptedServices =
+        [
+            new ManifestService
+            {
+                ServiceName = "app",
+                ServiceId = acceptedId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        ManifestRelationship relationship = new()
+        {
+            SourceId = rejectedId,
+            TargetId = "external",
+            RelationshipType = RelationshipType.Calls,
+        };
+
+        TopologyProposalRelationshipEndpointIndex.RelationshipReferencesExclusiveRejectedEndpoint(
+                relationship,
+                rejectedEndpointKeys,
+                acceptedServices,
+                [])
+            .Should()
+            .BeTrue();
+    }
 }

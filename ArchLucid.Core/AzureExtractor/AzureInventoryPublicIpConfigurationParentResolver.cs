@@ -1,3 +1,5 @@
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>Resolves the resource that owns an Azure public-IP configuration id.</summary>
@@ -10,8 +12,9 @@ public static class AzureInventoryPublicIpConfigurationParentResolver
             return null;
         }
 
-        string[] segments = configurationId
-            .Trim()
+        string working = PercentDecodeBounded.Decode(configurationId.Trim());
+
+        string[] segments = working
             .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         for (int index = segments.Length - 2; index >= 0; index--)

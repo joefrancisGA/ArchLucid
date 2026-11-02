@@ -24,6 +24,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { useOperationalSecurityFindingDetailQuery } from "@/hooks/use-operational-security-finding-detail-query";
+import { useAgentExecutionMode } from "@/hooks/use-agent-execution-mode";
 import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
 import { useSecurityEvidencePathRankQuery } from "@/hooks/use-security-evidence-path-rank-query";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_LINK } from "@/lib/design-tokens-shell-typography";
@@ -42,8 +43,11 @@ import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_EXPLANATION_BUTTON,
   SECURENOW_PATH_INSPECT_EXPLANATION_ERROR,
-  SECURENOW_PATH_INSPECT_EXPLANATION_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON,
   SECURENOW_PATH_INSPECT_EXPLANATION_LOADING,
+  SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD,
+  SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG,
+  SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD,
   SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG,
   SECURENOW_PATH_INSPECT_EXPLANATION_TITLE,
   SECURENOW_PATH_INSPECT_HOPS_TITLE,
@@ -326,9 +330,18 @@ function PathExplanationSection(props: {
   readonly explanation: SecurityEvidencePathExplanation | null;
   readonly explanationError: string | null;
   readonly isGenerating: boolean;
+  readonly useSimulator: boolean;
   readonly generatedAt: Date | null;
   readonly onGenerate: () => void;
 }) {
+  const isModelExplanation = props.explanation?.provenanceKind === "AiInference";
+  const explanationTag = isModelExplanation
+    ? SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_TAG
+    : SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG;
+  const explanationLead = props.useSimulator
+    ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_LEAD
+    : SECURENOW_PATH_INSPECT_EXPLANATION_MODEL_LEAD;
+
   return (
     <div
       className="space-y-3 rounded border border-dashed border-border p-3"
@@ -336,9 +349,9 @@ function PathExplanationSection(props: {
     >
       <div className="flex flex-wrap items-center gap-2">
         <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}</h3>
-        <StatusTag kind="neutral" label={SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG} />
+        <StatusTag kind="neutral" label={explanationTag} />
       </div>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SECURENOW_PATH_INSPECT_EXPLANATION_LEAD}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{explanationLead}</p>
       <Button
         type="button"
         variant="outline"
@@ -355,7 +368,7 @@ function PathExplanationSection(props: {
       {props.explanation != null ? (
         <OperatorAdvisorySimulatorProvenanceBlock
           title={SECURENOW_PATH_INSPECT_EXPLANATION_TITLE}
-          simulatorTag={SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_TAG}
+          simulatorTag={explanationTag}
           ruleVersion={props.explanation.simulatorLabel}
           generatedAt={props.generatedAt}
           targetLabel={props.targetLabel}
@@ -368,10 +381,12 @@ function PathExplanationSection(props: {
             props.explanation.citedEvidenceRefs.length > 0
               ? `Cited evidence: ${props.explanation.citedEvidenceRefs.join(", ")}`
               : "",
+            `${SECURENOW_PATH_INSPECT_EXPLANATION_GROUNDED_ON} ${props.explanation.citedEvidenceRefs.length} citations.`,
+            props.explanation.modelOutputRejection?.trim() ?? "",
           ]
             .filter((line) => line.trim().length > 0)
             .join("\n\n")}
-          auditTrailRecorded={false}
+          auditTrailRecorded={isModelExplanation}
           testId="security-evidence-path-explanation-output"
         />
       ) : null}
@@ -610,6 +625,11 @@ export function SecurityEvidencePathInspectPanel(props: {
   const [explanationError, setExplanationError] = useState<string | null>(null);
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
   const [explanationGeneratedAt, setExplanationGeneratedAt] = useState<Date | null>(null);
+  const { mode, isLoading: isAgentExecutionModeLoading } = useAgentExecutionMode();
+  const useSimulatorForExplanation =
+    mode === "Real" && !isAgentExecutionModeLoading
+      ? false
+      : true;
   const instancesQuery = useQuery({
     queryKey: ["remediation-instances", "by-finding", props.findingId],
     queryFn: () => fetchRemediationInstances({ findingId: props.findingId }),
@@ -655,7 +675,7 @@ export function SecurityEvidencePathInspectPanel(props: {
 
     try {
       const result = await buildSecurityEvidencePathExplanation(resolvedPathId, {
-        useSimulator: true,
+        useSimulator: useSimulatorForExplanation,
         allowInsufficientEvidence: false,
       });
 
@@ -832,6 +852,7 @@ export function SecurityEvidencePathInspectPanel(props: {
             explanation={explanation}
             explanationError={explanationError}
             isGenerating={isGeneratingExplanation}
+            useSimulator={useSimulatorForExplanation}
             generatedAt={explanationGeneratedAt}
             onGenerate={generateExplanation}
           />

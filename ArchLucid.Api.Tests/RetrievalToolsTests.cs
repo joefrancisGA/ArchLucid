@@ -144,6 +144,211 @@ public sealed class RetrievalToolsTests
     }
 
     [Fact]
+    public async Task PolicyPackSearchAsync_returns_only_requested_topk_after_corpus_filter()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "policy-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Policy 1",
+                    Text = "policy baseline",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-2",
+                    DocumentId = "policy-doc-2",
+                    Title = "Policy 2",
+                    Text = "policy baseline",
+                    Score = 0.98,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p2"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-3",
+                    DocumentId = "policy-doc-3",
+                    Title = "Policy 3",
+                    Text = "policy baseline",
+                    Score = 0.97,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p3"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-4",
+                    DocumentId = "policy-doc-4",
+                    Title = "Policy 4",
+                    Text = "policy baseline",
+                    Score = 0.96,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p4"
+                },
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().HaveCount(3);
+        hits.Select(h => h.DocumentId).Should().Equal("policy-doc-1", "policy-doc-2", "policy-doc-3");
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_returns_empty_when_vector_hits_exclude_policy_corpus()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "price-chunk-1",
+                    DocumentId = "price-doc-1",
+                    Title = "D4s v3",
+                    Text = "Azure retail price row",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.AzureRetailPrice.ToString(),
+                    SourceType = "AzureRetail",
+                    SourceId = "price-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PriceRowLookupAsync_returns_empty_when_vector_hits_exclude_retail_corpus()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Budget policy",
+                    Text = "monthly cap guidance",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "PolicyPack",
+                    SourceId = "policy-1"
+                }
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 3,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_returns_policy_hits_in_vector_order_after_corpus_filter()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalHit
+                {
+                    ChunkId = "price-chunk-1",
+                    DocumentId = "price-doc-1",
+                    Title = "Retail row",
+                    Text = "price",
+                    Score = 0.99,
+                    CorpusKind = CorpusKind.AzureRetailPrice.ToString(),
+                    SourceType = "AzureRetail",
+                    SourceId = "price-1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-1",
+                    DocumentId = "policy-doc-1",
+                    Title = "Policy 1",
+                    Text = "policy baseline",
+                    Score = 0.98,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p1"
+                },
+                new RetrievalHit
+                {
+                    ChunkId = "policy-chunk-2",
+                    DocumentId = "policy-doc-2",
+                    Title = "Policy 2",
+                    Text = "policy baseline",
+                    Score = 0.97,
+                    CorpusKind = CorpusKind.PolicyPack.ToString(),
+                    SourceType = "Manifest",
+                    SourceId = "p2"
+                },
+            ]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 2,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> hits =
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Select(h => h.DocumentId).Should().Equal("policy-doc-1", "policy-doc-2");
+    }
+
+    [Fact]
     public async Task PolicyPackSearchAsync_returns_empty_title_when_hit_title_is_null()
     {
         Mock<IRetrievalQueryService> queryService = new();
@@ -196,5 +401,125 @@ public sealed class RetrievalToolsTests
             await sut.PolicyPackSearchAsync(request, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>().WithParameterName("request");
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_throws_when_query_text_is_null()
+    {
+        Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = null!,
+        };
+
+        Func<Task> act = async () =>
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ArgumentException>())
+            .Which.ParamName.Should().Be(nameof(RetrievalMcpToolRequest.QueryText));
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_clamps_topk_below_one_when_calling_retrieval_service()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        int? observedTopK = null;
+
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, CancellationToken>((query, _) => observedTopK = query.TopK)
+            .ReturnsAsync([]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "baseline",
+            TopK = 0,
+        };
+
+        await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        observedTopK.Should().Be(25, "corpus-filtered MCP searches prefetch 25 hits before filtering");
+    }
+
+    [Fact]
+    public async Task PriceRowLookupAsync_clamps_negative_topk_when_calling_retrieval_service()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        int? observedTopK = null;
+
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, CancellationToken>((query, _) => observedTopK = query.TopK)
+            .ReturnsAsync([]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "D4s v3",
+            TopK = -3,
+        };
+
+        await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        observedTopK.Should().Be(25);
+    }
+
+    [Fact]
+    public async Task PriorDecisionSearchAsync_clamps_topk_above_twenty_five_when_calling_retrieval_service()
+    {
+        Mock<IRetrievalQueryService> queryService = new();
+        int? observedTopK = null;
+
+        queryService
+            .Setup(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, CancellationToken>((query, _) => observedTopK = query.TopK)
+            .ReturnsAsync([]);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "prior decision",
+            TopK = 100,
+        };
+
+        await sut.PriorDecisionSearchAsync(request, CancellationToken.None);
+
+        observedTopK.Should().Be(25, "corpus-filtered MCP searches prefetch 25 hits before filtering");
+    }
+
+    [Fact]
+    public async Task PolicyPackSearchAsync_throws_when_query_text_is_whitespace_only()
+    {
+        Mock<IRetrievalQueryService> queryService = new(MockBehavior.Strict);
+
+        RetrievalTools sut = new(queryService.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            QueryText = "   ",
+        };
+
+        Func<Task> act = async () =>
+            await sut.PolicyPackSearchAsync(request, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<ArgumentException>())
+            .Which.ParamName.Should().Be(nameof(RetrievalMcpToolRequest.QueryText));
     }
 }
