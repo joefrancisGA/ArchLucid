@@ -194,6 +194,7 @@ function mapExplanation(raw: Record<string, unknown>): SecurityEvidencePathExpla
     citedEvidenceRefs: citedRefsRaw.map((item) => String(item)),
     provenanceKind: String(raw.provenanceKind ?? ""),
     simulatorLabel: raw.simulatorLabel != null ? String(raw.simulatorLabel) : null,
+    modelOutputRejection: raw.modelOutputRejection != null ? String(raw.modelOutputRejection) : null,
     createdUtc: String(raw.createdUtc ?? ""),
   };
 }

@@ -16,6 +16,17 @@ describe("SecureNowSelfServicePageView", () => {
     ]) {
       expect(screen.getByText(title)).toBeInTheDocument();
     }
+    for (const id of ["collection", "connector", "ranking", "email"]) {
+      expect(document.getElementById(id)).toBeInTheDocument();
+    }
+    expect(screen.getByRole("link", { name: "Open Priorities & waves" })).toHaveAttribute(
+      "href",
+      "/security/remediation-factory",
+    );
+    expect(screen.getByRole("link", { name: "Open remediation tracker" })).toHaveAttribute(
+      "href",
+      "/security/remediation-instances",
+    );
     expect(screen.getByRole("link", { name: "Email support" })).toHaveAttribute(
       "href",
       "mailto:support@archlucid.net?subject=SecureNow",

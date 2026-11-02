@@ -7,6 +7,11 @@ import {
   SECURENOW_PILOT_DECISION_GUARDRAIL,
   SECURENOW_PILOT_DECISION_HEADING,
   SECURENOW_PILOT_DECISION_LEAD,
+  SECURENOW_DECISION_CYCLE_GUARDRAIL,
+  SECURENOW_DECISION_CYCLE_HEADING,
+  SECURENOW_DECISION_CYCLE_LEAD,
+  SECURENOW_DECISION_CYCLE_LOG_PATH,
+  SECURENOW_DECISION_CYCLE_STALL_STEPS,
   SECURENOW_PILOT_DECISION_OUTCOMES,
   SECURENOW_PILOT_DECISION_STEPS,
 } from "@/lib/product-line/securenow-pilot-decision-copy";
@@ -41,6 +46,34 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section
+          id="decision-cycle"
+          data-testid="securenow-decision-cycle"
+          aria-labelledby="securenow-decision-cycle-heading"
+          className="space-y-2"
+        >
+          <h2 id="securenow-decision-cycle-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_DECISION_CYCLE_HEADING}
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_DECISION_CYCLE_LEAD}</p>
+          <ul className="list-disc space-y-2 pl-5">
+            {SECURENOW_DECISION_CYCLE_STALL_STEPS.map((step) => (
+              <li key={step.label} className={OPERATOR_TYPOGRAPHY.body}>
+                <Link className={OPERATOR_LINK.inline} href={step.href}>
+                  {step.label}
+                </Link>
+                <span> — {step.note}</span>
+              </li>
+            ))}
+          </ul>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_DECISION_CYCLE_GUARDRAIL}</p>
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            <a className={OPERATOR_LINK.inline} href={SECURENOW_DECISION_CYCLE_LOG_PATH}>
+              Decision cycle log
+            </a>
+          </p>
         </section>
 
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_PILOT_DECISION_GUARDRAIL}</p>
