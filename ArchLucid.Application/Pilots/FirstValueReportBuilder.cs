@@ -166,7 +166,12 @@ public sealed class FirstValueReportBuilder(
             await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
-        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            manifest,
+            deltas,
+            valueWindowSnapshot,
+            scorecardBaselines);
         FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
         SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
         ProofPackageCompletenessResponse proofCompleteness =
@@ -211,7 +216,7 @@ public sealed class FirstValueReportBuilder(
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
         SendableExportCoverComposer.AppendMarkdownSection(sb, careerExportHonesty);
         SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, run);
-        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run, manifest, roiClaimGate);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,
             deltas,
@@ -238,14 +243,15 @@ public sealed class FirstValueReportBuilder(
             deltas,
             proofCompleteness,
             valueWindowSnapshot,
-            ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
+            ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence, roiClaimGate),
             costEvidenceFreshnessForBadges);
         SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(
             sb,
             proofCompleteness,
             deltas,
             run,
-            proofCompleteness.DeferredBuyerRequirementsPresent);
+            proofCompleteness.DeferredBuyerRequirementsPresent,
+            roiClaimGate);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -262,8 +268,9 @@ public sealed class FirstValueReportBuilder(
         FirstValueEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, evidenceCompleteness);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
         FirstValueReportRunSectionFormatter.AppendMarkdownSection(sb, run, manifest, baseUrl);
-        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, manifest, run);
-        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas);
+        FirstValueReportProofPackageSectionFormatter.AppendMarkdownSection(
+            sb, deltas, proofCompleteness, manifest, run, roiClaimGate, buyerSafeGate);
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(sb, deltas, proofCompleteness, run, manifest);
         SponsorRoiNarrativeGateMarkdownFormatter.AppendMarkdownSection(sb, roiClaimGate);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate.Disposition);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate);
@@ -272,15 +279,15 @@ public sealed class FirstValueReportBuilder(
             RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot));
 
         if (proofCompleteness.RoiBaselineInputs is not null)
-            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
+            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs, roiClaimGate);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
         FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportSemanticSupportBandSectionFormatter.AppendMarkdownSection(sb, detail, deltas);
-        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas, proofCompleteness, run, manifest);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
-        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run);
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run, buyerSafeGate, roiClaimGate);
         FirstValueReportBaselineSectionFormatter.AppendMarkdownSection(sb);
         sb.AppendLine();
         sb.AppendLine("---");
@@ -291,7 +298,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("**Sponsor narrative (canonical):** repository `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
         sb.AppendLine();
-        sb.AppendLine($"*Generated from run `{run.RunId}`.*");
+        sb.AppendLine(FirstValueReportMarkdownFormatting.FormatGeneratedFromRunAttributionLine(run.RunId));
         sb.AppendLine();
         string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
         Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
@@ -312,7 +319,9 @@ public sealed class FirstValueReportBuilder(
             tenantBranding,
             proofCompleteness,
             careerArtifactBlock?.Message,
-            careerArtifactBlock?.Code);
+            careerArtifactBlock?.Code,
+            deltas,
+            roiClaimGate);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)
@@ -325,16 +334,23 @@ public sealed class FirstValueReportBuilder(
             llmCompletionTraceCount);
     }
 
-    private static string ResolveSavingsPricingBasisForBadges(
+    internal static string ResolveSavingsPricingBasisForBadges(
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        bool hasUploadedCostEvidence)
+        bool hasUploadedCostEvidence,
+        SponsorRoiClaimDispositionResult roiClaimGate)
     {
+        ArgumentNullException.ThrowIfNull(proof);
+        ArgumentNullException.ThrowIfNull(deltas);
+        ArgumentNullException.ThrowIfNull(roiClaimGate);
+
+        PilotRoiEvidenceConfidence roiConfidence = roiClaimGate.EvidenceConfidence;
+
         return SponsorRoiSavingsPricingBasis.Resolve(
             1.0m,
             hasUploadedCostEvidence,
             hasHeuristicCostEvidence: !hasUploadedCostEvidence
-                && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low
+                && roiConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low
                 && !deltas.IsDemoTenant);
     }
 
@@ -352,7 +368,7 @@ public sealed class FirstValueReportBuilder(
 
         return PilotCostEvidenceFreshnessBadgeResolver.Resolve(
             extractorCollectionTimestampUtc,
-            deltas.IsDemoTenant || proof.DemoTenantWarningRequired,
+            PilotDemoTenantDisciplineHonestyCopy.RequiresDemoDisciplineWarning(deltas),
             TimeProvider.System.UtcNowDateTime(),
             staleAfterDays);
     }

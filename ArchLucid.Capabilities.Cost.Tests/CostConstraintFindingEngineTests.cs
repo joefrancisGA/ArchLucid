@@ -62,6 +62,131 @@ public sealed class CostConstraintFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_treats_high_cost_risk_with_trailing_nbsp_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-nbsp",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "high\u00A0",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_treats_high_cost_risk_with_leading_tab_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-lead-tab",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "\tHigh",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_treats_high_cost_risk_with_leading_hair_space_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-lead-hair",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "\u200Ahigh",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_treats_uppercase_high_cost_risk_with_trailing_tab_as_warning_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-tab",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "HIGH\t",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_treats_interior_nbsp_in_cost_risk_token_as_info_severity()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-interior",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "hi\u00A0gh",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives()
     {
         GraphSnapshot graph = new()
@@ -93,10 +218,43 @@ public sealed class CostConstraintFindingEngineTests
         payload.BudgetName.Should().Be("Prod");
         payload.MaxMonthlyCost.Should().Be(5000m);
         payload.CostRisk.Should().Be("high");
+        f.ProjectedImpactUsd.Should().Be(5000m, "constraint findings surface declared cap on headline impact; bounds live on payload");
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
         f.Trace.RulesApplied.Should().Contain("cost-constraint-surface");
         f.Trace.Notes.Should().Contain(n => n.Contains("Budget cap:", StringComparison.Ordinal));
         f.Trace.AlternativePathsConsidered.Should().Contain(s => s.Contains("reserved capacity", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_high_cost_risk_without_cap_leaves_headline_projected_impact_null_while_bounds_stay_on_payload()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "c-bounds",
+                    NodeType = "CostConstraint",
+                    Label = "prod-budget",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["costRisk"] = "high",
+                        ["projectedImpactUsdLowerBound"] = "4800",
+                        ["projectedImpactUsdUpperBound"] = "5200",
+                    }
+                }
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.ProjectedImpactUsd.Should().BeNull();
+        CostConstraintFindingPayload payload = finding.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
+        payload.MaxMonthlyCost.Should().BeNull();
+        payload.ProjectedImpactUsdLowerBound.Should().Be(4800m);
+        payload.ProjectedImpactUsdUpperBound.Should().Be(5200m);
     }
 
     [Fact]

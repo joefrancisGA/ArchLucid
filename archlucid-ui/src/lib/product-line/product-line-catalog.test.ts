@@ -62,7 +62,7 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/governance/infrastructure/diagrams");
     expect(hrefs).toContain("/infrastructure/resources");
     expect(hrefs).not.toContain("/governance/infrastructure/resources");
-    expect(rows[0]?.group.id).toBe("operate-security");
+    expect(rows[0]?.group.id).toBe("securenow-home");
     expect(rows.some((row) => row.group.id === "pilot")).toBe(false);
     expect(hrefs).toContain("/integrations/cloud-connections");
     expect(hrefs).toContain("/integrations/jira");
