@@ -5,6 +5,7 @@ import {
   SECURENOW_REVIEWER_HOME_SECTION_HEADING,
   SECURENOW_REVIEWER_HOME_SECTION_LEAD,
 } from "@/lib/product-line/securenow-reviewer-home-copy";
+import { WHY_SECURENOW_CONVERSATION_MAILTO } from "@/lib/marketing/why-securenow-draft-copy";
 
 describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
   it("defines the For reviewers section and public destinations", () => {
@@ -21,6 +22,9 @@ describe("SecureNow reviewer home copy (SN-MKT-06 / SN-MKT-10)", () => {
       "Request a conversation",
       "Accessibility",
     ]);
+    expect(
+      SECURENOW_REVIEWER_HOME_ROWS.find((row) => row.label === "Request a conversation")?.href,
+    ).toBe(WHY_SECURENOW_CONVERSATION_MAILTO);
     expect(SECURENOW_REVIEWER_HOME_ROWS.filter((row) => row.recommendedFirst === true)).toHaveLength(0);
   });
 

@@ -156,6 +156,10 @@ describe("SecureNowHomeEnvironmentContext", () => {
     const empty = await screen.findByRole("link", { name: "No collection yet" });
 
     expect(empty).toHaveAttribute("href", "/integrations/cloud-connections");
+    expect(screen.getByRole("link", { name: "First hour" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-first-hour",
+    );
     expect(screen.getByText("Contoso — Payments")).toBeInTheDocument();
   });
 
