@@ -100,6 +100,24 @@ describe("buildInfraResourceHubTechnicalDisclosureScopedHref", () => {
 
     expect(href).toContain("workQueue=open-findings");
   });
+
+  it("canonicalizes duplicate stale tab params when syncing buyer-polished technical disclosure", () => {
+    const href = buildInfraResourceHubTechnicalDisclosureScopedHref(
+      RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+      "tab=not-a-real-tab&tab=drift&snapshotId=snap&runId=run-1",
+      "cloudResourceId",
+      `/governance/infrastructure/resources/${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}`,
+      {
+        snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        runId: "run-1",
+        tab: "drift",
+      },
+    );
+
+    expect(href).toContain("tab=drift");
+    expect(href).not.toContain("not-a-real-tab");
+    expect((href.match(/tab=/g) ?? []).length).toBe(1);
+  });
 });
 
 describe("ResourceHubClient", () => {

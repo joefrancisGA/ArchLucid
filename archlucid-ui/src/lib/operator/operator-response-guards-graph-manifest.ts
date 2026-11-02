@@ -107,8 +107,8 @@ const replayValidationSchema = z
 const replayResponseSchema = z
   .object({
     runId: operatorNonEmptyTrimmedString,
-    mode: z.string(),
-    replayedUtc: z.string(),
+    mode: operatorNonEmptyTrimmedString,
+    replayedUtc: operatorNonEmptyTrimmedString,
     validation: replayValidationSchema,
   })
   .passthrough();
@@ -128,8 +128,8 @@ export function coerceReplayResponse(
 
     if (
       !operatorNonEmptyTrimmedString.safeParse(data.runId).success ||
-      typeof data.mode !== "string" ||
-      typeof data.replayedUtc !== "string"
+      !operatorNonEmptyTrimmedString.safeParse(data.mode).success ||
+      !operatorNonEmptyTrimmedString.safeParse(data.replayedUtc).success
     ) {
       return {
         ok: false,
@@ -177,11 +177,11 @@ const manifestSummarySchema = z
   .object({
     manifestId: operatorNonEmptyTrimmedString,
     runId: operatorNonEmptyTrimmedString,
-    createdUtc: z.string(),
-    manifestHash: z.string(),
-    ruleSetId: z.string(),
-    ruleSetVersion: z.string(),
-    status: z.string(),
+    createdUtc: operatorNonEmptyTrimmedString,
+    manifestHash: operatorNonEmptyTrimmedString,
+    ruleSetId: operatorNonEmptyTrimmedString,
+    ruleSetVersion: operatorNonEmptyTrimmedString,
+    status: operatorNonEmptyTrimmedString,
     decisionCount: z.number(),
     warningCount: z.number(),
     unresolvedIssueCount: z.number(),
@@ -210,7 +210,7 @@ export function coerceManifestSummary(
       }
     }
 
-    const stringKeys = [
+    const nonEmptyStringKeys = [
       "createdUtc",
       "manifestHash",
       "ruleSetId",
@@ -218,8 +218,8 @@ export function coerceManifestSummary(
       "status",
     ] as const;
 
-    for (const key of stringKeys) {
-      if (typeof data[key] !== "string") {
+    for (const key of nonEmptyStringKeys) {
+      if (!operatorNonEmptyTrimmedString.safeParse(data[key]).success) {
         return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
       }
     }
