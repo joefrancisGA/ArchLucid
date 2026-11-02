@@ -60,6 +60,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator recorded Proceed / Extend / Stop for a SecureNow architect path.</summary>
     public const string SecureNowPilotPathDispositionRecorded = "SecureNowPilotPath.DispositionRecorded";
 
+    /// <summary>Operator-entered investigation effort inputs for the current scope. Not a customer ROI figure.</summary>
+    public const string SecureNowInvestigationEffortInputsRecorded = "SecureNowInvestigationEffort.InputsRecorded";
+
     /// <summary>Human security asset assertion created (SA-18).</summary>
     public const string SecurityAssetAssertionCreated = "SecurityAssetAssertion.Created";
 

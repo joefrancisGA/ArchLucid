@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  isSecureNowInvestigationEffortAuditCandidate,
+  isSecureNowInvestigationEffortFixtureWorksheet,
   persistSecureNowInvestigationEffortInputs,
   readSecureNowInvestigationEffortInputs,
   secureNowInvestigationEffortInputStorageKeyForScope,
@@ -40,5 +42,25 @@ describe("securenow-investigation-effort-input-storage", () => {
       hourlyRate: "90",
       annualCost: "8000",
     });
+  });
+
+  it("treats the fixture worksheet as ineligible for audit storage", () => {
+    const fixture = {
+      baselineHours: "3",
+      afterHours: "2",
+      annualInvestigations: "20",
+      hourlyRate: "100",
+      annualCost: "10000",
+    };
+
+    expect(isSecureNowInvestigationEffortFixtureWorksheet(fixture)).toBe(true);
+    expect(isSecureNowInvestigationEffortAuditCandidate(fixture)).toBe(false);
+    expect(isSecureNowInvestigationEffortAuditCandidate({
+      baselineHours: "5",
+      afterHours: "3",
+      annualInvestigations: "10",
+      hourlyRate: "80",
+      annualCost: "5000",
+    })).toBe(true);
   });
 });
