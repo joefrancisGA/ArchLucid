@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
-import { searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
+import { searchParamFromRouterSearchParams, searchParamsQueryStringForHrefWrite } from "@/lib/navigation/search-params-query-string";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
@@ -147,7 +147,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   useEffect(() => {
     const syncAdvancedConfigOpenFromUrl = (): void => {
       const next = parseSimplifiedPilotAdvancedConfigOpenFromSearch(
-        new URLSearchParams(window.location.search).get("simplifiedPilotAdvancedConfigOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "simplifiedPilotAdvancedConfigOpen"),
       );
 
       if (advancedConfigOpenRef.current === next) {

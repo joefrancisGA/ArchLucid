@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode, waitFor } from "@testing-library/react";
+import { fireEvent, renderHook, type ReactNode, waitFor } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -163,6 +163,21 @@ describe("useNewRunWizardSteps", () => {
 
     expect(wizardSearchParamsHarness.state.query).toContain("step=2");
     expect(wizardSearchParamsHarness.state.query).not.toContain("staleToolbar");
+  });
+
+  it("keeps wizard step from useSearchParams when popstate reads lagging window.location.search", () => {
+    wizardSearchParamsHarness.applySearchParamsQuery("");
+    wizardSearchParamsHarness.setWindowLocationSearch("step=3");
+
+    const { result } = renderHook(() => useNewRunWizardSteps(baseOptions), {
+      wrapper: WizardSearchParamsRerenderHost,
+    });
+
+    expect(result.current.stepIndex).toBe(0);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.stepIndex).toBe(0);
   });
 
   it("canonicalizes an out-of-range deep-linked step in the URL", async () => {
