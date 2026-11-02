@@ -130,6 +130,20 @@ public sealed class GovernanceApprovalRequestsFacade(
 
             string approvalRequestId = GovernanceApprovalRequestIdNormalizer.Normalize(rawApprovalRequestId);
 
+            if (string.IsNullOrWhiteSpace(approvalRequestId))
+            {
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = rawApprovalRequestId,
+                        Succeeded = false,
+                        ErrorCode = GovernanceFacadeProblemCodes.ValidationFailed,
+                        Message = "approvalRequestId is required.",
+                    });
+
+                continue;
+            }
+
             if (!processedApprovalRequestIds.Add(approvalRequestId))
             {
                 results.Add(

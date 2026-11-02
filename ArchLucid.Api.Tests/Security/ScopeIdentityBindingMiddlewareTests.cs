@@ -648,6 +648,7 @@ public sealed class ScopeIdentityBindingMiddlewareTests
             return Task.CompletedTask;
         });
 
+        context.User.Should().BeSameAs(scimPrincipal);
         nextCalled.Should().BeTrue();
         authentication.Verify(
             service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),

@@ -15,6 +15,8 @@ import {
   WHY_SECURENOW_REVIEWER_PACK_HEADING,
   WHY_SECURENOW_PILOT_DECISION_BODY,
   WHY_SECURENOW_PILOT_DECISION_HEADING,
+  WHY_SECURENOW_SAMPLE_LINK_LABEL,
+  WHY_SECURENOW_SAMPLE_LINK_LEAD,
 } from "@/lib/marketing/why-securenow-draft-copy";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +89,13 @@ export function WhySecureNowDraftView(): React.JSX.Element {
           </h2>
           <p className={MARKETING_TYPOGRAPHY.body}>{WHY_SECURENOW_PILOT_DECISION_BODY}</p>
         </section>
+
+        <p className={MARKETING_TYPOGRAPHY.body}>
+          {WHY_SECURENOW_SAMPLE_LINK_LEAD}{" "}
+          <Link href="/securenow-sample" className="text-al-link underline-offset-2 hover:underline">
+            {WHY_SECURENOW_SAMPLE_LINK_LABEL}
+          </Link>
+        </p>
 
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link href={WHY_SECURENOW_CONVERSATION_MAILTO} className="text-al-link underline-offset-2 hover:underline">
