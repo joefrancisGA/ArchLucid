@@ -196,6 +196,15 @@ public sealed class SecurityEvidencePathRankDetailResponse
         get;
         init;
     }
+
+    /// <summary>
+    /// Deterministic comparison to the next stored ranked path on this snapshot. Does not change rank order.
+    /// </summary>
+    public string NextStoredPathRankContext
+    {
+        get;
+        init;
+    } = string.Empty;
 }
 
 public sealed class SecurityEvidencePathRankDimensionProseResponse

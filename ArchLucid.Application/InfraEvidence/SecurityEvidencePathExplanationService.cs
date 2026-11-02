@@ -234,40 +234,14 @@ public sealed class SecurityEvidencePathExplanationService(
     {
         if (rankRepository is null)
         {
-            return "No next stored path is available. This does not change the rank.";
+            return SecurityEvidencePathRankContextBuilder.NoNextStoredPathSentence;
         }
 
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks =
             await rankRepository.ListBySnapshotAsync(
                 ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), selectedPath.SnapshotId),
                 cancellationToken);
-        SecurityEvidencePathRankRecord[] ordered = ranks
-            .OrderBy(rank => rank.RankOrder)
-            .ToArray();
-        int selectedIndex = Array.FindIndex(ordered, rank => rank.PathId == selectedPath.PathId);
 
-        if (selectedIndex < 0 || selectedIndex + 1 >= ordered.Length)
-        {
-            return "No next stored path is available. This does not change the rank.";
-        }
-
-        SecurityEvidencePathRankRecord selected = ordered[selectedIndex];
-        SecurityEvidencePathRankRecord next = ordered[selectedIndex + 1];
-        (string Name, decimal Gap)[] dimensions =
-        [
-            ("TechnicalExposure", selected.TechnicalExposureScore - next.TechnicalExposureScore),
-            ("PrivilegeDepth", selected.PrivilegeDepthScore - next.PrivilegeDepthScore),
-            ("BlastRadius", selected.BlastRadiusScore - next.BlastRadiusScore),
-            ("BusinessConsequence", (selected.BusinessConsequenceScore ?? 0m) - (next.BusinessConsequenceScore ?? 0m)),
-            ("ConfidenceBand", selected.ConfidenceBandScore - next.ConfidenceBandScore),
-        ];
-        (string Name, decimal Gap)? largest = dimensions
-            .Where(dimension => dimension.Gap > 0)
-            .OrderByDescending(dimension => dimension.Gap)
-            .FirstOrDefault();
-
-        return largest is { } dimension
-            ? $"Selected path {selected.PathId:D} outranks stored path {next.PathId:D} on {dimension.Name}. This does not change the rank."
-            : $"Selected path {selected.PathId:D} does not outrank stored path {next.PathId:D} on a stored dimension. This does not change the rank.";
+        return SecurityEvidencePathRankContextBuilder.BuildNextStoredPathRankContext(selectedPath.PathId, ranks);
     }
 }
