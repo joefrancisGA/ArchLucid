@@ -59,6 +59,37 @@ public sealed class AzureInventoryNetworkConnectionEndpointParserTests
     }
 
     [Fact]
+    public void Parse_reads_id_from_raw_json_when_another_property_contains_percent_encoding()
+    {
+        const string gatewayId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["virtualNetworkGateway1"] = $$"""{"id":"{{gatewayId}}","tag":"a%22b"}""",
+        };
+
+        AzureInventoryNetworkConnectionEndpointParser.Parse(properties)
+            .Endpoint1ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(gatewayId));
+    }
+
+    [Fact]
+    public void Parse_reads_id_from_a_fully_percent_encoded_json_reference()
+    {
+        const string gatewayId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworkGateways/gw-a";
+        string encodedJson = Uri.EscapeDataString($$"""{"id":"{{gatewayId}}"}""");
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["virtualNetworkGateway1"] = encodedJson,
+        };
+
+        AzureInventoryNetworkConnectionEndpointParser.Parse(properties)
+            .Endpoint1ArmId.Should().Be(ArmResourceIdNormalizer.Normalize(gatewayId));
+    }
+
+    [Fact]
     public void Parse_returns_partial_result_when_second_endpoint_missing()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

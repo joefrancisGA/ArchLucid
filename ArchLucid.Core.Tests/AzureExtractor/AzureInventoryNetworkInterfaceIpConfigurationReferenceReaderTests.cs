@@ -38,4 +38,30 @@ public sealed class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
 
         armId.Should().Be(ArmResourceIdNormalizer.Normalize(plainId));
     }
+
+    [Fact]
+    public void TryReadArmId_reads_id_from_a_json_object_carried_in_a_string()
+    {
+        const string plainId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1/ipConfigurations/ipconfig1";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"id":"{{plainId}}"}""");
+
+        AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(document.RootElement)
+            .Should().Be(ArmResourceIdNormalizer.Normalize(plainId));
+    }
+
+    [Fact]
+    public void TryReadArmId_reads_id_from_a_percent_encoded_json_object_carried_in_a_string()
+    {
+        const string plainId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1/ipConfigurations/ipconfig1";
+        string encodedJson = Uri.EscapeDataString($$"""{"id":"{{plainId}}"}""");
+
+        using JsonDocument document = JsonDocument.Parse($"\"{encodedJson}\"");
+
+        AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(document.RootElement)
+            .Should().Be(ArmResourceIdNormalizer.Normalize(plainId));
+    }
 }
