@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.InfraEvidence;
-
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -31,10 +29,20 @@ public static class AzureInventoryPaasChildAssociationExtractor
             return false;
         }
 
+        if (!AzureInventoryCompanionArmIdNormalizer.TryNormalize(
+                parentResourceId,
+                out string normalizedParentResourceId)
+            || !AzureInventoryCompanionArmIdNormalizer.TryNormalize(
+                childResourceId,
+                out string normalizedChildResourceId))
+        {
+            return false;
+        }
+
         row = new AzureInventoryPaasChildAssociationRow
         {
-            ParentResourceId = NormalizeCompanionArmId(parentResourceId),
-            ChildResourceId = NormalizeCompanionArmId(childResourceId),
+            ParentResourceId = normalizedParentResourceId,
+            ChildResourceId = normalizedChildResourceId,
             ChildName = childName.Trim(),
             ChildType = childType,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
@@ -53,15 +61,4 @@ public static class AzureInventoryPaasChildAssociationExtractor
         return value.ValueKind is JsonValueKind.String ? value.GetString() : null;
     }
 
-    private static string NormalizeCompanionArmId(string armId)
-    {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return string.Empty;
-        }
-
-        string working = PercentDecodeBounded.Decode(armId.Trim());
-
-        return ArmResourceIdNormalizer.Normalize(working);
-    }
 }

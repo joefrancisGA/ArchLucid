@@ -27,7 +27,11 @@ import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
+import {
+  searchParamFromRouterSearchParams,
+  searchParamsQueryStringForHrefWrite,
+} from "@/lib/navigation/search-params-query-string";
 import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   parseReviewsNewReturningJobChooserOpenFromSearch,
@@ -66,6 +70,8 @@ function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePa
 export function ReviewsNewPathSwitcher() {
   const pathname = usePathname() ?? "/architecture/reviews/new";
   const searchParams = useSearchParams();
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
   const invalidExampleTemplateId = useMemo(
@@ -107,7 +113,11 @@ export function ReviewsNewPathSwitcher() {
   const syncReturningJobChooserOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        reviewsNewReturningJobChooserDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        reviewsNewReturningJobChooserDisclosureHrefFromSearch(
+          searchParamsQueryStringForHrefWrite(searchParamsRef.current),
+          open,
+          pathname,
+        ),
         { notify: false },
       );
     },
@@ -137,7 +147,7 @@ export function ReviewsNewPathSwitcher() {
   useEffect(() => {
     const syncReturningJobChooserOpenFromUrl = (): void => {
       const next = parseReviewsNewReturningJobChooserOpenFromSearch(
-        new URLSearchParams(readWindowLocationSearch()).get("reviewsNewReturningJobChooserOpen"),
+        searchParamFromRouterSearchParams(searchParamsRef.current, "reviewsNewReturningJobChooserOpen"),
       );
 
       if (returningJobChooserOpenRef.current === next) {
@@ -174,7 +184,7 @@ export function ReviewsNewPathSwitcher() {
   const selectPath = (path: ReviewsNewActivePath) => {
     setActivePath(path);
     persistActivePath(path);
-    const params = new URLSearchParams(readWindowLocationSearch());
+    const params = new URLSearchParams(searchParamsQueryStringForHrefWrite(searchParamsRef.current));
 
     if (path === "quick-review") {
       setSuppressAcceleratorStartIntent(true);
