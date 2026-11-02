@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor, type ReactNode } from "@testing-library/react";
+import { renderHook, act, waitFor, fireEvent, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -477,6 +477,21 @@ describe("useFirstPilotIntakeWizard scope gate URL sync", () => {
     capturedPersistence = null;
     scopeGateSearchParamsHarness.reset();
     useRunSummaryQuery.mockReturnValue({ data: undefined });
+  });
+
+  it("keeps scope gate closed from useSearchParams when popstate reads lagging window.location.search", () => {
+    scopeGateSearchParamsHarness.applySearchParamsQuery("");
+    scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    expect(result.current.scopeGateOpen).toBe(false);
+
+    fireEvent(window, new PopStateEvent("popstate"));
+
+    expect(result.current.scopeGateOpen).toBe(false);
   });
 
   it("follows scopeGate= URL changes without a popstate event", () => {
