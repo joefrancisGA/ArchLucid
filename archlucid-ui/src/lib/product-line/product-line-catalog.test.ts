@@ -403,6 +403,12 @@ describe("product-line catalog", () => {
     ).toBe(true);
     expect(
       isPathAllowedForProductLine(
+        "/administration/securenow-quote-packet",
+        "security",
+      ),
+    ).toBe(true);
+    expect(
+      isPathAllowedForProductLine(
         "/administration/securenow-self-service",
         "security",
       ),
@@ -440,6 +446,12 @@ describe("product-line catalog", () => {
     expect(
       isPathAllowedForProductLine(
         "/administration/securenow-compliance-notes",
+        "architecture",
+      ),
+    ).toBe(false);
+    expect(
+      isPathAllowedForProductLine(
+        "/administration/securenow-quote-packet",
         "architecture",
       ),
     ).toBe(false);
