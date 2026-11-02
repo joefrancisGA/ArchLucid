@@ -229,7 +229,7 @@ internal class ScimBearerAuthenticationHandler(
     // Block Elements lookalikes: upper/lower/left partial blocks and the full block
     // (U+2581 is deliberately excluded: not observed as glued placeholders).
     private const string BearerGluedBlockElementLookalikes =
-        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591";
+        "\u2580\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258A\u258B\u258C\u258D\u258E\u258F\u2590\u2591\u2592\u2593";
 
     // Miscellaneous Mathematical Symbols-B lookalikes: big solidus and big reverse solidus.
     private const string BearerGluedBigSolidusLookalikes = "\u29F8\u29F9";
@@ -243,6 +243,9 @@ internal class ScimBearerAuthenticationHandler(
     // Halfwidth and Fullwidth Forms lookalikes: fullwidth solidus, vertical line, reverse solidus.
     private const string BearerGluedFullwidthLookalikes = "\uFF0F\uFF5C\uFF3C";
 
+    // Geometric Shapes lookalikes: circle placeholders glued after Bearer (hunts #69–#70).
+    private const string BearerGluedGeometricShapeLookalikes = "\u25CB\u25CF\u25CE\u25D0";
+
     private const string BearerGluedDelimiterPlaceholderCodePoints =
         BearerGluedAsciiDelimiterLookalikes +
         BearerGluedLatin1OperatorLookalikes +
@@ -251,6 +254,7 @@ internal class ScimBearerAuthenticationHandler(
         BearerGluedMathOperatorLookalikes +
         BearerGluedBoxDrawingLookalikes +
         BearerGluedBlockElementLookalikes +
+        BearerGluedGeometricShapeLookalikes +
         BearerGluedBigSolidusLookalikes +
         BearerGluedWaveDashLookalike +
         BearerGluedSmallFormLookalikes +

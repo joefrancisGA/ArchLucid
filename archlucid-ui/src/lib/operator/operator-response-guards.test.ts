@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   coerceArtifactDescriptor,
   coerceArtifactDescriptorList,
+  coerceComparisonExplanation,
   coerceGoldenManifestComparison,
   coerceGraphViewModel,
   coerceManifestSummary,
@@ -117,6 +118,36 @@ describe("coerceRunSummaryPaged", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.message).toContain("requestedTake");
+    }
+  });
+
+  it("rejects legacy offset envelope when pageSize is zero", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 0,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("pageSize");
+    }
+  });
+
+  it("rejects legacy offset envelope when page is zero", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 0,
+      page: 0,
+      pageSize: 20,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("page");
     }
   });
 });
@@ -328,6 +359,24 @@ describe("coerceReplayResponse", () => {
       expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
     }
   });
+
+  it("rejects whitespace-only replayedUtc", () => {
+    const result = coerceReplayResponse({
+      runId: "r",
+      mode: "m",
+      replayedUtc: "   ",
+      validation: {
+        notes: [],
+        manifestHashMatches: true,
+        artifactBundlePresentAfterReplay: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Replay response is missing runId, mode, or replayedUtc.");
+    }
+  });
 });
 
 describe("coerceRunDetail", () => {
@@ -469,6 +518,66 @@ describe("coerceManifestSummary", () => {
       expect(blankRunId.message).toBe('Review record summary is missing or invalid "runId".');
     }
   });
+
+  it("rejects whitespace-only manifestHash", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "   ",
+      ruleSetId: "rs",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "manifestHash".');
+    }
+  });
+
+  it("rejects whitespace-only ruleSetId", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "   ",
+      ruleSetVersion: "1",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "ruleSetId".');
+    }
+  });
+
+  it("rejects whitespace-only ruleSetVersion", () => {
+    const result = coerceManifestSummary({
+      manifestId: "m",
+      runId: "r",
+      createdUtc: "2020-01-01T00:00:00Z",
+      manifestHash: "h",
+      ruleSetId: "rs",
+      ruleSetVersion: "   ",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Review record summary is missing or invalid "ruleSetVersion".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptor", () => {
@@ -525,6 +634,86 @@ describe("coerceArtifactDescriptor", () => {
       expect(result.message).toBe('Artifact descriptor is missing or invalid "artifactId".');
     }
   });
+
+  it("rejects whitespace-only contentHash", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "   ",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "contentHash".');
+    }
+  });
+
+  it("rejects whitespace-only format", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: " ",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "format".');
+    }
+  });
+
+  it("rejects whitespace-only artifactType", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "   ",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "artifactType".');
+    }
+  });
+
+  it("rejects whitespace-only name", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: " ",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "name".');
+    }
+  });
+
+  it("rejects whitespace-only createdUtc", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "  ",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe('Artifact descriptor is missing or invalid "createdUtc".');
+    }
+  });
 });
 
 describe("coerceArtifactDescriptorList", () => {
@@ -534,5 +723,35 @@ describe("coerceArtifactDescriptorList", () => {
 
   it("rejects row without artifactId", () => {
     expect(coerceArtifactDescriptorList([{ name: "n" }]).ok).toBe(false);
+  });
+});
+
+describe("coerceComparisonExplanation", () => {
+  it("rejects whitespace-only highLevelSummary", () => {
+    const result = coerceComparisonExplanation({
+      highLevelSummary: " ",
+      narrative: "n",
+      majorChanges: [],
+      keyTradeoffs: [],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("AI explanation is missing highLevelSummary or narrative strings.");
+    }
+  });
+
+  it("rejects whitespace-only narrative", () => {
+    const result = coerceComparisonExplanation({
+      highLevelSummary: "summary",
+      narrative: " ",
+      majorChanges: [],
+      keyTradeoffs: [],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("AI explanation is missing highLevelSummary or narrative strings.");
+    }
   });
 });

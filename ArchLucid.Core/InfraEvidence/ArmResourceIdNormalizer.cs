@@ -3,6 +3,79 @@ namespace ArchLucid.Core.InfraEvidence;
 /// <summary>Normalizes ARM resource identifiers for stable cross-snapshot joins.</summary>
 public static class ArmResourceIdNormalizer
 {
+    /// <summary>
+    ///     Maximum bounded passes applied when decoding percent-encoded ARM ids.
+    /// </summary>
+    private const int MaxPercentDecodePasses = 8;
+
+    /// <summary>
+    ///     Performs a bounded percent-decode of <paramref name="value"/>. Returns <see langword="true"/>
+    ///     when decoding completed (or no decoding was needed) and no residual percent-escape remains;
+    ///     returns <see langword="false"/> and leaves <paramref name="decoded"/> as the last safe value
+    ///     when <see cref="Uri.UnescapeDataString"/> fails or the value stays percent-encoded
+    ///     (malformed input such as <c>50%</c> or <c>%ZZ</c>).
+    /// </summary>
+    public static bool TryDecodePercentEncoded(string? value, out string decoded)
+    {
+        decoded = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        string working = value.Trim();
+
+        for (int pass = 0; pass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string next;
+
+            try
+            {
+                next = Uri.UnescapeDataString(working);
+            }
+            catch (Exception ex) when (ex is UriFormatException or ArgumentException)
+            {
+                decoded = working;
+                return false;
+            }
+
+            if (string.Equals(next, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = next;
+        }
+
+        decoded = working;
+
+        // A residual '%' means the escape sequence never decoded (for example "50%" or "%ZZ");
+        // treat the value as malformed instead of normalizing a partially decoded ARM id.
+        return !working.Contains('%', StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Bounded percent-decodes <paramref name="value"/> and normalizes the result into the
+    ///     canonical lowercased ARM id form. Returns <see cref="string.Empty"/> for null, whitespace,
+    ///     or malformed percent-encoding so callers can treat a blank result as a rejected reference.
+    ///     Shared by the Azure extractor parsers and extractors that read companion ARM id fields.
+    /// </summary>
+    internal static string NormalizePercentDecoded(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        if (!TryDecodePercentEncoded(value, out string working))
+        {
+            return string.Empty;
+        }
+
+        return Normalize(working);
+    }
+
     /// <summary>Lowercases and strips a trailing slash from an ARM resource id.</summary>
     public static string Normalize(string? externalResourceId)
     {

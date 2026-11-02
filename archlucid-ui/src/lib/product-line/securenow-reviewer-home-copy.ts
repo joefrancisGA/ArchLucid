@@ -25,6 +25,11 @@ export const SECURENOW_REVIEWER_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     summary: "Ask for the procurement index, the quote cover, and the pilot proposal. Fees stay off this page.",
   },
   {
+    href: "/administration/securenow-quote-packet",
+    label: "Quote packet",
+    summary: "Four SKU identifiers and the quote sequence. Fees stay off this page.",
+  },
+  {
     href: WHY_SECURENOW_CONVERSATION_MAILTO,
     label: "Request a conversation",
     summary: "Same intake as the draft page. Not a signup.",

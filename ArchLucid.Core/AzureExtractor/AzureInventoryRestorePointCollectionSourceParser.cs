@@ -41,9 +41,10 @@ public static class AzureInventoryRestorePointCollectionSourceParser
             return null;
         }
 
-        string trimmed = value.Trim();
-
-        string working = PercentDecodeBounded.Decode(trimmed);
+        if (!ArmResourceIdNormalizer.TryDecodePercentEncoded(value, out string working))
+        {
+            return null;
+        }
 
         if (working.StartsWith("{", StringComparison.Ordinal))
         {

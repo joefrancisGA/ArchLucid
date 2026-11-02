@@ -22,6 +22,8 @@ TRACKED_PATHS = (
     "archlucid-ui/src/app/(marketing)/layout.tsx",
     "archlucid-ui/src/components/marketing/MarketingResourcesMenu.tsx",
     "archlucid-ui/src/lib/product-line/securenow-reviewer-home-copy.ts",
+    "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx",
+    "archlucid-ui/src/components/marketing/MarketingPublicFooter.tsx",
 )
 
 
@@ -90,6 +92,18 @@ class SecureNowMarketabilityTests(unittest.TestCase):
             )
             errors = validate(root)
             self.assertTrue(any("missing beat 'Audit link'" in error for error in errors))
+
+    def test_welcome_public_secure_now_link_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _copy_tree(root)
+            path = root / "archlucid-ui/src/components/marketing/WelcomeMarketingPage.tsx"
+            path.write_text(
+                path.read_text(encoding="utf-8") + '\nconst heldLink = "/why-securenow";\n',
+                encoding="utf-8",
+            )
+            errors = validate(root)
+            self.assertTrue(any("welcome/footer must not contain" in error for error in errors))
 
 
 if __name__ == "__main__":

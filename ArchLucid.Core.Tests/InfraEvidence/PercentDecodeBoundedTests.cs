@@ -23,6 +23,21 @@ public sealed class PercentDecodeBoundedTests
         PercentDecodeBounded.Decode("%25").Should().Be("%");
     }
 
+    [Theory]
+    [InlineData("100%")]
+    [InlineData("%ZZ")]
+    [InlineData("%2")]
+    public void Decode_returns_malformed_percent_encoding_unchanged(string input)
+    {
+        PercentDecodeBounded.Decode(input).Should().Be(input);
+    }
+
+    [Fact]
+    public void Decode_keeps_last_successful_value_when_a_later_pass_is_malformed()
+    {
+        PercentDecodeBounded.Decode("100%25").Should().Be("100%");
+    }
+
     [Fact]
     public void Decode_stops_at_the_pass_cap_for_adversarial_input()
     {
