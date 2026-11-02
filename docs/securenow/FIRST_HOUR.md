@@ -8,7 +8,7 @@ Finish these four steps before you open verification, sponsor readouts, or compl
 | --- | --- | --- |
 | 1 — Scope and freshness | Confirm tenant, workspace, subscription, and that the latest collection result is visible. A missing or stale capture is a gap, not a clean bill of health. | SecureNow Home (environment line); [`/integrations/cloud-connections`](/integrations/cloud-connections) if collection is not connected |
 | 2 — One ranked path | Open one ranked path and read cited hops and confidence bands. Do not treat the path as confirmed exploitation. | [`/security/remediation-factory`](/security/remediation-factory) (Priorities & waves) |
-| 3 — Advisory cut point | Read the proposed cut point and linked remediation pattern. SecureNow recommends; it does not change Azure. | Path inspect from step 2; remediation patterns when linked |
+| 3 — Advisory cut point | Select a priority row from step 2 and read the proposed cut point in Path inspect. SecureNow recommends; it does not change Azure. | Path inspect is the panel after you Select a priority row; remediation patterns when linked |
 | 4 — Stop | Do not start verification, engineer tickets, or sponsor packaging until the sponsor names the review question. | This note; [`/administration/securenow-first-hour`](/administration/securenow-first-hour) |
 
 ## Terms in one place

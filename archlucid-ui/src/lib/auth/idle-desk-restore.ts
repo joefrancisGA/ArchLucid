@@ -229,6 +229,26 @@ export function mergeLivelihoodIdleFormSnapshotIntoDeskRestore(
   const scope = readOperatorScopeFromStorage();
 
   if (scope === null) {
+    if (!isSafeIdleRestoreRecordKey(snapshotKey)) {
+      return;
+    }
+
+    const existing = readIdleDeskRestorePayload();
+    const formSnapshots = new Map<string, LivelihoodIdleFormSnapshot>(
+      Object.entries(existing?.formSnapshots ?? {}),
+    );
+
+    // Allow-listed keys only (blocks __proto__ / constructor / prototype).
+    // codeql[js/remote-property-injection]
+    formSnapshots.set(snapshotKey, snapshot);
+
+    writeIdleDeskRestorePayload({
+      returnPath: safeReturnPath,
+      scope: null,
+      savedAtUtc: new Date().toISOString(),
+      formSnapshots: Object.fromEntries(formSnapshots),
+    });
+
     return;
   }
 
@@ -272,10 +292,13 @@ export function persistIdleDeskRestoreBeforeSessionClear(returnPath: string): vo
   const scope = readOperatorScopeFromStorage();
 
   if (scope === null) {
+    const formSnapshots = collectRegisteredLivelihoodIdleFormSnapshots();
+
     writeIdleDeskRestorePayload({
       returnPath: safeReturnPath,
       scope: null,
       savedAtUtc: new Date().toISOString(),
+      ...(Object.keys(formSnapshots).length > 0 ? { formSnapshots } : {}),
     });
 
     return;

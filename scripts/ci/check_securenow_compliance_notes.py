@@ -11,6 +11,10 @@ ROOT = Path(__file__).resolve().parents[2]
 RESPONSIBILITY = Path("docs/securenow/CONTROL_EVIDENCE_RESPONSIBILITY.md")
 COVERAGE = Path("docs/securenow/FRAMEWORK_COVERAGE.md")
 FORMATTER = Path("archlucid-ui/src/lib/audit-evidence-control-lineage-markdown.ts")
+LINEAGE_CLIENT = Path(
+    "archlucid-ui/src/app/(operator)/governance/audit-evidence/[assessmentId]/snapshots/"
+    "[snapshotId]/controls/[controlId]/AuditEvidenceControlLineageClient.tsx"
+)
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 FORBIDDEN = ("SOC 2 certified", "ISO 27001 certified")
 
@@ -55,6 +59,7 @@ def validate(root: Path = ROOT) -> list[str]:
     responsibility = root / RESPONSIBILITY
     coverage = root / COVERAGE
     formatter = root / FORMATTER
+    lineage_client = root / LINEAGE_CLIENT
 
     if not responsibility.is_file():
         errors.append(f"missing {RESPONSIBILITY}")
@@ -85,6 +90,16 @@ def validate(root: Path = ROOT) -> list[str]:
         errors.append(f"missing {FORMATTER}")
     elif "NOT VERIFIED" not in formatter.read_text(encoding="utf-8"):
         errors.append("formatter: missing 'NOT VERIFIED'")
+    elif "It is not an attestation." not in formatter.read_text(encoding="utf-8"):
+        errors.append("formatter: missing 'It is not an attestation.'")
+
+    if not lineage_client.is_file():
+        errors.append(f"missing {LINEAGE_CLIENT}")
+    else:
+        text = lineage_client.read_text(encoding="utf-8")
+        for token in ("audit-evidence-control-lineage-download-limit", "AUDIT_EVIDENCE_CONTROL_LINEAGE_DOWNLOAD_LIMIT"):
+            if token not in text:
+                errors.append(f"{LINEAGE_CLIENT}: missing {token!r}")
 
     return errors
 

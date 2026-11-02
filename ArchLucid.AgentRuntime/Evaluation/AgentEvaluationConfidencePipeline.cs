@@ -206,7 +206,10 @@ public sealed class AgentEvaluationConfidencePipeline(
             .ToDictionary(static g => g.Key, static g => SelectPreferredTraceForAgentType(g));
 
         Dictionary<string, AgentExecutionTrace> traceByTaskId = latestTraces
-            .ToDictionary(static t => t.TaskId, static t => t, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(
+                static t => AgentEvaluationTaskIdKey.Normalize(t.TaskId) ?? t.TaskId,
+                StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(static g => g.Key, static g => g.First(), StringComparer.OrdinalIgnoreCase);
 
         IReadOnlyList<AgentResult> agentResults =
             await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
@@ -216,7 +219,9 @@ public sealed class AgentEvaluationConfidencePipeline(
 
         Dictionary<string, StructuralExecutionMode?> structuralExecutionModeByTaskId =
             agentResults
-                .GroupBy(static result => result.TaskId, StringComparer.OrdinalIgnoreCase)
+                .GroupBy(
+                    static result => AgentEvaluationTaskIdKey.Normalize(result.TaskId) ?? result.TaskId,
+                    StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     static group => group.Key,
                     static group => AgentResultLatestForTaskSelector

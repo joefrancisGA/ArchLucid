@@ -178,7 +178,8 @@ public sealed class AgentEvaluationConfidencePipelineTests
                     TaskId = taskId,
                     RunId = runId,
                     CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    TaskStructuralExecutionMode = StructuralExecutionMode.Simulator
+                    TaskStructuralExecutionMode = StructuralExecutionMode.Simulator,
+                    CalibratedConfidence = 0.1,
                 },
                 new AgentResult
                 {
@@ -186,7 +187,8 @@ public sealed class AgentEvaluationConfidencePipelineTests
                     TaskId = taskId,
                     RunId = runId,
                     CreatedUtc = new DateTime(2026, 1, 1, 0, 1, 0, DateTimeKind.Utc),
-                    TaskStructuralExecutionMode = StructuralExecutionMode.Real
+                    TaskStructuralExecutionMode = StructuralExecutionMode.Real,
+                    CalibratedConfidence = 0.85,
                 }
             ]);
         optionsResolver.Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
@@ -230,6 +232,107 @@ public sealed class AgentEvaluationConfidencePipelineTests
             CancellationToken.None);
 
         capturedMode.Should().Be(StructuralExecutionMode.Real);
+    }
+
+    [Fact]
+    public async Task TryEnrichCoreAsync_uses_latest_agent_result_calibrated_confidence_for_duplicate_task_results()
+    {
+        const string runId = "run-duplicate-calibrated";
+        const string taskId = "task-retried";
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        Mock<IAgentEvidencePackageRepository> evidenceRepository = new();
+        Mock<IAgentResultRepository> resultRepository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IAgentOutputQualityGateOptionsResolver> optionsResolver = new();
+        Mock<IAgentOutputFaithfulnessEvaluator> faithfulnessEvaluator = new();
+        Mock<IAgentOutputEvaluationResultRepository> referenceResultRepository = new();
+        Mock<IAgentOutputReferenceCaseCatalog> referenceCatalog = new();
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> referenceOptions = new();
+        referenceOptions.SetupGet(monitor => monitor.CurrentValue)
+            .Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
+        referenceCatalog.SetupGet(catalog => catalog.Cases).Returns([]);
+
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+        traceRepository
+            .Setup(repository => repository.GetByRunIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        evidenceRepository
+            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                runId,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .ReturnsAsync(
+            [
+                new AgentResult
+                {
+                    ResultId = "result-latest",
+                    TaskId = taskId,
+                    RunId = runId,
+                    CreatedUtc = new DateTime(2026, 1, 1, 0, 1, 0, DateTimeKind.Utc),
+                    CalibratedConfidence = 0.85,
+                },
+                new AgentResult
+                {
+                    ResultId = "result-old",
+                    TaskId = taskId,
+                    RunId = runId,
+                    CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    CalibratedConfidence = 0.1,
+                }
+            ]);
+        optionsResolver.Setup(resolver => resolver.Resolve(It.IsAny<CancellationToken>()))
+            .Returns(new AgentOutputQualityGateOptions());
+        referenceOptions.SetupGet(monitor => monitor.CurrentValue)
+            .Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
+
+        AgentOutputReferenceCaseRunEvaluator referenceEvaluator = new(
+            referenceOptions.Object,
+            referenceCatalog.Object,
+            new AgentOutputEvaluator(),
+            new HeuristicOnlyAgentOutputSemanticEvaluator(new HeuristicAgentOutputSemanticEvaluator()),
+            referenceResultRepository.Object,
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentEvaluationConfidencePipeline pipeline = new(
+            traceRepository.Object,
+            evidenceRepository.Object,
+            resultRepository.Object,
+            scopeProvider.Object,
+            new AgentOutputEvaluator(),
+            new HeuristicOnlyAgentOutputSemanticEvaluator(new HeuristicAgentOutputSemanticEvaluator()),
+            new AgentOutputQualityGate(Options.Create(new AgentOutputQualityGateOptions())),
+            optionsResolver.Object,
+            referenceEvaluator,
+            new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
+            faithfulnessEvaluator.Object,
+            Options.Create(new AgentOutputLlmFaithfulnessOptions()),
+            Options.Create(new AgentExecutionOptions { Mode = "Simulator" }),
+            new FindingConfidenceCalculator());
+
+        double? capturedCalibrated = null;
+
+        await pipeline.TryEnrichCoreAsync(
+            runId,
+            (context, _) =>
+            {
+                capturedCalibrated = context.CalibratedConfidenceByTaskId[taskId];
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        capturedCalibrated.Should().Be(0.85);
     }
 
     [Theory]

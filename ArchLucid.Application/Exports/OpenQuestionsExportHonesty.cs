@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Application.Exports;
@@ -88,8 +89,12 @@ public static class OpenQuestionsExportHonesty
     }
 
     private static string FormatTrailKey(string? key) =>
-        string.IsNullOrWhiteSpace(key) ? "Key was not stored." : key.Trim();
+        string.IsNullOrWhiteSpace(key)
+            ? "Key was not stored."
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(key.Trim());
 
     private static string FormatTrailValue(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "Value was not stored." : value.Trim();
+        string.IsNullOrWhiteSpace(value)
+            ? "Value was not stored."
+            : FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(value.Trim());
 }
