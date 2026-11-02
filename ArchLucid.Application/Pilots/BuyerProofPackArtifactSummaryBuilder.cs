@@ -26,9 +26,9 @@ internal static class BuyerProofPackArtifactSummaryBuilder
 
             foreach (JsonProperty property in proof.EnumerateObject().OrderBy(static pair => pair.Name, StringComparer.Ordinal))
             {
-                builder.Append("| `");
-                builder.Append(property.Name);
-                builder.Append("` | ");
+                builder.Append("| ");
+                builder.Append(FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(property.Name));
+                builder.Append(" | ");
                 builder.Append(SummarizeJsonElement(property.Value));
                 builder.AppendLine(" |");
             }
@@ -63,6 +63,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
                     count = "Count was not stored.";
                 }
 
+                severity = FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(severity);
                 builder.AppendLine(CultureInfo.InvariantCulture, $"| {severity} | {count} |");
             }
         }
@@ -113,7 +114,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
 
     private static string SummarizeJsonElement(JsonElement element) => element.ValueKind switch
     {
-        JsonValueKind.String => "`" + element.GetString() + "`",
+        JsonValueKind.String => FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(element.GetString() ?? string.Empty),
         JsonValueKind.Number => element.GetRawText(),
         JsonValueKind.True => "`true`",
         JsonValueKind.False => "`false`",

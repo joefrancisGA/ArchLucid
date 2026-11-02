@@ -23,7 +23,7 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 
 ## Human tasks (owner)
 
-These are not Composer sessions. Do them on a private copy. They are **M-314** in [`docs/go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md). SN-DV-05 and SN-DV-06 must not write the times into source.
+These are not Composer sessions. Do them after the log exists, on a private copy. They are recorded as **M-314** in [`docs/go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md). Do not perform the walk in an implementation session. SN-DV-05 and SN-DV-06 must not write the times into source.
 
 1. Walk `fixture-path-01` from Qualify to Close. Write the UTC start and UTC close on the `SYNTHETIC FIXTURE` row.
 2. Name one stall step from that walk.

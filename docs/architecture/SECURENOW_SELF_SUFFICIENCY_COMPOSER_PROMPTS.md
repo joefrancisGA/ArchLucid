@@ -27,6 +27,6 @@ Paste one numbered file per session, from [`.cursor/prompts/`](../../.cursor/pro
 
 These are not Composer sessions. The owner check is **M-315** in [`docs/go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md).
 
-1. Start at SecureNow Home **When you are stuck** and follow the four situations.
-2. Record whether each situation lands on the named page.
-3. Leave `/administration/support` closed. Do not add a mailbox or an SLA. Leave beta **NO_GO** in place.
+1. Start at SecureNow Home **When you are stuck** and follow the four situations in [`docs/securenow/SELF_SERVICE.md`](../securenow/SELF_SERVICE.md).
+2. Record whether each situation lands on the named page: cloud connections, connection status, remediation factory or instances, and the `support@archlucid.net` mailto.
+3. Leave `/administration/support` closed. Do not add a mailbox or turn founder acknowledgement into an SLA. Leave beta **NO_GO** in place.

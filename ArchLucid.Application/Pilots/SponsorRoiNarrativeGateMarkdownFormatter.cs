@@ -18,13 +18,14 @@ public static class SponsorRoiNarrativeGateMarkdownFormatter
         sb.AppendLine(
             "**Indicator:** Presentation guardrail derived from persisted ROI baseline posture — not a financial attestation.");
         sb.AppendLine();
-        sb.AppendLine(CultureInfo.InvariantCulture, $"**Disposition:** {gate.DispositionLeadLine}");
+        sb.AppendLine(CultureInfo.InvariantCulture,
+            $"**Disposition:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.DispositionLeadLine)}");
         sb.AppendLine();
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"**Evidence confidence:** **{gate.EvidenceConfidence}** · **Basis class:** {gate.BasisClassSummary}");
+            $"**Evidence confidence:** **{gate.EvidenceConfidence}** · **Basis class:** {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.BasisClassSummary)}");
         sb.AppendLine();
-        sb.AppendLine($"> {gate.NarrativeBlock}");
+        sb.AppendLine($"> {FirstValueReportMarkdownFormatting.WrapMarkdownInlineCode(gate.NarrativeBlock)}");
         sb.AppendLine();
     }
 }
