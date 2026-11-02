@@ -107,8 +107,10 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
 }
 
 function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
+  const resourceName = resolveInfraEvidenceDiagramOutlineResourceName(node);
+
   if (node.connectionState == null) {
-    return "No connection state detail was stored.";
+    return `${resourceName} · Connection state was not stored.`;
   }
 
   if (node.connectionState === "Unknown") {

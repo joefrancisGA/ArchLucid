@@ -175,7 +175,8 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
             new DiagramNode { Label = "   ", ArmResourceType = "Microsoft.Network/publicIPAddresses" },
             InventoryDiagramParentAttachmentCategory.PublicIp);
 
-        label.Should().Be("Public IP: Resource name was not stored.");
+        label.Should().Contain("Public IP:");
+        label.Should().Contain("Observed traffic was not stored.");
     }
 
     [Fact]

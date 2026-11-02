@@ -116,19 +116,14 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         string port = FormatPort(rule);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
+        string destination = FormatDestination(rule);
+        string ruleName = string.IsNullOrWhiteSpace(rule.RuleName)
+            ? "Rule name was not stored"
+            : rule.RuleName.Trim();
         string access = string.IsNullOrWhiteSpace(rule.Access)
             ? "Access was not stored"
             : rule.Access.Trim();
-        string text = $"in {port}/{protocol} · {source} · {access}";
-
-        if (includeMissingDestinationHonesty
-            && string.Equals(
-                FormatDestination(rule),
-                "Destination was not stored",
-                StringComparison.Ordinal))
-        {
-            text += " to Destination was not stored";
-        }
+        string text = $"in {port}/{protocol} · {source} · to {destination} · {ruleName} · {access}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)

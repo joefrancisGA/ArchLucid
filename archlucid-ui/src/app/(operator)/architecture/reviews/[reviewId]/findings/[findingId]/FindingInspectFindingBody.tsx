@@ -152,6 +152,10 @@ export function FindingInspectFindingBody({
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.explanation}</p>
       {modelProvenance.trustLabelReason !== null ? (
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{modelProvenance.trustLabelReason}</p>
+      ) : payload.trustLabel !== null && payload.trustLabel !== undefined ? (
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Trust label reason was not stored.
+        </p>
       ) : null}
       {classification === FINDING_CLASSIFICATION_DECISION_GRADE ? (
         <div className="mt-3" data-testid="finding-inspect-citation-chips">

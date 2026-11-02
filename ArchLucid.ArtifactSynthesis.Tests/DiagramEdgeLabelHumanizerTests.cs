@@ -24,7 +24,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_observed_dependency_with_window_omits_missing_window_suffix()
+    public void ResolveDisplayLabel_observed_dependency_with_window_shows_stored_window_dates_on_edge()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -39,7 +39,27 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 GraphEdgeInferenceSources.InventoryObservedDependency,
                 properties)
             .Should()
-            .Be(InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel);
+            .Be(
+                $"{InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel} · Window 2026-01-01T00:00:00Z → 2026-01-02T00:00:00Z");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_observed_dependency_with_partial_window_uses_partial_honesty_suffix()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc] = "2026-01-01T00:00:00Z",
+        };
+
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanRead,
+                GraphEdgeInferenceSources.InventoryObservedDependency,
+                properties)
+            .Should()
+            .Be(
+                $"{InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel} {InventoryDiagramRelationshipLabelTexts.ObservedInLogsDiagnosticTimeWindowPartial}");
     }
 
     [Fact]
@@ -98,7 +118,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.AdfLinkedService,
         InventoryDiagramRelationshipLabelTexts.PipelineLinkedServiceConfiguredObservedRunNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection name was not stored.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection is configured. An observed call was not stored.")]
     [InlineData(
         GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
         InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]

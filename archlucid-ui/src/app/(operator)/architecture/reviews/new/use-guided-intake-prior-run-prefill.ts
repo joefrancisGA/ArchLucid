@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
+export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE =
+  "Prior package could not be loaded; fields on this step were not copied." as const;
+
 export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE =
   "Fields on this step were copied from the prior package, not retyped here." as const;
 
@@ -156,7 +159,12 @@ export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePr
           : GUIDED_INTAKE_PRIOR_RUN_PREFILL_NO_FIELDS_COPIED,
       );
     }).catch(() => {
-      // A failed optional rerun prefill must not become an unhandled rejection or block manual intake.
+      if (cancelled || !appliedRef.current) {
+        return;
+      }
+
+      appliedRef.current = true;
+      setPriorRunPrefillCopiedFromLine(GUIDED_INTAKE_PRIOR_RUN_PREFILL_LOAD_FAILED_LINE);
     });
 
     return () => {
